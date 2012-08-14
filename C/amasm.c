@@ -1518,10 +1518,12 @@ a_p(op_numbers opcode, clause_info *clinfo, yamop *code_p, int pass_no, struct i
       GONEXT(slp);
     } else {
       if (pass_no) {
+	code_p->u.Osbpp.p =  RepPredProp(fe);
 	if (Flags & UserCPredFlag) {
 	  code_p->opc = emit_op(_call_usercpred);
 	} else {
 	  if (RepPredProp(fe)->FunctorOfPred == FunctorExecuteInMod) {
+	    code_p->u.Osbmp.mod =  cip->cpc->rnd4;
 	    code_p->opc = emit_op(_p_execute);
 	  } else if (RepPredProp(fe)->FunctorOfPred == FunctorExecute2InMod) {
 	    code_p->opc = emit_op(_p_execute2);
@@ -1531,11 +1533,6 @@ a_p(op_numbers opcode, clause_info *clinfo, yamop *code_p, int pass_no, struct i
 	}
 	code_p->u.Osbpp.s = emit_count(-Signed(RealEnvSize) - CELLSIZE
 				     * (cip->cpc->rnd2));
-	if (RepPredProp(fe)->FunctorOfPred != FunctorExecuteInMod) {
-	  code_p->u.Osbpp.p =  RepPredProp(fe);
-	} else {
-	  code_p->u.Osbmp.mod =  cip->cpc->rnd4;
-	}
 	code_p->u.Osbpp.p0 =  clinfo->CurrentPred;
 	if (cip->cpc->rnd2) {
 	  code_p->u.Osbpp.bmap = emit_bmlabel(cip->cpc->arnds[1], cip);
@@ -3995,19 +3992,20 @@ Yap_InitComma(void)
       PredMetaCall;
     code_p->u.Osbpp.bmap = NULL;
     GONEXT(Osbpp);
-    code_p->opc = emit_op(_deallocate);
-    code_p->u.p.p = PredMetaCall;
-    GONEXT(p);
-    code_p->opc = emit_op(_procceed);
-    code_p->u.p.p =  PredMetaCall;
-    GONEXT(p);
   } else {
     code_p->opc = opcode(_p_execute_tail);
-    code_p->u.Osbpp.s = emit_count(-Signed(RealEnvSize)-3*sizeof(CELL));
-    code_p->u.Osbpp.bmap = NULL;
-    code_p->u.Osbpp.p = 
-      code_p->u.Osbpp.p0 =
+    code_p->u.Osbmp.s = emit_count(-Signed(RealEnvSize)-3*sizeof(CELL));
+    code_p->u.Osbmp.bmap = NULL;
+    code_p->u.Osbmp.mod = 
+      MkAtomTerm(AtomUser);
+    code_p->u.Osbpp.p0 =
       RepPredProp(PredPropByFunc(FunctorComma,0));
-    GONEXT(Osbpp);
+    GONEXT(Osbmp);
   }
+  code_p->opc = emit_op(_deallocate);
+  code_p->u.p.p = PredMetaCall;
+  GONEXT(p);
+  code_p->opc = emit_op(_procceed);
+  code_p->u.p.p =  PredMetaCall;
+  GONEXT(p);
 }

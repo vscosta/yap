@@ -12899,11 +12899,61 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      BOp(p_execute2, Osbpp);
+      /* join all the meta-call code into a single procedure with three entry points */
       { 
-	PredEntry *pen;
-	Term mod = ARG2;
+	CACHE_Y_AS_ENV(YREG);
+	BEGD(d0);       /* term to be meta-called */
+	Term mod;       /* module to be used */
+	PredEntry *pen;  /* predicate */
+	choiceptr b_ptr;        /* cut point */
+	Functor f;
 
+	/* we are doing the rhs of a , */
+	BOp(p_execute_tail, Osbmp);
+	
+	FETCH_Y_FROM_ENV(YREG);
+	/* recover CP, as the meta-call is not as a clause */
+	CPREG = (yamop *)ENV_YREG[E_CP];
+	/* place to cut to */
+	b_ptr = (choiceptr)ENV_YREG[E_CB];
+	/* original goal */
+	d0 = ENV_YREG[-EnvSizeInCells-1];
+	/* predicate we had used */
+	pen = RepPredProp((Prop)IntegerOfTerm(ENV_YREG[-EnvSizeInCells-2]));
+	/* current module at the time */
+	mod = ENV_YREG[-EnvSizeInCells-3];
+	/* go back to parent */
+	ENV_YREG = ENV = (CELL *) ENV_YREG[E_E];
+#ifdef FROZEN_STACKS
+	{ 
+	  choiceptr top_b = PROTECT_FROZEN_B(B);
+
+#ifdef YAPOR_SBA
+	  if (ENV_YREG > (CELL *) top_b || ENV_YREG < H) ENV_YREG = (CELL *) top_b;
+#else
+	  if (ENV_YREG > (CELL *) top_b) ENV_YREG = (CELL *) top_b;
+#endif /* YAPOR_SBA */
+	  else ENV_YREG = (CELL *)((CELL)ENV_YREG + ENV_Size(CPREG));
+	}
+#else
+	if (ENV_YREG > (CELL *)B) {
+	  ENV_YREG = (CELL *)B;
+	} else {
+	  ENV_YREG = (CELL *) ((CELL) ENV_YREG+ ENV_Size(CPREG));
+	}
+#endif /* FROZEN_STACKS */
+	/* now, jump to actual execution */
+	if (pen->ArityOfPE) {
+	  f = pen->FunctorOfPred;
+	  goto execute_pred_f;
+	} else
+	  goto execute_pred_a;
+	ENDBOp();
+
+	/* fetch the module from ARG2 */
+	BOp(p_execute2, Osbpp);
+
+	mod = ARG2;
 	deref_head(mod, execute2_unk0);
     execute2_nvar0:
 	if (!IsAtomTerm(mod)) {
@@ -12911,198 +12961,7 @@ Yap_absmi(int inp)
 	  Yap_Error(TYPE_ERROR_ATOM, mod, "call/2");
 	  setregs();
 	}
-	CACHE_Y_AS_ENV(YREG);
-	/* Try to preserve the environment */
-	ENV_YREG = (CELL *) (((char *) YREG) + PREG->u.Osbpp.s);
-#ifdef FROZEN_STACKS
-	{ 
-	  choiceptr top_b = PROTECT_FROZEN_B(B);
-#ifdef YAPOR_SBA
-	  if (ENV_YREG > (CELL *) top_b || ENV_YREG < H) ENV_YREG = (CELL *) top_b;
-#else
-	  if (ENV_YREG > (CELL *) top_b) ENV_YREG = (CELL *) top_b;
-#endif /* YAPOR_SBA */
-	}
-#else
-	if (ENV_YREG > (CELL *) B) {
-	  ENV_YREG = (CELL *) B;
-	}
-#endif /* FROZEN_STACKS */
-	BEGD(d0);
-	d0 = ARG1;
-      restart_execute2:
-	deref_head(d0, execute2_unk);
-      execute2_nvar:
-	if (IsApplTerm(d0)) {
-	  Functor f = FunctorOfTerm(d0);
-	  if (IsExtensionFunctor(f)) {
-	    goto execute2_metacall;
-	  }
-	  pen = RepPredProp(PredPropByFunc(f, mod));
-	  if (pen->PredFlags & (MetaPredFlag|GoalExPredFlag)) {
-	    if (f == FunctorModule) {
-	      Term tmod = ArgOfTerm(1,d0);
-	      if (!IsVarTerm(tmod) && IsAtomTerm(tmod)) {
-		d0 = ArgOfTerm(2,d0);
-		mod = tmod;
-		goto execute2_nvar;
-	      }
-	    } else if (f == FunctorComma) {
-	      SREG = RepAppl(d0);
-	      BEGD(d1);
-	      d1 = SREG[2];
-	      /* create an to execute2 the call */
-	      deref_head(d1, execute2_comma_unk);
-	    execute2_comma_nvar:
-	      if (IsAtomTerm(d1)) {
-		ENV_YREG[-EnvSizeInCells-2]  = MkIntegerTerm((Int)PredPropByAtom(AtomOfTerm(d1),mod));
-		ENV_YREG[-EnvSizeInCells-3]  = mod;
-	      } else if (IsApplTerm(d1)) {
-		Functor f = FunctorOfTerm(d1);
-		if (IsExtensionFunctor(f)) {
-		  goto execute2_metacall;
-		} else {
-		  if (f == FunctorModule) goto execute2_metacall;
-		  ENV_YREG[-EnvSizeInCells-2]  = MkIntegerTerm((Int)PredPropByFunc(f,mod));
-		  ENV_YREG[-EnvSizeInCells-3]  = mod;
-		}
-	      } else {
-		goto execute2_metacall;
-	      }
-	      ENV_YREG[E_CP] = (CELL)NEXTOP(PREG,Osbpp);
-	      ENV_YREG[E_CB] = (CELL)B;
-	      ENV_YREG[E_E]  = (CELL)ENV;
-#ifdef DEPTH_LIMIT
-	      ENV_YREG[E_DEPTH] = DEPTH;
-#endif	/* DEPTH_LIMIT */
-	      ENV_YREG[-EnvSizeInCells-1]  = d1;
-	      ENV = ENV_YREG;
-	      ENV_YREG -= EnvSizeInCells+3;
-	      PREG = COMMA_CODE;
-	      /* for profiler */
-	      save_pc();
-	      d0 = SREG[1];
-	      goto restart_execute2;
-
-	      BEGP(pt1);
-	      deref_body(d1, pt1, execute2_comma_unk, execute2_comma_nvar);
-	      goto execute2_metacall;
-	      ENDP(pt1);
-	      ENDD(d1);
-	    } else if (mod != CurrentModule) {
-	      goto execute2_metacall;
-	    }
-	  }
-	  if (PRED_GOAL_EXPANSION_ALL) {
-	    goto execute2_metacall;
-	  }
-
-	  BEGP(pt1);
-	  pt1 = RepAppl(d0);
-	  BEGD(d2);
-	  for (d2 = ArityOfFunctor(f); d2; d2--) {
-#ifdef YAPOR_SBA
-	    BEGD(d1);
-	    d1 = pt1[d2];
-	    if (d1 == 0) {
-	      XREGS[d2] = (CELL)(pt1+d2);
-	    } else {
-	      XREGS[d2] = d1;
-	    }
-#else
-	    XREGS[d2] = pt1[d2];
-#endif
-	  }
-	  ENDD(d2);
-	  ENDP(pt1);
-	  CACHE_A1();
-	} else if (IsAtomTerm(d0)) {
-	  if (PRED_GOAL_EXPANSION_ALL) {
-	    goto execute2_metacall;
-	  } else {
-	    pen = RepPredProp(PredPropByAtom(AtomOfTerm(d0), mod));
-	  }
-	} else {
-	  goto execute2_metacall;
-	}
-
-      execute2_end:
-	/* code copied from call */
-#ifndef NO_CHECKING
-	check_stack(NoStackPExecute2, H);
-#endif
-	CPREG = NEXTOP(PREG, Osbpp);
-	ALWAYS_LOOKAHEAD(pen->OpcodeOfPred);
-	PREG = pen->CodeOfPred;
-	/* for profiler */
-	save_pc();
-#ifdef DEPTH_LIMIT
-	if (DEPTH <= MkIntTerm(1)) {/* I assume Module==0 is primitives */
-	  if (pen->ModuleOfPred) {
-	    if (DEPTH == MkIntTerm(0))
-	      FAIL();
-	    else DEPTH = RESET_DEPTH();
-	  }
-	} else if (pen->ModuleOfPred)
-	  DEPTH -= MkIntConstant(2);
-#endif	/* DEPTH_LIMIT */
-#ifdef LOW_LEVEL_TRACER
-	if (Yap_do_low_level_trace)
-	  low_level_trace(enter_pred,pen,XREGS+1);
-#endif	/* LOW_LEVEL_TRACER */
-	WRITEBACK_Y_AS_ENV();
-	/* setup GB */
-	ENV_YREG[E_CB] = (CELL) B;
-#ifdef YAPOR
-	SCH_check_requests();
-#endif	/* YAPOR */
-	CACHE_A1();
-	ALWAYS_GONext();
-	ALWAYS_END_PREFETCH();
-
-	BEGP(pt1);
-	deref_body(d0, pt1, execute2_unk, execute2_nvar);
-       execute2_metacall:
-	ARG1 = ARG3 = d0;
-	pen = PredMetaCall;
-	ARG2 = Yap_cp_as_integer(B);
-	if (mod)
-	  ARG4 = mod;
-	else
-	  ARG4 = TermProlog;
-	goto execute2_end;
-	ENDP(pt1);
-
-	ENDD(d0);
-      NoStackPExecute2:
-	CHECK_ALARM(goto execute2_end);
-	if (LOCAL_ActiveSignals & (YAP_FAIL_SIGNAL|YAP_INT_SIGNAL)) {
-	  if (LOCAL_ActiveSignals & YAP_INT_SIGNAL) {
-	    Yap_Error(PURE_ABORT, TermNil, "abort from console");
-	  }
-	  LOCAL_ActiveSignals &= ~(YAP_FAIL_SIGNAL|YAP_INT_SIGNAL);
-	  if (!LOCAL_ActiveSignals)
-	    CreepFlag = CalculateStackGap();
-	  goto fail;
-	}
-	PP = PredMetaCall;
-	SREG = (CELL *) PP;
-	ASP = ENV_YREG;
-	if (ASP > (CELL *)PROTECT_FROZEN_B(B))
-	  ASP = (CELL *)PROTECT_FROZEN_B(B);
-	/* setup GB */
-	WRITEBACK_Y_AS_ENV();
-	YREG[E_CB] = (CELL) B;
-	if (LOCAL_ActiveSignals) {
-	  goto creep_pe;
-	}
-	saveregs_and_ycache();
-	if (!Yap_gc(PP->ArityOfPE, ENV, NEXTOP(PREG, Osbpp))) {
-	  Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage);
-	}
-	setregs_and_ycache();
-	goto execute2_end;
-	ENDCACHE_Y_AS_ENV();
+        goto start_execute;
 
 	BEGP(pt1);
 	deref_body(mod, pt1, execute2_unk0, execute2_nvar0);
@@ -13112,15 +12971,15 @@ Yap_absmi(int inp)
 	ENDP(pt1);
 	/* Oops, second argument was unbound too */
 	FAIL();
-      }
-      ENDBOp();
+	ENDBOp();
 
       BOp(p_execute, Osbmp);
-      { 
-	PredEntry *pen;
-	Term mod = PREG->u.Osbmp.mod;
+	/* fetch the module from PREG */
+	mod = PREG->u.Osbmp.mod;
 
-	CACHE_Y_AS_ENV(YREG);
+      start_execute:
+	b_ptr = B;
+	/* we have mod, and ARG1 has the goal, let us roll */
 	/* Try to preserve the environment */
 	ENV_YREG = (CELL *) (((char *) YREG) + PREG->u.Osbmp.s);
 #ifdef FROZEN_STACKS
@@ -13137,49 +12996,71 @@ Yap_absmi(int inp)
 	  ENV_YREG = (CELL *) B;
 	}
 #endif /* FROZEN_STACKS */
-	BEGD(d0);
 	d0 = ARG1;
+	if (PRED_GOAL_EXPANSION_ALL) {
+	  goto execute_metacall;
+	}
       restart_execute:
 	deref_head(d0, execute_unk);
       execute_nvar:
 	if (IsApplTerm(d0)) {
-	  Functor f = FunctorOfTerm(d0);
+	  f = FunctorOfTerm(d0);
 	  if (IsExtensionFunctor(f)) {
 	    goto execute_metacall;
 	  }
 	  pen = RepPredProp(PredPropByFunc(f, mod));
+	execute_pred_f:
 	  if (pen->PredFlags & (MetaPredFlag|GoalExPredFlag)) {
+	    /* just strip all of M:G */
 	    if (f == FunctorModule) {
 	      Term tmod = ArgOfTerm(1,d0);
+	      /* loop on modules */
 	      if (!IsVarTerm(tmod) && IsAtomTerm(tmod)) {
 		d0 = ArgOfTerm(2,d0);
 		mod = tmod;
 		goto execute_nvar;
 	      }
-	    } else if (f == FunctorComma) {
+	      goto execute_metacall;
+	    }
+	    if (f == FunctorComma) {
+	      Term nmod = mod;
+
+	      /* optimise conj */
 	      SREG = RepAppl(d0);
 	      BEGD(d1);
 	      d1 = SREG[2];
-	      /* create an to execute the call */
+	      /* create an environment to execute the call */
 	      deref_head(d1, execute_comma_unk);
 	    execute_comma_nvar:
 	      if (IsAtomTerm(d1)) {
-		ENV_YREG[-EnvSizeInCells-2]  = MkIntegerTerm((Int)PredPropByAtom(AtomOfTerm(d1),mod));
-		ENV_YREG[-EnvSizeInCells-3]  = mod;
+		/* atomic goal is simpler */
+		ENV_YREG[-EnvSizeInCells-2]  = MkIntegerTerm((Int)PredPropByAtom(AtomOfTerm(d1),nmod));
+		ENV_YREG[-EnvSizeInCells-3]  = nmod;
 	      } else if (IsApplTerm(d1)) {
-		f = FunctorOfTerm(d1);
-		if (IsExtensionFunctor(f)) {
+		Functor f1 = FunctorOfTerm(d1);
+		if (IsExtensionFunctor(f1)) {
 		  goto execute_metacall;
 		} else {
-		  if (f == FunctorModule) goto execute_metacall;
-		  ENV_YREG[-EnvSizeInCells-2]  = MkIntegerTerm((Int)PredPropByFunc(f,mod));
-		  ENV_YREG[-EnvSizeInCells-3]  = mod;
+		  /* check for modules when looking up */
+		  if (f1 == FunctorModule) {
+		    Term tmod = ArgOfTerm(1,d1);
+		    /* loop on modules */
+		    if (!IsVarTerm(tmod) && IsAtomTerm(tmod)) {
+		      d1 = ArgOfTerm(2,d1);
+		      nmod = tmod;
+		      goto execute_comma_nvar;
+		    }
+		    goto execute_metacall;
+		  }
+		  ENV_YREG[-EnvSizeInCells-2]  = MkIntegerTerm((Int)PredPropByFunc(f1,nmod));
+		  ENV_YREG[-EnvSizeInCells-3]  = nmod;
 		}
 	      } else {
 		goto execute_metacall;
 	      }
+	      /* now, we can create the new environment for the meta-call */
 	      ENV_YREG[E_CP] = (CELL)NEXTOP(PREG,Osbmp);
-	      ENV_YREG[E_CB] = (CELL)B;
+	      ENV_YREG[E_CB] = (CELL)b_ptr;
 	      ENV_YREG[E_E]  = (CELL)ENV;
 #ifdef DEPTH_LIMIT
 	      ENV_YREG[E_DEPTH] = DEPTH;
@@ -13187,8 +13068,9 @@ Yap_absmi(int inp)
 	      ENV_YREG[-EnvSizeInCells-1]  = d1;
 	      ENV = ENV_YREG;
 	      ENV_YREG -= EnvSizeInCells+3;
+	      CPREG = NEXTOP(COMMA_CODE,Osbpp);
 	      PREG = COMMA_CODE;
-	      /* for profiler */
+/* for profiler */
 	      save_pc();
 	      d0 = SREG[1];
 	      goto restart_execute;
@@ -13202,10 +13084,8 @@ Yap_absmi(int inp)
 		goto execute_metacall;
 	    }
 	  }
-	  if (PRED_GOAL_EXPANSION_ALL) {
-	    goto execute_metacall;
-	  }
-
+	  
+	  /* copy arguments of meta-call to XREGS */
 	  BEGP(pt1);
 	  pt1 = RepAppl(d0);
 	  BEGD(d2);
@@ -13226,15 +13106,21 @@ Yap_absmi(int inp)
 	  ENDP(pt1);
 	  CACHE_A1();
 	} else if (IsAtomTerm(d0)) {
-	  if (PRED_GOAL_EXPANSION_ALL) {
-	    goto execute_metacall;
-	  } else {
-	    pen = RepPredProp(PredPropByAtom(AtomOfTerm(d0), mod));
+	  pen = RepPredProp(PredPropByAtom(AtomOfTerm(d0), mod));
+	execute_pred_a:
+	  /* handle extra pruning */
+	  if (pen->FunctorOfPred == (Functor)AtomCut) {
+	    if (b_ptr != B) {
+	      saveregs();
+	      prune(b_ptr);
+	      setregs();
+	    }
 	  }
 	} else {
 	  goto execute_metacall;
 	}
 
+	/* execute, byt test first for interrupts */
       execute_end:
 	/* code copied from call */
 #ifndef NO_CHECKING
@@ -13269,12 +13155,13 @@ Yap_absmi(int inp)
 	ALWAYS_GONext();
 	ALWAYS_END_PREFETCH();
 
+	/* meta-call: Prolog to the rescue */
 	BEGP(pt1);
 	deref_body(d0, pt1, execute_unk, execute_nvar);
        execute_metacall:
 	ARG1 = ARG3 = d0;
 	pen = PredMetaCall;
-	ARG2 = Yap_cp_as_integer(B);
+	ARG2 = Yap_cp_as_integer(b_ptr);
 	if (mod)
 	  ARG4 = mod;
 	else
@@ -13282,7 +13169,7 @@ Yap_absmi(int inp)
 	goto execute_end;
 	ENDP(pt1);
 
-	ENDD(d0);
+	/* at this point, we have the arguments all set in the argument registers, pen says who is the current predicate. don't remove. */
       NoStackPExecute:
 	CHECK_ALARM(goto execute_end);
 	if (LOCAL_ActiveSignals & (YAP_FAIL_SIGNAL|YAP_INT_SIGNAL)) {
@@ -13294,8 +13181,8 @@ Yap_absmi(int inp)
 	    CreepFlag = CalculateStackGap();
 	  goto fail;
 	}
-	PP = PredMetaCall;
-	SREG = (CELL *) PP;
+	PP = NULL;
+	SREG = (CELL *) pen;
 	ASP = ENV_YREG;
 	if (ASP > (CELL *)PROTECT_FROZEN_B(B))
 	  ASP = (CELL *)PROTECT_FROZEN_B(B);
@@ -13306,293 +13193,20 @@ Yap_absmi(int inp)
 	  goto creep_pe;
 	}
 	saveregs_and_ycache();
-	if (!Yap_gc(PP->ArityOfPE, ENV, NEXTOP(PREG, Osbmp))) {
+	if (!Yap_gc(pen->ArityOfPE, ENV, NEXTOP(PREG, Osbmp))) {
 	  Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage);
 	}
 	setregs_and_ycache();
 	goto execute_end;
+	ENDBOp();
+
+	ENDD(d0);
 	ENDCACHE_Y_AS_ENV();
       }
-      ENDBOp();
 
     creep_pe:			/* do creep in call                                     */
       CPREG = NEXTOP(PREG, Osbmp);
       goto creep;
-
-      BOp(p_execute_tail, Osbpp);
-      {
-	PredEntry *pen;
-	Term mod;
-	UInt arity;
-
-	CACHE_Y_AS_ENV(YREG);
-	BEGP(pt0);
-	BEGD(d0);
-	d0 = ENV_YREG[-EnvSizeInCells-1];
-	pen = RepPredProp((Prop)IntegerOfTerm(ENV_YREG[-EnvSizeInCells-2]));
-	CPREG = (yamop *) ENV_YREG[E_CP];
-	pt0 = ENV_YREG;
-	ENV_YREG = ENV = (CELL *) ENV_YREG[E_E];
-#ifdef FROZEN_STACKS
-	{ 
-	  choiceptr top_b = PROTECT_FROZEN_B(B);
-
-#ifdef YAPOR_SBA
-	  if (ENV_YREG > (CELL *) top_b || ENV_YREG < H) ENV_YREG = (CELL *) top_b;
-#else
-	  if (ENV_YREG > (CELL *) top_b) ENV_YREG = (CELL *) top_b;
-#endif /* YAPOR_SBA */
-	  else ENV_YREG = (CELL *)((CELL)ENV_YREG + ENV_Size(CPREG));
-	}
-#else
-	if (ENV_YREG > (CELL *)B) {
-	  ENV_YREG = (CELL *)B;
-	} else {
-	  ENV_YREG = (CELL *) ((CELL) ENV_YREG+ ENV_Size(CPREG));
-	}
-#endif /* FROZEN_STACKS */
-	arity = pen->ArityOfPE;
-	if (pen->PredFlags & (MetaPredFlag|GoalExPredFlag)) {
-	  mod = pt0[-EnvSizeInCells-3];
-	  if (pen->FunctorOfPred == FunctorComma) {
-	    SREG = RepAppl(d0);
-	    BEGD(d1);
-	    d1 = SREG[2];
-	  execute_comma_comma:
-	    /* create an to execute the call */
-	    deref_head(d1, execute_comma_comma_unk);
-	  execute_comma_comma_nvar:
-	    ENV_YREG[E_CB] = pt0[E_CB];
-	    if (IsAtomTerm(d1)) {
-	      ENV_YREG[-EnvSizeInCells-2]  = MkIntegerTerm((Int)PredPropByAtom(AtomOfTerm(d1),mod));
-	    } else if (IsApplTerm(d1)) {
-	      Functor f = FunctorOfTerm(d1);
-	      if (IsExtensionFunctor(f)) {
-		goto execute_metacall_after_comma;
-	      } else if (f == FunctorModule) {
-		Term tmod = ArgOfTerm(1, d1);
-		if (IsVarTerm(tmod) || !IsAtomTerm(tmod))
-		  goto execute_metacall_after_comma;
-		mod = tmod;
-		d1 = RepAppl(d1)[2];
-		goto execute_comma_comma;
-	      } else {
-		ENV_YREG[-EnvSizeInCells-2]  = MkIntegerTerm((Int)PredPropByFunc(f,mod));
-	      }
-	    } else {
-	      goto execute_metacall_after_comma;
-	    }
-	    ENV_YREG[E_CP] = (CELL)CPREG;
-	    ENV_YREG[E_E]  = (CELL)ENV;
-#ifdef DEPTH_LIMIT
-	    ENV_YREG[E_DEPTH] = DEPTH;
-#endif	/* DEPTH_LIMIT */
-	    ENV_YREG[-EnvSizeInCells-1]  = d1;
-	    ENV_YREG[-EnvSizeInCells-3]  = mod;
-	    ENV = ENV_YREG;
-	    ENV_YREG -= EnvSizeInCells+3;
-	    d0 = SREG[1];
-	    CPREG = NEXTOP(COMMA_CODE,Osbpp);
-	  execute_comma_comma2:
-	    /* create an to execute the call */
-	    deref_head(d0, execute_comma_comma2_unk);
-	  execute_comma_comma2_nvar:
-	    if (IsAtomTerm(d0)) {
-	      Atom at = AtomOfTerm(d0);
-	      arity = 0;
-	      if (at == AtomCut) {
-		choiceptr cut_pt = (choiceptr)pt0[E_CB];
-		SET_ASP(YREG, E_CB*sizeof(CELL));
-		saveregs();
-		prune(cut_pt);
-		setregs();
-	      }
-	      pen = RepPredProp(PredPropByAtom(at, mod));
-	      goto execute_comma;
-	    } else if (IsApplTerm(d0)) {
-	      Functor f = FunctorOfTerm(d0);
-	      if (IsExtensionFunctor(f) || f == FunctorModule) {
-		Term tmod = ArgOfTerm(1, d0);
-		if (IsVarTerm(tmod) || !IsAtomTerm(tmod))
-		  goto execute_metacall_after_comma;
-		mod = tmod;
-		d0 = RepAppl(d0)[2];
-		goto execute_comma_comma2;
-	      } else {
-		pen = RepPredProp(PredPropByFunc(f,mod));
-		if (pen->PredFlags & (MetaPredFlag|GoalExPredFlag)) {
-		  goto execute_metacall_after_comma;
-		}
-		arity = pen->ArityOfPE;
-		goto execute_comma;
-	      }
-	    } else {
-	      if (mod != CurrentModule)
-		goto execute_metacall_after_comma;
-	      else {
-		arity = pen->ArityOfPE;
-		goto execute_comma;
-	      }
-	    }
-
-	    BEGP(pt1);
-	    deref_body(d0, pt1, execute_comma_comma2_unk, execute_comma_comma2_nvar);
-	    goto execute_metacall_after_comma;
-	    ENDP(pt1);
-
-	    BEGP(pt1);
-	    deref_body(d1, pt1, execute_comma_comma_unk, execute_comma_comma_nvar);
-	    goto execute_metacall_after_comma;
-	    ENDP(pt1);
-	    ENDD(d1);
-	  } else {
-	    if (mod != CurrentModule) {
-	      execute_metacall_after_comma:
-	      ARG1 = ARG3 = d0;
-	      pen = PredMetaCall;
-	      ARG2 = Yap_cp_as_integer((choiceptr)pt0[E_CB]);
-	      if (mod)
-		ARG4 = mod;
-	      else
-		ARG4 = TermProlog;
-	      CACHE_A1();
-	      goto execute_after_comma;
-	    }
-	  }
-	}
-      execute_comma:
-	if (arity) {
-	  BEGP(pt1);
-	  pt1 = RepAppl(d0);
-	  BEGD(d2);
-	  for (d2 = arity; d2; d2--) {
-#ifdef YAPOR_SBA
-	    BEGD(d1);
-	    d1 = pt1[d2];
-	    if (d1 == 0)
-	      XREGS[d2] = (CELL)(pt1+d2);
-	    else
-	      XREGS[d2] = d1;
-#else
-	    XREGS[d2] = pt1[d2];
-#endif
-	  }
-	  ENDD(d2);
-	  ENDP(pt1);
-	  CACHE_A1();
-	} else if ((Atom)(pen->FunctorOfPred) == AtomCut) {
-	  choiceptr cut_pt = (choiceptr)pt0[E_CB];
-	  SET_ASP(YREG, E_CB*sizeof(CELL));
-	  saveregs();
-	  prune(cut_pt);
-	  setregs();
-	}
-
-      execute_after_comma:
-#ifndef NO_CHECKING
-	check_stack(NoStackPTExecute, H);
-#endif
-	PREG = pen->CodeOfPred;
-	/* for profiler */
-	save_pc();
-	ALWAYS_LOOKAHEAD(pen->OpcodeOfPred);
-	ENV_YREG[E_CB] = (CELL)B;
-#ifdef LOW_LEVEL_TRACER
-	if (Yap_do_low_level_trace)
-	  low_level_trace(enter_pred,pen,XREGS+1);
-#endif	/* LOW_LEVEL_TRACER */
-#ifdef DEPTH_LIMIT
-	if (DEPTH <= MkIntTerm(1)) {/* I assume Module==0 is primitives */
-	  if (pen->ModuleOfPred) {
-	    if (DEPTH == MkIntTerm(0))
-	      FAIL();
-	    else DEPTH = RESET_DEPTH();
-	  }
-	} else if (pen->ModuleOfPred) {
-	  DEPTH -= MkIntConstant(2);
-	}
-#endif	/* DEPTH_LIMIT */
-	/* do deallocate */
-	WRITEBACK_Y_AS_ENV();
-	ALWAYS_GONext();
-	ALWAYS_END_PREFETCH();
-
-	ENDD(d0);
-	ENDP(pt0);
-      NoStackPTExecute:
-	CHECK_ALARM(goto execute_after_comma);
-	if (LOCAL_ActiveSignals & (YAP_FAIL_SIGNAL|YAP_INT_SIGNAL)) {
-	  if (LOCAL_ActiveSignals & YAP_INT_SIGNAL) {
-	    Yap_Error(PURE_ABORT, TermNil, "abort from console");
-	  }
-	  LOCAL_ActiveSignals &= ~(YAP_FAIL_SIGNAL|YAP_INT_SIGNAL);
-	  if (!LOCAL_ActiveSignals)
-	    CreepFlag = CalculateStackGap();
-	  goto fail;
-	}
-	PP = NULL;
-	WRITEBACK_Y_AS_ENV();
-	SREG = (CELL *) pen;
-	ASP = ENV_YREG;
-	if (ASP > (CELL *)PROTECT_FROZEN_B(B))
-	  ASP = (CELL *)PROTECT_FROZEN_B(B);
-	LOCK(LOCAL_SignalLock);
-	if (LOCAL_ActiveSignals & YAP_CDOVF_SIGNAL) {
-	  UNLOCK(LOCAL_SignalLock);
-	  saveregs_and_ycache();
-	  if (!Yap_growheap(FALSE, 0, NULL)) {
-	    Yap_NilError(OUT_OF_HEAP_ERROR, "YAP failed to grow heap: %s", LOCAL_ErrorMessage);
-	    setregs_and_ycache();
-	    FAIL();
-	  }
-	  setregs_and_ycache();
-	  LOCK(LOCAL_SignalLock);
-	  LOCAL_ActiveSignals &= ~YAP_CDOVF_SIGNAL;
-	  CreepFlag = CalculateStackGap();
-	  if (!LOCAL_ActiveSignals) {
-	    UNLOCK(LOCAL_SignalLock);
-	    goto execute_after_comma;
-	  }
-	}
-	if (LOCAL_ActiveSignals & YAP_TROVF_SIGNAL) {
-	  UNLOCK(LOCAL_SignalLock);
-#ifdef SHADOW_S
-	  S = SREG;
-#endif
-	  saveregs_and_ycache();
-	  if(!Yap_growtrail (0, FALSE)) {
-	    Yap_NilError(OUT_OF_TRAIL_ERROR,"YAP failed to reserve %ld bytes in growtrail",sizeof(CELL) * K16);
-	    setregs_and_ycache();
-	    FAIL();
-	  }
-	  setregs_and_ycache();
-	  LOCAL_ActiveSignals &= ~YAP_TROVF_SIGNAL;
-	  CreepFlag = CalculateStackGap();
-	  if (!LOCAL_ActiveSignals) {
-	    UNLOCK(LOCAL_SignalLock);
-	    goto execute_after_comma;
-	  }
-	}
-	if (LOCAL_ActiveSignals) {
-	  if (LOCAL_ActiveSignals & YAP_CDOVF_SIGNAL) {
-	    UNLOCK(LOCAL_SignalLock);
-	    SREG = YENV;
-	    goto noheapleft;
-	  }
-	  UNLOCK(LOCAL_SignalLock);
-	  goto creep;
-	}
-	UNLOCK(LOCAL_SignalLock);
-	saveregs_and_ycache();
-	if (!Yap_gc(((PredEntry *)SREG)->ArityOfPE, ENV, NEXTOP(PREG, Osbpp))) {
-	  Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage);
-	}
-	setregs_and_ycache();
-	goto execute_after_comma;
-	ENDCACHE_Y_AS_ENV();
-
-      }
-      ENDBOp();
 
 #if !USE_THREADED_CODE
     default:

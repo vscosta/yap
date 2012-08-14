@@ -265,6 +265,8 @@ restore_absmi_regs(REGSTORE * old_regs)
 
 #define CACHE_Y_AS_ENV(A) { register CELL *ENV_YREG = (A)
 
+#define FETCH_Y_FROM_ENV(A) ENV_YREG = (A)
+
 #define WRITEBACK_Y_AS_ENV()   YREG = ENV_YREG
 
 #define ENDCACHE_Y_AS_ENV() }
@@ -280,6 +282,8 @@ restore_absmi_regs(REGSTORE * old_regs)
 #define WRITEBACK_Y_AS_ENV()   
 
 #define CACHE_Y_AS_ENV(A) { YREG = (A)
+
+#define FETCH_Y_FROM_ENV(A) (A)
 
 #define ENDCACHE_Y_AS_ENV() }
 
