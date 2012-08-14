@@ -450,7 +450,11 @@ p_put_att( USES_REGS1 ) {
 	  return FALSE;
 	}    
       }
-      Bind_NonAtt(VarOfTerm(Deref(ARG1)), AbsAttVar(attv));
+      {
+	CELL *ptr = VarOfTerm(Deref(ARG1));
+	CELL d0 = AbsAttVar(attv);
+	Bind_NonAtt(ptr, d0);
+      }
       AddNewModule(attv, tatts, new, TRUE PASS_REGS);
     }
     PutAtt(IntegerOfTerm(Deref(ARG4)), tatts, Deref(ARG5) PASS_REGS);
