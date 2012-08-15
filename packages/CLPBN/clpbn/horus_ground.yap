@@ -31,7 +31,7 @@
           ]).
 
 :- use_module(library('clpbn/ground_factors'),
-          [generate_networks/5
+          [generate_network/5
           ]).
 
 :- use_module(library('clpbn/display'),
@@ -66,7 +66,7 @@ call_horus_ground_solver_for_probabilities(QueryKeys, _AllKeys, Factors, Evidenc
 	keys_to_ids(AllKeys, 0, Id1, Hash0, Hash1),
 	get_factors_type(Factors, Type),
 	evidence_to_ids(Evidence, Hash1, Hash2, Id1, Id2, EvidenceIds),
-%writeln(evidence:Evidence:EvidenceIds),
+	%writeln(evidence:Evidence:EvidenceIds),
 	factors_to_ids(Factors, Hash2, Hash3, Id2, Id3, FactorIds),
 	%writeln(queryKeys:QueryKeys), writeln(''),
 	%% writeln(type:Type), writeln(''),
@@ -74,10 +74,10 @@ call_horus_ground_solver_for_probabilities(QueryKeys, _AllKeys, Factors, Evidenc
 	sort(AllKeys,SKeys), %% writeln(allSortedKeys:SKeys), writeln(''),
 	keys_to_ids(SKeys, Id3, Id4, Hash3, Hash4),
 %b_hash:b_hash_to_list(Hash1,_L4), writeln(h1:_L4),
- 	writeln(factors:Factors), writeln(''),
- 	writeln(factorIds:FactorIds), writeln(''),
- 	writeln(evidence:Evidence), writeln(''),
- 	writeln(evidenceIds:EvidenceIds), writeln(''),
+ 	%writeln(factors:Factors), writeln(''),
+ 	%writeln(factorIds:FactorIds), writeln(''),
+ 	%writeln(evidence:Evidence), writeln(''),
+ 	%writeln(evidenceIds:EvidenceIds), writeln(''),
 	cpp_create_ground_network(Type, FactorIds, EvidenceIds, Network),
 	get_vars_information(AllKeys, StatesNames),
 	terms_to_atoms(AllKeys, KeysAtoms),
@@ -119,8 +119,8 @@ keys_to_ids([Key|AllKeys], I0, I, Hash0, Hash) :-
 
 
 
-get_factors_type([f(bayes, _, _, _)|_], bayes) :- ! .
-get_factors_type([f(markov, _, _, _)|_], markov) :- ! .
+get_factors_type([f(bayes, _, _)|_], bayes) :- ! .
+get_factors_type([f(markov, _, _)|_], markov) :- ! .
 
 
 list_of_keys_to_ids([], H, H, I, I, []).
@@ -138,8 +138,9 @@ list_of_keys_to_ids([Key|QueryKeys], Hash0, Hash, I0, I, [I0|QueryIds]) :-
 
 
 factors_to_ids([], H, H, I, I, []).
-factors_to_ids([f(_, DistId, Keys, CPT)|Fs], Hash0, Hash, I0, I, [f(Ids, Ranges, CPT, DistId)|NFs]) :-
+factors_to_ids([f(_, DistId, Keys)|Fs], Hash0, Hash, I0, I, [f(Ids, Ranges, CPT, DistId)|NFs]) :-
 	list_of_keys_to_ids(Keys, Hash0, Hash1, I0, I1, Ids),
+	pfl:get_pfl_parameters(DistId, CPT),
 	get_ranges(Keys, Ranges),
 	factors_to_ids(Fs, Hash1, Hash, I1, I, NFs).
 
@@ -180,17 +181,18 @@ finalize_horus_ground_solver(bp(Network, _)) :-
 % QVars: all query variables?
 % 
 % 
-init_horus_ground_solver(QueryVars, _AllVars, _, horus(GKeys, Keys, Factors, Evidence)) :-
-    trace,
-	generate_networks(QueryVars, GKeys, Keys, Factors, Evidence), !.
-%	writeln(qvs:QueryVars),
-%	writeln(Keys), writeln(Factors), !.
+init_horus_ground_solver(QueryVars, _AllVars, Ground, horus(GKeys, Keys, Factors, Evidence)) :-
+	(
+	    var(GKeys) ->
+	    Ground = ground(GKeys, Keys, Factors, Evidence) 
+	;
+	    generate_network(QueryVars, GKeys, Keys, Factors, Evidence) 
+	).
 
 %
 % just call horus solver.
 %
 run_horus_ground_solver(_QueryVars, Solutions, horus(GKeys, Keys, Factors, Evidence) ) :- !,
-    trace,
 	call_horus_ground_solver_for_probabilities(GKeys, Keys, Factors, Evidence, Solutions).
 
 %bp([[]],_,_) :- !.

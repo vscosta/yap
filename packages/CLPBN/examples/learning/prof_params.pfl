@@ -12,16 +12,17 @@ abi_table([0.3,0.3,0.4]).
 
 pop_table([0.3,0.3,0.4,0.3,0.3,0.4,0.3,0.3,0.4]).
 
-goal_list([abi(p0,h),
+goal_list([/*abi(p0,h),
 	abi(p1,m),
 	abi(p2,m),
-	abi(p3,m),
+	abi(p3,m),*/
 	abi(p4,l),
 	pop(p5,h),
 	abi(p5,_),
 	abi(p6,_),
 	pop(p7,_)]).
 
+professor(p0).
 professor(p1).
 professor(p2).
 professor(p3).

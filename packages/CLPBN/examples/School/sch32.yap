@@ -7,7 +7,7 @@ total_students(256).
 
 */
 
-:- use_module(library(clpbn)).
+:- use_module(library(pfl)).
 
 :- source.
 
@@ -17,7 +17,7 @@ total_students(256).
 
 :- yap_flag(write_strings,on).
 
-:- ensure_loaded(schema).
+:- ensure_loaded(parschema).
 
 :- ensure_loaded(school32_data).
 

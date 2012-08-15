@@ -7,9 +7,10 @@
 %	[S \= s2])
 
 
-:- module(clpbn_ground_factors, [
-          generate_networks/5,
-	  generate_network/5]).
+:- module(pfl_ground_factors, [
+          generate_network/5,
+	  f/3
+	]).
 
 :- use_module(library(bhash), [
           b_hash_new/1,
@@ -30,13 +31,13 @@
 :- use_module(library(clpbn/dists), [
           dist/4]).
 
-:- dynamic currently_defined/1, f/4.
+:- dynamic currently_defined/1, queue/1, f/4.
 
 %
 % as you add query vars the network grows
 % until you reach the last variable.
 %
-generate_networks(QueryVars, QueryKeys, Keys, Factors, EList) :-
+generate_network(QueryVars, QueryKeys, Keys, Factors, EList) :-
 	init_global_search,
 	attributes:all_attvars(AVars),
 	b_hash_new(Evidence0),
@@ -44,14 +45,16 @@ generate_networks(QueryVars, QueryKeys, Keys, Factors, EList) :-
 	b_hash_to_list(Evidence, EList0), list_to_evlist(EList0, EList),
 	run_through_evidence(EList),
 	run_through_queries(QueryVars, QueryKeys, Evidence),
+	propagate,
 	collect(Keys, Factors).
 
 %
 % clean global stateq
 %
 init_global_search :-
+	  retractall(queue(_)),
 	  retractall(currently_defined(_)),
-	  retractall(f(_,_,_,_)).
+	  retractall(f(_,_,_)).
 
 list_to_evlist([], []).
 list_to_evlist([K-E|EList0], [K=E|EList]) :-
@@ -90,17 +93,6 @@ run_through_queries([QVars|QueryVars], [GKs|GKeys], E) :-
 	run_through_queries(QueryVars, GKeys, E).
 run_through_queries([], [], _).
 
-generate_network(QueryVars0, QueryKeys, Keys, Factors, EList) :-
-	init_global_search,
-	attributes:all_attvars(AVars),
-	b_hash_new(Evidence0),
-	include_evidence(AVars, Evidence0, Evidence),
-	b_hash_to_list(Evidence, EList0), list_to_evlist(EList0, EList),
-	run_through_evidence(EList),
-	run_through_query(QueryVars0, QueryKeys, Evidence),
-	collect(Keys,Factors),
-	writeln(gn:Keys:QueryKeys:Factors:EList).
-
 run_through_query([], [], _).
 run_through_query([V|QueryVars], QueryKeys, Evidence) :-
 	clpbn:get_atts(V,[key(K)]),
@@ -108,16 +100,16 @@ run_through_query([V|QueryVars], QueryKeys, Evidence) :-
 	run_through_query(QueryVars, QueryKeys, Evidence).
 run_through_query([V|QueryVars], [K|QueryKeys], Evidence) :-
 	clpbn:get_atts(V,[key(K)]),
-        ( find_factors(K), fail ; true ),
+	queue_in(K),
 	run_through_query(QueryVars, QueryKeys, Evidence).
 
 collect(Keys, Factors) :-
 	findall(K, currently_defined(K), Keys),
-	findall(f(FType,FId,FKeys,FCPT), f(FType,FId,FKeys,FCPT), Factors).
+	findall(f(FType,FId,FKeys), f(FType,FId,FKeys), Factors).
 
 run_through_evidence([]).
 run_through_evidence([K=_|_]) :-
-        find_factors(K),
+        queue_in(K),
         fail.
 run_through_evidence([_|Ev]) :-
 	run_through_evidence(Ev).
@@ -141,26 +133,48 @@ initialize_evidence([]).
 initialize_evidence([V|EVars]) :-
 	clpbn:get_atts(V, [key(K)]),
 	ground(K),
-	assert(currently_defined(K)),
+	queue_in(K),
 	initialize_evidence(EVars).
+
 
 %
 % gets key K, and collects factors that  define it
-find_factors(K) :-
+queue_in(K) :-
+	queue(K), !.
+queue_in(K) :-
+	%writeln(+K),
+	assert(queue(K)).
+
+propagate :-
+	retract(queue(K)),!,
+	do_propagate(K).
+propagate.
+
+do_propagate(K) :-
+	%writeln(-K),
 	\+ currently_defined(K),
 	( ground(K) -> 	assert(currently_defined(K)) ; true),
-	defined_in_factor(K, ParFactor),
-	add_factor(ParFactor, Ks),
+	(
+	  defined_in_factor(K, ParFactor),
+	  add_factor(ParFactor, Ks)
+	 *->
+	  true
+	;
+	  throw(error(no_defining_factor(K)))
+	)
+	,
 	member(K1, Ks),
 	\+ currently_defined(K1),
-	find_factors(K1).
+	queue_in(K1),
+	fail.
+do_propagate(K) :-
+        propagate.
 
 add_factor(factor(Type, Id, Ks, _, Phi, Constraints), Ks) :-
-	F = f(Type, Id, Ks, CPT),
 	( is_list(Phi) -> CPT = Phi ; call(user:Phi, CPT) ),
-	run(Constraints),
-	\+ f(Type, Id, Ks, CPT),
-	assert(F).
+	run(Constraints), !,
+	\+ f(Type, Id, Ks),
+	assert(f(Type, Id, Ks)).
 
 run([Goal|Goals]) :-
 	call(user:Goal),
