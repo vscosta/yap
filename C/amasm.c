@@ -3976,32 +3976,14 @@ Yap_InitComma(void)
     RepPredProp(PredPropByFunc(FunctorComma,0));
   code_p->u.Osbpp.bmap = NULL;
   GONEXT(Osbpp);
-  if (PRED_GOAL_EXPANSION_ON) {
-    Functor fp = FunctorGeneratePredInfo;
-    code_p->opc = emit_op(_call_cpred);
-    code_p->u.Osbpp.s = emit_count(-Signed(RealEnvSize));
-    code_p->u.Osbpp.p =  
-      code_p->u.Osbpp.p0 = 
-      RepPredProp(Yap_GetPredPropByFunc(fp,0));
-    code_p->u.Osbpp.bmap = NULL;
-    GONEXT(Osbpp);
-    code_p->opc = emit_op(_call);
-    code_p->u.Osbpp.s = emit_count(-Signed(RealEnvSize));
-    code_p->u.Osbpp.p =  
-      code_p->u.Osbpp.p0 = 
-      PredMetaCall;
-    code_p->u.Osbpp.bmap = NULL;
-    GONEXT(Osbpp);
-  } else {
-    code_p->opc = opcode(_p_execute_tail);
-    code_p->u.Osbmp.s = emit_count(-Signed(RealEnvSize)-3*sizeof(CELL));
-    code_p->u.Osbmp.bmap = NULL;
-    code_p->u.Osbmp.mod = 
-      MkAtomTerm(AtomUser);
-    code_p->u.Osbpp.p0 =
-      RepPredProp(PredPropByFunc(FunctorComma,0));
-    GONEXT(Osbmp);
-  }
+  code_p->opc = opcode(_p_execute_tail);
+  code_p->u.Osbmp.s = emit_count(-Signed(RealEnvSize)-3*sizeof(CELL));
+  code_p->u.Osbmp.bmap = NULL;
+  code_p->u.Osbmp.mod = 
+    MkAtomTerm(AtomUser);
+  code_p->u.Osbmp.p0 =
+    RepPredProp(PredPropByFunc(FunctorComma,0));
+  GONEXT(Osbmp);
   code_p->opc = emit_op(_deallocate);
   code_p->u.p.p = PredMetaCall;
   GONEXT(p);

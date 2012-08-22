@@ -12912,8 +12912,6 @@ Yap_absmi(int inp)
 	BOp(p_execute_tail, Osbmp);
 	
 	FETCH_Y_FROM_ENV(YREG);
-	/* recover CP, as the meta-call is not as a clause */
-	CPREG = (yamop *)ENV_YREG[E_CP];
 	/* place to cut to */
 	b_ptr = (choiceptr)ENV_YREG[E_CB];
 	/* original goal */
@@ -12922,29 +12920,32 @@ Yap_absmi(int inp)
 	pen = RepPredProp((Prop)IntegerOfTerm(ENV_YREG[-EnvSizeInCells-2]));
 	/* current module at the time */
 	mod = ENV_YREG[-EnvSizeInCells-3];
-	/* go back to parent */
-	ENV_YREG = ENV = (CELL *) ENV_YREG[E_E];
+	/* set YREG */
+	/* Try to preserve the environment */
+	ENV_YREG = (CELL *) (((char *) YREG) + PREG->u.Osbmp.s);
 #ifdef FROZEN_STACKS
 	{ 
 	  choiceptr top_b = PROTECT_FROZEN_B(B);
-
 #ifdef YAPOR_SBA
 	  if (ENV_YREG > (CELL *) top_b || ENV_YREG < H) ENV_YREG = (CELL *) top_b;
 #else
 	  if (ENV_YREG > (CELL *) top_b) ENV_YREG = (CELL *) top_b;
 #endif /* YAPOR_SBA */
-	  else ENV_YREG = (CELL *)((CELL)ENV_YREG + ENV_Size(CPREG));
 	}
 #else
-	if (ENV_YREG > (CELL *)B) {
-	  ENV_YREG = (CELL *)B;
-	} else {
-	  ENV_YREG = (CELL *) ((CELL) ENV_YREG+ ENV_Size(CPREG));
+	if (ENV_YREG > (CELL *) B) {
+	  ENV_YREG = (CELL *) B;
 	}
 #endif /* FROZEN_STACKS */
 	/* now, jump to actual execution */
 	if (pen->ArityOfPE) {
 	  f = pen->FunctorOfPred;
+	  /* reuse environment if we are continuining a comma, ie, (g1,g2,g3) */
+	  /* can only do it deterministically */
+	  if (f == FunctorComma && B >= ENV) {
+	    ENV_YREG = ENV;
+	    ENV = (CELL *)ENV[E_E];
+	  }
 	  goto execute_pred_f;
 	} else
 	  goto execute_pred_a;
@@ -13035,7 +13036,6 @@ Yap_absmi(int inp)
 	      if (IsAtomTerm(d1)) {
 		/* atomic goal is simpler */
 		ENV_YREG[-EnvSizeInCells-2]  = MkIntegerTerm((Int)PredPropByAtom(AtomOfTerm(d1),nmod));
-		ENV_YREG[-EnvSizeInCells-3]  = nmod;
 	      } else if (IsApplTerm(d1)) {
 		Functor f1 = FunctorOfTerm(d1);
 		if (IsExtensionFunctor(f1)) {
@@ -13053,12 +13053,13 @@ Yap_absmi(int inp)
 		    goto execute_metacall;
 		  }
 		  ENV_YREG[-EnvSizeInCells-2]  = MkIntegerTerm((Int)PredPropByFunc(f1,nmod));
-		  ENV_YREG[-EnvSizeInCells-3]  = nmod;
 		}
 	      } else {
 		goto execute_metacall;
 	      }
+	      ENV_YREG[-EnvSizeInCells-3]  = mod;
 	      /* now, we can create the new environment for the meta-call */
+	      /* notice that we are at a call, so we should ignore CP */
 	      ENV_YREG[E_CP] = (CELL)NEXTOP(PREG,Osbmp);
 	      ENV_YREG[E_CB] = (CELL)b_ptr;
 	      ENV_YREG[E_E]  = (CELL)ENV;
@@ -13068,7 +13069,7 @@ Yap_absmi(int inp)
 	      ENV_YREG[-EnvSizeInCells-1]  = d1;
 	      ENV = ENV_YREG;
 	      ENV_YREG -= EnvSizeInCells+3;
-	      CPREG = NEXTOP(COMMA_CODE,Osbpp);
+	      CPREG = NEXTOP(PREG, Osbmp);
 	      PREG = COMMA_CODE;
 /* for profiler */
 	      save_pc();
@@ -13147,7 +13148,7 @@ Yap_absmi(int inp)
 #endif	/* LOW_LEVEL_TRACER */
 	WRITEBACK_Y_AS_ENV();
 	/* setup GB */
-	ENV_YREG[E_CB] = (CELL) B;
+	ENV_YREG[E_CB] = (CELL) b_ptr;
 #ifdef YAPOR
 	SCH_check_requests();
 #endif	/* YAPOR */
@@ -13183,6 +13184,7 @@ Yap_absmi(int inp)
 	}
 	PP = NULL;
 	SREG = (CELL *) pen;
+	fprintf(stderr,"Here I was\n");
 	ASP = ENV_YREG;
 	if (ASP > (CELL *)PROTECT_FROZEN_B(B))
 	  ASP = (CELL *)PROTECT_FROZEN_B(B);
