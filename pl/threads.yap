@@ -54,6 +54,8 @@ volatile(P) :-
 	assert_static(prolog:'$with_mutex_mutex'(Id)).
 
 '$reinit_thread0' :-
+	'$no_threads', !.
+'$reinit_thread0' :-
 	'$create_thread_mq'(0),
 %	abolish(prolog:'$with_mutex_mutex',1),
 	'$new_mutex'(Id),
