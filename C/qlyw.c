@@ -87,23 +87,56 @@ LookupFunctor(Functor fun)
 }
 
 static void
+GrowPredTable(void) {
+  UInt size = LOCAL_ExportPredEntryHashTableSize; 
+  export_pred_entry_hash_entry_t *p, *newt, *oldt = LOCAL_ExportPredEntryHashChain;
+  UInt new_size = size + (size > 1024 ? size : 1024);
+  UInt i;
+
+  newt = (export_pred_entry_hash_entry_t *)calloc(new_size,sizeof(export_pred_entry_hash_entry_t));
+  if (!newt) {
+    return;
+  }
+  p = oldt;
+  for (i = 0 ; i < size ; p++,i++) {
+    PredEntry *pe = p->val;
+    export_pred_entry_hash_entry_t *newp;
+    CELL hash;
+
+    if (!pe) continue;
+    hash = ((CELL)(pe))/(2*sizeof(CELL)) % new_size;
+    newp = newt+hash;
+    while (newp->val) {
+      newp++;
+      if (newp == newt+new_size)
+	newp = newt;
+    }
+    newp->val = p->val;
+    newp->arity = p->arity;
+    newp->u.f = p->u.f;
+    newp->module = p->module;
+  }
+  LOCAL_ExportPredEntryHashChain = newt;
+  LOCAL_ExportPredEntryHashTableSize = new_size;
+  free(oldt);
+}
+
+static void
 LookupPredEntry(PredEntry *pe)
 {
   CACHE_REGS
-  CELL hash = (CELL)(pe) % LOCAL_ExportPredEntryHashTableSize;
+  CELL hash = (((CELL)(pe))/(2*sizeof(CELL))) % LOCAL_ExportPredEntryHashTableSize;
   export_pred_entry_hash_entry_t *p;
   UInt arity  = pe->ArityOfPE;
 
-  p = LOCAL_ExportPredEntryHashChain[hash];
-  while (p) {
+  p = LOCAL_ExportPredEntryHashChain+hash;
+  while (p->val) {
     if (p->val == pe) {
       return;
     }
-    p = p->next;
-  }
-  p = (export_pred_entry_hash_entry_t *)malloc(sizeof(export_pred_entry_hash_entry_t));
-  if (!p) {
-    return;
+    p++;
+    if (p == LOCAL_ExportPredEntryHashChain+LOCAL_ExportPredEntryHashTableSize)
+      p = LOCAL_ExportPredEntryHashChain;
   }
   p->arity = arity;
   p->val = pe;
@@ -134,9 +167,15 @@ LookupPredEntry(PredEntry *pe)
     p->module = AtomProlog;
   }
   LookupAtom(p->module);
-  p->next = LOCAL_ExportPredEntryHashChain[hash];
-  LOCAL_ExportPredEntryHashChain[hash] = p;
   LOCAL_ExportPredEntryHashTableNum++;
+  if (LOCAL_ExportPredEntryHashTableNum > 
+      LOCAL_ExportPredEntryHashTableSize/2
+      ) {
+    GrowPredTable();
+    if (!LOCAL_ExportPredEntryHashChain) {
+      return;
+    }
+  }
 }
 
 static void
@@ -178,7 +217,7 @@ InitHash(void)
   LOCAL_ExportAtomHashChain = (export_atom_hash_entry_t **)calloc(1, sizeof(export_atom_hash_entry_t *)* LOCAL_ExportAtomHashTableSize);
   LOCAL_ExportPredEntryHashTableNum = 0;
   LOCAL_ExportPredEntryHashTableSize = EXPORT_PRED_ENTRY_TABLE_SIZE;
-  LOCAL_ExportPredEntryHashChain = (export_pred_entry_hash_entry_t **)calloc(1, sizeof(export_pred_entry_hash_entry_t *)* LOCAL_ExportPredEntryHashTableSize);
+  LOCAL_ExportPredEntryHashChain = (export_pred_entry_hash_entry_t *)calloc(LOCAL_ExportPredEntryHashTableSize, sizeof(export_pred_entry_hash_entry_t));
   LOCAL_ExportDBRefHashTableNum = 0;
   LOCAL_ExportDBRefHashTableSize = EXPORT_DBREF_TABLE_SIZE;
   LOCAL_ExportDBRefHashChain = (export_dbref_hash_entry_t **)calloc(1, sizeof(export_dbref_hash_entry_t *)* LOCAL_ExportDBRefHashTableSize);
@@ -444,16 +483,13 @@ SaveHash(IOSTREAM *stream)
   save_tag(stream, QLY_START_PRED_ENTRIES);
   save_uint(stream, LOCAL_ExportPredEntryHashTableNum);
   for (i = 0; i < LOCAL_ExportPredEntryHashTableSize; i++) {
-    export_pred_entry_hash_entry_t *p = LOCAL_ExportPredEntryHashChain[i];
-    while (p) {
-      export_pred_entry_hash_entry_t *p0 = p;
-      CHECK(save_uint(stream, (UInt)(p->val)));
-      CHECK(save_uint(stream, p->arity));
-      CHECK(save_uint(stream, (UInt)p->module));
-      CHECK(save_uint(stream, (UInt)p->u.f));
-      p = p->next;
-      free(p0);
-    }
+    export_pred_entry_hash_entry_t *p = LOCAL_ExportPredEntryHashChain+i;
+    if (!(p->val))
+      continue;
+    CHECK(save_uint(stream, (UInt)(p->val)));
+    CHECK(save_uint(stream, p->arity));
+    CHECK(save_uint(stream, (UInt)p->module));
+    CHECK(save_uint(stream, (UInt)p->u.f));
   }
   save_tag(stream, QLY_START_DBREFS);
   save_uint(stream, LOCAL_ExportDBRefHashTableNum);

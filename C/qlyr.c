@@ -320,16 +320,8 @@ static void
 InitHash(void)
 {
   CACHE_REGS
-  LOCAL_ImportFunctorHashTableSize = EXPORT_FUNCTOR_TABLE_SIZE;
-  LOCAL_ImportFunctorHashChain = (import_functor_hash_entry_t **)calloc(1, sizeof(import_functor_hash_entry_t *)* LOCAL_ImportFunctorHashTableSize);
-  LOCAL_ImportAtomHashTableSize = EXPORT_ATOM_TABLE_SIZE;
-  LOCAL_ImportAtomHashChain = (import_atom_hash_entry_t **)calloc(1, sizeof(import_atom_hash_entry_t *)* LOCAL_ImportAtomHashTableSize);
   LOCAL_ImportOPCODEHashTableSize = EXPORT_OPCODE_TABLE_SIZE;
   LOCAL_ImportOPCODEHashChain = (import_opcode_hash_entry_t **)calloc(1, sizeof(import_opcode_hash_entry_t *)* LOCAL_ImportOPCODEHashTableSize);
-  LOCAL_ImportPredEntryHashTableSize = EXPORT_PRED_ENTRY_TABLE_SIZE;
-  LOCAL_ImportPredEntryHashChain = (import_pred_entry_hash_entry_t **)calloc(1, sizeof(import_pred_entry_hash_entry_t *)* LOCAL_ImportPredEntryHashTableSize);
-  LOCAL_ImportDBRefHashTableSize = EXPORT_DBREF_TABLE_SIZE;
-  LOCAL_ImportDBRefHashChain = (import_dbref_hash_entry_t **)calloc(1, sizeof(import_dbref_hash_entry_t *)* LOCAL_ImportDBRefHashTableSize);
 }
 
 static void
@@ -694,6 +686,8 @@ ReadHash(IOSTREAM *stream)
   }
   RCHECK(read_tag(stream) == QLY_START_ATOMS);
   LOCAL_ImportAtomHashTableNum = read_uint(stream);
+  LOCAL_ImportAtomHashTableSize = LOCAL_ImportAtomHashTableNum*2;
+  LOCAL_ImportAtomHashChain = (import_atom_hash_entry_t **)calloc(1, sizeof(import_atom_hash_entry_t *)* LOCAL_ImportAtomHashTableSize);
   for (i = 0; i < LOCAL_ImportAtomHashTableNum; i++) {
     Atom oat = (Atom)read_uint(stream);
     Atom at;
@@ -734,6 +728,8 @@ ReadHash(IOSTREAM *stream)
   /* functors */
   RCHECK(read_tag(stream) == QLY_START_FUNCTORS);
   LOCAL_ImportFunctorHashTableNum = read_uint(stream);
+  LOCAL_ImportFunctorHashTableSize = 2*LOCAL_ImportFunctorHashTableNum;
+  LOCAL_ImportFunctorHashChain = (import_functor_hash_entry_t **)calloc(1, sizeof(import_functor_hash_entry_t *)* LOCAL_ImportFunctorHashTableSize);
   for (i = 0; i < LOCAL_ImportFunctorHashTableNum; i++) {
     Functor of = (Functor)read_uint(stream);
     UInt arity = read_uint(stream);
@@ -749,6 +745,8 @@ ReadHash(IOSTREAM *stream)
   }
   RCHECK(read_tag(stream) == QLY_START_PRED_ENTRIES);
   LOCAL_ImportPredEntryHashTableNum = read_uint(stream);
+  LOCAL_ImportPredEntryHashTableSize = 2*LOCAL_ImportPredEntryHashTableNum;
+  LOCAL_ImportPredEntryHashChain = (import_pred_entry_hash_entry_t **)calloc(1, sizeof(import_pred_entry_hash_entry_t *)* LOCAL_ImportPredEntryHashTableSize);
   for (i = 0; i < LOCAL_ImportPredEntryHashTableNum; i++) {
     PredEntry *ope = (PredEntry *)read_uint(stream), *pe;
     UInt arity = read_uint(stream);
@@ -795,6 +793,8 @@ ReadHash(IOSTREAM *stream)
   }
   RCHECK(read_tag(stream) == QLY_START_DBREFS);
   LOCAL_ImportDBRefHashTableNum = read_uint(stream);
+  LOCAL_ImportDBRefHashTableSize = 2*LOCAL_ImportDBRefHashTableNum;
+  LOCAL_ImportDBRefHashChain = (import_dbref_hash_entry_t **)calloc(1, sizeof(import_dbref_hash_entry_t *)* LOCAL_ImportDBRefHashTableSize);
   for (i = 0; i < LOCAL_ImportDBRefHashTableNum; i++) {
     LogUpdClause *ocl = (LogUpdClause *)read_uint(stream);
     UInt sz = read_uint(stream);

@@ -61,7 +61,6 @@ typedef struct export_pred_entry_hash_entry_struct {
   } u;
   Atom module;
   UInt arity;
-  struct  export_pred_entry_hash_entry_struct *next;
 } export_pred_entry_hash_entry_t;
 
 typedef struct import_pred_entry_hash_entry_struct {

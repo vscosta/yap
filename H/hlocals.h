@@ -202,7 +202,7 @@ typedef struct worker_local {
   struct export_functor_hash_entry_struct  **ExportFunctorHashChain_;
   UInt  ExportFunctorHashTableSize_;
   UInt  ExportFunctorHashTableNum_;
-  struct export_pred_entry_hash_entry_struct  **ExportPredEntryHashChain_;
+  struct export_pred_entry_hash_entry_struct  *ExportPredEntryHashChain_;
   UInt  ExportPredEntryHashTableSize_;
   UInt  ExportPredEntryHashTableNum_;
   struct export_dbref_hash_entry_struct  **ExportDBRefHashChain_;
