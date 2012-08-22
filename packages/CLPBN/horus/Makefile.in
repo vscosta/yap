@@ -150,7 +150,7 @@ hcli: $(HCLI_OBJS)
 
 
 install: all
-	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR) $(YAPLIBDIR)
+	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR)
 
 
 clean:
