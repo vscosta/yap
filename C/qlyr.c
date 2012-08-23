@@ -800,6 +800,9 @@ ReadHash(IOSTREAM *stream)
     UInt sz = read_uint(stream);
     UInt nrefs = read_uint(stream);
     LogUpdClause *ncl = (LogUpdClause *)Yap_AlwaysAllocCodeSpace(sz);
+    if (!ncl) {
+      QLYR_ERROR(OUT_OF_CODE_SPACE);	
+    }
     ncl->Id = FunctorDBRef;
     ncl->ClRefCount = nrefs;
     InsertDBRef((DBRef)ocl,(DBRef)ncl);
@@ -812,7 +815,6 @@ static void
 read_clauses(IOSTREAM *stream, PredEntry *pp, UInt nclauses, UInt flags) {
   CACHE_REGS
   if (pp->PredFlags & LogUpdatePredFlag) {
-    pp->TimeStampOfPred = 0L; 
     /* first, clean up whatever was there */
     if (pp->cs.p_code.NOfClauses) {
       LogUpdClause *cl;
@@ -927,6 +929,7 @@ read_pred(IOSTREAM *stream, Term mod) {
       ap->src.OwnerFile = AtomAdjust(ap->src.OwnerFile);
     }
   }
+  ap->TimeStampOfPred = read_uint(stream);
   /* multifile predicates cannot reside in module 0 */
   if (flags & MultiFileFlag && ap->ModuleOfPred == PROLOG_MODULE)
     ap->ModuleOfPred = TermProlog;

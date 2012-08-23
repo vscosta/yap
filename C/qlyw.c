@@ -634,8 +634,7 @@ save_clauses(IOSTREAM *stream, PredEntry *pp) {
     LogUpdClause *cl = ClauseCodeToLogUpdClause(FirstC);
 
     while (cl != NULL) {
-      if (pp->TimeStampOfPred >= cl->ClTimeStart &&
-	  pp->TimeStampOfPred <= cl->ClTimeEnd) {
+      if (IN_BETWEEN(cl->ClTimeStart, pp->TimeStampOfPred, cl->ClTimeEnd)) {
 	UInt size = cl->ClSize;
 	CHECK(save_tag(stream, QLY_START_LU_CLAUSE));
 	CHECK(save_uint(stream, (UInt)cl));
@@ -690,6 +689,7 @@ save_pred(IOSTREAM *stream, PredEntry *ap) {
   CHECK(save_uint(stream, ap->PredFlags));
   CHECK(save_uint(stream, ap->cs.p_code.NOfClauses));
   CHECK(save_uint(stream, ap->src.IndxId));
+  CHECK(save_uint(stream, ap->TimeStampOfPred));
   return save_clauses(stream, ap);
 }
 
