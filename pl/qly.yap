@@ -202,10 +202,10 @@ save_program(File, _Goal) :-
 	'$do_startup_reconsult'(X),
 	fail.
 '$init_from_saved_state_and_args' :-
-    recorded('$restore_flag', init_file(M:B), R),
-    erase(R),
-    '$do_startup_reconsult'(M:B),
-    fail.
+	recorded('$restore_flag', init_file(M:B), R),
+	erase(R),
+	'$do_startup_reconsult'(M:B),
+	fail.
 '$init_from_saved_state_and_args' :-
 	'$startup_goals',
 	fail.
@@ -218,10 +218,10 @@ save_program(File, _Goal) :-
 '$init_from_saved_state_and_args'.
 
 '$init_path_extensions' :-
-    get_value('$extend_file_search_path',P), !,
-    P \= [],
-    set_value('$extend_file_search_path',[]),
-    '$extend_file_search_path'(P).
+	get_value('$extend_file_search_path',P), !,
+	P \= [],
+	set_value('$extend_file_search_path',[]),
+	'$extend_file_search_path'(P).
 '$init_path_extensions' :-
 	retractall(user:library_directory(_)),
 	% make sure library_directory is open.
