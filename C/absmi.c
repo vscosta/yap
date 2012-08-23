@@ -12942,7 +12942,7 @@ Yap_absmi(int inp)
 	  f = pen->FunctorOfPred;
 	  /* reuse environment if we are continuining a comma, ie, (g1,g2,g3) */
 	  /* can only do it deterministically */
-	  if (f == FunctorComma && B >= ENV) {
+	  if (f == FunctorComma && (CELL *)B >= ENV) {
 	    ENV_YREG = ENV;
 	    ENV = (CELL *)ENV[E_E];
 	  }
