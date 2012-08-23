@@ -110,6 +110,8 @@ true :- true.
 	nb_setval('$initialization_goals',off),
 	nb_setval('$consulting',false),
 	nb_setval('$included_file',[]),
+	\+ '$undefined'('$init_preds',prolog),
+	'$init_preds',
 	fail.
 '$init_consult' :-
 	retractall(user:library_directory(_)),
