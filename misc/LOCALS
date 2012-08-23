@@ -223,16 +223,16 @@ int 				do_trace_primitives 			=TRUE
 #endif
 
 //quick loader
-struct export_atom_hash_entry_struct **ExportAtomHashChain		=NULL
+struct export_atom_hash_entry_struct *ExportAtomHashChain		=NULL
 UInt				ExportAtomHashTableSize			=0
 UInt				ExportAtomHashTableNum			=0
-struct export_functor_hash_entry_struct **ExportFunctorHashChain	=NULL
+struct export_functor_hash_entry_struct *ExportFunctorHashChain		=NULL
 UInt				ExportFunctorHashTableSize		=0
 UInt				ExportFunctorHashTableNum		=0
 struct export_pred_entry_hash_entry_struct *ExportPredEntryHashChain	=NULL
 UInt				ExportPredEntryHashTableSize		=0
 UInt				ExportPredEntryHashTableNum		=0
-struct export_dbref_hash_entry_struct **ExportDBRefHashChain		=NULL
+struct export_dbref_hash_entry_struct *ExportDBRefHashChain		=NULL
 UInt				ExportDBRefHashTableSize		=0
 UInt				ExportDBRefHashTableNum			=0
 struct import_atom_hash_entry_struct **ImportAtomHashChain		=NULL

@@ -24,7 +24,6 @@
 
 typedef struct export_atom_hash_entry_struct {
   Atom val;
-  struct  export_atom_hash_entry_struct *next;
 } export_atom_hash_entry_t;
 
 typedef struct import_atom_hash_entry_struct {
@@ -37,7 +36,6 @@ typedef struct export_functor_hash_entry_struct {
   Functor val;
   Atom name;
   UInt arity;
-  struct  export_functor_hash_entry_struct *next;
 } export_functor_hash_entry_t;
 
 typedef struct import_functor_hash_entry_struct {
@@ -73,7 +71,6 @@ typedef struct export_dbref_hash_entry_struct {
   DBRef val;
   UInt sz;
   UInt refs;
-  struct  export_dbref_hash_entry_struct *next;
 } export_dbref_hash_entry_t;
 
 typedef struct import_dbref_hash_entry_struct {
