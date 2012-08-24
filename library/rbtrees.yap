@@ -30,6 +30,7 @@
 	   rb_map/2,
 	   rb_map/3,
 	   rb_partial_map/4,
+	   rb_accumulate/4,
 	   rb_clone/3,
 	   rb_clone/4,
 	   rb_min/3,
@@ -819,6 +820,31 @@ map(black(L,_,V,R),Goal) :-
 	call(Goal,V), !,
 	map(L,Goal),
 	map(R,Goal).
+
+:- meta_predicate rb_accumulate(?,3,?,?).  % this is required.
+:- meta_predicate map_acc(?,3,?,?).  % this is required.
+
+%%	rb_fold(+T, :G, +Acc0, -AccF) is semidet.
+%
+%	For all nodes Key in the tree   T,  if the value associated with
+%	key Key is V in tree T, if call(G,V,Acc1,Acc2) holds, then
+%	if VL is value of the previous node in inorder,
+%       call(G,VL,_,Acc0) must hold, and
+%       if VR is the value of the next node in inorder,
+%       call(G,VR,Acc1,_) must hold.
+
+rb_fold(t(_,Tree), Goal, In, Out) :-
+	map_acc(Tree, Goal, In, Out).
+
+map_acc(black('',_,_,''), _, Acc, Acc) :- !.
+map_acc(red(L,_,V,R), Goal, Left, Right) :-
+	map_acc(L,Goal, Left, Left1),
+	once(call(Goal,V, Left1, Right1)),
+	map_acc(R,Goal, Right1, Right).
+map_acc(black(L,_,V,R), Goal, Left, Right) :-
+	map_acc(L,Goal, Left, Left1),
+	once(call(Goal,V, Left1, Right1)),
+	map_acc(R,Goal, Right1, Right).
 
 %%	rb_clone(+T, -NT, -Pairs)
 %

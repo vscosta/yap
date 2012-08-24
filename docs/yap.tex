@@ -10910,6 +10910,17 @@ holds, then the value associated with @var{Key} in @var{TN} is
 @var{ValF}. Fails if or if @code{call(G,Val0,ValF)} is not satisfiable
 for all @var{Var0}. Assumes keys are not repeated.
 
+@item rb_fold(+@var{T},+@var{G},+@var{Acc0}, -@var{AccF})
+@findex rb_fold/4
+@snindex rb_fold/4
+@cnindex rb_fold/4
+	For all nodes @var{Key} in the tree @var{T}, if the value
+associated with key @var{Key} is @var{V} in tree @var{T}, if
+@code{call(G,V,Acc1,Acc2)} holds, then if @var{VL} is value of the
+previous node in inorder, @code{call(G,VL,_,Acc0)} must hold, and if
+@var{VR} is the value of the next node in inorder,
+@code{call(G,VR,Acc1,_)} must hold.
+
 @item rb_clone(+@var{T},+@var{NT},+@var{Nodes})
 @findex rb_clone/3
 @snindex rb_clone/3
