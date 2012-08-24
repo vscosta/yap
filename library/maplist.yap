@@ -13,22 +13,31 @@
 
 
 :- module(maplist, [selectlist/3,
-			 checklist/2,
-			 maplist/2,			% :Goal, +List
-			 maplist/3,			% :Goal, ?List1, ?List2
-			 maplist/4,			% :Goal, ?List1, ?List2, ?List
-			 maplist/5,			% :Goal, ?List1, ?List2, ?List3, List4
-			 convlist/3,
-			 mapargs/3,
-			 sumargs/4,
-			 mapnodes/3,
-			 checknodes/2,
-			 sumlist/4,
-			 sumnodes/4,
-			 include/3,
-			 exclude/3,
-			 partition/4,
-			 partition/5			
+		    checklist/2,
+		    maplist/2,			% :Goal, +List
+		    maplist/3,			% :Goal, ?List1, ?List2
+		    maplist/4,			% :Goal, ?List1, ?List2, ?List
+		    maplist/5,			% :Goal, ?List1, ?List2, ?List3, List4
+		    convlist/3,
+		    mapargs/3,
+		    sumargs/4,
+		    mapnodes/3,
+		    checknodes/2,
+		    sumlist/4,
+		    sumnodes/4,
+		    include/3,
+		    exclude/3,
+		    partition/4,
+		    partition/5,			
+		    foldl/4,			% :Pred, +List, ?V0, ?V
+		    foldl/5,			% :Pred, +List1, +List2, ?V0, ?V
+		    foldl/6,			% :Pred, +List1, +List2, +List3, ?V0, ?V
+		    foldl/7,			% :Pred, +List1, +List2, +List3, +List4,
+				% ?V0, ?V
+		    scanl/4,			% :Pred, +List, ?V0, ?Vs
+		    scanl/5,			% :Pred, +List1, +List2, ?V0, ?Vs
+		    scanl/6,			% :Pred, +List1, +List2, +List3, ?V0, ?Vs
+		    scanl/7			% :Pred, +List1, +List2, +List3, +List4,
 			]).
 
 
@@ -54,7 +63,15 @@
 	include(1,+,-),
 	exclude(1,+,-),
 	partition(2,+,-,-),
-	partition(2,+,-,-,-).
+	partition(2,+,-,-,-),
+	foldl(3, +, +, -),
+	foldl(4, +, +, +, -),
+	foldl(5, +, +, +, +, -),
+	foldl(6, +, +, +, +, +, -),
+	scanl(3, +, +, -),
+	scanl(4, +, +, +, -),
+	scanl(5, +, +, +, +, -),
+	scanl(6, +, +, +, +, +, -).
 	
 	
 :- use_module(library(lists), [append/3]).
@@ -254,6 +271,116 @@ sumnodes_body(Pred, Term, A1, A3, N0, Ar) :-
 	sumnodes_body(Pred, Term, A2, A3, N, Ar)
     ;
 	A1 = A3.
+
+
+		 /*******************************
+		 *	      FOLDL		*
+		 *******************************/
+
+%%	foldl(:Goal, +List, +V0, -V).
+%%	foldl(:Goal, +List1, +List2, +V0, -V).
+%%	foldl(:Goal, +List1, +List2, +List3, +V0, -V).
+%%	foldl(:Goal, +List1, +List2, +List3, +List4, +V0, -V).
+%
+%	Fold a list, using arguments of the   list as left argument. The
+%	foldl family of predicates is defined by:
+%
+%	  ==
+%	  foldl(P, [X11,...,X1n], ..., [Xm1,...,Xmn], V0, Vn) :-
+%		P(X11, ..., Xm1, V0, V1),
+%		...
+%		P(X1n, ..., Xmn, V', Vn).
+%	  ==
+
+foldl(Goal, List, V0, V) :-
+	foldl_(List, Goal, V0, V).
+
+foldl_([], _, V, V).
+foldl_([H|T], Goal, V0, V) :-
+	call(Goal, H, V0, V1),
+	foldl_(T, Goal, V1, V).
+
+
+foldl(Goal, List1, List2, V0, V) :-
+	foldl_(List1, List2, Goal, V0, V).
+
+foldl_([], [], _, V, V).
+foldl_([H1|T1], [H2|T2], Goal, V0, V) :-
+	call(Goal, H1, H2, V0, V1),
+	foldl_(T1, T2, Goal, V1, V).
+
+
+foldl(Goal, List1, List2, List3, V0, V) :-
+	foldl_(List1, List2, List3, Goal, V0, V).
+
+foldl_([], [], [], _, V, V).
+foldl_([H1|T1], [H2|T2], [H3|T3], Goal, V0, V) :-
+	call(Goal, H1, H2, H3, V0, V1),
+	foldl_(T1, T2, T3, Goal, V1, V).
+
+
+foldl(Goal, List1, List2, List3, List4, V0, V) :-
+	foldl_(List1, List2, List3, List4, Goal, V0, V).
+
+foldl_([], [], [], [], _, V, V).
+foldl_([H1|T1], [H2|T2], [H3|T3], [H4|T4], Goal, V0, V) :-
+	call(Goal, H1, H2, H3, H4, V0, V1),
+	foldl_(T1, T2, T3, T4, Goal, V1, V).
+
+
+		 /*******************************
+		 *	       SCANL		*
+		 *******************************/
+
+%%	scanl(:Goal, +List, +V0, -Values).
+%%	scanl(:Goal, +List1, +List2, +V0, -Values).
+%%	scanl(:Goal, +List1, +List2, +List3, +V0, -Values).
+%%	scanl(:Goal, +List1, +List2, +List3, +List4, +V0, -Values).
+%
+%	Left scan of  list.  The  scanl   family  of  higher  order list
+%	operations is defined by:
+%
+%	  ==
+%	  scanl(P, [X11,...,X1n], ..., [Xm1,...,Xmn], V0, [V0,V1,...,Vn]) :-
+%		P(X11, ..., Xmn, V0, V1),
+%		...
+%	        P(X1n, ..., Xmn, V', Vn).
+%	  ==
+
+scanl(Goal, List, V0, [V0|Values]) :-
+	scanl_(List, Goal, V0, Values).
+
+scanl_([], _, _, []).
+scanl_([H|T], Goal, V, [VH|VT]) :-
+	call(Goal, H, V, VH),
+	scanl_(T, Goal, VH, VT).
+
+
+scanl(Goal, List1, List2, V0, [V0|Values]) :-
+	scanl_(List1, List2, Goal, V0, Values).
+
+scanl_([], [], _, _, []).
+scanl_([H1|T1], [H2|T2], Goal, V, [VH|VT]) :-
+	call(Goal, H1, H2, V, VH),
+	scanl_(T1, T2, Goal, VH, VT).
+
+
+scanl(Goal, List1, List2, List3, V0, [V0|Values]) :-
+	scanl_(List1, List2, List3, Goal, V0, Values).
+
+scanl_([], [], [], _, _, []).
+scanl_([H1|T1], [H2|T2], [H3|T3], Goal, V, [VH|VT]) :-
+	call(Goal, H1, H2, H3, V, VH),
+	scanl_(T1, T2, T3, Goal, VH, VT).
+
+
+scanl(Goal, List1, List2, List3, List4, V0, [V0|Values]) :-
+	scanl_(List1, List2, List3, List4, Goal, V0, Values).
+
+scanl_([], [], [], [], _, _, []).
+scanl_([H1|T1], [H2|T2], [H3|T3], [H4|T4], Goal, V, [VH|VT]) :-
+	call(Goal, H1, H2, H3, H4, V, VH),
+	scanl_(T1, T2, T3, T4, Goal, VH, VT).
 
 
 :- dynamic number_of_expansions/1.
@@ -530,6 +657,69 @@ goal_expansion(sumlist(Meta, List, AccIn, AccOut), Mod:Goal) :-
 	% the new goal
 	pred_name(sumlist, 4, Proto, GoalName),
 	append(MetaVars, [List, AccIn, AccOut], GoalArgs),
+	Goal =.. [GoalName|GoalArgs],
+	% the new predicate declaration
+	HeadPrefix =.. [GoalName|PredVars],	
+	append_args(HeadPrefix, [[], Acc, Acc], Base),
+	append_args(HeadPrefix, [[In|Ins], Acc1, Acc2], RecursionHead),
+	append_args(Pred, [In, Acc1, Acc3], Apply),
+	append_args(HeadPrefix, [Ins, Acc3, Acc2], RecursiveCall),
+	compile_aux([
+		     Base,
+		     (RecursionHead :- Apply, RecursiveCall)
+		    ], Mod).
+
+goal_expansion(foldl(Meta, List, AccIn, AccOut), Mod:Goal) :-
+	goal_expansion_allowed,
+	callable(Meta),
+	prolog_load_context(module, Mod),
+	aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
+	!,
+	% the new goal
+	pred_name(foldl, 4, Proto, GoalName),
+	append(MetaVars, [List, AccIn, AccOut], GoalArgs),
+	Goal =.. [GoalName|GoalArgs],
+	% the new predicate declaration
+	HeadPrefix =.. [GoalName|PredVars],	
+	append_args(HeadPrefix, [[], Acc, Acc], Base),
+	append_args(HeadPrefix, [[In|Ins], Acc1, Acc2], RecursionHead),
+	append_args(Pred, [In, Acc1, Acc3], Apply),
+	append_args(HeadPrefix, [Ins, Acc3, Acc2], RecursiveCall),
+	compile_aux([
+		     Base,
+		     (RecursionHead :- Apply, RecursiveCall)
+		    ], Mod).
+
+goal_expansion(foldl(Meta, List1, List2, AccIn, AccOut), Mod:Goal) :-
+	goal_expansion_allowed,
+	callable(Meta),
+	prolog_load_context(module, Mod),
+	aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
+	!,
+	% the new goal
+	pred_name(foldl, 4, Proto, GoalName),
+	append(MetaVars, [List1, List2, AccIn, AccOut], GoalArgs),
+	Goal =.. [GoalName|GoalArgs],
+	% the new predicate declaration
+	HeadPrefix =.. [GoalName|PredVars],	
+	append_args(HeadPrefix, [[], Acc, Acc], Base),
+	append_args(HeadPrefix, [[In|Ins], Acc1, Acc2], RecursionHead),
+	append_args(Pred, [In, Acc1, Acc3], Apply),
+	append_args(HeadPrefix, [Ins, Acc3, Acc2], RecursiveCall),
+	compile_aux([
+		     Base,
+		     (RecursionHead :- Apply, RecursiveCall)
+		    ], Mod).
+
+goal_expansion(foldl(Meta, List1, List2, List3, AccIn, AccOut), Mod:Goal) :-
+	goal_expansion_allowed,
+	callable(Meta),
+	prolog_load_context(module, Mod),
+	aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
+	!,
+	% the new goal
+	pred_name(foldl, 4, Proto, GoalName),
+	append(MetaVars, [List1, List2, List3, AccIn, AccOut], GoalArgs),
 	Goal =.. [GoalName|GoalArgs],
 	% the new predicate declaration
 	HeadPrefix =.. [GoalName|PredVars],	

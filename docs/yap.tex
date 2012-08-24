@@ -4667,7 +4667,7 @@ backtracking) or to access the stream for a file @var{F} in mode
 @var{M}, or to find properties for a stream @var{S}. Notice that some
 streams might not be associated to a file: in this case YAP tries to
 return the file number. If that is not available, YAP unifies @var{F}
-with @var(S}.
+with @var{S}.
 
 @item is_stream(@var{S})
 @findex is_stream/1
@@ -9557,21 +9557,21 @@ The following routines are available once included with the
 @code{use_module(library(apply_macros))} command.
 
 @table @code
-@item maplist(+@var{Pred}, ?@var{ListIn}, ?@var{ListOut})
+@item maplist(:@var{Pred}, ?@var{ListIn}, ?@var{ListOut})
 @findex maplist/3
 @snindex maplist/3
 @cnindex maplist/3
       Creates @var{ListOut} by applying the predicate @var{Pred} to all
 elements of @var{ListIn}.
 
-@item maplist(+@var{Pred}, ?@var{ListIn})
+@item maplist(:@var{Pred}, ?@var{ListIn})
 @findex maplist/3
 @snindex maplist/3
 @cnindex maplist/3
       Creates @var{ListOut} by applying the predicate @var{Pred} to all
 elements of @var{ListIn}.
 
-@item maplist(+@var{Pred}, ?@var{L1}, ?@var{L2}, ?@var{L3})
+@item maplist(:@var{Pred}, ?@var{L1}, ?@var{L2}, ?@var{L3})
 @findex maplist/4
 @snindex maplist/4
 @cnindex maplist/4
@@ -9579,7 +9579,7 @@ elements of @var{ListIn}.
       @code{call(@var{Pred},@var{A1},@var{A2},@var{A3})} holds for every
       corresponding element in lists @var{L1},  @var{L2}, and @var{L3}.
 
-@item maplist(+@var{Pred}, ?@var{L1}, ?@var{L2}, ?@var{L3}, ?@var{L4})
+@item maplist(:@var{Pred}, ?@var{L1}, ?@var{L2}, ?@var{L3}, ?@var{L4})
 @findex maplist/5
 @snindex maplist/5
 @cnindex maplist/5
@@ -9588,19 +9588,19 @@ elements of @var{ListIn}.
       for every corresponding element in lists @var{L1}, @var{L2}, @var{L3}, and
       @var{L4}.
 
-@item checklist(+@var{Pred}, +@var{List})
+@item checklist(:@var{Pred}, +@var{List})
 @findex checklist/2
 @snindex checklist/2
 @cnindex checklist/2
       Succeeds if the predicate @var{Pred} succeeds on all elements of @var{List}.
 
-@item selectlist(+@var{Pred}, +@var{ListIn}, ?@var{ListOut})
+@item selectlist(:@var{Pred}, +@var{ListIn}, ?@var{ListOut})
 @findex selectlist/3
 @snindex selectlist/3
 @cnindex selectlist/3
       Creates @var{ListOut} of all list elements of @var{ListIn} that pass a given test
 
-@item convlist(+@var{Pred}, +@var{ListIn}, ?@var{ListOut})
+@item convlist(:@var{Pred}, +@var{ListIn}, ?@var{ListOut})
 @findex convlist/3
 @snindex convlist/3
 @cnindex convlist/3
@@ -9608,12 +9608,74 @@ elements of @var{ListIn}.
 applying the predicate @var{Pred} to all list elements on which
 @var{Pred} succeeds
 
-@item sumlist(+@var{Pred}, +@var{List}, ?@var{AccIn}, ?@var{AccOut})
+@item sumlist(:@var{Pred}, +@var{List}, ?@var{AccIn}, ?@var{AccOut})
 @findex sumlist/4
 @snindex sumlist/4
 @cnindex sumlist/4
       Calls @var{Pred} on all elements of List and collects a result in
+@var{Accumulator}. Same as @code{foldl/4}.
+
+@item foldl(:@var{Pred}, +@var{List}, ?@var{AccIn}, ?@var{AccOut})
+@findex foldl/4
+@snindex foldl/4
+@cnindex foldl/4
+      Calls @var{Pred} on all elements of @code{List} and collects a result in
 @var{Accumulator}.
+
+@item foldl(:@var{Pred}, +@var{List1}, +@var{List2}, ?@var{AccIn}, ?@var{AccOut})
+@findex foldl/5
+@snindex foldl/5
+@cnindex foldl/5
+      Calls @var{Pred} on all elements of @code{List1} and
+@code{List2} and collects a result in @var{Accumulator}. Same as
+@code{foldr/4}.
+
+@item foldl(:@var{Pred}, +@var{List1}, +@var{List2}, +@var{List3}, ?@var{AccIn}, ?@var{AccOut})
+@findex foldl/6
+@snindex foldl/6
+@cnindex foldl/6
+      Calls @var{Pred} on all elements of @code{List1}, @code{List2}, and
+@code{List3} and collects a result in @var{Accumulator}.
+
+@item foldl(:@var{Pred}, +@var{List1}, +@var{List2}, +@var{List3}, +@var{List4}, ?@var{AccIn}, ?@var{AccOut})
+@findex foldl/7
+@snindex foldl/7
+@cnindex foldl/7
+      Calls @var{Pred} on all elements of @code{List1}, @code{List2}, @code{List3}, and
+@code{List4} and collects a result in @var{Accumulator}.
+
+@item scanl(:@var{Pred}, +@var{List}, +@var{V0}, ?@var{Values})
+@findex scanl/4
+@snindex scanl/4
+@cnindex scanl/4
+         Left scan of  list.  The  scanl   family  of  higher  order list
+	operations is defined by:
+
+@example
+	  scanl(P, [X11,...,X1n], ..., [Xm1,...,Xmn], V0, [V0,V1,...,Vn]) :-
+		P(X11, ..., Xm1, V0, V1),
+		...
+	        P(X1n, ..., Xmn, Vn-1, Vn).
+@end example
+
+
+@item scanl(:@var{Pred}, +@var{List1}, +@var{List2}, ?@var{V0}, ?@var{Vs})
+@findex scanl/5
+@snindex scanl/5
+@cnindex scanl/5
+         Left scan of  list.  
+
+@item scanl(:@var{Pred}, +@var{List1}, +@var{List2}, +@var{List3}, ?@var{V0}, ?@var{Vs})
+@findex scanl/6
+@snindex scanl/6
+@cnindex scanl/6
+         Left scan of  list.  
+
+@item scanl(:@var{Pred}, +@var{List1}, +@var{List2}, +@var{List3}, +@var{List4}, ?@var{V0}, ?@var{Vs})
+@findex scanl/7
+@snindex scanl/7
+@cnindex scanl/7
+         Left scan of  list.  
 
 @item mapargs(+@var{Pred}, ?@var{TermIn}, ?@var{TermOut})
 @findex mapargs/3
