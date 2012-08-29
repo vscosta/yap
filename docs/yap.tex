@@ -9644,6 +9644,20 @@ applying the predicate @var{Pred} to all list elements on which
       Calls @var{Pred} on all elements of @code{List1}, @code{List2}, @code{List3}, and
 @code{List4} and collects a result in @var{Accumulator}.
 
+@item foldl2(:@var{Pred}, +@var{List}, ?@var{X0}, ?@var{X}, ?@var{Y0}, ?@var{Y})
+@findex foldl2/6
+@snindex foldl2/6
+@cnindex foldl2/6
+      Calls @var{Pred} on all elements of @code{List} and collects a result in
+@var{X} and @var{Y}.
+
+@item foldl3(:@var{Pred}, +@var{List}, ?@var{X0}, ?@var{X}, ?@var{Y0}, ?@var{Y}, ?@var{Z0}, ?@var{Z})
+@findex foldl3/6
+@snindex foldl3/6
+@cnindex foldl3/6
+      Calls @var{Pred} on all elements of @code{List} and collects a result in
+@var{X}, @var{Y} and @var{Z}.
+
 @item scanl(:@var{Pred}, +@var{List}, +@var{V0}, ?@var{Values})
 @findex scanl/4
 @snindex scanl/4
@@ -10982,6 +10996,17 @@ associated with key @var{Key} is @var{V} in tree @var{T}, if
 previous node in inorder, @code{call(G,VL,_,Acc0)} must hold, and if
 @var{VR} is the value of the next node in inorder,
 @code{call(G,VR,Acc1,_)} must hold.
+
+@item rb_key_fold(+@var{T},+@var{G},+@var{Acc0}, -@var{AccF})
+@findex rb_key_fold/4
+@snindex rb_key_fold/4
+@cnindex rb_key_fold/4
+	For all nodes @var{Key} in the tree @var{T}, if the value
+associated with key @var{Key} is @var{V} in tree @var{T}, if
+@code{call(G,Key,V,Acc1,Acc2)} holds, then if @var{VL} is value of the
+previous node in inorder, @code{call(G,KeyL,VL,_,Acc0)} must hold, and if
+@var{VR} is the value of the next node in inorder,
+@code{call(G,KeyR,VR,Acc1,_)} must hold.
 
 @item rb_clone(+@var{T},+@var{NT},+@var{Nodes})
 @findex rb_clone/3
