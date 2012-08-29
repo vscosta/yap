@@ -17,6 +17,8 @@
 	   rb_lookup/3,		% +Key, -Value, +T
 	   rb_update/4,		% +T, +Key, +NewVal, -TN
 	   rb_update/5,		% +T, +Key, ?OldVal, +NewVal, -TN
+	   rb_rewrite/3,		% +T, +Key, +NewVal
+	   rb_rewrite/4,		% +T, +Key, ?OldVal, +NewVal
 	   rb_apply/4,			% +T, +Key, :G, -TN
 	   rb_lookupall/3,		% +Key, -Value, +T
 	   rb_insert/4,		% +T0, +Key, ?Value, -TN
@@ -39,6 +41,8 @@
 	   rb_del_max/4,
 	   rb_next/4,
 	   rb_previous/4,
+	   rb_fold/4,
+	   rb_key_fold/4,
 	   list_to_rbtree/2,
 	   ord_list_to_rbtree/2,
 	   is_rbtree/1,
@@ -255,6 +259,48 @@ update(red(Left,Key0,Val0,Right), Key, OldVal, Val, NewTree) :-
 	;
 	  NewTree = red(Left,Key0,Val0,NewRight),
 	  update(Right, Key, OldVal, Val, NewRight)
+	).
+
+%%	rb_rewrite(+T, +Key, +NewVal) is semidet.
+%%	rb_rewrite(+T, +Key, ?OldVal, +NewVal) is semidet.
+%
+%	Tree T has   value  for  Key  associated with
+%	NewVal.  Fails if it cannot find Key in T.
+
+rb_rewrite(t(_Nil,OldTree), Key, OldVal, Val) :-
+	rewrite(OldTree, Key, OldVal, Val).
+
+rb_rewrite(t(_Nil,OldTree), Key, Val) :-
+	rewrite(OldTree, Key, _, Val).
+
+rewrite(Node, Key, OldVal, Val) :-
+	Node = black(Left,Key0,Val0,Right),
+	Left \= [],
+	compare(Cmp,Key0,Key),
+	(Cmp == (=)
+	-> OldVal = Val0,
+	    setarg(3, Node, Val)
+	;
+	Cmp == (>) ->
+	  rewrite(Left, Key, OldVal, Val)
+	;
+	  rewrite(Right, Key, OldVal, Val)
+	).
+rewrite(Node, Key, OldVal, Val) :-
+	Node = red(Left,Key0,Val0,Right),
+	Left \= [],
+	compare(Cmp,Key0,Key),
+	(
+           Cmp == (=)
+	-> 
+            OldVal = Val0,
+	    setarg(3, Node, Val)
+	;
+	  Cmp == (>)
+         ->
+	  rewrite(Left, Key, OldVal, Val)
+	;
+	  rewrite(Right, Key, OldVal, Val)
 	).
 
 %%	rb_apply(+T, +Key, :G, -TN) is semidet.
@@ -821,7 +867,7 @@ map(black(L,_,V,R),Goal) :-
 	map(L,Goal),
 	map(R,Goal).
 
-:- meta_predicate rb_accumulate(?,3,?,?).  % this is required.
+:- meta_predicate rb_fold(3,?,?,?).  % this is required.
 :- meta_predicate map_acc(?,3,?,?).  % this is required.
 
 %%	rb_fold(+T, :G, +Acc0, -AccF) is semidet.
@@ -833,7 +879,7 @@ map(black(L,_,V,R),Goal) :-
 %       if VR is the value of the next node in inorder,
 %       call(G,VR,Acc1,_) must hold.
 
-rb_fold(t(_,Tree), Goal, In, Out) :-
+rb_fold(Goal, t(_,Tree), In, Out) :-
 	map_acc(Tree, Goal, In, Out).
 
 map_acc(black('',_,_,''), _, Acc, Acc) :- !.
@@ -845,6 +891,31 @@ map_acc(black(L,_,V,R), Goal, Left, Right) :-
 	map_acc(L,Goal, Left, Left1),
 	once(call(Goal,V, Left1, Right1)),
 	map_acc(R,Goal, Right1, Right).
+
+:- meta_predicate rb_key_fold(4,?,?,?).  % this is required.
+:- meta_predicate map_key_acc(?,3,?,?).  % this is required.
+
+%%	rb_key_fold(+T, :G, +Acc0, -AccF) is semidet.
+%
+%	For all nodes Key in the tree   T,  if the value associated with
+%	key Key is V in tree T, if call(G,Key,V,Acc1,Acc2) holds, then
+%	if VL is value of the previous node in inorder,
+%       call(G,VL,_,Acc0) must hold, and
+%       if VR is the value of the next node in inorder,
+%       call(G,VR,Acc1,_) must hold.
+
+rb_key_fold(Goal, t(_,Tree), In, Out) :-
+	map_key_acc(Tree, Goal, In, Out).
+
+map_key_acc(black('',_,_,''), _, Acc, Acc) :- !.
+map_key_acc(red(L,Key,V,R), Goal, Left, Right) :-
+	map_key_acc(L,Goal, Left, Left1),
+	once(call(Goal, Key, V, Left1, Right1)),
+	map_key_acc(R,Goal, Right1, Right).
+map_key_acc(black(L,Key,V,R), Goal, Left, Right) :-
+	map_key_acc(L,Goal, Left, Left1),
+	once(call(Goal, Key, V, Left1, Right1)),
+	map_key_acc(R,Goal, Right1, Right).
 
 %%	rb_clone(+T, -NT, -Pairs)
 %
