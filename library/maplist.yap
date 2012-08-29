@@ -30,6 +30,8 @@
 		    partition/4,
 		    partition/5,			
 		    foldl/4,			% :Pred, +List, ?V0, ?V
+		    foldl2/6,			% :Pred, +List, ?V0, ?V, ?W0, ?W
+		    foldl3/8,			% :Pred, +List, ?V0, ?V, ?W0, ?W
 		    foldl/5,			% :Pred, +List1, +List2, ?V0, ?V
 		    foldl/6,			% :Pred, +List1, +List2, +List3, ?V0, ?V
 		    foldl/7,			% :Pred, +List1, +List2, +List3, +List4,
@@ -65,6 +67,8 @@
 	partition(2,+,-,-),
 	partition(2,+,-,-,-),
 	foldl(3, +, +, -),
+	foldl2(5, +, +, -, +, -),
+	foldl3(5, +, +, -, +, -, +, -),
 	foldl(4, +, +, +, -),
 	foldl(5, +, +, +, +, -),
 	foldl(6, +, +, +, +, +, -),
@@ -277,19 +281,16 @@ sumnodes_body(Pred, Term, A1, A3, N0, Ar) :-
 		 *	      FOLDL		*
 		 *******************************/
 
-%%	foldl(:Goal, +List, +V0, -V).
-%%	foldl(:Goal, +List1, +List2, +V0, -V).
-%%	foldl(:Goal, +List1, +List2, +List3, +V0, -V).
-%%	foldl(:Goal, +List1, +List2, +List3, +List4, +V0, -V).
+%%	foldl(:Goal, +List, +V0, -V, +W0, -WN).
 %
 %	Fold a list, using arguments of the   list as left argument. The
 %	foldl family of predicates is defined by:
 %
 %	  ==
-%	  foldl(P, [X11,...,X1n], ..., [Xm1,...,Xmn], V0, Vn) :-
-%		P(X11, ..., Xm1, V0, V1),
+%	  foldl(P, [X11,...,X1n],V0, Vn, W0, WN) :-
+%		P(X11, V0, V1, W0, W1),
 %		...
-%		P(X1n, ..., Xmn, V', Vn).
+%		P(X1n, Vn1, Vn, Wn1, Wn).
 %	  ==
 
 foldl(Goal, List, V0, V) :-
@@ -299,7 +300,6 @@ foldl_([], _, V, V).
 foldl_([H|T], Goal, V0, V) :-
 	call(Goal, H, V0, V1),
 	foldl_(T, Goal, V1, V).
-
 
 foldl(Goal, List1, List2, V0, V) :-
 	foldl_(List1, List2, Goal, V0, V).
@@ -326,6 +326,40 @@ foldl_([], [], [], [], _, V, V).
 foldl_([H1|T1], [H2|T2], [H3|T3], [H4|T4], Goal, V0, V) :-
 	call(Goal, H1, H2, H3, H4, V0, V1),
 	foldl_(T1, T2, T3, T4, Goal, V1, V).
+
+
+%%	foldl(:Goal, +List, +V0, -V).
+%%	foldl(:Goal, +List1, +List2, +V0, -V).
+%%	foldl(:Goal, +List1, +List2, +List3, +V0, -V).
+%%	foldl(:Goal, +List1, +List2, +List3, +List4, +V0, -V).
+%
+%	Fold a list, using arguments of the   list as left argument. The
+%	foldl family of predicates is defined by:
+%
+%	  ==
+%	  foldl(P, [X11,...,X1n], ..., [Xm1,...,Xmn], V0, Vn) :-
+%		P(X11, ..., Xm1, V0, V1),
+%		...
+%		P(X1n, ..., Xmn, V', Vn).
+%	  ==
+
+foldl2(Goal, List, V0, V, W0, W) :-
+	foldl2_(List, Goal, V0, V, W0, W).
+
+foldl2_([], _, V, V, W, W).
+foldl2_([H|T], Goal, V0, V, W0, W) :-
+	call(Goal, H, V0, V1, W0, W1),
+	foldl_(T, Goal, V1, V, W1, W).
+
+
+foldl3(Goal, List, V0, V, W0, W, X0, X) :-
+	foldl3_(List, Goal, V0, V, W0, W, X0, X).
+
+foldl3_([], _, V, V, W, W, X, X).
+foldl3_([H|T], Goal, V0, V, W0, W, X0, X) :-
+	call(Goal, H, V0, V1, W0, W1, X0, X1),
+	fold3_(T, Goal, V1, V, W1, W, X1, X).
+
 
 
 		 /*******************************
@@ -697,15 +731,15 @@ goal_expansion(foldl(Meta, List1, List2, AccIn, AccOut), Mod:Goal) :-
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
 	!,
 	% the new goal
-	pred_name(foldl, 4, Proto, GoalName),
+	pred_name(foldl, 5, Proto, GoalName),
 	append(MetaVars, [List1, List2, AccIn, AccOut], GoalArgs),
 	Goal =.. [GoalName|GoalArgs],
 	% the new predicate declaration
 	HeadPrefix =.. [GoalName|PredVars],	
-	append_args(HeadPrefix, [[], Acc, Acc], Base),
-	append_args(HeadPrefix, [[In|Ins], Acc1, Acc2], RecursionHead),
-	append_args(Pred, [In, Acc1, Acc3], Apply),
-	append_args(HeadPrefix, [Ins, Acc3, Acc2], RecursiveCall),
+	append_args(HeadPrefix, [[], [], Acc, Acc], Base),
+	append_args(HeadPrefix, [[In|Ins], [I2|Is2], Acc1, Acc2], RecursionHead),
+	append_args(Pred, [In, I2, Acc1, Acc3], Apply),
+	append_args(HeadPrefix, [Ins, Is2, Acc3, Acc2], RecursiveCall),
 	compile_aux([
 		     Base,
 		     (RecursionHead :- Apply, RecursiveCall)
@@ -718,15 +752,57 @@ goal_expansion(foldl(Meta, List1, List2, List3, AccIn, AccOut), Mod:Goal) :-
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
 	!,
 	% the new goal
-	pred_name(foldl, 4, Proto, GoalName),
+	pred_name(foldl, 6, Proto, GoalName),
 	append(MetaVars, [List1, List2, List3, AccIn, AccOut], GoalArgs),
 	Goal =.. [GoalName|GoalArgs],
 	% the new predicate declaration
 	HeadPrefix =.. [GoalName|PredVars],	
-	append_args(HeadPrefix, [[], Acc, Acc], Base),
-	append_args(HeadPrefix, [[In|Ins], Acc1, Acc2], RecursionHead),
-	append_args(Pred, [In, Acc1, Acc3], Apply),
-	append_args(HeadPrefix, [Ins, Acc3, Acc2], RecursiveCall),
+	append_args(HeadPrefix, [[], [], [], Acc, Acc], Base),
+	append_args(HeadPrefix, [[In|Ins], [I2|I2s], [I3|I3s], Acc1, Acc2], RecursionHead),
+	append_args(Pred, [In, I2, I3, Acc1, Acc3], Apply),
+	append_args(HeadPrefix, [Ins, I2s, I3s, Acc3, Acc2], RecursiveCall),
+	compile_aux([
+		     Base,
+		     (RecursionHead :- Apply, RecursiveCall)
+		    ], Mod).
+
+goal_expansion(foldl2(Meta, List, AccIn, AccOut, W0, W), Mod:Goal) :-
+	goal_expansion_allowed,
+	callable(Meta),
+	prolog_load_context(module, Mod),
+	aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
+	!,
+	% the new goal
+	pred_name(foldl2, 6, Proto, GoalName),
+	append(MetaVars, [List, AccIn, AccOut, W0, W], GoalArgs),
+	Goal =.. [GoalName|GoalArgs],
+	% the new predicate declaration
+	HeadPrefix =.. [GoalName|PredVars],	
+	append_args(HeadPrefix, [[], Acc, Acc, W, W], Base),
+	append_args(HeadPrefix, [[In|Ins], Acc1, Acc2, W1, W2], RecursionHead),
+	append_args(Pred, [In, Acc1, Acc3, W1, W3], Apply),
+	append_args(HeadPrefix, [Ins, Acc3, Acc2, W3, W2], RecursiveCall),
+	compile_aux([
+		     Base,
+		     (RecursionHead :- Apply, RecursiveCall)
+		    ], Mod).
+
+goal_expansion(foldl3(Meta, List, AccIn, AccOut, W0, W, X0, X), Mod:Goal) :-
+	goal_expansion_allowed,
+	callable(Meta),
+	prolog_load_context(module, Mod),
+	aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
+	!,
+	% the new goal
+	pred_name(foldl3, 8, Proto, GoalName),
+	append(MetaVars, [List, AccIn, AccOut, W0, W, X0, X], GoalArgs),
+	Goal =.. [GoalName|GoalArgs],
+	% the new predicate declaration
+	HeadPrefix =.. [GoalName|PredVars],	
+	append_args(HeadPrefix, [[], Acc, Acc, W, W, X, X], Base),
+	append_args(HeadPrefix, [[In|Ins], Acc1, Acc2, W1, W2, X1, X2], RecursionHead),
+	append_args(Pred, [In, Acc1, Acc3, W1, W3, X1, X3], Apply),
+	append_args(HeadPrefix, [Ins, Acc3, Acc2, W3, W2, X3, X2], RecursiveCall),
 	compile_aux([
 		     Base,
 		     (RecursionHead :- Apply, RecursiveCall)
