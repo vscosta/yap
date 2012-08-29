@@ -23,6 +23,8 @@
 	  nth0/3,
 	  member/2]).
 
+:- use_module(library(maplist)).
+
 :- use_module(library(pfl), [
           factor/6,
           defined_in_factor/2,
@@ -44,7 +46,7 @@ generate_network(QueryVars, QueryKeys, Keys, Factors, EList) :-
 	include_evidence(AVars, Evidence0, Evidence),
 	b_hash_to_list(Evidence, EList0), list_to_evlist(EList0, EList),
 	run_through_evidence(EList),
-	run_through_queries(QueryVars, QueryKeys, Evidence),
+	run_through_query(Evidence, QueryVars, QueryKeys),
 	propagate,
 	collect(Keys, Factors).
 
@@ -88,20 +90,15 @@ include_static_evidence([K=E|AVars], Evidence0, Evidence) :-
 	include_evidence(AVars, EvidenceI, Evidence).
 
 
-run_through_queries([QVars|QueryVars], [GKs|GKeys], E) :-
-	run_through_query(QVars, GKs, E),
-	run_through_queries(QueryVars, GKeys, E).
-run_through_queries([], [], _).
-
-run_through_query([], [], _).
-run_through_query([V|QueryVars], QueryKeys, Evidence) :-
+run_through_query(_, [], []).
+run_through_query(Evidence, [V|QueryVars], QueryKeys) :-
 	clpbn:get_atts(V,[key(K)]),
 	b_hash_lookup(K, _, Evidence), !,
-	run_through_query(QueryVars, QueryKeys, Evidence).
-run_through_query([V|QueryVars], [K|QueryKeys], Evidence) :-
+	run_through_query(Evidence, QueryVars, QueryKeys).
+run_through_query(Evidence, [V|QueryVars], [K|QueryKeys]) :-
 	clpbn:get_atts(V,[key(K)]),
 	queue_in(K),
-	run_through_query(QueryVars, QueryKeys, Evidence).
+	run_through_query(Evidence, QueryVars, QueryKeys).
 
 collect(Keys, Factors) :-
 	findall(K, currently_defined(K), Keys),
@@ -142,8 +139,10 @@ initialize_evidence([V|EVars]) :-
 queue_in(K) :-
 	queue(K), !.
 queue_in(K) :-
-	%writeln(+K),
-	assert(queue(K)).
+	writeln(+K),
+	assert(queue(K)),
+	fail.
+queue_in(_).
 
 propagate :-
 	retract(queue(K)),!,
@@ -167,7 +166,7 @@ do_propagate(K) :-
 	\+ currently_defined(K1),
 	queue_in(K1),
 	fail.
-do_propagate(K) :-
+do_propagate(_K) :-
         propagate.
 
 add_factor(factor(Type, Id, Ks, _, Phi, Constraints), Ks) :-

@@ -1,10 +1,13 @@
 :- module(clpbn_matrix_utils,
-	  [init_CPT/2,
+	  [init_CPT/3,
 	   project_from_CPT/3,
+	   sum_out_from_CPT/5,
+	   project_from_CPT/6,
 	   reorder_CPT/5,
 	   get_CPT_sizes/2,
 	   normalise_CPT/2,
 	   multiply_CPTs/4,
+	   multiply_CPTs/6,
 	   divide_CPTs/3,
 	   expand_CPT/4,
 	   reset_CPT_that_disagrees/5,
@@ -50,6 +53,20 @@ init_CPT(List, Sizes, TAB) :-
 
 init_possibly_deterministic_CPT(List, Sizes, TAB) :-
 	matrix_new(floats, Sizes, List, TAB).
+
+%
+% select elements of matrix Table such that V=Pos
+%
+project_from_CPT(V, Pos, Table, Deps, NewTable, NDeps) :-
+	vnth(Deps, 0, V, N, NDeps),
+	matrix_select(Table, N, Pos, NewTable).
+
+%
+% sum-out varibale V from Table
+%
+sum_out_from_CPT(V, Table, Deps, NewTable, NDeps) :-
+	vnth(Deps, 0, V, N, NDeps),
+	matrix_sum_logs_out(Table, N, NewTable).
 
 project_from_CPT(V,tab(Table,Deps,_),tab(NewTable,NDeps,NSzs)) :-
 	evidence(V,Pos), !,
@@ -132,6 +149,14 @@ multiply_CPTs(tab(Tab1, Deps1, Sz1), tab(Tab2, Deps2, Sz2), tab(OT, NDeps, NSz),
 	matrix_expand_compact(Tab2, Map2, NTab2),
 	matrix_op(NTab1,NTab2,+,OT),
 	matrix_dims(OT,NSz).
+
+multiply_CPTs(Tab1, Deps1, Tab2, Deps2, OT, NDeps) :-
+	matrix_dims(Tab1, Sz1),
+	matrix_dims(Tab2, Sz2),
+	expand_tabs(Deps1, Sz1, Deps2, Sz2, Map1, Map2, NDeps),
+	matrix_expand_compact(Tab1, Map1, NTab1),
+	matrix_expand_compact(Tab2, Map2, NTab2),
+	matrix_op(NTab1,NTab2,+,OT).
 
 
 expand_tabs([], [], [], [], [], [], []).

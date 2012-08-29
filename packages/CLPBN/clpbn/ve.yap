@@ -33,6 +33,8 @@
 	      [
 	       dist/4,
 	       get_dist_domain_size/2,
+	       get_dist_params/2,
+	       get_dist_domain_size/2,
 	       get_dist_matrix/5]).
 
 :- use_module(library('clpbn/utils'), [
@@ -47,243 +49,322 @@
 	       influences/4
 	      ]).
 
-:- use_module(library('clpbn/matrix_cpt_utils'),
-	      [project_from_CPT/3,
-	       reorder_CPT/5,
-	       multiply_CPTs/4,
-	       normalise_CPT/2,
-	       sum_out_from_CPT/4,
-	       list_from_CPT/2]).
+:- use_module(library(clpbn/matrix_cpt_utils)).
 
 :- use_module(library(lists),
 	      [
-	       append/3
+	       member/2,
+	       append/3,
+	       delete/3
 	      ]).
+
+:- use_module(library(maplist)).
+
+:- use_module(library(rbtrees)).
+
+:- use_module(library(clpbn/vmap)).
 
 :- use_module(library('clpbn/aggregates'),
 	      [check_for_agg_vars/2]).
 
+%
+% uses a bipartite graph where bigraph(Vs, NFs, Fs)
+% Vs=map variables to lists of factors
+% NFs=number of factors
+% Fs=map factor id -> f(Id, Vars, Table)
+%
 
 check_if_ve_done(Var) :-
 	get_atts(Var, [size(_)]), !.
 
-%
+	%
 % implementation of the well known variable elimination algorithm
 %
 ve([[]],_,_) :- !.
-ve([LVs],Vs0,AllDiffs) :-
-	init_ve_solver([LVs], Vs0, AllDiffs, State),
+ve(LLVs,Vs0,AllDiffs) :-
+	init_ve_solver(LLVs, Vs0, AllDiffs, State),
 	% variable elimination proper
-	run_ve_solver([LVs], [LPs], State),
+	run_ve_solver(LLVs, LLPs, State),
 	% bind Probs back to variables so that they can be output.
-	clpbn_bind_vals([LVs],[LPs],AllDiffs).
+	clpbn_bind_vals(LLVs,LLPs,AllDiffs).
 
-init_ve_solver(Qs, Vs0, _, LVis) :-
+%
+% Qs is a list of lists with all query vars (marginals)
+% IQs is the corresponding list of integers
+% LVis is a list of lists with all variables reachable from the query
+% ILVis is the corresponding list of integers
+% Vmap is the map V->I
+%
+init_ve_solver(Qs, Vs0, _, state(IQs, LVIs, VMap, Bigraph, Ev)) :-
 	check_for_agg_vars(Vs0, Vs1),
 	% LVi will have a  list of CLPBN variables
-	init_influences(Vs1, G, RG),
-	init_ve_solver_for_questions(Qs, G, RG, _, LVis).
+	init_influences(Vs1, Graph, TGraph),
+	maplist(init_ve_solver_for_question(Graph, TGraph), Qs, LVs),
+	init_vmap(VMap0),
+	lvars_to_numbers(LVs, LVIs, VMap0, VMap1),
+	lvars_to_numbers(Qs, IQs, VMap1, VMap),
+	vars_to_bigraph(VMap, Bigraph, Ev).
 
-init_ve_solver_for_questions([], _, _, [], []).
-init_ve_solver_for_questions([Vs|MVs], G, RG, [NVs|MNVs0], [NVs|LVis]) :-
+init_ve_solver_for_question(G, RG, Vs, NVs) :-
 	influences(Vs, G, RG, NVs0),
-	sort(NVs0, NVs),
-%clpbn_gviz:clpbn2gviz(user_error, test, NVs, Vs),
-	init_ve_solver_for_questions(MVs, G, RG, MNVs0, LVis).
+	sort(NVs0, NVs).
 
+%
+% construct a bipartite graph with vars and factors
+% the nodes of the var graph just contain pointer to the factors
+% the nodes of the factors contain  alist of variables and a matrix
+% also provide a matrix with evidence
+%
+vars_to_bigraph(VMap, bigraph(VInfo, IF, Fs), Evs) :-
+	rb_new(Fs0),
+	vmap_to_list(VMap, VIds),
+	foldl3(id_to_factor(VMap), VIds, 0, IF, Fs0, Fs, [], Evs),
+	factors_to_vs(Fs, VInfo).
+
+id_to_factor(VMap, V-I, IF0, IF, Fs0, Fs, Evs0, Evs) :-
+	% process evidence for variable
+	clpbn:get_atts(V, [evidence(E), dist(_,Ps)]), 
+	checklist(noparent_of_interest(VMap), Ps), !,
+	% I don't need to get a factor here
+	Evs = [I=E|Evs0],
+	IF = IF0,
+	Fs = Fs0.
+id_to_factor(VMap, V-I, IF0, IF, Fs0, Fs, Evs0, Evs) :-
+	%  process distribution/factors
+	(
+	    clpbn:get_atts(V, [evidence(E)])
+	 ->
+	    Evs = [I=E|Evs0]
+	;
+	    Evs = Evs0
+	),	    
+	clpbn:get_atts(V, [dist(D, Ps)]),
+	get_dist_params(D, Pars0),
+	get_dist_domain_size(D, DS),
+	maplist(parent_to_id(VMap), Ps, Sizes, IPs),
+	init_CPT(Pars0, [DS|Sizes], CPT0), 
+	reorder_CPT([I|IPs], CPT0, FIPs, CPT, _),
+	rb_insert(Fs0, IF0, f(IF0, FIPs, CPT), Fs),
+	IF is IF0+1.
+
+noparent_of_interest(VMap, P) :-
+	\+ get_from_vmap(P, _, VMap).
+
+parent_to_id(VMap, V, DS, I) :-
+	clpbn:get_atts(V, [dist(D, _Ps)]),
+	get_dist_domain_size(D, DS),
+	get_from_vmap(V, I, VMap).
+
+factors_to_vs(Fs, VInfo) :-
+	rb_visit(Fs, L),
+	foldl(fsvs, L, FVs, []),
+	sort(FVs, SFVs),
+	rb_new(VInfo0),
+	add_vs(SFVs, Fs, VInfo0, VInfo).
+
+fsvs(F-f(_, IVs, _)) -->
+	fvs(IVs, F).
+
+fvs([], _F) --> [].
+fvs([I|IVs], F) -->
+	[I-F],
+	fvs(IVs, F).
+
+%
+% construct variable nodes
+%
+add_vs([], _, VInfo, VInfo).
+add_vs([V-F|SFVs], Fs, VInfo0, VInfo) :-
+	rb_lookup(F, FInfo, Fs),
+	collect_factors(SFVs, Fs, V, Fs0, R),
+	rb_insert(VInfo0, V, [FInfo|Fs0], VInfoI),
+	add_vs(R, Fs, VInfoI, VInfo).
+
+collect_factors([], _Fs, _V, [], []).
+collect_factors([V-F|SFVs], Fs, V, [FInfo|FInfos], R):-
+	!,
+	rb_lookup(F, FInfo, Fs),
+	collect_factors(SFVs, Fs, V, FInfos, R).
+collect_factors(SFVs, _Fs, _V, [], SFVs).
+
+% solve each query independently
 % use a findall to recover space without needing for GC
-run_ve_solver(LVs, LPs, LNVs) :-
-	findall(Ps, solve_ve(LVs, LNVs, Ps), LPs).
+run_ve_solver(_, LLPs, state(LQVs, LVs, _VMap,  Bigraph, Ev)) :-
+	findall(LPs, solve_ve(LQVs, LVs, Bigraph, Ev, LPs), LLPs).
 
-solve_ve([LVs|_], [NVs0|_], Ps) :-
-%	length(NVs0, L), (L > 10 -> clpbn_gviz:clpbn2gviz(user_error,sort,NVs0,LVs) ; true ),
-%	length(NVs0, L), writeln(+L),
-	find_all_clpbn_vars(NVs0, NVs0, LV0, LVi, Tables0),
-	sort(LV0, LV),
-	% construct the graph
-	find_all_table_deps(Tables0, LV),
-	process(LVi, LVs, tab(Dist,_,_)),
+%
+% IQVs are the current marginal,
+% IVs are all variables related to that
+% IFVs are the factors
+% SVs are the variables
+%
+solve_ve([IQVs|_], [IVs|_], bigraph(OldVs, IF, _Fs), Ev, Ps) :-
+	% get only what is relevant to query,
+	project_to_query_related(IVs, OldVs, SVs, Fs1), 
+	% and also prune using evidence
+	foldl2(clean_v_ev, Ev, Fs1, Fs2, SVs, EVs), 
+	% eliminate
+	eliminate(IQVs, digraph(EVs, IF, Fs2), Dist),
 % writeln(m:Dist),matrix:matrix_to_list(Dist,LD),writeln(LD),
 %exps(LD,LDE),writeln(LDE),
 	% move from potentials back to probabilities
 	normalise_CPT(Dist,MPs),
 	list_from_CPT(MPs, Ps).
-solve_ve([_|MoreLVs], [_|MoreLVis], Ps) :-
-	solve_ve(MoreLVs, MoreLVis, Ps).
-
-exps([],[]).
-exps([L|LD],[O|LDE]) :-
-	O is exp(L),
-	exps(LD,LDE).
-
-keys([],[]).
-keys([V|NVs0],[K:E|Ks]) :-
-	clpbn:get_atts(V,[key(K),evidence(E)]), !,
-	keys(NVs0,Ks).
-keys([V|NVs0],[K|Ks]) :-
-	clpbn:get_atts(V,[key(K)]),
-	keys(NVs0,Ks).
+solve_ve([_|MoreLVs], [_|MoreLVis], Digraph, Ev, Ps) :-
+	solve_ve(MoreLVs, MoreLVis, Digraph, Ev, Ps).
 
 %
-% just get a list of variables plus associated tables
+% given our input queries, sort them and obtain the subgraphs of vars and facs.
 %
-find_all_clpbn_vars([], _, [], [], []) :- !.
-find_all_clpbn_vars([V|Vs], NVs0, [Var|LV], ProcessedVars, [table(I,Table,Parents,Sizes)|Tables]) :-
-	var_with_deps(V, NVs0, Table, Parents, Sizes, Ev, Vals), !,
-	% variables with evidence should not be processed.
-	(var(Ev) ->
-	    Var = var(V,I,Sz,Vals,Parents,Ev,_,_),
-	    ve_get_dist_size(V,Sz),
-	    ProcessedVars = [Var|ProcessedVars0]
-	;
-	    ProcessedVars = ProcessedVars0
-	),
-	find_all_clpbn_vars(Vs, NVs0, LV, ProcessedVars0, Tables).
+project_to_query_related(IVs0, OldVs, NVs, NFs) :-
+	sort(IVs0, IVs),
+	rb_new(Vs0),
+	foldl(cp_to_vs, IVs, Vs0, AuxVs), 
+	rb_new(NFs0),
+	foldl(simplify_graph_node(OldVs, AuxVs), IVs, VFs, NFs0, NFs),
+	list_to_rbtree(VFs, NVs).
 
-var_with_deps(V, NVs0, Table, Deps, Sizes, Ev, Vals) :-
-	clpbn:get_atts(V, [dist(Id,Parents)]),
-	get_dist_matrix(Id,Parents,_,Vals,TAB0),
+%
+% auxiliary tree for fast access to vars.
+%
+cp_to_vs(V, Vs0, Vs) :-
+	rb_insert(Vs0, V, _, Vs).
+
+%
+% construct a new, hopefully much smaller, graph
+%
+simplify_graph_node(OldVs, NVs, V, V-RemFs, NFs0, NFs) :-
+	rb_lookup(V, Fs, OldVs),
+	foldl2(check_factor(V, NVs), Fs, NFs0, NFs, [], RemFs).
+
+%
+% check if a factor belongs to the subgraph.
+%
+%
+% Two cases: first time factor comes up: all its vars must be in subgraph
+% second case: second time it comes up, it must be already in graph
+% 
+% args: +Factor F, +current V (int), +rbtree with all Vs, 
+%       -Factors in new Graph, +factors in current graph, -rbtree of factors
+%
+%
+check_factor(V, NVs, F, NFs0, NFs, RemFs, NewRemFs) :-
+	F = f(IF, [V|More], _), !,
 	( 
-	    clpbn:get_atts(V, [evidence(Ev)])
+	  checklist(check_v(NVs), More)
 	->
-	    true
-	;
-	    true
-	), !,
-	% set CPT in canonical form
-	reorder_CPT([V|Parents],TAB0,Deps0,TAB1,Sizes1),
-	% remove evidence.
-	simplify_evidence(Deps0, NVs0, TAB1, Deps0, Sizes1, Table, Deps, Sizes).
+	  rb_insert(NFs0, IF, F, NFs),
+	  NewRemFs = [F|RemFs]
+        ;
+	  NFs0 = NFs,
+	  NewRemFs = RemFs
+        ).
+check_factor(_V, _NVs, F, NFs, NFs, RemFs, NewRemFs) :-
+	F = f(Id, _, _),
+	( 
+	  rb_lookup(Id, F, NFs)
+	->
+	  NewRemFs = [F|RemFs]
+        ;
+	  NewRemFs = RemFs
+        ).
 
-find_all_table_deps(Tables0, LV) :-
-	find_dep_graph(Tables0, DepGraph0),
-	sort(DepGraph0, DepGraph),
-	add_table_deps_to_variables(LV, DepGraph).
+check_v(NVs, V) :-
+	rb_lookup(V, _, NVs).
 
-find_dep_graph([], []) :- !.
-find_dep_graph([table(I,Tab,Deps,Sizes)|Tables], DepGraph) :-
-	add_table_deps(Deps, I, Deps, Tab, Sizes, DepGraph0, DepGraph),
-	find_dep_graph(Tables, DepGraph0).
+%
+% simplify a variable with evidence
+%
+clean_v_ev(V=E, FVs0, FVs, Vs0, Vs) :-
+	rb_delete(Vs0, V, Fs, Vs1),
+	foldl2(simplify_f_ev(V, E), Fs, FVs0, FVs, Vs1, Vs).
 
-add_table_deps([], _, _, _, _, DepGraph, DepGraph).
-add_table_deps([V|Deps], I, Deps0, Table, Sizes, DepGraph0, [V-tab(Table,Deps0,Sizes)|DepGraph]) :-
-	add_table_deps(Deps, I, Deps0, Table, Sizes, DepGraph0, DepGraph).
+%
+%
+% tricky: clean a factor means also cleaning all back references.
+%
+simplify_f_ev(V, E, F, Fs0, Fs, Vs0, Vs) :-
+	F =  f(Id,  FVs,  CPT),
+	NF = f(Id, NFVs, NCPT),
+	project_from_CPT(V, E, CPT, FVs, NCPT, NFVs),
+	% update factor
+	rb_update(Fs0, Id, NF, Fs),
+	foldl(update_factors(F,NF), NFVs, Vs0, Vs).
 
-add_table_deps_to_variables([], []).
-add_table_deps_to_variables([var(V,_,_,_,_,_,Deps,K)|LV], DepGraph) :-
-	steal_deps_for_variable(DepGraph, V, NDepGraph, Deps),
-	compute_size(Deps,[],K),
-%	( clpbn:get_atts(V,[key(Key)]) -> format('~w:~w~n',[Key,K]) ; true),
-	add_table_deps_to_variables(LV, NDepGraph).
-	
-steal_deps_for_variable([V-Info|DepGraph], V0, NDepGraph, [Info|Deps]) :-
-	V == V0, !,
-	steal_deps_for_variable(DepGraph, V0, NDepGraph, Deps).
-steal_deps_for_variable(DepGraph, _, DepGraph, []).
+% update all instances of F in var graph
+update_factors(F, NF, V, Vs0, Vs) :-
+	rb_update(Vs0, V, Fs, NFs, Vs),
+	maplist(replace_factor(F,NF), Fs, NFs).
 
-compute_size([],Vs,K) :-
-	% use sizes now
-%	length(Vs,K).
-	multiply_sizes(Vs,1,K).
-compute_size([tab(_,Vs,_)|Tabs],Vs0,K) :-
-	ord_union(Vs,Vs0,VsI),
-	compute_size(Tabs,VsI,K).
+replace_factor(F, NF, F, NF) :- !.
+replace_factor(_F,_NF,OF, OF).
 
-multiply_sizes([],K,K).
-multiply_sizes([V|Vs],K0,K) :-
-	ve_get_dist_size(V, Sz),
-	KI is K0*Sz,
-	multiply_sizes(Vs,KI,K).
+eliminate(QVs, digraph(Vs0, I, Fs0), Dist) :-
+	find_best(Vs0, QVs, BestV, VFs), !,
+	%writeln(best:BestV:QVs),
+	% delete all factors that touched the variable
+	foldl2(del_fac, VFs, Fs0, Fs1, Vs0, Vs1),
+	% delete current variable
+	rb_delete(Vs1, BestV, Vs2),
+	I1 is I+1,
+	% construct new table
+	multiply_and_delete(VFs, BestV, NewFVs, NewCPT),
+	% insert new factor in graph
+	insert_fac(I, NewFVs, NewCPT, Fs1, Fs, Vs2, Vs),
+	eliminate(QVs, digraph(Vs, I1, Fs), Dist).
+eliminate(_QVs, digraph(_, _, Fs), Dist) :-
+	combine_factors(Fs, Dist).
 
-process(LV0, InputVs, Out) :-
-	find_best(LV0, V0, -1, V, WorkTables, LVI, InputVs),
-	V \== V0, !,
-%	clpbn:get_atts(V,[key(K)]), writeln(chosen:K),
-% format('1 ~w: ~w~n',[V,WorkTables]), write_tables(WorkTables),
-	multiply_tables(WorkTables, tab(Tab0,Deps0,_)),
-	reorder_CPT(Deps0,Tab0,Deps,Tab,Sizes),
-	Table = tab(Tab,Deps,Sizes),
-% format('2 ~w: ~w~n',[V,Table]),
-	project_from_CPT(V,Table,NewTable),
-% format('3 ~w: ~w~n',[V,NewTable]), write_tables([NewTable]),
-	include(LVI,NewTable,V,LV2),
-	process(LV2, InputVs, Out).
-process(LV0, _, Out) :-
-	fetch_tables(LV0, WorkTables0),
-	sort(WorkTables0, WorkTables),
-% format('4 ~w: ~w~n',[LV0,WorkTables]), write_tables(WorkTables),
-	multiply_tables(WorkTables, Out).
+find_best(Vs, QVs, BestV, VFs) :-
+	rb_key_fold(best_var(QVs), Vs, i(+inf,-1,[]), i(_Cost,BestV,VFs)),
+	BestV \= -1, !.
 
+% do not eliminate marginalised variables
+best_var(QVs, I, _Node, Info, Info) :-
+	member(I, QVs),
+	!.
+% pick the variable with less factors
+best_var(_Qs, I, Node, i(ValSoFar,_,_), i(NewVal,I,Node)) :-
+	length(Node, NewVal),
+	NewVal < ValSoFar,
+	!.
+best_var(_, _I, _Node, Info, Info).
 
-write_tables([]).
-write_tables([tab(Mat,_,_)|WorkTables]) :-
-	matrix:matrix_to_list(Mat,L),
-	writeln(L),
-	write_tables(WorkTables).
+% delete one factor, need to also touch all variables
+del_fac(f(I,FVs,_), Fs0, Fs, Vs0, Vs) :-
+	rb_delete(Fs0, I, Fs),
+	foldl(delete_fac_from_v(I), FVs, Vs0, Vs).
 
+delete_fac_from_v(I, FV, Vs0, Vs) :-
+	rb_update(Vs0, FV, Fs, NFs, Vs),
+	exclude(factor_name(I), Fs, NFs).
 
-find_best([], V, _TF, V, _, [], _).
-%:-
-%	clpbn:get_atts(V,[key(K)]), writeln(chosen:K:_TF).
-% root_with_single_child
-%find_best([var(V,I,_,_,[],Ev,[Dep],K)|LV], _, _, V, [Dep], LVF, Inputs) :- !.	
-find_best([var(V,I,Sz,Vals,Parents,Ev,Deps,K)|LV], _, Threshold, VF, NWorktables, LVF, Inputs) :-
-	( K < Threshold ; Threshold < 0),
-	clpbn_not_var_member(Inputs, V), !,
-	find_best(LV, V, K, VF, WorkTables,LV0, Inputs),
-	(V == VF ->
-	    LVF = LV0, Deps = NWorktables
-	;
-	    LVF = [var(V,I,Sz,Vals,Parents,Ev,Deps,K)|LV0], WorkTables = NWorktables
-	).
-find_best([V|LV], V0, Threshold, VF, WorkTables, [V|LVF], Inputs) :-
-	find_best(LV, V0, Threshold, VF, WorkTables, LVF, Inputs).
+factor_name(I, f(I,_,_)).
 
-multiply_tables([Table], Table) :- !. %, Table = tab(T,D,S),matrix:matrix_to_list(T,L),writeln(D:S:L).
-multiply_tables([TAB1, TAB2| Tables], Out) :-
-%TAB1 = tab(T,_,_),matrix:matrix_to_list(T,L),writeln(doing:L),
-	multiply_CPTs(TAB1, TAB2, TAB, _),
-	multiply_tables([TAB| Tables], Out).
+% insert one factor, need to touch all corresponding variables
+insert_fac(I, FVs, CPT, Fs0, Fs, Vs0, Vs) :-
+	F = f(I, FVs, CPT),
+	rb_insert(Fs0, I, F, Fs),
+	foldl(insert_fac_in_v(F), FVs, Vs0, Vs).
 
+insert_fac_in_v(F, FV, Vs0, Vs) :-
+	rb_update(Vs0, FV, Fs, [F|Fs], Vs).
 
-simplify_evidence([], _, Table, Deps, Sizes, Table, Deps, Sizes).
-simplify_evidence([V|VDeps], NVs0, Table0, Deps0, Sizes0, Table, Deps, Sizes) :-
-	clpbn:get_atts(V, [evidence(_)]), !,
-	project_from_CPT(V,tab(Table0,Deps0,Sizes0),tab(NewTable,Deps1,Sizes1)),
-	simplify_evidence(VDeps, NVs0, NewTable, Deps1, Sizes1, Table, Deps, Sizes).
-simplify_evidence([V|VDeps], NVs0, Table0, Deps0, Sizes0, Table, Deps, Sizes) :-
-	ord_member(V, NVs0), !,
-	simplify_evidence(VDeps, NVs0, Table0, Deps0, Sizes0, Table, Deps, Sizes).
-simplify_evidence([V|VDeps], NVs0, Table0, Deps0, Sizes0, Table, Deps, Sizes) :-
-	project_from_CPT(V,tab(Table0,Deps0,Sizes0),tab(NewTable,Deps1,Sizes1)),
-	simplify_evidence(VDeps, NVs0, NewTable, Deps1, Sizes1, Table, Deps, Sizes).
+combine_factors(Fs, Dist) :-
+	rb_visit(Fs,Els),
+	maplist(extract_factor,Els,Factors),
+	multiply(Factors, _, Dist).
 
-fetch_tables([], []).
-fetch_tables([var(_,_,_,_,_,_,Deps,_)|LV0], Tables) :-
-	append(Deps,Tables0,Tables),
-	fetch_tables(LV0, Tables0).
+extract_factor(_-Factor, Factor).
 
- 
-include([],_,_,[]).
-include([var(V,P,VSz,D,Parents,Ev,Tabs,Est)|LV],tab(T,Vs,Sz),V1,[var(V,P,VSz,D,Parents,Ev,Tabs,Est)|NLV]) :-
-	clpbn_not_var_member(Vs,V), !,
-	include(LV,tab(T,Vs,Sz),V1,NLV).
-include([var(V,P,VSz,D,Parents,Ev,Tabs,_)|LV],Table,NV,[var(V,P,VSz,D,Parents,Ev,NTabs,NEst)|NLV]) :-
-	update_tables(Tabs,NTabs,Table,NV),
-	compute_size(NTabs, [], NEst),
-	include(LV,Table,NV,NLV).
+multiply_and_delete([f(I,Vs0,T0)|Fs], V, Vs, T) :-
+	foldl(multiply_factor, Fs, f(I,Vs0,T0), f(_,Vs1,T1)),
+	sum_out_from_CPT(V, T1, Vs1, T, Vs).
 
-update_tables([],[Table],Table,_).
-update_tables([tab(Tab0,Vs,Sz)|Tabs],[tab(Tab0,Vs,Sz)|NTabs],Table,V) :-
-	clpbn_not_var_member(Vs,V), !,
-	update_tables(Tabs,NTabs,Table,V).
-update_tables([_|Tabs],NTabs,Table,V) :-
-	update_tables(Tabs,NTabs,Table,V).
+multiply([F0|Fs], Vs, T) :-
+	foldl(multiply_factor, Fs, F0, f(_,Vs,T)).
 
-ve_get_dist_size(V,Sz) :-
-	get_atts(V, [size(Sz)]), !.
-ve_get_dist_size(V,Sz) :-
-	clpbn:get_atts(V,dist(Id,_)), !,
-	get_dist_domain_size(Id,Sz),
-	put_atts(V, [size(Sz)]).
+multiply_factor(f(_,Vs1,T1), f(_,Vs0,T0), f(_,Vs,T)) :-
+	multiply_CPTs(T1, Vs1, T0, Vs0, T, Vs).
+
 

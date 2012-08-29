@@ -38,7 +38,7 @@ check_for_agg_vars([V|Vs0], [V|Vs1]) :-
 	clpbn:get_atts(V, [key(K), dist(Id,Parents)]), !,
 	simplify_dist(Id, V, K, Parents, Vs0, Vs00),
 	check_for_agg_vars(Vs00, Vs1).
-check_for_agg_vars([_|Vs0], Vs1) :-
+check_for_agg_vars([V|Vs0], [V|Vs1]) :-
 	check_for_agg_vars(Vs0, Vs1).
 
 % transform aggregate distribution into tree

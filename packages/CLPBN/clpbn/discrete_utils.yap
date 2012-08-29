@@ -8,7 +8,7 @@
 %
 % remove columns from a table
 %
-project_from_CPT(V,tab(Table,Deps,Szs),tab(NewTable,NDeps,NSzs)) :-
+project_from_CPT(V,f(Table,Deps,Szs),f(NewTable,NDeps,NSzs)) :-
 	propagate_evidence(V,Evs),
 	functor(Table,_,Max),
 	find_projection_factor(Deps, V, NDeps, Szs, NSzs, F, Sz),

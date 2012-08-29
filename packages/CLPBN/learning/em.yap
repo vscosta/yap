@@ -104,7 +104,7 @@ setup_em_network(Solver, state( AllDists, AllDistInstances, MargVars, SolverStat
 	sort_vars_by_key(AllVars0,AllVars,[]),
 	% no, we are in trouble because we don't know the network yet.
 	% get the ground network
-	generate_network([AllVars], _, Keys, Factors, EList),
+	generate_network(AllVars, _, Keys, Factors, EList),
 	% get the EM CPT connections info from the factors
 	generate_dists(Factors, EList, AllDists, AllDistInstances, MargVars),
 	% setup solver, if necessary

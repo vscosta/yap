@@ -63,6 +63,7 @@ CLPBN_PROGRAMS= \
 	$(CLPBN_SRCDIR)/utils.yap \
 	$(CLPBN_SRCDIR)/ve.yap \
 	$(CLPBN_SRCDIR)/viterbi.yap \
+	$(CLPBN_SRCDIR)/vmap.yap \
 	$(CLPBN_SRCDIR)/xbif.yap
 
 CLPBN_LEARNING_PROGRAMS= \
@@ -94,7 +95,7 @@ CLPBN_HMMER_EXAMPLES= \
 	$(CLPBN_EXDIR)/HMMer/score.yap
 
 CLPBN_LEARNING_EXAMPLES= \
-	$(CLPBN_EXDIR)/learning/profz_params.pfl \
+	$(CLPBN_EXDIR)/learning/prof_params.pfl \
 	$(CLPBN_EXDIR)/learning/school_params.pfl \
 	$(CLPBN_EXDIR)/learning/sprinkler_params.yap \
 	$(CLPBN_EXDIR)/learning/train.yap

@@ -29,7 +29,7 @@ bayes grade(C,S)::[a,b,c,d], int(S), diff(C) ; grade_table ; [registration(_,C,S
 
 bayes satisfaction(C,S)::[h,m,l], abi(P), grade(C,S) ; sat_table ; [reg_satisfaction(C,S,P)].
 
-bayes rat(C) :: [h,m,l], avg(Sats) ; avg ; [course_rating(C, Sats)].
+bayes rat(C) :: [h,m,l], avg(Sats) ; avg ; [course_rat(C, Sats)].
 
 bayes rank(S) :: [a,b,c,d], avg(Grades) ; avg ; [student_ranking(S,Grades)].
 
@@ -42,7 +42,7 @@ reg_satisfaction(CKey, SKey, PKey) :-
 	registration(_Key, CKey, SKey),
 	course(CKey, PKey).
 
-course_rating(CKey, Sats) :-
+course_rat(CKey, Sats) :-
 	course(CKey,  _),
 	setof(satisfaction(CKey,SKey,PKey),
 	   reg_satisfaction(CKey, SKey, PKey),
@@ -71,6 +71,14 @@ student_intelligence(P,A) :- int(P, A).
 
 course_difficulty(P,A) :- diff(P, A).
 
+
+registration_course(R,C) :-
+	registration(R, C, _).
+
+registration_student(R,S) :-
+	registration(R, _, S).
+
+course_rating(C,X) :- rat(C,X).
 
 %
 % evidence
