@@ -29,9 +29,9 @@ bayes grade(C,S)::[a,b,c,d], int(S), diff(C) ; grade_table ; [registration(_,C,S
 
 bayes satisfaction(C,S)::[h,m,l], abi(P), grade(C,S) ; sat_table ; [reg_satisfaction(C,S,P)].
 
-bayes rat(C) :: [h,m,l], avg(Sats) ; avg ; [course_rat(C, Sats)].
+bayes rat(C) :: [h,m,l], agg(Sats) ; avg ; [course_rat(C, Sats)].
 
-bayes rank(S) :: [a,b,c,d], avg(Grades) ; avg ; [student_ranking(S,Grades)].
+bayes rank(S) :: [a,b,c,d], agg(Grades) ; avg ; [student_ranking(S,Grades)].
 
 
 grade(Key, Grade) :-

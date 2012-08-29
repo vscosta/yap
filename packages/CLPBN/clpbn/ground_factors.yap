@@ -43,10 +43,12 @@ generate_network(QueryVars, QueryKeys, Keys, Factors, EList) :-
 	init_global_search,
 	attributes:all_attvars(AVars),
 	b_hash_new(Evidence0),
-	include_evidence(AVars, Evidence0, Evidence),
-	b_hash_to_list(Evidence, EList0), list_to_evlist(EList0, EList),
-	run_through_evidence(EList),
-	run_through_query(Evidence, QueryVars, QueryKeys),
+	foldl(include_evidence,AVars, Evidence0, Evidence1),
+	static_evidence(Evidence1, Evidence),
+	b_hash_to_list(Evidence, EList0), 
+	maplist(pair_to_evidence,EList0, EList),
+	maplist(queue_evidence, EList),
+	foldl(run_through_query(Evidence), QueryVars, [], QueryKeys),
 	propagate,
 	collect(Keys, Factors).
 
@@ -58,58 +60,46 @@ init_global_search :-
 	  retractall(currently_defined(_)),
 	  retractall(f(_,_,_)).
 
-list_to_evlist([], []).
-list_to_evlist([K-E|EList0], [K=E|EList]) :-
-	list_to_evlist(EList0, EList).
+pair_to_evidence(K-E, K=E).
 
-include_evidence([], Evidence0, Evidence) :-
-	findall(Sk=Var, pfl:evidence(Sk,Var), Evs),
-	include_static_evidence(Evs, Evidence0, Evidence).
-include_evidence([V|AVars], Evidence0, Evidence) :-
+include_evidence(V, Evidence0, Evidence) :-
 	clpbn:get_atts(V,[key(K),evidence(E)]), !,
 	(
 	    b_hash_lookup(K, E1, Evidence0)
 	->
-	    (E \= E1 -> throw(clpbn:incompatible_evidence(K,E,E1)) ; EvidenceI = Evidence0)
+	    (E \= E1 -> throw(clpbn:incompatible_evidence(K,E,E1)) ; Evidence = Evidence0)
 	;
-	    b_hash_insert(Evidence0, K, E, EvidenceI)
-	),
-	include_evidence(AVars, EvidenceI, Evidence).
-include_evidence([_|AVars], Evidence0, Evidence) :-
-	include_evidence(AVars, Evidence0, Evidence).
+	    b_hash_insert(Evidence0, K, E, Evidence)
+	).
+include_evidence(_, Evidence, Evidence).
 
-include_static_evidence([], Evidence, Evidence).
-include_static_evidence([K=E|AVars], Evidence0, Evidence) :-
+static_evidence(Evidence0, Evidence) :-
+	findall(Sk=Var, pfl:evidence(Sk,Var), Evs),
+	foldl(include_static_evidence, Evs, Evidence0, Evidence).
+
+include_static_evidence(K=E, Evidence0, Evidence) :-
 	(
 	    b_hash_lookup(K, E1, Evidence0)
 	->
-	    (E \= E1 -> throw(incompatible_evidence(K,E,E1)) ; EvidenceI = Evidence0)
+	    (E \= E1 -> throw(incompatible_evidence(K,E,E1)) ; Evidence = Evidence0)
 	;
-	    b_hash_insert(Evidence0, K, E, EvidenceI)
-	),
-	include_evidence(AVars, EvidenceI, Evidence).
+	    b_hash_insert(Evidence0, K, E, Evidence)
+	).
 
 
-run_through_query(_, [], []).
-run_through_query(Evidence, [V|QueryVars], QueryKeys) :-
+queue_evidence(K=_) :-
+        queue_in(K).
+
+run_through_query(Evidence, V, QueryKeys, QueryKeys) :-
 	clpbn:get_atts(V,[key(K)]),
-	b_hash_lookup(K, _, Evidence), !,
-	run_through_query(Evidence, QueryVars, QueryKeys).
-run_through_query(Evidence, [V|QueryVars], [K|QueryKeys]) :-
+	b_hash_lookup(K, _, Evidence), !.
+run_through_query(_Evidence, V, QueryKeys, [K|QueryKeys]) :-
 	clpbn:get_atts(V,[key(K)]),
-	queue_in(K),
-	run_through_query(Evidence, QueryVars, QueryKeys).
+	queue_in(K).
 
 collect(Keys, Factors) :-
 	findall(K, currently_defined(K), Keys),
 	findall(f(FType,FId,FKeys), f(FType,FId,FKeys), Factors).
-
-run_through_evidence([]).
-run_through_evidence([K=_|_]) :-
-        queue_in(K),
-        fail.
-run_through_evidence([_|Ev]) :-
-	run_through_evidence(Ev).
 
 ground_all_keys([], _).
 ground_all_keys([V|GVars], AllKeys) :-
@@ -149,6 +139,8 @@ propagate :-
 	do_propagate(K).
 propagate.
 
+do_propagate(agg(_)) :- !,
+	propagate.
 do_propagate(K) :-
 	%writeln(-K),
 	\+ currently_defined(K),
@@ -162,6 +154,7 @@ do_propagate(K) :-
 	  throw(error(no_defining_factor(K)))
 	)
 	,
+	  writeln(Ks),
 	member(K1, Ks),
 	\+ currently_defined(K1),
 	queue_in(K1),
@@ -169,11 +162,19 @@ do_propagate(K) :-
 do_propagate(_K) :-
         propagate.
 
-add_factor(factor(Type, Id, Ks, _, Phi, Constraints), Ks) :-
-	( is_list(Phi) -> CPT = Phi ; call(user:Phi, CPT) ),
+add_factor(factor(Type, Id, Ks, _, _Phi, Constraints), NKs) :-
+	( Ks = [K,agg(Els)]
+	 ->
+	  NKs=[K|Els]
+        ; 
+	  NKs = Ks
+	),
 	run(Constraints), !,
-	\+ f(Type, Id, Ks),
-	assert(f(Type, Id, Ks)).
+	\+ f(Type, Id, NKs),
+	assert(f(Type, Id, NKs)).
+
+fetch_list((A,agg(B)), A, B).
+
 
 run([Goal|Goals]) :-
 	call(user:Goal),

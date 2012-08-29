@@ -148,12 +148,18 @@ generate_tmp_random(sum(Min,Max), N, [V1,V2], V, Key, Softness, I) :-
 	Upper is Max*N,
 	generate_list(Lower, Upper, Nbs),
 	sum_cpt([V1,V2], Nbs, Softness, CPT),
+	generate_var('AVG'(I,Key), Nbs, CPT, [V1,V2], V).
 %	write(sum(Nbs, CPT, [V1,V2])),nl, % debugging
-	{ V = 'AVG'(I,Key) with p(Nbs,CPT,[V1,V2]) }.
 generate_tmp_random(max(Domain,CPT), _, [V1,V2], V, Key, I) :-
-	{ V = 'MAX'(I,Key) with p(Domain,CPT,[V1,V2]) }.
+	generate_var('MAX'(I,Key), Domain, CPT, [V1,V2], V).
 generate_tmp_random(min(Domain,CPT), _, [V1,V2], V, Key, I) :-
-	{ V = 'MIN'(I,Key) with p(Domain,CPT,[V1,V2]) }.
+	generate_var('MIN'(I,Key), Domain, CPT, [V1,V2], V).
+
+generate_var(VKey, Domain, CPT, Parents, VKey) :-
+	clpbn:use_parfactors(on), !,
+	pfl:add_ground_factor(bayes, Domain, [VKey|Parents], CPT).
+generate_var(VKey, Domain, CPT, Parents, V) :-
+	{ V = VKey with tab(Domain, CPT, Parents) }.
 
 generate_list(M, M, [M]) :- !.
 generate_list(I, M, [I|Nbs]) :-

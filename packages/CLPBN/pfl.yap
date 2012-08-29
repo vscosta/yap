@@ -11,6 +11,7 @@
 	  new_pfl_parameters/2, % given id  set new parameters
 	  get_first_pvariable/2, % given id get firt pvar (useful in bayesian)
 	  get_factor_pvariable/2, % given id get any pvar
+	  add_ground_factor/4,    %add a new bayesian variable (for now)
 	  op(550,yfx,@),
 	  op(550,yfx,::),
 	  op(1150,fx,bayes),
@@ -68,7 +69,13 @@ Id@N :-
 	assert_static(user:G),
 	fail.
 _Id@_N.
-	
+
+add_ground_factor(bayes, Domain, Vars, CPT) :-
+	Vars = [K|_],
+	( skolem(K,_Domain) -> true ; assert(skolem(K, Domain)) ),
+	new_id(Id),
+	assert(factor(bayes, Id, Vars, [], CPT, true)).
+
 defined_in_factor(Key, Factor) :-
 	skolem_in(Key, Id),
 	factor(bayes, Id, [Key|FList], FV, Phi, Constraints), !,
@@ -95,6 +102,8 @@ new_id(Id) :-
 	Id is Id0+1,
 	assert(id(Id)).
 
+process_args(V, _Id, _I0, _I ) --> { var(V) }, !,
+	{ throw(error(instantiation_error,pfl:process_args)) }.
 process_args((Arg1,Arg2), Id, I0, I ) --> !,
 	process_args(Arg1, Id, I0, I1),
 	process_args(Arg2, Id, I1, I).
