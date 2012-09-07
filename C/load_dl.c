@@ -36,7 +36,9 @@ Yap_CallFunctionByName(const char *thing_string)
 {
   void * handle = dlopen(NULL, RTLD_LAZY
 #ifndef __CYGWIN__
+#ifdef RTLD_NOLOAD
 			 | RTLD_NOLOAD
+#endif
 #endif
 			 );
   // you could do RTLD_NOW as well.  shouldn't matter
@@ -47,6 +49,7 @@ Yap_CallFunctionByName(const char *thing_string)
   prismf * addr = (prismf *)dlsym(handle, thing_string);
   if (addr)
     (*addr)();
+  dlclose(handle);
   return TRUE;
 }
 
