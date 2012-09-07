@@ -12942,10 +12942,12 @@ Yap_absmi(int inp)
 	  f = pen->FunctorOfPred;
 	  /* reuse environment if we are continuining a comma, ie, (g1,g2,g3) */
 	  /* can only do it deterministically */
+	  /* broken
 	  if (f == FunctorComma && (CELL *)B >= ENV) {
 	    ENV_YREG = ENV;
 	    ENV = (CELL *)ENV[E_E];
 	  }
+	  */
 	  goto execute_pred_f;
 	} else
 	  goto execute_pred_a;
@@ -12977,7 +12979,6 @@ Yap_absmi(int inp)
       BOp(p_execute, Osbmp);
 	/* fetch the module from PREG */
 	mod = PREG->u.Osbmp.mod;
-
       start_execute:
 	b_ptr = B;
 	/* we have mod, and ARG1 has the goal, let us roll */
