@@ -478,7 +478,7 @@ X_API void    STD_PROTO(YAP_EndConsult,(IOSTREAM *));
 X_API Term    STD_PROTO(YAP_Read, (IOSTREAM *));
 X_API void    STD_PROTO(YAP_Write, (Term, IOSTREAM *, int));
 X_API Term    STD_PROTO(YAP_CopyTerm, (Term));
-X_API Term    STD_PROTO(YAP_WriteBuffer, (Term, char *, unsigned int, int));
+X_API int     STD_PROTO(YAP_WriteBuffer, (Term, char *, size_t, int));
 X_API char   *STD_PROTO(YAP_CompileClause, (Term));
 X_API void    STD_PROTO(YAP_PutValue, (Atom,Term));
 X_API Term    STD_PROTO(YAP_GetValue, (Atom));
@@ -2799,8 +2799,8 @@ YAP_CopyTerm(Term t)
   return tn;
 }
 
-X_API Term
-YAP_WriteBuffer(Term t, char *buf, unsigned int sze, int flags)
+X_API int
+YAP_WriteBuffer(Term t, char *buf, size_t sze, int flags)
 {
   BACKUP_MACHINE_REGS();
   t = Yap_TermToString(t, buf, sze, flags);

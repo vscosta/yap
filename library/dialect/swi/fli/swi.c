@@ -2868,19 +2868,20 @@ Yap_read_term(term_t t, IOSTREAM *st, term_t *excep, term_t vs)
   return TRUE;
 }
 
-Term
-Yap_TermToString(Term t, char *s, unsigned int sz, int flags)
+int
+Yap_TermToString(Term t, char *s, size_t sz, int flags)
 {
   CACHE_REGS
-  IOSTREAM *stream = Sopen_string(NULL, s, sz, "w");
   int out;
+  unsigned swi_flags;
 
-  if (!stream)
-    return FALSE;
   Yap_StartSlots( PASS_REGS1 );
-  out = PL_write_term(stream, Yap_InitSlot(t PASS_REGS), 1200, 0);
+  swi_flags = CVT_WRITE;
+  if (flags & (YAP_WRITE_QUOTED|YAP_WRITE_IGNORE_OPS)) {
+    swi_flags = CVT_WRITE_CANONICAL;
+  }
+  out = PL_get_nchars(Yap_InitSlot(t PASS_REGS), &sz, &s, swi_flags);
   Yap_CloseSlots( PASS_REGS1 );
-  Sclose(stream);
   return out;
 }
 
