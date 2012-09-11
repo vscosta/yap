@@ -24,7 +24,7 @@ class LiftedBp
 
     vector<PrvGroup> getQueryGroups (const Grounds&);
 
-    FactorGraph* getFactorGraph (void);
+    void createFactorGraph (void);
 
     vector<vector<unsigned>> getWeights (void) const;
  
@@ -34,6 +34,7 @@ class LiftedBp
 
     ParfactorList  pfList_;
     WeightedBp*    solver_;
+    FactorGraph*   fg_;
 
 };
 
