@@ -49,7 +49,7 @@ LiftedBp::solveQuery (const Grounds& query)
       for (unsigned i = 0; i < groups.size(); i++) {
         queryVids.push_back (groups[i]);
       }
-      res = solver_->getFactorJoint (idx, queryVids);
+      res = solver_->getFactorJoint (fg_->facNodes()[idx], queryVids);
     }
   }
   return res;

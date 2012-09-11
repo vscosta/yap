@@ -118,20 +118,19 @@ BeliefProp::getJointDistributionOf (const VarIds& jointVarIds)
   if (idx == facNodes.size()) {
     return getJointByConditioning (jointVarIds);
   }
-  return getFactorJoint (idx, jointVarIds);
+  return getFactorJoint (facNodes[idx], jointVarIds);
 }
 
 
 
 Params
 BeliefProp::getFactorJoint (
-    size_t fnIdx,
+    FacNode* fn,
     const VarIds& jointVarIds)
 {
   if (runned_ == false) {
     runSolver();
   }
-  FacNode* fn = fg.facNodes()[fnIdx];
   Factor res (fn->factor());
   const BpLinks& links = ninf(fn)->getLinks();
   for (size_t i = 0; i < links.size(); i++) {
