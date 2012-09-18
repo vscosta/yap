@@ -2868,23 +2868,6 @@ Yap_read_term(term_t t, IOSTREAM *st, term_t *excep, term_t vs)
   return TRUE;
 }
 
-int
-Yap_TermToString(Term t, char *s, size_t sz, int flags)
-{
-  CACHE_REGS
-  int out;
-  unsigned swi_flags;
-
-  Yap_StartSlots( PASS_REGS1 );
-  swi_flags = CVT_WRITE;
-  if (flags & (YAP_WRITE_QUOTED|YAP_WRITE_IGNORE_OPS)) {
-    swi_flags = CVT_WRITE_CANONICAL;
-  }
-  out = PL_get_nchars(Yap_InitSlot(t PASS_REGS), &sz, &s, swi_flags);
-  Yap_CloseSlots( PASS_REGS1 );
-  return out;
-}
-
 extern atom_t 		fileNameStream(IOSTREAM *s);
 extern Atom 		Yap_FileName(IOSTREAM *s);
 
