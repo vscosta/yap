@@ -278,7 +278,7 @@ int   STD_PROTO(Yap_GetCharForSIGINT,(void));
 Int   STD_PROTO(Yap_StreamToFileNo,(Term));
 Term  STD_PROTO(Yap_OpenStream,(FILE *,char *,Term,int));
 Term  STD_PROTO(Yap_StringToTerm,(char *,Term *));
-int     Yap_TermToString(Term t, char *s, size_t sz, int flags);
+char   *Yap_TermToString(Term t, char *s, size_t sz, size_t *length, int *encoding, int flags);
 int     Yap_GetFreeStreamD(void);
 int     Yap_GetFreeStreamDForReading(void);
 

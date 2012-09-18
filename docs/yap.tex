@@ -17738,11 +17738,24 @@ flags in the @code{flag} argument: @code{YAP_WRITE_QUOTED},
 @var{buff}, @code{size_t}
 @var{size}, @code{int} @var{flags})
 @findex  YAP_WriteBuffer/4
-Write a YAP_Term @var{t} to buffer @var{buff} with size @var{size}. The
-flag are currently ignored. This function can fail, say, if the term
-cannot be encoded in ISO-LATIN8. The code always uses
-@code{YAP_WRITE_HANDLE_VARS}. You may also use @code{YAP_WRITE_QUOTED},
-and   @code{YAP_WRITE_IGNORE_OPS} together.
+Write a YAP_Term @var{t} to buffer @var{buff} with size
+@var{size}. The term is written
+according to a mask of the following flags in the @code{flag}
+argument: @code{YAP_WRITE_QUOTED}, @code{YAP_WRITE_HANDLE_VARS},
+@code{YAP_WRITE_USE_PORTRAY}, and @code{YAP_WRITE_IGNORE_OPS}. The
+function will fail if it does not have enough space in the buffer.
+
+@item  @code{char *} YAP_WriteDynamicBuffer(@code{YAP_Term} @var{t}, @code{char *}
+@var{buff}, @code{size_t}
+@var{size}, @code{size_t}
+@var{*lengthp}, @code{size_t}
+@var{*encodingp}, @code{int} @var{flags})
+@findex  YAP_WriteDynamicBuffer/6
+Write a YAP_Term @var{t} to buffer @var{buff} with size
+@var{size}. The code will allocate an extra buffer if @var{buff} is
+@code{NULL} or if @code{buffer} does not have enough room. The
+variable @code{lengthp} is assigned the size of the resulting buffer,
+and @code{encodingp} will receive the type of encoding (currently only @code{PL_ENC_ISO_LATIN_1} and @code{PL_ENC_WCHAR} are supported)
 
 @item  @code{void} YAP_InitConsult(@code{int} @var{mode}, @code{char *} @var{filename})
 @findex YAP_InitConsult/2

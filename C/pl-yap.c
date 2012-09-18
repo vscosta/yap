@@ -836,7 +836,72 @@ PL_get_chars(term_t t, char **s, unsigned flags)
 { return PL_get_nchars(t, NULL, s, flags);
 }
 
+char   *Yap_TermToString(Term t, char *s, size_t sz, size_t *length, int *encoding, int flags);
 
+char *
+Yap_TermToString(Term t, char *s, size_t sz, size_t *length, int *encoding, int flags)
+{
+  CACHE_REGS
+  Int l;
+
+  Yap_StartSlots( PASS_REGS1 );
+  l = Yap_InitSlot(t);
+
+  { IOENC encodings[3];
+    IOENC *enc;
+    char *r, buf[256];
+
+    encodings[0] = ENC_ISO_LATIN_1;
+    encodings[1] = ENC_WCHAR;
+    encodings[2] = ENC_UNKNOWN;
+
+    for(enc = encodings; *enc != ENC_UNKNOWN; enc++)
+      { 
+	int64_t size;
+	IOSTREAM *fd;
+
+	if (s) {
+	  r = s;
+	} else {
+	  r = buf;
+	}
+	fd = Sopenmem(&r, &sz, "w");
+	fd->encoding = *enc;
+	if ( PL_write_term(fd, l, 1200, flags) &&
+	     Sputcode(EOS, fd) >= 0 &&
+	     Sflush(fd) >= 0 )
+	  { *encoding = *enc;
+	    size = Stell64(fd);
+	    if ( *enc == ENC_ISO_LATIN_1 )
+	      { 
+		*length = size-1;
+	      } else
+	      { 
+		*length = (size/sizeof(pl_wchar_t))-1;
+	      }
+	    /* found, just check if using local space */
+	    if (r == buf) {
+	      char *bf = malloc(*length+1);
+	      if (!bf)
+		return NULL;
+	      strncpy(bf,buf,*length+1);
+	      r = bf;
+	    }
+	    /* go away */
+	    Yap_CloseSlots( PASS_REGS1 );
+	    return r;
+	  } else
+	  { Sclose(fd);
+	  }
+      }
+    /* failed */
+    if ( r != s && r != buf ) {
+      Sfree(r);
+    }
+  }
+  Yap_CloseSlots( PASS_REGS1 );
+  return NULL;
+}
 
 
 X_API int
