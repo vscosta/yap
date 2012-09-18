@@ -81,7 +81,9 @@ CountingBp::solveQuery (VarIds queryVids)
       for (size_t i = 0; i < queryVids.size(); i++) {
         reprArgs.push_back (getRepresentative (queryVids[i]));
       }
-      res = solver_->getFactorJoint (facNodes[idx], reprArgs);
+      FacNode* reprFac = getRepresentative (facNodes[idx]);
+      assert (reprFac != 0);
+      res = solver_->getFactorJoint (reprFac, reprArgs);
     }
   }
   return res;
