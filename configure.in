@@ -1712,6 +1712,7 @@ fi
 AC_SUBST(M4)
 AC_SUBST(M4GENHDRS)
 
+CMDEXT=sh
 dnl SWI compatibility, I don't know why just use host...
 changequote(,)dnl
 if test "x$ARCH" = "x"; then
@@ -1729,6 +1730,8 @@ if test "x$ARCH" = "x"; then
 fi
 changequote([,])dnl
 AC_SUBST(ARCH)
+
+CMDEXT=sh
 
 dnl System stuff for dynamic linking.
 dnl
@@ -1800,6 +1803,7 @@ AC_SUBST(MAX_WORKERS)
 AC_SUBST(STATIC_MODE)
 AC_SUBST(ENABLE_WINCONSOLE)
 AC_SUBST(EXTRA_INCLUDES_FOR_WIN32)
+AC_SUBST(CMDEXT)
 
 AC_SUBST(ENABLE_CUDD)
 AC_SUBST(ENABLE_BDDLIB)

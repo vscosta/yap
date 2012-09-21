@@ -655,6 +655,7 @@ CUDD_CPPFLAGS
 CUDD_LDFLAGS
 ENABLE_BDDLIB
 ENABLE_CUDD
+CMDEXT
 EXTRA_INCLUDES_FOR_WIN32
 ENABLE_WINCONSOLE
 STATIC_MODE
@@ -9459,6 +9460,7 @@ fi
 
 
 
+CMDEXT=sh
 if test "x$ARCH" = "x"; then
   case "$host" in
     *linux*)
@@ -9472,6 +9474,9 @@ if test "x$ARCH" = "x"; then
       ;;
   esac
 fi
+
+
+CMDEXT=sh
 
 
 
