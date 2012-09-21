@@ -660,8 +660,9 @@ ENABLE_WINCONSOLE
 STATIC_MODE
 MAX_WORKERS
 LAMOBJS
-JAVACFLAGS
 JAVALIBS
+JPLLIBS
+JPLCFLAGS
 INSTALLCLP
 INSTALL_COMMAND
 MPI_LIBS
@@ -7510,20 +7511,20 @@ elif test -e "$srcdir"/packages/jpl/Makefile.in; then
                else
 	         JAVALIBS="\"$JAVA_HOME\"/lib/jvm.lib"
                fi
-	       JAVACFLAGS="-I\"$JAVA_HOME\"/include -I\"$JAVA_HOME\"/include/win32"
+	       JPLCFLAGS="-I\"$JAVA_HOME\"/include -I\"$JAVA_HOME\"/include/win32"
 	       	  ;;
 	       *darwin*)
 	       LIBS="$LIBS -framework JavaVM"
 	       JAVALIBS="-L/System/Library/Frameworks/JavaVM.framework/Libraries -Wl,-framework,JavaVM"
-	       JAVACFLAGS="-I/System/Library/Frameworks/JavaVM.framework/Headers"
+	       JPLCFLAGS="-I/System/Library/Frameworks/JavaVM.framework/Headers"
 	       	  ;;
 	       *)
               case "$target_os" in
 	         *linux*)
-		   JAVACFLAGS="-I\"$JAVA_HOME\"/include -I\"$JAVA_HOME\"/include/linux"
+		   JPLCFLAGS="-I\"$JAVA_HOME\"/include -I\"$JAVA_HOME\"/include/linux"
                 ;;
 	         *solaris*)
-	        JAVACFLAGS="-I\"$JAVA_HOME\"/include -I\"$JAVA_HOME\"/include/solaris"
+	        JPLCFLAGS="-I\"$JAVA_HOME\"/include -I\"$JAVA_HOME\"/include/solaris"
                 ;;
               esac
 	       JAVALIBS="-L$JAVA_HOME/jre/lib/$YAP_TARGET -L$JAVA_HOME/jre/lib/$YAP_TARGET/client  -L$JAVA_HOME/jre/lib/$YAP_TARGET/server   -Wl,-R,$JAVA_HOME/jre/lib/$YAP_TARGET -ljava -lverify -ljvm "
@@ -9471,6 +9472,8 @@ if test "x$ARCH" = "x"; then
       ;;
   esac
 fi
+
+
 
 
 
