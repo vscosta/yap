@@ -135,6 +135,7 @@
   AtomId = Yap_LookupAtom("id");
   AtomInf = Yap_LookupAtom("inf");
   AtomInitGoal = Yap_FullLookupAtom("$init_goal");
+  AtomInitProlog = Yap_FullLookupAtom("$init_prolog");
   AtomInStackExpansion = Yap_LookupAtom("in stack expansion");
   AtomInput = Yap_LookupAtom("input");
   AtomInstantiationError = Yap_LookupAtom("instantiation_error");

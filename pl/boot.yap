@@ -25,33 +25,40 @@ true :- true.
 	'$init_system',
         '$do_live'.
 
+'$init_prolog' :-
+    '$init_system'.
+
 '$do_live' :-
-	repeat,
-		'$current_module'(Module),
-		( Module==user ->
-		    '$compile_mode'(_,0)
-		;
-		    format(user_error,'[~w]~n', [Module])
-		),
-		'$system_catch'('$enter_top_level',Module,Error,user:'$Error'(Error)).
+    repeat,
+    '$current_module'(Module),
+    ( Module==user ->
+      '$compile_mode'(_,0)
+    ;
+      format(user_error,'[~w]~n', [Module])
+    ),
+    '$system_catch'('$enter_top_level',Module,Error,user:'$Error'(Error)).
+
 
 '$init_system' :-
-        % do catch as early as possible
-	(
-	 '$access_yap_flags'(15, 0),
-	 '$access_yap_flags'(22, 0),
-	 \+ '$uncaught_throw'
-	->
-	  '$version'
-	;
-	  true
-	),
-	(
-	 '$access_yap_flags'(22, 0) ->
-	 set_value('$verbose',on)
-	;
-	 set_value('$verbose',off)
-	),
+    '$nb_getval'('$yap_inited', on, fail), !.
+'$init_system' :-
+    nb_setval('$yap_inited', on),
+    % do catch as early as possible
+    (
+     '$access_yap_flags'(15, 0),
+     '$access_yap_flags'(22, 0),
+     \+ '$uncaught_throw'
+    ->
+     '$version'
+    ;
+     true
+    ),
+    (
+     '$access_yap_flags'(22, 0) ->
+     set_value('$verbose',on)
+    ;
+     set_value('$verbose',off)
+    ),
 %	'$init_preds', % needs to be done before library_directory
 %	(
 %	 retractall(user:library_directory(_)),
@@ -61,13 +68,13 @@ true :- true.
 %	;
 %	 true
 %	),
-	'$enter_system_mode',
-	'$init_globals',
-	'$swi_set_prolog_flag'(fileerrors, true),
-	set_value('$gc',on),
-	('$exit_undefp' -> true ; true),
-	prompt1(' ?- '),
-	'$debug_on'(false),
+    '$enter_system_mode',
+    '$init_globals',
+    '$swi_set_prolog_flag'(fileerrors, true),
+    set_value('$gc',on),
+    ('$exit_undefp' -> true ; true),
+    prompt1(' ?- '),
+    '$debug_on'(false),
 	% simple trick to find out if this is we are booting from Prolog.
 	% boot from a saved state
 	(
@@ -160,23 +167,28 @@ true :- true.
 	prompt1('?- '),
 	prompt(_,'|: '),
 	'$system_catch'('$raw_read'(user_input, Line), prolog, E,
-	      (print_message(error, E),
-	       (   E = error(syntax_error(_), _)
-	       ->  fail
-	       ;   throw(E)
-	       ))),
-	(   current_predicate(_, user:rl_add_history(_))
-	->  format(atom(CompleteLine), '~W~W',
+			(print_message(error, E),
+			 (   E = error(syntax_error(_), _)
+			 ->  fail
+			 ;   throw(E)
+			 ))),
+	(   
+	    current_predicate(_, user:rl_add_history(_))
+	-> 
+	    format(atom(CompleteLine), '~W~W',
 		   [ Line, [partial(true)],
 		     '.', [partial(true)]
 		   ]),
 	    call(user:rl_add_history(CompleteLine))
-	;   true
+	;   
+	    true
 	),
-	'$system_catch'(atom_to_term(Line, Goal, Bindings), prolog, E,
-	      (   print_message(error, E),
-		  fail
-	      )), !.
+	'$system_catch'(
+			atom_to_term(Line, Goal, Bindings), prolog, E,
+			(   print_message(error, E),
+			    fail
+			)
+		       ), !.
 
 
 % reset alarms when entering top-level.

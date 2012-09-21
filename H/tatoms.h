@@ -268,6 +268,8 @@
 #define AtomInf Yap_heap_regs->AtomInf_
   Atom AtomInitGoal_;
 #define AtomInitGoal Yap_heap_regs->AtomInitGoal_
+  Atom AtomInitProlog_;
+#define AtomInitProlog Yap_heap_regs->AtomInitProlog_
   Atom AtomInStackExpansion_;
 #define AtomInStackExpansion Yap_heap_regs->AtomInStackExpansion_
   Atom AtomInput_;
