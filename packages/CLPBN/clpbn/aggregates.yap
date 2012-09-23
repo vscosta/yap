@@ -1,4 +1,4 @@
-%
+				%
 % generate explicit CPTs
 %
 :- module(clpbn_aggregates, [
@@ -6,7 +6,8 @@
 	cpt_average/6,
 	cpt_average/7,
 	cpt_max/6,
-	cpt_min/6
+	cpt_min/6,
+        avg_factors/5
 	]).
 
 :- use_module(library(clpbn), [{}/1]).
@@ -25,13 +26,21 @@
 	matrix_to_list/2,
 	matrix_set/3]).
 
-:- use_module(library('clpbn/dists'),
+:- use_module(library(clpbn/dists),
 	      [
 	       add_dist/6,
 	       get_dist_domain_size/2]).
 
-:- use_module(library('clpbn/matrix_cpt_utils'),
+:- use_module(library(clpbn/matrix_cpt_utils),
 	[normalise_CPT_on_lines/3]).
+
+:- use_module(library(pfl),
+	[skolem/2,
+	 add_ground_factor/5]).
+
+:- use_module(library(bhash)).
+
+:- use_module(library(maplist)).
 
 check_for_agg_vars([], []).
 check_for_agg_vars([V|Vs0], [V|Vs1]) :-
@@ -48,6 +57,87 @@ simplify_dist(avg(Domain), V, Key, Parents, Vs0, VsF) :- !,
 	add_dist(Dom, tab, Tab, Ps, Key, Id),
 	clpbn:put_atts(V, [dist(Id,Ps)]).
 simplify_dist(_, _, _, _, Vs0, Vs0).
+
+%
+avg_factors(Key, Parents, _Smoothing, NewParents, Id) :-
+    % we keep ev as a list
+    skolem(Key, Domain),
+    avg_table(Parents, Parents, Domain, Key, 0, 1.0, NewParents, [], _ExtraSkolems, Id).
+
+% there are 4 cases:
+% no evidence on top node
+% evidence on top node compatible with values of parents
+% evidence on top node *entailed* by values of parents (so there is no real connection)
+% evidence incompatible with parents
+query_evidence(Key, EvHash, MAT0, MAT, NewParents0, NewParents, Vs, IVs, NewVs) :-
+    b_hash_lookup(Key, Ev, EvHash), !,
+    normalise_CPT_on_lines(MAT0, MAT1, L1),
+    check_consistency(L1, Ev, MAT0, MAT1, L1, MAT, NewParents0, NewParents, Vs, IVs, NewVs).
+query_evidence(_, _, MAT, MAT, NewParents, NewParents, _, Vs, Vs).
+
+hash_ev(K=V, Es0, Es) :-
+    b_hash_insert(Es0, K, V, Es).
+
+find_ev(Ev, Key, RemKeys, RemKeys, Ev0, EvF) :-
+    b_hash_lookup(Key, V, Ev), !,
+    EvF is Ev0+V.
+find_ev(_Evs, Key, RemKeys, [Key|RemKeys], Ev, Ev).
+
+
+% +Vars -> Keys without ev
+% +all keys
+% +domain to project to
+% +ouput key
+% +sum of evidence
+% +softness
+% +final CPT
+% - New Parents
+% + - list of new keys
+% 
+avg_table(Vars, OVars, Domain, Key, TotEvidence, Softness, Vars, Vs, Vs, Id) :-
+	length(Domain, SDomain),
+	int_power(Vars, SDomain, 1, TabSize),
+	TabSize =< 256, 
+	/* case gmp is not there !! */
+	TabSize > 0, !,
+	average_cpt(Vars, OVars, Domain, TotEvidence,  Softness, CPT),
+	matrix_to_list(CPT, Mat),
+	add_ground_factor(bayes, Domain, [Key|OVars], Mat, Id).
+avg_table(Vars, OVars, Domain, Key, TotEvidence, Softness, [V1,V2], Vs, [V1,V2|NewVs], Id) :-
+	length(Vars,L),
+	LL1 is L//2,
+	LL2 is L-LL1,
+	list_split(LL1, Vars, L1, L2),
+	Min = 0,
+	length(Domain,Max1), Max is Max1-1,
+	intermediate_table(LL1, sum(Min,Max), L1, V1, Key,  1.0, 0, I1, Vs, Vs1),
+	intermediate_table(LL2, sum(Min,Max), L2, V2, Key, 1.0, I1, _, Vs1, NewVs),
+	average_cpt([V1,V2], OVars, Domain, TotEvidence, Softness, CPT),
+	matrix_to_list(CPT, Mat),
+	add_ground_factor(bayes, Domain, [Key,V1,V2], Mat, Id).
+	
+intermediate_table(1,_,[V],V, _, _, I, I, Vs, Vs) :- !.
+intermediate_table(2, Op, [V1,V2], V, Key, Softness, I0, If, Vs, Vs) :- !,
+	If is I0+1,
+	extra_key_factor(Op, 2, [V1,V2], V, Key, Softness, I0).
+intermediate_table(N, Op, L, V, Key, Softness, I0, If, Vs, [V1,V2|NewVs]) :-
+	LL1 is N//2,
+	LL2 is N-LL1,
+	list_split(LL1, L, L1, L2),
+	I1 is I0+1,
+	intermediate_table(LL1, Op, L1, V1, Key, Softness, I1, I2, Vs, Vs1),
+	intermediate_table(LL2, Op, L2, V2, Key, Softness, I2, If, Vs1, NewVs),
+	extra_key_factor(Op, N, [V1,V2], V, Key, Softness, I0).
+
+extra_key_factor(sum(Min,Max), N, [V1,V2], V, Key, Softness, I) :-
+	Lower is Min*N,
+	Upper is Max*N,
+	generate_list(Lower, Upper, Nbs),
+	sum_cpt([V1,V2], Nbs, Softness, CPT),
+	V = 'AVG'(I,Key),
+	add_ground_factor(bayes, Nbs, [V,V1,V2], CPT, Id),
+	assert(pfl:currently_defined(V)),
+	assert(pfl:f(bayes, Id, [V,V1,V2])).
 
 cpt_average(AllVars, Key, Els0, Tab, Vs, NewVs) :-
 	cpt_average(AllVars, Key, Els0, 1.0, Tab, Vs, NewVs).
@@ -155,9 +245,6 @@ generate_tmp_random(max(Domain,CPT), _, [V1,V2], V, Key, I) :-
 generate_tmp_random(min(Domain,CPT), _, [V1,V2], V, Key, I) :-
 	generate_var('MIN'(I,Key), Domain, CPT, [V1,V2], V).
 
-generate_var(VKey, Domain, CPT, Parents, VKey) :-
-	clpbn:use_parfactors(on), !,
-	pfl:add_ground_factor(bayes, Domain, [VKey|Parents], CPT).
 generate_var(VKey, Domain, CPT, Parents, V) :-
 	{ V = VKey with tab(Domain, CPT, Parents) }.
 
@@ -282,6 +369,10 @@ fill_in_min(_,_).
 
 
 get_vdist_size(V, Sz) :-
+        var(V), !,
 	clpbn:get_atts(V, [dist(Dist,_)]),
 	get_dist_domain_size(Dist, Sz).
+get_vdist_size(V, Sz) :-
+	skolem(V, Dom), 
+	length(Dom, Sz).
 
