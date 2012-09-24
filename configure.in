@@ -657,6 +657,7 @@ AC_CHECK_TOOL(MPI_CC,mpicc,${CC})
 AC_PATH_PROG(INSTALL_INFO,install-info,true,$PATH:/sbin:/usr/sbin:/usr/etc:/usr/local/sbin)
 AC_PATH_PROG(SHELL,sh)
 
+
 dnl Check for libraries.
 dnl mingw does not get along well with libm
 dnl cygnus and mingw32 also need wsock32 to use sockets.
@@ -725,16 +726,29 @@ else
   AC_CHECK_LIB(nss_files,main)
   AC_CHECK_LIB(nss_dns,main)
   AC_CHECK_LIB(resolv,main)
+  if test "$prefix" != "NONE"; then
+     if test -d "${prefix}/lib64" -a "$YAP_TARGET" = amd64; then
+       LDFLAGS="$LDFLAGS -L${prefix}/lib64"
+     fi
+     LDFLAGS="$LDFLAGS -L${prefix}/lib"
+     CPPFLAGS="$CPPFLAGS -I${prefix}/include"
+  fi
+  if test "$exec_prefix" != "NONE"; then
+     if test -d "${exec_prefix}/lib64" -a "$YAP_TARGET" = amd64; then
+       LDFLAGS="$LDFLAGS -L${exec_prefix}/lib64"
+     fi
+     LDFLAGS="$LDFLAGS -L${exec_prefix}/lib"
+  fi
 fi
 
 if test "$yap_cv_readline" != "no"
 then
   AC_CHECK_LIB([ncurses], [main],[
-		LIBS="$LIBS -lncurses"
+		LDFLAGS="$LDFLAGS -lncurses"
               ])
   AC_CHECK_LIB([readline], [main],[
                 AC_DEFINE([HAVE_LIBREADLINE], [1],[Define if you have libreadline])
-		LIBS="$LIBS -lreadline"
+		LIBS="$LDFLAGS -lreadline"
               ],
               [if test "x$with_readline" != xcheck; then
                  AC_MSG_FAILURE(
@@ -951,6 +965,12 @@ else
 fi
 AC_SUBST(ENABLE_PRISM)
 
+if test -e "$srcdir"/packages/archive/Makefile.in; then
+  ENABLE_LIBARCHIVE=""
+else
+  ENABLE_LIBARCHIVE="@# "
+fi
+
 if test "$use_chr" = no; then
   ENABLE_CHR="@# "
 elif test -e "$srcdir"/packages/chr/Makefile.in; then
@@ -1038,20 +1058,20 @@ elif test -e "$srcdir"/packages/jpl/Makefile.in; then
                else
 	         JAVALIBS="\"$JAVA_HOME\"/lib/jvm.lib"
                fi
-	       JAVACFLAGS="-I\"$JAVA_HOME\"/include -I\"$JAVA_HOME\"/include/win32"
+	       JPLCFLAGS="-I\"$JAVA_HOME\"/include -I\"$JAVA_HOME\"/include/win32"
 	       	  ;;
 	       *darwin*)
 	       LIBS="$LIBS -framework JavaVM"
 	       JAVALIBS="-L/System/Library/Frameworks/JavaVM.framework/Libraries -Wl,-framework,JavaVM"
-	       JAVACFLAGS="-I/System/Library/Frameworks/JavaVM.framework/Headers"
+	       JPLCFLAGS="-I/System/Library/Frameworks/JavaVM.framework/Headers"
 	       	  ;;
 	       *)
               case "$target_os" in
 	         *linux*)
-		   JAVACFLAGS="-I\"$JAVA_HOME\"/include -I\"$JAVA_HOME\"/include/linux"
+		   JPLCFLAGS="-I\"$JAVA_HOME\"/include -I\"$JAVA_HOME\"/include/linux"
                 ;;
 	         *solaris*)
-	        JAVACFLAGS="-I\"$JAVA_HOME\"/include -I\"$JAVA_HOME\"/include/solaris"
+	        JPLCFLAGS="-I\"$JAVA_HOME\"/include -I\"$JAVA_HOME\"/include/solaris"
                 ;;
               esac
 	       JAVALIBS="-L$JAVA_HOME/jre/lib/$YAP_TARGET -L$JAVA_HOME/jre/lib/$YAP_TARGET/client  -L$JAVA_HOME/jre/lib/$YAP_TARGET/server   -Wl,-R,$JAVA_HOME/jre/lib/$YAP_TARGET -ljava -lverify -ljvm "
@@ -1607,39 +1627,6 @@ AC_SUBST(ENABLE_CPLINT)
 AC_SUBST(INSTALL_ENV)
 AC_SUBST(PRE_INSTALL_ENV)
 
-dnl zlib
-if test "$ENABLE_ZLIB" = ""
-then
-
-AC_CHECK_LIB(z, zlibVersion,
-	     ZLIBS="-lz"
-	     ZLIB=yes,
-	     ZLIB=no)
-
-if test "$ZLIB" = yes; then
-  ZLIB_TARGETS="zlib4pl.$SO"
-  ZLIB_PLTARGETS='zlib.pl'
-  ZLIB_INSTALL=install
-else
-  ZLIB_TARGETS=nolib
-  ZLIB_INSTALL=nolib
-  cat << EOF
-##################################################################
-# ERROR: Could not find library zlib (-lz).  Dropped library(zlib)
-# Library zlib is available from http://www.zlib.net/
-# Most Unix/Linux distributions are shipped with binaries.  Make
-# sure to have the development library installed.
-##################################################################
-EOF
-fi
-
-AC_SUBST(ZLIBS)
-AC_SUBST(ZLIB_TARGETS)
-AC_SUBST(ZLIB_PLTARGETS)
-AC_SUBST(ZLIB_INSTALL)
-
-fi
-
 dnl Checks for header files.
 AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
@@ -1725,6 +1712,7 @@ fi
 AC_SUBST(M4)
 AC_SUBST(M4GENHDRS)
 
+CMDEXT=sh
 dnl SWI compatibility, I don't know why just use host...
 changequote(,)dnl
 if test "x$ARCH" = "x"; then
@@ -1742,6 +1730,8 @@ if test "x$ARCH" = "x"; then
 fi
 changequote([,])dnl
 AC_SUBST(ARCH)
+
+CMDEXT=sh
 
 dnl System stuff for dynamic linking.
 dnl
@@ -1804,13 +1794,16 @@ AC_SUBST(MPI_OBJS)
 AC_SUBST(MPI_LIBS)
 AC_SUBST(INSTALL_COMMAND)
 AC_SUBST(INSTALLCLP)
+AC_SUBST(JPLCFLAGS)
+AC_SUBST(JPLLIBS)
 AC_SUBST(JAVALIBS)
-AC_SUBST(JAVACFLAGS)
+AC_SUBST(JPLCFLAGS)
 AC_SUBST(LAMOBJS)
 AC_SUBST(MAX_WORKERS)
 AC_SUBST(STATIC_MODE)
 AC_SUBST(ENABLE_WINCONSOLE)
 AC_SUBST(EXTRA_INCLUDES_FOR_WIN32)
+AC_SUBST(CMDEXT)
 
 AC_SUBST(ENABLE_CUDD)
 AC_SUBST(ENABLE_BDDLIB)
@@ -2281,6 +2274,104 @@ else
   ENABLE_MINISAT=""
 fi
 
+dnl zlib
+if test "$ENABLE_ZLIB" = ""
+then
+
+AC_CHECK_LIB(z, zlibVersion,
+	     ZLIBS="-lz"
+	     ZLIB=yes,
+	     ZLIB=no)
+
+if test "$ZLIB" = yes; then
+  ZLIB_TARGETS="zlib4pl.$SO"
+  ZLIB_PLTARGETS='zlib.pl'
+  ZLIB_INSTALL=install
+else
+  ZLIB_TARGETS=nolib
+  ZLIB_INSTALL=nolib
+  cat << EOF
+##################################################################
+# ERROR: Could not find library zlib (-lz).  Dropped library(zlib)
+# Library zlib is available from http://www.zlib.net/
+# Most Unix/Linux distributions are shipped with binaries.  Make
+# sure to have the development library installed.
+##################################################################
+EOF
+fi
+
+AC_SUBST(ZLIBS)
+AC_SUBST(ZLIB_TARGETS)
+AC_SUBST(ZLIB_PLTARGETS)
+AC_SUBST(ZLIB_INSTALL)
+
+fi
+
+dnl zlib
+if test "$ENABLE_LIBARCHIVE" = ""
+then
+OLD_LIBS=$LIBS
+
+AC_CHECK_HEADER(archive.h,
+		[ AC_DEFINE([HAVE_ARCHIVE_H], 1,
+			    [Define to 1 if you have <archive.h>.])
+		  ARCHIVEH=yes
+		],
+		ARCHIVEH=no)
+
+if test "$ARCHIVEH" = yes; then
+  AC_CHECK_LIB(archive, archive_read_new,
+	       ARCHIVE_LIBS="-larchive"
+	       ARCHIVELIB=yes,
+	       ARCHIVELIB=no)
+fi
+
+AC_CHECK_FUNCS(archive_read_support_compression_bzip2 \
+	       archive_read_support_compression_compress \
+	       archive_read_support_compression_gzip \
+	       archive_read_support_compression_lzma \
+	       archive_read_support_compression_none \
+	       archive_read_support_compression_xz)
+
+AC_CHECK_FUNCS(archive_read_support_format_ar \
+	       archive_read_support_format_cpio \
+	       archive_read_support_format_empty \
+	       archive_read_support_format_iso9660 \
+	       archive_read_support_format_mtree \
+	       archive_read_support_format_raw \
+	       archive_read_support_format_tar \
+	       archive_read_support_format_zip)
+
+if test "$ARCHIVELIB" = yes; then
+  ARCHIVE_TARGETS="archive4pl.$SO"
+  ARCHIVE_PLTARGETS=archive.pl
+else
+  ARCHIVE_TARGETS=nolib
+  cat << EOF
+##################################################################
+# ERROR: Could not find library archive (-larchive).  Dropped
+# library(archive). Library archive is available from
+# http://code.google.com/p/libarchive/
+#
+# Most Unix/Linux distributions are shipped with binaries.  Make
+# sure to have the development library installed.  E.g.
+#
+#   Debian/Ubuntu/Mint:	aptitude install libarchive-dev
+#   Fedora/...		yum install libarchive-devel
+#   MacOS (Macports):   port install libarchive
+##################################################################
+EOF
+
+fi
+
+AC_SUBST(ARCHIVE_LIBS)
+AC_SUBST(ARCHIVE_TARGETS)
+AC_SUBST(ARCHIVE_PLTARGETS)
+
+fi
+
+AC_SUBST(ENABLE_LIBARCHIVE)
+
 mkdir -p  library/lammpi
 mkdir -p  library/matrix
 mkdir -p  library/matlab
@@ -2340,6 +2431,7 @@ mkdir -p  packages/semweb
 mkdir -p  packages/sgml
 mkdir -p  packages/xml
 mkdir -p  packages/zlib
+mkdir -p  packages/archive
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([GPL/Makefile])
@@ -2416,6 +2508,10 @@ fi
 
 if test "$ENABLE_ZLIB" = ""; then
 AC_CONFIG_FILES([packages/zlib/Makefile])
+fi
+
+if test "$ENABLE_LIBARCHIVE" = ""; then
+AC_CONFIG_FILES([packages/archive/Makefile])
 fi
 
 

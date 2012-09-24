@@ -23,7 +23,8 @@ Va <- P*X1*Y1 + Q*X2*Y2 + ...
            init_bdd_solver/4,
            run_bdd_solver/3,
            finalize_bdd_solver/1,
-	   check_if_bdd_done/1
+	   check_if_bdd_done/1,
+	   call_bdd_ground_solver/6
           ]).
 
 
@@ -63,6 +64,10 @@ Va <- P*X1*Y1 + Q*X2*Y2 + ...
 
 :- use_module(library(matrix)).
 
+:- use_module(library(maplist)).
+
+:- use_module(library(clpbn/numbers)).
+
 :- dynamic network_counting/1.
 
 :- attribute order/1.
@@ -72,6 +77,39 @@ Va <- P*X1*Y1 + Q*X2*Y2 + ...
 bdds(bdd).
 
 check_if_bdd_done(_Var).
+
+call_bdd_ground_solver(QueryVars, QueryKeys, AllKeys, Factors, Evidence, Output) :-
+    call_bdd_ground_solver_for_probabilities([QueryKeys], AllKeys, Factors, Evidence, Solutions),
+    clpbn_bind_vals([QueryVars], Solutions, Output).
+
+call_bdd_ground_solver_for_probabilities(QueryKeys, AllKeys, Factors, Evidence, Solutions) :-
+    keys_to_numbers(AllKeys, Factors, Evidence, Hash4, Id4, FactorIds, EvidenceIds),
+    init_bdd(FactorIds, EvidenceIds, Hash4, Id4, BDD),
+    run_solver(QueryKeys, Solutions, BDD).
+
+init_bdd(FactorIds, EvidenceIds, Hash, Id, bdd(Term, Leaves, Tops, Hash, Id)) :-
+    sort_keys(FactorIds, AllVars, Leaves),
+    rb_new(OrderVs0),
+    foldl2(order_key, AllVars, 0, _, OrderVs0, OrderVs),
+    rb_new(Vars0),
+    rb_new(Pars0),
+    rb_new(Ev0),
+    foldl(evtotree,EvidenceIds,Ev0,Ev),
+    rb_new(Fs0),
+    foldl(ftotree,FactorIds,Fs0,Fs),
+    init_tops(Leaves,Tops),
+    get_keys_info(AllVars, Ev, Fs, OrderVs, Vars0, _Vars, Pars0, _Pars, Leaves, Tops, Term, []).
+
+order_key( Id, I0, I, OrderVs0, OrderVs) :-
+    I is I0+1,
+    rb_insert(OrderVs0, Id, I0, OrderVs).
+
+evtotree(K=V,Ev0,Ev) :-
+    rb_insert(Ev0, K, V, Ev).
+
+ftotree(F, Fs0, Fs) :-
+    F = f([K|_Parents],_,_,_),
+    rb_insert(Fs0, K, F, Fs).
 
 bdd([[]],_,_) :- !.
 bdd([QueryVars], AllVars, AllDiffs) :-
@@ -90,6 +128,7 @@ init_bdd_solver(_, AllVars0, _, bdd(Term, Leaves, Tops)) :-
 	init_tops(Leaves,Tops),
 	get_vars_info(AllVars, Vars0, _Vars, Pars0, _Pars, Leaves, Tops, Term, []).
 
+
 order_vars([], _).
 order_vars([V|AllVars], I0) :-
 	put_atts(V, [order(I0)]),
@@ -100,6 +139,19 @@ order_vars([V|AllVars], I0) :-
 init_tops([],[]).
 init_tops(_.Leaves,_.Tops) :-
 	init_tops(Leaves,Tops).
+
+sort_keys(AllFs, AllVars, Leaves) :-
+    dgraph_new(Graph0),
+    foldl(add_node, AllFs, Graph0, Graph),
+    dgraph_leaves(Graph, Leaves),
+    dgraph_top_sort(Graph, AllVars).
+
+add_node(f([K|Parents],_,_,_), Graph0, Graph) :-
+	dgraph_add_vertex(Graph0, K, Graph1), 
+	foldl(add_edge(K), Parents, Graph1, Graph).
+    
+add_edge(K, K0, Graph0, Graph) :-
+    dgraph_add_edge(Graph0, K0, K, Graph).
 
 sort_vars(AllVars0, AllVars, Leaves) :-
 	dgraph_new(Graph0),
@@ -120,6 +172,32 @@ add_parents([], _V, Graph, Graph).
 add_parents(V0.Parents, V, Graph0, GraphF) :-
 	dgraph_add_edge(Graph0, V0, V, GraphI), 
 	add_parents(Parents, V, GraphI, GraphF).
+
+get_keys_info([], _, _, _, Vs, Vs, Ps, Ps, _, _) --> [].
+get_keys_info([V|MoreVs], Evs, Fs, OrderVs, Vs, VsF, Ps, PsF, Lvs, Outs) -->
+	{ rb_lookup(V, F, Fs) }, !,
+	{ F = f([V|Parents], _, _, DistId) },
+%{writeln(v:DistId:Parents)},
+	[DIST],
+	{  get_key_info(V, F, Fs, Evs, OrderVs, DistId, Parents, Vs, Vs2, Ps, Ps1, Lvs, Outs, DIST) },
+	get_keys_info(MoreVs, Evs, Fs, OrderVs, Vs2, VsF, Ps1, PsF, Lvs, Outs).
+
+get_key_info(V, F, Fs, Evs, OrderVs, DistId, Parents0, Vs, Vs2, Ps, Ps1, Lvs, Outs, DIST) :-
+	reorder_keys(Parents0, OrderVs, Parents, Map),
+	check_key_p(DistId, F, Map, Parms, _ParmVars, Ps, Ps1),
+writeln(v),
+	unbound_parms(Parms, ParmVars),
+	F = f(_,[Size|_],_,_),
+	check_key(V, Size, DIST, Vs, Vs1),
+	DIST = info(V, Tree, Ev, Values, Formula, ParmVars, Parms),
+	% get a list of form [[P00,P01], [P10,P11], [P20,P21]]
+writeln(ps:Parents),
+	foldl(get_key_parent(Fs), Parents, PVars, Vs1, Vs2),
+	cross_product(Values, Ev, PVars, ParmVars, Formula0),
+%	(numbervars(Formula0,0,_),writeln(formula0:Ev:Formula0), fail ; true),
+writeln(ev:Evs),
+	get_key_evidence(V, Evs, DistId, Tree, Ev, Formula0, Formula, Lvs, Outs).
+%,	(numbervars(Formula,0,_),writeln(formula:Formula), fail ; true)
 
 get_vars_info([], Vs, Vs, Ps, Ps, _, _) --> [].
 get_vars_info([V|MoreVs], Vs, VsF, Ps, PsF, Lvs, Outs) -->
@@ -160,20 +238,25 @@ get_var_info(V, DistId, Parents0, Vs, Vs2, Ps, Ps1, Lvs, Outs, DIST) :-
 %
 % position zero is output
 %
-reorder_vars(Vs, OVs, Map) :-
-	add_pos(Vs, 1, PVs),
+reorder_keys(Vs, Order, OVs, Map) :-
+	foldl(add_key_pos(Order), Vs, PVs, 1, _),
 	keysort(PVs, SVs),
-	remove_key(SVs, OVs, Map).
+	maplist(remove_key,SVs, OVs, Map).
 
-add_pos([], _, []).
-add_pos([V|Vs], I0, [K-(I0,V)|PVs]) :-
+add_key_pos(Order, V, K-(I0,V), I0, I) :-
+	rb_lookup(V, K, Order),
+	I is I0+1.
+
+reorder_vars(Vs, OVs, Map) :-
+	foldl(add_pos, Vs, PVs, 1, _),
+	keysort(PVs, SVs),
+	maplist(remove_key, SVs, OVs, Map).
+
+add_pos(V, K-(I0,V), I0, I) :-
 	get_atts(V,[order(K)]),
-	I is I0+1,
-	add_pos(Vs, I, PVs).
+	I is I0+1.
 
-remove_key([], [], []).
-remove_key([_-(I,V)|SVs], [V|OVs], [I|Map]) :-
-	remove_key(SVs, OVs, Map).
+remove_key(_-(I,V), V, I).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -503,6 +586,23 @@ to_disj2([V,V1|Vs], V0, Out) :-
 % look for parameters in the rb-tree, or add a new.
 % distid is the key
 %
+check_key_p(DistId, _, Map, Parms, ParmVars, Ps, Ps) :-
+	rb_lookup(DistId-Map, theta(Parms, ParmVars), Ps), !.
+check_key_p(DistId, f(_, Sizes, Parms0, _DistId), Map, Parms, ParmVars, Ps, PsF) :-
+	swap_parms(Parms0, Sizes, [0|Map], Parms1),
+	length(Parms1, L0),
+	get_dist_domain_size(DistId, Size),
+	L1 is L0 div Size,
+	L is L0-L1,
+	initial_maxes(L1, Multipliers),
+	copy(L, Multipliers, NextMults, NextMults, Parms1, Parms, ParmVars),
+%writeln(t:Size:Parms0:Parms:ParmVars),
+	rb_insert(Ps, DistId-Map, theta(Parms, ParmVars), PsF).
+
+%
+% look for parameters in the rb-tree, or add a new.
+% distid is the key
+%
 check_p(DistId, Map, Parms, ParmVars, Ps, Ps) :-
 	rb_lookup(DistId-Map, theta(Parms, ParmVars), Ps), !.
 check_p(DistId, Map, Parms, ParmVars, Ps, PsF) :-
@@ -580,6 +680,19 @@ get_parents(V.Parents, Values.PVars, Vs0, Vs) :-
 	INFO = info(V, _Parent, _Ev, Values, _, _, _),
 	get_parents(Parents, PVars, Vs1, Vs).
 
+get_key_parent(Fs, V, Values, Vs0, Vs) :-
+    INFO = info(V, _Parent, _Ev, Values, _, _, _),
+    rb_lookup(V, f(_, [Size|_], _, _), Fs),
+    check_key(V, Size, INFO, Vs0, Vs).
+
+check_key(V, _, INFO, Vs, Vs) :-
+	rb_lookup(V, INFO, Vs), !.
+check_key(V, Size, INFO, Vs0, Vs) :-
+	length(Values, Size),
+	length(Ev, Size),
+	INFO = info(V, _Tree, Ev, Values, _Formula, _, _),
+	rb_insert(Vs0, V, INFO, Vs).
+
 %
 % construct the formula, this is the key...
 %
@@ -602,7 +715,7 @@ expand([H|L1], LN) -->
 	expand(L1, LN).
 
 concatenate_all(_H, []) --> [].
-concatenate_all(H, L.LN) -->
+concatenate_all(H, [L|LN]) -->
 	[[H|L]],
 	concatenate_all(H, LN).
 
@@ -684,6 +797,22 @@ skim_for_theta([[P|Other]], not(P), [Other], _) :- !.
 skim_for_theta([[P|Other]|More], not(P)*Ps, [Other|Left], New ) :-
 	skim_for_theta(More, Ps, Left, New ).
 
+get_key_evidence(V, Evs, _, Tree, Ev, F0, F, Leaves, Finals) :-
+    rb_lookup(Evs, V, Pos), !,
+    zero_pos(0, Pos, Ev),
+    insert_output(Leaves, V, Finals, Tree, Outs, SendOut),
+    get_outs(F0, F, SendOut, Outs).
+% hidden deterministic node, can be removed.
+%% get_key_evidence(V, _, DistId, _Tree, Ev, F0, [], _Leaves, _Finals) :-
+%%         deterministic(V, DistId),
+%% 	!,
+%% 	one_list(Ev),
+%% 	eval_outs(F0).	
+%% no evidence !!!
+get_key_evidence(V, _, _, Tree, _Values, F0, F1, Leaves, Finals) :-
+    insert_output(Leaves, V, Finals, Tree, Outs, SendOut),
+    get_outs(F0, F1, SendOut, Outs).
+
 get_evidence(V, Tree, Ev, F0, F, Leaves, Finals) :-
 	clpbn:get_atts(V, [evidence(Pos)]), !,
 	zero_pos(0, Pos, Ev),
@@ -737,10 +866,18 @@ eval_outs((V=F).Outs) :-
 	V = NF,
 	eval_outs(Outs).
 
+run_solver(Qs, LLPs, bdd(Term, Leaves, Nodes, Hash, Id)) :-
+    lists_of_keys_to_ids(Qs, QIds, Hash, _, Id, _),
+    findall(LPs,
+	    (member(Q, QIds),
+	     run_bdd_solver([Q],LPs,bdd(Term,Leaves,Nodes))),
+	    LLPs), writeln(LLPs).
+
 run_bdd_solver([[V]], LPs, bdd(Term, _Leaves, Nodes)) :-
 	build_out_node(Nodes, Node),
 	findall(Prob, get_prob(Term, Node, V, Prob),TermProbs),
 	sumlist(TermProbs, Sum),
+	writeln(LPs:TermProbs),
 	normalise(TermProbs, Sum, LPs).
 
 build_out_node([_Top], []).

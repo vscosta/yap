@@ -278,11 +278,11 @@ int   STD_PROTO(Yap_GetCharForSIGINT,(void));
 Int   STD_PROTO(Yap_StreamToFileNo,(Term));
 Term  STD_PROTO(Yap_OpenStream,(FILE *,char *,Term,int));
 Term  STD_PROTO(Yap_StringToTerm,(char *,Term *));
-Term  STD_PROTO(Yap_TermToString,(Term,char *,unsigned int,int));
-int   STD_PROTO(Yap_GetFreeStreamD,(void));
-int   STD_PROTO(Yap_GetFreeStreamDForReading,(void));
+char   *Yap_TermToString(Term t, char *s, size_t sz, size_t *length, int *encoding, int flags);
+int     Yap_GetFreeStreamD(void);
+int     Yap_GetFreeStreamDForReading(void);
 
-Term	STD_PROTO(Yap_WStringToList,(wchar_t *));
+Term	Yap_WStringToList(wchar_t *);
 Term	STD_PROTO(Yap_WStringToListOfAtoms,(wchar_t *));
 Atom	STD_PROTO(Yap_LookupWideAtom,(wchar_t *));
 

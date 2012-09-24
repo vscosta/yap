@@ -15,9 +15,7 @@ schema.yap: the PFL schema
 
 tables: CPTs
 
-
-
-
+=============================================================================
 
 professor_ability(p0,X).
 

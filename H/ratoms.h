@@ -135,6 +135,7 @@
   AtomId = AtomAdjust(AtomId);
   AtomInf = AtomAdjust(AtomInf);
   AtomInitGoal = AtomAdjust(AtomInitGoal);
+  AtomInitProlog = AtomAdjust(AtomInitProlog);
   AtomInStackExpansion = AtomAdjust(AtomInStackExpansion);
   AtomInput = AtomAdjust(AtomInput);
   AtomInstantiationError = AtomAdjust(AtomInstantiationError);

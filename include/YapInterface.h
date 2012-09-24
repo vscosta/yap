@@ -329,7 +329,7 @@ extern X_API YAP_Term PROTO(YAP_Read,(void *));
 extern X_API void PROTO(YAP_Write,(YAP_Term,void *,int));
 
 /*  void YAP_WriteBufffer(YAP_Term,char *,unsgined int,int) */
-extern X_API void PROTO(YAP_WriteBuffer,(YAP_Term,char *,unsigned int,int));
+extern X_API int PROTO(YAP_WriteBuffer,(YAP_Term,char *,size_t,int));
 
 /*  void YAP_Term(YAP_Term) */
 extern X_API YAP_Term PROTO(YAP_CopyTerm,(YAP_Term));

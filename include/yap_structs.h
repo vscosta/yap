@@ -255,6 +255,21 @@ typedef enum
     YAPC_COMPILE_ALL          /* compile all predicates */
   } yapc_exec_mode;
 
+/********* encoding ***********************/
+
+typedef enum
+{ PL_ENC_UNKNOWN = 0,                      /* invalid/unknown */
+  PL_ENC_OCTET,                            /* raw 8 bit input */
+  PL_ENC_ASCII,                            /* US-ASCII (0..127) */
+  PL_ENC_ISO_LATIN_1,                      /* ISO Latin-1 (0..256) */
+  PL_ENC_ANSI,                             /* default (multibyte) codepage */
+  PL_ENC_UTF8,
+  PL_ENC_UNICODE_BE,                       /* big endian unicode file */
+  PL_ENC_UNICODE_LE,                       /* little endian unicode file */
+  PL_ENC_WCHAR                             /* pl_wchar_t */
+} PL_IOENC;
+
+
 /********* YAP C-Flags ***********************/
 
 typedef enum

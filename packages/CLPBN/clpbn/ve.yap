@@ -96,9 +96,8 @@ ve(LLVs,Vs0,AllDiffs) :-
 % Vmap is the map V->I
 %
 init_ve_solver(Qs, Vs0, _, state(IQs, LVIs, VMap, Bigraph, Ev)) :-
-	check_for_agg_vars(Vs0, Vs1),
 	% LVi will have a  list of CLPBN variables
-	init_influences(Vs1, Graph, TGraph),
+	init_influences(Vs0, Graph, TGraph),
 	maplist(init_ve_solver_for_question(Graph, TGraph), Qs, LVs),
 	init_vmap(VMap0),
 	lvars_to_numbers(LVs, LVIs, VMap0, VMap1),
@@ -112,7 +111,7 @@ init_ve_solver_for_question(G, RG, Vs, NVs) :-
 %
 % construct a bipartite graph with vars and factors
 % the nodes of the var graph just contain pointer to the factors
-% the nodes of the factors contain  alist of variables and a matrix
+% the nodes of the factors contain a list of variables and a matrix
 % also provide a matrix with evidence
 %
 vars_to_bigraph(VMap, bigraph(VInfo, IF, Fs), Evs) :-
@@ -301,7 +300,7 @@ replace_factor(_F,_NF,OF, OF).
 
 eliminate(QVs, digraph(Vs0, I, Fs0), Dist) :-
 	find_best(Vs0, QVs, BestV, VFs), !,
-	%writeln(best:BestV:QVs),
+	%writeln(best:BestV:VFs),
 	% delete all factors that touched the variable
 	foldl2(del_fac, VFs, Fs0, Fs1, Vs0, Vs1),
 	% delete current variable
@@ -325,10 +324,15 @@ best_var(QVs, I, _Node, Info, Info) :-
 	!.
 % pick the variable with less factors
 best_var(_Qs, I, Node, i(ValSoFar,_,_), i(NewVal,I,Node)) :-
-	length(Node, NewVal),
+        foldl(szfac,Node,1,NewVal),
+	%length(Node, NewVal),
 	NewVal < ValSoFar,
 	!.
 best_var(_, _I, _Node, Info, Info).
+
+szfac(f(_,Vs,_), I0, I) :-
+    length(Vs,L),
+    I is I0*L.
 
 % delete one factor, need to also touch all variables
 del_fac(f(I,FVs,_), Fs0, Fs, Vs0, Vs) :-

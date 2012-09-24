@@ -4,25 +4,20 @@
 %
 
 :- module(pfl, [
-          factor/6,
-	  skolem/2,
-	  defined_in_factor/2,
-	  get_pfl_parameters/2, % given id return par factor parameter
-	  new_pfl_parameters/2, % given id  set new parameters
-	  get_first_pvariable/2, % given id get firt pvar (useful in bayesian)
-	  get_factor_pvariable/2, % given id get any pvar
-	  add_ground_factor/4,    %add a new bayesian variable (for now)
-	  op(550,yfx,@),
-	  op(550,yfx,::),
-	  op(1150,fx,bayes),
-	  op(1150,fx,markov)]).
-
-:- use_module(library(lists),
-	[nth0/3,
-	 append/3,
-	 member/2]).
-
-:- dynamic factor/6, skolem_in/2, skolem/2, preprocess/3, evidence/2, id/1.
+		op(550,yfx,@),
+		op(550,yfx,::),
+		op(1150,fx,bayes),
+		op(1150,fx,markov),
+		factor/6,
+		skolem/2,
+		defined_in_factor/2,
+		get_pfl_cpt/5, % given id and keys,  return new keys and cpt
+		get_pfl_parameters/2, % given id return par factor parameter
+		new_pfl_parameters/2, % given id  set new parameters
+		get_first_pvariable/2, % given id get firt pvar (useful in bayesian)
+		get_factor_pvariable/2, % given id get any pvar
+		add_ground_factor/5    %add a new bayesian variable (for now)
+		]).
 
 :- reexport(library(clpbn),
 	[clpbn_flag/2 as pfl_flag,
@@ -30,6 +25,10 @@
 
 :- reexport(library(clpbn/horus),
 	[set_solver/1]).
+
+:- reexport(library(clpbn/aggregates),
+	[avg_factors/5]).
+
 
 :- ( % if clp(bn) has done loading, we're top-level
 	predicate_property(set_pfl_flag(_,_), imported_from(clpbn))
@@ -41,6 +40,14 @@
 	% we're within clp(bn), no need to do anything
 	true
     ).
+
+
+:- use_module(library(lists),
+	[nth0/3,
+	 append/3,
+	 member/2]).
+
+:- dynamic factor/6, skolem_in/2, skolem/2, preprocess/3, evidence/2, id/1.
 
 user:term_expansion( bayes((Formula ; Phi ; Constraints)), pfl:factor(bayes,Id,FList,FV,Phi,Constraints)) :-
 	!,
@@ -70,11 +77,12 @@ Id@N :-
 	fail.
 _Id@_N.
 
-add_ground_factor(bayes, Domain, Vars, CPT) :-
+add_ground_factor(bayes, Domain, Vars, CPT, Id) :-
 	Vars = [K|_],
 	( skolem(K,_Domain) -> true ; assert(skolem(K, Domain)) ),
 	new_id(Id),
-	assert(factor(bayes, Id, Vars, [], CPT, true)).
+	asserta(skolem_in(K, Id)),
+	assert(factor(bayes, Id, Vars, [], CPT, [])).
 
 defined_in_factor(Key, Factor) :-
 	skolem_in(Key, Id),
@@ -104,6 +112,10 @@ new_id(Id) :-
 
 process_args(V, _Id, _I0, _I ) --> { var(V) }, !,
 	{ throw(error(instantiation_error,pfl:process_args)) }.
+process_args((Arg1,V), Id, I0, I ) --> { var(V) }, !,
+	{ I is I0+1 },
+	process_arg(Arg1, Id, I),
+	[V].
 process_args((Arg1,Arg2), Id, I0, I ) --> !,
 	process_args(Arg1, Id, I0, I1),
 	process_args(Arg2, Id, I1, I).
@@ -161,10 +173,17 @@ add_evidence(Sk,Var) :-
 	clpbn:put_atts(_V,[key(Sk),evidence(E)]).
 
 
+%% get_pfl_cpt(Id, Keys, Ev, NewKeys, Out) :- 
+%% 	factor(_Type,Id,[Key|_],_FV,avg,_Constraints), !,
+%% 	Keys = [Key|Parents],
+%% 	writeln(Key:Parents),
+%% 	avg_factors(Key, Parents, 0.0, Ev, NewKeys, Out).
+get_pfl_cpt(Id, Keys, _, Keys, Out) :-
+        get_pfl_parameters(Id,Out).
+
 get_pfl_parameters(Id,Out) :-
 	factor(_Type,Id,_FList,_FV,Phi,_Constraints),
-	%writeln(factor(_Type,Id,_FList,_FV,_Phi,_Constraints)),
-	( is_list(Phi) -> Out = Phi ; call(user:Phi, Out) ).
+	( Phi = [_|_] -> Phi = Out ; call(user:Phi, Out) ).
 
 
 new_pfl_parameters(Id, NewPhi) :-

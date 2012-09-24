@@ -999,9 +999,13 @@ p_read_module_preds( USES_REGS1 )
 }
 
 static void
-ReInitCatch(void)
+ReInitProlog(void)
 {
-  Term t = Yap_MkNewApplTerm(PredHandleThrow->FunctorOfPred, PredHandleThrow->ArityOfPE);
+  Term t = MkAtomTerm(AtomInitProlog);
+#if defined(YAPOR) || defined(TABLING)
+  Yap_init_root_frames();
+#endif /* YAPOR || TABLING */
+  Yap_InitYaamRegs();
   YAP_RunGoalOnce(t);
 }
 
@@ -1030,7 +1034,7 @@ p_read_program( USES_REGS1 )
   Sclose( stream );
   /* back to the top level we go */
   Yap_CloseSlots(PASS_REGS1);
-  ReInitCatch();
+  ReInitProlog();
   Yap_RestartYap( 3 );
   return TRUE;
 }
@@ -1044,7 +1048,6 @@ Yap_Restore(char *s, char *lib_dir)
     return -1;
   read_module(stream);
   Sclose( stream );
-  ReInitCatch();
   return DO_ONLY_CODE;
 }
 

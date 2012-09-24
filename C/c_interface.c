@@ -478,7 +478,8 @@ X_API void    STD_PROTO(YAP_EndConsult,(IOSTREAM *));
 X_API Term    STD_PROTO(YAP_Read, (IOSTREAM *));
 X_API void    STD_PROTO(YAP_Write, (Term, IOSTREAM *, int));
 X_API Term    STD_PROTO(YAP_CopyTerm, (Term));
-X_API Term    STD_PROTO(YAP_WriteBuffer, (Term, char *, unsigned int, int));
+X_API int     STD_PROTO(YAP_WriteBuffer, (Term, char *, size_t, int));
+X_API char   *STD_PROTO(YAP_WriteDynamicBuffer, (Term, char *, size_t, size_t *, int *, int));
 X_API char   *STD_PROTO(YAP_CompileClause, (Term));
 X_API void    STD_PROTO(YAP_PutValue, (Atom,Term));
 X_API Term    STD_PROTO(YAP_GetValue, (Atom));
@@ -2799,13 +2800,33 @@ YAP_CopyTerm(Term t)
   return tn;
 }
 
-X_API Term
-YAP_WriteBuffer(Term t, char *buf, unsigned int sze, int flags)
+X_API int
+YAP_WriteBuffer(Term t, char *buf, size_t sze, int flags)
 {
+  int enc;
+  size_t length;
+  char *b;
+
   BACKUP_MACHINE_REGS();
-  t = Yap_TermToString(t, buf, sze, flags);
+  if ((b = Yap_TermToString(t, buf, sze, &length, &enc, flags)) != buf) {
+    if (b) free(b);
+    RECOVER_MACHINE_REGS();
+    return FALSE;
+  }
   RECOVER_MACHINE_REGS();
-  return t;
+  return TRUE;
+}
+
+X_API char *
+YAP_WriteDynamicBuffer(Term t, char *buf, size_t sze, size_t *lengthp, int *encp, int flags)
+{
+  int enc;
+  char *b;
+
+  BACKUP_MACHINE_REGS();
+  b = Yap_TermToString(t, buf, sze, lengthp, encp, flags);
+  RECOVER_MACHINE_REGS();
+  return b;
 }
 
 X_API char *
@@ -3165,7 +3186,7 @@ YAP_Init(YAP_init_args *yap_init)
       Yap_AttsSize = 2048*sizeof(CELL);
     if (restore_result == DO_ONLY_CODE) {
       /* first, initialise the saved state */
-      Term t_goal = MkAtomTerm(AtomStartupSavedState);
+      Term t_goal = MkAtomTerm(AtomInitProlog);
       YAP_RunGoalOnce(t_goal);
       Yap_InitYaamRegs();
       /* reset stacks */

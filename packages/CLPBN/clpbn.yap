@@ -65,7 +65,8 @@
 :- use_module('clpbn/bdd',
 	      [bdd/3,
 	       init_bdd_solver/4,
-	       run_bdd_solver/3
+	       run_bdd_solver/3,
+	       call_bdd_ground_solver/6
 	      ]).
 
 %% :- use_module('clpbn/bnt',
@@ -306,7 +307,7 @@ write_out(jt, GVars, AVars, DiffVars) :-
 write_out(bdd, GVars, AVars, DiffVars) :-
 	bdd(GVars, AVars, DiffVars).
 write_out(bp, _GVars, _AVars, _DiffVars) :- 
-    writeln('interface not supported anymore').
+    writeln('interface not supported any longer').
 	%bp(GVars, AVars, DiffVars).
 write_out(gibbs, GVars, AVars, DiffVars) :-
 	gibbs(GVars, AVars, DiffVars).
@@ -318,13 +319,15 @@ write_out(fove, GVars, AVars, DiffVars) :-
 % call a solver with keys, not actual variables
 call_ground_solver(bp, GVars, GoalKeys, Keys, Factors, Evidence) :- !,
 	call_horus_ground_solver(GVars, GoalKeys, Keys, Factors, Evidence, _Answ).
+call_ground_solver(bdd, GVars, GoalKeys, Keys, Factors, Evidence) :- !,
+	call_bdd_ground_solver(GVars, GoalKeys, Keys, Factors, Evidence, _Answ).
 call_ground_solver(Solver, GVars, _GoalKeys, Keys, Factors, Evidence) :-
 	% traditional solver
 	b_hash_new(Hash0),
 	foldl(gvar_in_hash, GVars, Hash0, HashI), 
 	foldl(key_to_var, Keys, AllVars, HashI, Hash1),
 	foldl(evidence_to_v, Evidence, _EVars, Hash1, Hash),
-	writeln(Keys:AllVars),
+	%writeln(Keys:AllVars),
 	maplist(factor_to_dist(Hash), Factors),
 	% evidence
 	retract(use_parfactors(on)),

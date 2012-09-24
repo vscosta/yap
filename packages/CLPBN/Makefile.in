@@ -57,6 +57,7 @@ CLPBN_PROGRAMS= \
 	$(CLPBN_SRCDIR)/horus_lifted.yap \
 	$(CLPBN_SRCDIR)/jt.yap \
 	$(CLPBN_SRCDIR)/matrix_cpt_utils.yap \
+	$(CLPBN_SRCDIR)/numbers.yap \
 	$(CLPBN_SRCDIR)/pgrammar.yap \
 	$(CLPBN_SRCDIR)/table.yap \
 	$(CLPBN_SRCDIR)/topsort.yap \

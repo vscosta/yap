@@ -30,6 +30,9 @@
           defined_in_factor/2,
 	  skolem/2]).
 
+:- use_module(library(clpbn/aggregates), [
+          avg_factors/5]).
+
 :- use_module(library(clpbn/dists), [
           dist/4]).
 
@@ -101,35 +104,12 @@ collect(Keys, Factors) :-
 	findall(K, currently_defined(K), Keys),
 	findall(f(FType,FId,FKeys), f(FType,FId,FKeys), Factors).
 
-ground_all_keys([], _).
-ground_all_keys([V|GVars], AllKeys) :-
-	clpbn:get_atts(V,[key(Key)]), 
-	\+ ground(Key), !,
-	member(Key, AllKeys),
-	ground_all_keys(GVars, AllKeys).
-ground_all_keys([_V|GVars], AllKeys) :-
-	ground_all_keys(GVars, AllKeys).
-
-
-keys([], []).
-keys([Var|QueryVars], [Key|QueryKeys]) :-
-	clpbn:get_atts(Var,[key(Key)]),
-	keys(QueryVars, QueryKeys).
-
-initialize_evidence([]).
-initialize_evidence([V|EVars]) :-
-	clpbn:get_atts(V, [key(K)]),
-	ground(K),
-	queue_in(K),
-	initialize_evidence(EVars).
-
-
 %
 % gets key K, and collects factors that  define it
 queue_in(K) :-
 	queue(K), !.
 queue_in(K) :-
-	writeln(+K),
+	%writeln(+K),
 	assert(queue(K)),
 	fail.
 queue_in(_).
@@ -139,8 +119,6 @@ propagate :-
 	do_propagate(K).
 propagate.
 
-do_propagate(agg(_)) :- !,
-	propagate.
 do_propagate(K) :-
 	%writeln(-K),
 	\+ currently_defined(K),
@@ -152,9 +130,7 @@ do_propagate(K) :-
 	  true
 	;
 	  throw(error(no_defining_factor(K)))
-	)
-	,
-	  writeln(Ks),
+	),
 	member(K1, Ks),
 	\+ currently_defined(K1),
 	queue_in(K1),
@@ -163,18 +139,19 @@ do_propagate(_K) :-
         propagate.
 
 add_factor(factor(Type, Id, Ks, _, _Phi, Constraints), NKs) :-
-	( Ks = [K,agg(Els)]
+    %writeln(+Ks),
+	( Ks = [K,Els], var(Els)
 	 ->
-	  NKs=[K|Els]
+	  once(run(Constraints)),
+	  avg_factors(K, Els, 0.0, NewKeys, NewId),
+	  NKs = [K|NewKeys]
         ; 
-	  NKs = Ks
+	  once(run(Constraints)),
+	  NKs = Ks,
+	  Id = NewId
 	),
-	run(Constraints), !,
-	\+ f(Type, Id, NKs),
-	assert(f(Type, Id, NKs)).
-
-fetch_list((A,agg(B)), A, B).
-
+	\+ f(Type, NewId, NKs),
+	assert(f(Type, NewId, NKs)).
 
 run([Goal|Goals]) :-
 	call(user:Goal),

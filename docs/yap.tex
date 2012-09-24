@@ -9651,12 +9651,21 @@ applying the predicate @var{Pred} to all list elements on which
       Calls @var{Pred} on all elements of @code{List} and collects a result in
 @var{X} and @var{Y}.
 
-@item foldl3(:@var{Pred}, +@var{List}, ?@var{X0}, ?@var{X}, ?@var{Y0}, ?@var{Y}, ?@var{Z0}, ?@var{Z})
+@item foldl2(:@var{Pred}, +@var{List}, ?@var{List1}, ?@var{X0}, ?@var{X}, ?@var{Y0}, ?@var{Y})
+@findex foldl2/7
+@snindex foldl2/7
+@cnindex foldl2/7
+      Calls @var{Pred} on all elements of @code{List} and collects a result in
+@var{X} and @var{Y}.
+
+@item foldl3(:@var{Pred}, +@var{List1}, ?@var{List2}, ?@var{X0},
+?@var{X}, ?@var{Y0}, ?@var{Y}, ?@var{Z0}, ?@var{Z})
+
 @findex foldl3/6
 @snindex foldl3/6
 @cnindex foldl3/6
-      Calls @var{Pred} on all elements of @code{List} and collects a result in
-@var{X}, @var{Y} and @var{Z}.
+      Calls @var{Pred} on all elements of @code{List} and collects a
+result in @var{X}, @var{Y} and @var{Z}.
 
 @item scanl(:@var{Pred}, +@var{List}, +@var{V0}, ?@var{Values})
 @findex scanl/4
@@ -17725,14 +17734,28 @@ characters. The term is written according to a mask of the following
 flags in the @code{flag} argument: @code{YAP_WRITE_QUOTED},
 @code{YAP_WRITE_HANDLE_VARS}, @code{YAP_WRITE_USE_PORTRAY},  and @code{YAP_WRITE_IGNORE_OPS}.
 
-@item  @code{void} YAP_WriteBuffer(@code{YAP_Term} @var{t}, @code{char *}
-@var{buff}, @code{unsigned int}
+@item  @code{int} YAP_WriteBuffer(@code{YAP_Term} @var{t}, @code{char *}
+@var{buff}, @code{size_t}
 @var{size}, @code{int} @var{flags})
 @findex  YAP_WriteBuffer/4
-Write a YAP_Term @var{t} to buffer @var{buff} with size @var{size}. The
-term is written according to a mask of the following flags in the
-@code{flag} argument: @code{YAP_WRITE_QUOTED},
-@code{YAP_WRITE_HANDLE_VARS}, and @code{YAP_WRITE_IGNORE_OPS}.
+Write a YAP_Term @var{t} to buffer @var{buff} with size
+@var{size}. The term is written
+according to a mask of the following flags in the @code{flag}
+argument: @code{YAP_WRITE_QUOTED}, @code{YAP_WRITE_HANDLE_VARS},
+@code{YAP_WRITE_USE_PORTRAY}, and @code{YAP_WRITE_IGNORE_OPS}. The
+function will fail if it does not have enough space in the buffer.
+
+@item  @code{char *} YAP_WriteDynamicBuffer(@code{YAP_Term} @var{t}, @code{char *}
+@var{buff}, @code{size_t}
+@var{size}, @code{size_t}
+@var{*lengthp}, @code{size_t}
+@var{*encodingp}, @code{int} @var{flags})
+@findex  YAP_WriteDynamicBuffer/6
+Write a YAP_Term @var{t} to buffer @var{buff} with size
+@var{size}. The code will allocate an extra buffer if @var{buff} is
+@code{NULL} or if @code{buffer} does not have enough room. The
+variable @code{lengthp} is assigned the size of the resulting buffer,
+and @code{encodingp} will receive the type of encoding (currently only @code{PL_ENC_ISO_LATIN_1} and @code{PL_ENC_WCHAR} are supported)
 
 @item  @code{void} YAP_InitConsult(@code{int} @var{mode}, @code{char *} @var{filename})
 @findex YAP_InitConsult/2
