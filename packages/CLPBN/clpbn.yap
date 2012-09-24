@@ -65,7 +65,8 @@
 :- use_module('clpbn/bdd',
 	      [bdd/3,
 	       init_bdd_solver/4,
-	       run_bdd_solver/3
+	       run_bdd_solver/3,
+	       call_bdd_ground_solver/6
 	      ]).
 
 %% :- use_module('clpbn/bnt',
@@ -318,6 +319,8 @@ write_out(fove, GVars, AVars, DiffVars) :-
 % call a solver with keys, not actual variables
 call_ground_solver(bp, GVars, GoalKeys, Keys, Factors, Evidence) :- !,
 	call_horus_ground_solver(GVars, GoalKeys, Keys, Factors, Evidence, _Answ).
+call_ground_solver(bdd, GVars, GoalKeys, Keys, Factors, Evidence) :- !,
+	call_bdd_ground_solver(GVars, GoalKeys, Keys, Factors, Evidence, _Answ).
 call_ground_solver(Solver, GVars, _GoalKeys, Keys, Factors, Evidence) :-
 	% traditional solver
 	b_hash_new(Hash0),

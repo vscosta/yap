@@ -96,9 +96,8 @@ ve(LLVs,Vs0,AllDiffs) :-
 % Vmap is the map V->I
 %
 init_ve_solver(Qs, Vs0, _, state(IQs, LVIs, VMap, Bigraph, Ev)) :-
-	check_for_agg_vars(Vs0, Vs1),
 	% LVi will have a  list of CLPBN variables
-	init_influences(Vs1, Graph, TGraph),
+	init_influences(Vs0, Graph, TGraph),
 	maplist(init_ve_solver_for_question(Graph, TGraph), Qs, LVs),
 	init_vmap(VMap0),
 	lvars_to_numbers(LVs, LVIs, VMap0, VMap1),
