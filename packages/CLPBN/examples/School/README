@@ -49,8 +49,8 @@ course_rating(c0,h), course_difficulty(c0,X).
 
 course_difficulty(c0,X).
 
-student_ranking(s0,X).
+rank(s0,X).
 
-student_ranking(s0,X), student_intelligence(s0,h).
+rank(s0,X), student_intelligence(s0,h).
 
 

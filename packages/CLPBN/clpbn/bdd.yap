@@ -185,17 +185,14 @@ get_keys_info([V|MoreVs], Evs, Fs, OrderVs, Vs, VsF, Ps, PsF, Lvs, Outs) -->
 get_key_info(V, F, Fs, Evs, OrderVs, DistId, Parents0, Vs, Vs2, Ps, Ps1, Lvs, Outs, DIST) :-
 	reorder_keys(Parents0, OrderVs, Parents, Map),
 	check_key_p(DistId, F, Map, Parms, _ParmVars, Ps, Ps1),
-writeln(v),
 	unbound_parms(Parms, ParmVars),
 	F = f(_,[Size|_],_,_),
 	check_key(V, Size, DIST, Vs, Vs1),
 	DIST = info(V, Tree, Ev, Values, Formula, ParmVars, Parms),
 	% get a list of form [[P00,P01], [P10,P11], [P20,P21]]
-writeln(ps:Parents),
 	foldl(get_key_parent(Fs), Parents, PVars, Vs1, Vs2),
 	cross_product(Values, Ev, PVars, ParmVars, Formula0),
 %	(numbervars(Formula0,0,_),writeln(formula0:Ev:Formula0), fail ; true),
-writeln(ev:Evs),
 	get_key_evidence(V, Evs, DistId, Tree, Ev, Formula0, Formula, Lvs, Outs).
 %,	(numbervars(Formula,0,_),writeln(formula:Formula), fail ; true)
 
@@ -588,10 +585,10 @@ to_disj2([V,V1|Vs], V0, Out) :-
 %
 check_key_p(DistId, _, Map, Parms, ParmVars, Ps, Ps) :-
 	rb_lookup(DistId-Map, theta(Parms, ParmVars), Ps), !.
-check_key_p(DistId, f(_, Sizes, Parms0, _DistId), Map, Parms, ParmVars, Ps, PsF) :-
+check_key_p(DistId, f(_, Sizes, Parms0, DistId), Map, Parms, ParmVars, Ps, PsF) :-
 	swap_parms(Parms0, Sizes, [0|Map], Parms1),
 	length(Parms1, L0),
-	get_dist_domain_size(DistId, Size),
+	Sizes = [Size|_],
 	L1 is L0 div Size,
 	L is L0-L1,
 	initial_maxes(L1, Multipliers),
@@ -798,7 +795,7 @@ skim_for_theta([[P|Other]|More], not(P)*Ps, [Other|Left], New ) :-
 	skim_for_theta(More, Ps, Left, New ).
 
 get_key_evidence(V, Evs, _, Tree, Ev, F0, F, Leaves, Finals) :-
-    rb_lookup(Evs, V, Pos), !,
+    rb_lookup(V, Pos, Evs), !,
     zero_pos(0, Pos, Ev),
     insert_output(Leaves, V, Finals, Tree, Outs, SendOut),
     get_outs(F0, F, SendOut, Outs).
@@ -871,13 +868,12 @@ run_solver(Qs, LLPs, bdd(Term, Leaves, Nodes, Hash, Id)) :-
     findall(LPs,
 	    (member(Q, QIds),
 	     run_bdd_solver([Q],LPs,bdd(Term,Leaves,Nodes))),
-	    LLPs), writeln(LLPs).
+	    LLPs).
 
 run_bdd_solver([[V]], LPs, bdd(Term, _Leaves, Nodes)) :-
 	build_out_node(Nodes, Node),
 	findall(Prob, get_prob(Term, Node, V, Prob),TermProbs),
 	sumlist(TermProbs, Sum),
-	writeln(LPs:TermProbs),
 	normalise(TermProbs, Sum, LPs).
 
 build_out_node([_Top], []).

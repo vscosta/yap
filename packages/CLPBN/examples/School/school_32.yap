@@ -21,8 +21,8 @@ total_students(256).
 %:- clpbn_horus:set_solver(fove).
 %:- clpbn_horus:set_solver(hve).
 :- clpbn_horus:set_solver(bp).
-:- clpbn_horus:set_solver(bdd).
-%:- clpbn_horus:set_solver(ve).
+%:- clpbn_horus:set_solver(bdd).
+:- clpbn_horus:set_solver(ve).
 %:- clpbn_horus:set_solver(cbp).
 
 :- ensure_loaded(school32_data).
