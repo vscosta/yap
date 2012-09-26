@@ -202,6 +202,7 @@ YAP_parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 
   while (--argc > 0)
     {
+      fprintf(stderr,"looking at %s\n", argv[1]);
       p = *++argv;
       if (*p == '-')
 	switch (*++p)
@@ -483,6 +484,12 @@ YAP_parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 	      iap->YapPrologTopLevelGoal = add_end_dot(*argv);
 	    }
 	    break;
+	  case 'n':
+	    if (!strcmp("nosignals", p)) {
+	      iap->PrologShouldHandleInterrupts = FALSE;
+	      break;
+	    }
+	    goto myddas_error_print;
 	  case 'p':
 	    if ((*argv)[0] == '\0') 
 	      iap->YapPrologAddPath = *argv;
@@ -524,9 +531,7 @@ YAP_parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 	    break;
 	  default:
 	    {
-#ifdef MYDDAS_MYSQL
 	    myddas_error_print :
-#endif
 	      fprintf(stderr,"[ YAP unrecoverable error: unknown switch -%c ]\n", *p);
 #ifdef MYDDAS_MYSQL
 	    myddas_error :
