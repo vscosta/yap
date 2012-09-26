@@ -317,7 +317,7 @@ AC_ARG_WITH(readline,
 	else
 		yap_cv_readline=$with_readline
 		if test -d "${yap_cv_readline}/lib64" -a "$YAP_TARGET" = amd64; then
-		  LDFLAGS="-L${yap_cv_readline}/lib64 $LDFLAGS"
+		  LDFLAGS="-L${yap_cv_readline}/lib64 -L${yap_cv_readline}/lib $LDFLAGS"
                 else
 		  LDFLAGS="-L${yap_cv_readline}/lib $LDFLAGS"
 		fi
