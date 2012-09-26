@@ -316,7 +316,11 @@ AC_ARG_WITH(readline,
 		yap_cv_readline=no
 	else
 		yap_cv_readline=$with_readline
-		LDFLAGS="$LDFLAGS -L${yap_cv_readline}/lib"
+		if test -d "${yap_cv_readline}/lib64" -a "$YAP_TARGET" = amd64; then
+		  LDFLAGS="-L${yap_cv_readline}/lib64 $LDFLAGS"
+                else
+		  LDFLAGS="-L${yap_cv_readline}/lib $LDFLAGS"
+		fi
 		CPPFLAGS="-I${yap_cv_readline}/include $CPPFLAGS"
 	fi,
 	[yap_cv_readline=yes])
@@ -744,11 +748,11 @@ fi
 if test "$yap_cv_readline" != "no"
 then
   AC_CHECK_LIB([ncurses], [main],[
-		LDFLAGS="$LDFLAGS -lncurses"
+		LDFLAGS="-lncurses $LDFLAGS"
               ])
   AC_CHECK_LIB([readline], [main],[
                 AC_DEFINE([HAVE_LIBREADLINE], [1],[Define if you have libreadline])
-		LIBS="$LDFLAGS -lreadline"
+		LIBS="-lreadline $LDFLAGS"
               ],
               [if test "x$with_readline" != xcheck; then
                  AC_MSG_FAILURE(
@@ -756,6 +760,7 @@ then
                fi
               ])
 fi
+
 if test "$yap_cv_gmp" != "no"
 then
   AC_CHECK_LIB(gmp,main)
