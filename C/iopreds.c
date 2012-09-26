@@ -1090,7 +1090,7 @@ Yap_InitBackIO (void)
 {
 }
 
-/* used to test writebuffer
+#if DEBUG
 static Int
 p_write_string( USES_REGS1 )
 {
@@ -1106,8 +1106,7 @@ p_write_string( USES_REGS1 )
     fprintf(stderr,"%ld %s\n",length, s);
   return TRUE;
 }
-*/
-
+#endif
 
 void
 Yap_InitIOPreds(void)
@@ -1119,7 +1118,9 @@ Yap_InitIOPreds(void)
   Yap_InitCPred ("$get_read_error_handler", 1, p_get_read_error_handler, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$read", 7, p_read, SyncPredFlag|HiddenPredFlag|UserCPredFlag);
   Yap_InitCPred ("$read", 8, p_read2, SyncPredFlag|HiddenPredFlag|UserCPredFlag);
-  /* test predicate  Yap_InitCPred ("write_string", 2, p_write_string, SyncPredFlag|UserCPredFlag); */
+#if DEBUG
+  Yap_InitCPred ("write_string", 2, p_write_string, SyncPredFlag|UserCPredFlag);
+#endif
   Yap_InitCPred ("$start_line", 1, p_startline, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$change_type_of_char", 2, p_change_type_of_char, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$type_of_char", 2, p_type_of_char, SafePredFlag|SyncPredFlag|HiddenPredFlag);
