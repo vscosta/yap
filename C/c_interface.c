@@ -2427,12 +2427,14 @@ YAP_RunGoal(Term t)
     ENV = (CELL *)ENV[E_E];
     CP = old_CP;
     LOCAL_AllowRestart = TRUE;
+    Yap_StartSlots( PASS_REGS1 );
   } else {
     ENV = B->cp_env;
     B = B->cp_b;
     LOCAL_AllowRestart = FALSE;
   }
   
+
   RECOVER_MACHINE_REGS();
   return out;
 }
@@ -2647,6 +2649,8 @@ YAP_PruneGoal(void)
       {
 	POP_EXECUTE();
       }
+    if (!B->cp_b)
+      break;
     B = B->cp_b;
   }
   Yap_TrimTrail();
@@ -2820,7 +2824,6 @@ YAP_WriteBuffer(Term t, char *buf, size_t sze, int flags)
 X_API char *
 YAP_WriteDynamicBuffer(Term t, char *buf, size_t sze, size_t *lengthp, int *encp, int flags)
 {
-  int enc;
   char *b;
 
   BACKUP_MACHINE_REGS();
