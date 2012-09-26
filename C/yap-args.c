@@ -72,6 +72,7 @@ print_usage(void)
   fprintf(stderr,"  -GSize  Max Area for Global Stack\n");
   fprintf(stderr,"  -LSize   Max Area for Local Stack (number must follow L)\n");
   fprintf(stderr,"  -TSize   Max Area for Trail (number must follow L)\n");
+  fprintf(stderr,"  -nosignals   disable signal handling from Prolog\n");
   fprintf(stderr,"\n[Execution Modes]\n");
   fprintf(stderr,"  -J0  Interpreted mode (default)\n");
   fprintf(stderr,"  -J1  Mixed mode only for user predicates\n");
@@ -202,7 +203,6 @@ YAP_parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 
   while (--argc > 0)
     {
-      fprintf(stderr,"looking at %s\n", argv[1]);
       p = *++argv;
       if (*p == '-')
 	switch (*++p)
