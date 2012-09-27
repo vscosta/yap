@@ -2021,14 +2021,25 @@ p_atom_length( USES_REGS1 )
   Term t1 = Deref(ARG1);
   Term t2 = Deref(ARG2);
   Atom at;
-
+  Int len = 0;
+ 
+  if (!IsVarTerm(t2)) {
+    if (!IsIntegerTerm(t2)) {
+      Yap_Error(TYPE_ERROR_INTEGER, t2, "atom_length/2");
+      return(FALSE);
+    }
+    if ((len = IntegerOfTerm(t2)) < 0) {
+      Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t2, "atom_length/2");
+      return(FALSE);
+    }
+  }
  restart_aux:
   if (IsVarTerm(t1)) {
     Yap_Error(INSTANTIATION_ERROR, t1, "atom_length/2");
     return(FALSE);		
   }
   if (Yap_IsStringTerm(t1)) {
-    size_t len;
+
     if (Yap_IsWideStringTerm(t1)) {
       len = wcslen(Yap_BlobWideStringOfTerm(t1));
     } else {
@@ -2067,15 +2078,7 @@ p_atom_length( USES_REGS1 )
   }
   at = AtomOfTerm(t1);
   if (!IsVarTerm(t2)) {
-    size_t len;
-    if (!IsIntegerTerm(t2)) {
-      Yap_Error(TYPE_ERROR_INTEGER, t2, "atom_length/2");
-      return(FALSE);
-    }
-    if ((len = IntegerOfTerm(t2)) < 0) {
-      Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t2, "atom_length/2");
-      return(FALSE);
-    }
+    /* len is given from above */
     if (IsWideAtom(at)) {
       return wcslen((wchar_t *)RepAtom(at)->StrOfAE) == len;
     } else {
