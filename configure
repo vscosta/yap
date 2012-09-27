@@ -6579,7 +6579,7 @@ fi
 $as_echo "$ac_cv_lib_ncurses_main" >&6; }
 if test "x$ac_cv_lib_ncurses_main" = xyes; then :
 
-		LDFLAGS="-lncurses $LDFLAGS"
+		LIBS="-lncurses $LIBS"
 
 fi
 
@@ -6618,7 +6618,7 @@ if test "x$ac_cv_lib_readline_main" = xyes; then :
 
 $as_echo "#define HAVE_LIBREADLINE 1" >>confdefs.h
 
-		LIBS="-lreadline $LDFLAGS"
+		LIBS="-lreadline $LIBS"
 
 else
   if test "x$with_readline" != xcheck; then
