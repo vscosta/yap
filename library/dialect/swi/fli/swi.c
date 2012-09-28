@@ -2316,7 +2316,7 @@ X_API int PL_next_solution(qid_t qi)
   if (setjmp(LOCAL_execution->env))
     return 0;
   if (qi->state == 0) {
-    result = YAP_RunGoal(qi->g);
+   result = YAP_RunGoal(qi->g);
   } else {
     LOCAL_AllowRestart = qi->open;
     result = YAP_RestartGoal();
@@ -2330,7 +2330,7 @@ X_API int PL_next_solution(qid_t qi)
 
 X_API void PL_cut_query(qid_t qi)
 {
-  if (qi->open != 1) return;
+  if (qi->open != 1 || qi->state == 0) return;
   YAP_PruneGoal();
   YAP_cut_up();
   qi->open = 0;
@@ -2339,7 +2339,7 @@ X_API void PL_cut_query(qid_t qi)
 X_API void PL_close_query(qid_t qi)
 {
   /* need to implement backtracking here */
-  if (qi->open != 1)
+  if (qi->open != 1 || qi->state == 0)
     return;
   YAP_PruneGoal();
   YAP_RestartGoal();

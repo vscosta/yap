@@ -37,7 +37,8 @@
 	      [ve/3,
 	       check_if_ve_done/1,
 	       init_ve_solver/4,
-	       run_ve_solver/3
+	       run_ve_solver/3,
+	       call_ve_ground_solver/6
 	      ]).
 
 :- use_module('clpbn/horus_ground',
@@ -321,6 +322,8 @@ call_ground_solver(bp, GVars, GoalKeys, Keys, Factors, Evidence) :- !,
 	call_horus_ground_solver(GVars, GoalKeys, Keys, Factors, Evidence, _Answ).
 call_ground_solver(bdd, GVars, GoalKeys, Keys, Factors, Evidence) :- !,
 	call_bdd_ground_solver(GVars, GoalKeys, Keys, Factors, Evidence, _Answ).
+call_ground_solver(ve, GVars, GoalKeys, Keys, Factors, Evidence) :- !,
+	call_ve_ground_solver(GVars, GoalKeys, Keys, Factors, Evidence, _Answ).
 call_ground_solver(Solver, GVars, _GoalKeys, Keys, Factors, Evidence) :-
 	% traditional solver
 	b_hash_new(Hash0),

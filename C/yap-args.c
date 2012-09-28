@@ -72,6 +72,7 @@ print_usage(void)
   fprintf(stderr,"  -GSize  Max Area for Global Stack\n");
   fprintf(stderr,"  -LSize   Max Area for Local Stack (number must follow L)\n");
   fprintf(stderr,"  -TSize   Max Area for Trail (number must follow L)\n");
+  fprintf(stderr,"  -nosignals   disable signal handling from Prolog\n");
   fprintf(stderr,"\n[Execution Modes]\n");
   fprintf(stderr,"  -J0  Interpreted mode (default)\n");
   fprintf(stderr,"  -J1  Mixed mode only for user predicates\n");
@@ -483,6 +484,12 @@ YAP_parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 	      iap->YapPrologTopLevelGoal = add_end_dot(*argv);
 	    }
 	    break;
+	  case 'n':
+	    if (!strcmp("nosignals", p)) {
+	      iap->PrologShouldHandleInterrupts = FALSE;
+	      break;
+	    }
+	    goto myddas_error_print;
 	  case 'p':
 	    if ((*argv)[0] == '\0') 
 	      iap->YapPrologAddPath = *argv;
@@ -524,9 +531,7 @@ YAP_parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 	    break;
 	  default:
 	    {
-#ifdef MYDDAS_MYSQL
 	    myddas_error_print :
-#endif
 	      fprintf(stderr,"[ YAP unrecoverable error: unknown switch -%c ]\n", *p);
 #ifdef MYDDAS_MYSQL
 	    myddas_error :
