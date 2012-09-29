@@ -18,6 +18,8 @@
 		     check_if_ve_done/1,
 		     init_ve_solver/4,
 		     run_ve_solver/3,
+		     init_ve_ground_solver/5,
+		     run_ve_ground_solver/3,
 		     call_ve_ground_solver/6]).
 
 :- attribute size/1, all_diffs/1.
@@ -90,17 +92,19 @@ call_ve_ground_solver(QueryVars, QueryKeys, AllKeys, Factors, Evidence, Output) 
     clpbn_bind_vals([QueryVars], Solutions, Output).
 
 call_ve_ground_solver_for_probabilities(QueryKeys, AllKeys, Factors, Evidence, Solutions) :-
-    keys_to_numbers(AllKeys, Factors, Evidence, Hash4, Id4, FactorIds, EvidenceIds),
-    init_ve(FactorIds, EvidenceIds, Hash4, Id4, VE),
-    run_solver(QueryKeys, Solutions, VE).
+    init_ve_ground_solver(QueryKeys, AllKeys, Factors, Evidence, VE),
+    run_ve_ground_solver(QueryKeys, Solutions, VE).
 
 simulate_ve_ground_solver(_QueryVars, QueryKeys, AllKeys, Factors, Evidence, Output) :-
     simulate_ve_ground_solver_for_probabilities([QueryKeys], AllKeys, Factors, Evidence, Output).
 
 simulate_ve_ground_solver_for_probabilities(QueryKeys, AllKeys, Factors, Evidence, Solutions) :-
-    keys_to_numbers(AllKeys, Factors, Evidence, Hash4, Id4, FactorIds, EvidenceIds),
-    init_ve(FactorIds, EvidenceIds, Hash4, Id4, VE),
+    init_ve_ground_solver(QueryKeys, AllKeys, Factors, Evidence, VE),
     simulate_solver(QueryKeys, Solutions, VE).
+
+init_ve_ground_solver(_QueryKeys, AllKeys, Factors, Evidence, VE) :-
+    keys_to_numbers(AllKeys, Factors, Evidence, Hash4, Id4, FactorIds, EvidenceIds),
+    init_ve(FactorIds, EvidenceIds, Hash4, Id4, VE).
 
 
 %
@@ -115,21 +119,16 @@ ve(LLVs,Vs0,AllDiffs) :-
     clpbn_bind_vals(LLVs,LLPs,AllDiffs).
 
 
-init_ve(FactorIds, EvidenceIds, Hash, Id, ve(FactorIds, Hash, Id, BG, Ev)) :-
-	rb_new(Fs0),
-	foldl3(factor_to_graph, FactorIds, Fs0, Fs, [], FVs, 0, IF),
-	sort(FVs, SFVs),
-	rb_new(VInfo0),
-	add_vs(SFVs, Fs, VInfo0, VInfo),
-	BG = bigraph(VInfo, IF, Fs),
+init_ve(FactorIds, EvidenceIds, Hash, Id, ve(FactorIds, Hash, Id, Ev)) :-
 	rb_new(Ev0),
 	foldl(evtotree,EvidenceIds,Ev0,Ev).
 
 evtotree(K=V,Ev0,Ev) :-
 	rb_insert(Ev0, K, V, Ev).
 
-factor_to_graph( f(Nodes, Sizes, Pars0, _), Factors0, Factors, Edges0, Edges, I0, I) :-
+factor_to_graph( f(Nodes, Sizes, _Pars0, Id), Factors0, Factors, Edges0, Edges, I0, I) :-
 	I is I0+1,
+	pfl:get_pfl_parameters(Id, Pars0),
 	init_CPT(Pars0, Sizes, CPT0), 
 	reorder_CPT(Nodes, CPT0, FIPs, CPT, _),
 	F = f(I0, FIPs, CPT),
@@ -230,7 +229,7 @@ add_vs([V-F|SFVs], Fs, VInfo0, VInfo) :-
 	rb_insert(VInfo0, V, [FInfo|Fs0], VInfoI),
 	add_vs(R, Fs, VInfoI, VInfo).
 
-collect_factors([], _Fs, _V, [], []).
+collect_factors([], _Fs, _V, [], []) :- !.
 collect_factors([V-F|SFVs], Fs, V, [FInfo|FInfos], R):-
 	!,
 	rb_lookup(F, FInfo, Fs),
@@ -239,9 +238,15 @@ collect_factors(SFVs, _Fs, _V, [], SFVs).
 
 % solve each query independently
 % use a findall to recover space without needing for GC
-run_solver(LQVs, LLPs, ve(FIds, Hash, Id, BG, Ev)) :-
+run_ve_ground_solver(LQVs, LLPs, ve(FactorIds, Hash, Id, Ev)) :-
+    rb_new(Fs0),
+    foldl3(factor_to_graph, FactorIds, Fs0, Fs, [], FVs, 0, IF),
+    sort(FVs, SFVs),
+    rb_new(VInfo0),
+    add_vs(SFVs, Fs, VInfo0, VInfo),
+    BG = bigraph(VInfo, IF, Fs),
     lists_of_keys_to_ids(LQVs, LQIds, Hash, _, Id, _),
-    findall(LPs, solve(LQIds, FIds, BG, Ev, LPs), LLPs).
+    findall(LPs, solve(LQIds, FactorIds, BG, Ev, LPs), LLPs).
 
 solve([QVs|_], FIds, Bigraph, Evs, LPs) :-
     factor_influences(FIds, QVs, Evs, LVs),
@@ -366,11 +371,13 @@ check_v(NVs, V) :-
 % simplify a variable with evidence
 %
 clean_v_ev(V=E, FVs0, FVs, Vs0, Vs) :-
-	rb_delete(Vs0, V, Fs, Vs1),
+	rb_delete(Vs0, V, Fs, Vs1), !,
 	foldl2(simplify_f_ev(V, E), Fs, FVs0, FVs, Vs1, Vs).
 clean_v_ev(V-E, FVs0, FVs, Vs0, Vs) :-
-	rb_delete(Vs0, V, Fs, Vs1),
+	rb_delete(Vs0, V, Fs, Vs1), !,
 	foldl2(simplify_f_ev(V, E), Fs, FVs0, FVs, Vs1, Vs).
+% The variable is not there
+clean_v_ev(_, FVs, FVs, Vs, Vs).
 
 %
 %

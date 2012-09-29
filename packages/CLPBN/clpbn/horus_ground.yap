@@ -10,8 +10,8 @@
 :- module(clpbn_horus_ground,
           [call_horus_ground_solver/6,
            check_if_horus_ground_solver_done/1,
-           init_horus_ground_solver/4,
-           run_horus_ground_solver/3,
+           init_horus_ground_solver/5,
+           run_horus_ground_solver/4,
            finalize_horus_ground_solver/1
           ]).
 
@@ -20,7 +20,8 @@
            cpp_set_factors_params/2,
            cpp_run_ground_solver/3,
            cpp_set_vars_information/2,
-           cpp_free_ground_network/1
+           cpp_free_ground_network/1,
+	   set_solver/1
           ]).
 
 :- use_module(library('clpbn/dists'),
@@ -90,30 +91,28 @@ get_factors_type([f(bayes, _, _)|_], bayes) :- ! .
 get_factors_type([f(markov, _, _)|_], markov) :- ! .
 
 
+get_var_information(_:Key, Domain) :- !,
+    skolem(Key, Domain).
 get_var_information(Key, Domain) :-
     skolem(Key, Domain).
 
 
 finalize_horus_ground_solver(bp(Network, _)) :-
   cpp_free_ground_network(Network).
+finalize_horus_ground_solver(horus(_, _, _, _)).
 
 %
 % QVars: all query variables?
 % 
 % 
-init_horus_ground_solver(QueryVars, _AllVars, Ground, horus(GKeys, Keys, Factors, Evidence)) :-
-	(
-	    var(GKeys) ->
-	    Ground = ground(GKeys, Keys, Factors, Evidence) 
-	;
-	    generate_network(QueryVars, GKeys, Keys, Factors, Evidence) 
-	).
+init_horus_ground_solver(QueryKeys, AllKeys, Factors, Evidence, horus(QueryKeys, AllKeys, Factors, Evidence)).
 
 %
 % just call horus solver.
 %
-run_horus_ground_solver(_QueryVars, Solutions, horus(GKeys, Keys, Factors, Evidence) ) :- !,
-	call_horus_ground_solver_for_probabilities(GKeys, Keys, Factors, Evidence, Solutions).
+run_horus_ground_solver(_QueryVars, Solutions, horus(GKeys, Keys, Factors, Evidence) , Solver) :- 
+    set_solver(Solver),
+    call_horus_ground_solver_for_probabilities(GKeys, Keys, Factors, Evidence, Solutions).
 
 %bp([[]],_,_) :- !.
 %bp([QueryVars], AllVars, Output) :-

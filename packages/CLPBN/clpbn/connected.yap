@@ -160,5 +160,5 @@ get_top(_EVs, V-_, Vs, [V|Vs]) :-
 get_top(EVs, V-_, Vs, [V|Vs]) :-
     nonvar(V),
     rb_lookup(V, _, EVs), !.
-get_top(_, Vs, Vs).
+get_top(_, _, Vs, Vs).
 

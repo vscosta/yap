@@ -21,7 +21,9 @@ Va <- P*X1*Y1 + Q*X2*Y2 + ...
           [bdd/3,
            set_solver_parameter/2,
            init_bdd_solver/4,
+           init_bdd_ground_solver/5,
            run_bdd_solver/3,
+           run_bdd_ground_solver/3,
            finalize_bdd_solver/1,
 	   check_if_bdd_done/1,
 	   call_bdd_ground_solver/6
@@ -75,6 +77,18 @@ Va <- P*X1*Y1 + Q*X2*Y2 + ...
 :- dynamic bdds/1.
 %bdds(ddnnf).
 bdds(bdd).
+
+%
+% QVars: all query variables?
+% 
+% 
+init_bdd_ground_solver(QueryKeys, AllKeys, Factors, Evidence, bdd(QueryKeys, AllKeys, Factors, Evidence)).
+
+%
+% just call horus solver.
+%
+run_bdd_ground_solver(_QueryVars, Solutions, bdd(GKeys, Keys, Factors, Evidence) ) :- !,
+	call_bdd_ground_solver_for_probabilities(GKeys, Keys, Factors, Evidence, Solutions).
 
 check_if_bdd_done(_Var).
 

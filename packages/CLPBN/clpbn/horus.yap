@@ -35,15 +35,15 @@ warning :-
     -> true ; warning.
 
 
-set_solver(ve)    :- set_clpbn_flag(solver,ve).
-set_solver(bdd)   :- set_clpbn_flag(solver,bdd).
-set_solver(jt)    :- set_clpbn_flag(solver,jt).
-set_solver(gibbs) :- set_clpbn_flag(solver,gibbs).
-set_solver(fove)  :- set_clpbn_flag(solver,fove), set_horus_flag(lifted_solver, fove).
-set_solver(lbp)   :- set_clpbn_flag(solver,fove), set_horus_flag(lifted_solver, lbp).
-set_solver(hve)   :- set_clpbn_flag(solver,bp),   set_horus_flag(ground_solver, ve).
-set_solver(bp)    :- set_clpbn_flag(solver,bp),   set_horus_flag(ground_solver, bp).
-set_solver(cbp)   :- set_clpbn_flag(solver,bp),   set_horus_flag(ground_solver, cbp).
+set_solver(ve)    :- !, set_clpbn_flag(solver,ve).
+set_solver(bdd)   :- !, set_clpbn_flag(solver,bdd).
+set_solver(jt)    :- !, set_clpbn_flag(solver,jt).
+set_solver(gibbs) :- !, set_clpbn_flag(solver,gibbs).
+set_solver(fove)  :- !, set_clpbn_flag(solver,fove), set_horus_flag(lifted_solver, fove).
+set_solver(lbp)   :- !, set_clpbn_flag(solver,fove), set_horus_flag(lifted_solver, lbp).
+set_solver(hve)   :- !, set_clpbn_flag(solver,bp),   set_horus_flag(ground_solver, ve).
+set_solver(bp)    :- !, set_clpbn_flag(solver,bp),   set_horus_flag(ground_solver, bp).
+set_solver(cbp)   :- !, set_clpbn_flag(solver,bp),   set_horus_flag(ground_solver, cbp).
 set_solver(S)     :- throw(error('unknown solver ', S)).
 
 

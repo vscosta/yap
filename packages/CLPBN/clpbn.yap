@@ -6,6 +6,8 @@
 		  clpbn_key/2,
 		  clpbn_init_solver/4,
 		  clpbn_run_solver/3,
+		  pfl_init_solver/6,
+		  pfl_run_solver/4,
 		  clpbn_finalize_solver/1,
 		  clpbn_init_solver/5,
 		  clpbn_run_solver/4,
@@ -38,14 +40,16 @@
 	       check_if_ve_done/1,
 	       init_ve_solver/4,
 	       run_ve_solver/3,
+	       init_ve_ground_solver/5,
+	       run_ve_ground_solver/3,
 	       call_ve_ground_solver/6
 	      ]).
 
 :- use_module('clpbn/horus_ground',
 	      [call_horus_ground_solver/6,
 	       check_if_horus_ground_solver_done/1,
-	       init_horus_ground_solver/4,
-	       run_horus_ground_solver/3,
+	       init_horus_ground_solver/5,
+	       run_horus_ground_solver/4,
 	       finalize_horus_ground_solver/1
 	      ]).
 
@@ -67,6 +71,8 @@
 	      [bdd/3,
 	       init_bdd_solver/4,
 	       run_bdd_solver/3,
+	       init_bdd_ground_solver/5,
+	       run_bdd_ground_solver/3,
 	       call_bdd_ground_solver/6
 	      ]).
 
@@ -532,6 +538,23 @@ clpbn_init_solver(bdd, LVs, Vs0, VarsWithUnboundKeys, State) :-
 clpbn_init_solver(pcg, LVs, Vs0, VarsWithUnboundKeys, State) :-
 	init_pcg_solver(LVs, Vs0, VarsWithUnboundKeys, State).
 
+%
+% This is a routine to start a solver, called by the learning procedures (ie, em).
+% LVs is a list of lists of variables one is interested in eventually marginalising out
+% Vs0 gives the original graph
+% AllDiffs gives variables that are not fully constrainted, ie, we don't fully know
+% the key. In this case, we assume different instances will be bound to different
+% values at the end of the day.
+%
+pfl_init_solver(QueryKeys, AllKeys, Factors, Evidence, VE, bdd) :-
+	init_bdd_ground_solver(QueryKeys, AllKeys, Factors, Evidence, VE).
+pfl_init_solver(QueryKeys, AllKeys, Factors, Evidence, VE, ve) :-
+	init_ve_ground_solver(QueryKeys, AllKeys, Factors, Evidence, VE).
+pfl_init_solver(QueryKeys, AllKeys, Factors, Evidence, VE, bp) :-
+	init_horus_ground_solver(QueryKeys, AllKeys, Factors, Evidence, VE).
+pfl_init_solver(QueryKeys, AllKeys, Factors, Evidence, VE, hve) :-
+	init_horus_ground_solver(QueryKeys, AllKeys, Factors, Evidence, VE).
+
 
 %
 % LVs is the list of lists of variables to marginalise
@@ -560,6 +583,16 @@ clpbn_run_solver(bdd, LVs, LPs, State) :-
 
 clpbn_run_solver(pcg, LVs, LPs, State) :-
 	run_pcg_solver(LVs, LPs, State).
+
+pfl_run_solver(LVs, LPs, State, ve) :-
+	run_ve_ground_solver(LVs, LPs, State).
+pfl_run_solver(LVs, LPs, State, bdd) :-
+	run_bdd_ground_solver(LVs, LPs, State).
+pfl_run_solver(LVs, LPs, State, bp) :-
+	run_horus_ground_solver(LVs, LPs, State, bp).
+pfl_run_solver(LVs, LPs, State, hve) :-
+    run_horus_ground_solver(LVs, LPs, State, hve).
+
 
 add_keys(Key1+V1,_Key2,Key1+V1).
 

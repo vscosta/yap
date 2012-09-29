@@ -46,6 +46,9 @@ factor_to_id(Ev, f(_, DistId, Keys), f(Ids, Ranges, CPT, DistId), Hash0, Hash, I
 	foldl2(key_to_id, NKeys, Ids, Hash0, Hash, I0, I),
 	maplist(get_range, Keys, Ranges).
 
+get_range(_Id:K, Range) :- !,
+	skolem(K,Domain),
+	length(Domain,Range).
 get_range(K, Range) :-
 	skolem(K,Domain),
 	length(Domain,Range).
