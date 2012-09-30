@@ -349,20 +349,22 @@ BeliefProp::getVarToFactorMsg (const BpLink* link) const
   const BpLinks& links = ninf (src)->getLinks();
   if (Globals::logDomain) {
     for (it = links.begin(); it != links.end(); ++it) {
-      msg += (*it)->message();
+      if (*it != link) {
+        msg += (*it)->message();
+      }
       if (Constants::SHOW_BP_CALCS) {
         cout << " x " << (*it)->message();
       }
     }
-    msg -= link->message();
   } else {
     for (it = links.begin(); it != links.end(); ++it) {
-      msg *= (*it)->message();
+      if (*it != link) {
+        msg *= (*it)->message();
+      }
       if (Constants::SHOW_BP_CALCS) {
         cout << " x " << (*it)->message();
       }
     }
-    msg /= link->message();
   }
   if (Constants::SHOW_BP_CALCS) {
     cout << " = " << msg;
