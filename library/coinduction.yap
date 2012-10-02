@@ -166,5 +166,31 @@ stream([H|T]) :- i(H), stream(T).
 i(0).
 i(s(N)) :- i(N).
 
+	% Are there infinitely many "occurrences" of arg1 in arg2?
+	:- coinductive comember/2.
+
+	comember(X, L) :-
+		drop(X, L, L1),
+		comember(X, L1).
+
+	% Drop some prefix of arg2 upto an "occurrence" of arg1 from arg2,
+	% yielding arg3.
+	% ("Occurrence" of X = something unifiable with X.)
+	%:- table(drop/3).	% not working; needs tabling supporting cyclic terms!
+	drop(H, [H| T], T).
+	drop(H, [_| T], T1) :-
+		drop(H, T, T1).
+
+
+% X = [1, 2, 3| X], comember(E, X).
+
+        user:p(E) :- 
+                X = [1, 2, 3| X],
+                comember(E, X),
+                format('~w~n',[E]), 
+                get_code(_),
+                fail.
+
+
 **************************************/
 
