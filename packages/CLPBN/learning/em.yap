@@ -125,7 +125,6 @@ setup_em_network(Items, Solver, state( AllDists, AllDistInstances, MargVars, Sol
 
 run_examples(user:Exs, Keys, Factors, EList) :-
     Exs = [_:_|_], !,
-    trace,
     findall(ex(EKs, EFs, EEs), run_example(Exs, EKs, EFs, EEs),
 	    VExs),
     foldl4(join_example, VExs, [], Keys, [], Factors, [], EList, 0, _).
@@ -206,9 +205,6 @@ process_factor(Ev, f(bayes,Id,Ks), i(Id, Ks, Cases, NonEvs)) :-
 
 fetch_evidence(Ev, K, E, NonEvs, NonEvs) :-
 	b_hash_lookup(K, E, Ev), !.
-fetch_evidence(_Ev, _Id:K, Ns, NonEvs, [K|NonEvs]) :-
-	pfl:skolem(K,D), !,
-	foldl(domain_to_number, D, Ns, 0, _).
 fetch_evidence(_Ev, K, Ns, NonEvs, [K|NonEvs]) :-
 	pfl:skolem(K,D),
 	foldl(domain_to_number, D, Ns, 0, _).
