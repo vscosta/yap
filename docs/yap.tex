@@ -3343,6 +3343,18 @@ Replace every @code{'$VAR'(@var{I})} by a free variable.
 @cnindex ground/1
 Succeeds if there are no free variables in the term @var{T}.
 
+@item cyclic_term(@var{T}) [ISO]
+@findex cyclic_term/1
+@snindex cyclic_term/1
+@cnindex cyclic_term/1
+Succeeds if there are loops in the term @var{T}, that is, it is an infite term.
+
+@item acyclic_term(@var{T}) [ISO]
+@findex acyclic_term/1
+@snindex acyclic_term/1
+@cnindex acyclic_term/1
+Succeeds if there are no loops in the term @var{T}, that is, it is an fite term.
+
 @item arg(+@var{N},+@var{T},@var{A}) [ISO]
 @findex arg/3
 @syindex arg/3
@@ -9666,6 +9678,15 @@ applying the predicate @var{Pred} to all list elements on which
 @cnindex foldl3/6
       Calls @var{Pred} on all elements of @code{List} and collects a
 result in @var{X}, @var{Y} and @var{Z}.
+
+@item foldl3(:@var{Pred}, +@var{List1}, ?@var{List2}, ?@var{X0},
+?@var{X}, ?@var{Y0}, ?@var{Y}, ?@var{Z0}, ?@var{Z}, ?@var{W0}, ?@var{W})
+
+@findex foldl4/8
+@snindex foldl4/8
+@cnindex foldl4/8
+      Calls @var{Pred} on all elements of @code{List} and collects a
+result in @var{X}, @var{Y}, @var{Z} and @var{W}.
 
 @item scanl(:@var{Pred}, +@var{List}, +@var{V0}, ?@var{Values})
 @findex scanl/4
