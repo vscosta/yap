@@ -150,7 +150,7 @@ bagof(Template, Generator, Bag) :-
 	;   L = L0
 	).
 '$excess_vars'(A, A, _, L, L) :-
-	atomic(A),  !.
+	ground(A),  !.
 '$excess_vars'(X^P, NP, Y, L0, L) :- !,
 	'$variables_in_term'(X+Y, [], NY),
 	'$excess_vars'(P, NP, NY, L0, L).
@@ -166,6 +166,22 @@ bagof(Template, Generator, Bag) :-
 	'$excess_vars'(S, _, Y, L0, L).
 '$excess_vars'(\+G, \+G, _, L0, LF) :- !,
 	L0 = LF.
+'$excess_vars'((G1,G2), (NG1, NG2), Y, L0, LF) :- !,
+        '$excess_vars'(G1, NG1, Y, L0, L1),
+        '$excess_vars'(G2, NG2, Y, L1, LF).
+'$excess_vars'((G1;G2), (NG1; NG2), Y, L0, LF) :- !,
+        '$excess_vars'(G1, NG1, Y, L0, L1),
+        '$excess_vars'(G2, NG2, Y, L1, LF).
+'$excess_vars'((G1->G2), (NG1-> NG2), Y, L0, LF) :- !,
+        '$excess_vars'(G1, NG1, Y, L0, L1),
+        '$excess_vars'(G2, NG2, Y, L1, LF).
+'$excess_vars'((G1*->G2), (NG1 *-> NG2), Y, L0, LF) :- !,
+        '$excess_vars'(G1, NG1, Y, L0, L1),
+        '$excess_vars'(G2, NG2, Y, L1, LF).
+'$excess_vars'(if(G1,G2,G3), if(NG1, NG2, NG3), Y, L0, LF) :- !,
+        '$excess_vars'(G1, NG1, Y, L0, L1),
+        '$excess_vars'(G2, NG2, Y, L1, L2),
+        '$excess_vars'(G3, NG3, Y, L2, LF).
 '$excess_vars'(_:G1, M:NG, Y, L0, LF) :- nonvar(G1), G1 = M:G, !,
 	'$excess_vars'(G, NG, Y, L0, LF).
 '$excess_vars'(M:G, M:NG, Y, L0, LF) :- !,
