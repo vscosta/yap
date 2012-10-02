@@ -748,11 +748,11 @@ fi
 if test "$yap_cv_readline" != "no"
 then
   AC_CHECK_LIB([ncurses], [main],[
-		LDFLAGS="-lncurses $LDFLAGS"
+		LIBS="-lncurses $LIBS"
               ])
   AC_CHECK_LIB([readline], [main],[
                 AC_DEFINE([HAVE_LIBREADLINE], [1],[Define if you have libreadline])
-		LIBS="-lreadline $LDFLAGS"
+		LIBS="-lreadline $LIBS"
               ],
               [if test "x$with_readline" != xcheck; then
                  AC_MSG_FAILURE(
