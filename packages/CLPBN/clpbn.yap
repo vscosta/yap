@@ -614,6 +614,9 @@ probability(Goal, Prob) :-
 	findall(Prob, do_probability(Goal, [], Prob), [Prob]).
 	
 conditional_probability(Goal, ListOfGoals, Prob) :-
+	\+ ground(Goal),
+	throw(error(ground(Goal),conditional_probability(Goal, ListOfGoals, Prob))).
+conditional_probability(Goal, ListOfGoals, Prob) :-
 	\+ ground(ListOfGoals), !,
 	throw(error(ground(ListOfGoals),conditional_probability(Goal, ListOfGoals, Prob))).
 conditional_probability(Goal, ListOfGoals, Prob) :-
@@ -622,7 +625,7 @@ conditional_probability(Goal, ListOfGoals, Prob) :-
 do_probability(Goal, ListOfGoals, Prob) :-
 	evidence_to_var(Goal, C, NGoal, V),
 	call_residue(run( ListOfGoals, NGoal), Vars), !,
-	match_probability(Vars, C, V, Prob).
+	match_probability(Vars, NGoal, C, V, Prob).
 
 run(ListOfGoals,Goal) :-
 	do(ListOfGoals),
@@ -648,11 +651,28 @@ variabilise_last([Arg], Arg, [V], V).
 variabilise_last([Arg1,Arg2|Args], Arg, Arg1.NArgs, V) :-
 	variabilise_last(Arg2.Args, Arg, NArgs, V).
 
-match_probability([p(V0=C)=Prob|_], C, V, Prob) :-
-	V0 == V,
-	!.
-match_probability([_|Probs], C, V, Prob) :-
-	match_probability(Probs, C, V, Prob).
+match_probability([], Goal, C, V, Prob) :-
+    /* there is evidence, so values are nil and V is bound */
+    nonvar(V), !,
+    goal_to_key(Goal, Skolem),
+    pfl:skolem(Skolem, Domain),
+    member(C, Domain),
+    ( C == V -> Prob = 1.0 ; Prob = 0.0 ).
+match_probability(VPs, Goal, C, V, Prob) :-
+    match_probabilities(VPs, Goal, C, V, Prob).
+
+match_probabilities([p(V0=C)=Prob|_], _, C, V, Prob) :-
+    V0 == V,
+    !.
+match_probabilies([_|Probs], G, C, V, Prob) :-
+    match_probability(Probs, G, C, V, Prob).
+
+goal_to_key(_:Goal, Skolem) :-
+    goal_to_key(Goal, Skolem).
+goal_to_key(Goal, Skolem) :-
+    functor(Goal, Na, Ar),
+    Ar1 is Ar-1,
+    functor(Skolem, Na, Ar1).
 
 :- use_parfactors(on) -> true ; assert(use_parfactors(off)).
 

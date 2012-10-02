@@ -22,6 +22,7 @@
 :- reexport(library(clpbn),
 	[clpbn_flag/2 as pfl_flag,
 	 set_clpbn_flag/2 as set_pfl_flag,
+	 conditional_probability/3,
 	 pfl_init_solver/6,
 	 pfl_run_solver/4]).
 
