@@ -402,6 +402,7 @@ int	STD_PROTO(Yap_IsListOrPartialListTerm,(Term));
 Term	STD_PROTO(Yap_CopyTermNoShare,(Term));
 int	STD_PROTO(Yap_SizeGroundTerm,(Term, int));
 int	STD_PROTO(Yap_IsGroundTerm,(Term));
+int	STD_PROTO(Yap_IsAcyclicTerm,(Term));
 void	STD_PROTO(Yap_InitUtilCPreds,(void));
 Int     STD_PROTO(Yap_TermHash,(Term, Int, Int, int));
 Int     STD_PROTO(Yap_NumberVars,(Term, Int, int));
