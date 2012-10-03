@@ -8,7 +8,8 @@ LiftedBp::LiftedBp (const ParfactorList& pfList)
     : pfList_(pfList)
 {
   refineParfactors();
-  solver_ = new WeightedBp (*getFactorGraph(), getWeights());
+  createFactorGraph();
+  solver_ = new WeightedBp (*fg_, getWeights());
 }
 
 
@@ -16,6 +17,7 @@ LiftedBp::LiftedBp (const ParfactorList& pfList)
 LiftedBp::~LiftedBp (void)
 {
   delete solver_;
+  delete fg_;
 }
 
 
@@ -47,7 +49,7 @@ LiftedBp::solveQuery (const Grounds& query)
       for (unsigned i = 0; i < groups.size(); i++) {
         queryVids.push_back (groups[i]);
       }
-      res = solver_->getFactorJoint (idx, queryVids);
+      res = solver_->getFactorJoint (fg_->facNodes()[idx], queryVids);
     }
   }
   return res;
@@ -131,10 +133,10 @@ LiftedBp::getQueryGroups (const Grounds& query)
 
 
 
-FactorGraph*
-LiftedBp::getFactorGraph (void)
+void
+LiftedBp::createFactorGraph (void)
 {
-  FactorGraph* fg = new FactorGraph();
+  fg_ = new FactorGraph();
   ParfactorList::const_iterator it = pfList_.begin();
   for (; it != pfList_.end(); ++it) {
     vector<PrvGroup> groups = (*it)->getAllGroups();
@@ -142,9 +144,8 @@ LiftedBp::getFactorGraph (void)
     for (size_t i = 0; i < groups.size(); i++) {
       varIds.push_back (groups[i]);
     }
-    fg->addFactor (Factor (varIds, (*it)->ranges(), (*it)->params()));
+    fg_->addFactor (Factor (varIds, (*it)->ranges(), (*it)->params()));
   }
-  return fg;
 }
 
 
