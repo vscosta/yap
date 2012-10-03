@@ -21,6 +21,7 @@ data(t,f,t,t).
 %:- clpbn:set_clpbn_flag(em_solver,gibbs).
 %:- clpbn:set_clpbn_flag(em_solver,jt).
 :- clpbn:set_clpbn_flag(em_solver,hve).
+:- clpbn:set_clpbn_flag(em_solver,bdd).
 %:- clpbn:set_clpbn_flag(em_solver,bp).
 %:- clpbn:set_clpbn_flag(em_solver,ve).
 
