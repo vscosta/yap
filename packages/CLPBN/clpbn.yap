@@ -238,11 +238,19 @@ clpbn_marginalise(V, Dist) :-
 % called by top-level
 % or by call_residue/2
 %
-project_attributes(GVars, _AVars0) :-
+project_attributes(GVars0, _AVars0) :-
 	use_parfactors(on),
 	clpbn_flag(solver, Solver), Solver \= fove, !,
-	generate_network(GVars, GKeys, Keys, Factors, Evidence),
-	call_ground_solver(Solver, GVars, GKeys, Keys, Factors, Evidence).
+	generate_network(GVars0, GKeys, Keys, Factors, Evidence),
+	b_setval(clpbn_query_variables, f(GVars0,Evidence)),
+	simplify_query(GVars0, GVars),
+	( GKeys = [] 
+        ->
+	  GVars0 = [V|_],
+	  clpbn_display:put_atts(V, [posterior([],[],[],[])])
+	;
+	  call_ground_solver(Solver, GVars, GKeys, Keys, Factors, Evidence)
+        ).
 project_attributes(GVars, AVars) :-
 	suppress_attribute_display(false),
 	AVars = [_|_],
@@ -262,6 +270,20 @@ project_attributes(GVars, AVars) :-
 	).
 project_attributes(_, _).
 
+%
+% check for query variables with evidence
+%
+simplify_query([V|GVars0], GVars) :-
+	get_atts(V, [evidence(_)]), !,
+	simplify_query(GVars0, GVars).
+simplify_query([V|GVars0], GVars) :-
+	get_atts(V, [key(K)]),
+	pfl:evidence(K, _), !,
+	simplify_query(GVars0, GVars).
+simplify_query([V|GVars0], [V|GVars]) :-
+	simplify_query(GVars0, GVars).
+simplify_query([], []).
+
 match([], _Keys).
 match([V|GVars], Keys) :-
 	clpbn:get_atts(V,[key(GKey)]),
@@ -279,13 +301,7 @@ get_clpbn_vars([V|GVars],[V|CLPBNGVars]) :-
 	get_clpbn_vars(GVars,CLPBNGVars).
 get_clpbn_vars([_|GVars],CLPBNGVars) :-
 	get_clpbn_vars(GVars,CLPBNGVars).
-
 get_clpbn_vars([],[]).
-get_clpbn_vars([V|GVars],[V|CLPBNGVars]) :-
-	get_atts(V, [key(_)]), !,
-	get_clpbn_vars(GVars,CLPBNGVars).
-get_clpbn_vars([_|GVars],CLPBNGVars) :-
-	get_clpbn_vars(GVars,CLPBNGVars).
 
 simplify_query_vars(LVs0, LVs) :-
 	sort(LVs0,LVs1),
@@ -305,6 +321,7 @@ get_rid_of_ev_vars([V|LVs0],[V|LVs]) :-
 
 
 % do nothing if we don't have query variables to compute.
+write_out(_, [], _, _) :- !.
 write_out(graphs, _, AVars, _) :-
 	clpbn2graph(AVars).
 write_out(ve, GVars, AVars, DiffVars) :-
@@ -651,21 +668,14 @@ variabilise_last([Arg], Arg, [V], V).
 variabilise_last([Arg1,Arg2|Args], Arg, Arg1.NArgs, V) :-
 	variabilise_last(Arg2.Args, Arg, NArgs, V).
 
-match_probability([], Goal, C, V, Prob) :-
-    /* there is evidence, so values are nil and V is bound */
-    nonvar(V), !,
-    goal_to_key(Goal, Skolem),
-    pfl:skolem(Skolem, Domain),
-    member(C, Domain),
-    ( C == V -> Prob = 1.0 ; Prob = 0.0 ).
 match_probability(VPs, Goal, C, V, Prob) :-
     match_probabilities(VPs, Goal, C, V, Prob).
 
 match_probabilities([p(V0=C)=Prob|_], _, C, V, Prob) :-
     V0 == V,
     !.
-match_probabilies([_|Probs], G, C, V, Prob) :-
-    match_probability(Probs, G, C, V, Prob).
+match_probabilities([_|Probs], G, C, V, Prob) :-
+    match_probabilities(Probs, G, C, V, Prob).
 
 goal_to_key(_:Goal, Skolem) :-
     goal_to_key(Goal, Skolem).
