@@ -5156,11 +5156,10 @@ p_skip_list( USES_REGS1 ) {
 static Int 
 p_skip_list4( USES_REGS1 ) {
   Term *tail;
-  Int len = Yap_SkipList(XREGS+1, &tail);
-  Term t2 = Deref(ARG2), t = *tail;
+  Int len, len1 = -1;
+  Term t2 = Deref(ARG2), t;
 
   if (!IsVarTerm(t2)) {
-    Int len1;
     if (!IsIntegerTerm(t2)) {
       Yap_Error(TYPE_ERROR_INTEGER, t2, "length/2");
       return FALSE;
@@ -5169,15 +5168,20 @@ p_skip_list4( USES_REGS1 ) {
       Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t2, "length/2");
       return FALSE;
     }
-    if (t == TermNil)
-      return
-	len1 == len &&
-	Yap_unify(*tail, ARG4);
   }
+  /* we need len here */
+  len = Yap_SkipList(XREGS+1, &tail);
+  t = *tail;
   /* don't set M0 if full list, just check M */
   if (t == TermNil) {
-    return Yap_unify_constant(ARG4, TermNil) &&
-      Yap_unify_constant(ARG2, MkIntegerTerm(len));
+    if (len1 >= 0) { /* ARG2 was bound */
+      return
+	len1 == len &&
+	Yap_unify(t, ARG4);
+    } else {
+      return Yap_unify_constant(ARG4, TermNil) &&
+	Yap_unify_constant(ARG2, MkIntegerTerm(len));
+    }
   }
   return Yap_unify(MkIntegerTerm(len), ARG3) &&
     Yap_unify(t, ARG4);
