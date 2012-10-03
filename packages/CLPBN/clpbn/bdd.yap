@@ -884,9 +884,9 @@ run_solver(Qs, LLPs, bdd(Term, Leaves, Nodes, Hash, Id)) :-
 	     run_bdd_solver([Q],LPs,bdd(Term,Leaves,Nodes))),
 	    LLPs).
 
-run_bdd_solver([[V]], LPs, bdd(Term, _Leaves, Nodes)) :-
+run_bdd_solver([Vs], LPs, bdd(Term, _Leaves, Nodes)) :-
 	build_out_node(Nodes, Node),
-	findall(Prob, get_prob(Term, Node, V, Prob),TermProbs),
+	findall(Prob, get_prob(Term, Node, Vs, Prob),TermProbs),
 	sumlist(TermProbs, Sum),
 	normalise(TermProbs, Sum, LPs).
 
@@ -899,13 +899,13 @@ build_out_node2([T,T1|Tops], T*Top) :-
 	build_out_node2(T1.Tops, Top).
 
 
-get_prob(Term, _Node, V, SP) :-
+get_prob(Term, _Node, Vs, SP) :-
 	bdds(ddnnf), !,
-	all_cnfs(Term, CNF, IVs, Indics, V, AllParms, AllParmValues),
+	all_cnfs(Term, CNF, IVs, Indics, Vs, AllParms, AllParmValues),
 	build_cnf(CNF, IVs, Indics, AllParms, AllParmValues, SP).
-get_prob(Term, Node, V, SP) :-
+get_prob(Term, Node, Vs, SP) :-
 	bdds(bdd), !,
-	bind_all(Term, Node, Bindings, V, AllParms, AllParmValues),
+	bind_all(Term, Node, Bindings, Vs, AllParms, AllParmValues),
 %	reverse(AllParms, RAllParms),
 	term_variables(AllParms, NVs),
 	build_bdd(Bindings, NVs, AllParms, AllParmValues, Bdd),
@@ -922,19 +922,19 @@ build_bdd(Bindings, NVs, VTheta, Theta, Bdd) :-
 	VTheta = Theta.
 
 bind_all([], End, End, _V, [], []).
-bind_all([info(V, _Tree, Ev, _Values, Formula, ParmVars, Parms)|Term], End, BindsF, V0, ParmVars.AllParms, Parms.AllTheta) :-
-	V0 == V, !,
+bind_all([info(V, _Tree, Ev, _Values, Formula, ParmVars, Parms)|Term], End, BindsF, V0s, ParmVars.AllParms, Parms.AllTheta) :-
+	v_in(V, V0s), !,
 	set_to_one_zeros(Ev),
 	bind_formula(Formula, BindsF, BindsI),
-	bind_all(Term, End, BindsI, V0, AllParms, AllTheta).
-bind_all([info(_V, _Tree, Ev, _Values, Formula, ParmVars, Parms)|Term], End, BindsF, V0, ParmVars.AllParms, Parms.AllTheta) :-
+	bind_all(Term, End, BindsI, V0s, AllParms, AllTheta).
+bind_all([info(_V, _Tree, Ev, _Values, Formula, ParmVars, Parms)|Term], End, BindsF, V0s, ParmVars.AllParms, Parms.AllTheta) :-
 	set_to_ones(Ev),!,
 	bind_formula(Formula, BindsF, BindsI),
-	bind_all(Term, End, BindsI, V0, AllParms, AllTheta).
+	bind_all(Term, End, BindsI, V0s, AllParms, AllTheta).
 % evidence: no need to add any stuff.
-bind_all([info(_V, _Tree, _Ev, _Values, Formula, ParmVars, Parms)|Term], End, BindsF, V0, ParmVars.AllParms, Parms.AllTheta) :-
+bind_all([info(_V, _Tree, _Ev, _Values, Formula, ParmVars, Parms)|Term], End, BindsF, V0s, ParmVars.AllParms, Parms.AllTheta) :-
 	bind_formula(Formula, BindsF, BindsI),
-	bind_all(Term, End, BindsI, V0, AllParms, AllTheta).
+	bind_all(Term, End, BindsI, V0s, AllParms, AllTheta).
 
 bind_formula([], L, L).
 bind_formula(B.Formula, B.BsF, Bs0) :-
@@ -961,29 +961,33 @@ normalise(P.TermProbs, Sum, NP.LPs) :-
 finalize_bdd_solver(_).
 
 all_cnfs([], [], [], [], _V, [], []).
-all_cnfs([info(V, Tree, Ev, Values, Formula, ParmVars, Parms)|Term], BindsF, IVars, Indics, V0, AllParmsF, AllThetaF) :-
+all_cnfs([info(V, Tree, Ev, Values, Formula, ParmVars, Parms)|Term], BindsF, IVars, Indics, V0s, AllParmsF, AllThetaF) :-
 %writeln(f:Formula),
-	V0 == V, !,
+	v_in(V, V0s), !,
 	set_to_one_zeros(Ev),
 	all_indicators(Values, BindsF, Binds0),
 	indicators(Values, [], Ev, IVars, IVarsI, Indics, IndicsI, Binds0, Binds1),
 	parms( ParmVars, Parms, AllParmsF, AllThetaF, AllParms, AllTheta),
 	parameters(Formula, Tree, Binds1, BindsI),
-	all_cnfs(Term, BindsI, IVarsI, IndicsI, V0, AllParms, AllTheta).
-all_cnfs([info(_V, Tree, Ev, Values, Formula, ParmVars, Parms)|Term], BindsF, IVars, Indics, V0, AllParmsF, AllThetaF) :-
+	all_cnfs(Term, BindsI, IVarsI, IndicsI, V0s, AllParms, AllTheta).
+all_cnfs([info(_V, Tree, Ev, Values, Formula, ParmVars, Parms)|Term], BindsF, IVars, Indics, V0s, AllParmsF, AllThetaF) :-
 	set_to_ones(Ev),!,
 	all_indicators(Values, BindsF, Binds0),
 	indicators(Values, [], Ev, IVars, IVarsI, Indics, IndicsI, Binds0, Binds1),
 	parms( ParmVars, Parms, AllParmsF, AllThetaF, AllParms, AllTheta),
 	parameters(Formula, Tree, Binds1, BindsI),
-	all_cnfs(Term, BindsI, IVarsI, IndicsI, V0, AllParms, AllTheta).
+	all_cnfs(Term, BindsI, IVarsI, IndicsI, V0s, AllParms, AllTheta).
 % evidence: no need to add any stuff.
-all_cnfs([info(_V, Tree, Ev, Values, Formula, ParmVars, Parms)|Term], BindsF, IVars, Indics, V0, AllParmsF, AllThetaF) :-
+all_cnfs([info(_V, Tree, Ev, Values, Formula, ParmVars, Parms)|Term], BindsF, IVars, Indics, V0s, AllParmsF, AllThetaF) :-
 	all_indicators(Values, BindsF, Binds0),
 	indicators(Values, [], Ev, IVars, IVarsI, Indics, IndicsI, Binds0, Binds1),
 	parms( ParmVars, Parms, AllParmsF, AllThetaF, AllParms, AllTheta),
 	parameters(Formula, Tree, Binds1, BindsI),
-	all_cnfs(Term, BindsI, IVarsI, IndicsI, V0, AllParms, AllTheta).
+	all_cnfs(Term, BindsI, IVarsI, IndicsI, V0s, AllParms, AllTheta).
+
+v_in(V, [V0|_]) :- V == V0, !.
+v_in(V, [_|Vs]) :-
+    v_in(V, Vs).
 
 all_indicators(Values) -->
 	{ values_to_disj(Values, Disj) },
