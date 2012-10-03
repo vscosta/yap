@@ -26,10 +26,9 @@
 
 length(L, M) :-
 	  '$skip_list'(L, M, M0, R),
-	  ( R == [] -> true ;
-	    var(R) -> '$$_length'(R, M, M0) ;
-	    L \= [_|_], '$do_error'(type_error(list,L),length(L,M))
-	  ).
+	  ( var(R) -> '$$_length'(R, M, M0) ;
+           R == []
+         ).
 
 %
 % in case A1 is unbound or a difference list, things get tricky
