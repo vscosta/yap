@@ -275,7 +275,7 @@ void
 WeightedBp::printLinkInformation (void) const
 {
   for (size_t i = 0; i < links_.size(); i++) {
-    WeightedLink* l = static_cast<WeightedLink*> (links_[i]); 
+    WeightedLink* l = static_cast<WeightedLink*> (links_[i]);
     cout << l->toString() << ":" << endl;
     cout << "    curr msg = " << l->message() << endl;
     cout << "    next msg = " << l->nextMessage() << endl;
