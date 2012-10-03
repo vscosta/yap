@@ -3343,17 +3343,11 @@ Replace every @code{'$VAR'(@var{I})} by a free variable.
 @cnindex ground/1
 Succeeds if there are no free variables in the term @var{T}.
 
-@item cyclic_term(@var{T}) [ISO]
-@findex cyclic_term/1
-@snindex cyclic_term/1
-@cnindex cyclic_term/1
-Succeeds if there are loops in the term @var{T}, that is, it is an infite term.
-
 @item acyclic_term(@var{T}) [ISO]
 @findex acyclic_term/1
 @snindex acyclic_term/1
 @cnindex acyclic_term/1
-Succeeds if there are no loops in the term @var{T}, that is, it is an fite term.
+Succeeds if there are loops in the term @var{T}, that is, it is an infite term.
 
 @item arg(+@var{N},+@var{T},@var{A}) [ISO]
 @findex arg/3
@@ -3490,12 +3484,6 @@ variable in @var{Subsumer}.
 Succeed if @var{Subsumer} unifies with the least general
 generalization over @var{T1} and
 @var{T2}.
-
-@item acyclic_term(?@var{Term}) [ISO]
-@findex cyclic_term/1
-@syindex cyclic_term/1
-@cnindex cyclic_term/1
-Succeed if the argument @var{Term} is an acyclic term.
 
 @item term_variables(?@var{Term}, -@var{Variables}) [ISO]
 @findex  term_variables/2
@@ -11927,7 +11915,7 @@ efficiency. They are available through the
 @findex cyclic_term/1
 @syindex cyclic_term/1
 @cnindex cyclic_term/1
-Succeed if the argument @var{Term} is a cyclic term.
+Succeed if the argument @var{Term} is not a cyclic term.
 
 @item term_hash(+@var{Term}, ?@var{Hash})
 @findex  term_hash/2
