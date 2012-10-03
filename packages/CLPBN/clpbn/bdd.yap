@@ -151,7 +151,7 @@ order_vars([V|AllVars], I0) :-
 
 
 init_tops([],[]).
-init_tops(_.Leaves,_.Tops) :-
+init_tops([_|Leaves],[_|Tops]) :-
 	init_tops(Leaves,Tops).
 
 sort_keys(AllFs, AllVars, Leaves) :-
@@ -161,54 +161,54 @@ sort_keys(AllFs, AllVars, Leaves) :-
     dgraph_top_sort(Graph, AllVars).
 
 add_node(f([K|Parents],_,_,_), Graph0, Graph) :-
-	dgraph_add_vertex(Graph0, K, Graph1), 
-	foldl(add_edge(K), Parents, Graph1, Graph).
+    dgraph_add_vertex(Graph0, K, Graph1), 
+    foldl(add_edge(K), Parents, Graph1, Graph).
     
 add_edge(K, K0, Graph0, Graph) :-
     dgraph_add_edge(Graph0, K0, K, Graph).
 
 sort_vars(AllVars0, AllVars, Leaves) :-
-	dgraph_new(Graph0),
-	build_graph(AllVars0, Graph0, Graph),
-	dgraph_leaves(Graph, Leaves),
-	dgraph_top_sort(Graph, AllVars).
+    dgraph_new(Graph0),
+    build_graph(AllVars0, Graph0, Graph),
+    dgraph_leaves(Graph, Leaves),
+    dgraph_top_sort(Graph, AllVars).
 
 build_graph([], Graph, Graph).
-build_graph(V.AllVars0, Graph0, Graph) :-
-	clpbn:get_atts(V, [dist(_DistId, Parents)]), !,
-	dgraph_add_vertex(Graph0, V, Graph1), 
-	add_parents(Parents, V, Graph1, GraphI),
-	build_graph(AllVars0, GraphI, Graph).
+build_graph([V|AllVars0], Graph0, Graph) :-
+    clpbn:get_atts(V, [dist(_DistId, Parents)]), !,
+    dgraph_add_vertex(Graph0, V, Graph1), 
+    add_parents(Parents, V, Graph1, GraphI),
+    build_graph(AllVars0, GraphI, Graph).
 build_graph(_V.AllVars0, Graph0, Graph) :-
-	build_graph(AllVars0, Graph0, Graph).
+    build_graph(AllVars0, Graph0, Graph).
 
 add_parents([], _V, Graph, Graph).
-add_parents(V0.Parents, V, Graph0, GraphF) :-
-	dgraph_add_edge(Graph0, V0, V, GraphI), 
-	add_parents(Parents, V, GraphI, GraphF).
+add_parents([V0|Parents], V, Graph0, GraphF) :-
+    dgraph_add_edge(Graph0, V0, V, GraphI), 
+    add_parents(Parents, V, GraphI, GraphF).
 
 get_keys_info([], _, _, _, Vs, Vs, Ps, Ps, _, _) --> [].
 get_keys_info([V|MoreVs], Evs, Fs, OrderVs, Vs, VsF, Ps, PsF, Lvs, Outs) -->
-	{ rb_lookup(V, F, Fs) }, !,
-	{ F = f([V|Parents], _, _, DistId) },
+    { rb_lookup(V, F, Fs) }, !,
+    { F = f([V|Parents], _, _, DistId) },
 %{writeln(v:DistId:Parents)},
-	[DIST],
-	{  get_key_info(V, F, Fs, Evs, OrderVs, DistId, Parents, Vs, Vs2, Ps, Ps1, Lvs, Outs, DIST) },
-	get_keys_info(MoreVs, Evs, Fs, OrderVs, Vs2, VsF, Ps1, PsF, Lvs, Outs).
+    [DIST],
+    {  get_key_info(V, F, Fs, Evs, OrderVs, DistId, Parents, Vs, Vs2, Ps, Ps1, Lvs, Outs, DIST) },
+    get_keys_info(MoreVs, Evs, Fs, OrderVs, Vs2, VsF, Ps1, PsF, Lvs, Outs).
 
 get_key_info(V, F, Fs, Evs, OrderVs, DistId, Parents0, Vs, Vs2, Ps, Ps1, Lvs, Outs, DIST) :-
-	reorder_keys(Parents0, OrderVs, Parents, Map),
-	check_key_p(DistId, F, Map, Parms, _ParmVars, Ps, Ps1),
-	unbound_parms(Parms, ParmVars),
-	F = f(_,[Size|_],_,_),
-	check_key(V, Size, DIST, Vs, Vs1),
-	DIST = info(V, Tree, Ev, Values, Formula, ParmVars, Parms),
-	% get a list of form [[P00,P01], [P10,P11], [P20,P21]]
-	foldl(get_key_parent(Fs), Parents, PVars, Vs1, Vs2),
-	cross_product(Values, Ev, PVars, ParmVars, Formula0),
+    reorder_keys(Parents0, OrderVs, Parents, Map),
+    check_key_p(DistId, F, Map, Parms, _ParmVars, Ps, Ps1),
+    unbound_parms(Parms, ParmVars),
+    F = f(_,[Size|_],_,_),
+    check_key(V, Size, DIST, Vs, Vs1),
+    DIST = info(V, Tree, Ev, Values, Formula, ParmVars, Parms),
+    % get a list of form [[P00,P01], [P10,P11], [P20,P21]]
+    foldl(get_key_parent(Fs), Parents, PVars, Vs1, Vs2),
+    cross_product(Values, Ev, PVars, ParmVars, Formula0),
 %	(numbervars(Formula0,0,_),writeln(formula0:Ev:Formula0), fail ; true),
-	get_key_evidence(V, Evs, DistId, Tree, Ev, Formula0, Formula, Lvs, Outs).
-%,	(numbervars(Formula,0,_),writeln(formula:Formula), fail ; true)
+    get_key_evidence(V, Evs, DistId, Tree, Ev, Formula0, Formula, Lvs, Outs).
+%	(numbervars(Formula,0,_),writeln(formula:Formula), fail ; true).
 
 get_vars_info([], Vs, Vs, Ps, Ps, _, _) --> [].
 get_vars_info([V|MoreVs], Vs, VsF, Ps, PsF, Lvs, Outs) -->
@@ -790,7 +790,7 @@ parents_to_conj(Ps, Theta, Theta*Conj) :-
 	parents_to_conj2(Ps, Conj).
 
 parents_to_conj2([P],P) :- !.
-parents_to_conj2(P.Ps,P*Conj) :-
+parents_to_conj2([P|Ps],P*Conj) :-
 	parents_to_conj2(Ps,Conj).
 
 %
@@ -843,10 +843,10 @@ get_evidence(V, Tree, _Values, F0, F1, Leaves, Finals) :-
 	get_outs(F0, F1, SendOut, Outs).
 
 zero_pos(_, _Pos, []).
-zero_pos(Pos, Pos, 1.Values) :- !, 
+zero_pos(Pos, Pos, [1|Values]) :- !, 
 	I is Pos+1,
 	zero_pos(I, Pos, Values).
-zero_pos(I0, Pos, 0.Values) :- 
+zero_pos(I0, Pos, [0|Values]) :- 
 	I is I0+1,
 	zero_pos(I, Pos, Values).
 
@@ -866,13 +866,13 @@ insert_output(_.Leaves, V, _.Finals, Top, Outs, SendOut) :-
 get_outs([V=F], [V=NF|End], End,  V) :- !,
 %	writeln(f0:F),
 	simplify_exp(F,NF).
-get_outs((V=F).Outs, (V=NF).NOuts, End, (F0 + V)) :-
+get_outs([(V=F)|Outs], [(V=NF)|NOuts], End, (F0 + V)) :-
 %	writeln(f0:F),
 	simplify_exp(F,NF),
 	get_outs(Outs, NOuts, End, F0).
 
 eval_outs([]).
-eval_outs((V=F).Outs) :-
+eval_outs([(V=F)|Outs]) :-
 	simplify_exp(F,NF),
 	V = NF,
 	eval_outs(Outs).
@@ -890,9 +890,10 @@ run_bdd_solver([Vs], LPs, bdd(Term, _Leaves, Nodes)) :-
 	sumlist(TermProbs, Sum),
 	normalise(TermProbs, Sum, LPs).
 
+% output node for BDDs
 build_out_node([_Top], []).
-build_out_node([T,T1|Tops], [Top = T*Top]) :-
-	build_out_node2(T1.Tops, Top).
+build_out_node([T,T1|Tops], [_Top = T*NTop]) :-
+	build_out_node2([T1|Tops], NTop).
 
 build_out_node2([Top], Top).
 build_out_node2([T,T1|Tops], T*Top) :-
@@ -937,7 +938,7 @@ bind_all([info(_V, _Tree, _Ev, _Values, Formula, ParmVars, Parms)|Term], End, Bi
 	bind_all(Term, End, BindsI, V0s, AllParms, AllTheta).
 
 bind_formula([], L, L).
-bind_formula(B.Formula, B.BsF, Bs0) :-
+bind_formula([B|Formula], [B|BsF], Bs0) :-
 	bind_formula(Formula, BsF, Bs0).
 
 set_to_one_zeros([1|Values]) :-
@@ -946,15 +947,15 @@ set_to_one_zeros([0|Values]) :-
 	set_to_one_zeros(Values).
 
 set_to_zeros([]).
-set_to_zeros(0.Values) :-
+set_to_zeros([0|Values]) :-
 	set_to_zeros(Values).
 
 set_to_ones([]).
-set_to_ones(1.Values) :-
+set_to_ones([1|Values]) :-
 	set_to_ones(Values).
 
 normalise([], _Sum, []).
-normalise(P.TermProbs, Sum, NP.LPs) :-
+normalise([P|TermProbs], Sum, [NP|LPs]) :-
 	NP is P/Sum,
 	normalise(TermProbs, Sum, LPs).
 
