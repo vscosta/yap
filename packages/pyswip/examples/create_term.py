@@ -5,7 +5,7 @@ from pyswip.prolog import Prolog
 
 def main():
     prolog = Prolog()
-    
+
     a1 = PL_new_term_refs(2)
     a2 = a1 + 1
     t = PL_new_term_ref()
@@ -13,6 +13,7 @@ def main():
 
     animal2 = PL_new_functor(PL_new_atom("animal"), 2)
     assertz = PL_new_functor(PL_new_atom("assertz"), 1)
+
     PL_put_atom_chars(a1, "gnu")
     PL_put_integer(a2, 50)
     #PL_cons_functor(t, animal2, a1, a2)

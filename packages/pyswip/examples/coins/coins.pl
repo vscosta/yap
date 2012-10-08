@@ -1,7 +1,7 @@
 
 % Coins -- 2007 by Yuce Tekol <yucetekol@gmail.com>
 
-:- use_module(library('clpfd')).
+:- use_module(library(clpfd)).
 
 coins(S, Count, Total) :-
  	% A=1, B=5, C=10, D=50, E=100

@@ -12,7 +12,7 @@ setup(name="pyswip",
 		download_url="http://code.google.com/p/pyswip/downloads/list",
 		author="Yuce Tekol",
 		author_email="yucetekol@gmail.com",
-		description="PySWIP enables querying SWI-Prolog and YAP in your Python programs.",
+		description="PySWIP enables querying SWI-Prolog in your Python programs.",
         long_description="""
 PySWIP 0.2.2
 ============

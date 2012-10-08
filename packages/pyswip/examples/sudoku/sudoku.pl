@@ -8,7 +8,7 @@
 
 sudoku(Pss) :-
     flatten(Pss, Ps),
-    allin(Ps, 1..9),
+    maplist(all_in(1..9), Ps),
     maplist(all_different, Pss),
     Pss = [R1,R2,R3,R4,R5,R6,R7,R8,R9],
     columns(R1, R2, R3, R4, R5, R6, R7, R8, R9),
@@ -25,7 +25,5 @@ blocks([X1,X2,X3|R1], [X4,X5,X6|R2], [X7,X8,X9|R3]) :-
     all_different([X1,X2,X3,X4,X5,X6,X7,X8,X9]),
     blocks(R1, R2, R3).
 
-allin([],_).
-allin([Pos|Board],D) :-
-	Pos in D,
-	allin(Board,D).
+all_in(D, Pos) :-
+	Pos in D.

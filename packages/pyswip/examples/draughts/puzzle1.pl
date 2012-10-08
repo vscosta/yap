@@ -4,7 +4,7 @@
 
 solve(Board) :-
 	Board = [NW,N,NE,W,E,SW,S,SE],
-	domains(Board,0..12),
+	maplist(in_board(0..12), Board),
 	sum(Board, #=, 12),
 	NW + N + NE #= 5,
 	NE + E + SE #= 5,
@@ -12,7 +12,4 @@ solve(Board) :-
 	SW + S + SE #= 5,
 	label(Board).
 
-domains([],_).
-domains([Pos|Board],D) :-
-	Pos in D,
-	domains(Board,D).
+in_board(D, V) :- V in D.
