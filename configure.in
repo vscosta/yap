@@ -241,9 +241,19 @@ AC_ARG_WITH(R,
 	elif test "$withval" = no; then
 	    yap_cv_R=no
 	else
-	    yap_cv_R=$with_R
+	    yap_cv_R=$withval
 	fi,
 	[yap_cv_R=no])
+AC_ARG_WITH(python,
+	[ --with-python[=DIR]              interface to R language],
+	if test "$withval" = yes; then
+	    yap_cv_python=yes
+	elif test "$withval" = no; then
+	    yap_cv_python=no
+	else
+	    yap_cv_python=$withval
+	fi,
+	[yap_cv_python=no])
 
 dnl best test we could do.
 AC_ARG_WITH(minisat,
@@ -832,6 +842,27 @@ elif test -e "$srcdir"/packages/real/Makefile.in ; then
 else
     REAL_TARGET="dummy"
     ENABLE_REAL="@# "
+fi
+
+if test "$yap_cv_python" = "no"; then
+    PYTHON_TARGET="dummy"
+    ENABLE_PYTHON="@# "
+elif test -e "$srcdir"/packages/pyswip/Makefile.in ; then
+   PYTHON_TARGET="pyswip"
+   ENABLE_PYTHON=""
+   if test "$yap_cv_python" = "yes"
+   then
+      AC_CHECK_PROGS(PYTHON, python, "none")
+   else
+     PYTHON="$yap_cv_python"
+   fi
+   PYTHONHOME=`$PYTHON -c'import sys; print sys.prefix'`
+   PYTHONVERSION=`"$PYTHON" -c "import sys; print sys.version[[:3]]"`
+   PYTHON_LIBS="-L $PYTHONHOME/lib -lpython$PYTHONVERSION"
+   PYTHON_INCLUDES="-I $PYTHONHOME/include/python$PYTHONVERSION"
+else
+    PYTHON_TARGET="dummy"
+    ENABLE_PYTHON="@# "
 fi
 
 dnl if test "$yap_cv_cudd" != "no"
@@ -1822,6 +1853,10 @@ AC_SUBST(REAL_LIBS)
 AC_SUBST(INSTALL_MATLAB)
 AC_SUBST(MATLAB_INCLUDE)
 AC_SUBST(INSTALL_PRISM)
+AC_SUBST(PYTHON_TARGET)
+AC_SUBST(ENABLE_PYTHON)
+AC_SUBST(PYTHON_INCLUDES)
+AC_SUBST(PYTHON_LIBS)
 
 dnl check for threaded code
 AC_MSG_CHECKING(for gcc threaded code)
