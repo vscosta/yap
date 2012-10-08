@@ -2566,8 +2566,8 @@ YAP_RestartGoal(void)
     LOCAL_PrologMode = UserCCallMode;
     if (out == FALSE) {
       /* cleanup */
-      Yap_CloseSlots( PASS_REGS1 );
       Yap_trust_last();
+      Yap_CloseSlots( PASS_REGS1 );
       LOCAL_AllowRestart = FALSE;
     }
   } else { 

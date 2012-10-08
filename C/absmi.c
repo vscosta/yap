@@ -856,7 +856,10 @@ Yap_absmi(int inp)
 
       BOp(Ystop, l);
       SET_ASP(YREG, E_CB*sizeof(CELL));
+      /* make sure ASP is initialised */
+      Yap_StartSlots();
       saveregs();
+      
 #if PUSH_REGS
       restore_absmi_regs(old_regs);
 #endif
