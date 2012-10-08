@@ -1799,7 +1799,7 @@ X_API int PL_is_list(term_t ts)
 {
   CACHE_REGS
   YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
-  return Yap_IsListTerm(t);
+  return !IsVarTerm(t) && (t == TermNil || IsPairTerm(t));
 }
 
 X_API int
@@ -2316,7 +2316,7 @@ X_API int PL_next_solution(qid_t qi)
   if (setjmp(LOCAL_execution->env))
     return 0;
   if (qi->state == 0) {
-   result = YAP_RunGoal(qi->g);
+    result = YAP_RunGoal(qi->g);
   } else {
     LOCAL_AllowRestart = qi->open;
     result = YAP_RestartGoal();
