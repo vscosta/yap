@@ -843,6 +843,11 @@ X_API int PL_cons_functor_v(term_t d, functor_t f, term_t a0)
 X_API int PL_cons_list(term_t d, term_t h, term_t t)
 {
   CACHE_REGS
+  if (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
+    if (!do_gc(0)) {
+      return FALSE;
+    }
+  }
   Yap_PutInSlot(d,MkPairTerm(Yap_GetFromSlot(h PASS_REGS),Yap_GetFromSlot(t PASS_REGS)) PASS_REGS);
   return TRUE;
 }
