@@ -932,6 +932,8 @@ p_name( USES_REGS1 )
       Atom at = AtomOfTerm(AtomNameT);
       if (IsWideAtom(at)) {
 	NewT = Yap_WideStringToList((wchar_t *)(RepAtom(at)->StrOfAE));
+	if (NewT == 0L)
+	  goto expand_global;
 	return Yap_unify(NewT, ARG2);
       } else
 	String = RepAtom(at)->StrOfAE;
@@ -1052,6 +1054,15 @@ p_name( USES_REGS1 )
   }
 
   /* error handling */
+ expand_global:
+  if (!Yap_gc(2, ENV, gc_P(P,CP))) {
+    Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
+    return(FALSE);
+  }    
+  AtomNameT = Deref(ARG1);
+  t = Deref(ARG2);
+  goto restart_aux;
+
  expand_auxsp:
   String = Yap_ExpandPreAllocCodeSpace(0,NULL, TRUE);
   if (String + 1024 > (char *)AuxSp) {
@@ -1190,6 +1201,8 @@ p_string_to_list( USES_REGS1 )
 
     if (Yap_IsWideStringTerm(t)) {
       StringT = Yap_WideStringToList(Yap_BlobWideStringOfTerm(t));
+      if (StringT == 0L)
+	  goto expand_global;
     } else if (Yap_IsStringTerm(t)) {
       StringT = Yap_StringToList(Yap_BlobStringOfTerm(t));
     } else if (IsAtomTerm(t)) {
@@ -1198,6 +1211,8 @@ p_string_to_list( USES_REGS1 )
 	StringT = Yap_WideStringToList(RepAtom(at)->WStrOfAE);
       else
 	StringT = Yap_StringToList(RepAtom(at)->StrOfAE);
+      if (StringT == 0L)
+	goto expand_global;
     } else if (IsIntTerm(t)) {
       char *String = Yap_PreAllocCodeSpace();
       if (String + 1024 > (char *)AuxSp) 
@@ -1309,6 +1324,15 @@ p_string_to_list( USES_REGS1 )
   return(FALSE);		
 
   /* error handling */
+expand_global:
+  if (!Yap_gc(2, ENV, gc_P(P,CP))) {
+    Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
+    return(FALSE);
+  }    
+  NameT = Deref(ARG1);
+  t = Deref(ARG2);
+  goto restart_aux;
+
  expand_auxsp:
   String = Yap_ExpandPreAllocCodeSpace(0,NULL, TRUE);
   if (String + 1024 > (char *)AuxSp) {
@@ -1344,6 +1368,8 @@ p_atom_chars( USES_REGS1 )
       } else {
 	NewT = Yap_WideStringToListOfAtoms((wchar_t *)RepAtom(AtomOfTerm(t1))->StrOfAE);
       }
+      if (NewT == 0L)
+	goto expand_global;
     } else {
       if (yap_flags[YAP_TO_CHARS_FLAG] == QUINTUS_TO_CHARS) {
 	NewT = Yap_StringToList(RepAtom(at)->StrOfAE);
@@ -1514,6 +1540,14 @@ p_atom_chars( USES_REGS1 )
     return Yap_unify_constant(ARG1, MkAtomTerm(at));
   }
   /* error handling */
+ expand_global:
+  if (!Yap_gc(2, ENV, gc_P(P,CP))) {
+    Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
+    return(FALSE);
+  }    
+  t1 = Deref(ARG1);
+  goto restart_aux;
+
  expand_auxsp:
   String = Yap_ExpandPreAllocCodeSpace(0,NULL, TRUE);
   if (String + 1024 > (char *)AuxSp) {
@@ -1919,6 +1953,8 @@ p_atom_codes( USES_REGS1 )
       } else {
 	NewT = Yap_StringToList(Yap_BlobStringOfTerm(t1));
       }
+      if (NewT == 0L)
+	goto expand_global;
     } else if (!IsAtomTerm(t1)) {
       Yap_Error(TYPE_ERROR_ATOM, t1, "atom_codes/2");
       return(FALSE);
@@ -1929,6 +1965,8 @@ p_atom_codes( USES_REGS1 )
       } else {
 	NewT = Yap_StringToList(RepAtom(at)->StrOfAE);
       }
+      if (NewT == 0L)
+	goto expand_global;
     }
     return (Yap_unify(NewT, ARG2));
   } else {
@@ -2001,7 +2039,15 @@ p_atom_codes( USES_REGS1 )
     }
   }
   /* error handling */
- expand_auxsp:
+ expand_global:
+  if (!Yap_gc(2, ENV, gc_P(P,CP))) {
+    Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
+    return(FALSE);
+  }    
+  t1 = Deref(ARG1);
+  goto restart_pred;
+
+  expand_auxsp:
   if (String + 1024 > (char *)AuxSp) { 
     String = Yap_ExpandPreAllocCodeSpace(0,NULL, TRUE);
   
