@@ -271,13 +271,11 @@ syntax_error (TokEntry * tokptr, IOSTREAM *st, Term *outp)
   CELL *Hi = H;
 
   /* make sure to globalise variable */
-  Yap_unify(*outp, MkVarTerm());
   start = tokptr->TokPos;
   clean_vars(LOCAL_VarTable);
   clean_vars(LOCAL_AnonVarTable);
   while (1) {
     Term ts[2];
-
     if (H > ASP-1024) {
       tf[3] = TermNil;
       err = 0;
@@ -357,6 +355,8 @@ syntax_error (TokEntry * tokptr, IOSTREAM *st, Term *outp)
     }
     tokptr = tokptr->TokNext;
   }
+  /* now we can throw away tokens, so we can unify and possibly overwrite TR */
+  Yap_unify(*outp, MkVarTerm());
   if (IsVarTerm(*outp) && (VarOfTerm(*outp) > H || VarOfTerm(*outp) < H0)) {
     tf[0] = Yap_MkNewApplTerm(Yap_MkFunctor(AtomRead,1),1);
   } else {
