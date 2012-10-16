@@ -560,6 +560,10 @@ ParseTerm(int prio, JMPBUFF *FailBuff USES_REGS)
 	t = MkAtomTerm(Yap_LookupWideAtom(p));
       else
 	t = Yap_WideStringToList(p);
+      if (t == 0L) {
+	LOCAL_ErrorMessage = "Stack Overflow";
+	FAIL;
+      }
       NextToken;
     }
   break;
