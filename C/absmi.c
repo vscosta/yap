@@ -857,7 +857,7 @@ Yap_absmi(int inp)
       BOp(Ystop, l);
       SET_ASP(YREG, E_CB*sizeof(CELL));
       /* make sure ASP is initialised */
-      Yap_StartSlots();
+      Yap_StartSlots( PASS_REGS1 );
       saveregs();
       
 #if PUSH_REGS
@@ -2167,7 +2167,7 @@ Yap_absmi(int inp)
 	      } else {
 		DynamicClause *cl = ClauseFlagsToDynamicClause(pt1);
 		int erase;
-		  
+		
 		LOCK(cl->ClLock);
 		DEC_CLREF_COUNT(cl);
 		erase = (cl->ClFlags & ErasedMask) && !(cl->ClRefCount);
