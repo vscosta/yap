@@ -617,6 +617,10 @@ message_queue_create(Id) :-
 '$do_msg_queue_create'(_).
 
 '$create_thread_mq'(TId) :-
+	recorded('$queue',q(TId,_,_,_,_), R),
+	erase(R),
+	fail.
+'$create_thread_mq'(TId) :-
 	\+ recorded('$queue',q(TId,_,_,_,_), _),
 	'$new_mutex'(Mutex),
 	'$cond_create'(Cond),
