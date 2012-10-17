@@ -845,7 +845,7 @@ Yap_TermToString(Term t, char *s, size_t sz, size_t *length, int *encoding, int 
   Int l;
 
   Yap_StartSlots( PASS_REGS1 );
-  l = Yap_InitSlot(t);
+  l = Yap_InitSlot(t  PASS_REGS );
 
   { IOENC encodings[3];
     IOENC *enc;
