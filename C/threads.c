@@ -62,15 +62,15 @@ allocate_new_tid(void)
   if (new_worker_id >= MAX_THREADS) {
     new_worker_id = -1;
   } else if (!Yap_local[new_worker_id]) {
-    DEBUG_TLOCK_ACCESS(new_worker_id, 0);
     if (!Yap_InitThread(new_worker_id)) {
       return -1;
     }
     pthread_mutex_lock(&(REMOTE_ThreadHandle(new_worker_id).tlock));
+    DEBUG_TLOCK_ACCESS(new_worker_id, 0);
     REMOTE_ThreadHandle(new_worker_id).in_use = TRUE;
   } else if (new_worker_id < MAX_THREADS) {
-    DEBUG_TLOCK_ACCESS(new_worker_id, 0);
     pthread_mutex_lock(&(REMOTE_ThreadHandle(new_worker_id).tlock));
+    DEBUG_TLOCK_ACCESS(new_worker_id, 0);
     REMOTE_ThreadHandle(new_worker_id).in_use = TRUE;
   } else {
     new_worker_id = -1;
@@ -406,8 +406,8 @@ p_thread_zombie_self( USES_REGS1 )
   /* make sure the lock is available */
   if (pthread_getspecific(Yap_yaamregs_key) == NULL)
     return Yap_unify(MkIntegerTerm(-1), ARG1);
-  DEBUG_TLOCK_ACCESS(4, worker_id);
   pthread_mutex_lock(&(LOCAL_ThreadHandle.tlock));
+  DEBUG_TLOCK_ACCESS(4, worker_id);
   if (LOCAL_ActiveSignals &= YAP_ITI_SIGNAL) {
     DEBUG_TLOCK_ACCESS(5, worker_id);
     pthread_mutex_unlock(&(LOCAL_ThreadHandle.tlock));
@@ -498,9 +498,9 @@ Yap_thread_attach_engine(int wid)
      pthread_mutex_lock(&(REMOTE_ThreadHandle(wid).tlock));
   */
   if (REMOTE_ThreadHandle(wid).ref_count ) {
-    DEBUG_TLOCK_ACCESS(8, wid);
     REMOTE_ThreadHandle(wid).ref_count++;
     REMOTE_ThreadHandle(wid).pthread_handle = pthread_self();
+    DEBUG_TLOCK_ACCESS(8, wid);
     pthread_mutex_unlock(&(REMOTE_ThreadHandle(wid).tlock));
     return TRUE;
   }
@@ -516,8 +516,8 @@ Yap_thread_attach_engine(int wid)
 Int
 Yap_thread_detach_engine(int wid)
 {
-  DEBUG_TLOCK_ACCESS(10, wid);
   pthread_mutex_lock(&(REMOTE_ThreadHandle(wid).tlock));
+  DEBUG_TLOCK_ACCESS(10, wid);
   //REMOTE_ThreadHandle(wid).pthread_handle = 0;
   REMOTE_ThreadHandle(wid).ref_count--;
   pthread_setspecific(Yap_yaamregs_key, NULL);
@@ -529,8 +529,8 @@ Yap_thread_detach_engine(int wid)
 Int
 Yap_thread_destroy_engine(int wid)
 {
-  DEBUG_TLOCK_ACCESS(10, wid);
   pthread_mutex_lock(&(REMOTE_ThreadHandle(wid).tlock));
+  DEBUG_TLOCK_ACCESS(10, wid);
   if (REMOTE_ThreadHandle(wid).ref_count == 0) {
     kill_thread_engine(wid, TRUE);
     return TRUE;
