@@ -40,7 +40,7 @@ STATIC_PROTO(Int c_db_tl_readline,(void));
 void Yap_InitMYDDAS_TopLevelPreds(void)
 {
   /* c_db_readline: +Prompt x -Line */
-  Yap_InitCPred("c_db_tl_readline", 2, c_db_tl_readline,  SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("c_db_tl_readline", 2, c_db_tl_readline,  SafePredFlag|SyncPredFlag);
   
 }
 

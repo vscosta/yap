@@ -204,31 +204,31 @@ void Yap_init_optyap_preds(void) {
   Yap_InitCPred("wake_choice_point", 1, p_wake_choice_point, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("abolish_frozen_choice_points", 1, p_abolish_frozen_choice_points_until, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("abolish_frozen_choice_points", 0, p_abolish_frozen_choice_points_all, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$c_table", 3, p_table, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$c_tabling_mode", 3, p_tabling_mode, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$c_abolish_table", 2, p_abolish_table, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$c_table", 3, p_table, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$c_tabling_mode", 3, p_tabling_mode, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$c_abolish_table", 2, p_abolish_table, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("abolish_all_tables", 0, p_abolish_all_tables, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("show_tabled_predicates", 1, p_show_tabled_predicates, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$c_show_table", 3, p_show_table, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$c_show_table", 3, p_show_table, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("show_all_tables", 1, p_show_all_tables, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("show_global_trie", 1, p_show_global_trie, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$c_table_statistics", 3, p_show_statistics_table, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$c_table_statistics", 3, p_show_statistics_table, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("tabling_statistics", 1, p_show_statistics_tabling, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("global_trie_statistics", 1, p_show_statistics_global_trie, SafePredFlag|SyncPredFlag);
 #endif /* TABLING */
 #ifdef YAPOR
   Yap_InitCPred("parallel_mode", 1, p_parallel_mode, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$c_yapor_start", 0, p_yapor_start, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$c_yapor_workers", 1, p_yapor_workers, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$c_worker", 0, p_worker, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$c_parallel_new_answer", 1, p_parallel_new_answer, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$c_parallel_get_answers", 1, p_parallel_get_answers, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$c_yapor_start", 0, p_yapor_start, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$c_yapor_workers", 1, p_yapor_workers, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$c_worker", 0, p_worker, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$c_parallel_new_answer", 1, p_parallel_new_answer, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$c_parallel_get_answers", 1, p_parallel_get_answers, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("or_statistics", 1, p_show_statistics_or, SafePredFlag|SyncPredFlag);
 #endif /* YAPOR */
 #if defined(YAPOR) && defined(TABLING)
   Yap_InitCPred("opt_statistics", 1, p_show_statistics_opt, SafePredFlag|SyncPredFlag);
 #endif /* YAPOR && TABLING */
-  Yap_InitCPred("$c_get_optyap_statistics", 3, p_get_optyap_statistics, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$c_get_optyap_statistics", 3, p_get_optyap_statistics, SafePredFlag|SyncPredFlag);
 }
 
 
