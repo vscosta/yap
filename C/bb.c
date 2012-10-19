@@ -375,6 +375,6 @@ Yap_InitBBPreds(void)
   Yap_InitCPred("bb_get", 2, p_bb_get, 0);
   Yap_InitCPred("bb_delete", 2, p_bb_delete, 0);
   Yap_InitCPred("bb_update", 3, p_bb_update, 0);
-  Yap_InitCPred("$resize_bb_int_keys", 1, p_resize_bb_int_keys, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$resize_bb_int_keys", 1, p_resize_bb_int_keys, SafePredFlag|SyncPredFlag);
 }
 

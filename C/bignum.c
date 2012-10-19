@@ -556,8 +556,8 @@ Yap_BlobStringOfTermAndLength(Term t, size_t *sp)
 void
 Yap_InitBigNums(void)
 {
-  Yap_InitCPred("$has_bignums", 0, p_has_bignums, SafePredFlag|HiddenPredFlag);
-  Yap_InitCPred("$bignum", 1, p_is_bignum, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$has_bignums", 0, p_has_bignums, SafePredFlag);
+  Yap_InitCPred("$bignum", 1, p_is_bignum, SafePredFlag);
   Yap_InitCPred("rational", 3, p_rational, 0);
   Yap_InitCPred("rational", 1, p_is_rational, SafePredFlag);
 }

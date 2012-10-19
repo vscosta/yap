@@ -5195,8 +5195,8 @@ void Yap_InitUtilCPreds(void)
   Yap_InitCPred("duplicate_term", 2, p_duplicate_term, 0);
   Yap_InitCPred("copy_term_nat", 2, p_copy_term_no_delays, 0);
   Yap_InitCPred("ground", 1, p_ground, SafePredFlag);
-  Yap_InitCPred("$variables_in_term", 3, p_variables_in_term, HiddenPredFlag);
-  Yap_InitCPred("$non_singletons_in_term", 3, p_non_singletons_in_term, HiddenPredFlag);
+  Yap_InitCPred("$variables_in_term", 3, p_variables_in_term, 0);
+  Yap_InitCPred("$non_singletons_in_term", 3, p_non_singletons_in_term, 0);
   Yap_InitCPred("term_variables", 2, p_term_variables, 0);
   Yap_InitCPred("term_variables", 3, p_term_variables3, 0);
   Yap_InitCPred("term_attvars", 2, p_term_attvars, 0);
@@ -5224,7 +5224,7 @@ void Yap_InitUtilCPreds(void)
   Yap_InitCPred("import_term", 2, p_import_term, 0);
   CurrentModule = cm;
 #ifdef DEBUG
-  Yap_InitCPred("$force_trail_expansion", 1, p_force_trail_expansion, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$force_trail_expansion", 1, p_force_trail_expansion, SafePredFlag);
   Yap_InitCPred("dum", 1, camacho_dum, SafePredFlag);
 #endif
 }

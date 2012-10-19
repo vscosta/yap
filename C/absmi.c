@@ -2948,45 +2948,8 @@ Yap_absmi(int inp)
       if (LOCAL_ActiveSignals & YAP_CREEP_SIGNAL) {
 	PredEntry *ap = PREG->u.pp.p;
 
-	if (ap->PredFlags & HiddenPredFlag) {
-	  CACHE_Y_AS_ENV(YREG);
-	  CACHE_A1();
-	  check_depth(DEPTH, ap);
-	  PREG = ap->CodeOfPred;
-	  /* for profiler */
-	  save_pc();
-	  ALWAYS_LOOKAHEAD(ap->OpcodeOfPred);
-	  /* do deallocate */
-	  CPREG = (yamop *) ENV_YREG[E_CP];
-	  ENV_YREG = ENV = (CELL *) ENV_YREG[E_E];
-#ifdef FROZEN_STACKS
-	  { 
-	    choiceptr top_b = PROTECT_FROZEN_B(B);
-
-#ifdef YAPOR_SBA
-	    if (ENV_YREG > (CELL *) top_b || ENV_YREG < H) ENV_YREG = (CELL *) top_b;
-#else
-	    if (ENV_YREG > (CELL *) top_b) ENV_YREG = (CELL *) top_b;
-#endif
-	    else ENV_YREG = (CELL *)((CELL)ENV_YREG + ENV_Size(CPREG));
-	  }
-#else
-	  if (ENV_YREG > (CELL *)B) {
-	    ENV_YREG = (CELL *)B;
-	  } else {
-	    ENV_YREG = (CELL *) ((CELL) ENV_YREG + ENV_Size(CPREG));
-	  }
-#endif /* FROZEN_STACKS */
-	  WRITEBACK_Y_AS_ENV();
-	  /* setup GB */
-	  ENV_YREG[E_CB] = (CELL) B;
-	  ALWAYS_GONext();
-	  ALWAYS_END_PREFETCH();
-	  ENDCACHE_Y_AS_ENV();
-	} else {
-	  SREG = (CELL *) ap;
-	  goto creepde;
-	}
+	SREG = (CELL *) ap;
+	goto creepde;
       }
       /* set SREG for next instructions */
       SREG = (CELL *) PREG->u.p.p;
@@ -6918,7 +6881,7 @@ Yap_absmi(int inp)
 
       BOp(call_cpred, Osbpp);
       check_trail(TR);
-      if (!(PREG->u.Osbpp.p->PredFlags & (SafePredFlag|HiddenPredFlag))) {
+      if (!(PREG->u.Osbpp.p->PredFlags & (SafePredFlag))) {
 	CACHE_Y_AS_ENV(YREG);
 	check_stack(NoStackCall, H);
 	ENDCACHE_Y_AS_ENV();

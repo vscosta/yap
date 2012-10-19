@@ -4201,8 +4201,8 @@ p_gc( USES_REGS1 )
 void 
 Yap_init_gc(void)
 {
-  Yap_InitCPred("$gc", 0, p_gc, HiddenPredFlag);
-  Yap_InitCPred("$inform_gc", 3, p_inform_gc, HiddenPredFlag);
+  Yap_InitCPred("$gc", 0, p_gc, 0);
+  Yap_InitCPred("$inform_gc", 3, p_inform_gc, 0);
 }
 
 void

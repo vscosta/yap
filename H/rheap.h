@@ -727,6 +727,14 @@ RestoreSWIBlobs__( USES_REGS1 )
 }
 
 static void
+RestoreHidenPredicates( USES_REGS1 )
+{
+  HIDDEN_PREDICATES = PropAdjust(HIDDEN_PREDICATES);
+  RestoreEntries(HIDDEN_PREDICATES, TRUE PASS_REGS);
+}
+
+
+static void
 RestorePredHash__( USES_REGS1 )
 {
   PredHash = PtoPtoPredAdjust(PredHash);

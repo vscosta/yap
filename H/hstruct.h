@@ -100,6 +100,8 @@
   Term  swi_module;
   Term  dbload_module;
 
+  Prop  hidden_predicates;
+
 
 
   struct mod_entry  *current_modules;

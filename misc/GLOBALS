@@ -89,6 +89,9 @@ Int 				tot_agc_time 				=0
 /* number of heap objects in all garbage collections */
 Int 				tot_agc_recovered 			=0 
 
+// hidden predicates
+struct PropEntryStruct *	hidden_predicates			=NULL
+
 //arrays.c
 #if HAVE_MMAP
 struct MMAP_ARRAY_BLOCK* 	mmap_arrays 				=NULL

@@ -3226,18 +3226,18 @@ Yap_InitSysPreds(void)
   InitLastWtime();
   Yap_InitCPred ("srandom", 1, p_srandom, SafePredFlag);
   Yap_InitCPred ("sh", 0, p_sh, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("$shell", 1, p_shell, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$shell", 1, p_shell, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("system", 1, p_system, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("rename", 2, p_mv, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("$yap_home", 1, p_yap_home, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("$dir_separator", 1, p_dir_sp, SafePredFlag|HiddenPredFlag);
-  Yap_InitCPred ("$alarm", 4, p_alarm, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("$getenv", 2, p_getenv, SafePredFlag|HiddenPredFlag);
-  Yap_InitCPred ("$putenv", 2, p_putenv, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("$set_fpu_exceptions", 0, p_set_fpu_exceptions, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("$first_signal", 1, p_first_signal, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("$host_type", 1, p_host_type, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("$continue_signals", 0, p_continue_signals, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$yap_home", 1, p_yap_home, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred ("$dir_separator", 1, p_dir_sp, SafePredFlag);
+  Yap_InitCPred ("$alarm", 4, p_alarm, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred ("$getenv", 2, p_getenv, SafePredFlag);
+  Yap_InitCPred ("$putenv", 2, p_putenv, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred ("$set_fpu_exceptions", 0, p_set_fpu_exceptions, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred ("$first_signal", 1, p_first_signal, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred ("$host_type", 1, p_host_type, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred ("$continue_signals", 0, p_continue_signals, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$env_separator", 1, p_env_separator, SafePredFlag);
   Yap_InitCPred ("$unix", 0, p_unix, SafePredFlag);
   Yap_InitCPred ("$win32", 0, p_win32, SafePredFlag);
@@ -3247,7 +3247,7 @@ Yap_InitSysPreds(void)
   Yap_InitCPred ("win_registry_get_value", 3, p_win_registry_get_value,0);
 #endif
   CurrentModule = HACKS_MODULE;
-  Yap_InitCPred ("virtual_alarm", 4, p_virtual_alarm, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("virtual_alarm", 4, p_virtual_alarm, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("enable_interrupts", 0, p_enable_interrupts, SafePredFlag);
   Yap_InitCPred ("disable_interrupts", 0, p_disable_interrupts, SafePredFlag);
   CurrentModule = OPERATING_SYSTEM_MODULE;

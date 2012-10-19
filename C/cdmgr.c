@@ -4335,6 +4335,42 @@ p_all_system_pred( USES_REGS1 )
 	 pe->OpcodeOfPred == Yap_opcode(_try_userc));
 }
 
+void
+Yap_HidePred(PredEntry *pe)
+{
+  Prop p0 = AbsPredProp(pe);
+  if (pe->ArityOfPE == 0) {
+    Atom a = (Atom)pe->FunctorOfPred;
+
+    p0 = RepAtom(a)->PropsOfAE;
+    if (p0 == AbsPredProp(pe)) {
+      RepAtom(a)->PropsOfAE = pe->NextOfPE;
+    } else {
+      while (p0->NextOfPE != AbsPredProp(pe))
+	p0 = p0->NextOfPE;
+      if (p0 == NIL)
+	return;
+      p0->NextOfPE = pe->NextOfPE;
+    }
+  } else {
+    Functor         funt = pe->FunctorOfPred;
+
+    p0 = funt->PropsOfFE;
+    if (p0 == AbsPredProp(pe)) {
+      funt->PropsOfFE = pe->NextOfPE;
+    } else {
+      while (p0->NextOfPE != AbsPredProp(pe))
+	p0 = p0->NextOfPE;
+      if (p0 == NIL)
+	return;
+      p0->NextOfPE = pe->NextOfPE;
+    }
+  }
+  pe->NextOfPE = HIDDEN_PREDICATES;
+  HIDDEN_PREDICATES = AbsPredProp(pe);
+  pe->PredFlags |= HiddenPredFlag;  
+}
+
 static Int			/* $system_predicate(P) */
 p_hide_predicate( USES_REGS1 )
 {
@@ -4342,12 +4378,15 @@ p_hide_predicate( USES_REGS1 )
 
   Term t1 = Deref(ARG1);
   Term mod = Deref(ARG2);
+  Prop p0;
 
  restart_system_pred:
   if (IsVarTerm(t1))
     return (FALSE);
   if (IsAtomTerm(t1)) {
-    pe = RepPredProp(Yap_GetPredPropByAtom(AtomOfTerm(t1), mod));
+    Atom a = AtomOfTerm(t1);
+
+    pe = RepPredProp(Yap_GetPredPropByAtom(a, mod));
   } else if (IsApplTerm(t1)) {
     Functor         funt = FunctorOfTerm(t1);
     if (IsExtensionFunctor(funt)) {
@@ -4368,14 +4407,15 @@ p_hide_predicate( USES_REGS1 )
     }
     pe = RepPredProp(Yap_GetPredPropByFunc(funt, mod));
   } else if (IsPairTerm(t1)) {
-    return (TRUE);
+    return TRUE;
   } else
-    return (FALSE);
+    return FALSE;
   if (EndOfPAEntr(pe))
     return FALSE;
-  pe->PredFlags |= HiddenPredFlag;
-  return(TRUE);
+  Yap_HidePred(pe);
+  return TRUE;
 }
+
 
 static Int			/* $hidden_predicate(P) */
 p_hidden_predicate( USES_REGS1 )
@@ -5888,65 +5928,65 @@ Yap_InitCdMgr(void)
   CACHE_REGS
   Term cm = CurrentModule;
 
-  Yap_InitCPred("$compile_mode", 2, p_compile_mode, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$start_consult", 3, p_startconsult, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$show_consult_level", 1, p_showconslultlev, SafePredFlag|HiddenPredFlag);
-  Yap_InitCPred("$end_consult", 0, p_endconsult, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$set_spy", 2, p_setspy, SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$rm_spy", 2, p_rmspy, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$compile_mode", 2, p_compile_mode, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$start_consult", 3, p_startconsult, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$show_consult_level", 1, p_showconslultlev, SafePredFlag);
+  Yap_InitCPred("$end_consult", 0, p_endconsult, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$set_spy", 2, p_setspy, SyncPredFlag);
+  Yap_InitCPred("$rm_spy", 2, p_rmspy, SafePredFlag|SyncPredFlag);
   /* gc() may happen during compilation, hence these predicates are
 	now unsafe */
-  Yap_InitCPred("$compile", 4, p_compile, SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$compile_dynamic", 5, p_compile_dynamic, SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$purge_clauses", 2, p_purge_clauses, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$in_use", 2, p_in_use, TestPredFlag | SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$is_dynamic", 2, p_is_dynamic, TestPredFlag | SafePredFlag|HiddenPredFlag);
-  Yap_InitCPred("$is_metapredicate", 2, p_is_metapredicate, TestPredFlag | SafePredFlag|HiddenPredFlag);
-  Yap_InitCPred("$is_expand_goal_or_meta_predicate", 2, p_is_expandgoalormetapredicate, TestPredFlag | SafePredFlag|HiddenPredFlag);
-  Yap_InitCPred("$is_log_updatable", 2, p_is_log_updatable, TestPredFlag | SafePredFlag|HiddenPredFlag);
-  Yap_InitCPred("$is_source", 2, p_is_source, TestPredFlag | SafePredFlag|HiddenPredFlag);
-  Yap_InitCPred("$owner_file", 3, p_owner_file, SafePredFlag|HiddenPredFlag);
-  Yap_InitCPred("$mk_d", 2, p_mk_d, SafePredFlag|HiddenPredFlag);
-  Yap_InitCPred("$pred_exists", 2, p_pred_exists, TestPredFlag | SafePredFlag|HiddenPredFlag);
-  Yap_InitCPred("$number_of_clauses", 3, p_number_of_clauses, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$undefined", 2, p_undefined, SafePredFlag|TestPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$optimizer_on", 0, p_optimizer_on, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$clean_up_dead_clauses", 0, p_clean_up_dead_clauses, SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$optimizer_off", 0, p_optimizer_off, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$kill_dynamic", 2, p_kill_dynamic, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$new_multifile", 3, p_new_multifile, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$is_multifile", 2, p_is_multifile, TestPredFlag | SafePredFlag|HiddenPredFlag);
-  Yap_InitCPred("$is_profiled", 1, p_is_profiled, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$profile_info", 3, p_profile_info, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$profile_reset", 2, p_profile_reset, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$is_call_counted", 1, p_is_call_counted, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$call_count_info", 3, p_call_count_info, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$call_count_set", 6, p_call_count_set, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$call_count_reset", 0, p_call_count_reset, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$toggle_static_predicates_in_use", 0, p_toggle_static_predicates_in_use, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$set_pred_module", 2, p_set_pred_module, SafePredFlag|HiddenPredFlag);
-  Yap_InitCPred("$parent_pred", 3, p_parent_pred, SafePredFlag|HiddenPredFlag);
-  Yap_InitCPred("$system_predicate", 2, p_system_pred, SafePredFlag|HiddenPredFlag);
-  Yap_InitCPred("$all_system_predicate", 3, p_all_system_pred, SafePredFlag|HiddenPredFlag);
-  Yap_InitCPred("$hide_predicate", 2, p_hide_predicate, SafePredFlag|HiddenPredFlag);
-  Yap_InitCPred("$hidden_predicate", 2, p_hidden_predicate, SafePredFlag|HiddenPredFlag);
-  Yap_InitCPred("$pred_for_code", 5, p_pred_for_code, SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$current_stack", 1, p_current_stack, SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$log_update_clause", 4, p_log_update_clause, SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$continue_log_update_clause", 5, p_continue_log_update_clause, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$log_update_clause_erase", 4, p_log_update_clause_erase, SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$continue_log_update_clause_erase", 5, p_continue_log_update_clause_erase, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$static_clause", 4, p_static_clause, SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$continue_static_clause", 5, p_continue_static_clause, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$static_pred_statistics", 5, p_static_pred_statistics, SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$p_nth_clause", 4, p_nth_clause, SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$program_continuation", 3, p_program_continuation, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$compile", 4, p_compile, SyncPredFlag);
+  Yap_InitCPred("$compile_dynamic", 5, p_compile_dynamic, SyncPredFlag);
+  Yap_InitCPred("$purge_clauses", 2, p_purge_clauses, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$in_use", 2, p_in_use, TestPredFlag | SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$is_dynamic", 2, p_is_dynamic, TestPredFlag | SafePredFlag);
+  Yap_InitCPred("$is_metapredicate", 2, p_is_metapredicate, TestPredFlag | SafePredFlag);
+  Yap_InitCPred("$is_expand_goal_or_meta_predicate", 2, p_is_expandgoalormetapredicate, TestPredFlag | SafePredFlag);
+  Yap_InitCPred("$is_log_updatable", 2, p_is_log_updatable, TestPredFlag | SafePredFlag);
+  Yap_InitCPred("$is_source", 2, p_is_source, TestPredFlag | SafePredFlag);
+  Yap_InitCPred("$owner_file", 3, p_owner_file, SafePredFlag);
+  Yap_InitCPred("$mk_d", 2, p_mk_d, SafePredFlag);
+  Yap_InitCPred("$pred_exists", 2, p_pred_exists, TestPredFlag | SafePredFlag);
+  Yap_InitCPred("$number_of_clauses", 3, p_number_of_clauses, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$undefined", 2, p_undefined, SafePredFlag|TestPredFlag);
+  Yap_InitCPred("$optimizer_on", 0, p_optimizer_on, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$clean_up_dead_clauses", 0, p_clean_up_dead_clauses, SyncPredFlag);
+  Yap_InitCPred("$optimizer_off", 0, p_optimizer_off, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$kill_dynamic", 2, p_kill_dynamic, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$new_multifile", 3, p_new_multifile, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$is_multifile", 2, p_is_multifile, TestPredFlag | SafePredFlag);
+  Yap_InitCPred("$is_profiled", 1, p_is_profiled, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$profile_info", 3, p_profile_info, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$profile_reset", 2, p_profile_reset, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$is_call_counted", 1, p_is_call_counted, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$call_count_info", 3, p_call_count_info, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$call_count_set", 6, p_call_count_set, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$call_count_reset", 0, p_call_count_reset, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$toggle_static_predicates_in_use", 0, p_toggle_static_predicates_in_use, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$set_pred_module", 2, p_set_pred_module, SafePredFlag);
+  Yap_InitCPred("$parent_pred", 3, p_parent_pred, SafePredFlag);
+  Yap_InitCPred("$system_predicate", 2, p_system_pred, SafePredFlag);
+  Yap_InitCPred("$all_system_predicate", 3, p_all_system_pred, SafePredFlag);
+  Yap_InitCPred("$hide_predicate", 2, p_hide_predicate, SafePredFlag);
+  Yap_InitCPred("$hidden_predicate", 2, p_hidden_predicate, SafePredFlag);
+  Yap_InitCPred("$pred_for_code", 5, p_pred_for_code, SyncPredFlag);
+  Yap_InitCPred("$current_stack", 1, p_current_stack, SyncPredFlag);
+  Yap_InitCPred("$log_update_clause", 4, p_log_update_clause, SyncPredFlag);
+  Yap_InitCPred("$continue_log_update_clause", 5, p_continue_log_update_clause, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$log_update_clause_erase", 4, p_log_update_clause_erase, SyncPredFlag);
+  Yap_InitCPred("$continue_log_update_clause_erase", 5, p_continue_log_update_clause_erase, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$static_clause", 4, p_static_clause, SyncPredFlag);
+  Yap_InitCPred("$continue_static_clause", 5, p_continue_static_clause, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$static_pred_statistics", 5, p_static_pred_statistics, SyncPredFlag);
+  Yap_InitCPred("$p_nth_clause", 4, p_nth_clause, SyncPredFlag);
+  Yap_InitCPred("$program_continuation", 3, p_program_continuation, SafePredFlag|SyncPredFlag);
   CurrentModule = HACKS_MODULE;
-  Yap_InitCPred("current_choicepoints", 1, p_all_choicepoints, HiddenPredFlag);
-  Yap_InitCPred("current_continuations", 1, p_all_envs, HiddenPredFlag);
-  Yap_InitCPred("choicepoint", 7, p_choicepoint_info, HiddenPredFlag);
-  Yap_InitCPred("continuation", 4, p_env_info, HiddenPredFlag);
-  Yap_InitCPred("cp_to_predicate", 5, p_cpc_info, HiddenPredFlag);
+  Yap_InitCPred("current_choicepoints", 1, p_all_choicepoints, 0);
+  Yap_InitCPred("current_continuations", 1, p_all_envs, 0);
+  Yap_InitCPred("choicepoint", 7, p_choicepoint_info, 0);
+  Yap_InitCPred("continuation", 4, p_env_info,0);
+  Yap_InitCPred("cp_to_predicate", 5, p_cpc_info, 0);
   CurrentModule = cm;
   CurrentModule = DBLOAD_MODULE;
   Yap_InitCPred("dbload_get_space", 4, p_dbload_get_space, 0L);

@@ -1114,24 +1114,24 @@ Yap_InitIOPreds(void)
   if (!Stream)
     Stream = (StreamDesc *)Yap_AllocCodeSpace(sizeof(StreamDesc)*MaxStreams);
   /* here the Input/Output predicates */
-  Yap_InitCPred ("$set_read_error_handler", 1, p_set_read_error_handler, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("$get_read_error_handler", 1, p_get_read_error_handler, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("$read", 7, p_read, SyncPredFlag|HiddenPredFlag|UserCPredFlag);
-  Yap_InitCPred ("$read", 8, p_read2, SyncPredFlag|HiddenPredFlag|UserCPredFlag);
+  Yap_InitCPred ("$set_read_error_handler", 1, p_set_read_error_handler, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred ("$get_read_error_handler", 1, p_get_read_error_handler, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred ("$read", 7, p_read, SyncPredFlag|UserCPredFlag);
+  Yap_InitCPred ("$read", 8, p_read2, SyncPredFlag|UserCPredFlag);
 #if DEBUG
   Yap_InitCPred ("write_string", 2, p_write_string, SyncPredFlag|UserCPredFlag);
 #endif
-  Yap_InitCPred ("$start_line", 1, p_startline, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("$change_type_of_char", 2, p_change_type_of_char, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("$type_of_char", 2, p_type_of_char, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$start_line", 1, p_startline, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred ("$change_type_of_char", 2, p_change_type_of_char, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred ("$type_of_char", 2, p_type_of_char, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("char_conversion", 2, p_char_conversion, SyncPredFlag);
-  Yap_InitCPred ("$current_char_conversion", 2, p_current_char_conversion, SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("$all_char_conversions", 1, p_all_char_conversions, SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("$force_char_conversion", 0, p_force_char_conversion, SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("$disable_char_conversion", 0, p_disable_char_conversion, SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$current_char_conversion", 2, p_current_char_conversion, SyncPredFlag);
+  Yap_InitCPred ("$all_char_conversions", 1, p_all_char_conversions, SyncPredFlag);
+  Yap_InitCPred ("$force_char_conversion", 0, p_force_char_conversion, SyncPredFlag);
+  Yap_InitCPred ("$disable_char_conversion", 0, p_disable_char_conversion, SyncPredFlag);
 #if HAVE_SELECT
     //  Yap_InitCPred ("stream_select", 3, p_stream_select, SafePredFlag|SyncPredFlag);
 #endif
-  Yap_InitCPred ("$float_format", 1, p_float_format, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$float_format", 1, p_float_format, SafePredFlag|SyncPredFlag);
 
 }

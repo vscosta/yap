@@ -229,12 +229,12 @@ Yap_InitLoadForeign( void )
     Yap_FindExecutable("yap");
   else
     Yap_FindExecutable(GLOBAL_argv[0]);
-  Yap_InitCPred("$load_foreign_files", 3, p_load_foreign, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$open_shared_objects", 0, p_open_shared_objects, SafePredFlag|HiddenPredFlag);
-  Yap_InitCPred("$open_shared_object", 3, p_open_shared_object, SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$load_foreign_files", 3, p_load_foreign, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$open_shared_objects", 0, p_open_shared_objects, SafePredFlag);
+  Yap_InitCPred("$open_shared_object", 3, p_open_shared_object, SyncPredFlag);
   Yap_InitCPred("close_shared_object", 1, p_close_shared_object, SyncPredFlag|SafePredFlag);
   Yap_InitCPred("call_shared_object_function", 2, p_call_shared_object_function, SyncPredFlag);
-  Yap_InitCPred("$obj_suffix", 1, p_obj_suffix, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$obj_suffix", 1, p_obj_suffix, SafePredFlag);
 }
 
 void 

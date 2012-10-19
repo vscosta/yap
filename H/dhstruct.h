@@ -100,6 +100,8 @@
 #define SWI_MODULE Yap_heap_regs->swi_module
 #define DBLOAD_MODULE Yap_heap_regs->dbload_module
 
+#define HIDDEN_PREDICATES Yap_heap_regs->hidden_predicates
+
 
 
 #define CurrentModules Yap_heap_regs->current_modules

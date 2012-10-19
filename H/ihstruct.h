@@ -100,6 +100,8 @@
   SWI_MODULE = MkAtomTerm(AtomSwi);
   DBLOAD_MODULE = MkAtomTerm(AtomDBLoad);
 
+  HIDDEN_PREDICATES = NULL;
+
 
 
   CurrentModules = NULL;

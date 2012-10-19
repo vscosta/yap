@@ -647,7 +647,7 @@ yap_flag(update_semantics,X) :-
 
 yap_flag(toplevel_hook,G) :-
 	var(G), !,
-	( recorded('$toplevel_hooks',G,_) -> G ; G = false ).
+	( recorded('$toplevel_hooks',G,_) -> G ; G = fail ).
 yap_flag(toplevel_hook,G) :- !,
 	'$set_toplevel_hook'(G).
 

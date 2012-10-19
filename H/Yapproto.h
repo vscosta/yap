@@ -137,6 +137,7 @@ void	STD_PROTO(Yap_BuildMegaClause,(struct pred_entry *));
 void	STD_PROTO(Yap_EraseMegaClause,(yamop *,struct pred_entry *));
 void	STD_PROTO(Yap_ResetConsultStack,(void));
 void	STD_PROTO(Yap_AssertzClause,(struct pred_entry *, yamop *));
+void    Yap_HidePred(struct pred_entry *pe);
 
 
 /* cmppreds.c */
