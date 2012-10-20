@@ -100,7 +100,7 @@
   SWI_MODULE = AtomTermAdjust(SWI_MODULE);
   DBLOAD_MODULE = AtomTermAdjust(DBLOAD_MODULE);
 
-  RestoreHidenPredicates();
+  RestoreHiddenPredicates();
 
 
 

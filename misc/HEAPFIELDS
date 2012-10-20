@@ -103,7 +103,7 @@ Term		swi_module		SWI_MODULE		MkAT AtomSwi
 Term		dbload_module		DBLOAD_MODULE		MkAT AtomDBLoad
 
 // hidden predicates
-Prop		hidden_predicates	HIDDEN_PREDICATES	=NULL RestoreHidenPredicates()
+Prop		hidden_predicates	HIDDEN_PREDICATES	=NULL RestoreHiddenPredicates()
 
 //
 // Module list

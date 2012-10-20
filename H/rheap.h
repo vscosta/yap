@@ -253,6 +253,7 @@ static char     SccsId[] = "@(#)rheap.c	1.3 3/15/90";
 #define RestoreSWIBlobTypes() RestoreSWIBlobTypes__( PASS_REGS1 )
 #define RestoreInvisibleAtoms() RestoreInvisibleAtoms__( PASS_REGS1 )
 #define RestorePredHash() RestorePredHash__( PASS_REGS1 )
+#define RestoreHiddenPredicates() RestoreHiddenPredicates__( PASS_REGS1 )
 #define RestoreDBTermsList() RestoreDBTermsList__( PASS_REGS1 )
 #define RestoreExpandList() RestoreExpandList__( PASS_REGS1 )
 #define RestoreIntKeys() RestoreIntKeys__( PASS_REGS1 )
@@ -727,7 +728,7 @@ RestoreSWIBlobs__( USES_REGS1 )
 }
 
 static void
-RestoreHidenPredicates( USES_REGS1 )
+RestoreHiddenPredicates__( USES_REGS1 )
 {
   HIDDEN_PREDICATES = PropAdjust(HIDDEN_PREDICATES);
   RestoreEntries(HIDDEN_PREDICATES, TRUE PASS_REGS);
