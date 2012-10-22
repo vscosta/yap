@@ -2518,7 +2518,11 @@ AC_CONFIG_FILES([packages/http/Makefile])
 fi
 
 if test "$ENABLE_JPL" = ""; then
-AC_CONFIG_FILES([packages/jpl/Makefile packages/jpl/jpl_paths.yap packages/jpl/src/java/Makefile packages/pyswip/Makefile ])
+AC_CONFIG_FILES([packages/jpl/Makefile packages/jpl/jpl_paths.yap packages/jpl/src/java/Makefile ])
+fi
+
+if test "$ENABLE_PYTHON" = ""; then
+AC_CONFIG_FILES([ packages/pyswip/Makefile ])
 fi
 
 if test "$ENABLE_PLDOC" = ""; then

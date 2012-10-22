@@ -11201,7 +11201,12 @@ ac_config_files="$ac_config_files packages/http/Makefile"
 fi
 
 if test "$ENABLE_JPL" = ""; then
-ac_config_files="$ac_config_files packages/jpl/Makefile packages/jpl/jpl_paths.yap packages/jpl/src/java/Makefile packages/pyswip/Makefile"
+ac_config_files="$ac_config_files packages/jpl/Makefile packages/jpl/jpl_paths.yap packages/jpl/src/java/Makefile"
+
+fi
+
+if test "$ENABLE_PYTHON" = ""; then
+ac_config_files="$ac_config_files packages/pyswip/Makefile"
 
 fi
 
