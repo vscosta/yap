@@ -37,3 +37,9 @@
 [submodule "packages/real"]
 	path = packages/real
 	url = git://www.swi-prolog.org/home/pl/git/packages/real.git
+[submodule "packages/archive"]
+	path = packages/archive
+	url = ssh://vsc@yap.git.sourceforge.net/gitroot/yap/archive
+[submodule "packages/odbc"]
+	path = packages/odbc
+	url = ssh://vsc@yap.git.sourceforge.net/gitroot/yap/odbc
