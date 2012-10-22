@@ -621,6 +621,12 @@ ac_includes_default="\
 
 ac_subst_vars='LTLIBOBJS
 LIBOBJS
+ENABLE_ODBC
+ODBC_PLTARGETS
+ODBC_TARGETS
+ODBC_LIBS
+ODBC_LDFLAGS
+ODBC_CFLAGS
 ENABLE_LIBARCHIVE
 ARCHIVE_PLTARGETS
 ARCHIVE_TARGETS
@@ -4744,6 +4750,8 @@ if test "${enable_myddas+set}" = set; then :
 		yap_cv_myddas=$enable_myddas
 		LDFLAGS="$LDFLAGS -L${yap_cv_myddas}/lib "
 		CPPFLAGS="$CPPFLAGS -I${yap_cv_myddas}/include "
+		ODBC_LDFLAGS="-L${yap_cv_myddas}/lib "
+		ODBC_CFLAGS="-I${yap_cv_myddas}/include "
 	fi
 else
   yap_cv_myddas=/usr
@@ -7033,6 +7041,73 @@ fi
 
 	if test "$yap_cv_odbc" = yes
 	then
+	   ODBC_LIBS="$ODBC_LIBS -lodbc"
+	else
+	  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for library containing SQLAllocHandle" >&5
+$as_echo_n "checking for library containing SQLAllocHandle... " >&6; }
+if ${ac_cv_search_SQLAllocHandle+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_func_search_save_LIBS=$LIBS
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char SQLAllocHandle ();
+int
+main ()
+{
+return SQLAllocHandle ();
+  ;
+  return 0;
+}
+_ACEOF
+for ac_lib in '' iodbc; do
+  if test -z "$ac_lib"; then
+    ac_res="none required"
+  else
+    ac_res=-l$ac_lib
+    LIBS="-l$ac_lib  $ac_func_search_save_LIBS"
+  fi
+  if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_search_SQLAllocHandle=$ac_res
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext
+  if ${ac_cv_search_SQLAllocHandle+:} false; then :
+  break
+fi
+done
+if ${ac_cv_search_SQLAllocHandle+:} false; then :
+
+else
+  ac_cv_search_SQLAllocHandle=no
+fi
+rm conftest.$ac_ext
+LIBS=$ac_func_search_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_search_SQLAllocHandle" >&5
+$as_echo "$ac_cv_search_SQLAllocHandle" >&6; }
+ac_res=$ac_cv_search_SQLAllocHandle
+if test "$ac_res" != no; then :
+  test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
+  yap_cv_odbc="yes"
+else
+  yap_cv_odbc="no"
+fi
+
+	  if test "$yap_cv_odbc" = yes
+	  then
+	     ODBC_LIBS="$ODBC_LIBS -liodbc"
+	  fi
+        fi
+	if test "$yap_cv_odbc" = yes
+	then
 		YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_ODBC"
 	fi
 
@@ -7515,6 +7590,12 @@ if test -e "$srcdir"/packages/archive/Makefile.in; then
   ENABLE_LIBARCHIVE=""
 else
   ENABLE_LIBARCHIVE="@# "
+fi
+
+if test -e "$srcdir"/packages/odbc/Makefile.in; then
+  ENABLE_ODBC=""
+else
+  ENABLE_ODBC="@# "
 fi
 
 if test "$use_chr" = no; then
@@ -10933,6 +11014,63 @@ fi
 
 fi
 
+
+if test "$yap_cv_odbc" = yes; then
+	   ODBC_TARGETS="odbc4pl.$SO"
+	   ODBC_PLTARGETS=odbc.pl
+	   for ac_header in sql.h
+do :
+  ac_fn_c_check_header_mongrel "$LINENO" "sql.h" "ac_cv_header_sql_h" "$ac_includes_default"
+if test "x$ac_cv_header_sql_h" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_SQL_H 1
+_ACEOF
+
+fi
+
+done
+
+	   for ac_func in localtime mktime gmtime timegm
+do :
+  as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
+ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
+if eval test \"x\$"$as_ac_var"\" = x"yes"; then :
+  cat >>confdefs.h <<_ACEOF
+#define `$as_echo "HAVE_$ac_func" | $as_tr_cpp` 1
+_ACEOF
+
+fi
+done
+
+	   ac_fn_c_check_type "$LINENO" "SQLLEN" "ac_cv_type_SQLLEN" "#include <sql.h>
+
+"
+if test "x$ac_cv_type_SQLLEN" = xyes; then :
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_SQLLEN 1
+_ACEOF
+
+
+fi
+ac_fn_c_check_type "$LINENO" "SQLULEN" "ac_cv_type_SQLULEN" "#include <sql.h>
+
+"
+if test "x$ac_cv_type_SQLULEN" = xyes; then :
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_SQLULEN 1
+_ACEOF
+
+
+fi
+
+else
+	   ODBC_TARGETS=nolib
+	   ODBC_PLTARGETS=odbc.pl
+fi
+
+
 if test "$ENABLE_LIBARCHIVE" = ""
 then
 OLD_LIBS=$LIBS
@@ -10996,6 +11134,7 @@ fi
 
 fi
 
+LIBS="$LIBS -larchive"
 for ac_func in archive_read_support_compression_bzip2 \
 	       archive_read_support_compression_compress \
 	       archive_read_support_compression_gzip \
@@ -11060,7 +11199,16 @@ fi
 
 
 
+LIBS="$OLD_LIBS"
 fi
+
+
+
+
+
+
+
+
 
 
 
@@ -11249,6 +11397,11 @@ fi
 
 if test "$ENABLE_LIBARCHIVE" = ""; then
 ac_config_files="$ac_config_files packages/archive/Makefile"
+
+fi
+
+if test "$ENABLE_ODBC" = ""; then
+ac_config_files="$ac_config_files packages/odbc/Makefile"
 
 fi
 
@@ -12028,6 +12181,7 @@ do
     "packages/sgml/Makefile") CONFIG_FILES="$CONFIG_FILES packages/sgml/Makefile" ;;
     "packages/zlib/Makefile") CONFIG_FILES="$CONFIG_FILES packages/zlib/Makefile" ;;
     "packages/archive/Makefile") CONFIG_FILES="$CONFIG_FILES packages/archive/Makefile" ;;
+    "packages/odbc/Makefile") CONFIG_FILES="$CONFIG_FILES packages/odbc/Makefile" ;;
     "packages/bdd/Makefile") CONFIG_FILES="$CONFIG_FILES packages/bdd/Makefile" ;;
     "packages/ProbLog/simplecudd/Makefile") CONFIG_FILES="$CONFIG_FILES packages/ProbLog/simplecudd/Makefile" ;;
     "packages/ProbLog/simplecudd_lfi/Makefile") CONFIG_FILES="$CONFIG_FILES packages/ProbLog/simplecudd_lfi/Makefile" ;;
