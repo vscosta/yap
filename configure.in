@@ -888,6 +888,10 @@ then
 	;;
 	esac
 	AC_SEARCH_LIBS(SQLAllocHandle, [odbc], [yap_cv_odbc="yes"], [yap_cv_odbc="no"])
+	if test "$yap_cv_odbc" = no
+	then
+	  AC_SEARCH_LIBS(SQLAllocHandle, [iodbc], [yap_cv_odbc="yes"], [yap_cv_odbc="no"])
+	fi
 	if test "$yap_cv_odbc" = yes 
 	then
 		YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_ODBC"
@@ -903,6 +907,11 @@ then
 	    YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_TOP_LEVEL"
 	fi
 
+AC_CHECK_HEADERS(sql.h)
+AC_CHECK_FUNCS(localtime mktime gmtime timegm)
+AC_CHECK_TYPES([SQLLEN, SQLULEN],,,
+	       [#include <sql.h>
+	       ])
 fi	
 
 if test "$yap_cv_cudd" != no; then
