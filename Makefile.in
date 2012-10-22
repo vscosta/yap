@@ -724,6 +724,7 @@ all: startup.yss
 	@ENABLE_CUDD@ (cd packages/ProbLog/simplecudd; $(MAKE))
 	@ENABLE_CUDD@ (cd packages/ProbLog/simplecudd_lfi; $(MAKE))
 	@ENABLE_JPL@ @INSTALL_DLLS@ (cd packages/jpl; $(MAKE))
+	@ENABLE_PYTHON@ @INSTALL_DLLS@ (cd packages/pyswip; $(MAKE))
 
 startup.yss: yap@EXEC_SUFFIX@ $(PL_SOURCES)
 	-rm -f startup.yss
@@ -792,6 +793,7 @@ install_unix: startup.yss libYap.a
 	@INSTALL_MATLAB@ (cd library/matlab; $(MAKE) install)
 	@ENABLE_REAL@ (cd packages/real; $(MAKE) install)
 	@ENABLE_JPL@ @INSTALL_DLLS@ (cd packages/jpl; $(MAKE) install)
+	@ENABLE_PYTHON@ @INSTALL_DLLS@ (cd packages/pyswip; $(MAKE) install)
 	#@ENABLE_JPL@ @INSTALL_DLLS@ (cd packages/pyswip; $(MAKE) install)
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)/src
@@ -857,6 +859,7 @@ install_win32: startup.yss @ENABLE_WINCONSOLE@ yap-win@EXEC_SUFFIX@
 	(cd packages/CLPBN ; $(MAKE) install)
 	@ENABLE_CLPBN_BP@ (cd packages/CLPBN/horus; $(MAKE) install)
 	@ENABLE_JPL@ (cd packages/jpl ; $(MAKE) install)
+	@ENABLE_PYTHON@ (cd packages/python ; $(MAKE) install)
 	@ENABLE_MINISAT@ (cd packages/swi-minisat2/C; $(MAKE) install)
 	@ENABLE_CPLINT@ (cd packages/cplint; $(MAKE) install)
 	@ENABLE_PRISM@ (cd packages/prism/src/c; $(MAKE) install)
@@ -931,6 +934,7 @@ clean: clean_docs
 	@ENABLE_CUDD@ (cd packages/ProbLog/simplecudd; $(MAKE) clean)
 	@ENABLE_CUDD@ (cd packages/ProbLog/simplecudd_lfi; $(MAKE) clean)
 	@ENABLE_JPL@ @INSTALL_DLLS@ (cd packages/jpl; $(MAKE) clean)
+	@ENABLE_PYTHON@ @INSTALL_DLLS@ (cd packages/python; $(MAKE) clean)
 
 
 
