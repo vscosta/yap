@@ -701,21 +701,23 @@ export_resource(Resource) :-
 export_resource(P) :-
 	P = F/N, atom(F), number(N), N >= 0, !,
 	'$current_module'(Mod), 
-	( recorded('$module','$module'(File,Mod,ExportedPreds),R) ->
-	    erase(R), 
-	    recorda('$module','$module'(File,Mod,[P|ExportedPreds]),_)
-	;
-	    recorda('$module','$module'(user_input,Mod,[P]),_)
+	(	recorded('$module','$module'(File,Mod,ExportedPreds),R) ->
+		erase(R), 
+		recorda('$module','$module'(File,Mod,[P|ExportedPreds]),_)
+	;	prolog_load_context(file, File) ->
+		recorda('$module','$module'(File,Mod,[P]),_)
+	;	recorda('$module','$module'(user_input,Mod,[P]),_)
 	).
 export_resource(P0) :-
 	P0 = F//N, atom(F), number(N), N >= 0, !,
 	N1 is N+2, P = F/N1,
 	'$current_module'(Mod), 
-	( recorded('$module','$module'(File,Mod,ExportedPreds),R) ->
-	    erase(R), 
-	    recorda('$module','$module'(File,Mod,[P|ExportedPreds]),_)
-	;
-	    recorda('$module','$module'(user_input,Mod,[P]),_)
+	(	recorded('$module','$module'(File,Mod,ExportedPreds),R) ->
+		erase(R), 
+		recorda('$module','$module'(File,Mod,[P|ExportedPreds]),_)
+	;	prolog_load_context(file, File) ->
+		recorda('$module','$module'(File,Mod,[P]),_)
+	;	recorda('$module','$module'(user_input,Mod,[P]),_)
 	).
 export_resource(op(Prio,Assoc,Name)) :- !,
 	op(Prio,Assoc,prolog:Name).
