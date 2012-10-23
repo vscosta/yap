@@ -12,6 +12,7 @@ static foreign_t
 init_python(void)
 { 
   Py_Initialize();
+
   return TRUE;
 }
 
@@ -37,9 +38,10 @@ python_import(term_t mname, term_t mod)
   if (pName == NULL) {
     return FALSE;
   }
-PyRun_SimpleString("import sys");
-PyRun_SimpleString("sys.path.append(\"/Users/vsc/Yap/bins/osx/packages/pyswip\")");
-//PyRun_SimpleString("import multiply");
+
+  PyRun_SimpleString("import sys");
+  PyRun_SimpleString("sys.path.append(\"/Users/vsc/Yap/bins/osx/packages/pyswip\")");
+  //PyRun_SimpleString("import multiply");
   pModule = PyImport_Import(pName);
   PyErr_Print();
   Py_DECREF(pName);
@@ -117,6 +119,28 @@ term_to_python(term_t t)
       return PyFloat_FromDouble( fl );
     }
   case PL_TERM:
+    if (PL_is_list(t)) {
+      size_t len, i;
+      term_t tail = PL_new_term_ref(), arg;
+      PyObject *out;
+
+      PL_skip_list(t, tail, &len);
+      if (!PL_get_nil(tail))
+	return NULL;
+      arg = tail;
+      out = PyList_New(len);
+      if (!out)
+	return NULL;
+      
+      for (i=0; i< len; i++) {
+	if (!PL_get_list(t, arg, t)) {
+	  return NULL;
+	}
+	if (PyList_SetItem(out, i, term_to_python(arg)) < 0)
+	  return NULL;
+      }
+      return out;
+    }
     return NULL;
   }
   return NULL;
@@ -140,6 +164,16 @@ output_python_term(PyObject *pVal, term_t t)
   } else if (PyByteArray_Check(pVal)) {
     atom_t tmp_atom = PL_new_atom(PyByteArray_AsString(pVal));
     return PL_unify_atom(t, tmp_atom);
+  } else if (PyList_Check(pVal)) {
+    term_t to = PL_new_term_ref();
+    Py_ssize_t i, sz = PyList_GET_SIZE(pVal);
+
+    for (i = 0; i < sz; i++) {
+      if (!PL_unify_list(t, to, t) ||
+	  !output_python_term(PyList_GetItem(pVal, i), to))
+	return FALSE;
+    }
+    return PL_unify_nil(t);
   } else {
     return FALSE;
   }
@@ -168,7 +202,7 @@ python_apply(term_t tin, term_t targs, term_t tf)
       return FALSE;
     pArg = term_to_python(targ);
     if (pArg == NULL)
-      return NULL;
+      return FALSE;
     /* pArg reference stolen here: */
     PyTuple_SetItem(pArgs, i,  pArg);
   }
