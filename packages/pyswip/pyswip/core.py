@@ -61,14 +61,26 @@ def _findYap():
     :raises ImportError: If we cannot guess the name of the library
     """
 
+    # Now begins the guesswork
+    platform = sys.platform[:3]
+
+    # use YAPLIBDIR first
+    path=os.getenv('YAPLIBDIR')
+    if path is not None:
+        if platform == 'lin':
+            name = 'libYap.so'
+        elif platform == 'dar':
+            name = 'libYap.dylib'
+        path = os.path.join(path, name)
+        if os.path.exists(path):
+            return path
+
     # No matter what the platform is, the first try should alway be
     # find_library.
     path = find_library('Yap') # or find_library('swipl') or find_library('pl')
     if path is not None:
         return path
 
-    # Now begins the guesswork
-    platform = sys.platform[:3]
     if platform == 'win': # In Windows, we have the default installer path and
                           # the registry to look
                           
@@ -140,12 +152,6 @@ def _findYap():
                 if os.path.exists(path):
                     return path
 
-    # unix in general
-    path=os.getenv('YAPLIBDIR')
-    path = os.path.join(path, name)
-    if os.path.exists(path):
-        return path
-
     # Last resource: see if executable is on the path
     try: # try to get library path from swipl executable.
         cmd = Popen(['yap', '-dump-runtime-variables'], stdout=PIPE)
@@ -196,6 +202,7 @@ c_void_p = POINTER(c_void)
 # Load the library
 path = _findYap()
 _fixWindowsPath(path)
+print path
 _lib = CDLL(path)
 
 # PySWIP constants

@@ -46,7 +46,11 @@ python_command(Cmd) :-
 
 start_python :-
 	use_foreign_library(foreign(python)),
-	init_python.
+	init_python,
+	python_command('import sys'),
+	unix(getcwd(Dir)),
+	atom_concat(['sys.path.append(\"',Dir,'\")'], Command),
+	python_command(Command).
 	% done	
 
 
