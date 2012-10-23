@@ -320,6 +320,9 @@ void	STD_PROTO(Yap_InitQLY,(void));
 int 	STD_PROTO(Yap_Restore,(char *, char *));
 void	STD_PROTO(Yap_InitQLYR,(void));
 
+/* range.c */
+void Yap_InitRange(void);
+
 /* save.c */
 int	STD_PROTO(Yap_SavedInfo,(char *,char *,CELL *,CELL *,CELL *));
 int 	STD_PROTO(Yap_SavedStateRestore,(char *, char *));

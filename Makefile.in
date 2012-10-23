@@ -256,6 +256,7 @@ C_SOURCES= \
 	$(srcdir)/C/parser.c \
 	$(srcdir)/C/qlyr.c \
 	$(srcdir)/C/qlyw.c \
+	$(srcdir)/C/range.c \
 	$(srcdir)/C/save.c $(srcdir)/C/scanner.c \
 	$(srcdir)/C/sort.c $(srcdir)/C/stdpreds.c $(srcdir)/C/sysbits.c \
 	$(srcdir)/C/threads.c \
@@ -366,7 +367,8 @@ ENGINE_OBJECTS = \
 	myddas_mysql.o myddas_odbc.o myddas_shared.o myddas_initialization.o \
 	myddas_util.o myddas_statistics.o myddas_top_level.o \
 	myddas_wkb2prolog.o modules.o other.o   \
-	parser.o qlyr.o qlyw.o save.o scanner.o sort.o stdpreds.o \
+	parser.o qlyr.o qlyw.o range.o \
+	save.o scanner.o sort.o stdpreds.o \
 	sysbits.o threads.o tracer.o \
 	udi.o rtree.o rtree_udi.o\
 	unify.o userpreds.o utilpreds.o \
