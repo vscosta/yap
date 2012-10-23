@@ -101,6 +101,7 @@ Term		arg_module		ARG_MODULE		MkAT AtomArg
 Term		globals_module		GLOBALS_MODULE		MkAT AtomNb
 Term		swi_module		SWI_MODULE		MkAT AtomSwi
 Term		dbload_module		DBLOAD_MODULE		MkAT AtomDBLoad
+Term		range_module		RANGE_MODULE		MkAT AtomRange
 
 // hidden predicates
 Prop		hidden_predicates	HIDDEN_PREDICATES	=NULL RestoreHiddenPredicates()

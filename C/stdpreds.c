@@ -4309,77 +4309,6 @@ p_loop( USES_REGS1 ) {
 }
 #endif
 
-#if QSAR
-static Int
-p_in_range( USES_REGS1 ) {
-  Term t;
-  double i,j;
-  double d1;
-  double d2;
-  double d3;
-
-  t = Deref(ARG1);
-  if (IsFloatTerm(t)) i = FloatOfTerm(t); else i = IntegerOfTerm(t); 
-  t = Deref(ARG4);
-  if (IsFloatTerm(t)) j = FloatOfTerm(t); else j = IntegerOfTerm(t);
-  d1 = i-j;
-  t = Deref(ARG2);
-  if (IsFloatTerm(t)) i = FloatOfTerm(t); else i = IntegerOfTerm(t); 
-  t = Deref(ARG5);
-  if (IsFloatTerm(t)) j = FloatOfTerm(t); else j = IntegerOfTerm(t);
-  d2 = i-j;
-  t = Deref(ARG3);
-  if (IsFloatTerm(t)) i = FloatOfTerm(t); else i = IntegerOfTerm(t); 
-  t = Deref(ARG6);
-  if (IsFloatTerm(t)) j = FloatOfTerm(t); else j = IntegerOfTerm(t);
-  d3 = i-j;
-  t = Deref(ARG7);
-  if (IsFloatTerm(t)) i = FloatOfTerm(t); else i = IntegerOfTerm(t); 
-  t = Deref(ARG8);
-  if (IsFloatTerm(t)) j = FloatOfTerm(t); else j = IntegerOfTerm(t);
-  
-  return fabs(sqrt(d1*d1 + d2*d2 + d3*d3)-i) <= j; 
-
-}
-
-static Int
-p_in_range2( USES_REGS1 ) {
-  CELL *p1, *p2;
-  Term t;
-  double i,j;
-  double d1;
-  double d2;
-  double d3;
-  UInt arity;
-  p1 = RepAppl(Deref(ARG1));
-  arity = ArityOfFunctor((Functor)*p1);
-  p1 += arity-2;
-  p2 = RepAppl(Deref(ARG2))+(arity-2);;
-
-  t = Deref(p1[0]);
-  if (IsFloatTerm(t)) i = FloatOfTerm(t); else i = IntegerOfTerm(t); 
-  t = Deref(p2[0]);
-  if (IsFloatTerm(t)) j = FloatOfTerm(t); else j = IntegerOfTerm(t);
-  d1 = i-j;
-  t = Deref(p1[1]);
-  if (IsFloatTerm(t)) i = FloatOfTerm(t); else i = IntegerOfTerm(t); 
-  t = Deref(p2[1]);
-  if (IsFloatTerm(t)) j = FloatOfTerm(t); else j = IntegerOfTerm(t);
-  d2 = i-j;
-  t = Deref(p1[2]);
-  if (IsFloatTerm(t)) i = FloatOfTerm(t); else i = IntegerOfTerm(t); 
-  t = Deref(p2[2]);
-  if (IsFloatTerm(t)) j = FloatOfTerm(t); else j = IntegerOfTerm(t);
-  d3 = i-j;
-  t = Deref(ARG3);
-  if (IsFloatTerm(t)) i = FloatOfTerm(t); else i = IntegerOfTerm(t); 
-  t = Deref(ARG4);
-  if (IsFloatTerm(t)) j = FloatOfTerm(t); else j = IntegerOfTerm(t);
-  
-  return fabs(sqrt(d1*d1 + d2*d2 + d3*d3)-i) <= j; 
-
-}
-#endif
 
 static Int
 p_max_tagged_integer( USES_REGS1 ) {
@@ -4556,6 +4485,7 @@ Yap_InitCPreds(void)
   Yap_InitLoadForeign();
   Yap_InitModulesC();
   Yap_InitSavePreds();
+  Yap_InitRange();
   Yap_InitSysPreds();
   Yap_InitUnify();
   Yap_InitQLY();

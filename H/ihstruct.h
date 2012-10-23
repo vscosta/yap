@@ -99,6 +99,7 @@
   GLOBALS_MODULE = MkAtomTerm(AtomNb);
   SWI_MODULE = MkAtomTerm(AtomSwi);
   DBLOAD_MODULE = MkAtomTerm(AtomDBLoad);
+  RANGE_MODULE = MkAtomTerm(AtomRange);
 
   HIDDEN_PREDICATES = NULL;
 

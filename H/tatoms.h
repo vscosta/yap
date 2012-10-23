@@ -448,6 +448,8 @@
 #define AtomRadix Yap_heap_regs->AtomRadix_
   Atom AtomRandom_;
 #define AtomRandom Yap_heap_regs->AtomRandom_
+  Atom AtomRange_;
+#define AtomRange Yap_heap_regs->AtomRange_
   Atom AtomRead_;
 #define AtomRead Yap_heap_regs->AtomRead_
   Atom AtomReadutil_;

@@ -99,6 +99,7 @@
 #define GLOBALS_MODULE Yap_heap_regs->globals_module
 #define SWI_MODULE Yap_heap_regs->swi_module
 #define DBLOAD_MODULE Yap_heap_regs->dbload_module
+#define RANGE_MODULE Yap_heap_regs->range_module
 
 #define HIDDEN_PREDICATES Yap_heap_regs->hidden_predicates
 

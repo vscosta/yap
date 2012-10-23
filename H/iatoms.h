@@ -225,6 +225,7 @@
   AtomQuiet = Yap_LookupAtom("quiet");
   AtomRadix = Yap_LookupAtom("radix");
   AtomRandom = Yap_LookupAtom("random");
+  AtomRange = Yap_LookupAtom("range");
   AtomRead = Yap_LookupAtom("read");
   AtomReadutil = Yap_LookupAtom("readutil");
   AtomRecordedP = Yap_FullLookupAtom("$recordep");

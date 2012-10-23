@@ -225,6 +225,7 @@
   AtomQuiet = AtomAdjust(AtomQuiet);
   AtomRadix = AtomAdjust(AtomRadix);
   AtomRandom = AtomAdjust(AtomRandom);
+  AtomRange = AtomAdjust(AtomRange);
   AtomRead = AtomAdjust(AtomRead);
   AtomReadutil = AtomAdjust(AtomReadutil);
   AtomRecordedP = AtomAdjust(AtomRecordedP);
