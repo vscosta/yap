@@ -6007,6 +6007,9 @@ Yap_RemoveClauseFromIndex(PredEntry *ap, yamop *beg) {
     ap->OpcodeOfPred = Yap_opcode(_op_fail);
   } else if (ap->PredFlags & IndexedPredFlag)  {
     remove_from_index(ap, sp, &cl, beg, last, &cint); 
+  } else if (ap->cs.p_code.NOfClauses == 1)  {
+    ap->cs.p_code.TrueCodeOfPred = ap->cs.p_code.FirstClause;
+    ap->CodeOfPred = (yamop *)(&(ap->OpcodeOfPred));     
   }
 }
 	     
