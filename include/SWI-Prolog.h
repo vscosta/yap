@@ -259,18 +259,6 @@ typedef void *PL_engine_t;
 #define PL_ACTION_GUIAPP	10	/* Win32: set when this is a gui */
 #define PL_ACTION_ATTACH_CONSOLE 11	/* MT: Attach a console */
 
-/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Foreign language interface definitions.  Note that these macros MUST  be
-consistent  with  the  definitions  in  pl-itf.h, which is included with
-users foreign language code.
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-
-#define NOTRACE PL_FA_NOTRACE
-#define META    PL_FA_TRANSPARENT
-#define NDET	PL_FA_NONDETERMINISTIC
-#define VA	PL_FA_VARARGS
-#define CREF	PL_FA_CREF
-#define ISO	PL_FA_ISO
 
 typedef enum
 { FRG_FIRST_CALL = 0,		/* Initial call */

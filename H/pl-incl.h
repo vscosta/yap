@@ -200,6 +200,18 @@ typedef uintptr_t	PL_atomic_t;	/* same a word */
 #define TRAIL_OVERFLOW    (-3)
 #define ARGUMENT_OVERFLOW (-4)
 
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Foreign language interface definitions.  Note that these macros MUST  be
+consistent  with  the  definitions  in  pl-itf.h, which is included with
+users foreign language code.
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+#define NOTRACE PL_FA_NOTRACE
+#define META    PL_FA_TRANSPARENT
+#define NDET	PL_FA_NONDETERMINISTIC
+#define VA	PL_FA_VARARGS
+#define CREF	PL_FA_CREF
+#define ISO	PL_FA_ISO
 
 		/********************************
 		*       THREADS	             *
