@@ -20,6 +20,8 @@ class Literal
        lid_(lit.lid_), logVars_(lit.logVars_), weight_(lit.weight_), negated_(negated) { }
 
     LiteralId lid (void) const { return lid_; }
+    
+    LogVars logVars (void) const { return logVars_; }
 
     double weight (void) const { return weight_; }
     
@@ -102,9 +104,11 @@ class LiftedWCNF
    
    const Clauses& clauses (void) const { return clauses_; }
    
+   Clause createClauseForLiteral (LiteralId lid) const;
+   
    void printClauses (void) const;
    
-   void printFormulasToIndicators (void) const;
+   void printFormulaIndicators (void) const;
     
   private:
     void addIndicatorClauses (const ParfactorList& pfList);
@@ -119,7 +123,7 @@ class LiftedWCNF
 
     Clauses clauses_;
     
-    unordered_map<PrvGroup,vector<LiteralId>> map_;
+    unordered_map<PrvGroup, vector<LiteralId>> map_;
     
     const ParfactorList& pfList_;
     
@@ -127,3 +131,4 @@ class LiftedWCNF
 };
 
 #endif // HORUS_LIFTEDWCNF_H
+

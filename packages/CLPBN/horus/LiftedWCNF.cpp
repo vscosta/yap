@@ -150,7 +150,7 @@ LiftedWCNF::LiftedWCNF (const ParfactorList& pfList)
 {
   addIndicatorClauses (pfList);
   addParameterClauses (pfList);
-  printFormulasToIndicators();
+  printFormulaIndicators();
   printClauses();
 }
 
@@ -159,6 +159,31 @@ LiftedWCNF::LiftedWCNF (const ParfactorList& pfList)
 LiftedWCNF::~LiftedWCNF (void)
 {
 
+}
+
+
+
+Clause
+LiftedWCNF::createClauseForLiteral (LiteralId lid) const
+{
+  for (size_t i = 0; i < clauses_.size(); i++) {
+    const Literals& literals = clauses_[i].literals();
+    for (size_t j = 0; j < literals.size(); j++) {
+      if (literals[j].lid() == lid) {
+        ConstraintTree* ct = new ConstraintTree (*clauses_[i].constr());
+        ct->project (literals[j].logVars());
+        Clause clause (ct);
+        clause.addLiteral (literals[j]);
+        return clause;
+      }
+    }
+  }
+  // FIXME
+  Clause c (new ConstraintTree({}));
+  c.addLiteral (Literal (lid,{}));
+  return c;
+  //assert (false);
+  //return Clause (0);
 }
 
 
@@ -245,7 +270,7 @@ LiftedWCNF::printClauses (void) const
 
 
 void
-LiftedWCNF::printFormulasToIndicators (void) const
+LiftedWCNF::printFormulaIndicators (void) const
 {
   set<PrvGroup> allGroups;
   ParfactorList::const_iterator it = pfList_.begin();

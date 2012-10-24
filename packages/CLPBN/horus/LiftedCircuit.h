@@ -4,6 +4,20 @@
 #include "LiftedWCNF.h"
 
 
+enum CircuitNodeType {
+  OR_NODE,
+  AND_NODE,
+  SET_OR_NODE,
+  SET_AND_NODE,
+  INC_EXC_NODE,
+  LEAF_NODE,
+  SMOOTH_NODE,
+  TRUE_NODE,
+  FAIL_NODE
+};
+
+
+
 class CircuitNode
 {
   public:
@@ -23,34 +37,49 @@ class CircuitNode
 
 
 
-class AndNode : public CircuitNode
-{
-  public:
-    AndNode (const Clauses& clauses, string explanation = "")
-        : CircuitNode (clauses, explanation),
-          leftFollow_(0), rightFollow_(0) { }
-
-    CircuitNode** leftFollow  (void) { return &leftFollow_; }
-    CircuitNode** rightFollow (void) { return &rightFollow_; }
-  private:
-    CircuitNode* leftFollow_;
-    CircuitNode* rightFollow_;
-};
-
-
-
 class OrNode : public CircuitNode
 {
   public:
     OrNode (const Clauses& clauses, string explanation = "")
         : CircuitNode (clauses, explanation),
-          leftFollow_(0), rightFollow_(0) { }
+          leftBranch_(0), rightBranch_(0) { }
 
-    CircuitNode** leftFollow  (void) { return &leftFollow_; }
-    CircuitNode** rightFollow (void) { return &rightFollow_; }
+    CircuitNode** leftBranch  (void) { return &leftBranch_; }
+    CircuitNode** rightBranch (void) { return &rightBranch_; }
   private:
-    CircuitNode* leftFollow_;
-    CircuitNode* rightFollow_;
+    CircuitNode* leftBranch_;
+    CircuitNode* rightBranch_;
+};
+
+
+
+class AndNode : public CircuitNode
+{
+  public:
+    AndNode (const Clauses& clauses, string explanation = "")
+        : CircuitNode (clauses, explanation),
+          leftBranch_(0), rightBranch_(0) { }
+          
+    AndNode (
+        const Clauses& clauses,
+        CircuitNode* leftBranch,
+        CircuitNode* rightBranch,
+        string explanation = "")
+        : CircuitNode (clauses, explanation),
+          leftBranch_(leftBranch), rightBranch_(rightBranch) { }
+          
+   AndNode (
+        CircuitNode* leftBranch,
+        CircuitNode* rightBranch,
+        string explanation = "")
+        : CircuitNode ({}, explanation),
+          leftBranch_(leftBranch), rightBranch_(rightBranch) { }
+
+    CircuitNode** leftBranch  (void) { return &leftBranch_; }
+    CircuitNode** rightBranch (void) { return &rightBranch_; }
+  private:
+    CircuitNode* leftBranch_;
+    CircuitNode* rightBranch_;
 };
 
 
@@ -88,7 +117,14 @@ class LeafNode : public CircuitNode
 {
   public:
     LeafNode (const Clause& clause) : CircuitNode ({clause}) { }
-  private:
+};
+
+
+
+class SmoothNode : public CircuitNode
+{
+  public:
+    SmoothNode (const Clauses& clauses) : CircuitNode (clauses) { }
 };
 
 
@@ -97,7 +133,6 @@ class TrueNode : public CircuitNode
 {
   public:
     TrueNode () : CircuitNode ({}) { }
-  private:
 };
 
 
@@ -107,7 +142,6 @@ class FailNode : public CircuitNode
 {
   public:
     FailNode (const Clauses& clauses) : CircuitNode (clauses) { }
-  private:
 };
 
 
@@ -117,21 +151,29 @@ class LiftedCircuit
   public:
     LiftedCircuit (const LiftedWCNF* lwcnf);
     
-    void printToDot (void);
+    void smoothCircuit (void);
+    
+    void exportToGraphViz (const char*);
 
   private:
 
     void compile (CircuitNode** follow, const Clauses& clauses);
 
     bool tryUnitPropagation (CircuitNode** follow, const Clauses& clauses);
-    bool tryIndependence (CircuitNode** follow, const Clauses& clauses);
-    bool tryShannonDecomposition (CircuitNode** follow, const Clauses& clauses);
-
-    string escapeNode (const CircuitNode*) const;
-    void printToDot (CircuitNode* node, ofstream&);
+    bool tryIndependence    (CircuitNode** follow, const Clauses& clauses);
+    bool tryShannonDecomp   (CircuitNode** follow, const Clauses& clauses);
+        
+    TinySet<LiteralId> smoothCircuit (CircuitNode* node);
+    
+    CircuitNodeType getCircuitNodeType (const CircuitNode* node) const;
+     
+    string escapeNode (const CircuitNode* node) const;
+    
+    void exportToGraphViz (CircuitNode* node, ofstream&);
 
     CircuitNode*       root_;
     const LiftedWCNF*  lwcnf_;
 };
 
 #endif // HORUS_LIFTEDCIRCUIT_H
+
