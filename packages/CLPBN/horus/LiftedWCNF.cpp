@@ -150,8 +150,15 @@ LiftedWCNF::LiftedWCNF (const ParfactorList& pfList)
 {
   addIndicatorClauses (pfList);
   addParameterClauses (pfList);
+  cout << "FORMULA INDICATORS:" << endl;
   printFormulaIndicators();
+  cout << endl;
+  cout << "WEIGHTS:" << endl;
+  printWeights();
+  cout << endl;
+  cout << "CLAUSES:" << endl;
   printClauses();
+  cout << endl;
 }
 
 
@@ -237,6 +244,8 @@ LiftedWCNF::addParameterClauses (const ParfactorList& pfList)
     while (indexer.valid()) {
       LiteralId paramVarLid = freeLiteralId_;
 
+      double weight = (**it)[indexer];
+      
       Clause clause1 ((*it)->constr());
 
       for (unsigned i = 0; i < groups.size(); i++) {
@@ -245,11 +254,11 @@ LiftedWCNF::addParameterClauses (const ParfactorList& pfList)
         clause1.addAndNegateLiteral (Literal (lid, (*it)->argument(i).logVars()));
 
         Clause tempClause ((*it)->constr());
-        tempClause.addAndNegateLiteral (Literal (paramVarLid, LogVars(), 1.0));
+        tempClause.addAndNegateLiteral (Literal (paramVarLid, 1.0));
         tempClause.addLiteral (Literal (lid, (*it)->argument(i).logVars()));
         clauses_.push_back (tempClause);        
       }
-      clause1.addLiteral (Literal (paramVarLid, LogVars(), 1.0));
+      clause1.addLiteral (Literal (paramVarLid, weight));
       clauses_.push_back (clause1);
       freeLiteralId_ ++;
       ++ indexer;
@@ -257,16 +266,6 @@ LiftedWCNF::addParameterClauses (const ParfactorList& pfList)
     ++ it;
   }
 }
-
-
-void
-LiftedWCNF::printClauses (void) const
-{
-  for (unsigned i = 0; i < clauses_.size(); i++) {
-    cout << clauses_[i] << endl;
-  }
-}
-
 
 
 void
@@ -290,6 +289,58 @@ LiftedWCNF::printFormulaIndicators (void) const
       }
     }
     ++ it;
+  }
+}
+
+
+
+void
+LiftedWCNF::printWeights (void) const
+{
+   for (LiteralId i = 0; i < freeLiteralId_; i++) {
+
+     bool found = false;
+     for (size_t j = 0; j < clauses_.size(); j++) {
+       Literals literals = clauses_[j].literals();
+       for (size_t k = 0; k < literals.size(); k++) {
+         if (literals[k].lid() == i && literals[k].isPositive()) {
+           cout << "weight(" << literals[k] << ") = " << literals[k].weight();
+           cout << endl;
+           found = true;
+           break;
+         }
+       }
+       if (found == true) {
+         break;
+       }
+     }
+     
+     found = false;
+     for (size_t j = 0; j < clauses_.size(); j++) {
+       Literals literals = clauses_[j].literals();
+       for (size_t k = 0; k < literals.size(); k++) {
+         if (literals[k].lid() == i && literals[k].isNegative()) {
+           cout << "weight(" << literals[k] << ") = " << literals[k].weight();
+           cout << endl;
+           found = true;
+           break;
+         }
+       }
+       if (found == true) {
+         break;
+       }
+     }
+     
+   }
+}
+
+
+
+void
+LiftedWCNF::printClauses (void) const
+{
+  for (unsigned i = 0; i < clauses_.size(); i++) {
+    cout << clauses_[i] << endl;
   }
 }
 

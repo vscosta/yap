@@ -13,8 +13,11 @@ class ConstraintTree;
 class Literal
 {
   public:
+    Literal (LiteralId lid, double w = -1.0) :
+       lid_(lid), weight_(w), negated_(false) { }
+       
     Literal (LiteralId lid, const LogVars& lvs, double w = -1.0) :
-        lid_(lid), logVars_(lvs), weight_(w), negated_(false) { }
+       lid_(lid), logVars_(lvs), weight_(w), negated_(false) { }
         
     Literal (const Literal& lit, bool negated) :
        lid_(lit.lid_), logVars_(lit.logVars_), weight_(lit.weight_), negated_(negated) { }
@@ -23,7 +26,8 @@ class Literal
     
     LogVars logVars (void) const { return logVars_; }
 
-    double weight (void) const { return weight_; }
+    // FIXME not log aware
+    double weight (void) const { return weight_ < 0.0 ? 1.0 : weight_; }
     
     void negate (void) { negated_ = !negated_; }
 
@@ -106,9 +110,11 @@ class LiftedWCNF
    
    Clause createClauseForLiteral (LiteralId lid) const;
    
-   void printClauses (void) const;
-   
    void printFormulaIndicators (void) const;
+   
+   void printWeights (void) const;
+   
+   void printClauses (void) const;
     
   private:
     void addIndicatorClauses (const ParfactorList& pfList);
