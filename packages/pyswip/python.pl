@@ -28,6 +28,7 @@ A C-based  Prolog interface to python.
      end_python/0,
      python_command/1,
      python_assign/3,
+     python_import/1,
      python/2,
      op(100,fy,$),
      op(950,fy,:=),
@@ -47,9 +48,10 @@ Data types are
      string             atoms
      numbers		numbers
      lists		lists
+     tuples             t(...)
      generic objs	__pointer__(Address)
 
-$(var) refers to the attribute __main__.var
+     $var refers to the attribute __main__.var
 
 *************************************************************************************************************/
 
@@ -66,38 +68,44 @@ V := F :- var(V), !, python(F,V).
 '$'(V) := F :- atom(V), !, python(F,F1), python_assign(V, F1).
 A^Key := F :- python(F,F1), python_set_item(A, Key, F1).
 
+python_import(Module) :-
+	python_do_import(Module, _).
+
 python_do_import(Module, MRef) :-
 	python_mref_cache(Module, MRef), !.
 python_do_import(Module, MRef) :-
         python_import(Module, MRef),
 	assert( python_mref_cache(Module, MRef) ).
 
-python_eval_term(Object:len, OArg) :- !,
-	python_len(Object, OArg).	
-python_eval_term(Module:Object:len, OArg) :- !,
-	python_do_import(Module, MRef),
-	python_o(MRef, Function, ORef),
-	python_len(ORef, OArg).	
-python_eval_term(Object:dir, OArg) :- !,
-	python_dir(Object, OArg).	
-python_eval_term(Module:Object:dir, OArg) :- !,
-	python_do_import(Module, MRef),
-	python_o(MRef, Function, ORef),
-	python_dir(ORef, OArg).	
-python_eval_term(Module:Object:Field, OArg) :-
-	atom(Module),
-	atom(Object), !,
-	python_do_import(Module, MRef),
-	python_o(MRef, Function, ORef),
-	python_access(ORef, Field, OArg).
-python_eval_term(Module:Function, OArg) :-
-	atom(Module), !,
-	python_do_import(Module, MRef),
-	functor(Function, F, _),
-	python_f(MRef, F, FRef),
-	python_apply(FRef, Function, OArg).
-python_eval_term(Obj:Field, OArg) :-
-	python_access(Obj, Field, OArg).
+fetch_module(M:E, M1, E1, MRef) :-
+	atom(M),
+	python_import(M, MRef0),
+	module_extend(M, E, M1, E1, MRef0, MRef).
+
+%
+% extend the module as much as we can.
+%
+module_extend(M0, M:E, MF, EF, MRef0, MRef) :-
+	atom(M),
+	atom_concat([M0,'.',M], MM),
+	python_import(MM, MRef1), !,
+	module_extend(MM, E, MF, EF, MRef1, MRef).
+module_extend(M, E, M, E, MRef, MRef).
+
+% given an object, detect its len method
+python_eval_term(Expression, O) :-
+	fetch_module(Expression, Module, Exp, MRef), !,
+	(
+	    atom(Exp)
+        ->
+	    python_access(MRef, Exp, O)
+	;
+	    functor(Exp, F, _),
+	    python_f(MRef, F, FRef),
+	    python_apply(FRef, Exp, O)
+	).
+python_eval_term(Obj:Field, O) :-
+	python_access(Obj, Field, O).
 
 python(Obj, Out) :-
 	 python_eval_term(Obj, Out), !.

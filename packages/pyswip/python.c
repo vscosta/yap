@@ -6,7 +6,9 @@
 #include <Python.h>
 #include <assert.h>
 
-static atom_t ATOM_true, ATOM_false;
+static atom_t ATOM_true,
+  ATOM_false,
+  ATOM_t;
 
 static functor_t FUNCTOR_dollar1,
   FUNCTOR_pointer1, 
@@ -31,7 +33,7 @@ term_to_python(term_t t)
       
       if (!PL_get_atom_chars(t, &s))
 	return NULL;
-      return PyByteArray_FromStringAndSize(s, strlen(s) );
+      return PyString_FromStringAndSize(s, strlen(s) );
     }
   case PL_INTEGER:
     {
@@ -195,12 +197,33 @@ python_to_term(PyObject *pVal, term_t t)
     }
   } else if (PyFloat_Check(pVal)) {
     return PL_unify_float(t, PyFloat_AsDouble(pVal));
+  } else if (PyUnicode_Check(pVal)) {
+    Py_ssize_t sz = PyUnicode_GetSize(pVal)+1;
+    wchar_t *ptr;
+    ptr = malloc(sizeof(wchar_t)*sz);
+    sz = PyUnicode_AsWideChar((struct PyUnicodeObject *)pVal, ptr, sz-1);
+    atom_t tmp_atom = PL_new_atom_wchars(sz,ptr);
+    free(ptr);
+    return PL_unify_atom(t, tmp_atom);
   } else if (PyByteArray_Check(pVal)) {
     atom_t tmp_atom = PL_new_atom(PyByteArray_AsString(pVal));
     return PL_unify_atom(t, tmp_atom);
   } else if (PyString_Check(pVal)) {
     atom_t tmp_atom = PL_new_atom(PyString_AsString(pVal));
     return PL_unify_atom(t, tmp_atom);
+  } else if (PyTuple_Check(pVal)) {
+    Py_ssize_t i, sz = PyTuple_GET_SIZE(pVal);
+    functor_t f = PL_new_functor(ATOM_t, 2);
+    if (!PL_unify_functor(t, f))
+      return FALSE;
+    for (i = 0; i < sz; i++) {
+      term_t to = PL_new_term_ref();
+      if (!PL_unify_arg(i+1, t, to))
+	return FALSE;
+      if ( !python_to_term(PyTuple_GetItem(pVal, i), to) )
+	return FALSE;
+    }
+    return TRUE;
   } else if (PyList_Check(pVal)) {
     term_t to = PL_new_term_ref();
     Py_ssize_t i, sz = PyList_GET_SIZE(pVal);
@@ -215,6 +238,7 @@ python_to_term(PyObject *pVal, term_t t)
     term_t to = PL_new_term_ref(), t1 = PL_new_term_ref();
     PL_put_pointer(t1, (void *)pVal);
     PL_cons_functor(to, FUNCTOR_pointer1, t1);
+    Py_INCREF(pVal);
     return PL_unify(t, to);
   }
 }
@@ -350,7 +374,8 @@ python_is(term_t tobj, term_t tf)
 static foreign_t
 python_apply(term_t tin, term_t targs, term_t tf)
 { 
-  PyObject *pF, *pArgs, *pValue;
+  PyObject *pF, *pValue;
+  PyObject *pArgs;
   int i, arity;
   atom_t aname;
   foreign_t out;
@@ -374,10 +399,15 @@ python_apply(term_t tin, term_t targs, term_t tf)
     /* pArg reference stolen here: */
     PyTuple_SetItem(pArgs, i,  pArg);
   }
-  pValue = PyObject_CallObject(pF, pArgs);
+  if (PyCallable_Check(pF)) {
+    pValue = PyObject_CallObject(pF, pArgs);      
+  } else {
+    return FALSE;
+  }
+  PyErr_Print();
   Py_DECREF(pArgs);
   if (pValue == NULL)
-    return FALSE;
+      return FALSE;
   out =  python_to_term(pValue, tf);
   Py_DECREF(pValue);
   return out;
@@ -412,14 +442,19 @@ python_access(term_t obj, term_t f, term_t out)
       return FALSE;
     if ((pValue = PyObject_GetAttrString(o, s)) == NULL)
       return FALSE;  
+    if ( PyCallable_Check(pValue) )
+      pValue = PyObject_CallObject(pValue, NULL);
+    PyErr_Print();
     return python_to_term(pValue, out);
   }
   if (! PL_get_name_arity( f, &name, &arity) ) {
     return FALSE;
   }
   s = PL_atom_chars(name);
-  if ((pF = PyObject_GetAttrString(o, s)) < 0)
+  if ((pF = PyObject_GetAttrString(o, s)) == NULL) {
+    PyErr_Print();
     return FALSE;  
+  }
   pArgs = PyTuple_New(arity);
   for (i = 0 ; i < arity; i++) {
     PyObject *pArg;
@@ -439,7 +474,7 @@ python_access(term_t obj, term_t f, term_t out)
   }
   Py_DECREF(pArgs);
   Py_DECREF(pF);
-  return python_to_term(o, out);
+  return python_to_term(pValue, out);
 }
 
 static foreign_t
@@ -482,6 +517,7 @@ install_python(void)
   // FUNCTOR_boolop1 = PL_new_functor(PL_new_atom("@"), 1);
   ATOM_true  = PL_new_atom("true");
   ATOM_false = PL_new_atom("false");
+  ATOM_t = PL_new_atom("t");
   FUNCTOR_dollar1 = PL_new_functor(PL_new_atom("$"), 1);
   FUNCTOR_pointer1 = PL_new_functor(PL_new_atom("__obj__"), 1);
   FUNCTOR_add2 = PL_new_functor(PL_new_atom("+"), 2);
