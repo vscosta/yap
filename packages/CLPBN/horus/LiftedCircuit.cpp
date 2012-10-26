@@ -24,19 +24,41 @@ AndNode::weight (void) const
 
 
 double
+SetOrNode::weight (void) const
+{
+  // TODO
+  assert (false);
+  return 0.0;
+}
+
+
+
+
+double
+SetAndNode::weight (void) const
+{
+  unsigned nrGroundings = 2; // FIXME
+  return Globals::logDomain
+      ? follow_->weight() * nrGroundings
+      : std::pow (follow_->weight(), nrGroundings);
+}
+
+
+
+double
 LeafNode::weight (void) const
 {
   assert (clauses().size() == 1);
   assert (clauses()[0].isUnit());
   Clause c = clauses()[0];
   double weight = c.literals()[0].weight();
-  unsigned nrGroundings = c.constr()->size();
+  unsigned nrGroundings = c.constr().size();
   assert (nrGroundings != 0);
   double www = Globals::logDomain 
       ? weight * nrGroundings
       : std::pow (weight, nrGroundings);
       
-  cout << "leaf w: " << www << endl;
+  cout << "leaf weight(" << clauses()[0].literals()[0] << "): " << www << endl;
   
   return Globals::logDomain 
       ? weight * nrGroundings
@@ -53,7 +75,7 @@ SmoothNode::weight (void) const
   for (size_t i = 0; i < cs.size(); i++) {
     double posWeight = cs[i].literals()[0].weight();
     double negWeight = cs[i].literals()[1].weight();
-    unsigned nrGroundings = cs[i].constr()->size();
+    unsigned nrGroundings = cs[i].constr().size();
     if (Globals::logDomain) {
       totalWeight += (Util::logSum (posWeight, negWeight) * nrGroundings);
     } else {
@@ -130,7 +152,7 @@ LiftedCircuit::exportToGraphViz (const char* fileName)
 void
 LiftedCircuit::compile (
     CircuitNode** follow,
-    const Clauses& clauses)
+    Clauses& clauses)
 {
   if (clauses.empty()) {
     *follow = new TrueNode ();
@@ -165,6 +187,15 @@ LiftedCircuit::compile (
     return;
   }
   
+  if (tryIndepPartialGrounding (follow, clauses)) {
+    return;
+  }
+  
+  if (tryGrounding (follow, clauses)) {
+    return;
+  }
+  
+  // assert (false);
   *follow = new FailNode (clauses);
 
 }
@@ -174,7 +205,7 @@ LiftedCircuit::compile (
 bool
 LiftedCircuit::tryUnitPropagation (
     CircuitNode** follow,
-    const Clauses& clauses)
+    Clauses& clauses)
 {
   for (size_t i = 0; i < clauses.size(); i++) {
     if (clauses[i].isUnit()) {
@@ -185,11 +216,14 @@ LiftedCircuit::tryUnitPropagation (
           if (clauses[i].literals()[0].isPositive()) {
             if (clauses[j].containsPositiveLiteral (lid) == false) {
               Clause newClause = clauses[j];
+              //cout << "new   j   : " << clauses[j] << endl;
+              //cout << "new clause: " << newClause  << endl;
+              //cout << "clvs:       " << clauses[j].constr()->logVars() << endl;
               newClause.removeNegativeLiterals (lid);
               newClauses.push_back (newClause);
             }
-          }
-          if (clauses[i].literals()[0].isNegative()) {
+          } else if (clauses[i].literals()[0].isNegative()) {
+            //cout << "unit prop of = " << clauses[i].literals()[0] << endl;
             if (clauses[j].containsNegativeLiteral (lid) == false) {
               Clause newClause = clauses[j];
               newClause.removePositiveLiterals (lid);
@@ -201,7 +235,8 @@ LiftedCircuit::tryUnitPropagation (
       stringstream explanation;
       explanation << " UP of " << clauses[i];
       AndNode* andNode = new AndNode (clauses, explanation.str());
-      compile (andNode->leftBranch(), {clauses[i]});
+      Clauses leftClauses = {clauses[i]};
+      compile (andNode->leftBranch(), leftClauses);
       compile (andNode->rightBranch(), newClauses);
       (*follow) = andNode;
       return true;     
@@ -215,7 +250,7 @@ LiftedCircuit::tryUnitPropagation (
 bool
 LiftedCircuit::tryIndependence (
     CircuitNode** follow,
-    const Clauses& clauses)
+    Clauses& clauses)
 {
   if (clauses.size() == 1) {
     return false;
@@ -236,7 +271,8 @@ LiftedCircuit::tryIndependence (
       stringstream explanation;
       explanation << " independence" ;
       AndNode* andNode = new AndNode (clauses, explanation.str());
-      compile (andNode->leftBranch(), {clauses[i]});
+      Clauses indepClause = {clauses[i]};
+      compile (andNode->leftBranch(), indepClause);
       compile (andNode->rightBranch(), newClauses);
       (*follow) = andNode;
       return true;
@@ -250,16 +286,16 @@ LiftedCircuit::tryIndependence (
 bool
 LiftedCircuit::tryShannonDecomp (
     CircuitNode** follow,
-    const Clauses& clauses)
+    Clauses& clauses)
 {
   for (size_t i = 0; i < clauses.size(); i++) {
     const Literals& literals = clauses[i].literals();
     for (size_t j = 0; j < literals.size(); j++) {
-      if (literals[j].isGround (clauses[i].constr())) {
+      if (literals[j].isGround (clauses[i].constr(),clauses[i].ipgLogVars())) {
         Literal posLit (literals[j], false);
         Literal negLit (literals[j], true);
-        ConstraintTree* ct1 = new ConstraintTree (*clauses[i].constr());
-        ConstraintTree* ct2 = new ConstraintTree (*clauses[i].constr());
+        ConstraintTree ct1 = clauses[i].constr();
+        ConstraintTree ct2 = clauses[i].constr();
         Clause c1 (ct1);
         Clause c2 (ct2);
         c1.addLiteral (posLit);
@@ -279,6 +315,72 @@ LiftedCircuit::tryShannonDecomp (
     }
   }
   return false;
+}
+
+
+
+bool
+LiftedCircuit::tryIndepPartialGrounding (
+    CircuitNode** follow,
+    Clauses& clauses)
+{ 
+  // assumes that all literals have logical variables
+  LogVar X = clauses[0].constr().logVars()[0];
+  ConstraintTree ct = clauses[0].constr();
+
+  // FIXME this is so weak ...
+  ct.project ({X});
+  for (size_t i = 0; i < clauses.size(); i++) {
+    if (clauses[i].constr().logVars().size() == 1) {
+      if (ct.tupleSet() != clauses[i].constr().tupleSet()) {
+        return false;
+      }
+    } else {
+      return false;
+    }
+  }
+
+  // FIXME this is so broken ...
+  Clauses newClauses = clauses;
+  for (size_t i = 0; i < clauses.size(); i++) {
+    newClauses[i].addIpgLogVar (clauses[i].constr().logVars()[0]);
+  }
+  
+  string explanation = " IPG" ;
+  SetAndNode* node = new SetAndNode (clauses, explanation);
+  *follow = node;
+  compile (node->follow(), newClauses);
+  return true;
+}
+
+
+
+bool
+LiftedCircuit::tryGrounding (
+    CircuitNode** follow,
+    Clauses& clauses)
+{
+  return false;
+  /*
+  size_t bestClauseIdx = 0;
+  size_t bestLogVarIdx = 0;
+  unsigned minNrSymbols = Util::maxUnsigned();
+  for (size_t i = 0; i < clauses.size(); i++) {
+    LogVarSet lvs = clauses[i].constr().logVars();
+    ConstraintTree ct = clauses[i].constr();
+    for (unsigned j = 0; j < lvs.size(); j++) {
+      unsigned nrSymbols = ct.nrSymbols (lvs[j]);
+      if (nrSymbols < minNrSymbols) {
+        minNrSymbols = nrSymbols;
+        bestClauseIdx = i;
+        bestLogVarIdx = j;
+      }
+    }
+  }
+  LogVar bestLogVar = clauses[bestClauseIdx].constr().logVars()[bestLogVarIdx];
+  ConstraintTrees cts = clauses[bestClauseIdx].constr().ground (bestLogVar);
+  return true;
+  */
 }
 
 
@@ -374,6 +476,10 @@ LiftedCircuit::getCircuitNodeType (const CircuitNode* node) const
     type = CircuitNodeType::OR_NODE;
   } else if (dynamic_cast<const AndNode*>(node) != 0) {
     type = CircuitNodeType::AND_NODE;
+  } else if (dynamic_cast<const SetOrNode*>(node) != 0) {
+    type = CircuitNodeType::SET_OR_NODE;
+  } else if (dynamic_cast<const SetAndNode*>(node) != 0) {
+    type = CircuitNodeType::SET_AND_NODE;
   } else if (dynamic_cast<const LeafNode*>(node) != 0) {
     type = CircuitNodeType::LEAF_NODE;
   } else if (dynamic_cast<const SmoothNode*>(node) != 0) {
@@ -404,9 +510,11 @@ void
 LiftedCircuit::exportToGraphViz (CircuitNode* node, ofstream& os)
 {
   assert (node != 0);
-  
+
+  static unsigned nrOrNodes  = 0;  
   static unsigned nrAndNodes = 0;
-  static unsigned nrOrNodes  = 0;
+  static unsigned nrSetOrNodes  = 0;
+  static unsigned nrSetAndNodes = 0;
 
   switch (getCircuitNodeType (node)) {
   
@@ -455,6 +563,31 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, ofstream& os)
       nrAndNodes ++;
       exportToGraphViz (*casted->leftBranch(),  os);
       exportToGraphViz (*casted->rightBranch(), os);
+      break;
+    }
+    
+    case SET_OR_NODE: {
+      nrSetOrNodes ++;
+      assert (false); // not yet implemented
+    }
+    
+    case SET_AND_NODE: {
+      SetAndNode* casted = dynamic_cast<SetAndNode*>(node);
+      const Clauses& clauses = node->clauses();
+      os << escapeNode (node) << " [shape=box,label=\"" ;
+      for (size_t i = 0; i < clauses.size(); i++) {
+        if (i != 0) os << "\\n" ;
+        os << clauses[i];
+      }
+      os << "\"]" ;
+      os << endl;
+      os << "setand" << nrSetAndNodes << " [label=\"∧(X)\"]" << endl;
+      os << '"' << node << '"' << " -> " << "setand" << nrSetAndNodes;
+      os << " [label=\"" << node->explanation() << "\"]" << endl;
+      os << "setand" << nrSetAndNodes << " -> " ;
+      os << escapeNode (*casted->follow()) << endl;
+      nrSetAndNodes ++;
+      exportToGraphViz (*casted->follow(),  os);
       break;
     }
     

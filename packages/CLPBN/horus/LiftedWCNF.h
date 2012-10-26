@@ -26,7 +26,7 @@ class Literal
     
     LogVars logVars (void) const { return logVars_; }
 
-    // FIXME not log aware
+    // FIXME not log aware :(
     double weight (void) const { return weight_ < 0.0 ? 1.0 : weight_; }
     
     void negate (void) { negated_ = !negated_; }
@@ -35,7 +35,9 @@ class Literal
     
     bool isNegative (void) const { return negated_; }
     
-    bool isGround (ConstraintTree* constr) const;
+    bool isGround (ConstraintTree constr, LogVarSet ipgLogVars) const;
+    
+    string toString (LogVarSet ipgLogVars = LogVarSet()) const;
     
     friend std::ostream& operator<< (ostream &os, const Literal& lit);
         
@@ -52,7 +54,7 @@ typedef vector<Literal> Literals;
 class Clause
 {
   public:
-    Clause (ConstraintTree* ct) : ct_(ct) { }
+    Clause (const ConstraintTree& ct) : constr_(ct) { }
     
     void addLiteral (const Literal& l) { literals_.push_back (l); }
     
@@ -78,19 +80,28 @@ class Clause
     
     void removeLiteralByIndex (size_t idx) { literals_.erase (literals_.begin() + idx); }
     
-    ConstraintTree* constr (void) const { return ct_; }
+    const ConstraintTree& constr (void) const { return constr_; }
     
-    ConstraintTree* constr (void) { return ct_; }
+    ConstraintTree constr (void) { return constr_; }
     
     bool isUnit (void) const { return literals_.size() == 1; }
+    
+    LogVarSet ipgLogVars (void) const { return ipgLogVars_; }
+    
+    void addIpgLogVar (LogVar X) { ipgLogVars_.insert (X); }
     
     TinySet<LiteralId> lidSet (void) const;
     
     friend std::ostream& operator<< (ostream &os, const Clause& clause);
     
   private:
+    void removeLiteral (size_t idx);
+  
+    LogVarSet getLogVarSetExcluding (size_t idx) const;
+  
     vector<Literal>  literals_;
-    ConstraintTree*  ct_;
+    LogVarSet        ipgLogVars_;
+    ConstraintTree   constr_;
 };
 
 

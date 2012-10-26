@@ -4,30 +4,49 @@
 
 
 bool
-Literal::isGround (ConstraintTree* constr) const
+Literal::isGround (ConstraintTree constr, LogVarSet ipgLogVars) const
 {
   if (logVars_.size() == 0) {
     return true;
   }
-  LogVarSet singletons = constr->singletons();
-  return singletons.contains (logVars_);
+  LogVarSet lvs (logVars_);
+  lvs -= ipgLogVars;
+  return constr.singletons().contains (lvs);
+}
+
+
+
+string
+Literal::toString (LogVarSet ipgLogVars) const
+{
+  stringstream ss;
+  negated_ ? ss << "¬" : ss << "" ;
+  weight_ < 0.0 ? ss << "λ" : ss << "Θ" ;
+  ss << lid_ ;
+  if (logVars_.empty() == false) {
+    ss << "(" ;
+    for (size_t i = 0; i < logVars_.size(); i++) {
+      if (i != 0) ss << ",";
+      if (ipgLogVars.contains (logVars_[i])) {
+        LogVar X = logVars_[i];
+        const string labels[] = {
+            "a", "b", "c", "d", "e", "f", 
+            "g", "h", "i", "j", "k", "m" };
+        (X >= 12) ? ss << "x_" << X : ss << labels[X];
+      } else {
+        ss << logVars_[i];
+      }
+    }
+    ss << ")" ;
+  }
+  return ss.str();
 }
 
 
 
 std::ostream& operator<< (ostream &os, const Literal& lit)
 {
-  lit.negated_ ? os << "¬" : os << "" ;
-  lit.weight_ < 0.0 ? os << "λ" : os << "Θ" ;
-  os << lit.lid_ ;
-  if (lit.logVars_.empty() == false) {
-    os << "(" ;
-    for (size_t i = 0; i < lit.logVars_.size(); i++) {
-      if (i != 0) os << ",";
-      os << lit.logVars_[i];
-    }
-    os << ")" ;
-  }
+  os << lit.toString();
   return os;
 }
 
@@ -78,7 +97,7 @@ Clause::removeLiterals (LiteralId lid)
   size_t i = 0;
   while (i != literals_.size()) {
     if (literals_[i].lid() == lid) {
-      literals_.erase (literals_.begin() + i);
+      removeLiteral (i);
     } else {
       i ++;
     }
@@ -93,7 +112,7 @@ Clause::removePositiveLiterals (LiteralId lid)
   size_t i = 0;
   while (i != literals_.size()) {
     if (literals_[i].lid() == lid && literals_[i].isPositive()) {
-      literals_.erase (literals_.begin() + i);
+      removeLiteral (i);
     } else {
       i ++;
     }
@@ -108,7 +127,7 @@ Clause::removeNegativeLiterals (LiteralId lid)
   size_t i = 0;
   while (i != literals_.size()) {
     if (literals_[i].lid() == lid && literals_[i].isNegative()) {
-      literals_.erase (literals_.begin() + i);
+      removeLiteral (i);
     } else {
       i ++;
     }
@@ -129,14 +148,39 @@ Clause::lidSet (void) const
 
 
 
+void
+Clause::removeLiteral (size_t idx)
+{
+  LogVarSet lvs (literals_[idx].logVars());
+  lvs -= getLogVarSetExcluding (idx);
+  constr_.remove (lvs);
+  literals_.erase (literals_.begin() + idx);
+}
+
+
+
+LogVarSet
+Clause::getLogVarSetExcluding (size_t idx) const
+{
+  LogVarSet lvs;
+  for (size_t i = 0; i < literals_.size(); i++) {
+    if (i != idx) {
+      lvs |= literals_[i].logVars();
+    }
+  }
+  return lvs;
+}
+
+
+
 std::ostream& operator<< (ostream &os, const Clause& clause)
 {
   for (unsigned i = 0; i < clause.literals_.size(); i++) {
     if (i != 0) os << " v " ;
-    os << clause.literals_[i];
+    os << clause.literals_[i].toString (clause.ipgLogVars_);
   }
-  if (clause.ct_->empty() == false) {
-    ConstraintTree copy (*clause.ct_);
+  if (clause.constr_.empty() == false) {
+    ConstraintTree copy = clause.constr_;
     copy.moveToTop (copy.logVarSet().elements());
     os << " | " << copy.tupleSet();
   }
@@ -177,8 +221,8 @@ LiftedWCNF::createClauseForLiteral (LiteralId lid) const
     const Literals& literals = clauses_[i].literals();
     for (size_t j = 0; j < literals.size(); j++) {
       if (literals[j].lid() == lid) {
-        ConstraintTree* ct = new ConstraintTree (*clauses_[i].constr());
-        ct->project (literals[j].logVars());
+        ConstraintTree ct = clauses_[i].constr();
+        ct.project (literals[j].logVars());
         Clause clause (ct);
         clause.addLiteral (literals[j]);
         return clause;
@@ -186,7 +230,7 @@ LiftedWCNF::createClauseForLiteral (LiteralId lid) const
     }
   }
   // FIXME
-  Clause c (new ConstraintTree({}));
+  Clause c (ConstraintTree({}));
   c.addLiteral (Literal (lid,{}));
   return c;
   //assert (false);
@@ -205,8 +249,8 @@ LiftedWCNF::addIndicatorClauses (const ParfactorList& pfList)
     for (size_t i = 0; i < formulas.size(); i++) {
       if (Util::contains (allGroups, formulas[i].group()) == false) {
         allGroups.insert (formulas[i].group());
-        ConstraintTree* tempConstr = new ConstraintTree (*(*it)->constr());
-        tempConstr->project (formulas[i].logVars());
+        ConstraintTree tempConstr = *(*it)->constr();
+        tempConstr.project (formulas[i].logVars());
         Clause clause (tempConstr);
         vector<LiteralId> lids;
         for (size_t j = 0; j < formulas[i].range(); j++) {
@@ -217,8 +261,8 @@ LiftedWCNF::addIndicatorClauses (const ParfactorList& pfList)
         clauses_.push_back (clause);
         for (size_t j = 0; j < formulas[i].range() - 1; j++) {
           for (size_t k = j + 1; k < formulas[i].range(); k++) {
-            ConstraintTree* tempConstr2 = new ConstraintTree (*(*it)->constr());
-            tempConstr2->project (formulas[i].logVars());
+            ConstraintTree tempConstr2 = *(*it)->constr();
+            tempConstr2.project (formulas[i].logVars());
             Clause clause2 (tempConstr2);
             clause2.addAndNegateLiteral (Literal (clause.literals()[j]));
             clause2.addAndNegateLiteral (Literal (clause.literals()[k]));
@@ -243,22 +287,27 @@ LiftedWCNF::addParameterClauses (const ParfactorList& pfList)
     vector<PrvGroup> groups = (*it)->getAllGroups();
     while (indexer.valid()) {
       LiteralId paramVarLid = freeLiteralId_;
-
+      // λu1 ∧ ... ∧ λun ∧ λxi <=> θxi|u1,...,un
+      //
+      // ¬λu1 ... ¬λun v θxi|u1,...,un  -> clause1
+      // ¬θxi|u1,...,un v λu1           -> tempClause
+      // ¬θxi|u1,...,un v λu2           -> tempClause
       double weight = (**it)[indexer];
       
-      Clause clause1 ((*it)->constr());
+      Clause clause1 (*(*it)->constr());
 
       for (unsigned i = 0; i < groups.size(); i++) {
         LiteralId lid = getLiteralId (groups[i], indexer[i]);
 
         clause1.addAndNegateLiteral (Literal (lid, (*it)->argument(i).logVars()));
 
-        Clause tempClause ((*it)->constr());
-        tempClause.addAndNegateLiteral (Literal (paramVarLid, 1.0));
+        ConstraintTree ct = *(*it)->constr();
+        Clause tempClause (ct);
+        tempClause.addAndNegateLiteral (Literal (paramVarLid, (*it)->constr()->logVars(), 1.0));
         tempClause.addLiteral (Literal (lid, (*it)->argument(i).logVars()));
         clauses_.push_back (tempClause);        
       }
-      clause1.addLiteral (Literal (paramVarLid, weight));
+      clause1.addLiteral (Literal (paramVarLid, (*it)->constr()->logVars(),weight));
       clauses_.push_back (clause1);
       freeLiteralId_ ++;
       ++ indexer;
@@ -279,7 +328,7 @@ LiftedWCNF::printFormulaIndicators (void) const
       if (Util::contains (allGroups, formulas[i].group()) == false) {
         allGroups.insert (formulas[i].group());
         cout << formulas[i] << " | " ;
-        ConstraintTree tempCt (*(*it)->constr());
+        ConstraintTree tempCt = *(*it)->constr();
         tempCt.project (formulas[i].logVars());
         cout << tempCt.tupleSet();
         cout << " indicators => " ;
@@ -304,7 +353,8 @@ LiftedWCNF::printWeights (void) const
        Literals literals = clauses_[j].literals();
        for (size_t k = 0; k < literals.size(); k++) {
          if (literals[k].lid() == i && literals[k].isPositive()) {
-           cout << "weight(" << literals[k] << ") = " << literals[k].weight();
+           cout << "weight(" << literals[k] << ") = " ;
+           cout << literals[k].weight();
            cout << endl;
            found = true;
            break;
@@ -320,7 +370,8 @@ LiftedWCNF::printWeights (void) const
        Literals literals = clauses_[j].literals();
        for (size_t k = 0; k < literals.size(); k++) {
          if (literals[k].lid() == i && literals[k].isNegative()) {
-           cout << "weight(" << literals[k] << ") = " << literals[k].weight();
+           cout << "weight(" << literals[k] << ") = " ;
+           cout << literals[k].weight();
            cout << endl;
            found = true;
            break;

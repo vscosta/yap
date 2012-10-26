@@ -46,7 +46,7 @@ class OrNode : public CircuitNode
         : CircuitNode (clauses, explanation),
           leftBranch_(0), rightBranch_(0) { }
           
-     double weight (void) const;
+    double weight (void) const;
 
     CircuitNode** leftBranch  (void) { return &leftBranch_; }
     CircuitNode** rightBranch (void) { return &rightBranch_; }
@@ -90,18 +90,30 @@ class AndNode : public CircuitNode
 
 
 
-class SetAndNode : public CircuitNode
+class SetOrNode	: public CircuitNode
 {
   public:
+    SetOrNode (const Clauses& clauses, string explanation = "")
+        : CircuitNode (clauses, explanation), follow_(0) { }
+        
+    double weight (void) const;
+                            
+    CircuitNode** follow (void) { return &follow_; }
   private:
     CircuitNode* follow_;
 };
 
 
 
-class SetOrNode	: public CircuitNode
+class SetAndNode : public CircuitNode
 {
   public:
+    SetAndNode (const Clauses& clauses, string explanation = "")
+        : CircuitNode (clauses, explanation), follow_(0) { }
+        
+    double weight (void) const;
+                    
+    CircuitNode** follow (void) { return &follow_; }
   private:
     CircuitNode* follow_;
 };
@@ -171,11 +183,13 @@ class LiftedCircuit
     
   private:
 
-    void compile (CircuitNode** follow, const Clauses& clauses);
+    void compile (CircuitNode** follow, Clauses& clauses);
 
-    bool tryUnitPropagation (CircuitNode** follow, const Clauses& clauses);
-    bool tryIndependence    (CircuitNode** follow, const Clauses& clauses);
-    bool tryShannonDecomp   (CircuitNode** follow, const Clauses& clauses);
+    bool tryUnitPropagation (CircuitNode** follow, Clauses& clauses);
+    bool tryIndependence    (CircuitNode** follow, Clauses& clauses);
+    bool tryShannonDecomp   (CircuitNode** follow, Clauses& clauses);
+    bool tryIndepPartialGrounding (CircuitNode** follow, Clauses& clauses);
+    bool tryGrounding       (CircuitNode** follow, Clauses& clauses);
         
     TinySet<LiteralId> smoothCircuit (CircuitNode* node);
     
