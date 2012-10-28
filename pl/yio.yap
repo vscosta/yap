@@ -116,7 +116,10 @@ open_pipe_streams(Read, Write) :-
 	;
 	 true
 	),
-	unix:pipe(Read, Write).
+	unix:pipe(Read, Write),
+	yap_flag(encoding, X),
+	set_stream(Read, encoding(X) ),
+	set_stream(Write, encoding(X) ).
 
 fileerrors :- 	'$swi_set_prolog_flag'(fileerrors, true).
 
