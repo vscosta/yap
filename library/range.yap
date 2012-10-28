@@ -16,7 +16,7 @@
 *************************************************************************/
 
 :- module(range, [
-		  euclidean_distance/3
+		  euclidean_distance/3,
 		  in_range/4,
 		  in_range/8
 		 ]).

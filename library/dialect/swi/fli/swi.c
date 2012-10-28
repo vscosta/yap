@@ -150,7 +150,10 @@ PL_agc_hook(PL_agc_hook_t entry)
    YAP: char* AtomName(Atom) */
 X_API char* PL_atom_chars(atom_t a)	 /* SAM check type */
 {
-  return RepAtom(SWIAtomToAtom(a))->StrOfAE;
+  Atom at = SWIAtomToAtom(a);
+  if (IsWideAtom(at))
+    return NULL;
+  return RepAtom(at)->StrOfAE;
 }
 
 /* SWI: char* PL_atom_chars(atom_t atom)
@@ -281,7 +284,7 @@ X_API int PL_get_atom_chars(term_t ts, char **a)  /* SAM check type */
 {
   CACHE_REGS
   Term t = Yap_GetFromSlot(ts PASS_REGS);
-  if (!IsAtomTerm(t))
+  if (!IsAtomTerm(t) || IsWideAtom(AtomOfTerm(t)))
     return 0;
   *a = RepAtom(AtomOfTerm(t))->StrOfAE;
   return 1;
@@ -1252,7 +1255,7 @@ X_API int PL_unify_arg(int index, term_t tt, term_t arg)
       return FALSE;
     to = ArgOfTerm(index, t);
   }
-  return Yap_unify(Yap_GetFromSlot(t PASS_REGS),to);
+  return Yap_unify(Yap_GetFromSlot(arg PASS_REGS),to);
 }
 
 /* SWI: int PL_unify_list(term_t ?t, term_t +h, term_t -t)
