@@ -20,6 +20,18 @@ static functor_t FUNCTOR_dollar1,
 
 static PyObject *py_Main;
 
+static inline int
+proper_ascii_string(const char *s)
+{
+  unsigned int c;
+
+  while ((c = *s++)) {
+    if (c > 127)
+      return FALSE;
+  }
+  return TRUE;
+}
+
 static PyObject *
 term_to_python(term_t t)
 {
@@ -31,9 +43,21 @@ term_to_python(term_t t)
     {
       char *s;
       
-      if (!PL_get_atom_chars(t, &s))
-	return NULL;
-      return PyString_FromStringAndSize(s, strlen(s) );
+      if (!PL_get_atom_chars(t, &s)) {
+	wchar_t *w;
+	atom_t at;
+	size_t len;
+
+	if (!PL_get_atom(t, &at))
+	  return NULL;
+	if (!(w = PL_atom_wchars(at, &len)))
+	  return NULL;
+	return PyUnicode_FromWideChar(w, wcslen(w) );
+      }
+      if (proper_ascii_string(s))
+	return PyString_FromStringAndSize(s, strlen(s) );
+      else
+	return PyUnicode_DecodeLatin1(s, strlen(s), NULL);
     }
   case PL_INTEGER:
     {
@@ -49,7 +73,7 @@ term_to_python(term_t t)
 
       if (!PL_get_string_chars(t, &s, &len))
 	return NULL;
-      return PyByteArray_FromStringAndSize(s, len );
+      return PyByteArray_FromStringAndSize(s, len);
     }
   case PL_FLOAT:
     {
