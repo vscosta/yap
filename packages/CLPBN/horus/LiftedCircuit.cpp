@@ -8,6 +8,7 @@ OrNode::weight (void) const
 {
   double lw = leftBranch_->weight();
   double rw = rightBranch_->weight();
+  cout << ">>>> OR NODE res = " << lw << " + " << rw << endl;
   return Globals::logDomain ? Util::logSum (lw, rw) : lw + rw;
 }
 
@@ -38,9 +39,10 @@ double
 SetAndNode::weight (void) const
 {
   unsigned nrGroundings = 2; // FIXME
+  double w = follow_->weight();
   return Globals::logDomain
-      ? follow_->weight() * nrGroundings
-      : std::pow (follow_->weight(), nrGroundings);
+      ? w * nrGroundings
+      : std::pow (w, nrGroundings);
 }
 
 
@@ -52,14 +54,14 @@ LeafNode::weight (void) const
   assert (clauses()[0].isUnit());
   Clause c = clauses()[0];
   double weight = c.literals()[0].weight();
-  unsigned nrGroundings = c.constr().size();
+  LogVarSet lvs = c.constr().logVarSet() - c.ipgLogVars();
+  unsigned nrGroundings = 1;
+  if (lvs.empty() == false) {
+    ConstraintTree ct = c.constr();
+    ct.project (lvs);
+    nrGroundings = ct.size();
+  }
   assert (nrGroundings != 0);
-  double www = Globals::logDomain 
-      ? weight * nrGroundings
-      : std::pow (weight, nrGroundings);
-      
-  cout << "leaf weight(" << clauses()[0].literals()[0] << "): " << www << endl;
-  
   return Globals::logDomain 
       ? weight * nrGroundings
       : std::pow (weight, nrGroundings);
@@ -325,29 +327,33 @@ LiftedCircuit::tryIndepPartialGrounding (
     Clauses& clauses)
 { 
   // assumes that all literals have logical variables
-  LogVar X = clauses[0].constr().logVars()[0];
-  ConstraintTree ct = clauses[0].constr();
+  // else, shannon decomp was possible
 
-  // FIXME this is so weak ...
-  ct.project ({X});
-  for (size_t i = 0; i < clauses.size(); i++) {
-    if (clauses[i].constr().logVars().size() == 1) {
-      if (ct.tupleSet() != clauses[i].constr().tupleSet()) {
+  LogVarSet lvs = clauses[0].constr().logVarSet();
+  lvs -= clauses[0].ipgLogVars();
+  for (unsigned i = 0; i < lvs.size(); i++) {
+    LogVar X = lvs[i];
+    ConstraintTree ct = clauses[0].constr();
+    ct.project ({X});
+    for (size_t j = 0; j < clauses.size(); j++) {
+     if (clauses[j].constr().logVars().size() == 1) {
+        if (ct.tupleSet() != clauses[j].constr().tupleSet()) {
+          return false;
+        }
+      } else {
         return false;
       }
-    } else {
-      return false;
     }
   }
-
+  
   // FIXME this is so broken ...
   Clauses newClauses = clauses;
   for (size_t i = 0; i < clauses.size(); i++) {
     newClauses[i].addIpgLogVar (clauses[i].constr().logVars()[0]);
   }
   
-  string explanation = " IPG" ;
-  SetAndNode* node = new SetAndNode (clauses, explanation);
+  // FIXME
+  SetAndNode* node = new SetAndNode (2, clauses);
   *follow = node;
   compile (node->follow(), newClauses);
   return true;
@@ -357,8 +363,8 @@ LiftedCircuit::tryIndepPartialGrounding (
 
 bool
 LiftedCircuit::tryGrounding (
-    CircuitNode** follow,
-    Clauses& clauses)
+    CircuitNode**,
+    Clauses&)
 {
   return false;
   /*
@@ -440,15 +446,18 @@ LiftedCircuit::smoothCircuit (CircuitNode* node)
     }
 
     case CircuitNodeType::SET_OR_NODE: {
-      // TODO
+      break;
     }
     
     case CircuitNodeType::SET_AND_NODE: {
-      // TODO
+      SetAndNode* casted = dynamic_cast<SetAndNode*>(node);
+      propagatingLids = smoothCircuit (*casted->follow());
+      break;
     }
     
     case CircuitNodeType::INC_EXC_NODE: {
       // TODO
+      break;
     }
     
     case CircuitNodeType::LEAF_NODE: {
@@ -524,21 +533,30 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, ofstream& os)
       OrNode* casted = dynamic_cast<OrNode*>(node);
       const Clauses& clauses = node->clauses();
       if (clauses.empty() == false) {
-      os << escapeNode (node) << " [shape=box,label=\"" ;
-      for (size_t i = 0; i < clauses.size(); i++) {
-        if (i != 0) os << "\\n" ;
-        os << clauses[i];
+        os << escapeNode (node) << " [shape=box,label=\"" ;
+        for (size_t i = 0; i < clauses.size(); i++) {
+          if (i != 0) os << "\\n" ;
+          os << clauses[i];
+        }
+        os << "\"]" ;
+        os << endl;
       }
-      os << "\"]" ;
-      os << endl;
-      }
+
       os << auxNode << " [label=\"∨\"]" << endl;
       os << escapeNode (node) << " -> " << auxNode;
-      os << " [label=\"" << node->explanation() << "\"]" << endl;
+      os << " [label=\"" << node->explanation() << "\"]" ;
+      os << endl;
+      
       os << auxNode << " -> " ;
-      os << escapeNode (*casted->leftBranch()) << endl;
+      os << escapeNode (*casted->leftBranch());
+      os << " [label=\" " << (*casted->leftBranch())->weight() << "\"]" ;
+      os << endl;
+
       os << auxNode << " -> " ;
-      os << escapeNode (*casted->rightBranch()) << endl;
+      os << escapeNode (*casted->rightBranch());
+      os << " [label=\" " << (*casted->rightBranch())->weight() << "\"]" ;
+      os << endl;
+
       exportToGraphViz (*casted->leftBranch(),  os);
       exportToGraphViz (*casted->rightBranch(), os);
       break;
@@ -554,13 +572,22 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, ofstream& os)
       }
       os << "\"]" ;
       os << endl;
+      
       os << auxNode << " [label=\"∧\"]" << endl;
       os << escapeNode (node) << " -> " << auxNode;
-      os << " [label=\"" << node->explanation() << "\"]" << endl;
+      os << " [label=\"" << node->explanation() << "\"]" ;
+      os << endl;
+
       os << auxNode << " -> " ;
-      os << escapeNode (*casted->leftBranch()) << endl;
+      os << escapeNode (*casted->leftBranch());
+      os << " [label=\" " << (*casted->leftBranch())->weight() << "\"]" ;
+      os << endl;
+
       os << auxNode << " -> " ;
       os << escapeNode (*casted->rightBranch()) << endl;
+      os << " [label=\" " << (*casted->rightBranch())->weight() << "\"]" ;
+      os << endl;
+
       exportToGraphViz (*casted->leftBranch(),  os);
       exportToGraphViz (*casted->rightBranch(), os);
       break;
@@ -580,11 +607,17 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, ofstream& os)
       }
       os << "\"]" ;
       os << endl;
+      
       os << auxNode << " [label=\"∧(X)\"]" << endl;
       os << escapeNode (node) << " -> " << auxNode;
-      os << " [label=\"" << node->explanation() << "\"]" << endl;
+      os << " [label=\"" << node->explanation() << "\"]" ;
+      os << endl;
+      
       os << auxNode << " -> " ;
-      os << escapeNode (*casted->follow()) << endl;
+      os << escapeNode (*casted->follow());
+      os << " [label=\" " << (*casted->follow())->weight() << "\"]" ;
+      os << endl;
+      
       exportToGraphViz (*casted->follow(),  os);
       break;
     }

@@ -108,13 +108,15 @@ class SetOrNode	: public CircuitNode
 class SetAndNode : public CircuitNode
 {
   public:
-    SetAndNode (const Clauses& clauses, string explanation = "")
-        : CircuitNode (clauses, explanation), follow_(0) { }
+    SetAndNode (unsigned nrGroundings, const Clauses& clauses)
+        : CircuitNode (clauses, ""), nrGroundings_(nrGroundings), 
+          follow_(0) { }
         
     double weight (void) const;
                     
     CircuitNode** follow (void) { return &follow_; }
   private:
+    unsigned nrGroundings_;
     CircuitNode* follow_;
 };
 
