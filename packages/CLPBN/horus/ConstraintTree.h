@@ -157,6 +157,8 @@ class ConstraintTree
     void applySubstitution (const Substitution&);
 
     void project (const LogVarSet&);
+    
+    ConstraintTree projectedCopy (const LogVarSet&);
 
     void remove (const LogVarSet&);
 

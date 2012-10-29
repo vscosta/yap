@@ -367,6 +367,16 @@ ConstraintTree::project (const LogVarSet& X)
 
 
 
+ConstraintTree
+ConstraintTree::projectedCopy (const LogVarSet& X)
+{
+  ConstraintTree copy = *this;
+  copy.project (X);
+  return copy;
+}
+
+
+
 void
 ConstraintTree::remove (const LogVarSet& X)
 {
