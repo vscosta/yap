@@ -511,10 +511,12 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, ofstream& os)
 {
   assert (node != 0);
 
-  static unsigned nrOrNodes  = 0;  
-  static unsigned nrAndNodes = 0;
-  static unsigned nrSetOrNodes  = 0;
-  static unsigned nrSetAndNodes = 0;
+  static unsigned nrAuxNodes = 0;  
+  stringstream ss;
+  ss << "n" << nrAuxNodes;
+  string auxNode = ss.str();
+  nrAuxNodes ++;
+
 
   switch (getCircuitNodeType (node)) {
   
@@ -530,14 +532,13 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, ofstream& os)
       os << "\"]" ;
       os << endl;
       }
-      os << "or" << nrOrNodes << " [label=\"∨\"]" << endl;
-      os << '"' << node << '"' << " -> " << "or" << nrOrNodes;
+      os << auxNode << " [label=\"∨\"]" << endl;
+      os << escapeNode (node) << " -> " << auxNode;
       os << " [label=\"" << node->explanation() << "\"]" << endl;
-      os << "or" << nrOrNodes << " -> " ;
+      os << auxNode << " -> " ;
       os << escapeNode (*casted->leftBranch()) << endl;
-      os << "or" << nrOrNodes << " -> " ;
+      os << auxNode << " -> " ;
       os << escapeNode (*casted->rightBranch()) << endl;
-      nrOrNodes ++;
       exportToGraphViz (*casted->leftBranch(),  os);
       exportToGraphViz (*casted->rightBranch(), os);
       break;
@@ -553,21 +554,19 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, ofstream& os)
       }
       os << "\"]" ;
       os << endl;
-      os << "and" << nrAndNodes << " [label=\"∧\"]" << endl;
-      os << '"' << node << '"' << " -> " << "and" << nrAndNodes;
+      os << auxNode << " [label=\"∧\"]" << endl;
+      os << escapeNode (node) << " -> " << auxNode;
       os << " [label=\"" << node->explanation() << "\"]" << endl;
-      os << "and" << nrAndNodes << " -> " ;
+      os << auxNode << " -> " ;
       os << escapeNode (*casted->leftBranch()) << endl;
-      os << "and" << nrAndNodes << " -> " ;
+      os << auxNode << " -> " ;
       os << escapeNode (*casted->rightBranch()) << endl;
-      nrAndNodes ++;
       exportToGraphViz (*casted->leftBranch(),  os);
       exportToGraphViz (*casted->rightBranch(), os);
       break;
     }
     
     case SET_OR_NODE: {
-      nrSetOrNodes ++;
       assert (false); // not yet implemented
     }
     
@@ -581,12 +580,11 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, ofstream& os)
       }
       os << "\"]" ;
       os << endl;
-      os << "setand" << nrSetAndNodes << " [label=\"∧(X)\"]" << endl;
-      os << '"' << node << '"' << " -> " << "setand" << nrSetAndNodes;
+      os << auxNode << " [label=\"∧(X)\"]" << endl;
+      os << escapeNode (node) << " -> " << auxNode;
       os << " [label=\"" << node->explanation() << "\"]" << endl;
-      os << "setand" << nrSetAndNodes << " -> " ;
+      os << auxNode << " -> " ;
       os << escapeNode (*casted->follow()) << endl;
-      nrSetAndNodes ++;
       exportToGraphViz (*casted->follow(),  os);
       break;
     }
