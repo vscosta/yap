@@ -109,15 +109,15 @@ class SetAndNode : public CircuitNode
 {
   public:
     SetAndNode (unsigned nrGroundings, const Clauses& clauses)
-        : CircuitNode (clauses, ""), nrGroundings_(nrGroundings), 
+        : CircuitNode (clauses, "IPG"), nrGroundings_(nrGroundings), 
           follow_(0) { }
         
     double weight (void) const;
                     
     CircuitNode** follow (void) { return &follow_; }
   private:
-    unsigned nrGroundings_;
-    CircuitNode* follow_;
+    unsigned      nrGroundings_;
+    CircuitNode*  follow_;
 };
 
 
@@ -191,6 +191,8 @@ class LiftedCircuit
     bool tryIndependence    (CircuitNode** follow, Clauses& clauses);
     bool tryShannonDecomp   (CircuitNode** follow, Clauses& clauses);
     bool tryIndepPartialGrounding (CircuitNode** follow, Clauses& clauses);
+    bool tryIndepPartialGroundingAux (Clauses& clauses, ConstraintTree& ct,
+        vector<unsigned>& indices);
     bool tryGrounding       (CircuitNode** follow, Clauses& clauses);
         
     TinySet<LiteralId> smoothCircuit (CircuitNode* node);

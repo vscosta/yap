@@ -90,6 +90,8 @@ class Clause
     
     void addIpgLogVar (LogVar X) { ipgLogVars_.insert (X); }
     
+    LogVarSet ipgCandidates (void) const;
+    
     TinySet<LiteralId> lidSet (void) const;
     
     friend std::ostream& operator<< (ostream &os, const Clause& clause);

@@ -329,33 +329,50 @@ LiftedCircuit::tryIndepPartialGrounding (
   // assumes that all literals have logical variables
   // else, shannon decomp was possible
 
-  LogVarSet lvs = clauses[0].constr().logVarSet();
-  lvs -= clauses[0].ipgLogVars();
-  for (unsigned i = 0; i < lvs.size(); i++) {
-    LogVar X = lvs[i];
+  vector<unsigned> lvIndices;
+  LogVarSet lvs = clauses[0].ipgCandidates();
+  for (size_t i = 0; i < lvs.size(); i++) {
+    lvIndices.clear();
+    lvIndices.push_back (i);
     ConstraintTree ct = clauses[0].constr();
-    ct.project ({X});
-    for (size_t j = 0; j < clauses.size(); j++) {
-     if (clauses[j].constr().logVars().size() == 1) {
-        if (ct.tupleSet() != clauses[j].constr().tupleSet()) {
-          return false;
-        }
-      } else {
-        return false;
+    ct.project ({lvs[i]});
+    if (tryIndepPartialGroundingAux (clauses, ct, lvIndices)) {
+      Clauses newClauses = clauses;
+      for (size_t i = 0; i < clauses.size(); i++) {
+        LogVar lv = clauses[i].ipgCandidates()[lvIndices[i]];
+        newClauses[i].addIpgLogVar (lv);
       }
+      SetAndNode* node = new SetAndNode (ct.size(), clauses);
+      *follow = node;
+      compile (node->follow(), newClauses);
+      return true;
     }
   }
-  
-  // FIXME this is so broken ...
-  Clauses newClauses = clauses;
-  for (size_t i = 0; i < clauses.size(); i++) {
-    newClauses[i].addIpgLogVar (clauses[i].constr().logVars()[0]);
+  return false;
+}
+
+
+
+bool
+LiftedCircuit::tryIndepPartialGroundingAux (
+    Clauses& clauses,
+    ConstraintTree& ct,
+    vector<unsigned>& lvIndices)
+{
+  for (size_t j = 1; j < clauses.size(); j++) {
+    LogVarSet lvs2 = clauses[j].ipgCandidates();
+    for (size_t k = 0; k < lvs2.size(); k++) {
+      ConstraintTree ct2 = clauses[j].constr();
+      ct2.project ({lvs2[k]});
+      if (ct.tupleSet() == ct2.tupleSet()) {
+        lvIndices.push_back (k);
+        break;
+      }
+    }
+    if (lvIndices.size() != j+1) {
+      return false;
+    }
   }
-  
-  // FIXME
-  SetAndNode* node = new SetAndNode (2, clauses);
-  *follow = node;
-  compile (node->follow(), newClauses);
   return true;
 }
 
@@ -414,8 +431,8 @@ LiftedCircuit::smoothCircuit (CircuitNode* node)
         }
         SmoothNode* smoothNode = new SmoothNode (clauses);
         CircuitNode** prev = casted->leftBranch();
-        string explanation = " smoothing" ;
-        AndNode* andNode = new AndNode ((*prev)->clauses(), smoothNode, *prev, explanation);
+        AndNode* andNode = new AndNode ((*prev)->clauses(),
+            smoothNode, *prev, " smoothing");
         *prev = andNode;
       }
       if (missingRight.empty() == false) {
@@ -427,8 +444,8 @@ LiftedCircuit::smoothCircuit (CircuitNode* node)
         }
         SmoothNode* smoothNode = new SmoothNode (clauses);
         CircuitNode** prev = casted->rightBranch();
-        string explanation = " smoothing" ;
-        AndNode* andNode = new AndNode ((*prev)->clauses(), smoothNode, *prev, explanation);
+        AndNode* andNode = new AndNode ((*prev)->clauses(), smoothNode,
+            *prev, " smoothing");
         *prev = andNode;
       }
       propagatingLids |= lids1;

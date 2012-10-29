@@ -136,6 +136,29 @@ Clause::removeNegativeLiterals (LiteralId lid)
 
 
 
+LogVarSet
+Clause::ipgCandidates (void) const
+{
+  LogVarSet candidates;
+  LogVarSet allLvs = constr_.logVarSet();
+  allLvs -= ipgLogVars_;
+  for (size_t i = 0; i < allLvs.size(); i++) {
+    bool valid = true;
+    for (size_t j = 0; j < literals_.size(); j++) {
+      if (Util::contains (literals_[j].logVars(), allLvs[i]) == false) {
+        valid = false;
+        break;
+      }
+    }
+    if (valid) {
+      candidates.insert (allLvs[i]);
+    }
+  }
+  return candidates;
+}
+
+
+
 TinySet<LiteralId>
 Clause::lidSet (void) const
 {
