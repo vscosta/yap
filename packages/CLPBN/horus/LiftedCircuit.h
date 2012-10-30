@@ -214,6 +214,9 @@ class LiftedCircuit
     string escapeNode (const CircuitNode* node) const;
     
     void exportToGraphViz (CircuitNode* node, ofstream&);
+    
+    void printClauses (const CircuitNode* node, ofstream&,
+        string extraOptions = "");
 
     CircuitNode*       root_;
     const LiftedWCNF*  lwcnf_;

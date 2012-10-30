@@ -261,6 +261,7 @@ LiftedCircuit::tryUnitPropagation (
         }
       }
       stringstream explanation;
+      explanation << " UP on" << clauses[i].literals()[0];
       AndNode* andNode = new AndNode (clauses, explanation.str());
       Clauses leftClauses = {clauses[i]};
       compile (andNode->leftBranch(), leftClauses);
@@ -282,12 +283,13 @@ LiftedCircuit::tryIndependence (
   if (clauses.size() == 1) {
     return false;
   }
+  // TODO this independence is a little weak
   for (size_t i = 0; i < clauses.size(); i++) {
     bool indep = true;
     TinySet<LiteralId> lids1 = clauses[i].lidSet();
     for (size_t j = 0; j < clauses.size(); j++) {
       TinySet<LiteralId> lids2 = clauses[j].lidSet(); 
-      if (((lids1 & lids2).empty() == false) && i != j) {
+      if (i != j && ((lids1 & lids2).empty() == false)) {
         indep = false;
         break;
       }
@@ -296,7 +298,7 @@ LiftedCircuit::tryIndependence (
       Clauses newClauses = clauses;
       newClauses.erase (newClauses.begin() + i);
       stringstream explanation;
-      explanation << " independence" ;
+      explanation << " Independence on clause Nº " << i ;
       AndNode* andNode = new AndNode (clauses, explanation.str());
       Clauses indepClause = {clauses[i]};
       compile (andNode->leftBranch(), indepClause);
@@ -506,7 +508,7 @@ LiftedCircuit::smoothCircuit (CircuitNode* node)
         SmoothNode* smoothNode = new SmoothNode (clauses);
         CircuitNode** prev = casted->leftBranch();
         AndNode* andNode = new AndNode ((*prev)->clauses(),
-            smoothNode, *prev, " smoothing");
+            smoothNode, *prev, " Smoothing");
         *prev = andNode;
       }
       if (missingRight.empty() == false) {
@@ -519,7 +521,7 @@ LiftedCircuit::smoothCircuit (CircuitNode* node)
         SmoothNode* smoothNode = new SmoothNode (clauses);
         CircuitNode** prev = casted->rightBranch();
         AndNode* andNode = new AndNode ((*prev)->clauses(), smoothNode,
-            *prev, " smoothing");
+            *prev, " Smoothing");
         *prev = andNode;
       }
       propagatingLids |= lids1;
@@ -624,16 +626,7 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, ofstream& os)
   
     case OR_NODE: {
       OrNode* casted = dynamic_cast<OrNode*>(node);
-      const Clauses& clauses = node->clauses();
-      if (clauses.empty() == false) {
-        os << escapeNode (node) << " [shape=box,label=\"" ;
-        for (size_t i = 0; i < clauses.size(); i++) {
-          if (i != 0) os << "\\n" ;
-          os << clauses[i];
-        }
-        os << "\"]" ;
-        os << endl;
-      }
+      printClauses (casted, os);
 
       os << auxNode << " [label=\"∨\"]" << endl;
       os << escapeNode (node) << " -> " << auxNode;
@@ -657,14 +650,7 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, ofstream& os)
     
     case AND_NODE: {
       AndNode* casted = dynamic_cast<AndNode*>(node);
-      const Clauses& clauses = node->clauses();
-      os << escapeNode (node) << " [shape=box,label=\"" ;
-      for (size_t i = 0; i < clauses.size(); i++) {
-        if (i != 0) os << "\\n" ;
-        os << clauses[i];
-      }
-      os << "\"]" ;
-      os << endl;
+      printClauses (casted, os);
       
       os << auxNode << " [label=\"∧\"]" << endl;
       os << escapeNode (node) << " -> " << auxNode;
@@ -693,14 +679,7 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, ofstream& os)
     
     case SET_AND_NODE: {
       SetAndNode* casted = dynamic_cast<SetAndNode*>(node);
-      const Clauses& clauses = node->clauses();
-      os << escapeNode (node) << " [shape=box,label=\"" ;
-      for (size_t i = 0; i < clauses.size(); i++) {
-        if (i != 0) os << "\\n" ;
-        os << clauses[i];
-      }
-      os << "\"]" ;
-      os << endl;
+      printClauses (casted, os);
       
       os << auxNode << " [label=\"∧(X)\"]" << endl;
       os << escapeNode (node) << " -> " << auxNode;
@@ -718,14 +697,7 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, ofstream& os)
     
     case INC_EXC_NODE: {
       IncExcNode* casted = dynamic_cast<IncExcNode*>(node);
-      const Clauses& clauses = node->clauses();
-      os << escapeNode (node) << " [shape=box,label=\"" ;
-      for (size_t i = 0; i < clauses.size(); i++) {
-        if (i != 0) os << "\\n" ;
-        os << clauses[i];
-      }
-      os << "\"]" ;
-      os << endl;
+      printClauses (casted, os);
       
       os << auxNode << " [label=\"IncExc\"]" << endl;
       os << escapeNode (node) << " -> " << auxNode;
@@ -754,24 +726,12 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, ofstream& os)
     }
     
     case LEAF_NODE: {
-      os << escapeNode (node);
-      os << " [shape=box,label=\"" ;
-      os << node->clauses()[0];
-      os << "\"]" ;
-      os << endl;
+      printClauses (node, os);
       break;
     }
     
     case SMOOTH_NODE: {
-      os << escapeNode (node);
-      os << " [shape=box,style=filled,fillcolor=chartreuse,label=\"" ;
-      const Clauses& clauses = node->clauses();
-      for (size_t i = 0; i < clauses.size(); i++) {
-        if (i != 0) os << "\\n" ;
-        os << clauses[i];
-      }
-      os << "\"]" ;
-      os << endl;
+      printClauses (node, os, "style=filled,fillcolor=chartreuse,");
       break;
     }
     
@@ -783,20 +743,33 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, ofstream& os)
     }
     
     case COMPILATION_FAILED_NODE: {
-      os << escapeNode (node);
-      os << " [shape=box,style=filled,fillcolor=brown1,label=\"" ;
-      const Clauses& clauses = node->clauses();
-      for (size_t i = 0; i < clauses.size(); i++) {
-        if (i != 0) os << "\\n" ;
-        os << clauses[i];
-      }
-      os << "\"]" ;
-      os << endl;
+      printClauses (node, os, "style=filled,fillcolor=brown1,");
       break;
     }
     
     default:
       assert (false);
+  }
+}
+
+
+
+void
+LiftedCircuit::printClauses (
+    const CircuitNode* node,
+    ofstream& os,
+    string extraOptions)
+{
+  const Clauses& clauses = node->clauses();
+  if (node->clauses().empty() == false) {
+    os << escapeNode (node);
+    os << " [shape=box," << extraOptions << "label=\"" ;  
+    for (size_t i = 0; i < clauses.size(); i++) {
+      if (i != 0) os << "\\n" ;
+      os << clauses[i];
+    }
+    os << "\"]" ;
+    os << endl;
   }
 }
 
