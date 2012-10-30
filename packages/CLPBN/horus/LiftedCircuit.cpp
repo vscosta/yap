@@ -8,7 +8,6 @@ OrNode::weight (void) const
 {
   double lw = leftBranch_->weight();
   double rw = rightBranch_->weight();
-  cout << ">>>> OR NODE res = " << lw << " + " << rw << endl;
   return Globals::logDomain ? Util::logSum (lw, rw) : lw + rw;
 }
 
@@ -28,7 +27,6 @@ double
 SetOrNode::weight (void) const
 {
   // TODO
-  assert (false);
   return 0.0;
 }
 
@@ -38,11 +36,10 @@ SetOrNode::weight (void) const
 double
 SetAndNode::weight (void) const
 {
-  unsigned nrGroundings = 2; // FIXME
   double w = follow_->weight();
   return Globals::logDomain
-      ? w * nrGroundings
-      : std::pow (w, nrGroundings);
+      ? w * nrGroundings_
+      : std::pow (w, nrGroundings_);
 }
 
 
@@ -108,7 +105,9 @@ LiftedCircuit::LiftedCircuit (const LiftedWCNF* lwcnf)
   //ccc.push_back (c2);
   
   //compile (&root_, lwcnf->clauses());
-  compile (&root_, ccc);
+  Clauses cccc = {ccc[6],ccc[4]};
+  cccc.front().removeLiteral (2);
+  compile (&root_, cccc);
   exportToGraphViz("circuit.dot");
   smoothCircuit();
   exportToGraphViz("smooth.dot");
@@ -186,6 +185,10 @@ LiftedCircuit::compile (
   }
   
   if (tryShannonDecomp (follow, clauses)) {
+    return;
+  }
+  
+  if (tryInclusionExclusion (follow, clauses)) {
     return;
   }
   
@@ -309,10 +312,60 @@ LiftedCircuit::tryShannonDecomp (
         stringstream explanation;
         explanation << " SD on " << literals[j];
         OrNode* orNode = new OrNode (clauses, explanation.str());
-        (*follow) = orNode;
         compile (orNode->leftBranch(),  leftClauses);
         compile (orNode->rightBranch(), rightClauses);
+        (*follow) = orNode;
         return true;   
+      }
+    }
+  }
+  return false;
+}
+
+
+
+bool
+LiftedCircuit::tryInclusionExclusion (
+    CircuitNode** follow,
+    Clauses& clauses)
+{
+  for (size_t i = 0; i < clauses.size(); i++) {
+    const Literals& literals = clauses[i].literals();
+    for (size_t j = 0; j < literals.size(); j++) {
+      bool indep = true;
+      for (size_t k = 0; k < literals.size(); k++) {
+        LogVarSet intersect = literals[j].logVarSet()
+            & literals[k].logVarSet();
+        if (j != k && intersect.empty() == false) {
+          indep = false;
+          break;
+        }
+      }
+      if (indep) {
+        // TODO i am almost sure that this will
+        // have to be count normalized too!
+        ConstraintTree really = clauses[i].constr();
+        Clause c1 (really.projectedCopy (
+            literals[j].logVars()));
+        c1.addLiteral (literals[j]);
+        Clause c2 = clauses[i];
+        c2.removeLiteral (j);
+        Clauses plus1Clauses = clauses;
+        Clauses plus2Clauses = clauses;
+        Clauses minusClauses = clauses;
+        plus1Clauses.erase (plus1Clauses.begin() + i);
+        plus2Clauses.erase (plus2Clauses.begin() + i);
+        minusClauses.erase (minusClauses.begin() + i);
+        plus1Clauses.push_back (c1);
+        plus2Clauses.push_back (c2);
+        minusClauses.push_back (c1);
+        minusClauses.push_back (c2);
+        IncExcNode* ieNode = new IncExcNode (clauses);
+        compile (ieNode->plus1Branch(), plus1Clauses);
+        compile (ieNode->plus2Branch(), plus2Clauses);
+        compile (ieNode->minusBranch(), minusClauses);
+        *follow = ieNode;
+        return true;
       }
     }
   }
@@ -328,7 +381,6 @@ LiftedCircuit::tryIndepPartialGrounding (
 { 
   // assumes that all literals have logical variables
   // else, shannon decomp was possible
-
   vector<unsigned> lvIndices;
   LogVarSet lvs = clauses[0].ipgCandidates();
   for (size_t i = 0; i < lvs.size(); i++) {
@@ -503,9 +555,13 @@ LiftedCircuit::getCircuitNodeType (const CircuitNode* node) const
   } else if (dynamic_cast<const AndNode*>(node) != 0) {
     type = CircuitNodeType::AND_NODE;
   } else if (dynamic_cast<const SetOrNode*>(node) != 0) {
+    // TODO
+    assert (false);
     type = CircuitNodeType::SET_OR_NODE;
   } else if (dynamic_cast<const SetAndNode*>(node) != 0) {
     type = CircuitNodeType::SET_AND_NODE;
+  } else if (dynamic_cast<const IncExcNode*>(node) != 0) {
+    type = CircuitNodeType::INC_EXC_NODE;
   } else if (dynamic_cast<const LeafNode*>(node) != 0) {
     type = CircuitNodeType::LEAF_NODE;
   } else if (dynamic_cast<const SmoothNode*>(node) != 0) {
@@ -611,7 +667,8 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, ofstream& os)
     }
     
     case SET_OR_NODE: {
-      assert (false); // not yet implemented
+      // TODO
+      assert (false);
     }
     
     case SET_AND_NODE: {
@@ -636,6 +693,43 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, ofstream& os)
       os << endl;
       
       exportToGraphViz (*casted->follow(),  os);
+      break;
+    }
+    
+    case INC_EXC_NODE: {
+      IncExcNode* casted = dynamic_cast<IncExcNode*>(node);
+      const Clauses& clauses = node->clauses();
+      os << escapeNode (node) << " [shape=box,label=\"" ;
+      for (size_t i = 0; i < clauses.size(); i++) {
+        if (i != 0) os << "\\n" ;
+        os << clauses[i];
+      }
+      os << "\"]" ;
+      os << endl;
+      
+      os << auxNode << " [label=\"IncExc\"]" << endl;
+      os << escapeNode (node) << " -> " << auxNode;
+      os << " [label=\"" << node->explanation() << "\"]" ;
+      os << endl;
+
+      os << auxNode << " -> " ;
+      os << escapeNode (*casted->plus1Branch());
+      os << " [label=\" " << (*casted->plus1Branch())->weight() << "\"]" ;
+      os << endl;
+      
+      os << auxNode << " -> " ;
+      os << escapeNode (*casted->plus2Branch());
+      os << " [label=\" " << (*casted->plus2Branch())->weight() << "\"]" ;
+      os << endl;
+
+      os << auxNode << " -> " ;
+      os << escapeNode (*casted->minusBranch()) << endl;
+      os << " [label=\" " << (*casted->minusBranch())->weight() << "\"]" ;
+      os << endl;
+      
+      exportToGraphViz (*casted->plus1Branch(), os);
+      exportToGraphViz (*casted->plus2Branch(), os);
+      exportToGraphViz (*casted->minusBranch(), os);
       break;
     }
     

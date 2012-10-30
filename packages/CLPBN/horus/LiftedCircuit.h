@@ -109,7 +109,7 @@ class SetAndNode : public CircuitNode
 {
   public:
     SetAndNode (unsigned nrGroundings, const Clauses& clauses)
-        : CircuitNode (clauses, "IPG"), nrGroundings_(nrGroundings), 
+        : CircuitNode (clauses, " IPG"), nrGroundings_(nrGroundings), 
           follow_(0) { }
         
     double weight (void) const;
@@ -122,13 +122,20 @@ class SetAndNode : public CircuitNode
 
 
 
-class IncExclNode : public CircuitNode
+class IncExcNode : public CircuitNode
 {
   public:
+    IncExcNode (const Clauses& clauses)
+        : CircuitNode (clauses), plus1Branch_(0),
+        plus2Branch_(0), minusBranch_(0) { }
+      
+    CircuitNode** plus1Branch (void) { return &plus1Branch_; }
+    CircuitNode** plus2Branch (void) { return &plus2Branch_; }
+    CircuitNode** minusBranch (void) { return &minusBranch_; }
   private:
-    CircuitNode* xFollow_;
-    CircuitNode* yFollow_;
-    CircuitNode* zFollow_;
+    CircuitNode* plus1Branch_;
+    CircuitNode* plus2Branch_;
+    CircuitNode* minusBranch_;
 };
 
 
@@ -156,7 +163,7 @@ class SmoothNode : public CircuitNode
 class TrueNode : public CircuitNode
 {
   public:
-    TrueNode () : CircuitNode ({}) { }
+    TrueNode (void) : CircuitNode ({}) { }
     
     double weight (void) const;
 };
@@ -190,6 +197,7 @@ class LiftedCircuit
     bool tryUnitPropagation (CircuitNode** follow, Clauses& clauses);
     bool tryIndependence    (CircuitNode** follow, Clauses& clauses);
     bool tryShannonDecomp   (CircuitNode** follow, Clauses& clauses);
+    bool tryInclusionExclusion (CircuitNode** follow, Clauses& clauses);
     bool tryIndepPartialGrounding (CircuitNode** follow, Clauses& clauses);
     bool tryIndepPartialGroundingAux (Clauses& clauses, ConstraintTree& ct,
         vector<unsigned>& indices);

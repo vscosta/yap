@@ -25,8 +25,10 @@ class Literal
     LiteralId lid (void) const { return lid_; }
     
     LogVars logVars (void) const { return logVars_; }
+    
+    LogVarSet logVarSet (void) const { return LogVarSet (logVars_); }
 
-    // FIXME not log aware :(
+    // FIXME this is not log aware :(
     double weight (void) const { return weight_ < 0.0 ? 1.0 : weight_; }
     
     void negate (void) { negated_ = !negated_; }
@@ -96,8 +98,9 @@ class Clause
     
     friend std::ostream& operator<< (ostream &os, const Clause& clause);
     
-  private:
     void removeLiteral (size_t idx);
+    
+  private:
   
     LogVarSet getLogVarSetExcluding (size_t idx) const;
   

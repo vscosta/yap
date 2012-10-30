@@ -203,7 +203,7 @@ std::ostream& operator<< (ostream &os, const Clause& clause)
     os << clause.literals_[i].toString (clause.ipgLogVars_);
   }
   if (clause.constr_.empty() == false) {
-    ConstraintTree copy = clause.constr_;
+    ConstraintTree copy (clause.constr_);
     copy.moveToTop (copy.logVarSet().elements());
     os << " | " << copy.tupleSet();
   }
