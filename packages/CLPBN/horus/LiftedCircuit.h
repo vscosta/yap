@@ -13,7 +13,7 @@ enum CircuitNodeType {
   LEAF_NODE,
   SMOOTH_NODE,
   TRUE_NODE,
-  FAIL_NODE
+  COMPILATION_FAILED_NODE
 };
 
 
@@ -28,7 +28,7 @@ class CircuitNode
     
     Clauses clauses (void) { return clauses_; }
     
-    virtual double weight (void) const { return 0; }
+    virtual double weight (void) const = 0;
     
     string explanation (void) const { return explanation_; }
         
@@ -128,6 +128,8 @@ class IncExcNode : public CircuitNode
     IncExcNode (const Clauses& clauses)
         : CircuitNode (clauses), plus1Branch_(0),
         plus2Branch_(0), minusBranch_(0) { }
+        
+    double weight (void) const;        
       
     CircuitNode** plus1Branch (void) { return &plus1Branch_; }
     CircuitNode** plus2Branch (void) { return &plus2Branch_; }
@@ -171,10 +173,12 @@ class TrueNode : public CircuitNode
 
 
 
-class FailNode : public CircuitNode
+class CompilationFailedNode : public CircuitNode
 {
   public:
-    FailNode (const Clauses& clauses) : CircuitNode (clauses) { }
+    CompilationFailedNode (const Clauses& clauses) : CircuitNode (clauses) { }
+    
+    double weight (void) const;
 };
 
 

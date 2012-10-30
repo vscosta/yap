@@ -110,6 +110,17 @@ TrueNode::weight (void) const
 
 
 
+double
+CompilationFailedNode::weight (void) const
+{
+  // we should not perform model counting
+  // in compilation failed nodes
+  abort();
+  return 0.0;
+}
+
+
+
 LiftedCircuit::LiftedCircuit (const LiftedWCNF* lwcnf)
     : lwcnf_(lwcnf)
 {
@@ -217,7 +228,7 @@ LiftedCircuit::compile (
   }
   
   // assert (false);
-  *follow = new FailNode (clauses);
+  *follow = new CompilationFailedNode (clauses);
 
 }
 
@@ -237,14 +248,10 @@ LiftedCircuit::tryUnitPropagation (
           if (clauses[i].literals()[0].isPositive()) {
             if (clauses[j].containsPositiveLiteral (lid) == false) {
               Clause newClause = clauses[j];
-              //cout << "new   j   : " << clauses[j] << endl;
-              //cout << "new clause: " << newClause  << endl;
-              //cout << "clvs:       " << clauses[j].constr()->logVars() << endl;
               newClause.removeNegativeLiterals (lid);
               newClauses.push_back (newClause);
             }
           } else if (clauses[i].literals()[0].isNegative()) {
-            //cout << "unit prop of = " << clauses[i].literals()[0] << endl;
             if (clauses[j].containsNegativeLiteral (lid) == false) {
               Clause newClause = clauses[j];
               newClause.removePositiveLiterals (lid);
@@ -254,7 +261,6 @@ LiftedCircuit::tryUnitPropagation (
         }
       }
       stringstream explanation;
-      explanation << " UP of " << clauses[i];
       AndNode* andNode = new AndNode (clauses, explanation.str());
       Clauses leftClauses = {clauses[i]};
       compile (andNode->leftBranch(), leftClauses);
@@ -551,7 +557,7 @@ LiftedCircuit::smoothCircuit (CircuitNode* node)
     
     // case CircuitNodeType::SMOOTH_NODE:
     // case CircuitNodeType::TRUE_NODE:
-    // case CircuitNodeType::FAIL_NODE:
+    // case CircuitNodeType::COMPILATION_FAILED_NODE:
     
     default:
       break;
@@ -571,8 +577,6 @@ LiftedCircuit::getCircuitNodeType (const CircuitNode* node) const
   } else if (dynamic_cast<const AndNode*>(node) != 0) {
     type = CircuitNodeType::AND_NODE;
   } else if (dynamic_cast<const SetOrNode*>(node) != 0) {
-    // TODO
-    assert (false);
     type = CircuitNodeType::SET_OR_NODE;
   } else if (dynamic_cast<const SetAndNode*>(node) != 0) {
     type = CircuitNodeType::SET_AND_NODE;
@@ -584,8 +588,8 @@ LiftedCircuit::getCircuitNodeType (const CircuitNode* node) const
     type = CircuitNodeType::SMOOTH_NODE;
   } else if (dynamic_cast<const TrueNode*>(node) != 0) {
     type = CircuitNodeType::TRUE_NODE;
-  } else if (dynamic_cast<const FailNode*>(node) != 0) {
-    type = CircuitNodeType::FAIL_NODE;
+  } else if (dynamic_cast<const CompilationFailedNode*>(node) != 0) {
+    type = CircuitNodeType::COMPILATION_FAILED_NODE;
   } else {
     assert (false);
   }
@@ -778,7 +782,7 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, ofstream& os)
       break;
     }
     
-    case FAIL_NODE: {
+    case COMPILATION_FAILED_NODE: {
       os << escapeNode (node);
       os << " [shape=box,style=filled,fillcolor=brown1,label=\"" ;
       const Clauses& clauses = node->clauses();
