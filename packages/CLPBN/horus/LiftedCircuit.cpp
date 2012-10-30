@@ -515,6 +515,7 @@ LiftedCircuit::smoothCircuit (CircuitNode* node)
     }
 
     case CircuitNodeType::SET_OR_NODE: {
+      // TODO
       break;
     }
     
@@ -540,11 +541,7 @@ LiftedCircuit::smoothCircuit (CircuitNode* node)
     case CircuitNodeType::LEAF_NODE: {
       propagatingLids.insert (node->clauses()[0].literals()[0].lid());
     }
-    
-    // case CircuitNodeType::SMOOTH_NODE:
-    // case CircuitNodeType::TRUE_NODE:
-    // case CircuitNodeType::COMPILATION_FAILED_NODE:
-    
+ 
     default:
       break;
   }
@@ -720,12 +717,12 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, ofstream& os)
     }
     
     case LEAF_NODE: {
-      printClauses (node, os);
+      printClauses (node, os, "style=filled,fillcolor=palegreen,");
       break;
     }
     
     case SMOOTH_NODE: {
-      printClauses (node, os, "style=filled,fillcolor=chartreuse,");
+      printClauses (node, os, "style=filled,fillcolor=lightblue,");
       break;
     }
     
@@ -737,7 +734,7 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, ofstream& os)
     }
     
     case COMPILATION_FAILED_NODE: {
-      printClauses (node, os, "style=filled,fillcolor=brown1,");
+      printClauses (node, os, "style=filled,fillcolor=salmon,");
       break;
     }
     
