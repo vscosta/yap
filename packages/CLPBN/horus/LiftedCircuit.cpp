@@ -45,6 +45,22 @@ SetAndNode::weight (void) const
 
 
 double
+IncExcNode::weight (void) const
+{
+  double w = 0.0;
+  if (Globals::logDomain) {
+    w = Util::logSum (plus1Branch_->weight(), plus2Branch_->weight());
+    w = std::log (std::exp (w) - std::exp (minusBranch_->weight()));
+  } else {
+    w = plus1Branch_->weight() + plus2Branch_->weight();
+    w -= minusBranch_->weight();
+  }
+  return w;
+}
+
+
+
+double
 LeafNode::weight (void) const
 {
   assert (clauses().size() == 1);
