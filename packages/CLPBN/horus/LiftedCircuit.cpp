@@ -498,32 +498,8 @@ LiftedCircuit::smoothCircuit (CircuitNode* node)
       TinySet<LiteralId> lids2 = smoothCircuit (*casted->rightBranch());
       TinySet<LiteralId> missingLeft  = lids2 - lids1;
       TinySet<LiteralId> missingRight = lids1 - lids2;
-      if (missingLeft.empty() == false) {
-        Clauses clauses;
-        for (size_t i = 0; i < missingLeft.size(); i++) {
-          Clause c = lwcnf_->createClauseForLiteral (missingLeft[i]);
-          c.addAndNegateLiteral (c.literals()[0]);
-          clauses.push_back (c);
-        }
-        SmoothNode* smoothNode = new SmoothNode (clauses);
-        CircuitNode** prev = casted->leftBranch();
-        AndNode* andNode = new AndNode ((*prev)->clauses(),
-            smoothNode, *prev, " Smoothing");
-        *prev = andNode;
-      }
-      if (missingRight.empty() == false) {
-        Clauses clauses;
-        for (size_t i = 0; i < missingRight.size(); i++) {
-          Clause c = lwcnf_->createClauseForLiteral (missingRight[i]);
-          c.addAndNegateLiteral (c.literals()[0]);
-          clauses.push_back (c);
-        }
-        SmoothNode* smoothNode = new SmoothNode (clauses);
-        CircuitNode** prev = casted->rightBranch();
-        AndNode* andNode = new AndNode ((*prev)->clauses(), smoothNode,
-            *prev, " Smoothing");
-        *prev = andNode;
-      }
+      createSmoothNode (missingLeft,  casted->leftBranch());
+      createSmoothNode (missingRight, casted->rightBranch());
       propagatingLids |= lids1;
       propagatingLids |= lids2;
       break;
@@ -549,7 +525,15 @@ LiftedCircuit::smoothCircuit (CircuitNode* node)
     }
     
     case CircuitNodeType::INC_EXC_NODE: {
-      // TODO
+      IncExcNode* casted = dynamic_cast<IncExcNode*>(node);
+      TinySet<LiteralId> lids1 = smoothCircuit (*casted->plus1Branch());
+      TinySet<LiteralId> lids2 = smoothCircuit (*casted->plus2Branch());
+      TinySet<LiteralId> missingPlus1 = lids2 - lids1;
+      TinySet<LiteralId> missingPlus2 = lids1 - lids2;
+      createSmoothNode (missingPlus1, casted->plus1Branch());
+      createSmoothNode (missingPlus2, casted->plus2Branch());
+      propagatingLids |= lids1;
+      propagatingLids |= lids2;
       break;
     }
     
@@ -566,6 +550,26 @@ LiftedCircuit::smoothCircuit (CircuitNode* node)
   }
   
   return propagatingLids;
+}
+
+
+
+void
+LiftedCircuit::createSmoothNode (
+    const TinySet<LiteralId>& missingLids,
+    CircuitNode** prev)
+{
+  if (missingLids.empty() == false) {
+    Clauses clauses;
+    for (size_t i = 0; i < missingLids.size(); i++) {
+      Clause c = lwcnf_->createClauseForLiteral (missingLids[i]);
+      c.addAndNegateLiteral (c.literals()[0]);
+      clauses.push_back (c);
+    }
+    SmoothNode* smoothNode = new SmoothNode (clauses);
+    *prev = new AndNode ((*prev)->clauses(), smoothNode,
+        *prev, " Smoothing");
+  }
 }
 
 
@@ -596,16 +600,6 @@ LiftedCircuit::getCircuitNodeType (const CircuitNode* node) const
     assert (false);
   }
   return type;
-}
-
-
-
-string
-LiftedCircuit::escapeNode (const CircuitNode* node) const
-{
-  stringstream ss;
-  ss << "\"" << node << "\"" ;
-  return ss.str();
 }
 
 
@@ -750,6 +744,16 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, ofstream& os)
     default:
       assert (false);
   }
+}
+
+
+
+string
+LiftedCircuit::escapeNode (const CircuitNode* node) const
+{
+  stringstream ss;
+  ss << "\"" << node << "\"" ;
+  return ss.str();
 }
 
 

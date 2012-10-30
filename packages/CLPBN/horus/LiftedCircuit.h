@@ -209,14 +209,17 @@ class LiftedCircuit
         
     TinySet<LiteralId> smoothCircuit (CircuitNode* node);
     
-    CircuitNodeType getCircuitNodeType (const CircuitNode* node) const;
-     
-    string escapeNode (const CircuitNode* node) const;
+    void createSmoothNode (const TinySet<LiteralId>& lids,
+        CircuitNode** prev);
     
+    CircuitNodeType getCircuitNodeType (const CircuitNode* node) const;
+         
     void exportToGraphViz (CircuitNode* node, ofstream&);
     
     void printClauses (const CircuitNode* node, ofstream&,
         string extraOptions = "");
+        
+    string escapeNode (const CircuitNode* node) const;
 
     CircuitNode*       root_;
     const LiftedWCNF*  lwcnf_;
