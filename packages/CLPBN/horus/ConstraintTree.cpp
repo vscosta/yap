@@ -187,9 +187,7 @@ ConstraintTree::ConstraintTree (
 
 ConstraintTree::ConstraintTree (const ConstraintTree& ct)
 {
-  root_       = CTNode::copySubtree (ct.root_);
-  logVars_    = ct.logVars_;
-  logVarSet_  = ct.logVarSet_;
+  *this = ct;
 }
 
 
@@ -871,6 +869,19 @@ ConstraintTree::copyLogVar (LogVar X_1, LogVar X_2)
   }
   logVars_.push_back (X_2);
   logVarSet_.insert (X_2);
+}
+
+
+
+ConstraintTree&
+ConstraintTree::operator= (const ConstraintTree& ct)
+{
+  if (this != &ct) {
+    root_      = CTNode::copySubtree (ct.root_);
+    logVars_   = ct.logVars_;
+    logVarSet_ = ct.logVarSet_;
+  }
+  return *this;
 }
 
 

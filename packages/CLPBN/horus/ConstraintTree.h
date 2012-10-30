@@ -199,6 +199,8 @@ class ConstraintTree
     ConstraintTrees ground (LogVar);
 
     void copyLogVar (LogVar,LogVar);
+    
+    ConstraintTree& operator= (const ConstraintTree& ct);
    
   private:
     unsigned countTuples (const CTNode*) const;
