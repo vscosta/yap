@@ -81,7 +81,7 @@ class AndNode : public CircuitNode
           
     double weight (void) const;
 
-    CircuitNode** leftBranch  (void) { return &leftBranch_; }
+    CircuitNode** leftBranch  (void) { return &leftBranch_;  }
     CircuitNode** rightBranch (void) { return &rightBranch_; }
   private:
     CircuitNode* leftBranch_;
@@ -128,12 +128,13 @@ class IncExcNode : public CircuitNode
     IncExcNode (const Clauses& clauses)
         : CircuitNode (clauses), plus1Branch_(0),
         plus2Branch_(0), minusBranch_(0) { }
-        
+
     double weight (void) const;        
-      
+
     CircuitNode** plus1Branch (void) { return &plus1Branch_; }
     CircuitNode** plus2Branch (void) { return &plus2Branch_; }
     CircuitNode** minusBranch (void) { return &minusBranch_; }
+
   private:
     CircuitNode* plus1Branch_;
     CircuitNode* plus2Branch_;
@@ -169,7 +170,6 @@ class TrueNode : public CircuitNode
     
     double weight (void) const;
 };
-
 
 
 

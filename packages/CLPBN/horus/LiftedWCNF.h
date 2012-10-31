@@ -65,71 +65,70 @@ class Literal
 typedef vector<Literal> Literals;
 
 
+
 class Clause
 {
   public:
     Clause (const ConstraintTree& ct) : constr_(ct) { }
-    
+
     Clause (vector<vector<string>> names) : constr_(ConstraintTree (names)) { }
-    
+
     void addLiteral (const Literal& l) { literals_.push_back (l); }
-    
+
+    // TODO kill me
     void addAndNegateLiteral (const Literal& l)
     { 
       literals_.push_back (l);
       literals_.back().negate();
     }
     
-    bool containsLiteral (LiteralId lid) const;
-
-    bool containsPositiveLiteral (LiteralId lid, const LogVarTypes&) const;
-    
-    bool containsNegativeLiteral (LiteralId lid, const LogVarTypes&) const;
-    
-    void removeLiterals (LiteralId lid);
-    
-    void removePositiveLiterals (LiteralId lid, const LogVarTypes&);
-    
-    void removeNegativeLiterals (LiteralId lid, const LogVarTypes&);
-
     const vector<Literal>& literals (void) const { return literals_; }
-    
-    void removeLiteralByIndex (size_t idx) { literals_.erase (literals_.begin() + idx); }
-    
+
     const ConstraintTree& constr (void) const { return constr_; }
-    
+
     ConstraintTree constr (void) { return constr_; }
-    
+
     bool isUnit (void) const { return literals_.size() == 1; }
-    
+
     LogVarSet ipgLogVars (void) const { return ipgLogVars_; }
-    
+
     void addIpgLogVar (LogVar X) { ipgLogVars_.insert (X); }
-    
+
     void addPositiveCountedLogVar (LogVar X) { posCountedLvs_.insert (X); }
 
     void addNegativeCountedLogVar (LogVar X) { negCountedLvs_.insert (X); }
-        
-    LogVarSet ipgCandidates (void) const;
+
+    bool containsLiteral (LiteralId lid) const;
+
+    bool containsPositiveLiteral (LiteralId lid, const LogVarTypes&) const;
+
+    bool containsNegativeLiteral (LiteralId lid, const LogVarTypes&) const;
+
+    void removeLiterals (LiteralId lid);
+
+    void removePositiveLiterals (LiteralId lid, const LogVarTypes&);
+
+    void removeNegativeLiterals (LiteralId lid, const LogVarTypes&);
+
+    bool isCountedLogVar (LogVar X) const;
+
+    bool isPositiveCountedLogVar (LogVar X) const;
+
+    bool isNegativeCountedLogVar (LogVar X) const;    
     
     TinySet<LiteralId> lidSet (void) const;
+
+    LogVarSet ipgCandidates (void) const;
+
+    LogVarTypes logVarTypes (size_t litIdx) const;
     
-    bool isCountedLogVar (LogVar X) const;
-    
-    bool isPositiveCountedLogVar (LogVar X) const;
-    
-    bool isNegativeCountedLogVar (LogVar X) const;    
+    void removeLiteral (size_t litIdx);
+ 
+    static void printClauses (const vector<Clause>& clauses);
 
     friend std::ostream& operator<< (ostream &os, const Clause& clause);
     
-    void removeLiteral (size_t idx);
-    
-    LogVarTypes logVarTypes (size_t litIdx) const;
-    
-    static void printClauses (const vector<Clause>& clauses);
-    
   private:
-  
     LogVarSet getLogVarSetExcluding (size_t idx) const;
   
     vector<Literal>  literals_;
@@ -138,8 +137,6 @@ class Clause
     LogVarSet        negCountedLvs_;    
     ConstraintTree   constr_;
 };
-
-
 
 typedef vector<Clause> Clauses;
 

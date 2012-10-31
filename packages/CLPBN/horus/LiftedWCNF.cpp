@@ -159,41 +159,6 @@ Clause::removeNegativeLiterals (
 
 
 
-LogVarSet
-Clause::ipgCandidates (void) const
-{
-  LogVarSet candidates;
-  LogVarSet allLvs = constr_.logVarSet();
-  allLvs -= ipgLogVars_;
-  for (size_t i = 0; i < allLvs.size(); i++) {
-    bool valid = true;
-    for (size_t j = 0; j < literals_.size(); j++) {
-      if (Util::contains (literals_[j].logVars(), allLvs[i]) == false) {
-        valid = false;
-        break;
-      }
-    }
-    if (valid) {
-      candidates.insert (allLvs[i]);
-    }
-  }
-  return candidates;
-}
-
-
-
-TinySet<LiteralId>
-Clause::lidSet (void) const
-{
-  TinySet<LiteralId> lidSet;
-  for (size_t i = 0; i < literals_.size(); i++) {
-    lidSet.insert (literals_[i].lid());
-  }
-  return lidSet;
-}
-
-
-
 bool
 Clause::isCountedLogVar (LogVar X) const
 {
@@ -222,13 +187,37 @@ Clause::isNegativeCountedLogVar (LogVar X) const
 
 
 
-void
-Clause::removeLiteral (size_t idx)
+TinySet<LiteralId>
+Clause::lidSet (void) const
 {
-  LogVarSet lvs (literals_[idx].logVars());
-  lvs -= getLogVarSetExcluding (idx);
-  constr_.remove (lvs);
-  literals_.erase (literals_.begin() + idx);
+  TinySet<LiteralId> lidSet;
+  for (size_t i = 0; i < literals_.size(); i++) {
+    lidSet.insert (literals_[i].lid());
+  }
+  return lidSet;
+}
+
+
+
+LogVarSet
+Clause::ipgCandidates (void) const
+{
+  LogVarSet candidates;
+  LogVarSet allLvs = constr_.logVarSet();
+  allLvs -= ipgLogVars_;
+  for (size_t i = 0; i < allLvs.size(); i++) {
+    bool valid = true;
+    for (size_t j = 0; j < literals_.size(); j++) {
+      if (Util::contains (literals_[j].logVars(), allLvs[i]) == false) {
+        valid = false;
+        break;
+      }
+    }
+    if (valid) {
+      candidates.insert (allLvs[i]);
+    }
+  }
+  return candidates;
 }
 
 
@@ -253,25 +242,23 @@ Clause::logVarTypes (size_t litIdx) const
 
 
 void
+Clause::removeLiteral (size_t litIdx)
+{
+  // TODO maybe we need to clean up pos/neg/ipg lvs too
+  LogVarSet lvs (literals_[litIdx].logVars());
+  lvs -= getLogVarSetExcluding (litIdx);
+  constr_.remove (lvs);
+  literals_.erase (literals_.begin() + litIdx);
+}
+
+
+
+void
 Clause::printClauses (const Clauses& clauses)
 {
   for (size_t i = 0; i < clauses.size(); i++) {
     cout << clauses[i] << endl;
   }
-}
-
-
-
-LogVarSet
-Clause::getLogVarSetExcluding (size_t idx) const
-{
-  LogVarSet lvs;
-  for (size_t i = 0; i < literals_.size(); i++) {
-    if (i != idx) {
-      lvs |= literals_[i].logVars();
-    }
-  }
-  return lvs;
 }
 
 
@@ -289,6 +276,20 @@ std::ostream& operator<< (ostream &os, const Clause& clause)
     os << " | " << copy.tupleSet();
   }
   return os;
+}
+
+
+
+LogVarSet
+Clause::getLogVarSetExcluding (size_t idx) const
+{
+  LogVarSet lvs;
+  for (size_t i = 0; i < literals_.size(); i++) {
+    if (i != idx) {
+      lvs |= literals_[i].logVars();
+    }
+  }
+  return lvs;
 }
 
 

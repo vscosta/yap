@@ -217,23 +217,6 @@ LiftedCircuit::compile (
 }
 
 
-void
-LiftedCircuit::propagate (
-    const Clause& c,
-    const Clause& unitClause,
-    Clauses& newClauses)
-{
-/*
-  Literals literals = c.literals();
-  for (size_t i = 0; i < literals.size(); i++) {
-    if (literals_[i].lid() == lid && literals[i].isPositive()) {
-      
-      return true;
-    }
-  }
-*/
-}
-
 
 bool
 shatterCountedLogVars (Clauses& clauses, size_t idx1, size_t idx2)
@@ -312,14 +295,12 @@ LiftedCircuit::tryUnitPropagation (
           if (clauses[i].literals()[0].isPositive()) {
             if (clauses[j].containsPositiveLiteral (lid, types) == false) {
               Clause newClause = clauses[j];
-              cout << "removing negative literals on " << newClause << endl;
               newClause.removeNegativeLiterals (lid, types);
               newClauses.push_back (newClause);
             }
           } else if (clauses[i].literals()[0].isNegative()) {
             if (clauses[j].containsNegativeLiteral (lid, types) == false) {
               Clause newClause = clauses[j];
-              cout << "removing negative literals on " << newClause << endl;
               newClause.removePositiveLiterals (lid, types);
               newClauses.push_back (newClause);
             }
@@ -330,7 +311,6 @@ LiftedCircuit::tryUnitPropagation (
       explanation << " UP on" << clauses[i].literals()[0];
       AndNode* andNode = new AndNode (clauses, explanation.str());
       Clauses leftClauses = {clauses[i]};
-      cout << "new clauses: " << newClauses << endl;
       compile (andNode->leftBranch(), leftClauses);
       compile (andNode->rightBranch(), newClauses);
       (*follow) = andNode;
