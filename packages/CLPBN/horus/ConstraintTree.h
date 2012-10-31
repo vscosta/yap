@@ -108,6 +108,8 @@ class ConstraintTree
     ConstraintTree (const LogVars&);
 
     ConstraintTree (const LogVars&, const Tuples&);
+    
+    ConstraintTree (vector<vector<string>> names);
 
     ConstraintTree (const ConstraintTree&);
 

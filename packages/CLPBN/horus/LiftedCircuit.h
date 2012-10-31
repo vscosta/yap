@@ -186,7 +186,7 @@ class CompilationFailedNode : public CircuitNode
 class LiftedCircuit
 {
   public:
-    LiftedCircuit (const LiftedWCNF* lwcnf);
+    LiftedCircuit (const LiftedWCNF* lwcnf);    
     
     void smoothCircuit (void);
     
@@ -205,8 +205,11 @@ class LiftedCircuit
     bool tryIndepPartialGrounding (CircuitNode** follow, Clauses& clauses);
     bool tryIndepPartialGroundingAux (Clauses& clauses, ConstraintTree& ct,
         vector<unsigned>& indices);
+    bool tryAtomCounting (CircuitNode** follow, Clauses& clauses);
     bool tryGrounding       (CircuitNode** follow, Clauses& clauses);
-        
+
+    void propagate (const Clause& c, const Clause& uc, Clauses& newClauses);
+
     TinySet<LiteralId> smoothCircuit (CircuitNode* node);
     
     void createSmoothNode (const TinySet<LiteralId>& lids,

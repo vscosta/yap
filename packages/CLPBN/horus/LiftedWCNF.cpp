@@ -17,7 +17,10 @@ Literal::isGround (ConstraintTree constr, LogVarSet ipgLogVars) const
 
 
 string
-Literal::toString (LogVarSet ipgLogVars) const
+Literal::toString (
+    LogVarSet ipgLogVars,
+    LogVarSet posCountedLvs,
+    LogVarSet negCountedLvs) const
 {
   stringstream ss;
   negated_ ? ss << "¬" : ss << "" ;
@@ -27,10 +30,14 @@ Literal::toString (LogVarSet ipgLogVars) const
     ss << "(" ;
     for (size_t i = 0; i < logVars_.size(); i++) {
       if (i != 0) ss << ",";
-      if (ipgLogVars.contains (logVars_[i])) {
+      if (posCountedLvs.contains (logVars_[i])) {
+        ss << "+" << logVars_[i];
+      } else if (negCountedLvs.contains (logVars_[i])) {
+        ss << "-" << logVars_[i];
+      } else if (ipgLogVars.contains (logVars_[i])) {
         LogVar X = logVars_[i];
         const string labels[] = {
-            "a", "b", "c", "d", "e", "f", 
+            "a", "b", "c", "d", "e", "f",
             "g", "h", "i", "j", "k", "m" };
         (X >= 12) ? ss << "x_" << X : ss << labels[X];
       } else {
@@ -66,10 +73,14 @@ Clause::containsLiteral (LiteralId lid) const
 
 
 bool
-Clause::containsPositiveLiteral (LiteralId lid) const
+Clause::containsPositiveLiteral (
+    LiteralId lid,
+    const LogVarTypes& types) const
 {
   for (size_t i = 0; i < literals_.size(); i++) {
-    if (literals_[i].lid() == lid && literals_[i].isPositive()) {
+    if (literals_[i].lid() == lid
+        && literals_[i].isPositive()
+        && logVarTypes (i) == types) {
       return true;
     }
   }
@@ -79,10 +90,14 @@ Clause::containsPositiveLiteral (LiteralId lid) const
 
     
 bool
-Clause::containsNegativeLiteral (LiteralId lid) const
+Clause::containsNegativeLiteral (
+    LiteralId lid,
+    const LogVarTypes& types) const
 {
   for (size_t i = 0; i < literals_.size(); i++) {
-    if (literals_[i].lid() == lid && literals_[i].isNegative()) {
+    if (literals_[i].lid() == lid
+        && literals_[i].isNegative()
+        && logVarTypes (i) == types) {
       return true;
     }
   }
@@ -107,11 +122,15 @@ Clause::removeLiterals (LiteralId lid)
     
 
 void
-Clause::removePositiveLiterals (LiteralId lid)
+Clause::removePositiveLiterals (
+   LiteralId lid,
+   const LogVarTypes& types)
 {
   size_t i = 0;
   while (i != literals_.size()) {
-    if (literals_[i].lid() == lid && literals_[i].isPositive()) {
+    if (literals_[i].lid() == lid
+        && literals_[i].isPositive()
+        && logVarTypes (i) == types) {
       removeLiteral (i);
     } else {
       i ++;
@@ -122,11 +141,15 @@ Clause::removePositiveLiterals (LiteralId lid)
 
 
 void
-Clause::removeNegativeLiterals (LiteralId lid)
+Clause::removeNegativeLiterals (
+    LiteralId lid,
+    const LogVarTypes& types)
 {
   size_t i = 0;
   while (i != literals_.size()) {
-    if (literals_[i].lid() == lid && literals_[i].isNegative()) {
+    if (literals_[i].lid() == lid
+        && literals_[i].isNegative()
+        && logVarTypes (i) == types) {
       removeLiteral (i);
     } else {
       i ++;
@@ -171,6 +194,34 @@ Clause::lidSet (void) const
 
 
 
+bool
+Clause::isCountedLogVar (LogVar X) const
+{
+  assert (constr_.logVarSet().contains (X));
+  return posCountedLvs_.contains (X)
+      || negCountedLvs_.contains (X);
+}
+
+
+
+bool
+Clause::isPositiveCountedLogVar (LogVar X) const
+{
+  assert (constr_.logVarSet().contains (X));
+  return posCountedLvs_.contains (X);
+}
+  
+
+
+bool
+Clause::isNegativeCountedLogVar (LogVar X) const
+{
+  assert (constr_.logVarSet().contains (X));
+  return negCountedLvs_.contains (X);
+}
+
+
+
 void
 Clause::removeLiteral (size_t idx)
 {
@@ -178,6 +229,35 @@ Clause::removeLiteral (size_t idx)
   lvs -= getLogVarSetExcluding (idx);
   constr_.remove (lvs);
   literals_.erase (literals_.begin() + idx);
+}
+
+
+
+LogVarTypes
+Clause::logVarTypes (size_t litIdx) const
+{
+  LogVarTypes types;
+  const LogVars lvs = literals_[litIdx].logVars();
+  for (size_t i = 0; i < lvs.size(); i++) {
+    if (posCountedLvs_.contains (lvs[i])) {
+      types.push_back (LogVarType::POS_LV);
+    } else if (negCountedLvs_.contains (lvs[i])) {
+      types.push_back (LogVarType::NEG_LV);    
+    } else {
+      types.push_back (LogVarType::FULL_LV);
+    }
+  }
+  return types;
+}
+
+
+
+void
+Clause::printClauses (const Clauses& clauses)
+{
+  for (size_t i = 0; i < clauses.size(); i++) {
+    cout << clauses[i] << endl;
+  }
 }
 
 
@@ -200,7 +280,8 @@ std::ostream& operator<< (ostream &os, const Clause& clause)
 {
   for (unsigned i = 0; i < clause.literals_.size(); i++) {
     if (i != 0) os << " v " ;
-    os << clause.literals_[i].toString (clause.ipgLogVars_);
+    os << clause.literals_[i].toString (clause.ipgLogVars_,
+        clause.posCountedLvs_, clause.negCountedLvs_);
   }
   if (clause.constr_.empty() == false) {
     ConstraintTree copy (clause.constr_);
@@ -215,10 +296,23 @@ std::ostream& operator<< (ostream &os, const Clause& clause)
 LiftedWCNF::LiftedWCNF (const ParfactorList& pfList)
     : pfList_(pfList), freeLiteralId_(0)
 {
-  addIndicatorClauses (pfList);
-  addParameterClauses (pfList);
+  //addIndicatorClauses (pfList);
+  //addParameterClauses (pfList);
+
+  vector<vector<string>> names = {{"p1","p1"},{"p2","p2"}};
+
+  Clause c1 (names);
+  c1.addLiteral (Literal (0, LogVars()={0}));
+  c1.addAndNegateLiteral (Literal (1, {0,1}));
+  clauses_.push_back(c1);
+    
+  Clause c2 (names);
+  c2.addLiteral (Literal (0, LogVars()={0}));
+  c2.addAndNegateLiteral (Literal (1, {1,0}));
+  clauses_.push_back(c2);
+  
   cout << "FORMULA INDICATORS:" << endl;
-  printFormulaIndicators();
+  // printFormulaIndicators();
   cout << endl;
   cout << "WEIGHTS:" << endl;
   printWeights();

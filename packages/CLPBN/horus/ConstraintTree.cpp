@@ -112,6 +112,8 @@ CTNode::copySubtree (const CTNode* root1)
     const CTNode* n1 = stack.back().first;
     CTNode* n2 = stack.back().second;
     stack.pop_back();
+    // cout << "n2 childs: " << n2->childs();
+    // cout << "n1 childs: " << n1->childs();
     n2->childs().reserve (n1->nrChilds());
     stack.reserve (n1->nrChilds());
     for (CTChilds::const_iterator chIt = n1->childs().begin();
@@ -180,6 +182,28 @@ ConstraintTree::ConstraintTree (
   logVarSet_ = LogVarSet (logVars);
   for (size_t i = 0; i < tuples.size(); i++) {
     addTuple (tuples[i]);
+  }
+}
+
+
+
+ConstraintTree::ConstraintTree (vector<vector<string>> names)
+{
+  assert (names.empty() == false);
+  assert (names.front().empty() == false);  
+  unsigned nrLvs = names[0].size();
+  for (size_t i = 0; i < nrLvs; i++) {
+    logVars_.push_back (LogVar (i));
+  }
+  root_      = new CTNode (0, 0);
+  logVarSet_ = LogVarSet (logVars_);
+  for (size_t i = 0; i < names.size(); i++) {
+    Tuple t;
+    for (size_t j = 0; j < names[i].size(); j++) {
+      assert (names[i].size() == nrLvs);
+      t.push_back (LiftedUtils::getSymbol (names[i][j]));	
+    }
+    addTuple (t);
   }
 }
 
