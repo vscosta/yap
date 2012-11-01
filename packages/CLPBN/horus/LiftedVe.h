@@ -8,6 +8,8 @@
 class LiftedOperator
 {
   public:
+    virtual ~LiftedOperator (void) { }
+  
     virtual double getLogCost (void) = 0;
 
     virtual void apply (void) = 0;
