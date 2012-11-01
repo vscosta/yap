@@ -199,16 +199,27 @@ class LiftedCircuit
     void compile (CircuitNode** follow, Clauses& clauses);
 
     bool tryUnitPropagation (CircuitNode** follow, Clauses& clauses);
+    
     bool tryIndependence    (CircuitNode** follow, Clauses& clauses);
+    
     bool tryShannonDecomp   (CircuitNode** follow, Clauses& clauses);
+    
     bool tryInclusionExclusion (CircuitNode** follow, Clauses& clauses);
+    
     bool tryIndepPartialGrounding (CircuitNode** follow, Clauses& clauses);
+    
     bool tryIndepPartialGroundingAux (Clauses& clauses, ConstraintTree& ct,
         vector<unsigned>& indices);
+        
     bool tryAtomCounting (CircuitNode** follow, Clauses& clauses);
-    bool tryGrounding       (CircuitNode** follow, Clauses& clauses);
+    
+    bool tryGrounding (CircuitNode** follow, Clauses& clauses);
+    
+    void shatterCountedLogVars (Clauses& clauses);
+    
+    bool shatterCountedLogVarsAux (Clauses& clauses);
 
-    void propagate (const Clause& c, const Clause& uc, Clauses& newClauses);
+    bool shatterCountedLogVarsAux (Clauses& clauses, size_t idx1, size_t idx2);
 
     TinySet<LiteralId> smoothCircuit (CircuitNode* node);
     

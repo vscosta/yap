@@ -219,64 +219,6 @@ LiftedCircuit::compile (
 
 
 bool
-shatterCountedLogVars (Clauses& clauses, size_t idx1, size_t idx2)
-{
-  Literals lits1 = clauses[idx1].literals();
-  Literals lits2 = clauses[idx2].literals();
-  for (size_t i = 0; i < lits1.size(); i++) {
-    for (size_t j = 0; j < lits2.size(); j++) {
-      if (lits1[i].lid() == lits2[j].lid()) {
-        LogVars lvs1 = lits1[i].logVars();
-        LogVars lvs2 = lits2[j].logVars();
-        for (size_t k = 0; k < lvs1.size(); k++) {
-          if (clauses[idx1].isCountedLogVar (lvs1[k])
-              && clauses[idx2].isCountedLogVar (lvs2[k]) == false) {
-            clauses.push_back (clauses[idx2]);
-            clauses[idx2].addPositiveCountedLogVar (lvs2[k]);
-            clauses.back().addNegativeCountedLogVar (lvs2[k]);
-            return true;
-          }
-          if (clauses[idx2].isCountedLogVar (lvs2[k])
-              && clauses[idx1].isCountedLogVar (lvs1[k]) == false) {
-            clauses.push_back (clauses[idx1]);
-            clauses[idx1].addPositiveCountedLogVar (lvs1[k]);
-            clauses.back().addNegativeCountedLogVar (lvs1[k]);
-            return true;
-          }          
-        }
-      }      
-    }
-  }
-  return false;
-}
-
-
-
-bool
-shatterCountedLogVarsAux (Clauses& clauses)
-{
-  for (size_t i = 0; i < clauses.size() - 1; i++) {
-    for (size_t j = i + 1; j < clauses.size(); j++) {
-      bool splitedSome = shatterCountedLogVars (clauses, i, j);
-      if (splitedSome) {
-        return true;
-      }
-    }
-  }
-  return false;  
-}
-
-
-
-void
-shatterCountedLogVars (Clauses& clauses)
-{
-  while (shatterCountedLogVarsAux (clauses)) ;
-}
-
-
-
-bool
 LiftedCircuit::tryUnitPropagation (
     CircuitNode** follow,
     Clauses& clauses)
@@ -558,6 +500,67 @@ LiftedCircuit::tryGrounding (
   ConstraintTrees cts = clauses[bestClauseIdx].constr().ground (bestLogVar);
   return true;
   */
+}
+
+
+
+void
+LiftedCircuit::shatterCountedLogVars (Clauses& clauses)
+{
+  while (shatterCountedLogVarsAux (clauses)) ;
+}
+
+
+
+bool
+LiftedCircuit::shatterCountedLogVarsAux (Clauses& clauses)
+{
+  for (size_t i = 0; i < clauses.size() - 1; i++) {
+    for (size_t j = i + 1; j < clauses.size(); j++) {
+      bool splitedSome = shatterCountedLogVarsAux (clauses, i, j);
+      if (splitedSome) {
+        return true;
+      }
+    }
+  }
+  return false;  
+}
+
+
+
+bool
+LiftedCircuit::shatterCountedLogVarsAux (
+    Clauses& clauses,
+    size_t idx1,
+    size_t idx2)
+{
+  Literals lits1 = clauses[idx1].literals();
+  Literals lits2 = clauses[idx2].literals();
+  for (size_t i = 0; i < lits1.size(); i++) {
+    for (size_t j = 0; j < lits2.size(); j++) {
+      if (lits1[i].lid() == lits2[j].lid()) {
+        LogVars lvs1 = lits1[i].logVars();
+        LogVars lvs2 = lits2[j].logVars();
+        for (size_t k = 0; k < lvs1.size(); k++) {
+          if (clauses[idx1].isCountedLogVar (lvs1[k])
+              && clauses[idx2].isCountedLogVar (lvs2[k]) == false) {
+            clauses.push_back (clauses[idx2]);
+            clauses[idx2].addPositiveCountedLogVar (lvs2[k]);
+            clauses.back().addNegativeCountedLogVar (lvs2[k]);
+            return true;
+          }
+          if (clauses[idx2].isCountedLogVar (lvs2[k])
+              && clauses[idx1].isCountedLogVar (lvs1[k]) == false) {
+            clauses.push_back (clauses[idx1]);
+            clauses[idx1].addPositiveCountedLogVar (lvs1[k]);
+            clauses.back().addNegativeCountedLogVar (lvs1[k]);
+            return true;
+          }          
+        }
+      }      
+    }
+  }
+  return false;
 }
 
 
