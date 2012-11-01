@@ -1,6 +1,8 @@
 #ifndef HORUS_LIFTEDCIRCUIT_H
 #define HORUS_LIFTEDCIRCUIT_H
 
+#include <stack>
+
 #include "LiftedWCNF.h"
 
 
@@ -45,11 +47,11 @@ class OrNode : public CircuitNode
     OrNode (const Clauses& clauses, string explanation = "")
         : CircuitNode (clauses, explanation),
           leftBranch_(0), rightBranch_(0) { }
-          
-    double weight (void) const;
 
     CircuitNode** leftBranch  (void) { return &leftBranch_; }
     CircuitNode** rightBranch (void) { return &rightBranch_; }
+    
+    double weight (void) const;
   private:
     CircuitNode* leftBranch_;
     CircuitNode* rightBranch_;
@@ -78,11 +80,12 @@ class AndNode : public CircuitNode
         string explanation = "")
         : CircuitNode ({}, explanation),
           leftBranch_(leftBranch), rightBranch_(rightBranch) { }
-          
-    double weight (void) const;
 
     CircuitNode** leftBranch  (void) { return &leftBranch_;  }
     CircuitNode** rightBranch (void) { return &rightBranch_; }
+    
+    double weight (void) const;
+    
   private:
     CircuitNode* leftBranch_;
     CircuitNode* rightBranch_;
@@ -93,14 +96,23 @@ class AndNode : public CircuitNode
 class SetOrNode	: public CircuitNode
 {
   public:
-    SetOrNode (const Clauses& clauses, string explanation = "")
-        : CircuitNode (clauses, explanation), follow_(0) { }
-        
-    double weight (void) const;
-                            
+    SetOrNode (unsigned nrGroundings, const Clauses& clauses)
+        : CircuitNode (clauses, " AC"), follow_(0),
+          nrGroundings_(nrGroundings) { }
+
     CircuitNode** follow (void) { return &follow_; }
+
+    static unsigned nrPositives (void) { return nrGrsStack.top().first;  }
+
+    static unsigned nrNegatives (void) { return nrGrsStack.top().second; }
+    
+    double weight (void) const;
+
   private:
-    CircuitNode* follow_;
+    CircuitNode*  follow_;
+    unsigned      nrGroundings_;
+
+    static stack<pair<unsigned, unsigned>> nrGrsStack;
 };
 
 
@@ -109,15 +121,16 @@ class SetAndNode : public CircuitNode
 {
   public:
     SetAndNode (unsigned nrGroundings, const Clauses& clauses)
-        : CircuitNode (clauses, " IPG"), nrGroundings_(nrGroundings), 
-          follow_(0) { }
+        : CircuitNode (clauses, " IPG"), follow_(0),
+          nrGroundings_(nrGroundings) { }
+
+    CircuitNode** follow (void) { return &follow_; }
         
     double weight (void) const;
-                    
-    CircuitNode** follow (void) { return &follow_; }
+
   private:
-    unsigned      nrGroundings_;
     CircuitNode*  follow_;
+    unsigned      nrGroundings_;
 };
 
 
@@ -129,11 +142,11 @@ class IncExcNode : public CircuitNode
         : CircuitNode (clauses), plus1Branch_(0),
         plus2Branch_(0), minusBranch_(0) { }
 
-    double weight (void) const;        
-
     CircuitNode** plus1Branch (void) { return &plus1Branch_; }
     CircuitNode** plus2Branch (void) { return &plus2Branch_; }
     CircuitNode** minusBranch (void) { return &minusBranch_; }
+    
+    double weight (void) const;    
 
   private:
     CircuitNode* plus1Branch_;

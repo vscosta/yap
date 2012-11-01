@@ -119,7 +119,7 @@ Clause::removeLiterals (LiteralId lid)
   }
 }
 
-    
+
 
 void
 Clause::removePositiveLiterals (
@@ -137,7 +137,7 @@ Clause::removePositiveLiterals (
     }
   }
 }
-    
+
 
 
 void

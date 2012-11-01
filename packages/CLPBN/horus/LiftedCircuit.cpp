@@ -26,10 +26,18 @@ AndNode::weight (void) const
 double
 SetOrNode::weight (void) const
 {
-  // TODO
-  return 0.0;
+  double weightSum = LogAware::addIdenty();
+  for (unsigned i = 0; i < nrGroundings_ + 1; i++) {
+    nrGrsStack.push (make_pair (i, nrGroundings_ - i));
+    if (Globals::logDomain) {
+      double w = std::log (Util::nrCombinations (nrGroundings_, i));
+      weightSum = Util::logSum (weightSum, w + follow_->weight());
+    } else {
+      weightSum += Util::nrCombinations (nrGroundings_, i) * follow_->weight();
+    }
+  }
+  return weightSum;
 }
-
 
 
 
@@ -67,14 +75,22 @@ LeafNode::weight (void) const
   assert (clauses()[0].isUnit());
   Clause c = clauses()[0];
   double weight = c.literals()[0].weight();
-  LogVarSet lvs = c.constr().logVarSet() - c.ipgLogVars();
+  LogVarSet lvs = c.constr().logVarSet();
+  lvs -= c.ipgLogVars();
+  lvs -= c.positiveCountedLogVars();
+  lvs -= c.negativeCountedLogVars();
   unsigned nrGroundings = 1;
   if (lvs.empty() == false) {
     ConstraintTree ct = c.constr();
     ct.project (lvs);
     nrGroundings = ct.size();
   }
-  assert (nrGroundings != 0);
+  // TODO this only works for one counted log var
+  if (c.positiveCountedLogVars().empty() == false) {
+    nrGroundings *= SetOrNode::nrPositives();
+  } else if (c.negativeCountedLogVars().empty() == false) {
+    nrGroundings *= SetOrNode::nrNegatives();    
+  }
   return Globals::logDomain 
       ? weight * nrGroundings
       : std::pow (weight, nrGroundings);
@@ -85,6 +101,7 @@ LeafNode::weight (void) const
 double
 SmoothNode::weight (void) const
 {
+  // TODO and what happens if smoothing contains ipg or counted lvs ?
   Clauses cs = clauses();
   double totalWeight = LogAware::multIdenty();
   for (size_t i = 0; i < cs.size(); i++) {
@@ -223,12 +240,11 @@ LiftedCircuit::tryUnitPropagation (
     CircuitNode** follow,
     Clauses& clauses)
 {
-  cout << "ALL CLAUSES:" << endl;
-  Clause::printClauses (clauses);
-
+  // cout << "ALL CLAUSES:" << endl;
+  // Clause::printClauses (clauses);
   for (size_t i = 0; i < clauses.size(); i++) {
     if (clauses[i].isUnit()) {
-      cout << clauses[i] << " is unit!" << endl;
+      // cout << clauses[i] << " is unit!" << endl;
       Clauses newClauses;
       for (size_t j = 0; j < clauses.size(); j++) {
         if (i != j) {
@@ -453,7 +469,9 @@ LiftedCircuit::tryAtomCounting (
     for (size_t j = 0; j < literals.size(); j++) {
       if (literals[j].logVars().size() == 1) {
         // TODO check if not already in ipg and countedlvs
-        SetOrNode* setOrNode = new SetOrNode (clauses);
+        unsigned nrGroundings = clauses[i].constr().projectedCopy (
+            literals[j].logVars()).size();
+        SetOrNode* setOrNode = new SetOrNode (nrGroundings, clauses);
         Clause c1 (clauses[i].constr().projectedCopy (literals[j].logVars()));
         Clause c2 (clauses[i].constr().projectedCopy (literals[j].logVars()));
         c1.addLiteral (literals[j]);
