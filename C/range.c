@@ -116,6 +116,7 @@ p_loop( USES_REGS1 ) {
 void 
 Yap_InitRange(void)
 {
+  CACHE_REGS
   Term cm = CurrentModule;
   CurrentModule = RANGE_MODULE;
   Yap_InitCPred("euclidean_distance", 3, p_euc_dist, SafePredFlag);
