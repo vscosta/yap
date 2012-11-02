@@ -4378,7 +4378,6 @@ p_hide_predicate( USES_REGS1 )
 
   Term t1 = Deref(ARG1);
   Term mod = Deref(ARG2);
-  Prop p0;
 
  restart_system_pred:
   if (IsVarTerm(t1))
