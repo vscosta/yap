@@ -849,8 +849,8 @@ fi
 if test "$yap_cv_python" = "no"; then
     PYTHON_TARGET="dummy"
     ENABLE_PYTHON="@# "
-elif test -e "$srcdir"/packages/pyswip/Makefile.in ; then
-   PYTHON_TARGET="pyswip"
+elif test -e "$srcdir"/packages/python/Makefile.in ; then
+   PYTHON_TARGET="pitf"
    ENABLE_PYTHON=""
    if test "$yap_cv_python" = "yes"
    then
@@ -861,6 +861,7 @@ elif test -e "$srcdir"/packages/pyswip/Makefile.in ; then
    PYTHONHOME=`$PYTHON -c'import sys; print sys.prefix'`
    PYTHONVERSION=`"$PYTHON" -c "import sys; print sys.version[[:3]]"`
    PYTHON_LIBS="-L $PYTHONHOME/lib -lpython$PYTHONVERSION"
+   LIBS="$LIBS $PYTHON_LIBS"
    PYTHON_INCLUDES="-I $PYTHONHOME/include/python$PYTHONVERSION"
 else
     PYTHON_TARGET="dummy"
@@ -2565,7 +2566,7 @@ AC_CONFIG_FILES([packages/jpl/Makefile packages/jpl/jpl_paths.yap packages/jpl/s
 fi
 
 if test "$ENABLE_PYTHON" = ""; then
-AC_CONFIG_FILES([ packages/pyswip/Makefile ])
+AC_CONFIG_FILES([ packages/python/Makefile ])
 fi
 
 if test "$ENABLE_PLDOC" = ""; then

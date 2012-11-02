@@ -4,8 +4,8 @@
 # Copyright: Perl License
 ################################################################
 
-PACKAGE=pyswip
-DOC=pyswip
+PACKAGE=python
+DOC=python
 PKGCFLAGS=@PYTHON_INCLUDES@
 include ../Makefile.defs
 
@@ -16,7 +16,7 @@ LIBPL=		python.pl
 
 all:		@PYTHON_TARGET@
 
-pyswip:		$(SOLIBS)
+pitf:		$(SOLIBS)
 dummy::
 
 python.@SO@:	$(OBJS)
@@ -24,7 +24,7 @@ python.@SO@:	$(OBJS)
 
 install:	install-@PYTHON_TARGET@
 install-dummy::
-install-pyswip:	$(SOLIBS) $(addprefix $(srcdir)/, $(LIBPL))
+install-pitf:	$(SOLIBS) $(addprefix $(srcdir)/, $(LIBPL))
 		mkdir -p $(DESTDIR)$(SOLIBDIR)
 		rm -f $(DESTDIR)$(SOLIBDIR)/python.@SO@
 		$(INSTALL_PROGRAM) $(SOLIBS) $(SOLIBDIR)
@@ -34,9 +34,6 @@ install-pyswip:	$(SOLIBS) $(addprefix $(srcdir)/, $(LIBPL))
 		done
 		$(MKINDEX)
 
-
-install-python:
-		(cd $(srcdir); python setup.py install)
 
 ln-install::
 		$(MAKE) INSTALL_DATA="../ln-install" INSTALL_PROGRAM="../ln-install" install

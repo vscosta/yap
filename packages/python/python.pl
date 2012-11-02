@@ -65,8 +65,7 @@ Data types are
 := F :- python(F,_).
 
 V := F :- var(V), !, python(F,V).
-'$'(V) := F :- atom(V), !, python(F,F1), python_assign(V, F1).
-A^Key := F :- python(F,F1), python_set_item(A, Key, F1).
+A := F :- python(F, F1), python_assign(A, F1).
 
 python_import(Module) :-
 	python_do_import(Module, _).
@@ -140,7 +139,8 @@ start_python :-
 add_cwd_to_python :-
 	unix(getcwd(Dir)),
 	atom_concat(['sys.path.append(\"',Dir,'\")'], Command),
-	python_command(Command).
+	python_command(Command),
+	python_command("sys.argv = [\"yap\"]").
 	% done	
 
 python_assign(Name, Exp, '$'(Name)) :-

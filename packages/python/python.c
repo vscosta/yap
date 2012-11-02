@@ -189,21 +189,138 @@ term_to_python(term_t t)
 	  return NULL;
 	return PyNumber_Divide(lhs, rhs);
       } else if (fun == FUNCTOR_hat2) {
-	term_t targ = PL_new_term_ref();
+	term_t targ = PL_new_term_ref(), trhs = PL_new_term_ref();
 	PyObject *lhs, *rhs;
 
-	if (! PL_get_arg(1, t, targ) )
+	if (! PL_get_arg(1, t, targ))
 	  return NULL;
 	lhs = term_to_python(targ);
-	if (! PL_get_arg(2, t, targ) )
+	if (! PL_get_arg(2, t, targ)  || !PL_is_list(targ) || !PL_get_list(targ, trhs, targ)  )
 	  return NULL;
-	rhs = term_to_python(targ);
+	rhs = term_to_python(trhs);
 	return PyObject_GetItem(lhs, rhs);
+      } else {
+	atom_t name;
+	int len;
+
+	if (! PL_get_name_arity( t, &name, &len) ) {
+	  return NULL;
+	}
+	if (name == ATOM_t) {
+	  term_t targ = PL_new_term_ref();
+	  PyObject *out;
+	  int i;
+
+	  out = PyTuple_New(len);
+	  if (!out)
+	    return NULL;
+	  for (i=0; i< len; i++) {
+	    if (!PL_get_arg(i+1, t, targ)) {
+	      return NULL;
+	    }
+	    if (PyTuple_SetItem(out, i, term_to_python(targ)) < 0)
+	      return NULL;
+	  }
+	  return out;
+	}
       }
     }
     return NULL;
   }
   return NULL;
+}
+
+static int
+assign_python(PyObject *root, term_t t, PyObject *e)
+{
+  // Yap_DebugPlWrite(YAP_GetFromSlot(t));        fprintf(stderr, " here I am\n");
+  switch (PL_term_type(t)) {
+  case PL_VARIABLE:
+    return -1;
+  case PL_ATOM:
+    {
+      char *s;
+      
+      if (!PL_get_atom_chars(t, &s)) {
+	wchar_t *w;
+	atom_t at;
+	size_t len;
+	PyObject *wo;
+
+	if (!PL_get_atom(t, &at))
+	  return -1;
+	if (!(w = PL_atom_wchars(at, &len)))
+	  return -1;
+	wo = PyUnicode_FromWideChar(w, wcslen(w) );
+        return PyObject_SetAttr(root, wo, e); 
+      }
+      if (proper_ascii_string(s)) {
+        return PyObject_SetAttrString(root, s, e); 
+      } else {
+	PyObject *wo=  PyUnicode_DecodeLatin1(s, strlen(s), NULL);
+        return PyObject_SetAttr(root, wo, e); 
+      }
+    }
+  case PL_INTEGER:
+  case PL_STRING:
+  case PL_FLOAT:
+    return -1;
+  case PL_TERM:
+    if (PL_is_list(t)) {
+      return -1;
+    } else {
+      functor_t fun;
+
+      if (!PL_get_functor(t, &fun))
+	return -1;
+      if (fun == FUNCTOR_dollar1) {
+	char *s;
+
+	
+	if (! PL_get_arg(1, t, t) )
+	  return -1;
+	if (!PL_get_atom_chars(t, &s)) {
+	  wchar_t *w;
+	  atom_t at;
+	  size_t len;
+	  PyObject *attr;
+
+	  if (!PL_get_atom(t, &at)) {
+	    return -1;
+	  }
+	  if (!(w = PL_atom_wchars(at, &len)))
+	    return -1;
+	  attr = PyUnicode_FromWideChar(w, wcslen(w) );
+	  if (!attr)
+	    return -1;
+	  return PyObject_SetAttr(py_Main, attr, e);
+	}
+	if (proper_ascii_string(s)) {
+	  return PyObject_SetAttrString(py_Main, s, e);
+	} else {
+	  PyObject *attr=  PyUnicode_DecodeLatin1(s, strlen(s), NULL);
+	  if (!attr)
+	    return -1;
+	  return PyObject_SetAttr(py_Main, attr, e);
+	}
+      } else if (fun == FUNCTOR_pointer1) {
+	return -1;
+      } else if (fun == FUNCTOR_hat2) {
+	term_t targ = PL_new_term_ref(), trhs = PL_new_term_ref();
+	PyObject *lhs, *rhs;
+
+	if (! PL_get_arg(1, t, targ) )
+	  return -1;
+	lhs = term_to_python(targ);
+	if (! PL_get_arg(2, t, targ) || !PL_is_list(targ) || !PL_get_list(targ, trhs, targ ) )
+	  return -1;
+	rhs = term_to_python(trhs);
+	return PyObject_SetItem(lhs, rhs, e);
+      }
+    }
+    return -1;
+  }
+  return -1;
 }
 
 static foreign_t
@@ -340,25 +457,6 @@ python_o(term_t tmod, term_t fname, term_t tf)
 }
 
 static foreign_t
-python_set_item(term_t tobj, term_t tpos, term_t titem)
-{ 
-  PyObject *obj, *item, *pos;
-
-  obj = term_to_python(tobj);
-  if (obj == NULL)
-    return FALSE;
-  item = term_to_python(titem);
-  if (item == NULL)
-    return FALSE;
-  pos = term_to_python(tpos);
-  if (pos == NULL)
-    return FALSE;
-  if (PyObject_SetItem(obj, pos,  item) < 0)
-    return FALSE;
-  return TRUE;
-}
-
-static foreign_t
 python_len(term_t tobj, term_t tf)
 { 
   Py_ssize_t len;
@@ -441,13 +539,10 @@ static foreign_t
 python_assign(term_t name, term_t exp)
 {
   PyObject *e = term_to_python(exp);
-  char *s;
 
   if (e == NULL)
     return FALSE;
-  if (!PL_get_atom_chars(name, &s))
-    return FALSE;
-  return PyObject_SetAttrString(py_Main, s, e) >= 0;  
+  return assign_python(py_Main, name, e) >= 0;
 }
 
 static foreign_t
@@ -561,7 +656,6 @@ install_python(void)
   PL_register_foreign("python_apply",	  3, python_apply,       0);
   PL_register_foreign("python_access",	  3, python_access,       0);
   PL_register_foreign("python_assign",	  2, python_assign,       0);
-  PL_register_foreign("python_set_item",  3, python_set_item,       0);
   PL_register_foreign("python_run_command",	  1, python_run_command,       0);
 }
 

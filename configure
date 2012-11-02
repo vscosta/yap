@@ -6848,8 +6848,8 @@ fi
 if test "$yap_cv_python" = "no"; then
     PYTHON_TARGET="dummy"
     ENABLE_PYTHON="@# "
-elif test -e "$srcdir"/packages/pyswip/Makefile.in ; then
-   PYTHON_TARGET="pyswip"
+elif test -e "$srcdir"/packages/python/Makefile.in ; then
+   PYTHON_TARGET="pitf"
    ENABLE_PYTHON=""
    if test "$yap_cv_python" = "yes"
    then
@@ -6902,6 +6902,7 @@ test -n "$PYTHON" || PYTHON=""none""
    PYTHONHOME=`$PYTHON -c'import sys; print sys.prefix'`
    PYTHONVERSION=`"$PYTHON" -c "import sys; print sys.version[:3]"`
    PYTHON_LIBS="-L $PYTHONHOME/lib -lpython$PYTHONVERSION"
+   LIBS="$LIBS $PYTHON_LIBS"
    PYTHON_INCLUDES="-I $PYTHONHOME/include/python$PYTHONVERSION"
 else
     PYTHON_TARGET="dummy"
@@ -11354,7 +11355,7 @@ ac_config_files="$ac_config_files packages/jpl/Makefile packages/jpl/jpl_paths.y
 fi
 
 if test "$ENABLE_PYTHON" = ""; then
-ac_config_files="$ac_config_files packages/pyswip/Makefile"
+ac_config_files="$ac_config_files packages/python/Makefile"
 
 fi
 
@@ -12171,7 +12172,7 @@ do
     "packages/jpl/Makefile") CONFIG_FILES="$CONFIG_FILES packages/jpl/Makefile" ;;
     "packages/jpl/jpl_paths.yap") CONFIG_FILES="$CONFIG_FILES packages/jpl/jpl_paths.yap" ;;
     "packages/jpl/src/java/Makefile") CONFIG_FILES="$CONFIG_FILES packages/jpl/src/java/Makefile" ;;
-    "packages/pyswip/Makefile") CONFIG_FILES="$CONFIG_FILES packages/pyswip/Makefile" ;;
+    "packages/python/Makefile") CONFIG_FILES="$CONFIG_FILES packages/python/Makefile" ;;
     "packages/pldoc/Makefile") CONFIG_FILES="$CONFIG_FILES packages/pldoc/Makefile" ;;
     "packages/pldoc/server/man_server.pl") CONFIG_FILES="$CONFIG_FILES packages/pldoc/server/man_server.pl" ;;
     "packages/plunit/Makefile") CONFIG_FILES="$CONFIG_FILES packages/plunit/Makefile" ;;
