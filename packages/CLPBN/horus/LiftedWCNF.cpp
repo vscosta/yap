@@ -303,13 +303,13 @@ LiftedWCNF::LiftedWCNF (const ParfactorList& pfList)
   vector<vector<string>> names = {{"p1","p1"},{"p2","p2"}};
 
   Clause c1 (names);
-  c1.addLiteral (Literal (0, LogVars()={0}));
-  c1.addAndNegateLiteral (Literal (1, {0,1}));
+  c1.addLiteral (Literal (0, LogVars()={0}, 3.0));
+  c1.addAndNegateLiteral (Literal (1, {0,1}, 1.0));
   clauses_.push_back(c1);
     
   Clause c2 (names);
-  c2.addLiteral (Literal (0, LogVars()={0}));
-  c2.addAndNegateLiteral (Literal (1, {1,0}));
+  c2.addLiteral (Literal (0, LogVars()={0}, 2.0));
+  c2.addAndNegateLiteral (Literal (1, {1,0}, 5.0));
   clauses_.push_back(c2);
   
   cout << "FORMULA INDICATORS:" << endl;

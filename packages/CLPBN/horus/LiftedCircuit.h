@@ -234,9 +234,9 @@ class LiftedCircuit
 
     bool shatterCountedLogVarsAux (Clauses& clauses, size_t idx1, size_t idx2);
 
-    TinySet<LiteralId> smoothCircuit (CircuitNode* node);
+    LitLvTypesSet smoothCircuit (CircuitNode* node);
     
-    void createSmoothNode (const TinySet<LiteralId>& lids,
+    void createSmoothNode (const LitLvTypesSet& lids,
         CircuitNode** prev);
     
     CircuitNodeType getCircuitNodeType (const CircuitNode* node) const;

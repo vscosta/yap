@@ -146,6 +146,38 @@ typedef vector<Clause> Clauses;
 
 
 
+class LiteralLvTypes
+{
+  public:
+    struct CompareLiteralLvTypes
+    {
+      bool operator() (
+          const LiteralLvTypes& types1,
+          const LiteralLvTypes& types2) const
+      {
+        if (types1.lid_ < types2.lid_) {
+          return true;
+        }
+        return types1.lvTypes_ < types2.lvTypes_;
+      }
+    };
+  
+    LiteralLvTypes (LiteralId lid, const LogVarTypes& lvTypes) :
+        lid_(lid), lvTypes_(lvTypes) { }
+        
+    LiteralId lid (void) const { return lid_; }
+    
+    const LogVarTypes& logVarTypes (void) const { return lvTypes_; }
+
+  private:
+    LiteralId    lid_;
+    LogVarTypes  lvTypes_;
+};
+
+typedef TinySet<LiteralLvTypes,LiteralLvTypes::CompareLiteralLvTypes> LitLvTypesSet;
+
+
+
 class LiftedWCNF
 {
   public:
