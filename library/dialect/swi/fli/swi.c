@@ -397,9 +397,9 @@ X_API int PL_get_integer(term_t ts, int *i)
 {
   CACHE_REGS
   YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
-  if (!YAP_IsIntTerm(t) )
+  if (IsVarTerm(t) || !IsIntegerTerm(t) )
     return 0;
-  *i = YAP_IntOfTerm(t);
+  *i = (int)IntegerOfTerm(t);
   return 1;
 }
 
@@ -1078,7 +1078,7 @@ X_API int PL_warning(const char *msg, ...) {
 X_API int PL_unify(term_t t1, term_t t2)
 {
   CACHE_REGS
-  return YAP_Unify(Yap_GetFromSlot(t1 PASS_REGS),Yap_GetFromSlot(t2 PASS_REGS));
+  return Yap_unify(Yap_GetFromSlot(t1 PASS_REGS),Yap_GetFromSlot(t2 PASS_REGS));
 }
 
 /* SWI: int PL_unify_atom(term_t ?t, atom  *at)
