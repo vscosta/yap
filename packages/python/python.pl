@@ -101,10 +101,35 @@ python_eval_term(Expression, O) :-
 	;
 	    functor(Exp, F, _),
 	    python_f(MRef, F, FRef),
-	    python_apply(FRef, Exp, O)
+	    python_check_args(FRef, Exp, NExp),
+	    python_apply(FRef, NExp, O)
 	).
 python_eval_term(Obj:Field, O) :-
 	python_access(Obj, Field, O).
+
+
+python_check_args(FRef, Exp, NExp) :-
+	functor(Exp, _, Arity),
+	arg(Arity, Exp, _=_), !,
+	fetch_args(FRef, Dict),
+	Exp =.. [F|LArgs],
+	match_args(LArgs, Dict, NLArgs, _),
+	NExp =.. [F|NLArgs].
+python_check_args(FRef, Exp, NExp).
+
+fetch_args(FRef, Args) :-
+	python_import('inspect', M),
+	python_f(M, getargspec, F),
+	python_apply(F, getargspec(FRef), ExtraArgs),
+	ExtraArgs=t(Args, _, _, _).
+
+
+match_args([], _, [], ok).
+match_args([A=V|LArgs], Dict, [I=V|NLArgs], OK) :-
+	match_args(LArgs, Dict, NLArgs,  ok), !,
+	( nth0(I, Dict, A) -> true ; throw(type_error(argument(A=V))) ).
+match_args([A|LArgs], Dict, [A|NLArgs], not_ok) :-
+	match_args(LArgs, Dict, NLArgs, _).
 
 python(Obj, Out) :-
 	 python_eval_term(Obj, Out), !.
@@ -134,7 +159,8 @@ python_command(Cmd) :-
 start_python :-
 	use_foreign_library(foreign(python)),
 	init_python,
-	python_command('import sys').
+	python_command('import sys'),
+	python_command('import inspect').
 
 add_cwd_to_python :-
 	unix(getcwd(Dir)),

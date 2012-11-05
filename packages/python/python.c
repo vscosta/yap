@@ -11,12 +11,18 @@ static atom_t ATOM_true,
   ATOM_t;
 
 static functor_t FUNCTOR_dollar1,
+  FUNCTOR_dir1, 
+  FUNCTOR_iter1, 
+  FUNCTOR_len1, 
   FUNCTOR_pointer1, 
-  FUNCTOR_add2, 
+  FUNCTOR_complex2, 
+  FUNCTOR_plus2, 
   FUNCTOR_sub2,
   FUNCTOR_mul2,
   FUNCTOR_div2,
-  FUNCTOR_hat2;
+  FUNCTOR_hat2,
+  FUNCTOR_colon2,
+  FUNCTOR_equal2;
 
 static PyObject *py_Main;
 
@@ -30,6 +36,18 @@ proper_ascii_string(const char *s)
       return FALSE;
   }
   return TRUE;
+}
+
+static Py_ssize_t
+get_p_int(PyObject *o, Py_ssize_t def) {
+  if (o == NULL)
+    return def;
+  if (PyLong_Check(o)) {
+    return PyLong_AsLong(o);
+  } else if (PyInt_Check(o)) {
+    return PyInt_AsLong(o);
+  }
+  return def;
 }
 
 static PyObject *
@@ -128,18 +146,80 @@ term_to_python(term_t t)
 	  return NULL;
 	/* return __main__,s */
 	return (PyObject *)ptr;
-      } else if (fun == FUNCTOR_add2) {
+      } else if (fun == FUNCTOR_len1) {
+	term_t targ = PL_new_term_ref();
+	PyObject *ptr;
+
+	if (! PL_get_arg(1, t, targ) )
+	  return NULL;
+	ptr = term_to_python(targ);
+	return PyLong_FromLong(PyObject_Length(ptr));
+      } else if (fun == FUNCTOR_dir1) {
+	term_t targ = PL_new_term_ref();
+	PyObject *ptr;
+
+	if (! PL_get_arg(1, t, targ) )
+	  return NULL;
+	ptr = term_to_python(targ);
+	return PyObject_Dir(ptr);
+      } else if (fun == FUNCTOR_iter1) {
+	term_t targ = PL_new_term_ref();
+	PyObject *ptr;
+
+	if (! PL_get_arg(1, t, targ) )
+	  return NULL;
+	ptr = term_to_python(targ);
+	return PyObject_GetIter(ptr);
+      } else if (fun == FUNCTOR_complex2) {
 	term_t targ = PL_new_term_ref();
 	PyObject *lhs, *rhs;
+	double d1, d2;
 
 	if (! PL_get_arg(1, t, targ) )
 	  return NULL;
 	lhs = term_to_python(targ);
 	if (!PyNumber_Check(lhs))
 	  return NULL;
+	if (PyFloat_Check(lhs)) {
+	  d1 = PyFloat_AsDouble(lhs);
+	} else if (PyLong_Check(lhs)) {
+	  d1 = PyLong_AsLong(lhs);
+	} else if (PyInt_Check(lhs)) {
+	  d1 = PyInt_AsLong(lhs);
+	} else {
+	  return NULL;
+	}
 	if (! PL_get_arg(2, t, targ) )
 	  return NULL;
 	rhs = term_to_python(targ);
+	if (!PyNumber_Check(rhs))
+	  return NULL;
+	if (PyFloat_Check(rhs)) {
+	  d2 = PyFloat_AsDouble(rhs);
+	} else if (PyLong_Check(rhs)) {
+	  d2 = PyLong_AsLong(rhs);
+	} else if (PyInt_Check(rhs)) {
+	  d2 = PyInt_AsLong(rhs);
+	} else {
+	  return NULL;
+	}
+
+	return PyComplex_FromDoubles(d1, d2);
+      } else if (fun == FUNCTOR_plus2) {
+	term_t targ = PL_new_term_ref();
+	PyObject *lhs, *rhs;
+
+	if (! PL_get_arg(1, t, targ) )
+	  return NULL;
+	lhs = term_to_python(targ);
+	if (! PL_get_arg(2, t, targ) )
+	  return NULL;
+	rhs = term_to_python(targ);
+	if (PySequence_Check(lhs) && PySequence_Check(rhs)) {
+	  return PySequence_Concat(lhs, rhs);
+	}
+	if (!PyNumber_Check(lhs))
+	  return NULL;
 	if (!PyNumber_Check(rhs))
 	  return NULL;
 	return PyNumber_Add(lhs, rhs);
@@ -165,12 +245,13 @@ term_to_python(term_t t)
 	if (! PL_get_arg(1, t, targ) )
 	  return NULL;
 	lhs = term_to_python(targ);
-	if (!PyNumber_Check(lhs))
-	  return NULL;
 	if (! PL_get_arg(2, t, targ) )
 	  return NULL;
 	rhs = term_to_python(targ);
-	if (!PyNumber_Check(rhs))
+	if (PySequence_Check(lhs) && (PyInt_Check(rhs) || PyLong_Check(rhs)) ){
+	  return PySequence_Repeat(lhs, get_p_int(rhs, 0));
+	}
+	if (!PyNumber_Check(lhs)+!PyNumber_Check(rhs))
 	  return NULL;
 	return PyNumber_Multiply(lhs, rhs);
       } else if (fun == FUNCTOR_div2) {
@@ -197,8 +278,21 @@ term_to_python(term_t t)
 	lhs = term_to_python(targ);
 	if (! PL_get_arg(2, t, targ)  || !PL_is_list(targ) || !PL_get_list(targ, trhs, targ)  )
 	  return NULL;
-	rhs = term_to_python(trhs);
-	return PyObject_GetItem(lhs, rhs);
+	if (PL_is_functor(trhs, FUNCTOR_colon2) ) {
+	  Py_ssize_t left, right;
+	  if (!PL_get_arg(1, trhs, targ))
+	    return NULL;
+	  left = get_p_int(term_to_python(targ), 0);
+	  if (!PL_get_arg(2, trhs, targ))
+	    return NULL;
+	  right = get_p_int(term_to_python(targ), PyObject_Size(lhs) );
+	  if (!PySequence_Check(lhs))
+	    return NULL;
+	  return PySequence_GetSlice(lhs, left, right);
+	} else {
+	  rhs = term_to_python(trhs);
+	  return PyObject_GetItem(lhs, rhs);
+	}
       } else {
 	atom_t name;
 	int len;
@@ -314,8 +408,21 @@ assign_python(PyObject *root, term_t t, PyObject *e)
 	lhs = term_to_python(targ);
 	if (! PL_get_arg(2, t, targ) || !PL_is_list(targ) || !PL_get_list(targ, trhs, targ ) )
 	  return -1;
-	rhs = term_to_python(trhs);
-	return PyObject_SetItem(lhs, rhs, e);
+	if (PL_is_functor(trhs, FUNCTOR_colon2) ) {
+	  Py_ssize_t left, right;
+	  if (!PL_get_arg(1, trhs, targ))
+	    return -1;
+	  left = get_p_int(term_to_python(targ), 0);
+	  if (!PL_get_arg(2, trhs, targ))
+	    return -1;
+	  right = get_p_int(term_to_python(targ), PyObject_Size(lhs) );
+	  if (!PySequence_Check(lhs))
+	    return -1;
+	  return PySequence_SetSlice(lhs, left, right, e);
+	} else {
+	  rhs = term_to_python(trhs);
+	  return PyObject_SetItem(lhs, rhs, e);
+	}
       }
     }
     return -1;
@@ -338,6 +445,13 @@ python_to_term(PyObject *pVal, term_t t)
     }
   } else if (PyFloat_Check(pVal)) {
     return PL_unify_float(t, PyFloat_AsDouble(pVal));
+  } else if (PyComplex_Check(pVal)) {
+    term_t to = PL_new_term_ref(), t1= PL_new_term_ref(), t2 = PL_new_term_ref();
+    if (!PL_put_float(t1, PyComplex_RealAsDouble(pVal) ) ||
+	!PL_put_float(t2, PyComplex_ImagAsDouble(pVal) ) ||
+	!PL_cons_functor(to, FUNCTOR_complex2, t1, t2) )
+      return FALSE;
+    return PL_unify(t, to);
   } else if (PyUnicode_Check(pVal)) {
     Py_ssize_t sz = PyUnicode_GetSize(pVal)+1;
     wchar_t *ptr;
@@ -353,8 +467,8 @@ python_to_term(PyObject *pVal, term_t t)
     atom_t tmp_atom = PL_new_atom(PyString_AsString(pVal));
     return PL_unify_atom(t, tmp_atom);
   } else if (PyTuple_Check(pVal)) {
-    Py_ssize_t i, sz = PyTuple_GET_SIZE(pVal);
-    functor_t f = PL_new_functor(ATOM_t, 2);
+    Py_ssize_t i, sz = PyTuple_Size(pVal);
+    functor_t f = PL_new_functor(ATOM_t, sz);
     if (!PL_unify_functor(t, f))
       return FALSE;
     for (i = 0; i < sz; i++) {
@@ -498,7 +612,7 @@ python_apply(term_t tin, term_t targs, term_t tf)
 { 
   PyObject *pF, *pValue;
   PyObject *pArgs;
-  int i, arity;
+  int i, arity, j;
   atom_t aname;
   foreign_t out;
   term_t targ = PL_new_term_ref();
@@ -509,6 +623,42 @@ python_apply(term_t tin, term_t targs, term_t tf)
   }
   if (! PL_get_name_arity( targs, &aname, &arity) ) {
     return FALSE;
+  }
+  if (PyFunction_Check(pF)) {
+    int tuple_inited = FALSE;
+    PyObject *pOpt = NULL;
+    for (j = arity ; j > 0; j--) {
+      term_t tsubarg = PL_new_term_ref();
+      PyObject *pArg;
+      int posx;
+      Py_ssize_t pos;
+
+      if (! PL_get_arg(j, targs, targ) )
+	return FALSE;
+      if (! PL_is_functor(targ, FUNCTOR_equal2) )
+	break;
+      if (! PL_get_arg(1, targ, tsubarg) || !PL_get_integer(tsubarg, &posx) )
+	break;
+      pos = posx;
+      if (!tuple_inited) {
+	if ((pOpt = PyFunction_GetDefaults(pF)) == NULL)
+	  break;
+	tuple_inited = TRUE;
+      }
+      if (! PL_get_arg(2, targ, tsubarg) )
+	break;
+      pArg = term_to_python(tsubarg);
+      if (pArg == NULL)
+	return FALSE;
+      /* pArg reference stolen here: */
+      PyTuple_SetItem(pOpt, pos,  pArg);
+    }
+    if (tuple_inited) {
+      if (PyFunction_SetDefaults(pF, pOpt) < 0) {
+	return FALSE;
+      }
+      arity = j;
+    }
   }
   pArgs = PyTuple_New(arity);
   for (i = 0 ; i < arity; i++) {
@@ -530,6 +680,7 @@ python_apply(term_t tin, term_t targs, term_t tf)
   Py_DECREF(pArgs);
   if (pValue == NULL)
       return FALSE;
+  out = 0;
   out =  python_to_term(pValue, tf);
   Py_DECREF(pValue);
   return out;
@@ -639,11 +790,17 @@ install_python(void)
   ATOM_t = PL_new_atom("t");
   FUNCTOR_dollar1 = PL_new_functor(PL_new_atom("$"), 1);
   FUNCTOR_pointer1 = PL_new_functor(PL_new_atom("__obj__"), 1);
-  FUNCTOR_add2 = PL_new_functor(PL_new_atom("+"), 2);
+  FUNCTOR_dir1 = PL_new_functor(PL_new_atom("dir"), 1);
+  FUNCTOR_iter1 = PL_new_functor(PL_new_atom("iter"), 1);
+  FUNCTOR_len1 = PL_new_functor(PL_new_atom("len"), 1);
+  FUNCTOR_complex2 = PL_new_functor(PL_new_atom("complex"), 2);
+  FUNCTOR_plus2 = PL_new_functor(PL_new_atom("+"), 2);
   FUNCTOR_sub2 = PL_new_functor(PL_new_atom("-"), 2);
   FUNCTOR_mul2 = PL_new_functor(PL_new_atom("*"), 2);
   FUNCTOR_div2 = PL_new_functor(PL_new_atom("/"), 2);
   FUNCTOR_hat2 = PL_new_functor(PL_new_atom("^"), 2);
+  FUNCTOR_colon2 = PL_new_functor(PL_new_atom(":"), 2);
+  FUNCTOR_equal2 = PL_new_functor(PL_new_atom("="), 2);
 
   PL_register_foreign("init_python",	  0, init_python,      0);
   PL_register_foreign("end_python",	  0, end_python,       0);

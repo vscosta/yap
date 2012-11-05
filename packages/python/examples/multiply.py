@@ -1,3 +1,8 @@
+i = 5
+
+def f(arg=i):
+    print arg
+
 def multiply(a,b):
     print "Will compute", a, "times", b
     c = 0
