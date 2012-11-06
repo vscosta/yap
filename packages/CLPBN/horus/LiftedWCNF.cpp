@@ -220,6 +220,8 @@ Clause::ipgCandidates (void) const
   LogVarSet candidates;
   LogVarSet allLvs = constr_.logVarSet();
   allLvs -= ipgLogVars_;
+  allLvs -= posCountedLvs_;
+  allLvs -= negCountedLvs_;  
   for (size_t i = 0; i < allLvs.size(); i++) {
     bool valid = true;
     for (size_t j = 0; j < literals_.size(); j++) {
