@@ -529,7 +529,7 @@ LiftedCircuit::tryAtomCounting (
   for (size_t i = 0; i < clauses.size(); i++) {
     Literals literals = clauses[i].literals();
     for (size_t j = 0; j < literals.size(); j++) {
-      if (literals[j].logVars().size() == 1
+      if (literals[j].nrLogVars() == 1
           && ! clauses[i].isIpgLogVar (literals[j].logVars().front())
           && ! clauses[i].isCountedLogVar (literals[j].logVars().front())) {
         unsigned nrGroundings = clauses[i].constr().projectedCopy (
