@@ -264,9 +264,9 @@ LiftedCircuit::compile (
     return;
   }
   
-  //if (tryIndepPartialGrounding (follow, clauses)) {
-  //  return;
-  //}
+  if (tryIndepPartialGrounding (follow, clauses)) {
+    return;
+  }
   
   if (tryAtomCounting (follow, clauses)) {
     return;
@@ -457,18 +457,16 @@ LiftedCircuit::tryIndepPartialGrounding (
 { 
   // assumes that all literals have logical variables
   // else, shannon decomp was possible
-  vector<unsigned> lvIndices;
+  LogVars rootLogVars;
   LogVarSet lvs = clauses[0].ipgCandidates();
   for (size_t i = 0; i < lvs.size(); i++) {
-    lvIndices.clear();
-    lvIndices.push_back (i);
-    ConstraintTree ct = clauses[0].constr();
-    ct.project ({lvs[i]});
-    if (tryIndepPartialGroundingAux (clauses, ct, lvIndices)) {
+    rootLogVars.clear();
+    rootLogVars.push_back (lvs[i]);
+    ConstraintTree ct = clauses[0].constr().projectedCopy ({lvs[i]});
+    if (tryIndepPartialGroundingAux (clauses, ct, rootLogVars)) {
       Clauses newClauses = clauses;
-      for (size_t i = 0; i < clauses.size(); i++) {
-        LogVar lv = clauses[i].ipgCandidates()[lvIndices[i]];
-        newClauses[i].addIpgLogVar (lv);
+      for (size_t j = 0; j < clauses.size(); j++) {
+        newClauses[j].addIpgLogVar (rootLogVars[j]);
       }
       SetAndNode* node = new SetAndNode (ct.size(), clauses);
       *follow = node;
@@ -485,21 +483,37 @@ bool
 LiftedCircuit::tryIndepPartialGroundingAux (
     Clauses& clauses,
     ConstraintTree& ct,
-    vector<unsigned>& lvIndices)
+    LogVars& rootLogVars)
 {
-  // TODO check if the ipg log vars appears in the same positions
-  for (size_t j = 1; j < clauses.size(); j++) {
-    LogVarSet lvs2 = clauses[j].ipgCandidates();
-    for (size_t k = 0; k < lvs2.size(); k++) {
-      ConstraintTree ct2 = clauses[j].constr();
-      ct2.project ({lvs2[k]});
+  for (size_t i = 1; i < clauses.size(); i++) {
+    LogVarSet lvs = clauses[i].ipgCandidates();
+    for (size_t j = 0; j < lvs.size(); j++) {
+      ConstraintTree ct2 = clauses[i].constr().projectedCopy ({lvs[j]});
       if (ct.tupleSet() == ct2.tupleSet()) {
-        lvIndices.push_back (k);
+        rootLogVars.push_back (lvs[j]);
         break;
       }
     }
-    if (lvIndices.size() != j+1) {
+    if (rootLogVars.size() != i + 1) {
       return false;
+    }
+  }
+  // verifies if the IPG logical vars appear in the same positions
+  unordered_map<LiteralId, size_t> positions;
+  for (size_t i = 0; i < clauses.size(); i++) {
+    const Literals& literals = clauses[i].literals();
+    for (size_t j = 0; j < literals.size(); j++) {
+      size_t idx = literals[j].indexOfLogVar (rootLogVars[i]);
+      assert (idx != literals[j].nrLogVars());
+      unordered_map<LiteralId, size_t>::iterator it;
+      it = positions.find (literals[j].lid());
+      if (it != positions.end()) {
+        if (it->second != idx) {
+          return false;
+        }
+      } else {
+        positions[literals[j].lid()] = idx;
+      }
     }
   }
   return true;

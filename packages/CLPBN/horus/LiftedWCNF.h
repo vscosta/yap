@@ -34,6 +34,8 @@ class Literal
     LogVars logVars (void) const { return logVars_; }
 
     LogVarSet logVarSet (void) const { return LogVarSet (logVars_); }
+    
+    size_t nrLogVars (void) const { return logVars_.size(); }
 
     void negate (void) { negated_ = !negated_; }
 
@@ -42,6 +44,8 @@ class Literal
     bool isNegative (void) const { return negated_; }
     
     bool isGround (ConstraintTree constr, LogVarSet ipgLogVars) const;
+    
+    size_t indexOfLogVar (LogVar X) const;
 
     string toString (LogVarSet ipgLogVars = LogVarSet(),
       LogVarSet posCountedLvs = LogVarSet(),

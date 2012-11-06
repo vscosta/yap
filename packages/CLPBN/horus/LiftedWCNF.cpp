@@ -17,6 +17,14 @@ Literal::isGround (ConstraintTree constr, LogVarSet ipgLogVars) const
 
 
 
+size_t
+Literal::indexOfLogVar (LogVar X) const
+{
+  return Util::indexOf (logVars_, X);
+}
+
+
+
 string
 Literal::toString (
     LogVarSet ipgLogVars,
@@ -344,17 +352,17 @@ LiftedWCNF::LiftedWCNF (const ParfactorList& pfList)
   c1.addLiteral (Literal (0, LogVars() = {0}));
   c1.addLiteralNegated (Literal (1, {0,1}));
   clauses_.push_back(c1);
-    
+
   Clause c2 (names);
   c2.addLiteral (Literal (0, LogVars()={0}));
   c2.addLiteralNegated (Literal (1, {1,0}));
   clauses_.push_back(c2);
-  
+
   addWeight (0, 3.0, 4.0);
   addWeight (1, 2.0, 5.0);
-  
+
   freeLiteralId_ = 2;
-  
+
   cout << "FORMULA INDICATORS:" << endl;
   // printFormulaIndicators();
   cout << endl;

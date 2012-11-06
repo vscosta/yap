@@ -230,7 +230,7 @@ class LiftedCircuit
     bool tryIndepPartialGrounding (CircuitNode** follow, Clauses& clauses);
     
     bool tryIndepPartialGroundingAux (Clauses& clauses, ConstraintTree& ct,
-        vector<unsigned>& indices);
+        LogVars& rootLogVars);
         
     bool tryAtomCounting (CircuitNode** follow, Clauses& clauses);
     
