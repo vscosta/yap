@@ -23,14 +23,11 @@ typedef vector<LogVarType> LogVarTypes;
 class Literal
 {
   public:
-    Literal (LiteralId lid, double w = -1.0) :
-       lid_(lid), weight_(w), negated_(false) { }
-
-    Literal (LiteralId lid, const LogVars& lvs, double w = -1.0) :
-       lid_(lid), logVars_(lvs), weight_(w), negated_(false) { }
+    Literal (LiteralId lid, const LogVars& lvs) :
+       lid_(lid), logVars_(lvs), negated_(false) { }
 
     Literal (const Literal& lit, bool negated) :
-       lid_(lit.lid_), logVars_(lit.logVars_), weight_(lit.weight_), negated_(negated) { }
+       lid_(lit.lid_), logVars_(lit.logVars_), negated_(negated) { }
 
     LiteralId lid (void) const { return lid_; }
 
@@ -38,15 +35,12 @@ class Literal
 
     LogVarSet logVarSet (void) const { return LogVarSet (logVars_); }
 
-    // FIXME this is not log aware :(
-    double weight (void) const { return weight_ < 0.0 ? 1.0 : weight_; }
-
     void negate (void) { negated_ = !negated_; }
 
     bool isPositive (void) const { return negated_ == false; }
 
     bool isNegative (void) const { return negated_; }
-
+    
     bool isGround (ConstraintTree constr, LogVarSet ipgLogVars) const;
 
     string toString (LogVarSet ipgLogVars = LogVarSet(),
@@ -58,7 +52,6 @@ class Literal
   private:
     LiteralId    lid_;
     LogVars      logVars_;
-    double       weight_;
     bool         negated_;
 };
 
@@ -101,6 +94,10 @@ class Clause
     LogVarSet positiveCountedLogVars (void) const { return posCountedLvs_; }
 
     LogVarSet negativeCountedLogVars (void) const { return negCountedLvs_; }
+
+    unsigned nrPositiveCountedLogVars (void) const { return posCountedLvs_.size(); }
+
+    unsigned nrNegativeCountedLogVars (void) const { return negCountedLvs_.size(); }
 
     bool containsLiteral (LiteralId lid) const;
 
@@ -184,31 +181,53 @@ class LiftedWCNF
     LiftedWCNF (const ParfactorList& pfList);
 
    ~LiftedWCNF (void);
+   
+    const Clauses& clauses (void) const { return clauses_; }
+   
+    double posWeight (LiteralId lid) const
+    {
+      unordered_map<LiteralId, std::pair<double,double>>::const_iterator it;
+      it = weights_.find (lid);
+      return it != weights_.end() ? it->second.first : 1.0;
+    }
 
-   const Clauses& clauses (void) const { return clauses_; }
+    double negWeight (LiteralId lid) const
+    {
+      unordered_map<LiteralId, std::pair<double,double>>::const_iterator it;
+      it = weights_.find (lid);
+      return it != weights_.end() ? it->second.second : 1.0;
+    }
 
-   Clause createClauseForLiteral (LiteralId lid) const;
+    Clause createClauseForLiteral (LiteralId lid) const;
 
-   void printFormulaIndicators (void) const;
+    void printFormulaIndicators (void) const;
 
-   void printWeights (void) const;
+    void printWeights (void) const;
 
-   void printClauses (void) const;
+    void printClauses (void) const;
 
   private:
-    void addIndicatorClauses (const ParfactorList& pfList);
-
-    void addParameterClauses (const ParfactorList& pfList);
-
+  
     LiteralId getLiteralId (PrvGroup prvGroup, unsigned range)
     {
       assert (Util::contains (map_, prvGroup));
       return map_[prvGroup][range];
     }
+  
+    void addWeight (LiteralId lid, double posW, double negW)
+    {
+      weights_[lid] = make_pair (posW, negW);
+    }
+
+    void addIndicatorClauses (const ParfactorList& pfList);
+
+    void addParameterClauses (const ParfactorList& pfList);
 
     Clauses clauses_;
 
     unordered_map<PrvGroup, vector<LiteralId>> map_;
+
+    unordered_map<LiteralId, std::pair<double,double>> weights_;
 
     const ParfactorList& pfList_;
 

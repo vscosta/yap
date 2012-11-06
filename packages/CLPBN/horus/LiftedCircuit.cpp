@@ -32,12 +32,20 @@ SetOrNode::weight (void) const
 {
   double weightSum = LogAware::addIdenty();
   for (unsigned i = 0; i < nrGroundings_ + 1; i++) {
-    nrGrsStack.push (make_pair (i, nrGroundings_ - i));
+    nrGrsStack.push (make_pair (nrGroundings_ - i, i));
     if (Globals::logDomain) {
       double w = std::log (Util::nrCombinations (nrGroundings_, i));
       weightSum = Util::logSum (weightSum, w + follow_->weight());
     } else {
-      weightSum += Util::nrCombinations (nrGroundings_, i) * follow_->weight();
+      cout << endl;
+      cout << "nr groundings = " << nrGroundings_ << endl;
+      cout << "nr positives  = " << nrPositives() << endl;
+      cout << "nr negatives  = " << nrNegatives() << endl;      
+      cout << "i             = " << i << endl;
+      cout << "nr combos     = " << Util::nrCombinations (nrGroundings_, i) << endl;
+      double w = follow_->weight();
+      cout << "weight        = " << w << endl;
+      weightSum += Util::nrCombinations (nrGroundings_, i) * w;
     }
   }
   return weightSum;
@@ -78,7 +86,9 @@ LeafNode::weight (void) const
   assert (clauses().size() == 1);
   assert (clauses()[0].isUnit());
   Clause c = clauses()[0];
-  double weight = c.literals()[0].weight();
+  double weight = c.literals()[0].isPositive()
+      ? lwcnf_.posWeight (c.literals().front().lid())
+      : lwcnf_.negWeight (c.literals().front().lid());
   LogVarSet lvs = c.constr().logVarSet();
   lvs -= c.ipgLogVars();
   lvs -= c.positiveCountedLogVars();
@@ -90,11 +100,20 @@ LeafNode::weight (void) const
     nrGroundings = ct.size();
   }
   // TODO this only works for one counted log var
+  cout << "calc weight for " << clauses().front() << endl;
   if (c.positiveCountedLogVars().empty() == false) {
-    nrGroundings *= SetOrNode::nrPositives();
-  } else if (c.negativeCountedLogVars().empty() == false) {
-    nrGroundings *= SetOrNode::nrNegatives();    
+    cout << "  -> nr pos = " << SetOrNode::nrPositives() << endl;
+    nrGroundings *= std::pow (SetOrNode::nrPositives(),
+        c.nrPositiveCountedLogVars());
   }
+  if (c.negativeCountedLogVars().empty() == false) {
+    cout << "  -> nr neg = " << SetOrNode::nrNegatives() << endl;
+    nrGroundings *= std::pow (SetOrNode::nrNegatives(),
+        c.nrNegativeCountedLogVars());
+  }
+  cout << "  -> nr groundings = " << nrGroundings << endl;
+  cout << "  -> lit weight    = " << weight << endl;
+  cout << "  -> ret weight    = " << std::pow (weight, nrGroundings) << endl;  
   return Globals::logDomain 
       ? weight * nrGroundings
       : std::pow (weight, nrGroundings);
@@ -109,14 +128,38 @@ SmoothNode::weight (void) const
   Clauses cs = clauses();
   double totalWeight = LogAware::multIdenty();
   for (size_t i = 0; i < cs.size(); i++) {
-    double posWeight = cs[i].literals()[0].weight();
-    double negWeight = cs[i].literals()[1].weight();
-    unsigned nrGroundings = cs[i].constr().size();
+    double posWeight = lwcnf_.posWeight (cs[i].literals()[0].lid());
+    double negWeight = lwcnf_.negWeight (cs[i].literals()[0].lid());
+    LogVarSet lvs = cs[i].constr().logVarSet();
+    lvs -= cs[i].ipgLogVars();
+    lvs -= cs[i].positiveCountedLogVars();
+    lvs -= cs[i].negativeCountedLogVars();
+    unsigned nrGroundings = 1;
+    if (lvs.empty() == false) {
+      ConstraintTree ct = cs[i].constr();
+      ct.project (lvs);
+      nrGroundings = ct.size();
+    }
+    cout << "calc smooth weight for " << cs[i] << endl;
+    if (cs[i].positiveCountedLogVars().empty() == false) {
+      cout << "  -> nr pos = " << SetOrNode::nrPositives() << endl;
+      nrGroundings *= std::pow (SetOrNode::nrPositives(), 
+          cs[i].nrPositiveCountedLogVars());
+    }
+    if (cs[i].negativeCountedLogVars().empty() == false) {
+      cout << "  -> nr neg = " << SetOrNode::nrNegatives() << endl;
+      nrGroundings *= std::pow (SetOrNode::nrNegatives(),
+          cs[i].nrNegativeCountedLogVars());      
+    }
+    cout << "  -> pos+neg = " << posWeight + negWeight << endl;
+    cout << "  -> nrgroun = " << nrGroundings << endl;    
     if (Globals::logDomain) {
+      // TODO i think i have to do log on nrGrounginds here!
       totalWeight += (Util::logSum (posWeight, negWeight) * nrGroundings);
     } else {
       totalWeight *= std::pow (posWeight + negWeight, nrGroundings);
     }
+    cout << "  -> smooth weight  = " << totalWeight << endl;
   }
   return totalWeight;
 }
@@ -151,6 +194,8 @@ LiftedCircuit::LiftedCircuit (const LiftedWCNF* lwcnf)
   exportToGraphViz("circuit.dot");
   smoothCircuit();
   exportToGraphViz("circuit.smooth.dot");
+  cout << "--------------------------------------------------" << endl;
+  cout << "--------------------------------------------------" << endl;  
   cout << "WEIGHTED MODEL COUNT = " << getWeightedModelCount() << endl;
 }
 
@@ -201,7 +246,7 @@ LiftedCircuit::compile (
   }
   
   if (clauses.size() == 1 && clauses[0].isUnit()) {
-    *follow = new LeafNode (clauses[0]);
+    *follow = new LeafNode (clauses[0], *lwcnf_);
     return;
   }
 
@@ -587,33 +632,6 @@ LiftedCircuit::shatterCountedLogVarsAux (
 
 
 
-LogVarTypes
-unionTypes (const LogVarTypes& types1, const LogVarTypes& types2)
-{
-  if (types1.empty()) {
-    return types2;
-  }
-  if (types2.empty()) {
-    return types1;
-  }  
-  assert (types1.size() == types2.size());
-  LogVarTypes res;  
-  for (size_t i = 0; i < types1.size(); i++) {
-    if (types1[i] == LogVarType::POS_LV
-        && types2[i] == LogVarType::POS_LV) {
-      res.push_back (LogVarType::POS_LV);        
-    } else if (types1[i] == LogVarType::NEG_LV
-        && types2[i] == LogVarType::NEG_LV) {
-      res.push_back (LogVarType::NEG_LV);
-    } else {
-      res.push_back (LogVarType::FULL_LV);
-    }
-  }
-  return res;
-}
-
-
-
 vector<LogVarTypes>
 getAllPossibleTypes (unsigned nrLogVars)
 {
@@ -779,7 +797,7 @@ LiftedCircuit::createSmoothNode (
       c.addAndNegateLiteral (c.literals()[0]);
       clauses.push_back (c);
     }
-    SmoothNode* smoothNode = new SmoothNode (clauses);
+    SmoothNode* smoothNode = new SmoothNode (clauses, *lwcnf_);
     *prev = new AndNode ((*prev)->clauses(), smoothNode,
         *prev, " Smoothing");
   }

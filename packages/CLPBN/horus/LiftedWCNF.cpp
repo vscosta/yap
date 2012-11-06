@@ -3,6 +3,7 @@
 #include "Indexer.h"
 
 
+
 bool
 Literal::isGround (ConstraintTree constr, LogVarSet ipgLogVars) const
 {
@@ -24,7 +25,12 @@ Literal::toString (
 {
   stringstream ss;
   negated_ ? ss << "¬" : ss << "" ;
-  weight_ < 0.0 ? ss << "λ" : ss << "Θ" ;
+  // if (negated_ == false) {
+  //   posWeight_ < 0.0 ? ss << "λ" : ss << "Θ" ;
+  // } else {
+  //   negWeight_ < 0.0 ? ss << "λ" : ss << "Θ" ;  
+  // }
+  ss << "λ" ;
   ss << lid_ ;
   if (logVars_.empty() == false) {
     ss << "(" ;
@@ -300,17 +306,43 @@ LiftedWCNF::LiftedWCNF (const ParfactorList& pfList)
   //addIndicatorClauses (pfList);
   //addParameterClauses (pfList);
 
-  vector<vector<string>> names = {{"p1","p1"},{"p2","p2"}};
+  vector<vector<string>> names = {
+/*
+      {"p1","p1"},
+      {"p1","p2"},
+      {"p2","p1"},
+      {"p2","p2"},
+      {"p1","p3"},
+      {"p2","p3"},
+      {"p3","p3"},
+      {"p3","p2"},
+      {"p3","p1"}
+*/
+      {"p1","p1"},
+      {"p1","p2"},
+      {"p1","p3"},      
+      {"p2","p1"},
+      {"p2","p2"},
+      {"p2","p3"},
+      {"p3","p1"},
+      {"p3","p2"},
+      {"p3","p3"}
+  };
 
   Clause c1 (names);
-  c1.addLiteral (Literal (0, LogVars()={0}, 3.0));
-  c1.addAndNegateLiteral (Literal (1, {0,1}, 1.0));
+  c1.addLiteral (Literal (0, LogVars() = {0}));
+  c1.addAndNegateLiteral (Literal (1, {0,1}));
   clauses_.push_back(c1);
     
   Clause c2 (names);
-  c2.addLiteral (Literal (0, LogVars()={0}, 2.0));
-  c2.addAndNegateLiteral (Literal (1, {1,0}, 5.0));
+  c2.addLiteral (Literal (0, LogVars()={0}));
+  c2.addAndNegateLiteral (Literal (1, {1,0}));
   clauses_.push_back(c2);
+  
+  addWeight (0, 3.0, 4.0);
+  addWeight (1, 2.0, 5.0);
+  
+  freeLiteralId_ = 2;
   
   cout << "FORMULA INDICATORS:" << endl;
   // printFormulaIndicators();
@@ -320,6 +352,7 @@ LiftedWCNF::LiftedWCNF (const ParfactorList& pfList)
   cout << endl;
   cout << "CLAUSES:" << endl;
   printClauses();
+  // abort();
   cout << endl;
 }
 
@@ -349,7 +382,7 @@ LiftedWCNF::createClauseForLiteral (LiteralId lid) const
   }
   // FIXME
   Clause c (ConstraintTree({}));
-  c.addLiteral (Literal (lid,{}));
+  c.addLiteral (Literal (lid,LogVars() = {}));
   return c;
   //assert (false);
   //return Clause (0);
@@ -410,22 +443,25 @@ LiftedWCNF::addParameterClauses (const ParfactorList& pfList)
       // ¬λu1 ... ¬λun v θxi|u1,...,un  -> clause1
       // ¬θxi|u1,...,un v λu1           -> tempClause
       // ¬θxi|u1,...,un v λu2           -> tempClause
-      double weight = (**it)[indexer];
+      double posWeight = (**it)[indexer];
+      addWeight (paramVarLid, posWeight, 1.0);
       
       Clause clause1 (*(*it)->constr());
 
       for (unsigned i = 0; i < groups.size(); i++) {
         LiteralId lid = getLiteralId (groups[i], indexer[i]);
 
-        clause1.addAndNegateLiteral (Literal (lid, (*it)->argument(i).logVars()));
+        clause1.addAndNegateLiteral (
+            Literal (lid, (*it)->argument(i).logVars()));
 
         ConstraintTree ct = *(*it)->constr();
         Clause tempClause (ct);
-        tempClause.addAndNegateLiteral (Literal (paramVarLid, (*it)->constr()->logVars(), 1.0));
+        tempClause.addAndNegateLiteral (Literal (
+            paramVarLid, (*it)->constr()->logVars()));
         tempClause.addLiteral (Literal (lid, (*it)->argument(i).logVars()));
         clauses_.push_back (tempClause);        
       }
-      clause1.addLiteral (Literal (paramVarLid, (*it)->constr()->logVars(),weight));
+      clause1.addLiteral (Literal (paramVarLid, (*it)->constr()->logVars()));
       clauses_.push_back (clause1);
       freeLiteralId_ ++;
       ++ indexer;
@@ -464,43 +500,14 @@ LiftedWCNF::printFormulaIndicators (void) const
 void
 LiftedWCNF::printWeights (void) const
 {
-   for (LiteralId i = 0; i < freeLiteralId_; i++) {
-
-     bool found = false;
-     for (size_t j = 0; j < clauses_.size(); j++) {
-       Literals literals = clauses_[j].literals();
-       for (size_t k = 0; k < literals.size(); k++) {
-         if (literals[k].lid() == i && literals[k].isPositive()) {
-           cout << "weight(" << literals[k] << ") = " ;
-           cout << literals[k].weight();
-           cout << endl;
-           found = true;
-           break;
-         }
-       }
-       if (found == true) {
-         break;
-       }
-     }
-     
-     found = false;
-     for (size_t j = 0; j < clauses_.size(); j++) {
-       Literals literals = clauses_[j].literals();
-       for (size_t k = 0; k < literals.size(); k++) {
-         if (literals[k].lid() == i && literals[k].isNegative()) {
-           cout << "weight(" << literals[k] << ") = " ;
-           cout << literals[k].weight();
-           cout << endl;
-           found = true;
-           break;
-         }
-       }
-       if (found == true) {
-         break;
-       }
-     }
-     
-   }
+  unordered_map<LiteralId, std::pair<double,double>>::const_iterator it;
+  it = weights_.begin();
+  while (it != weights_.end()) {
+    cout << "λ" << it->first << " weights: " ;     
+    cout << it->second.first << " " << it->second.second;
+    cout << endl;
+    ++ it;
+  }
 }
 
 

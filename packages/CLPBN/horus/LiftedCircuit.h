@@ -159,9 +159,13 @@ class IncExcNode : public CircuitNode
 class LeafNode : public CircuitNode
 {
   public:
-    LeafNode (const Clause& clause) : CircuitNode ({clause}) { }
-    
+    LeafNode (const Clause& clause, const LiftedWCNF& lwcnf)
+        : CircuitNode (Clauses() = {clause}), lwcnf_(lwcnf) { }
+
     double weight (void) const;
+    
+  private:
+    const LiftedWCNF&  lwcnf_;
 };
 
 
@@ -169,9 +173,13 @@ class LeafNode : public CircuitNode
 class SmoothNode : public CircuitNode
 {
   public:
-    SmoothNode (const Clauses& clauses) : CircuitNode (clauses) { }
-    
+    SmoothNode (const Clauses& clauses, const LiftedWCNF& lwcnf)
+        : CircuitNode (clauses), lwcnf_(lwcnf) { }
+
     double weight (void) const;
+
+  private:
+    const LiftedWCNF&  lwcnf_;
 };
 
 
