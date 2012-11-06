@@ -527,6 +527,13 @@ LiftedCircuit::tryAtomCounting (
     Clauses& clauses)
 {
   for (size_t i = 0; i < clauses.size(); i++) {
+    if (clauses[i].nrPositiveCountedLogVars() > 0
+        || clauses[i].nrNegativeCountedLogVars() > 0) {
+      // only allow one atom counting node per branch
+      return false;
+    }
+  }
+  for (size_t i = 0; i < clauses.size(); i++) {
     Literals literals = clauses[i].literals();
     for (size_t j = 0; j < literals.size(); j++) {
       if (literals[j].nrLogVars() == 1
