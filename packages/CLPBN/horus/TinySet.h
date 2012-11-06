@@ -153,6 +153,11 @@ class TinySet
     {
       return vec_[i];
     }
+    
+    T& operator[] (typename vector<T>::size_type i)
+    {
+      return vec_[i];
+    }
   
     T front (void) const
     {
