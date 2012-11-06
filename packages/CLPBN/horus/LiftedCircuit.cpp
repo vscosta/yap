@@ -99,21 +99,20 @@ LeafNode::weight (void) const
     ct.project (lvs);
     nrGroundings = ct.size();
   }
-  // TODO this only works for one counted log var
-  cout << "calc weight for " << clauses().front() << endl;
+  // cout << "calc weight for " << clauses().front() << endl;
   if (c.positiveCountedLogVars().empty() == false) {
-    cout << "  -> nr pos = " << SetOrNode::nrPositives() << endl;
+    // cout << "  -> nr pos = " << SetOrNode::nrPositives() << endl;
     nrGroundings *= std::pow (SetOrNode::nrPositives(),
         c.nrPositiveCountedLogVars());
   }
   if (c.negativeCountedLogVars().empty() == false) {
-    cout << "  -> nr neg = " << SetOrNode::nrNegatives() << endl;
+    //cout << "  -> nr neg = " << SetOrNode::nrNegatives() << endl;
     nrGroundings *= std::pow (SetOrNode::nrNegatives(),
         c.nrNegativeCountedLogVars());
   }
-  cout << "  -> nr groundings = " << nrGroundings << endl;
-  cout << "  -> lit weight    = " << weight << endl;
-  cout << "  -> ret weight    = " << std::pow (weight, nrGroundings) << endl;  
+  // cout << "  -> nr groundings = " << nrGroundings << endl;
+  // cout << "  -> lit weight    = " << weight << endl;
+  // cout << "  -> ret weight    = " << std::pow (weight, nrGroundings) << endl;  
   return Globals::logDomain 
       ? weight * nrGroundings
       : std::pow (weight, nrGroundings);
@@ -124,7 +123,6 @@ LeafNode::weight (void) const
 double
 SmoothNode::weight (void) const
 {
-  // TODO and what happens if smoothing contains ipg or counted lvs ?
   Clauses cs = clauses();
   double totalWeight = LogAware::multIdenty();
   for (size_t i = 0; i < cs.size(); i++) {
@@ -140,26 +138,26 @@ SmoothNode::weight (void) const
       ct.project (lvs);
       nrGroundings = ct.size();
     }
-    cout << "calc smooth weight for " << cs[i] << endl;
+    // cout << "calc smooth weight for " << cs[i] << endl;
     if (cs[i].positiveCountedLogVars().empty() == false) {
-      cout << "  -> nr pos = " << SetOrNode::nrPositives() << endl;
+      // cout << "  -> nr pos = " << SetOrNode::nrPositives() << endl;
       nrGroundings *= std::pow (SetOrNode::nrPositives(), 
           cs[i].nrPositiveCountedLogVars());
     }
     if (cs[i].negativeCountedLogVars().empty() == false) {
-      cout << "  -> nr neg = " << SetOrNode::nrNegatives() << endl;
+      // cout << "  -> nr neg = " << SetOrNode::nrNegatives() << endl;
       nrGroundings *= std::pow (SetOrNode::nrNegatives(),
           cs[i].nrNegativeCountedLogVars());      
     }
-    cout << "  -> pos+neg = " << posWeight + negWeight << endl;
-    cout << "  -> nrgroun = " << nrGroundings << endl;    
+    // cout << "  -> pos+neg = " << posWeight + negWeight << endl;
+    // cout << "  -> nrgroun = " << nrGroundings << endl;    
     if (Globals::logDomain) {
-      // TODO i think i have to do log on nrGrounginds here!
-      totalWeight += (Util::logSum (posWeight, negWeight) * nrGroundings);
+      totalWeight += (Util::logSum (posWeight, negWeight)
+          * std::log (nrGroundings));
     } else {
       totalWeight *= std::pow (posWeight + negWeight, nrGroundings);
     }
-    cout << "  -> smooth weight  = " << totalWeight << endl;
+    // cout << "  -> smooth weight  = " << totalWeight << endl;
   }
   return totalWeight;
 }
@@ -337,7 +335,7 @@ LiftedCircuit::tryIndependence (
   if (clauses.size() == 1) {
     return false;
   }
-  // TODO this independence is a little weak
+  // TODO compare all subsets with all subsets
   for (size_t i = 0; i < clauses.size(); i++) {
     bool indep = true;
     TinySet<LiteralId> lids1 = clauses[i].lidSet();
@@ -407,6 +405,7 @@ LiftedCircuit::tryInclusionExclusion (
     CircuitNode** follow,
     Clauses& clauses)
 {
+  // TODO compare all subsets with all subsets
   for (size_t i = 0; i < clauses.size(); i++) {
     const Literals& literals = clauses[i].literals();
     for (size_t j = 0; j < literals.size(); j++) {
@@ -420,8 +419,7 @@ LiftedCircuit::tryInclusionExclusion (
         }
       }
       if (indep) {
-        // TODO i am almost sure that this will
-        // have to be count normalized too!
+        // TODO this should be have to be count normalized too
         ConstraintTree really = clauses[i].constr();
         Clause c1 (really.projectedCopy (
             literals[j].logVars()));
@@ -489,6 +487,7 @@ LiftedCircuit::tryIndepPartialGroundingAux (
     ConstraintTree& ct,
     vector<unsigned>& lvIndices)
 {
+  // TODO check if the ipg log vars appears in the same positions
   for (size_t j = 1; j < clauses.size(); j++) {
     LogVarSet lvs2 = clauses[j].ipgCandidates();
     for (size_t k = 0; k < lvs2.size(); k++) {
@@ -516,15 +515,16 @@ LiftedCircuit::tryAtomCounting (
   for (size_t i = 0; i < clauses.size(); i++) {
     Literals literals = clauses[i].literals();
     for (size_t j = 0; j < literals.size(); j++) {
-      if (literals[j].logVars().size() == 1) {
-        // TODO check if not already in ipg and countedlvs
+      if (literals[j].logVars().size() == 1
+          && ! clauses[i].isIpgLogVar (literals[j].logVars().front())
+          && ! clauses[i].isCountedLogVar (literals[j].logVars().front())) {
         unsigned nrGroundings = clauses[i].constr().projectedCopy (
             literals[j].logVars()).size();
         SetOrNode* setOrNode = new SetOrNode (nrGroundings, clauses);
         Clause c1 (clauses[i].constr().projectedCopy (literals[j].logVars()));
         Clause c2 (clauses[i].constr().projectedCopy (literals[j].logVars()));
         c1.addLiteral (literals[j]);
-        c2.addAndNegateLiteral (literals[j]);
+        c2.addLiteralNegated (literals[j]);
         c1.addPositiveCountedLogVar (literals[j].logVars().front());
         c2.addNegativeCountedLogVar (literals[j].logVars().front());
         clauses.push_back (c1);
@@ -737,7 +737,9 @@ LiftedCircuit::smoothCircuit (CircuitNode* node)
         }
       }
       createSmoothNode (missingLids, casted->follow());
-      // TODO change propagLits to full lvs
+      for (size_t i = 0; i < propagLits.size(); i++) {
+        propagLits[i].setAllFullLogVars();
+      }
       break;
     }
     
@@ -794,7 +796,7 @@ LiftedCircuit::createSmoothNode (
           c.addNegativeCountedLogVar (X);
         }
       }
-      c.addAndNegateLiteral (c.literals()[0]);
+      c.addLiteralNegated (c.literals()[0]);
       clauses.push_back (c);
     }
     SmoothNode* smoothNode = new SmoothNode (clauses, *lwcnf_);

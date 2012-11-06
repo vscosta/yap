@@ -68,8 +68,7 @@ class Clause
 
     void addLiteral (const Literal& l) { literals_.push_back (l); }
 
-    // TODO kill me
-    void addAndNegateLiteral (const Literal& l)
+    void addLiteralNegated (const Literal& l)
     { 
       literals_.push_back (l);
       literals_.back().negate();
@@ -116,6 +115,8 @@ class Clause
     bool isPositiveCountedLogVar (LogVar X) const;
 
     bool isNegativeCountedLogVar (LogVar X) const;    
+    
+    bool isIpgLogVar (LogVar X) const;
 
     TinySet<LiteralId> lidSet (void) const;
 
@@ -165,6 +166,9 @@ class LiteralLvTypes
     LiteralId lid (void) const { return lid_; }
     
     const LogVarTypes& logVarTypes (void) const { return lvTypes_; }
+    
+    void setAllFullLogVars (void) {
+        lvTypes_ = LogVarTypes (lvTypes_.size(), LogVarType::FULL_LV); }
 
   private:
     LiteralId    lid_;

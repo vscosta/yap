@@ -193,6 +193,15 @@ Clause::isNegativeCountedLogVar (LogVar X) const
 
 
 
+bool
+Clause::isIpgLogVar (LogVar X) const
+{
+   assert (constr_.logVarSet().contains (X));
+   return ipgLogVars_.contains (X);
+}
+
+
+
 TinySet<LiteralId>
 Clause::lidSet (void) const
 {
@@ -331,12 +340,12 @@ LiftedWCNF::LiftedWCNF (const ParfactorList& pfList)
 
   Clause c1 (names);
   c1.addLiteral (Literal (0, LogVars() = {0}));
-  c1.addAndNegateLiteral (Literal (1, {0,1}));
+  c1.addLiteralNegated (Literal (1, {0,1}));
   clauses_.push_back(c1);
     
   Clause c2 (names);
   c2.addLiteral (Literal (0, LogVars()={0}));
-  c2.addAndNegateLiteral (Literal (1, {1,0}));
+  c2.addLiteralNegated (Literal (1, {1,0}));
   clauses_.push_back(c2);
   
   addWeight (0, 3.0, 4.0);
@@ -415,8 +424,8 @@ LiftedWCNF::addIndicatorClauses (const ParfactorList& pfList)
             ConstraintTree tempConstr2 = *(*it)->constr();
             tempConstr2.project (formulas[i].logVars());
             Clause clause2 (tempConstr2);
-            clause2.addAndNegateLiteral (Literal (clause.literals()[j]));
-            clause2.addAndNegateLiteral (Literal (clause.literals()[k]));
+            clause2.addLiteralNegated (Literal (clause.literals()[j]));
+            clause2.addLiteralNegated (Literal (clause.literals()[k]));
             clauses_.push_back (clause2);
           }
         }
@@ -451,12 +460,12 @@ LiftedWCNF::addParameterClauses (const ParfactorList& pfList)
       for (unsigned i = 0; i < groups.size(); i++) {
         LiteralId lid = getLiteralId (groups[i], indexer[i]);
 
-        clause1.addAndNegateLiteral (
+        clause1.addLiteralNegated (
             Literal (lid, (*it)->argument(i).logVars()));
 
         ConstraintTree ct = *(*it)->constr();
         Clause tempClause (ct);
-        tempClause.addAndNegateLiteral (Literal (
+        tempClause.addLiteralNegated (Literal (
             paramVarLid, (*it)->constr()->logVars()));
         tempClause.addLiteral (Literal (lid, (*it)->argument(i).logVars()));
         clauses_.push_back (tempClause);        
