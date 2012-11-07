@@ -54,8 +54,8 @@ class OrNode : public CircuitNode
     double weight (void) const;
 
   private:
-    CircuitNode* leftBranch_;
-    CircuitNode* rightBranch_;
+    CircuitNode*  leftBranch_;
+    CircuitNode*  rightBranch_;
 };
 
 
@@ -88,8 +88,8 @@ class AndNode : public CircuitNode
     double weight (void) const;
     
   private:
-    CircuitNode* leftBranch_;
-    CircuitNode* rightBranch_;
+    CircuitNode*  leftBranch_;
+    CircuitNode*  rightBranch_;
 };
 
 
@@ -139,8 +139,8 @@ class SetAndNode : public CircuitNode
 class IncExcNode : public CircuitNode
 {
   public:
-    IncExcNode (const Clauses& clauses)
-        : CircuitNode (clauses), plus1Branch_(0),
+    IncExcNode (const Clauses& clauses, string explanation)
+        : CircuitNode (clauses, explanation), plus1Branch_(0),
         plus2Branch_(0), minusBranch_(0) { }
 
     CircuitNode** plus1Branch (void) { return &plus1Branch_; }
@@ -150,9 +150,9 @@ class IncExcNode : public CircuitNode
     double weight (void) const;    
 
   private:
-    CircuitNode* plus1Branch_;
-    CircuitNode* plus2Branch_;
-    CircuitNode* minusBranch_;
+    CircuitNode*  plus1Branch_;
+    CircuitNode*  plus2Branch_;
+    CircuitNode*  minusBranch_;
 };
 
 
@@ -198,7 +198,8 @@ class TrueNode : public CircuitNode
 class CompilationFailedNode : public CircuitNode
 {
   public:
-    CompilationFailedNode (const Clauses& clauses) : CircuitNode (clauses) { }
+    CompilationFailedNode (const Clauses& clauses)
+        : CircuitNode (clauses) { }
     
     double weight (void) const;
 };
@@ -243,7 +244,10 @@ class LiftedCircuit
 
     bool shatterCountedLogVarsAux (Clauses& clauses, size_t idx1, size_t idx2);
     
-    bool isIndependentClause (Clause& clause, Clauses& otherClauses) const;
+    bool independentClause (Clause& clause, Clauses& otherClauses) const;
+    
+    bool independentLiteral (const Literal& lit,
+        const Literals& otherLits) const;
 
     LitLvTypesSet smoothCircuit (CircuitNode* node);
     

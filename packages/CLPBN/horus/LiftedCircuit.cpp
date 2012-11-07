@@ -341,7 +341,7 @@ LiftedCircuit::tryIndependence (
   while (finish == false) {
     finish = true;
     for (size_t i = 0; i < indepClauses.size(); i++) {
-      if (isIndependentClause (indepClauses[i], depClauses) == false) {
+      if (independentClause (indepClauses[i], depClauses) == false) {
         depClauses.push_back (indepClauses[i]);
         indepClauses.erase (indepClauses.begin() + i);
         finish = false;
@@ -402,44 +402,58 @@ LiftedCircuit::tryInclusionExclusion (
     CircuitNode** follow,
     Clauses& clauses)
 {
-  // TODO compare all subsets with all subsets
   for (size_t i = 0; i < clauses.size(); i++) {
-    const Literals& literals = clauses[i].literals();
-    for (size_t j = 0; j < literals.size(); j++) {
-      bool indep = true;
-      for (size_t k = 0; k < literals.size(); k++) {
-        LogVarSet intersect = literals[j].logVarSet()
-            & literals[k].logVarSet();
-        if (j != k && intersect.empty() == false) {
-          indep = false;
+    Literals depLits = { clauses[i].literals().front() };
+    Literals indepLits (clauses[i].literals().begin() + 1,
+        clauses[i].literals().end());
+    bool finish = false;
+    while (finish == false) {
+      finish = true;
+      for (size_t j = 0; j < indepLits.size(); j++) {
+        if (independentLiteral (indepLits[j], depLits) == false) {
+          depLits.push_back (indepLits[j]);
+          indepLits.erase (indepLits.begin() + j);
+          finish = false;
           break;
         }
       }
-      if (indep) {
-        // TODO this should be have to be count normalized too
-        ConstraintTree really = clauses[i].constr();
-        Clause c1 (really.projectedCopy (
-            literals[j].logVars()));
-        c1.addLiteral (literals[j]);
-        Clause c2 = clauses[i];
-        c2.removeLiteral (j);
-        Clauses plus1Clauses = clauses;
-        Clauses plus2Clauses = clauses;
-        Clauses minusClauses = clauses;
-        plus1Clauses.erase (plus1Clauses.begin() + i);
-        plus2Clauses.erase (plus2Clauses.begin() + i);
-        minusClauses.erase (minusClauses.begin() + i);
-        plus1Clauses.push_back (c1);
-        plus2Clauses.push_back (c2);
-        minusClauses.push_back (c1);
-        minusClauses.push_back (c2);
-        IncExcNode* ieNode = new IncExcNode (clauses);
-        compile (ieNode->plus1Branch(), plus1Clauses);
-        compile (ieNode->plus2Branch(), plus2Clauses);
-        compile (ieNode->minusBranch(), minusClauses);
-        *follow = ieNode;
-        return true;
+    }
+    if (indepLits.empty() == false) {
+      // TODO this should be have to be count normalized too
+      LogVarSet lvs1;
+      for (size_t j = 0; j < depLits.size(); j++) {
+        lvs1 |= depLits[j].logVarSet();
       }
+      LogVarSet lvs2;
+      for (size_t j = 0; j < indepLits.size(); j++) {
+        lvs2 |= indepLits[j].logVarSet();
+      }
+      Clause c1 (clauses[i].constr().projectedCopy (lvs1));
+      for (size_t j = 0; j < depLits.size(); j++) {
+        c1.addLiteral (depLits[j]);
+      }
+      Clause c2 (clauses[i].constr().projectedCopy (lvs2));
+      for (size_t j = 0; j < indepLits.size(); j++) {
+        c2.addLiteral (indepLits[j]);
+      }
+      Clauses plus1Clauses = clauses;
+      Clauses plus2Clauses = clauses;
+      Clauses minusClauses = clauses;
+      plus1Clauses.erase (plus1Clauses.begin() + i);
+      plus2Clauses.erase (plus2Clauses.begin() + i);
+      minusClauses.erase (minusClauses.begin() + i);
+      plus1Clauses.push_back (c1);
+      plus2Clauses.push_back (c2);
+      minusClauses.push_back (c1);
+      minusClauses.push_back (c2);
+      stringstream explanation;
+      explanation << " IncExc on clause nº " << i + 1;
+      IncExcNode* ieNode = new IncExcNode (clauses, explanation.str());
+      compile (ieNode->plus1Branch(), plus1Clauses);
+      compile (ieNode->plus2Branch(), plus2Clauses);
+      compile (ieNode->minusBranch(), minusClauses);
+      *follow = ieNode;
+      return true;
     }
   }
   return false;
@@ -651,12 +665,28 @@ LiftedCircuit::shatterCountedLogVarsAux (
 
 
 bool
-LiftedCircuit::isIndependentClause (
+LiftedCircuit::independentClause (
     Clause& clause,
     Clauses& otherClauses) const
 {
   for (size_t i = 0; i < otherClauses.size(); i++) {
     if (Clause::independentClauses (clause, otherClauses[i]) == false) {
+      return false;
+    }
+  }
+  return true;
+}
+
+
+
+bool
+LiftedCircuit::independentLiteral (
+    const Literal& lit,
+    const Literals& otherLits) const
+{
+  for (size_t i = 0; i < otherLits.size(); i++) {
+    if (lit.lid() == otherLits[i].lid()
+        || (lit.logVarSet() & otherLits[i].logVarSet()).empty() == false) {
       return false;
     }
   }
@@ -882,7 +912,7 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, ofstream& os)
   ss << "n" << nrAuxNodes;
   string auxNode = ss.str();
   nrAuxNodes ++;
-
+  string opStyle = "shape=circle,width=0.7,margin=\"0.0,0.0\"," ;
 
   switch (getCircuitNodeType (node)) {
   
@@ -890,7 +920,7 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, ofstream& os)
       OrNode* casted = dynamic_cast<OrNode*>(node);
       printClauses (casted, os);
 
-      os << auxNode << " [label=\"∨\"]" << endl;
+      os << auxNode << " [" << opStyle << "label=\"∨\"]" << endl;
       os << escapeNode (node) << " -> " << auxNode;
       os << " [label=\"" << node->explanation() << "\"]" ;
       os << endl;
@@ -914,7 +944,7 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, ofstream& os)
       AndNode* casted = dynamic_cast<AndNode*>(node);
       printClauses (casted, os);
 
-      os << auxNode << " [label=\"∧\"]" << endl;
+      os << auxNode << " [" << opStyle << "label=\"∧\"]" << endl;
       os << escapeNode (node) << " -> " << auxNode;
       os << " [label=\"" << node->explanation() << "\"]" ;
       os << endl;
@@ -938,7 +968,7 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, ofstream& os)
       SetOrNode* casted = dynamic_cast<SetOrNode*>(node);
       printClauses (casted, os);
 
-      os << auxNode << " [label=\"∨(X)\"]" << endl;
+      os << auxNode << " [" << opStyle << "label=\"∨(X)\"]" << endl;
       os << escapeNode (node) << " -> " << auxNode;
       os << " [label=\"" << node->explanation() << "\"]" ;
       os << endl;
@@ -956,7 +986,7 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, ofstream& os)
       SetAndNode* casted = dynamic_cast<SetAndNode*>(node);
       printClauses (casted, os);
 
-      os << auxNode << " [label=\"∧(X)\"]" << endl;
+      os << auxNode << " [" << opStyle << "label=\"∧(X)\"]" << endl;
       os << escapeNode (node) << " -> " << auxNode;
       os << " [label=\"" << node->explanation() << "\"]" ;
       os << endl;
@@ -974,7 +1004,8 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, ofstream& os)
       IncExcNode* casted = dynamic_cast<IncExcNode*>(node);
       printClauses (casted, os);
 
-      os << auxNode << " [label=\"IncExc\"]" << endl;
+      os << auxNode << " [" << opStyle << "label=\"+ - +\"]" ;
+      os << endl;
       os << escapeNode (node) << " -> " << auxNode;
       os << " [label=\"" << node->explanation() << "\"]" ;
       os << endl;
@@ -983,15 +1014,15 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, ofstream& os)
       os << escapeNode (*casted->plus1Branch());
       os << " [label=\" " << (*casted->plus1Branch())->weight() << "\"]" ;
       os << endl;
+      
+      os << auxNode << " -> " ;
+      os << escapeNode (*casted->minusBranch()) << endl;
+      os << " [label=\" " << (*casted->minusBranch())->weight() << "\"]" ;
+      os << endl;      
 
       os << auxNode << " -> " ;
       os << escapeNode (*casted->plus2Branch());
       os << " [label=\" " << (*casted->plus2Branch())->weight() << "\"]" ;
-      os << endl;
-
-      os << auxNode << " -> " ;
-      os << escapeNode (*casted->minusBranch()) << endl;
-      os << " [label=\" " << (*casted->minusBranch())->weight() << "\"]" ;
       os << endl;
 
       exportToGraphViz (*casted->plus1Branch(), os);

@@ -377,22 +377,24 @@ LiftedWCNF::LiftedWCNF (const ParfactorList& pfList)
   */
   
   Literal lit1 (0, {0});
-  Literal lit2 (1, {});
-  Literal lit3 (2, {});
-  Literal lit4 (3, {});
+  Literal lit2 (1, {0});
+  Literal lit3 (2, {1});
+  Literal lit4 (3, {1});
   
-  vector<vector<string>> names = {{"p1"},{"p2"}};
+  vector<vector<string>> names = {{"p1","p2"},{"p3","p4"}};
   Clause c1 (names);
   c1.addLiteral (lit1);
   c1.addLiteral (lit2);
-  c1.addPosCountedLogVar (0);
+  c1.addLiteral (lit3);
+  c1.addLiteral (lit4);
+  //c1.addPosCountedLogVar (0);
   clauses_.push_back (c1);
 
   Clause c2 (names);
   c2.addLiteral (lit1);
   c2.addLiteral (lit3);
   c2.addNegCountedLogVar (0);
-  clauses_.push_back (c2);
+  //clauses_.push_back (c2);
   /*
   Clause c3;
   c3.addLiteral (lit3);
