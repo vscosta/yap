@@ -221,9 +221,9 @@ class LiftedCircuit
 
     bool tryUnitPropagation (CircuitNode** follow, Clauses& clauses);
     
-    bool tryIndependence    (CircuitNode** follow, Clauses& clauses);
+    bool tryIndependence (CircuitNode** follow, Clauses& clauses);
     
-    bool tryShannonDecomp   (CircuitNode** follow, Clauses& clauses);
+    bool tryShannonDecomp (CircuitNode** follow, Clauses& clauses);
     
     bool tryInclusionExclusion (CircuitNode** follow, Clauses& clauses);
     
@@ -246,6 +246,11 @@ class LiftedCircuit
     
     void createSmoothNode (const LitLvTypesSet& lids,
         CircuitNode** prev);
+    
+    vector<LogVarTypes> getAllPossibleTypes (unsigned nrLogVars) const;
+    
+    bool containsTypes (const LogVarTypes& typesA,
+        const LogVarTypes& typesB) const;
     
     CircuitNodeType getCircuitNodeType (const CircuitNode* node) const;
          

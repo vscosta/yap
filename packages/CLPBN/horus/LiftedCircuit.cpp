@@ -653,55 +653,6 @@ LiftedCircuit::shatterCountedLogVarsAux (
 
 
 
-vector<LogVarTypes>
-getAllPossibleTypes (unsigned nrLogVars)
-{
-  if (nrLogVars == 0) {
-    return {};
-  }
-  if (nrLogVars == 1) {
-    return {{LogVarType::POS_LV},{LogVarType::NEG_LV}};
-  }
-  vector<LogVarTypes> res;
-  Indexer indexer (vector<unsigned> (nrLogVars, 2));
-  while (indexer.valid()) {
-    LogVarTypes types;
-    for (size_t i = 0; i < nrLogVars; i++) {
-      if (indexer[i] == 0) {
-        types.push_back (LogVarType::POS_LV);
-      } else {
-        types.push_back (LogVarType::NEG_LV);
-      }
-    }
-    res.push_back (types);
-    ++ indexer;
-  }
-  return res;
-}
-
-
-
-bool
-containsTypes (const LogVarTypes& typesA, const LogVarTypes& typesB)
-{
-  for (size_t i = 0; i < typesA.size(); i++) {
-    if (typesA[i] == LogVarType::FULL_LV) {
-
-    } else if (typesA[i] == LogVarType::POS_LV
-        && typesB[i] == LogVarType::POS_LV) {
-
-    } else if (typesA[i] == LogVarType::NEG_LV
-        && typesB[i] == LogVarType::NEG_LV) {
-
-    } else {
-      return false;
-    }
-  }
-  return true;
-}
-
-
-
 LitLvTypesSet
 LiftedCircuit::smoothCircuit (CircuitNode* node)
 {
@@ -824,6 +775,57 @@ LiftedCircuit::createSmoothNode (
     *prev = new AndNode ((*prev)->clauses(), smoothNode,
         *prev, " Smoothing");
   }
+}
+
+
+
+vector<LogVarTypes>
+LiftedCircuit::getAllPossibleTypes (unsigned nrLogVars) const
+{
+  if (nrLogVars == 0) {
+    return {};
+  }
+  if (nrLogVars == 1) {
+    return {{LogVarType::POS_LV},{LogVarType::NEG_LV}};
+  }
+  vector<LogVarTypes> res;
+  Indexer indexer (vector<unsigned> (nrLogVars, 2));
+  while (indexer.valid()) {
+    LogVarTypes types;
+    for (size_t i = 0; i < nrLogVars; i++) {
+      if (indexer[i] == 0) {
+        types.push_back (LogVarType::POS_LV);
+      } else {
+        types.push_back (LogVarType::NEG_LV);
+      }
+    }
+    res.push_back (types);
+    ++ indexer;
+  }
+  return res;
+}
+
+
+
+bool
+LiftedCircuit::containsTypes (
+    const LogVarTypes& typesA,
+    const LogVarTypes& typesB) const
+{
+  for (size_t i = 0; i < typesA.size(); i++) {
+    if (typesA[i] == LogVarType::FULL_LV) {
+
+    } else if (typesA[i] == LogVarType::POS_LV
+        && typesB[i] == LogVarType::POS_LV) {
+
+    } else if (typesA[i] == LogVarType::NEG_LV
+        && typesB[i] == LogVarType::NEG_LV) {
+
+    } else {
+      return false;
+    }
+  }
+  return true;
 }
 
 
