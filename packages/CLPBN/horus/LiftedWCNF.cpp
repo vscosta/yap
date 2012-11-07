@@ -73,6 +73,16 @@ std::ostream& operator<< (ostream &os, const Literal& lit)
 
 
 
+void
+Clause::addLiteralComplemented (const Literal& lit)
+{
+  assert (constr_.logVarSet().contains (lit.logVars()));
+  literals_.push_back (lit);
+  literals_.back().complement();
+}
+
+
+
 bool
 Clause::containsLiteral (LiteralId lid) const
 {
@@ -320,7 +330,7 @@ Clause::getLogVarSetExcluding (size_t idx) const
 
 
 LiftedWCNF::LiftedWCNF (const ParfactorList& pfList)
-    : pfList_(pfList), freeLiteralId_(0)
+    : freeLiteralId_(0), pfList_(pfList)
 {
   //addIndicatorClauses (pfList);
   //addParameterClauses (pfList);
@@ -350,12 +360,12 @@ LiftedWCNF::LiftedWCNF (const ParfactorList& pfList)
 
   Clause c1 (names);
   c1.addLiteral (Literal (0, LogVars() = {0}));
-  c1.addLiteralNegated (Literal (1, {0,1}));
+  c1.addLiteralComplemented (Literal (1, {0,1}));
   clauses_.push_back(c1);
 
   Clause c2 (names);
   c2.addLiteral (Literal (0, LogVars()={0}));
-  c2.addLiteralNegated (Literal (1, {1,0}));
+  c2.addLiteralComplemented (Literal (1, {1,0}));
   clauses_.push_back(c2);
 
   addWeight (0, 3.0, 4.0);
@@ -384,8 +394,28 @@ LiftedWCNF::~LiftedWCNF (void)
 
 
 
+double
+LiftedWCNF::posWeight (LiteralId lid) const
+{
+  unordered_map<LiteralId, std::pair<double,double>>::const_iterator it;
+  it = weights_.find (lid);
+  return it != weights_.end() ? it->second.first : 1.0;
+}
+
+
+
+double
+LiftedWCNF::negWeight (LiteralId lid) const
+{
+  unordered_map<LiteralId, std::pair<double,double>>::const_iterator it;
+  it = weights_.find (lid);
+  return it != weights_.end() ? it->second.second : 1.0;
+}
+
+
+
 Clause
-LiftedWCNF::createClauseForLiteral (LiteralId lid) const
+LiftedWCNF::createClause (LiteralId lid) const
 {
   for (size_t i = 0; i < clauses_.size(); i++) {
     const Literals& literals = clauses_[i].literals();
@@ -399,12 +429,25 @@ LiftedWCNF::createClauseForLiteral (LiteralId lid) const
       }
     }
   }
-  // FIXME
-  Clause c (ConstraintTree({}));
-  c.addLiteral (Literal (lid,LogVars() = {}));
-  return c;
-  //assert (false);
-  //return Clause (0);
+  abort(); // we should not reach this point
+  return Clause (ConstraintTree({}));
+}
+
+
+
+LiteralId
+LiftedWCNF::getLiteralId (PrvGroup prvGroup, unsigned range)
+{
+  assert (Util::contains (map_, prvGroup));
+  return map_[prvGroup][range];
+}
+  
+
+
+void
+LiftedWCNF::addWeight (LiteralId lid, double posW, double negW)
+{
+  weights_[lid] = make_pair (posW, negW);
 }
 
 
@@ -434,8 +477,8 @@ LiftedWCNF::addIndicatorClauses (const ParfactorList& pfList)
             ConstraintTree tempConstr2 = *(*it)->constr();
             tempConstr2.project (formulas[i].logVars());
             Clause clause2 (tempConstr2);
-            clause2.addLiteralNegated (Literal (clause.literals()[j]));
-            clause2.addLiteralNegated (Literal (clause.literals()[k]));
+            clause2.addLiteralComplemented (Literal (clause.literals()[j]));
+            clause2.addLiteralComplemented (Literal (clause.literals()[k]));
             clauses_.push_back (clause2);
           }
         }
@@ -470,12 +513,12 @@ LiftedWCNF::addParameterClauses (const ParfactorList& pfList)
       for (unsigned i = 0; i < groups.size(); i++) {
         LiteralId lid = getLiteralId (groups[i], indexer[i]);
 
-        clause1.addLiteralNegated (
+        clause1.addLiteralComplemented (
             Literal (lid, (*it)->argument(i).logVars()));
 
         ConstraintTree ct = *(*it)->constr();
         Clause tempClause (ct);
-        tempClause.addLiteralNegated (Literal (
+        tempClause.addLiteralComplemented (Literal (
             paramVarLid, (*it)->constr()->logVars()));
         tempClause.addLiteral (Literal (lid, (*it)->argument(i).logVars()));
         clauses_.push_back (tempClause);        

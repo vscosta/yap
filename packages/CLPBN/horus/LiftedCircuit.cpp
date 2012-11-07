@@ -91,8 +91,8 @@ LeafNode::weight (void) const
       : lwcnf_.negWeight (c.literals().front().lid());
   LogVarSet lvs = c.constr().logVarSet();
   lvs -= c.ipgLogVars();
-  lvs -= c.positiveCountedLogVars();
-  lvs -= c.negativeCountedLogVars();
+  lvs -= c.posCountedLogVars();
+  lvs -= c.negCountedLogVars();
   unsigned nrGroundings = 1;
   if (lvs.empty() == false) {
     ConstraintTree ct = c.constr();
@@ -100,15 +100,15 @@ LeafNode::weight (void) const
     nrGroundings = ct.size();
   }
   // cout << "calc weight for " << clauses().front() << endl;
-  if (c.positiveCountedLogVars().empty() == false) {
+  if (c.posCountedLogVars().empty() == false) {
     // cout << "  -> nr pos = " << SetOrNode::nrPositives() << endl;
     nrGroundings *= std::pow (SetOrNode::nrPositives(),
-        c.nrPositiveCountedLogVars());
+        c.nrPosCountedLogVars());
   }
-  if (c.negativeCountedLogVars().empty() == false) {
+  if (c.negCountedLogVars().empty() == false) {
     //cout << "  -> nr neg = " << SetOrNode::nrNegatives() << endl;
     nrGroundings *= std::pow (SetOrNode::nrNegatives(),
-        c.nrNegativeCountedLogVars());
+        c.nrNegCountedLogVars());
   }
   // cout << "  -> nr groundings = " << nrGroundings << endl;
   // cout << "  -> lit weight    = " << weight << endl;
@@ -130,8 +130,8 @@ SmoothNode::weight (void) const
     double negWeight = lwcnf_.negWeight (cs[i].literals()[0].lid());
     LogVarSet lvs = cs[i].constr().logVarSet();
     lvs -= cs[i].ipgLogVars();
-    lvs -= cs[i].positiveCountedLogVars();
-    lvs -= cs[i].negativeCountedLogVars();
+    lvs -= cs[i].posCountedLogVars();
+    lvs -= cs[i].negCountedLogVars();
     unsigned nrGroundings = 1;
     if (lvs.empty() == false) {
       ConstraintTree ct = cs[i].constr();
@@ -139,15 +139,15 @@ SmoothNode::weight (void) const
       nrGroundings = ct.size();
     }
     // cout << "calc smooth weight for " << cs[i] << endl;
-    if (cs[i].positiveCountedLogVars().empty() == false) {
+    if (cs[i].posCountedLogVars().empty() == false) {
       // cout << "  -> nr pos = " << SetOrNode::nrPositives() << endl;
       nrGroundings *= std::pow (SetOrNode::nrPositives(), 
-          cs[i].nrPositiveCountedLogVars());
+          cs[i].nrPosCountedLogVars());
     }
-    if (cs[i].negativeCountedLogVars().empty() == false) {
+    if (cs[i].negCountedLogVars().empty() == false) {
       // cout << "  -> nr neg = " << SetOrNode::nrNegatives() << endl;
       nrGroundings *= std::pow (SetOrNode::nrNegatives(),
-          cs[i].nrNegativeCountedLogVars());      
+          cs[i].nrNegCountedLogVars());      
     }
     // cout << "  -> pos+neg = " << posWeight + negWeight << endl;
     // cout << "  -> nrgroun = " << nrGroundings << endl;    
@@ -527,8 +527,8 @@ LiftedCircuit::tryAtomCounting (
     Clauses& clauses)
 {
   for (size_t i = 0; i < clauses.size(); i++) {
-    if (clauses[i].nrPositiveCountedLogVars() > 0
-        || clauses[i].nrNegativeCountedLogVars() > 0) {
+    if (clauses[i].nrPosCountedLogVars() > 0
+        || clauses[i].nrNegCountedLogVars() > 0) {
       // only allow one atom counting node per branch
       return false;
     }
@@ -545,9 +545,9 @@ LiftedCircuit::tryAtomCounting (
         Clause c1 (clauses[i].constr().projectedCopy (literals[j].logVars()));
         Clause c2 (clauses[i].constr().projectedCopy (literals[j].logVars()));
         c1.addLiteral (literals[j]);
-        c2.addLiteralNegated (literals[j]);
-        c1.addPositiveCountedLogVar (literals[j].logVars().front());
-        c2.addNegativeCountedLogVar (literals[j].logVars().front());
+        c2.addLiteralComplemented (literals[j]);
+        c1.addPosCountedLogVar (literals[j].logVars().front());
+        c2.addNegCountedLogVar (literals[j].logVars().front());
         clauses.push_back (c1);
         clauses.push_back (c2);        
         shatterCountedLogVars (clauses);
@@ -633,15 +633,15 @@ LiftedCircuit::shatterCountedLogVarsAux (
           if (clauses[idx1].isCountedLogVar (lvs1[k])
               && clauses[idx2].isCountedLogVar (lvs2[k]) == false) {
             clauses.push_back (clauses[idx2]);
-            clauses[idx2].addPositiveCountedLogVar (lvs2[k]);
-            clauses.back().addNegativeCountedLogVar (lvs2[k]);
+            clauses[idx2].addPosCountedLogVar (lvs2[k]);
+            clauses.back().addNegCountedLogVar (lvs2[k]);
             return true;
           }
           if (clauses[idx2].isCountedLogVar (lvs2[k])
               && clauses[idx1].isCountedLogVar (lvs1[k]) == false) {
             clauses.push_back (clauses[idx1]);
-            clauses[idx1].addPositiveCountedLogVar (lvs1[k]);
-            clauses.back().addNegativeCountedLogVar (lvs1[k]);
+            clauses[idx1].addPosCountedLogVar (lvs1[k]);
+            clauses.back().addNegCountedLogVar (lvs1[k]);
             return true;
           }          
         }
@@ -704,7 +704,7 @@ LiftedCircuit::smoothCircuit (CircuitNode* node)
             }
           }
           if (typeFound == false) {
-            missingLids.insert (LiteralLvTypes (litSet[i].first, allTypes[j]));
+            missingLids.insert (LitLvTypes (litSet[i].first, allTypes[j]));
           }
         }
       }
@@ -735,7 +735,7 @@ LiftedCircuit::smoothCircuit (CircuitNode* node)
     }
     
     case CircuitNodeType::LEAF_NODE: {
-      propagLits.insert (LiteralLvTypes (
+      propagLits.insert (LitLvTypes (
           node->clauses()[0].literals()[0].lid(),
           node->clauses()[0].logVarTypes(0)));
     }
@@ -759,16 +759,16 @@ LiftedCircuit::createSmoothNode (
     for (size_t i = 0; i < missingLits.size(); i++) {
       LiteralId lid = missingLits[i].lid();
       const LogVarTypes& types = missingLits[i].logVarTypes();
-      Clause c = lwcnf_->createClauseForLiteral (lid);
+      Clause c = lwcnf_->createClause (lid);
       for (size_t j = 0; j < types.size(); j++) {
         LogVar X = c.literals().front().logVars()[j];
         if (types[j] == LogVarType::POS_LV) {
-          c.addPositiveCountedLogVar (X);
+          c.addPosCountedLogVar (X);
         } else if (types[j] == LogVarType::NEG_LV) {
-          c.addNegativeCountedLogVar (X);
+          c.addNegCountedLogVar (X);
         }
       }
-      c.addLiteralNegated (c.literals()[0]);
+      c.addLiteralComplemented (c.literals()[0]);
       clauses.push_back (c);
     }
     SmoothNode* smoothNode = new SmoothNode (clauses, *lwcnf_);
