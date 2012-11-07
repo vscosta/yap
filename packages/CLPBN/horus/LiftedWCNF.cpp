@@ -288,6 +288,24 @@ Clause::removeLiteral (size_t litIdx)
 
 
 
+bool
+Clause::independentClauses (Clause& c1, Clause& c2)
+{
+  const Literals& lits1 = c1.literals();
+  const Literals& lits2 = c2.literals();
+  for (size_t i = 0; i < lits1.size(); i++) {
+    for (size_t j = 0; j < lits2.size(); j++) {
+      if (lits1[i].lid() == lits2[j].lid()
+          && c1.logVarTypes (i) == c2.logVarTypes (j)) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+
+
 void
 Clause::printClauses (const Clauses& clauses)
 {
@@ -335,27 +353,11 @@ LiftedWCNF::LiftedWCNF (const ParfactorList& pfList)
   //addIndicatorClauses (pfList);
   //addParameterClauses (pfList);
 
+  /*
   vector<vector<string>> names = {
-/*
-      {"p1","p1"},
-      {"p1","p2"},
-      {"p2","p1"},
-      {"p2","p2"},
-      {"p1","p3"},
-      {"p2","p3"},
-      {"p3","p3"},
-      {"p3","p2"},
-      {"p3","p1"}
-*/
-      {"p1","p1"},
-      {"p1","p2"},
-      {"p1","p3"},      
-      {"p2","p1"},
-      {"p2","p2"},
-      {"p2","p3"},
-      {"p3","p1"},
-      {"p3","p2"},
-      {"p3","p3"}
+    {"p1","p1"},{"p1","p2"},{"p1","p3"},      
+    {"p2","p1"},{"p2","p2"},{"p2","p3"},
+    {"p3","p1"},{"p3","p2"},{"p3","p3"}
   };
 
   Clause c1 (names);
@@ -372,6 +374,37 @@ LiftedWCNF::LiftedWCNF (const ParfactorList& pfList)
   addWeight (1, 2.0, 5.0);
 
   freeLiteralId_ = 2;
+  */
+  
+  Literal lit1 (0, {0});
+  Literal lit2 (1, {});
+  Literal lit3 (2, {});
+  Literal lit4 (3, {});
+  
+  vector<vector<string>> names = {{"p1"},{"p2"}};
+  Clause c1 (names);
+  c1.addLiteral (lit1);
+  c1.addLiteral (lit2);
+  c1.addPosCountedLogVar (0);
+  clauses_.push_back (c1);
+
+  Clause c2 (names);
+  c2.addLiteral (lit1);
+  c2.addLiteral (lit3);
+  c2.addNegCountedLogVar (0);
+  clauses_.push_back (c2);
+  /*
+  Clause c3;
+  c3.addLiteral (lit3);
+  c3.addLiteral (lit4);
+  clauses_.push_back (c3);
+  
+  Clause c4;
+  c4.addLiteral (lit4);
+  c4.addLiteral (lit3);
+  clauses_.push_back (c4);
+  */
+  freeLiteralId_ = 4;
 
   cout << "FORMULA INDICATORS:" << endl;
   // printFormulaIndicators();

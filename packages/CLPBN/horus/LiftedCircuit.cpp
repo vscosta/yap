@@ -655,16 +655,13 @@ LiftedCircuit::isIndependentClause (
     Clause& clause,
     Clauses& otherClauses) const
 {
-  // TODO consider counted log vars
-  TinySet<LiteralId> lidSet = clause.lidSet();
   for (size_t i = 0; i < otherClauses.size(); i++) {
-    if ((lidSet & otherClauses[i].lidSet()).empty() == false) {
+    if (Clause::independentClauses (clause, otherClauses[i]) == false) {
       return false;
     }
   }
   return true;
 }
-
 
 
 

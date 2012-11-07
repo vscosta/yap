@@ -126,6 +126,8 @@ class Clause
     LogVarTypes logVarTypes (size_t litIdx) const;
 
     void removeLiteral (size_t litIdx);
+    
+    static bool independentClauses (Clause& c1, Clause& c2);
 
     static void printClauses (const vector<Clause>& clauses);
 
