@@ -52,6 +52,7 @@ class OrNode : public CircuitNode
     CircuitNode** rightBranch (void) { return &rightBranch_; }
     
     double weight (void) const;
+
   private:
     CircuitNode* leftBranch_;
     CircuitNode* rightBranch_;
@@ -241,6 +242,8 @@ class LiftedCircuit
     bool shatterCountedLogVarsAux (Clauses& clauses);
 
     bool shatterCountedLogVarsAux (Clauses& clauses, size_t idx1, size_t idx2);
+    
+    bool isIndependentClause (Clause& clause, Clauses& otherClauses) const;
 
     LitLvTypesSet smoothCircuit (CircuitNode* node);
     

@@ -251,31 +251,31 @@ LiftedCircuit::compile (
   if (tryUnitPropagation (follow, clauses)) {
     return;
   }
-  
+
   if (tryIndependence (follow, clauses)) {
     return;
   }
-  
+
   if (tryShannonDecomp (follow, clauses)) {
     return;
   }
-  
+
   if (tryInclusionExclusion (follow, clauses)) {
     return;
   }
-  
+
   if (tryIndepPartialGrounding (follow, clauses)) {
     return;
   }
-  
+
   if (tryAtomCounting (follow, clauses)) {
     return;
   }
-  
+
   if (tryGrounding (follow, clauses)) {
     return;
   }
-  
+
   // assert (false);
   *follow = new CompilationFailedNode (clauses);
 }
@@ -335,29 +335,26 @@ LiftedCircuit::tryIndependence (
   if (clauses.size() == 1) {
     return false;
   }
-  // TODO compare all subsets with all subsets
-  for (size_t i = 0; i < clauses.size(); i++) {
-    bool indep = true;
-    TinySet<LiteralId> lids1 = clauses[i].lidSet();
-    for (size_t j = 0; j < clauses.size(); j++) {
-      TinySet<LiteralId> lids2 = clauses[j].lidSet(); 
-      if (i != j && ((lids1 & lids2).empty() == false)) {
-        indep = false;
+  Clauses depClauses = { clauses[0] };
+  Clauses indepClauses (clauses.begin() + 1, clauses.end());
+  bool finish = false;
+  while (finish == false) {
+    finish = true;
+    for (size_t i = 0; i < indepClauses.size(); i++) {
+      if (isIndependentClause (indepClauses[i], depClauses) == false) {
+        depClauses.push_back (indepClauses[i]);
+        indepClauses.erase (indepClauses.begin() + i);
+        finish = false;
         break;
       }
     }
-    if (indep == true) {
-      Clauses newClauses = clauses;
-      newClauses.erase (newClauses.begin() + i);
-      stringstream explanation;
-      explanation << " Independence on clause Nº " << i ;
-      AndNode* andNode = new AndNode (clauses, explanation.str());
-      Clauses indepClause = {clauses[i]};
-      compile (andNode->leftBranch(), indepClause);
-      compile (andNode->rightBranch(), newClauses);
-      (*follow) = andNode;
-      return true;
-    }
+  }
+  if (indepClauses.empty() == false) {
+    AndNode* andNode = new AndNode (clauses, " Independence");
+    compile (andNode->leftBranch(), depClauses);
+    compile (andNode->rightBranch(), indepClauses);
+    (*follow) = andNode;
+    return true;
   }
   return false;
 }
@@ -650,6 +647,24 @@ LiftedCircuit::shatterCountedLogVarsAux (
   }
   return false;
 }
+
+
+
+bool
+LiftedCircuit::isIndependentClause (
+    Clause& clause,
+    Clauses& otherClauses) const
+{
+  // TODO consider counted log vars
+  TinySet<LiteralId> lidSet = clause.lidSet();
+  for (size_t i = 0; i < otherClauses.size(); i++) {
+    if ((lidSet & otherClauses[i].lidSet()).empty() == false) {
+      return false;
+    }
+  }
+  return true;
+}
+
 
 
 
