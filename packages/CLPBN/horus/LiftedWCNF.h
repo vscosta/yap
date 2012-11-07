@@ -67,7 +67,7 @@ typedef vector<Literal> Literals;
 class Clause
 {
   public:
-    Clause (const ConstraintTree& ct) : constr_(ct) { }
+    Clause (const ConstraintTree& ct = ConstraintTree({})) : constr_(ct) { }
 
     Clause (vector<vector<string>> names) : constr_(ConstraintTree (names)) { }
 
