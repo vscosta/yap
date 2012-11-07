@@ -351,7 +351,6 @@ expand_goal(G, G).
 	->
 	 true
 	;
-	 recorded('$dialect',swi,_),
 	 '$pred_exists'(goal_expansion(G,GI), system),
 	 system:goal_expansion(G, GI)
 	->

@@ -384,6 +384,7 @@
   FunctorGPrimitive = Yap_MkFunctor(AtomPrimitive,1);
   FunctorGVar = Yap_MkFunctor(AtomGVar,1);
   FunctorGeneratePredInfo = Yap_MkFunctor(AtomGeneratePredInfo,4);
+  FunctorGoalExpansion2 = Yap_MkFunctor(AtomGoalExpansion,2);
   FunctorGoalExpansion = Yap_MkFunctor(AtomGoalExpansion,3);
   FunctorHandleThrow = Yap_MkFunctor(AtomHandleThrow,3);
   FunctorId = Yap_MkFunctor(AtomId,1);

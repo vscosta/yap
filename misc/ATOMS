@@ -389,6 +389,7 @@ F	GNumber			Number		1
 F	GPrimitive		Primitive	1
 F	GVar			GVar		1
 F	GeneratePredInfo	GeneratePredInfo	4
+F	GoalExpansion2		GoalExpansion	2
 F	GoalExpansion		GoalExpansion	3
 F	HandleThrow		HandleThrow	3
 F	Id			Id		1

@@ -766,6 +766,8 @@
 #define FunctorGVar Yap_heap_regs->FunctorGVar_
   Functor FunctorGeneratePredInfo_;
 #define FunctorGeneratePredInfo Yap_heap_regs->FunctorGeneratePredInfo_
+  Functor FunctorGoalExpansion2_;
+#define FunctorGoalExpansion2 Yap_heap_regs->FunctorGoalExpansion2_
   Functor FunctorGoalExpansion_;
 #define FunctorGoalExpansion Yap_heap_regs->FunctorGoalExpansion_
   Functor FunctorHandleThrow_;

@@ -1656,7 +1656,7 @@ add_first_static(PredEntry *p, yamop *cp, int spy_flag)
   yamop *pt = cp;
 
   if (is_logupd(p)) {
-    if (p == PredGoalExpansion) {
+    if (p == PredGoalExpansion || p->FunctorOfPred == FunctorGoalExpansion2) {
       PRED_GOAL_EXPANSION_ON = TRUE;
       Yap_InitComma();
     }
@@ -1711,7 +1711,7 @@ add_first_dynamic(PredEntry *p, yamop *cp, int spy_flag)
 {
   yamop    *ncp = ((DynamicClause *)NULL)->ClCode;
   DynamicClause   *cl;
-  if (p == PredGoalExpansion) {
+  if (p == PredGoalExpansion || p->FunctorOfPred == FunctorGoalExpansion2) {
     PRED_GOAL_EXPANSION_ON = TRUE;
     Yap_InitComma();
   }
@@ -2093,11 +2093,115 @@ mark_preds_with_this_func(Functor f, Prop p0)
   for (i = 0; i < PredHashTableSize; i++) {
     PredEntry *p = PredHash[i];
 
+    /* search the whole pred table, kind of inneficient */
     while (p) {
       Prop nextp = p->NextOfPE;
       if (p->FunctorOfPred == f)
 	p->PredFlags |= GoalExPredFlag;	    
       p = RepPredProp(nextp);
+    }
+  }
+}
+
+static void
+mark_preds_with_this_atom(Prop p)
+{
+  while (p) {
+    Prop nextp = p->NextOfPE;
+    if (p->KindOfPE == PEProp)
+      RepPredProp(p)->PredFlags |= GoalExPredFlag;	    
+    p = nextp;
+  }
+}
+
+static void
+goal_expansion_support(PredEntry *p, Term tf)
+{
+  if (p == PredGoalExpansion) {
+    Term tg = ArgOfTerm(1, tf);
+    Term tm = ArgOfTerm(2, tf);
+
+    if (IsVarTerm(tg) || IsVarTerm(tm)) {
+      if (!IsVarTerm(tg)) {
+	/* this is the complicated case, first I need to inform
+	   predicates for this functor */ 
+	PRED_GOAL_EXPANSION_FUNC = TRUE;
+	if (IsAtomTerm(tg)) {
+	  AtomEntry *ae = RepAtom(AtomOfTerm(tg));
+	  Prop p0 = ae->PropsOfAE;
+	  int found = FALSE;
+
+	  while (p0) {
+	    PredEntry *pe = RepPredProp(p0);
+	    if (pe->KindOfPE == PEProp) {
+	      pe->PredFlags |= GoalExPredFlag;
+	      found = TRUE;
+	    }
+	    p0 = pe->NextOfPE;
+	  }
+	  if (!found) {
+	    PredEntry *npe = RepPredProp(PredPropByAtom(AtomOfTerm(tg),IDB_MODULE));
+	    npe->PredFlags |= GoalExPredFlag;	    
+	  }
+	} else if (IsApplTerm(tg)) {
+	  FunctorEntry *fe = (FunctorEntry *)FunctorOfTerm(tg);
+	  Prop p0;
+
+	  p0 = fe->PropsOfFE;
+	  if (p0) {
+	    mark_preds_with_this_func(FunctorOfTerm(tg), p0);
+	  } else {
+	    Term mod = CurrentModule;
+	    PredEntry *npe;
+	    if (CurrentModule == PROLOG_MODULE)
+	      mod = IDB_MODULE;
+	    npe = RepPredProp(PredPropByFunc(fe,mod));
+	    npe->PredFlags |= GoalExPredFlag;	    
+	  }
+	}
+      } else {
+	PRED_GOAL_EXPANSION_ALL = TRUE;
+      }
+    } else {
+      if (IsAtomTerm(tm)) {
+	if (IsAtomTerm(tg)) {
+	  PredEntry *p = RepPredProp(PredPropByAtom(AtomOfTerm(tg), tm));
+	  p->PredFlags |= GoalExPredFlag;
+	} else if (IsApplTerm(tg)) {
+	  PredEntry *p = RepPredProp(PredPropByFunc(FunctorOfTerm(tg), tm));
+	  p->PredFlags |= GoalExPredFlag;
+	}
+      }
+    }
+  } else if (p->FunctorOfPred == FunctorGoalExpansion2) {
+    Term tg = ArgOfTerm(1, tf);
+
+    if (IsVarTerm(tg)) {
+      PRED_GOAL_EXPANSION_ALL = TRUE;
+    } else if (IsApplTerm(tg)) {
+      FunctorEntry *fe = (FunctorEntry *)FunctorOfTerm(tg);
+      Prop p0;
+      PredEntry *npe;
+
+      p0 = fe->PropsOfFE;
+      if (p0 && (p->ModuleOfPred == PROLOG_MODULE || p->ModuleOfPred == SYSTEM_MODULE || p->ModuleOfPred == USER_MODULE)) {
+	mark_preds_with_this_func(fe, p0);
+	PRED_GOAL_EXPANSION_FUNC = TRUE;
+      }
+      npe = RepPredProp(PredPropByFunc(fe,p->ModuleOfPred));
+      npe->PredFlags |= GoalExPredFlag;	    
+    } else if (IsAtomTerm(tg)) {
+      Atom at = AtomOfTerm(tg);
+      Prop p0;
+      PredEntry *npe;
+
+      p0 = RepAtom(at)->PropsOfAE;
+      if (p0 && (p->ModuleOfPred == PROLOG_MODULE || p->ModuleOfPred == SYSTEM_MODULE || p->ModuleOfPred == USER_MODULE)) {
+	mark_preds_with_this_atom(p0);
+	PRED_GOAL_EXPANSION_FUNC = TRUE;
+      }
+      npe = RepPredProp(PredPropByAtom(at,p->ModuleOfPred));
+      npe->PredFlags |= GoalExPredFlag;	    
     }
   }
 }
@@ -2158,63 +2262,7 @@ addclause(Term t, yamop *cp, int mode, Term mod, Term *t4ref)
   }
   if (pflags & (SpiedPredFlag|CountPredFlag|ProfiledPredFlag))
     spy_flag = TRUE;
-  if (p == PredGoalExpansion) {
-    Term tg = ArgOfTerm(1, tf);
-    Term tm = ArgOfTerm(2, tf);
-
-    if (IsVarTerm(tg) || IsVarTerm(tm)) {
-      if (!IsVarTerm(tg)) {
-	/* this is the complicated case, first I need to inform
-	   predicates for this functor */ 
-	PRED_GOAL_EXPANSION_FUNC = TRUE;
-	if (IsAtomTerm(tg)) {
-	  AtomEntry *ae = RepAtom(AtomOfTerm(tg));
-	  Prop p0 = ae->PropsOfAE;
-	  int found = FALSE;
-
-	  while (p0) {
-	    PredEntry *pe = RepPredProp(p0);
-	    if (pe->KindOfPE == PEProp) {
-	      pe->PredFlags |= GoalExPredFlag;
-	      found = TRUE;
-	    }
-	    p0 = pe->NextOfPE;
-	  }
-	  if (!found) {
-	    PredEntry *npe = RepPredProp(PredPropByAtom(AtomOfTerm(tg),IDB_MODULE));
-	    npe->PredFlags |= GoalExPredFlag;	    
-	  }
-	} else if (IsApplTerm(tg)) {
-	  FunctorEntry *fe = (FunctorEntry *)FunctorOfTerm(tg);
-	  Prop p0;
-
-	  p0 = fe->PropsOfFE;
-	  if (p0) {
-	    mark_preds_with_this_func(FunctorOfTerm(tg), p0);
-	  } else {
-	    Term mod = CurrentModule;
-	    PredEntry *npe;
-	    if (CurrentModule == PROLOG_MODULE)
-	      mod = IDB_MODULE;
-	    npe = RepPredProp(PredPropByFunc(fe,mod));
-	    npe->PredFlags |= GoalExPredFlag;	    
-	  }
-	}
-      } else {
-	PRED_GOAL_EXPANSION_ALL = TRUE;
-      }
-    } else {
-      if (IsAtomTerm(tm)) {
-	if (IsAtomTerm(tg)) {
-	  PredEntry *p = RepPredProp(PredPropByAtom(AtomOfTerm(tg), tm));
-	  p->PredFlags |= GoalExPredFlag;
-	} else if (IsApplTerm(tg)) {
-	  PredEntry *p = RepPredProp(PredPropByFunc(FunctorOfTerm(tg), tm));
-	  p->PredFlags |= GoalExPredFlag;
-	}
-      }
-    }
-  }
+  goal_expansion_support(p, tf);
   if (mode == consult)
     not_was_reconsulted(p, t, TRUE);
   /* always check if we have a valid error first */
