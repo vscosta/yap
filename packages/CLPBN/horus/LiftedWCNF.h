@@ -81,9 +81,9 @@ class Clause
 
     bool isUnit (void) const { return literals_.size() == 1; }
 
-    LogVarSet ipgLogVars (void) const { return ipgLogVars_; }
+    LogVarSet ipgLogVars (void) const { return ipgLvs_; }
 
-    void addIpgLogVar (LogVar X) { ipgLogVars_.insert (X); }
+    void addIpgLogVar (LogVar X) { ipgLvs_.insert (X); }
 
     void addPosCountedLogVar (LogVar X) { posCountedLvs_.insert (X); }
 
@@ -137,7 +137,7 @@ class Clause
     LogVarSet getLogVarSetExcluding (size_t idx) const;
 
     Literals         literals_;
-    LogVarSet        ipgLogVars_;
+    LogVarSet        ipgLvs_;
     LogVarSet        posCountedLvs_;
     LogVarSet        negCountedLvs_;
     ConstraintTree   constr_;

@@ -215,7 +215,7 @@ bool
 Clause::isIpgLogVar (LogVar X) const
 {
    assert (constr_.logVarSet().contains (X));
-   return ipgLogVars_.contains (X);
+   return ipgLvs_.contains (X);
 }
 
 
@@ -237,7 +237,7 @@ Clause::ipgCandidates (void) const
 {
   LogVarSet candidates;
   LogVarSet allLvs = constr_.logVarSet();
-  allLvs -= ipgLogVars_;
+  allLvs -= ipgLvs_;
   allLvs -= posCountedLvs_;
   allLvs -= negCountedLvs_;  
   for (size_t i = 0; i < allLvs.size(); i++) {
@@ -281,7 +281,7 @@ Clause::removeLiteral (size_t litIdx)
 {
   LogVarSet lvsToRemove = literals_[litIdx].logVarSet()
       - getLogVarSetExcluding (litIdx);
-  ipgLogVars_    -= lvsToRemove;
+  ipgLvs_    -= lvsToRemove;
   posCountedLvs_ -= lvsToRemove;
   negCountedLvs_ -= lvsToRemove;
   constr_.remove (lvsToRemove);
@@ -322,7 +322,7 @@ std::ostream& operator<< (ostream &os, const Clause& clause)
 {
   for (unsigned i = 0; i < clause.literals_.size(); i++) {
     if (i != 0) os << " v " ;
-    os << clause.literals_[i].toString (clause.ipgLogVars_,
+    os << clause.literals_[i].toString (clause.ipgLvs_,
         clause.posCountedLvs_, clause.negCountedLvs_);
   }
   if (clause.constr_.empty() == false) {

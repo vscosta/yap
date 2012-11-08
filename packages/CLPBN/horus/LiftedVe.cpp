@@ -647,7 +647,7 @@ void
 LiftedVe::printSolverFlags (void) const
 {
   stringstream ss;
-  ss << "fove [" ;
+  ss << "lve [" ;
   ss << "log_domain=" << Util::toString (Globals::logDomain);
   ss << "]" ;
   cout << ss.str() << endl;

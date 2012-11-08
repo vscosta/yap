@@ -1,6 +1,6 @@
 :- use_module(library(pfl)).
 
-%:- set_solver(fove).
+%:- set_solver(lve).
 %:- set_solver(hve).
 %:- set_solver(bp).
 %:- set_solver(cbp).

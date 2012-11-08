@@ -13,7 +13,7 @@ bool logDomain = false;
 
 unsigned verbosity = 0;
 
-LiftedSolver liftedSolver = LiftedSolver::FOVE;
+LiftedSolver liftedSolver = LiftedSolver::LVE;
 
 GroundSolver groundSolver = GroundSolver::VE;
 
@@ -210,10 +210,12 @@ setHorusFlag (string key, string value)
     ss << value;
     ss >> Globals::verbosity;
   } else if (key == "lifted_solver") {
-    if (       value == "fove") {
-      Globals::liftedSolver = LiftedSolver::FOVE;
+    if (       value == "lve") {
+      Globals::liftedSolver = LiftedSolver::LVE;
     } else if (value == "lbp") {
       Globals::liftedSolver = LiftedSolver::LBP;
+    } else if (value == "lkc") {
+      Globals::liftedSolver = LiftedSolver::LKC;
     } else {
       cerr << "warning: invalid value `" << value << "' " ;
       cerr << "for `" << key << "'" << endl;
