@@ -279,10 +279,12 @@ Clause::logVarTypes (size_t litIdx) const
 void
 Clause::removeLiteral (size_t litIdx)
 {
-  // TODO maybe we need to clean up pos/neg/ipg lvs too
-  LogVarSet lvs (literals_[litIdx].logVars());
-  lvs -= getLogVarSetExcluding (litIdx);
-  constr_.remove (lvs);
+  LogVarSet lvsToRemove = literals_[litIdx].logVarSet()
+      - getLogVarSetExcluding (litIdx);
+  ipgLogVars_    -= lvsToRemove;
+  posCountedLvs_ -= lvsToRemove;
+  negCountedLvs_ -= lvsToRemove;
+  constr_.remove (lvsToRemove);
   literals_.erase (literals_.begin() + litIdx);
 }
 
