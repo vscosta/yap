@@ -903,7 +903,7 @@ not(G) :-    \+ '$execute'(G).
 '$call'(G, CP, G0, CurMod) :-
 	( '$is_expand_goal_or_meta_predicate'(G,CurMod) ->
 	   (
-	     '$notrace'((CurMod:goal_expansion(G,NG) ;  system:goal_expansion(G,NG) ; user:goal_expansion(G, CurMod, NG) ; user:goal_expansion(G,NG) )) ->
+	     '$notrace'(('$pred_exists'(goal_expansion(G,NG), CurMod), CurMod:goal_expansion(G,NG) ;  system:goal_expansion(G,NG) ; user:goal_expansion(G, CurMod, NG) ; user:goal_expansion(G,NG) )) ->
 	       '$call'(NG, CP, G0,CurMod)
 	     ;
 	       % repeat other code.
