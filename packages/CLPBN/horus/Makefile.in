@@ -58,6 +58,7 @@ HEADERS = \
 	$(srcdir)/Indexer.h \
 	$(srcdir)/LiftedBp.h \
   $(srcdir)/LiftedCircuit.h \
+  $(srcdir)/LiftedKc.h \
 	$(srcdir)/LiftedUtils.h \
 	$(srcdir)/LiftedVe.h \
   $(srcdir)/LiftedWCNF.h \
@@ -84,7 +85,8 @@ CPP_SOURCES = \
 	$(srcdir)/HorusCli.cpp \
 	$(srcdir)/HorusYap.cpp \
 	$(srcdir)/LiftedBp.cpp \
-  $(srcdir)/LiftedCircuit.h \
+  $(srcdir)/LiftedCircuit.cpp \
+  $(srcdir)/LiftedKc.cpp \
 	$(srcdir)/LiftedUtils.cpp \
 	$(srcdir)/LiftedVe.cpp \
   $(srcdir)/LiftedWCNF.cpp \
@@ -110,6 +112,7 @@ OBJS = \
 	HorusYap.o \
 	LiftedBp.o \
   LiftedCircuit.o \
+  LiftedKc.o \
 	LiftedUtils.o \
 	LiftedVe.o \
   LiftedWCNF.o \

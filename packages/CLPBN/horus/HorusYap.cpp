@@ -14,6 +14,7 @@
 #include "LiftedBp.h"
 #include "CountingBp.h"
 #include "BeliefProp.h"
+#include "LiftedKc.h"
 #include "ElimGraph.h"
 #include "BayesBall.h"
 
@@ -76,6 +77,7 @@ createLiftedNetwork (void)
   readLiftedEvidence (YAP_ARG2, *(obsFormulas));
 
   LiftedNetwork* net = new LiftedNetwork (pfList, obsFormulas);
+
   YAP_Int p = (YAP_Int) (net);
   return YAP_Unify (YAP_MkIntTerm (p), YAP_ARG3);
 }
@@ -273,6 +275,8 @@ readParameters (YAP_Term paramL)
 int
 runLiftedSolver (void)
 {
+  // TODO one solver instatiation should be used
+  // to solve several inference tasks
   LiftedNetwork* network = (LiftedNetwork*) YAP_IntOfTerm (YAP_ARG1);
   YAP_Term taskList = YAP_ARG2;
   vector<Params> results;
@@ -303,7 +307,7 @@ runLiftedSolver (void)
       }
       jointList = YAP_TailOfTerm (jointList);
     }
-    if (Globals::liftedSolver == LiftedSolver::FOVE) {
+    if (Globals::liftedSolver == LiftedSolver::LVE) {
       LiftedVe solver (pfListCopy);
       if (Globals::verbosity > 0 && taskList == YAP_ARG2) {
         solver.printSolverFlags();
@@ -317,6 +321,13 @@ runLiftedSolver (void)
         cout << endl;
       }
       results.push_back (solver.solveQuery (queryVars));
+    } else if (Globals::liftedSolver == LiftedSolver::LKC) {
+      LiftedKc solver (pfListCopy);
+      if (Globals::verbosity > 0 && taskList == YAP_ARG2) {
+        solver.printSolverFlags();
+        cout << endl;
+      }
+      results.push_back (solver.solveQuery (queryVars));      
     } else {
       assert (false);
     }
