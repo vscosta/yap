@@ -3251,6 +3251,8 @@ cont_current_predicate( USES_REGS1 )
       Arity = ArityOfFunctor(f);
     }
   }
+  if (pp->PredFlags & HiddenPredFlag)
+    return FALSE;
   return
     Yap_unify(ARG2,name) &&
     Yap_unify(ARG3, MkIntegerTerm((Int)Arity));
@@ -3311,6 +3313,8 @@ cont_current_predicate_for_atom( USES_REGS1 )
     } else if (pp->KindOfPE == PEProp) {
       PredEntry *pe = RepPredProp(pf);
       PELOCK(31,pe);
+      if (pe->PredFlags & HiddenPredFlag)
+	return FALSE;
       if (pe->ModuleOfPred == mod ||
 	  pe->ModuleOfPred == 0) {
 	/* we found the predicate */
