@@ -1,6 +1,7 @@
 #include "LiftedBp.h"
 #include "WeightedBp.h"
 #include "FactorGraph.h"
+#include "LiftedOperations.h"
 #include "LiftedVe.h"
 
 
@@ -101,7 +102,7 @@ LiftedBp::iterate (void)
     for (size_t i = 0; i < args.size(); i++) {
       LogVarSet lvs = (*it)->logVarSet() - args[i].logVars();
       if ((*it)->constr()->isCountNormalized (lvs) == false) {
-        Parfactors pfs = LiftedVe::countNormalize (*it, lvs);
+        Parfactors pfs = LiftedOperations::countNormalize (*it, lvs);
         it = pfList_.removeAndDelete (it);
         pfList_.add (pfs);
         return false;

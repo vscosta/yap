@@ -9,6 +9,7 @@
 
 #include "ParfactorList.h"
 #include "FactorGraph.h"
+#include "LiftedOperations.h"
 #include "LiftedVe.h"
 #include "VarElim.h"
 #include "LiftedBp.h"
@@ -281,7 +282,7 @@ runLiftedSolver (void)
   YAP_Term taskList = YAP_ARG2;
   vector<Params> results;
   ParfactorList pfListCopy (*network->first);
-  LiftedVe::absorveEvidence (pfListCopy, *network->second);
+  LiftedOperations::absorveEvidence (pfListCopy, *network->second);
   while (taskList != YAP_TermNil()) {
     Grounds queryVars;
     YAP_Term jointList = YAP_HeadOfTerm (taskList);

@@ -144,10 +144,6 @@ class LiftedVe
    static void absorveEvidence (
        ParfactorList& pfList, ObservedFormulas& obsFormulas);
 
-   static Parfactors countNormalize (Parfactor*, const LogVarSet&);
-
-   static Parfactor calcGroundMultiplication (Parfactor pf);
-
   private:
     void runSolver (const Grounds&);
 

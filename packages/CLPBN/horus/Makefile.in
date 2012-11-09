@@ -59,6 +59,7 @@ HEADERS = \
 	$(srcdir)/LiftedBp.h \
   $(srcdir)/LiftedCircuit.h \
   $(srcdir)/LiftedKc.h \
+  $(srcdir)/LiftedOperations.h \
 	$(srcdir)/LiftedUtils.h \
 	$(srcdir)/LiftedVe.h \
   $(srcdir)/LiftedWCNF.h \
@@ -87,6 +88,7 @@ CPP_SOURCES = \
 	$(srcdir)/LiftedBp.cpp \
   $(srcdir)/LiftedCircuit.cpp \
   $(srcdir)/LiftedKc.cpp \
+  $(srcdir)/LiftedOperations.cpp \
 	$(srcdir)/LiftedUtils.cpp \
 	$(srcdir)/LiftedVe.cpp \
   $(srcdir)/LiftedWCNF.cpp \
@@ -113,6 +115,7 @@ OBJS = \
 	LiftedBp.o \
   LiftedCircuit.o \
   LiftedKc.o \
+  LiftedOperations.o \
 	LiftedUtils.o \
 	LiftedVe.o \
   LiftedWCNF.o \
