@@ -20,7 +20,7 @@ class LiftedKc
   private:
     LiftedWCNF*    lwcnf_;
     LiftedCircuit* circuit_;
-    
+
     const ParfactorList& pfList_;
 };
 

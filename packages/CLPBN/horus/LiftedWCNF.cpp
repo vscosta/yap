@@ -352,8 +352,8 @@ Clause::getLogVarSetExcluding (size_t idx) const
 LiftedWCNF::LiftedWCNF (const ParfactorList& pfList)
     : freeLiteralId_(0), pfList_(pfList)
 {
-  //addIndicatorClauses (pfList);
-  //addParameterClauses (pfList);
+  addIndicatorClauses (pfList);
+  addParameterClauses (pfList);
 
   /*
   vector<vector<string>> names = {
@@ -377,25 +377,25 @@ LiftedWCNF::LiftedWCNF (const ParfactorList& pfList)
 
   freeLiteralId_ = 2;
   */
-  
-  Literal lit1 (0, {0});
-  Literal lit2 (1, {0});
-  Literal lit3 (2, {1});
-  Literal lit4 (3, {1});
-  
-  vector<vector<string>> names = {{"p1","p2"},{"p3","p4"}};
-  Clause c1 (names);
-  c1.addLiteral (lit1);
-  c1.addLiteral (lit2);
-  c1.addLiteral (lit3);
-  c1.addLiteral (lit4);
-  //c1.addPosCountedLogVar (0);
-  clauses_.push_back (c1);
 
-  Clause c2 (names);
-  c2.addLiteral (lit1);
-  c2.addLiteral (lit3);
-  c2.addNegCountedLogVar (0);
+  //Literal lit1 (0, {0});
+  //Literal lit2 (1, {0});
+  //Literal lit3 (2, {1});
+  //Literal lit4 (3, {1});
+
+  //vector<vector<string>> names = {{"p1","p2"},{"p3","p4"}};
+  //Clause c1 (names);
+  //c1.addLiteral (lit1);
+  //c1.addLiteral (lit2);
+  //c1.addLiteral (lit3);
+  //c1.addLiteral (lit4);
+  //c1.addPosCountedLogVar (0);
+  //clauses_.push_back (c1);
+
+  //Clause c2 (names);
+  //c2.addLiteral (lit1);
+  //c2.addLiteral (lit3);
+  //c2.addNegCountedLogVar (0);
   //clauses_.push_back (c2);
   /*
   Clause c3;
@@ -408,17 +408,18 @@ LiftedWCNF::LiftedWCNF (const ParfactorList& pfList)
   c4.addLiteral (lit3);
   clauses_.push_back (c4);
   */
-  freeLiteralId_ = 4;
+  //freeLiteralId_ = 4;
 
   cout << "FORMULA INDICATORS:" << endl;
-  // printFormulaIndicators();
+  printFormulaIndicators();
   cout << endl;
+  
   cout << "WEIGHTS:" << endl;
   printWeights();
   cout << endl;
+  
   cout << "CLAUSES:" << endl;
   printClauses();
-  // abort();
   cout << endl;
 }
 
@@ -427,6 +428,14 @@ LiftedWCNF::LiftedWCNF (const ParfactorList& pfList)
 LiftedWCNF::~LiftedWCNF (void)
 {
 
+}
+
+
+
+void
+LiftedWCNF::addWeight (LiteralId lid, double posW, double negW)
+{
+  weights_[lid] = make_pair (posW, negW);
 }
 
 
@@ -447,6 +456,15 @@ LiftedWCNF::negWeight (LiteralId lid) const
   unordered_map<LiteralId, std::pair<double,double>>::const_iterator it;
   it = weights_.find (lid);
   return it != weights_.end() ? it->second.second : 1.0;
+}
+
+
+
+vector<LiteralId>
+LiftedWCNF::prvGroupLiterals (PrvGroup prvGroup)
+{
+  assert (Util::contains (map_, prvGroup));
+  return map_[prvGroup];
 }
 
 
@@ -479,14 +497,6 @@ LiftedWCNF::getLiteralId (PrvGroup prvGroup, unsigned range)
   return map_[prvGroup][range];
 }
   
-
-
-void
-LiftedWCNF::addWeight (LiteralId lid, double posW, double negW)
-{
-  weights_[lid] = make_pair (posW, negW);
-}
-
 
 
 void

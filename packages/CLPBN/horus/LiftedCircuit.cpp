@@ -190,19 +190,11 @@ LiftedCircuit::LiftedCircuit (const LiftedWCNF* lwcnf)
   Clauses clauses = lwcnf->clauses();
   compile (&root_, clauses);
   exportToGraphViz("circuit.dot");
-  smoothCircuit();
+  smoothCircuit (root_);
   exportToGraphViz("circuit.smooth.dot");
   cout << "--------------------------------------------------" << endl;
   cout << "--------------------------------------------------" << endl;  
   cout << "WEIGHTED MODEL COUNT = " << getWeightedModelCount() << endl;
-}
-
-
-
-void
-LiftedCircuit::smoothCircuit (void)
-{
-  smoothCircuit (root_);
 }
 
 

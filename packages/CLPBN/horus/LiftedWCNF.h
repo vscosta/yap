@@ -188,12 +188,16 @@ class LiftedWCNF
     LiftedWCNF (const ParfactorList& pfList);
 
    ~LiftedWCNF (void);
-   
+
     const Clauses& clauses (void) const { return clauses_; }
-   
+
+    void addWeight (LiteralId lid, double posW, double negW);
+
     double posWeight (LiteralId lid) const;
 
     double negWeight (LiteralId lid) const;
+
+    vector<LiteralId> prvGroupLiterals (PrvGroup prvGroup);
 
     Clause createClause (LiteralId lid) const;
 
@@ -204,10 +208,8 @@ class LiftedWCNF
     void printClauses (void) const;
 
   private:
-  
+
     LiteralId getLiteralId (PrvGroup prvGroup, unsigned range);
-  
-    void addWeight (LiteralId lid, double posW, double negW);
 
     void addIndicatorClauses (const ParfactorList& pfList);
 
