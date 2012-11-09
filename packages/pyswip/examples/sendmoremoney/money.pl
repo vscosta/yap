@@ -2,11 +2,11 @@
 % SEND + MORE = MONEY
 % Adapted from: http://en.wikipedia.org/wiki/Constraint_programming
 
-:- use_module(library(clpfd)).
+:- use_module(library('bounds')).
 
 sendmore(Digits) :-
    Digits = [S,E,N,D,M,O,R,Y],     % Create variables
-   allin(Digits, 0..9),               % Associate domains to variables
+   Digits in 0..9,               % Associate domains to variables
    S #\= 0,                        % Constraint: S must be different from 0
    M #\= 0,
    all_different(Digits),           % all the elements must take different values
@@ -15,8 +15,3 @@ sendmore(Digits) :-
    #= 10000*M + 1000*O + 100*N + 10*E + Y,
    label(Digits).               % Start the search
 
-
-allin([],_).
-allin([Pos|Board],D) :-
-	Pos in D,
-	allin(Board,D).

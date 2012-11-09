@@ -177,9 +177,14 @@ VarNames(VarEntry *p,Term l USES_REGS)
 {
   if (p != NULL) {
     if (strcmp(p->VarRep, "_") != 0) {
-      Term o = MkPairTerm(MkPairTerm(Yap_StringToList(p->VarRep), p->VarAdr),
-			  VarNames(p->VarRight,
-				   VarNames(p->VarLeft,l PASS_REGS) PASS_REGS));
+      Term t[2];
+      Term o;
+      
+      t[0] = MkAtomTerm(Yap_LookupAtom(p->VarRep));
+      t[1] = p->VarAdr;
+      o = Yap_MkApplTerm(FunctorEq, 2, t);
+      o = MkPairTerm(o, VarNames(p->VarRight,
+				 VarNames(p->VarLeft,l PASS_REGS) PASS_REGS));
       if (H > ASP-4096) {
 	save_machine_regs();
 	siglongjmp(LOCAL_IOBotch,1);
@@ -555,6 +560,10 @@ ParseTerm(int prio, JMPBUFF *FailBuff USES_REGS)
 	t = MkAtomTerm(Yap_LookupWideAtom(p));
       else
 	t = Yap_WideStringToList(p);
+      if (t == 0L) {
+	LOCAL_ErrorMessage = "Stack Overflow";
+	FAIL;
+      }
       NextToken;
     }
   break;

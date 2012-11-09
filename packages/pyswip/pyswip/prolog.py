@@ -25,10 +25,11 @@ def _initialize():
     plargs[0] = "./"
     plargs[1] = "-q"
     plargs[2] = "-nosignals"
+    #plargs[2] = "\x00"
     PL_initialise(3, plargs)
     swipl_fid = PL_open_foreign_frame()
     swipl_load = PL_new_term_ref()
-    PL_chars_to_term("asserta((pyrun(GoalString,BindingList):-atom_codes(A,GoalString),atom_to_term(A,Goal,BindingList),call(Goal))).", swipl_load)
+    PL_chars_to_term("asserta((pyrun(GoalString,BindingList):-(atom_codes(A,GoalString),atom_to_term(A,Goal,BindingList),call(Goal)))).", swipl_load)
     PL_call(swipl_load, None)
     PL_discard_foreign_frame(swipl_fid)
 _initialize()
@@ -63,7 +64,7 @@ class Prolog:
             swipl_bindingList = swipl_args + 1
         
             PL_put_list_chars(swipl_goalCharList, query)
-
+            
             swipl_predicate = PL_predicate("pyrun", 2, None)
             self.swipl_qid = swipl_qid = PL_open_query(None, plq,
                     swipl_predicate, swipl_args)
@@ -88,7 +89,7 @@ class Prolog:
                 PL_cut_query(self.swipl_qid)
                 PL_discard_foreign_frame(self.swipl_fid)
                 raise PrologError("".join(["Caused by: '", query, "'."]))
-        
+                
         def __del__(self):
             if not self.error:
                 PL_close_query(self.swipl_qid)

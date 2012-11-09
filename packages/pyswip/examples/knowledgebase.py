@@ -17,9 +17,7 @@ call(assertz(parent("gina", "bob")), module=test2)
 print "knowledgebase test1"
 
 X = Variable()
-print "ok"
 q = Query(parent(X, "bob"), module=test1)
-print "ok"
 while q.nextSolution():
     print X.value
 q.closeQuery()

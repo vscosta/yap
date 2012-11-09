@@ -614,7 +614,7 @@ debugging :-
 	fail.
 '$action'(0'A,_,_,_,_,_) :- !,			% 'b		break
 	'$skipeol'(0'A),
-	'$show_choicepoint_stack',
+	'$stack_dump',
 	fail.
 '$action'(0'c,_,_,_,_,on) :- !,			% 'c		creep
 	'$skipeol'(0'c),
@@ -719,7 +719,7 @@ debugging :-
 % do not need to debug!
 '$continue_debugging'(_,G) :-
 	'nb_getval'('$debug_run',Zip),
-        (Zip == nodebug ; number(Zip) ; Zip = spy(_) ), !,
+        (Zip == nodebug ;  number(Zip) ; Zip == spy ), !,
 	'$execute_dgoal'(G).
 '$continue_debugging'(_,G) :-
 	'$execute_creep_dgoal'(G).
@@ -873,44 +873,6 @@ debugging :-
 '$delete_if_there'([Q|L], T, [Q|LN]) :-
 	'$delete_if_there'(L, T, LN).
 
-'$show_choicepoint_stack' :-
-	yap_hacks:current_choicepoints(Cps),
-	length(Cps,Level),
-	'$debug_show_cps'(Cps,Level).
-
-'$debug_show_cps'([],_).
-'$debug_show_cps'([C|Cps],Level) :-
-	'$debug_show_cp'(C, Level),
-	Level1 is Level-1,
-	'$debug_show_cps'(Cps, Level1).
-
-'$debug_show_cp'(C, Level) :-
-	yap_hacks:choicepoint(C,_,Module,Name,Arity,Goal,_),
-	'$continue_debug_show_cp'(Module,Name,Arity,Goal,Level).
-
-'$continue_debug_show_cp'(prolog,'$do_live',0,(_;_),Level) :- !,
-	format(user_error,'      [~d] \'$toplevel\'',[Level]).
-'$continue_debug_show_cp'(prolog,'$do_log_upd_clause',4,'$do_log_upd_clause'(_,_,Goal,_),Level) :- !,
-	format(user_error,'      [~d] ',[Level]),
-	'$debugger_write'(user_error,Goal),
-	nl(user_error).
-'$continue_debug_show_cp'(prolog,'$do_static_clause',5,'$do_static_clause'(_,_,Goal,_,_),Level) :- !,
-	format(user_error,'      [~d] ',[Level]),
-	'$debugger_write'(user_error,Goal),
-	nl(user_error).
-'$continue_debug_show_cp'(Module,Name,Arity,_,_) :-
-	functor(G0, Name, Arity),
-	'$hidden_predicate'(G0,Module),
-	!.
-'$continue_debug_show_cp'(Module,Name,Arity,Goal,Level) :-
-	var(Goal), !,
-	format(user_error,'      [~d] ~q:~q/~d~n',[Level,Module,Name,Arity]).
-'$continue_debug_show_cp'(Module,Name,Arity,(V1;V2),Level) :-
-	var(V1),  var(V2), !,
-	format(user_error,'      [~d] ~q:~q/~d: ;/2~n',[Level,Module,Name,Arity]).
-'$continue_debug_show_cp'(_,_,_,G,Level) :-
-	format(user_error,'      [~d] ~q~n',[Level,G]).
-	
 '$debugger_deterministic_goal'(G) :-
 	yap_hacks:current_choicepoints(CPs0),
 %	$cps(CPs0),

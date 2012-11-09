@@ -137,6 +137,7 @@ void	STD_PROTO(Yap_BuildMegaClause,(struct pred_entry *));
 void	STD_PROTO(Yap_EraseMegaClause,(yamop *,struct pred_entry *));
 void	STD_PROTO(Yap_ResetConsultStack,(void));
 void	STD_PROTO(Yap_AssertzClause,(struct pred_entry *, yamop *));
+void    Yap_HidePred(struct pred_entry *pe);
 
 
 /* cmppreds.c */
@@ -318,6 +319,9 @@ void	STD_PROTO(Yap_InitReadUtil,(void));
 void	STD_PROTO(Yap_InitQLY,(void));
 int 	STD_PROTO(Yap_Restore,(char *, char *));
 void	STD_PROTO(Yap_InitQLYR,(void));
+
+/* range.c */
+void Yap_InitRange(void);
 
 /* save.c */
 int	STD_PROTO(Yap_SavedInfo,(char *,char *,CELL *,CELL *,CELL *));

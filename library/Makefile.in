@@ -35,7 +35,6 @@ PROGRAMS= \
 	$(srcdir)/avl.yap \
 	$(srcdir)/bhash.yap \
 	$(srcdir)/charsio.yap \
-	$(srcdir)/cleanup.yap \
 	$(srcdir)/clp/clpfd.pl \
 	$(srcdir)/coinduction.yap \
 	$(srcdir)/dbqueues.yap \
@@ -56,6 +55,7 @@ PROGRAMS= \
 	$(srcdir)/prandom.yap \
 	$(srcdir)/queues.yap \
 	$(srcdir)/random.yap \
+	$(srcdir)/range.yap \
 	$(srcdir)/r_session.yap \
 	$(srcdir)/rbtrees.yap \
 	$(srcdir)/regexp.yap \

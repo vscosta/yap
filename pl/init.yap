@@ -201,6 +201,14 @@ yap_hacks:cut_by(CP) :- '$$cut_by'(CP).
 
 :- dynamic goal_expansion/3.
 
+:- multifile goal_expansion/2.
+
+:- dynamic goal_expansion/2.
+
+:- multifile system:goal_expansion/2.
+
+:- dynamic system:goal_expansion/2.
+
 :- multifile user:prolog_file_type/2.
 
 :- dynamic user:prolog_file_type/2.

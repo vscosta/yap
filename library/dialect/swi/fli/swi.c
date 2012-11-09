@@ -150,7 +150,10 @@ PL_agc_hook(PL_agc_hook_t entry)
    YAP: char* AtomName(Atom) */
 X_API char* PL_atom_chars(atom_t a)	 /* SAM check type */
 {
-  return RepAtom(SWIAtomToAtom(a))->StrOfAE;
+  Atom at = SWIAtomToAtom(a);
+  if (IsWideAtom(at))
+    return NULL;
+  return RepAtom(at)->StrOfAE;
 }
 
 /* SWI: char* PL_atom_chars(atom_t atom)
@@ -281,7 +284,7 @@ X_API int PL_get_atom_chars(term_t ts, char **a)  /* SAM check type */
 {
   CACHE_REGS
   Term t = Yap_GetFromSlot(ts PASS_REGS);
-  if (!IsAtomTerm(t))
+  if (!IsAtomTerm(t) || IsWideAtom(AtomOfTerm(t)))
     return 0;
   *a = RepAtom(AtomOfTerm(t))->StrOfAE;
   return 1;
@@ -394,9 +397,9 @@ X_API int PL_get_integer(term_t ts, int *i)
 {
   CACHE_REGS
   YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
-  if (!YAP_IsIntTerm(t) )
+  if (IsVarTerm(t) || !IsIntegerTerm(t) )
     return 0;
-  *i = YAP_IntOfTerm(t);
+  *i = (int)IntegerOfTerm(t);
   return 1;
 }
 
@@ -843,6 +846,11 @@ X_API int PL_cons_functor_v(term_t d, functor_t f, term_t a0)
 X_API int PL_cons_list(term_t d, term_t h, term_t t)
 {
   CACHE_REGS
+  if (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
+    if (!do_gc(0)) {
+      return FALSE;
+    }
+  }
   Yap_PutInSlot(d,MkPairTerm(Yap_GetFromSlot(h PASS_REGS),Yap_GetFromSlot(t PASS_REGS)) PASS_REGS);
   return TRUE;
 }
@@ -1070,7 +1078,7 @@ X_API int PL_warning(const char *msg, ...) {
 X_API int PL_unify(term_t t1, term_t t2)
 {
   CACHE_REGS
-  return YAP_Unify(Yap_GetFromSlot(t1 PASS_REGS),Yap_GetFromSlot(t2 PASS_REGS));
+  return Yap_unify(Yap_GetFromSlot(t1 PASS_REGS),Yap_GetFromSlot(t2 PASS_REGS));
 }
 
 /* SWI: int PL_unify_atom(term_t ?t, atom  *at)
@@ -1247,7 +1255,7 @@ X_API int PL_unify_arg(int index, term_t tt, term_t arg)
       return FALSE;
     to = ArgOfTerm(index, t);
   }
-  return Yap_unify(Yap_GetFromSlot(t PASS_REGS),to);
+  return Yap_unify(Yap_GetFromSlot(arg PASS_REGS),to);
 }
 
 /* SWI: int PL_unify_list(term_t ?t, term_t +h, term_t -t)
@@ -1799,7 +1807,7 @@ X_API int PL_is_list(term_t ts)
 {
   CACHE_REGS
   YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
-  return Yap_IsListTerm(t);
+  return !IsVarTerm(t) && (t == TermNil || IsPairTerm(t));
 }
 
 X_API int
@@ -2316,7 +2324,7 @@ X_API int PL_next_solution(qid_t qi)
   if (setjmp(LOCAL_execution->env))
     return 0;
   if (qi->state == 0) {
-   result = YAP_RunGoal(qi->g);
+    result = YAP_RunGoal(qi->g);
   } else {
     LOCAL_AllowRestart = qi->open;
     result = YAP_RestartGoal();

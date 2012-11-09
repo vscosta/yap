@@ -356,7 +356,7 @@ thread_exit(Term) :-
 	var(Term), !,
 	'$do_error'(instantiation_error, thread_exit(Term)).
 thread_exit(Term) :-
-	'$close_thread'('$thread_finished'(exited(Term)), Detached).
+	throw('$thread_finished'(exited(Term))).
 
 '$run_at_thread_exit'(Id0) :-
 	'$thread_run_at_exit'(G, M),
@@ -616,6 +616,10 @@ message_queue_create(Id) :-
 	fail.
 '$do_msg_queue_create'(_).
 
+'$create_thread_mq'(TId) :-
+	recorded('$queue',q(TId,_,_,_,_), R),
+	erase(R),
+	fail.
 '$create_thread_mq'(TId) :-
 	\+ recorded('$queue',q(TId,_,_,_,_), _),
 	'$new_mutex'(Mutex),

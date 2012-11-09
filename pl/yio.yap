@@ -116,7 +116,10 @@ open_pipe_streams(Read, Write) :-
 	;
 	 true
 	),
-	unix:pipe(Read, Write).
+	unix:pipe(Read, Write),
+	yap_flag(encoding, X),
+	set_stream(Read, encoding(X) ),
+	set_stream(Write, encoding(X) ).
 
 fileerrors :- 	'$swi_set_prolog_flag'(fileerrors, true).
 
@@ -185,8 +188,7 @@ read_term(Stream, T, Options) :-
 '$postprocess_read_terms_option'(syntax_errors(_), _, _, _) :-
 	get_value('$read_term_error_handler', OldVal),
 	'$set_read_error_handler'(OldVal).
-'$postprocess_read_terms_option'(variable_names(Vars), _, VL, _) :-
-	'$read_term_non_anonymous'(VL, Vars).
+'$postprocess_read_terms_option'(variable_names(Vars), _, Vars, _).
 '$postprocess_read_terms_option'(singletons(Val), T, VL, _) :-
 	'$singletons_in_term'(T, Val1),
 	'$fetch_singleton_names'(Val1,VL,Val).
@@ -197,30 +199,24 @@ read_term(Stream, T, Options) :-
 '$postprocess_read_terms_option'(module(_), _, _, _).
 %'$postprocess_read_terms_option'(cycles(Val), _, _).
 
-'$read_term_non_anonymous'([], []).
-'$read_term_non_anonymous'([[S|V]|VL], [Name=V|Vars]) :-
-	atom_codes(Name,S),
-	'$read_term_non_anonymous'(VL, Vars).
-
-
 % problem is what to do about _ singletons.
 % no need to do ordering, the two lists already come ordered.
-'$fetch_singleton_names'([], _, []).
-'$fetch_singleton_names'([_|_], [], []) :- !.
-'$fetch_singleton_names'([V1|Ss], [[Na|V2]|Ns], ONs) :-
+'$fetch_singleton_names'([], _, []) :- !.
+'$fetch_singleton_names'([V1|Ss], [(Na=V2)|Ns], ONs) :-
 	V1 == V2, !,
 	'$add_singleton_if_no_underscore'(Na,V2,NSs,ONs),
 	'$fetch_singleton_names'(Ss, Ns, NSs).
-'$fetch_singleton_names'([V1|Ss], [[_|V2]|Ns], NSs) :-
-	V1 @> V2, !,
-	'$fetch_singleton_names'([V1|Ss], Ns, NSs).
-'$fetch_singleton_names'([_V1|Ss], Ns, NSs) :-
-%	V1 @> V2,
+'$fetch_singleton_names'([V1|Ss], [N=V2|Ns], NSs) :-
+	V1 @< V2, !, 
+	'$fetch_singleton_names'(Ss, [N=V2|Ns], NSs).
+'$fetch_singleton_names'(_Ss, [], []).
+'$fetch_singleton_names'(Ss, [_|Ns], NSs) :-
+%	V1 @> V2, !,
 	'$fetch_singleton_names'(Ss, Ns, NSs).
 
-'$add_singleton_if_no_underscore'([95|_],_,NSs,NSs) :- !.
-'$add_singleton_if_no_underscore'(Na,V2,NSs,[(Name=V2)|NSs]) :-
-	atom_codes(Name, Na).
+'$add_singleton_if_no_underscore'(Name, _, NSs, NSs) :- 
+	atom_codes(Name, [C|_]), C == 0'_ , !. %'
+'$add_singleton_if_no_underscore'(Name, V2, NSs, [(Name=V2)|NSs]).
 
 /* meaning of flags for '$write' is
 	 1	quote illegal atoms

@@ -6007,6 +6007,9 @@ Yap_RemoveClauseFromIndex(PredEntry *ap, yamop *beg) {
     ap->OpcodeOfPred = Yap_opcode(_op_fail);
   } else if (ap->PredFlags & IndexedPredFlag)  {
     remove_from_index(ap, sp, &cl, beg, last, &cint); 
+  } else if (ap->cs.p_code.NOfClauses == 1)  {
+    ap->cs.p_code.TrueCodeOfPred = ap->cs.p_code.FirstClause;
+    ap->CodeOfPred = (yamop *)(&(ap->OpcodeOfPred));     
   }
 }
 	     
@@ -6300,9 +6303,9 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 	  newpc = ipc->u.OtILl.d;
 	}
 #if MULTIPLE_STACKS
+	DEC_CLREF_COUNT(cl);
 	B->cp_tr--;
 	TR--;
-	DEC_CLREF_COUNT(cl);
 	/* actually get rid of the code */
 	if (cl->ClRefCount == 0 && cl->ClFlags & (ErasedMask|DirtyMask)) {
 	  /* I am the last one using this clause, hence I don't need a lock
@@ -6311,21 +6314,18 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 	  */
 	  LogUpdClause *lcl = ipc->u.OtILl.d;
 	  if (newpc) {
-	    /* I am the last one using this clause, hence I don't need a lock
-	       to dispose of it 
-	    */
-	    /* make sure the clause isn't destroyed */
-	    /* always add an extra reference */
-	    INC_CLREF_COUNT(lcl);
-	    TRAIL_CLREF(lcl);
+	    if (lcl->ClRefCount == 1) {
+	      /* make sure the clause isn't destroyed */
+	      /* always add an extra reference */
+	      INC_CLREF_COUNT(lcl);
+	      TRAIL_CLREF(lcl);
+	      B->cp_tr = TR;
+	    }
 	  }
 	  if (cl->ClFlags & ErasedMask) {
 	    Yap_ErLogUpdIndex(cl);
 	  } else {
 	    Yap_CleanUpIndex(cl);
-	  }
-	  if (newpc) {
-	    DEC_CLREF_COUNT(lcl);	  
 	  }
 	}
 #else

@@ -415,7 +415,7 @@ p_ksort( USES_REGS1 )
 void 
 Yap_InitSortPreds(void)
 {
-  Yap_InitCPred("$sort", 2, p_sort, HiddenPredFlag);
-  Yap_InitCPred("$msort", 2, p_msort, HiddenPredFlag);
-  Yap_InitCPred("$keysort", 2, p_ksort, HiddenPredFlag);
+  Yap_InitCPred("$sort", 2, p_sort, 0);
+  Yap_InitCPred("$msort", 2, p_msort, 0);
+  Yap_InitCPred("$keysort", 2, p_ksort, 0);
 }

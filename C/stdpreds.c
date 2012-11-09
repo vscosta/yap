@@ -932,6 +932,8 @@ p_name( USES_REGS1 )
       Atom at = AtomOfTerm(AtomNameT);
       if (IsWideAtom(at)) {
 	NewT = Yap_WideStringToList((wchar_t *)(RepAtom(at)->StrOfAE));
+	if (NewT == 0L)
+	  goto expand_global;
 	return Yap_unify(NewT, ARG2);
       } else
 	String = RepAtom(at)->StrOfAE;
@@ -1052,6 +1054,15 @@ p_name( USES_REGS1 )
   }
 
   /* error handling */
+ expand_global:
+  if (!Yap_gc(2, ENV, gc_P(P,CP))) {
+    Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
+    return(FALSE);
+  }    
+  AtomNameT = Deref(ARG1);
+  t = Deref(ARG2);
+  goto restart_aux;
+
  expand_auxsp:
   String = Yap_ExpandPreAllocCodeSpace(0,NULL, TRUE);
   if (String + 1024 > (char *)AuxSp) {
@@ -1190,6 +1201,8 @@ p_string_to_list( USES_REGS1 )
 
     if (Yap_IsWideStringTerm(t)) {
       StringT = Yap_WideStringToList(Yap_BlobWideStringOfTerm(t));
+      if (StringT == 0L)
+	  goto expand_global;
     } else if (Yap_IsStringTerm(t)) {
       StringT = Yap_StringToList(Yap_BlobStringOfTerm(t));
     } else if (IsAtomTerm(t)) {
@@ -1198,6 +1211,8 @@ p_string_to_list( USES_REGS1 )
 	StringT = Yap_WideStringToList(RepAtom(at)->WStrOfAE);
       else
 	StringT = Yap_StringToList(RepAtom(at)->StrOfAE);
+      if (StringT == 0L)
+	goto expand_global;
     } else if (IsIntTerm(t)) {
       char *String = Yap_PreAllocCodeSpace();
       if (String + 1024 > (char *)AuxSp) 
@@ -1309,6 +1324,15 @@ p_string_to_list( USES_REGS1 )
   return(FALSE);		
 
   /* error handling */
+expand_global:
+  if (!Yap_gc(2, ENV, gc_P(P,CP))) {
+    Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
+    return(FALSE);
+  }    
+  NameT = Deref(ARG1);
+  t = Deref(ARG2);
+  goto restart_aux;
+
  expand_auxsp:
   String = Yap_ExpandPreAllocCodeSpace(0,NULL, TRUE);
   if (String + 1024 > (char *)AuxSp) {
@@ -1344,6 +1368,8 @@ p_atom_chars( USES_REGS1 )
       } else {
 	NewT = Yap_WideStringToListOfAtoms((wchar_t *)RepAtom(AtomOfTerm(t1))->StrOfAE);
       }
+      if (NewT == 0L)
+	goto expand_global;
     } else {
       if (yap_flags[YAP_TO_CHARS_FLAG] == QUINTUS_TO_CHARS) {
 	NewT = Yap_StringToList(RepAtom(at)->StrOfAE);
@@ -1514,6 +1540,14 @@ p_atom_chars( USES_REGS1 )
     return Yap_unify_constant(ARG1, MkAtomTerm(at));
   }
   /* error handling */
+ expand_global:
+  if (!Yap_gc(2, ENV, gc_P(P,CP))) {
+    Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
+    return(FALSE);
+  }    
+  t1 = Deref(ARG1);
+  goto restart_aux;
+
  expand_auxsp:
   String = Yap_ExpandPreAllocCodeSpace(0,NULL, TRUE);
   if (String + 1024 > (char *)AuxSp) {
@@ -1919,6 +1953,8 @@ p_atom_codes( USES_REGS1 )
       } else {
 	NewT = Yap_StringToList(Yap_BlobStringOfTerm(t1));
       }
+      if (NewT == 0L)
+	goto expand_global;
     } else if (!IsAtomTerm(t1)) {
       Yap_Error(TYPE_ERROR_ATOM, t1, "atom_codes/2");
       return(FALSE);
@@ -1929,6 +1965,8 @@ p_atom_codes( USES_REGS1 )
       } else {
 	NewT = Yap_StringToList(RepAtom(at)->StrOfAE);
       }
+      if (NewT == 0L)
+	goto expand_global;
     }
     return (Yap_unify(NewT, ARG2));
   } else {
@@ -2001,7 +2039,15 @@ p_atom_codes( USES_REGS1 )
     }
   }
   /* error handling */
- expand_auxsp:
+ expand_global:
+  if (!Yap_gc(2, ENV, gc_P(P,CP))) {
+    Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
+    return(FALSE);
+  }    
+  t1 = Deref(ARG1);
+  goto restart_pred;
+
+  expand_auxsp:
   if (String + 1024 > (char *)AuxSp) { 
     String = Yap_ExpandPreAllocCodeSpace(0,NULL, TRUE);
   
@@ -3205,6 +3251,8 @@ cont_current_predicate( USES_REGS1 )
       Arity = ArityOfFunctor(f);
     }
   }
+  if (pp->PredFlags & HiddenPredFlag)
+    return FALSE;
   return
     Yap_unify(ARG2,name) &&
     Yap_unify(ARG3, MkIntegerTerm((Int)Arity));
@@ -3265,6 +3313,8 @@ cont_current_predicate_for_atom( USES_REGS1 )
     } else if (pp->KindOfPE == PEProp) {
       PredEntry *pe = RepPredProp(pf);
       PELOCK(31,pe);
+      if (pe->PredFlags & HiddenPredFlag)
+	return FALSE;
       if (pe->ModuleOfPred == mod ||
 	  pe->ModuleOfPred == 0) {
 	/* we found the predicate */
@@ -4263,77 +4313,6 @@ p_loop( USES_REGS1 ) {
 }
 #endif
 
-#if QSAR
-static Int
-p_in_range( USES_REGS1 ) {
-  Term t;
-  double i,j;
-  double d1;
-  double d2;
-  double d3;
-
-  t = Deref(ARG1);
-  if (IsFloatTerm(t)) i = FloatOfTerm(t); else i = IntegerOfTerm(t); 
-  t = Deref(ARG4);
-  if (IsFloatTerm(t)) j = FloatOfTerm(t); else j = IntegerOfTerm(t);
-  d1 = i-j;
-  t = Deref(ARG2);
-  if (IsFloatTerm(t)) i = FloatOfTerm(t); else i = IntegerOfTerm(t); 
-  t = Deref(ARG5);
-  if (IsFloatTerm(t)) j = FloatOfTerm(t); else j = IntegerOfTerm(t);
-  d2 = i-j;
-  t = Deref(ARG3);
-  if (IsFloatTerm(t)) i = FloatOfTerm(t); else i = IntegerOfTerm(t); 
-  t = Deref(ARG6);
-  if (IsFloatTerm(t)) j = FloatOfTerm(t); else j = IntegerOfTerm(t);
-  d3 = i-j;
-  t = Deref(ARG7);
-  if (IsFloatTerm(t)) i = FloatOfTerm(t); else i = IntegerOfTerm(t); 
-  t = Deref(ARG8);
-  if (IsFloatTerm(t)) j = FloatOfTerm(t); else j = IntegerOfTerm(t);
-  
-  return fabs(sqrt(d1*d1 + d2*d2 + d3*d3)-i) <= j; 
-
-}
-
-static Int
-p_in_range2( USES_REGS1 ) {
-  CELL *p1, *p2;
-  Term t;
-  double i,j;
-  double d1;
-  double d2;
-  double d3;
-  UInt arity;
-  p1 = RepAppl(Deref(ARG1));
-  arity = ArityOfFunctor((Functor)*p1);
-  p1 += arity-2;
-  p2 = RepAppl(Deref(ARG2))+(arity-2);;
-
-  t = Deref(p1[0]);
-  if (IsFloatTerm(t)) i = FloatOfTerm(t); else i = IntegerOfTerm(t); 
-  t = Deref(p2[0]);
-  if (IsFloatTerm(t)) j = FloatOfTerm(t); else j = IntegerOfTerm(t);
-  d1 = i-j;
-  t = Deref(p1[1]);
-  if (IsFloatTerm(t)) i = FloatOfTerm(t); else i = IntegerOfTerm(t); 
-  t = Deref(p2[1]);
-  if (IsFloatTerm(t)) j = FloatOfTerm(t); else j = IntegerOfTerm(t);
-  d2 = i-j;
-  t = Deref(p1[2]);
-  if (IsFloatTerm(t)) i = FloatOfTerm(t); else i = IntegerOfTerm(t); 
-  t = Deref(p2[2]);
-  if (IsFloatTerm(t)) j = FloatOfTerm(t); else j = IntegerOfTerm(t);
-  d3 = i-j;
-  t = Deref(ARG3);
-  if (IsFloatTerm(t)) i = FloatOfTerm(t); else i = IntegerOfTerm(t); 
-  t = Deref(ARG4);
-  if (IsFloatTerm(t)) j = FloatOfTerm(t); else j = IntegerOfTerm(t);
-  
-  return fabs(sqrt(d1*d1 + d2*d2 + d3*d3)-i) <= j; 
-
-}
-#endif
 
 static Int
 p_max_tagged_integer( USES_REGS1 ) {
@@ -4349,19 +4328,19 @@ void
 Yap_InitBackCPreds(void)
 {
   Yap_InitCPredBack("$current_atom", 1, 2, init_current_atom, cont_current_atom,
-		SafePredFlag|SyncPredFlag|HiddenPredFlag);
+		SafePredFlag|SyncPredFlag);
   Yap_InitCPredBack("$current_wide_atom", 1, 2, init_current_wide_atom,
 		    cont_current_wide_atom,
-		    SafePredFlag|SyncPredFlag|HiddenPredFlag);
+		    SafePredFlag|SyncPredFlag);
   Yap_InitCPredBack("$current_predicate", 3, 1, init_current_predicate, cont_current_predicate,
-		SafePredFlag|SyncPredFlag|HiddenPredFlag);
+		SafePredFlag|SyncPredFlag);
   Yap_InitCPredBack("$current_predicate_for_atom", 3, 1, init_current_predicate_for_atom, cont_current_predicate_for_atom,
-		SafePredFlag|SyncPredFlag|HiddenPredFlag);
+		SafePredFlag|SyncPredFlag);
   Yap_InitCPredBack("$current_op", 5, 1, init_current_op, cont_current_op,
 		SafePredFlag|SyncPredFlag);
   Yap_InitCPredBack("$current_atom_op", 5, 1, init_current_atom_op, cont_current_atom_op,
 		SafePredFlag|SyncPredFlag);
-  Yap_InitCPredBack("$sub_atom_fetch", 5, 5, init_sub_atom_fetch, cont_sub_atom_fetch, HiddenPredFlag);
+  Yap_InitCPredBack("$sub_atom_fetch", 5, 5, init_sub_atom_fetch, cont_sub_atom_fetch, 0);
 #ifdef BEAM
   Yap_InitCPredBack("eam", 1, 0, start_eam, cont_eam,
 		SafePredFlag);
@@ -4406,9 +4385,9 @@ Yap_InitCPreds(void)
   /* numerical comparison */
   Yap_InitCPred("set_value", 2, p_setval, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("get_value", 2, p_value, TestPredFlag|SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$values", 3, p_values, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$values", 3, p_values, SafePredFlag|SyncPredFlag);
   /* general purpose */
-  Yap_InitCPred("$opdec", 4, p_opdec, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$opdec", 4, p_opdec, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("name", 2, p_name, 0);
   Yap_InitCPred("string_to_atom", 2, p_string_to_atom, 0);
   Yap_InitCPred("string_to_list", 2, p_string_to_list, 0);
@@ -4416,8 +4395,8 @@ Yap_InitCPreds(void)
   Yap_InitCPred("atom_chars", 2, p_atom_chars, 0);
   Yap_InitCPred("atom_codes", 2, p_atom_codes, 0);
   Yap_InitCPred("atom_length", 2, p_atom_length, SafePredFlag);
-  Yap_InitCPred("$atom_split", 4, p_atom_split, SafePredFlag|HiddenPredFlag);
-  Yap_InitCPred("$sub_atom_extract", 5, p_sub_atom_extract, HiddenPredFlag);
+  Yap_InitCPred("$atom_split", 4, p_atom_split, SafePredFlag);
+  Yap_InitCPred("$sub_atom_extract", 5, p_sub_atom_extract, 0);
   Yap_InitCPred("number_chars", 2, p_number_chars, 0);
   Yap_InitCPred("number_atom", 2, p_number_atom, 0);
   Yap_InitCPred("number_codes", 2, p_number_codes, 0);
@@ -4425,28 +4404,28 @@ Yap_InitCPreds(void)
   Yap_InitCPred("atom_concat", 2, p_atom_concat, 0);
   Yap_InitCPred("atomic_concat", 2, p_atomic_concat, 0);
   Yap_InitCPred("=..", 2, p_univ, 0);
-  Yap_InitCPred("$statistics_trail_max", 1, p_statistics_trail_max, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$statistics_heap_max", 1, p_statistics_heap_max, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$statistics_global_max", 1, p_statistics_global_max, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$statistics_local_max", 1, p_statistics_local_max, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$statistics_heap_info", 2, p_statistics_heap_info, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$statistics_stacks_info", 3, p_statistics_stacks_info, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$statistics_trail_info", 2, p_statistics_trail_info, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$statistics_atom_info", 2, p_statistics_atom_info, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$statistics_db_size", 4, p_statistics_db_size, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$statistics_lu_db_size", 5, p_statistics_lu_db_size, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$argv", 1, p_argv, SafePredFlag|HiddenPredFlag);
-  Yap_InitCPred("$executable", 1, p_executable, SafePredFlag|HiddenPredFlag);
-  Yap_InitCPred("$runtime", 2, p_runtime, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$cputime", 2, p_cputime, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$systime", 2, p_systime, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$walltime", 2, p_walltime, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$access_yap_flags", 2, p_access_yap_flags, SafePredFlag|HiddenPredFlag);
-  Yap_InitCPred("$set_yap_flags", 2, p_set_yap_flags, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$p_system_mode", 1, p_system_mode, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$statistics_trail_max", 1, p_statistics_trail_max, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$statistics_heap_max", 1, p_statistics_heap_max, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$statistics_global_max", 1, p_statistics_global_max, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$statistics_local_max", 1, p_statistics_local_max, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$statistics_heap_info", 2, p_statistics_heap_info, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$statistics_stacks_info", 3, p_statistics_stacks_info, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$statistics_trail_info", 2, p_statistics_trail_info, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$statistics_atom_info", 2, p_statistics_atom_info, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$statistics_db_size", 4, p_statistics_db_size, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$statistics_lu_db_size", 5, p_statistics_lu_db_size, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$argv", 1, p_argv, SafePredFlag);
+  Yap_InitCPred("$executable", 1, p_executable, SafePredFlag);
+  Yap_InitCPred("$runtime", 2, p_runtime, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$cputime", 2, p_cputime, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$systime", 2, p_systime, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$walltime", 2, p_walltime, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$access_yap_flags", 2, p_access_yap_flags, SafePredFlag);
+  Yap_InitCPred("$set_yap_flags", 2, p_set_yap_flags, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$p_system_mode", 1, p_system_mode, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("abort", 0, p_abort, SyncPredFlag);
-  Yap_InitCPred("$max_tagged_integer", 1, p_max_tagged_integer, SafePredFlag|HiddenPredFlag);
-  Yap_InitCPred("$min_tagged_integer", 1, p_min_tagged_integer, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$max_tagged_integer", 1, p_max_tagged_integer, SafePredFlag);
+  Yap_InitCPred("$min_tagged_integer", 1, p_min_tagged_integer, SafePredFlag);
 #ifdef BEAM
   Yap_InitCPred("@", 0, eager_split, SafePredFlag);
   Yap_InitCPred(":", 0, force_wait, SafePredFlag);
@@ -4456,33 +4435,33 @@ Yap_InitCPreds(void)
   Yap_InitCPred("eamtime", 0, show_time, SafePredFlag);
   Yap_InitCPred("eam", 0, use_eam, SafePredFlag);
 #endif
-  Yap_InitCPred("$halt", 1, p_halt, SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$lock_system", 0, p_lock_system, SafePredFlag|HiddenPredFlag);
-  Yap_InitCPred("$unlock_system", 0, p_unlock_system, SafePredFlag|HiddenPredFlag);
-  Yap_InitCPred("$enter_undefp", 0, p_enterundefp, SafePredFlag|HiddenPredFlag);
-  Yap_InitCPred("$exit_undefp", 0, p_exitundefp, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$halt", 1, p_halt, SyncPredFlag);
+  Yap_InitCPred("$lock_system", 0, p_lock_system, SafePredFlag);
+  Yap_InitCPred("$unlock_system", 0, p_unlock_system, SafePredFlag);
+  Yap_InitCPred("$enter_undefp", 0, p_enterundefp, SafePredFlag);
+  Yap_InitCPred("$exit_undefp", 0, p_exitundefp, SafePredFlag);
   /* basic predicates for the prolog machine tracer */
   /* they are defined in analyst.c */
   /* Basic predicates for the debugger */
-  Yap_InitCPred("$creep", 0, p_creep, SafePredFlag|HiddenPredFlag);
-  Yap_InitCPred("$signal_creep", 0, p_signal_creep, SafePredFlag|HiddenPredFlag);
-  Yap_InitCPred("$disable_creep", 0, p_disable_creep, SafePredFlag|HiddenPredFlag);
-  Yap_InitCPred("$disable_docreep", 0, p_disable_docreep, SafePredFlag|HiddenPredFlag);
-  Yap_InitCPred("$do_not_creep", 0, p_stop_creep, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$creep", 0, p_creep, SafePredFlag);
+  Yap_InitCPred("$signal_creep", 0, p_signal_creep, SafePredFlag);
+  Yap_InitCPred("$disable_creep", 0, p_disable_creep, SafePredFlag);
+  Yap_InitCPred("$disable_docreep", 0, p_disable_docreep, SafePredFlag);
+  Yap_InitCPred("$do_not_creep", 0, p_stop_creep, SafePredFlag|SyncPredFlag);
 #ifdef DEBUG
-  Yap_InitCPred("$debug", 1, p_debug, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$debug", 1, p_debug, SafePredFlag|SyncPredFlag);
 #endif
   /* Accessing and changing the flags for a predicate */
-  Yap_InitCPred("$flags", 4, p_flags, SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$flags", 4, p_flags, SyncPredFlag);
   /* hiding and unhiding some predicates */
   Yap_InitCPred("hide", 1, p_hide, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("unhide", 1, p_unhide, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$hidden", 1, p_hidden, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$has_yap_or", 0, p_has_yap_or, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$has_eam", 0, p_has_eam, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$hidden", 1, p_hidden, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$has_yap_or", 0, p_has_yap_or, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$has_eam", 0, p_has_eam, SafePredFlag|SyncPredFlag);
 #ifndef YAPOR
   Yap_InitCPred("parallel_mode", 1, p_parallel_mode, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$c_yapor_workers", 1, p_yapor_workers, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$c_yapor_workers", 1, p_yapor_workers, SafePredFlag|SyncPredFlag);
 #endif /* YAPOR */
 #ifdef INES
   Yap_InitCPred("euc_dist", 3, p_euc_dist, SafePredFlag);
@@ -4510,6 +4489,7 @@ Yap_InitCPreds(void)
   Yap_InitLoadForeign();
   Yap_InitModulesC();
   Yap_InitSavePreds();
+  Yap_InitRange();
   Yap_InitSysPreds();
   Yap_InitUnify();
   Yap_InitQLY();

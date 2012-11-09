@@ -448,6 +448,8 @@
 #define AtomRadix Yap_heap_regs->AtomRadix_
   Atom AtomRandom_;
 #define AtomRandom Yap_heap_regs->AtomRandom_
+  Atom AtomRange_;
+#define AtomRange Yap_heap_regs->AtomRange_
   Atom AtomRead_;
 #define AtomRead Yap_heap_regs->AtomRead_
   Atom AtomReadutil_;
@@ -764,6 +766,8 @@
 #define FunctorGVar Yap_heap_regs->FunctorGVar_
   Functor FunctorGeneratePredInfo_;
 #define FunctorGeneratePredInfo Yap_heap_regs->FunctorGeneratePredInfo_
+  Functor FunctorGoalExpansion2_;
+#define FunctorGoalExpansion2 Yap_heap_regs->FunctorGoalExpansion2_
   Functor FunctorGoalExpansion_;
 #define FunctorGoalExpansion Yap_heap_regs->FunctorGoalExpansion_
   Functor FunctorHandleThrow_;

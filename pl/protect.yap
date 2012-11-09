@@ -20,7 +20,7 @@
 '$protect' :-
 	current_atom(Name),
 	atom_codes(Name,[0'$|_]),
-	'$hide_predicates'(Name),
+%	'$hide_predicates'(Name),
 	'$hide'(Name).
 '$protect' :-
 	'$hide_predicates'(bootstrap),

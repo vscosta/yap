@@ -2358,7 +2358,8 @@ Add predicates to the public list of the context module. This implies
 the predicate will be imported into another module if this module is
 imported with @code{use_module/[1,2]}. Note that predicates are normally
 exported using the directive @code{module/2}. @code{export/1} is meant
-to handle export from dynamically created modules.
+to handle export from dynamically created modules. The directive argument
+may also be a list of predicates.
 
 @item export_list(?@var{Mod},?@var{ListOfPredicateIndicator})
 @findex export_list/2

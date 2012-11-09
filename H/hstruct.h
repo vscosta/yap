@@ -99,6 +99,9 @@
   Term  globals_module;
   Term  swi_module;
   Term  dbload_module;
+  Term  range_module;
+
+  Prop  hidden_predicates;
 
 
 

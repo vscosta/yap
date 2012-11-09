@@ -241,9 +241,19 @@ AC_ARG_WITH(R,
 	elif test "$withval" = no; then
 	    yap_cv_R=no
 	else
-	    yap_cv_R=$with_R
+	    yap_cv_R=$withval
 	fi,
 	[yap_cv_R=no])
+AC_ARG_WITH(python,
+	[ --with-python[=DIR]              interface to R language],
+	if test "$withval" = yes; then
+	    yap_cv_python=yes
+	elif test "$withval" = no; then
+	    yap_cv_python=no
+	else
+	    yap_cv_python=$withval
+	fi,
+	[yap_cv_python=no])
 
 dnl best test we could do.
 AC_ARG_WITH(minisat,
@@ -272,6 +282,8 @@ AC_ARG_ENABLE(myddas,
 		yap_cv_myddas=$enable_myddas
 		LDFLAGS="$LDFLAGS -L${yap_cv_myddas}/lib "
 		CPPFLAGS="$CPPFLAGS -I${yap_cv_myddas}/include "
+		ODBC_LDFLAGS="-L${yap_cv_myddas}/lib "
+		ODBC_CFLAGS="-I${yap_cv_myddas}/include "
 	fi,
 	[yap_cv_myddas=/usr])
 
@@ -834,6 +846,28 @@ else
     ENABLE_REAL="@# "
 fi
 
+if test "$yap_cv_python" = "no"; then
+    PYTHON_TARGET="dummy"
+    ENABLE_PYTHON="@# "
+elif test -e "$srcdir"/packages/python/Makefile.in ; then
+   PYTHON_TARGET="pitf"
+   ENABLE_PYTHON=""
+   if test "$yap_cv_python" = "yes"
+   then
+      AC_CHECK_PROGS(PYTHON, python, "none")
+   else
+     PYTHON="$yap_cv_python"
+   fi
+   PYTHONHOME=`$PYTHON -c'import sys; print sys.prefix'`
+   PYTHONVERSION=`"$PYTHON" -c "import sys; print sys.version[[:3]]"`
+   PYTHON_LIBS="-L $PYTHONHOME/lib -lpython$PYTHONVERSION"
+   LIBS="$LIBS $PYTHON_LIBS"
+   PYTHON_INCLUDES="-I $PYTHONHOME/include/python$PYTHONVERSION"
+else
+    PYTHON_TARGET="dummy"
+    ENABLE_PYTHON="@# "
+fi
+
 dnl if test "$yap_cv_cudd" != "no"
 dnl then
 dnl   AC_CHECK_LIB(cudd,Cudd_Init)
@@ -857,6 +891,16 @@ then
 	;;
 	esac
 	AC_SEARCH_LIBS(SQLAllocHandle, [odbc], [yap_cv_odbc="yes"], [yap_cv_odbc="no"])
+	if test "$yap_cv_odbc" = yes
+	then
+	   ODBC_LIBS="$ODBC_LIBS -lodbc"
+	else
+	  AC_SEARCH_LIBS(SQLAllocHandle, [iodbc], [yap_cv_odbc="yes"], [yap_cv_odbc="no"])
+	  if test "$yap_cv_odbc" = yes
+	  then
+	     ODBC_LIBS="$ODBC_LIBS -liodbc"
+	  fi
+        fi
 	if test "$yap_cv_odbc" = yes 
 	then
 		YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_ODBC"
@@ -974,6 +1018,12 @@ if test -e "$srcdir"/packages/archive/Makefile.in; then
   ENABLE_LIBARCHIVE=""
 else
   ENABLE_LIBARCHIVE="@# "
+fi
+
+if test -e "$srcdir"/packages/odbc/Makefile.in; then
+  ENABLE_ODBC=""
+else
+  ENABLE_ODBC="@# "
 fi
 
 if test "$use_chr" = no; then
@@ -1822,6 +1872,10 @@ AC_SUBST(REAL_LIBS)
 AC_SUBST(INSTALL_MATLAB)
 AC_SUBST(MATLAB_INCLUDE)
 AC_SUBST(INSTALL_PRISM)
+AC_SUBST(PYTHON_TARGET)
+AC_SUBST(ENABLE_PYTHON)
+AC_SUBST(PYTHON_INCLUDES)
+AC_SUBST(PYTHON_LIBS)
 
 dnl check for threaded code
 AC_MSG_CHECKING(for gcc threaded code)
@@ -2305,14 +2359,29 @@ else
 EOF
 fi
 
+
 AC_SUBST(ZLIBS)
 AC_SUBST(ZLIB_TARGETS)
 AC_SUBST(ZLIB_PLTARGETS)
 AC_SUBST(ZLIB_INSTALL)
-
 fi
 
-dnl zlib
+dnl archive
+
+if test "$yap_cv_odbc" = yes; then
+	   ODBC_TARGETS="odbc4pl.$SO"
+	   ODBC_PLTARGETS=odbc.pl
+	   AC_CHECK_HEADERS(sql.h)
+	   AC_CHECK_FUNCS(localtime mktime gmtime timegm)
+	   AC_CHECK_TYPES([SQLLEN, SQLULEN],,,
+	       [#include <sql.h>
+	       ])
+else
+	   ODBC_TARGETS=nolib
+	   ODBC_PLTARGETS=odbc.pl
+fi
+
+
 if test "$ENABLE_LIBARCHIVE" = ""
 then
 OLD_LIBS=$LIBS
@@ -2331,6 +2400,7 @@ if test "$ARCHIVEH" = yes; then
 	       ARCHIVELIB=no)
 fi
 
+LIBS="$LIBS -larchive"
 AC_CHECK_FUNCS(archive_read_support_compression_bzip2 \
 	       archive_read_support_compression_compress \
 	       archive_read_support_compression_gzip \
@@ -2373,9 +2443,18 @@ AC_SUBST(ARCHIVE_LIBS)
 AC_SUBST(ARCHIVE_TARGETS)
 AC_SUBST(ARCHIVE_PLTARGETS)
 
+LIBS="$OLD_LIBS"
 fi
 
 AC_SUBST(ENABLE_LIBARCHIVE)
+
+AC_SUBST(ODBC_CFLAGS)
+AC_SUBST(ODBC_LDFLAGS)
+AC_SUBST(ODBC_LIBS)
+AC_SUBST(ODBC_TARGETS)
+AC_SUBST(ODBC_PLTARGETS)
+
+AC_SUBST(ENABLE_ODBC)
 
 mkdir -p  library/lammpi
 mkdir -p  library/matrix
@@ -2483,7 +2562,11 @@ AC_CONFIG_FILES([packages/http/Makefile])
 fi
 
 if test "$ENABLE_JPL" = ""; then
-AC_CONFIG_FILES([packages/jpl/Makefile packages/jpl/jpl_paths.yap packages/jpl/src/java/Makefile packages/pyswip/Makefile ])
+AC_CONFIG_FILES([packages/jpl/Makefile packages/jpl/jpl_paths.yap packages/jpl/src/java/Makefile ])
+fi
+
+if test "$ENABLE_PYTHON" = ""; then
+AC_CONFIG_FILES([ packages/python/Makefile ])
 fi
 
 if test "$ENABLE_PLDOC" = ""; then
@@ -2517,6 +2600,10 @@ fi
 
 if test "$ENABLE_LIBARCHIVE" = ""; then
 AC_CONFIG_FILES([packages/archive/Makefile])
+fi
+
+if test "$ENABLE_ODBC" = ""; then
+AC_CONFIG_FILES([packages/odbc/Makefile])
 fi
 
 

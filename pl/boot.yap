@@ -628,21 +628,22 @@ true :- true.
         '$write_vars_and_goals'(NLAnsw, first, FLAnsw).
 
 '$purge_dontcares'([],[]).
-'$purge_dontcares'([[[95|_]|_]|Vs],NVs) :- !,
+'$purge_dontcares'([Name=_|Vs],NVs) :- 
+	atom_codes(Name, [C|_]), C is "_", !,
 	'$purge_dontcares'(Vs,NVs).
 '$purge_dontcares'([V|Vs],[V|NVs]) :-
 	'$purge_dontcares'(Vs,NVs).
 
 
 '$prep_answer_var_by_var'([], L, L).
-'$prep_answer_var_by_var'([[Name|Value]|L], LF, L0) :- 
+'$prep_answer_var_by_var'([Name=Value|L], LF, L0) :- 
 	'$delete_identical_answers'(L, Value, NL, Names),
 	'$prep_answer_var'([Name|Names], Value, LF, LI),
 	'$prep_answer_var_by_var'(NL, LI, L0).
 
 % fetch all cases that have the same solution.
 '$delete_identical_answers'([], _, [], []).
-'$delete_identical_answers'([[Name|Value]|L], Value0, FL, [Name|Names]) :-
+'$delete_identical_answers'([(Name=Value)|L], Value0, FL, [Name|Names]) :-
 	Value == Value0, !,
 	'$delete_identical_answers'(L, Value0, FL, Names).
 '$delete_identical_answers'([VV|L], Value0, [VV|FL], Names) :-
@@ -678,11 +679,11 @@ true :- true.
 
 '$write_goal_output'(var([V|VL]), First, [var([V|VL])|L], next, L) :- !,
         ( First = first -> true ; format(user_error,',~n',[]) ),
-	format(user_error,'~s',[V]),
+	format(user_error,'~a',[V]),
 	'$write_output_vars'(VL).
 '$write_goal_output'(nonvar([V|VL],B), First, [nonvar([V|VL],B)|L], next, L) :- !,
         ( First = first -> true ; format(user_error,',~n',[]) ),
-	format(user_error,'~s',[V]),
+	format(user_error,'~a',[V]),
 	'$write_output_vars'(VL),
 	format(user_error,' = ', []),
         ( recorded('$print_options','$toplevel'(Opts),_) ->
@@ -902,7 +903,7 @@ not(G) :-    \+ '$execute'(G).
 '$call'(G, CP, G0, CurMod) :-
 	( '$is_expand_goal_or_meta_predicate'(G,CurMod) ->
 	   (
-	     '$notrace'(user:goal_expansion(G, CurMod, NG)) ->
+	     '$notrace'(('$pred_exists'(goal_expansion(G,NG), CurMod), CurMod:goal_expansion(G,NG) ;  system:goal_expansion(G,NG) ; user:goal_expansion(G, CurMod, NG) ; user:goal_expansion(G,NG) )) ->
 	       '$call'(NG, CP, G0,CurMod)
 	     ;
 	       % repeat other code.

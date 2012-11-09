@@ -40,7 +40,8 @@ class Atom(object):
         else:
             self.handle = handleOrChars
             PL_register_atom(self.handle)
-            self.chars = c_char_p(PL_atom_chars(self.handle)).value
+            #self.chars = c_char_p(PL_atom_chars(self.handle)).value
+            self.chars = PL_atom_chars(self.handle)
 
     def fromTerm(cls, term):
         """Create an atom from a Term or term handle."""
@@ -48,7 +49,7 @@ class Atom(object):
             term = term.handle
 
         a = atom_t()
-        if PL_get_atom(term, addressof(a)):
+        if PL_get_atom(term, byref(a)):
             return cls(a.value)
 
     fromTerm = classmethod(fromTerm)
@@ -115,7 +116,9 @@ class Variable(object):
         else:
             raise
 
-        t = PL_new_term_ref()
+        if (self.handle == None):
+            t = PL_new_term_ref()
+            self.handle = t
         fun(self.handle, value)
 
     def get_value(self):
@@ -138,7 +141,6 @@ class Variable(object):
     def put(self, term):
         #PL_put_variable(term)
         self.handle = term
-
 
 class Functor(object):
     __slots__ = "handle","name","arity","args","__value","a0"
@@ -256,7 +258,7 @@ def getAtomChars(t):
     """If t is an atom, return it as a string, otherwise raise InvalidTypeError.
     """
     s = c_char_p()
-    if PL_get_atom_chars(t, addressof(s)):
+    if PL_get_atom_chars(t, byref(s)):
         return s.value
     else:
         raise InvalidTypeError("atom")
@@ -269,8 +271,8 @@ def getAtom(t):
 def getBool(t):
     """If t is of type bool, return it, otherwise raise InvalidTypeError.
     """
-    b = c_long()
-    if PL_get_long(t, byref(b)):
+    b = c_int()
+    if PL_get_int(t, byref(b)):
         return bool(b.value)
     else:
         raise InvalidTypeError("bool")
@@ -278,9 +280,9 @@ def getBool(t):
 def getLong(t):
     """If t is of type long, return it, otherwise raise InvalidTypeError.
     """
-    i = c_long()
-    if PL_get_long(t, byref(i)):
-        return i.value
+    l = c_long()
+    if PL_get_long(t, byref(l)):
+        return l.value
     else:
         raise InvalidTypeError("long")
 
@@ -305,14 +307,22 @@ def getString(t):
     else:
         raise InvalidTypeError("string")
 
+mappedTerms = {}
 def getTerm(t):
+    global mappedTerms
+    #print 'mappedTerms', mappedTerms
+
+    #if t in mappedTerms:
+    #    return mappedTerms[t]
     p = PL_term_type(t)
     if p < PL_TERM:
-        return _getterm_router[p](t)
+        res = _getterm_router[p](t)
     elif PL_is_list(t):
-        return getList(t)
+        res = getList(t)
     else:
-        return getFunctor(t)
+        res = getFunctor(t)
+    mappedTerms[t] = res
+    return res
 
 def getList(x):
     """Return t as a list.
@@ -339,15 +349,31 @@ _getterm_router = {
                     PL_TERM:getTerm
                     }
 
+arities = {}
 def _callbackWrapper(arity=1):
-    return CFUNCTYPE(*([foreign_t] + [term_t]*arity))
+    global arities
 
+    res = arities.get(arity)
+    if res is None:
+        res = CFUNCTYPE(*([foreign_t] + [term_t]*arity))
+        arities[arity] = res
+    return res
+
+funwraps = {}
 def _foreignWrapper(fun):
-    def wrapper(*args):
-        args = [getTerm(arg) for arg in args]
-        r = fun(*args)
-        return (r is None) and True or r
-    return wrapper
+    global funwraps
+
+    res = funwraps.get(fun)
+    if res is None:
+        def wrapper(*args):
+            args = [getTerm(arg) for arg in args]
+            r = fun(*args)
+            return (r is None) and True or r
+        res = wrapper
+        funwraps[fun] = res
+    return res
+
+cwraps = []
 
 def registerForeign(func, name=None, arity=None, flags=0):
     """Register a Python predicate
@@ -358,14 +384,21 @@ def registerForeign(func, name=None, arity=None, flags=0):
     ``arity``: Arity (number of arguments) of the function. If this value is not
     used, ``func.arity`` should exist.
     """
+    global cwraps
+
     if arity is None:
         arity = func.arity
 
     if name is None:
         name = func.func_name
 
-    return PL_register_foreign(name, arity,
-            cast(_callbackWrapper(arity)(_foreignWrapper(func)),c_void_p), (flags))
+    cwrap = _callbackWrapper(arity)
+    fwrap = _foreignWrapper(func)
+    fwrap2 = cwrap(fwrap)
+    cwraps.append(fwrap2)
+    return PL_register_foreign(name, arity, cast(fwrap2, c_void_p), flags)
+    # return PL_register_foreign(name, arity,
+    #            _callbackWrapper(arity)(_foreignWrapper(func)), flags)
 
 newTermRef = PL_new_term_ref
 
@@ -416,7 +449,6 @@ class Query(object):
 
         f = Functor.fromTerm(t)
         p = PL_pred(f.handle, module)
-        Query.fid = PL_open_foreign_frame()
         Query.qid = PL_open_query(module, flags, p, f.a0)
 
 #    def __del__(self):
@@ -435,9 +467,7 @@ class Query(object):
     def closeQuery():
         if Query.qid is not None:
             PL_close_query(Query.qid)
-            PL_discard_foreign_frame(Query.fid)
             Query.qid = None
-            Query.fid = None
 
     closeQuery = staticmethod(closeQuery)
 

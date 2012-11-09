@@ -1,0 +1,97 @@
+################################################################
+# YAP/SWI-Prolog R interface package
+# Author:    Nicos Angelopoulos
+# Copyright: Perl License
+################################################################
+
+PACKAGE=python
+DOC=python
+PKGCFLAGS=@PYTHON_INCLUDES@
+include ../Makefile.defs
+
+OBJS=		python.o
+SOLIBS=		python.@SO@
+
+LIBPL=		python.pl
+
+all:		@PYTHON_TARGET@
+
+pitf:		$(SOLIBS)
+dummy::
+
+python.@SO@:	$(OBJS)
+		$(LD) $(LDSOFLAGS) -o $@ $(OBJS) $(LIBS) @PYTHON_LIBS@ $(LIBPLSO)
+
+install:	install-@PYTHON_TARGET@
+install-dummy::
+install-pitf:	$(SOLIBS) $(addprefix $(srcdir)/, $(LIBPL))
+		mkdir -p $(DESTDIR)$(SOLIBDIR)
+		rm -f $(DESTDIR)$(SOLIBDIR)/python.@SO@
+		$(INSTALL_PROGRAM) $(SOLIBS) $(SOLIBDIR)
+		mkdir -p $(DESTDIR)$(PLLIBDIR)
+		for f in $(LIBPL); do \
+		  $(INSTALL_DATA) $(srcdir)/$$f $(DESTDIR)$(PLLIBDIR); \
+		done
+		$(MKINDEX)
+
+
+ln-install::
+		$(MAKE) INSTALL_DATA="../ln-install" INSTALL_PROGRAM="../ln-install" install
+
+rpm-install:	install
+
+html-install::
+		mkdir -p $(DESTDIR)$(PKGDOC)
+		$(INSTALL) -m 644 $(DOC).html $(DESTDIR)$(PKGDOC)
+
+pdf-install::
+		mkdir -p $(DESTDIR)$(PKGDOC)
+		$(INSTALL) -m 644 $(DOC).pdf $(DESTDIR)$(PKGDOC)
+
+uninstall::
+		(cd $(SOLIBDIR) && rm -f $(TARGETS))
+		(cd $(PLBASE)/library && rm -f $(LIBPL))
+		$(MKINDEX)
+
+################################################################
+# Documentation
+################################################################
+
+TEXEXTRA=	libpython.tex
+$(TEX):		$(TEXEXTRA)
+
+libpython.tex:	python.pl
+		$(PLTOTEX) --section 'library(python)' --out=$@
+
+
+################################################################
+# Testing
+################################################################
+
+check::
+		(cd $(srcdir) && $(PL) -q -f test_python.pl -g test_python,halt -t 'halt(1)' )
+		(cd $(srcdir)/examples; python create_term.py)
+		(cd $(srcdir)/examples; python knowledgebase.py)
+		(cd $(srcdir)/examples; python knowledgebase.py)
+		(cd $(srcdir)/examples; python register_foreign.py)
+		(cd $(srcdir)/examples; python register_foreign_simple.py)
+		(cd $(srcdir)/examples/coins; python coins.py)
+		(cd $(srcdir)/examples/draughts; python puzzle1.py)
+		(cd $(srcdir)/examples/hanoi; python hanoi.py)
+		(cd $(srcdir)/examples/sendmoremoney; python money.py)
+		(cd $(srcdir)/examples/sudoku; python sudoku.py)
+		(cd $(srcdir)/examples/sudoku; python sudoku_daily.py)
+
+################################################################
+# Clean
+################################################################
+
+clean:
+		rm -f $(SOLIBS) *~ *.o *% a.out core config.log
+
+distclean:	clean
+		rm -f $(TARGETS) config.cache config.h config.status Makefile
+		rm -f $(DOC).aux $(DOC).log $(DOC).out $(DOC).toc
+		rm -rf html
+		rm -rf autom4te.cache
+

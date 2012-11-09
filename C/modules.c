@@ -301,13 +301,13 @@ Yap_StripModule(Term t,  Term *modp)
 void 
 Yap_InitModulesC(void)
 {
-  Yap_InitCPred("$current_module", 2, p_current_module, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$current_module", 1, p_current_module1, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$change_module", 1, p_change_module, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("strip_module", 3, p_strip_module, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$current_module", 2, p_current_module, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$current_module", 1, p_current_module1, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$change_module", 1, p_change_module, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("strip_module", 3, p_strip_module, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("context_module", 1, p_context_module, 0);
   Yap_InitCPredBack("$all_current_modules", 1, 1, init_current_module, cont_current_module,
-		SafePredFlag|SyncPredFlag|HiddenPredFlag);
+		SafePredFlag|SyncPredFlag);
 }
 
 
@@ -327,5 +327,6 @@ Yap_InitModules(void)
   LookupModule(ARG_MODULE);
   LookupModule(GLOBALS_MODULE);
   LookupModule(DBLOAD_MODULE);
+  LookupModule(RANGE_MODULE);
   CurrentModule = PROLOG_MODULE;
 }

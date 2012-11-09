@@ -210,6 +210,7 @@ LookupAtom(char *atom)
   return na;
 }
 
+
 static Atom
 LookupWideAtom(wchar_t *atom)
 {				/* lookup atom in atom table            */
@@ -248,12 +249,16 @@ LookupWideAtom(wchar_t *atom)
 #endif  
   /* add new atom to start of chain */
   sz = wcslen(atom);
-  ae = (AtomEntry *) Yap_AllocAtomSpace(sizeof(AtomEntry) + sizeof(wchar_t)*(sz + 1)+sizeof(WideAtomEntry));
+  ae = (AtomEntry *) Yap_AllocAtomSpace((size_t)(((AtomEntry *)NULL)+1) + sizeof(wchar_t)*(sz + 1));
   if (ae == NULL) {
     WRITE_UNLOCK(WideHashChain[hash].AERWLock);
     return NIL;
   }
-  wae = (WideAtomEntry *)(ae->StrOfAE+sizeof(wchar_t)*(sz + 1));
+  wae = (WideAtomEntry *) Yap_AllocAtomSpace(sizeof(WideAtomEntry));
+  if (wae == NULL) {
+    WRITE_UNLOCK(WideHashChain[hash].AERWLock);
+    return NIL;
+  }
   na = AbsAtom(ae);
   ae->PropsOfAE = AbsWideAtomProp(wae);
   wae->NextOfPE = NIL;
@@ -1196,6 +1201,7 @@ Yap_NStringToList(char *s, size_t len)
   return t;
 }
 
+
 Term
 Yap_WideStringToList(wchar_t *s)
 {
@@ -1205,6 +1211,8 @@ Yap_WideStringToList(wchar_t *s)
 
   t = MkAtomTerm(AtomNil);
   while (cp > s) {
+    if (ASP < H+1024)
+      return (CELL)0;    
     t = MkPairTerm(MkIntegerTerm(*--cp), t);
   }
   return t;
@@ -1219,6 +1227,8 @@ Yap_NWideStringToList(wchar_t *s, size_t len)
 
   t = MkAtomTerm(AtomNil);
   while (cp > s) {
+    if (ASP < H+1024)
+      return (CELL)0;    
     t = MkPairTerm(MkIntegerTerm(*--cp), t);
   }
   return t;
@@ -1323,6 +1333,8 @@ Yap_WideStringToListOfAtoms(wchar_t *s)
   t = MkAtomTerm(AtomNil);
   while (cp > s) {
     so[0] = *--cp;
+    if (ASP < H+1024)
+      return (CELL)0;    
     t = MkPairTerm(MkAtomTerm(LookupWideAtom(so)), t);
   }
   return t;
@@ -1339,6 +1351,8 @@ Yap_NWideStringToListOfAtoms(wchar_t *s, size_t len)
   so[1] = '\0';
   t = MkAtomTerm(AtomNil);
   while (cp > s) {
+    if (ASP < H+1024)
+      return (CELL)0;    
     so[0] = *--cp;
     t = MkPairTerm(MkAtomTerm(LookupWideAtom(so)), t);
   }

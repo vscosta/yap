@@ -1075,7 +1075,7 @@ void Yap_InitAttVarPreds(void)
   Yap_InitCPred("all_attvars", 1, p_all_attvars, 0);
   CurrentModule = OldCurrentModule;
   Yap_InitCPred("attvar", 1, p_is_attvar, SafePredFlag|TestPredFlag);
-  Yap_InitCPred("$att_bound", 1, p_attvar_bound, SafePredFlag|TestPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$att_bound", 1, p_attvar_bound, SafePredFlag|TestPredFlag);
 }
 
 

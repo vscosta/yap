@@ -836,14 +836,14 @@ ch_to_wide(char *base, char *charp)
 }
 
 #define  add_ch_to_buff(ch) \
-  if (wcharp) { *wcharp++ = (ch); charp = (char *)wcharp; }	\
+  if (wcharp) { *wcharp++ = (ch); if (wcharp >= (wchar_t *)AuxSp-1024) goto huge_var_error; charp = (char *)wcharp; } \
   else { \
     if (ch > MAX_ISO_LATIN1 && !wcharp) { \
       /* does not fit in ISO-LATIN */		\
       wcharp = ch_to_wide(TokImage, charp);	\
       if (!wcharp) goto huge_var_error;		\
       *wcharp++ = (ch); charp = (char *)wcharp; \
-    } else *charp++ = ch;			\
+    } else { if (charp >= (char *)AuxSp-1024) goto huge_var_error; *charp++ = ch; }	\
   }
 
 TokEntry *

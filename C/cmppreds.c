@@ -57,6 +57,8 @@ cmp_atoms(Atom a1, Atom a2)
 
       while (*s1 == *s2) {
 	if (!*s1) return 0;
+	s1++;
+	s2++;
       }
       return *s1-*s2;
     }
@@ -67,6 +69,8 @@ cmp_atoms(Atom a1, Atom a2)
 
     while (*s1 == *s2) {
       if (!*s1) return 0;
+      s1++;
+      s2++;
     }
     return *s1-*s2;
   } else {
@@ -728,7 +732,7 @@ Yap_InitCmpPreds(void)
   Yap_InitCmpPred("=<", 2, a_le, SafePredFlag | BinaryPredFlag);
   Yap_InitCmpPred("<", 2, a_lt, SafePredFlag | BinaryPredFlag);
   Yap_InitCmpPred(">=", 2, a_ge, SafePredFlag | BinaryPredFlag);
-  Yap_InitCPred("$a_compare", 3, p_acomp, TestPredFlag | SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$a_compare", 3, p_acomp, TestPredFlag | SafePredFlag);
   Yap_InitCmpPred("\\==", 2, a_noteq, BinaryPredFlag | SafePredFlag);
   Yap_InitCmpPred("@<", 2, a_gen_lt, BinaryPredFlag | SafePredFlag);
   Yap_InitCmpPred("@=<", 2, a_gen_le, BinaryPredFlag | SafePredFlag);

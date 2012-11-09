@@ -72,8 +72,8 @@ static Int p_set_depth_limit_for_next_call( USES_REGS1 )
 void Yap_InitItDeepenPreds(void)
 {
   Yap_InitCPred("get_depth_limit", 1, p_get_depth_limit, SafePredFlag);
-  Yap_InitCPred("$set_depth_limit", 1, p_set_depth_limit, HiddenPredFlag);
-  Yap_InitCPred("$set_depth_limit_for_next_call", 1, p_set_depth_limit_for_next_call, HiddenPredFlag);
+  Yap_InitCPred("$set_depth_limit", 1, p_set_depth_limit, 0);
+  Yap_InitCPred("$set_depth_limit_for_next_call", 1, p_set_depth_limit_for_next_call, 0);
 }
 
 #endif

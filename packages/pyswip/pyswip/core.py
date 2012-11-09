@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
+
 # pyswip -- Python SWI-Prolog bridge
 # (c) 2006-2007 Yüce TEKOL
+# (c) 2010-2011 Manuel ROTTER
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
@@ -17,35 +19,191 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 # MA 02110-1301, USA.
 
+
 import sys
+import os
+import warnings
+from subprocess import Popen, PIPE
+from ctypes import *
+from ctypes.util import find_library
 
-try:
-    from ctypes import *
-except ImportError:
-    print>>sys.stderr, "A required module: 'ctypes' not found."
-    sys.exit(1)
+
+def _fixWindowsPath(dll):
+    """
+    When the path to the DLL is not in Windows search path, Windows will not be
+    able to find other DLLs on the same directory, so we have to add it to the
+    path. This function takes care of it.
+
+    :param dll: File name of the DLL
+    :type dll: string
+    """
+
+    if sys.platform[:3] != 'win':
+        return # Nothing to do here
+
+    pathToDll = os.path.dirname(dll)
+    currentWindowsPath = os.getenv('PATH')
     
-try:
-    if sys.platform[:3] == "win":
-        # we're on windows
-        _lib = CDLL("yap.dll")
-    elif sys.platform[:3] == "dar":
-       # we're on Mac OS
-       _lib = CDLL("libYap.dylib") 
-    else:
-        # UNIX-like
+    if pathToDll not in currentWindowsPath:
+        # We will prepend the path, to avoid conflicts between DLLs
+        newPath = pathToDll + ';' + currentWindowsPath
+        os.putenv('PATH', newPath)
+
+def _findYap():
+    """
+    This function makes a big effort to find the path to the SWI-Prolog shared
+    library. Since this is both OS dependent and installation dependent, we may
+    not aways succeed. If we do, we return a name/path that can be used by
+    CDLL(). Otherwise we raise an exception.
+
+    :return: Name or path to the library that can be used by CDLL
+    :rtype: String
+    :raises ImportError: If we cannot guess the name of the library
+    """
+
+    # Now begins the guesswork
+    platform = sys.platform[:3]
+
+    # use YAPLIBDIR first
+    path=os.getenv('YAPLIBDIR')
+    if path is not None:
+        if platform == 'lin':
+            name = 'libYap.so'
+        elif platform == 'dar':
+            name = 'libYap.dylib'
+        path = os.path.join(path, name)
+        if os.path.exists(path):
+            return path
+
+    # No matter what the platform is, the first try should alway be
+    # find_library.
+    path = find_library('Yap') # or find_library('swipl') or find_library('pl')
+    if path is not None:
+        return path
+
+    if platform == 'win': # In Windows, we have the default installer path and
+                          # the registry to look
+                          
+        dllName = 'yap.dll'
+        
+        # First try: check the usual installation path (this is faster but
+        # hardcoded)
+        programFiles = os.getenv('ProgramFiles')
+        path = os.path.join(programFiles, r'pl\bin', dllName)
+        if os.path.exists(path):
+            return path
+
+        # Second try: use reg.exe to find the installation path in the registry
+        # (reg should be installed in all Windows XPs)
         try:
-            _lib = CDLL("libYap.so")
-        except IndexError:
-            # let's try the cwd
-            _lib = CDLL("./libYap.so")
-    
-except OSError:
-    print>>sys.stderr, "libYap (shared) not found. Possible reasons:"
-    print>>sys.stderr, "1) YAP has not been installed as a shared library, use --with-java)"
-    print>>sys.stderr, "1) set LD_LIBRARY_PATH=/usr/local/lib or somewhere elser where libYap.so can be found"
-    sys.exit(1)
+            cmd = Popen(['reg', 'query', 
+                r'HKEY_LOCAL_MACHINE\Software\SWI\Prolog', 
+                '/v', 'home'], stdout=PIPE)
+            ret = cmd.communicate()
 
+            # Result is like:
+            # ! REG.EXE VERSION 3.0
+            #
+            # HKEY_LOCAL_MACHINE\Software\SWI\Prolog
+            #    home        REG_SZ  C:\Program Files\pl
+            # (Note: spaces are \t in the output)
+            ret = ret[0].splitlines()
+            ret = [line for line in ret if len(line) > 0]
+            data = ret[-1].split('\t')
+            path = data[-1]
+
+            path = os.path.join(path, 'bin', dllName)
+            if os.path.exists(path):
+                return path
+        except OSError:
+            # reg.exe not found? Weird...
+            pass
+
+        # Last try: maybe it is in the current dir
+        if os.path.exists(dllName):
+            return dllName
+        
+    elif platform == 'lin':
+        # In Linux we will try some hardcoded paths. find_library will have
+        # already done almost all we can
+        paths = ['/lib', '/usr/lib', '/usr/local/lib', '.', './lib']
+        name = 'libYap.so' #, 'libswipl.so', 'libpl.so']
+
+        for path in paths:
+            path = os.path.join(path, name)
+            if os.path.exists(path):
+                return path
+                
+        spaths=os.getenv('LD_LIBRARY_DIR')
+        if (spaths): 
+            paths = spaths.split(':')
+            for path in paths:
+                path = os.path.join(path, name)
+                if os.path.exists(path):
+                    return path
+
+    elif platform == "dar":  # Help with MacOS is welcome!!
+        paths = ['.', './lib']
+        names = ['libYap.dylib'] #, 'libswipl.dylib', 'libpl.dylib']
+
+        for name in names:
+            for path in paths:
+                path = os.path.join(path, name)
+                if os.path.exists(path):
+                    return path
+
+    # Last resource: see if executable is on the path
+    try: # try to get library path from swipl executable.
+        cmd = Popen(['yap', '-dump-runtime-variables'], stdout=PIPE)
+        ret = cmd.communicate()
+
+        # Parse the output into a dictionary
+        ret = ret[0].replace(';', '').splitlines()
+        ret = [line.split('=', 1) for line in ret]
+        rtvars = dict((name, value[1:-1]) for name, value in ret)
+
+        if rtvars['PLSHARED'] == 'yes':
+            # determine platform specific path
+            if platform in ("win", "cyg"):
+                dllName = rtvars['PLLIB'][:-4] + '.' + rtvars['PLSOEXT']
+                path = os.path.join(rtvars['PLBASE'],
+                                    'bin')
+            else: # assume UNIX-like
+                dllName = 'lib' + rtvars['PLLIB'][2:] + '.' + rtvars['PLSOEXT']
+                path = os.path.join(rtvars['PLBASE'],
+                                    'lib',
+                                    rtvars['PLARCH'])
+            fullName = os.path.join(path, dllName)
+            if os.path.exists(fullName):
+                return fullName
+
+            # If it does not exist, search for a name like dllName in path
+            files = os.listdir(path)
+            for f in files:
+                if dllName in f:
+                    fullName = os.path.join(path, f)
+                    return fullName
+                    
+        else: # PLSHARED="no"
+            raise ImportError('SWI-Prolog is not installed as a shared library.')
+
+    except (OSError, KeyError): # KeyError from accessing rtvars
+        pass
+
+    # This is a catch all raise
+    raise ImportError('Could not find the SWI-Prolog library in this platform. '
+                      'If you are sure it is installed, please open an issue.')
+
+class c_void(Structure):
+    _fields_ = [('dummy', c_int)]
+    
+c_void_p = POINTER(c_void)
+
+# Load the library
+path = _findYap()
+_fixWindowsPath(path)
+print path
+_lib = CDLL(path)
 
 # PySWIP constants
 PYSWIP_MAXSTR = 1024
@@ -178,13 +336,12 @@ functor_t = c_ulong
 PL_atomic_t = c_ulong
 foreign_t = c_ulong
 pl_wchar_t = c_wchar
-atom_t_p = c_void_p
 
 
 ##_lib.PL_initialise(len(sys.argv), _argv)
 
 PL_initialise = _lib.PL_initialise
-##PL_initialise.argtypes = [c_int, c_c
+PL_initialise.argtypes = [c_int, POINTER(c_char_p)]
 
 PL_open_foreign_frame = _lib.PL_open_foreign_frame
 PL_open_foreign_frame.restype = fid_t
@@ -210,6 +367,9 @@ PL_discard_foreign_frame.argtypes = [fid_t]
 PL_put_list_chars = _lib.PL_put_list_chars
 PL_put_list_chars.argtypes = [term_t, c_char_p]
 
+#PL_put_list_chars = _lib.PL_put_list_nchars
+#PL_put_list_nchars.argtypes = [term_t, c_size_t, c_char_p]
+
 #PL_EXPORT(void)		PL_register_atom(atom_t a);
 PL_register_atom = _lib.PL_register_atom
 PL_register_atom.argtypes = [atom_t]
@@ -230,27 +390,32 @@ PL_functor_arity.argtypes = [functor_t]
 #			/* Get C-values from Prolog terms */
 #PL_EXPORT(int)		PL_get_atom(term_t t, atom_t *a);
 PL_get_atom = _lib.PL_get_atom
-PL_get_atom.argtypes = [term_t, atom_t_p]
+PL_get_atom.argtypes = [term_t, POINTER(atom_t)]
 
+PL_get_atom_ex = _lib.PL_get_atom_ex
+PL_get_atom_ex.argtypes = [term_t, POINTER(atom_t)]
+
+#PL_EXPORT(int)		PL_get_atom_chars(term_t t, char **a);
+PL_get_atom_chars = _lib.PL_get_atom_chars
+PL_get_atom_chars.argtypes = [term_t, POINTER(c_char_p)]
+
+PL_get_atom_nchars = _lib.PL_get_atom_nchars
+PL_get_atom_nchars.argtypes = [term_t, POINTER(c_size_t), POINTER(c_char_p)]
 
 #PL_EXPORT(int)		PL_get_bool(term_t t, int *value);
 PL_get_bool = _lib.PL_get_bool
-PL_get_bool.argtypes = [term_t, c_int_p]
-
-#PL_EXPORT(int)		PL_get_atom_chars(term_t t, char **a);
-PL_get_atom_chars = _lib.PL_get_atom_chars  # FIXME
-PL_get_atom_chars.argtypes = [term_t, POINTER(c_char_p)]
+PL_get_bool.argtypes = [term_t, POINTER(c_int)]
 
 ##define PL_get_string_chars(t, s, l) PL_get_string(t,s,l)
 #					/* PL_get_string() is depricated */
 #PL_EXPORT(int)		PL_get_string(term_t t, char **s, size_t *len);
-PL_get_string = _lib.PL_get_string_chars
-PL_get_string.argtypes = [term_t, POINTER(c_char_p), c_int_p]
-PL_get_string_chars = PL_get_string
-PL_get_string_chars.argtypes = [term_t, POINTER(c_char_p), c_int_p]
+#PL_get_string = _lib.PL_get_string
+
+#PL_get_string_chars = PL_get_string_chars
+#PL_get_string_chars.argtypes = [term_t, POINTER(c_char_p), c_int_p]
 
 #PL_EXPORT(int)		PL_get_chars(term_t t, char **s, unsigned int flags);
-PL_get_chars = _lib.PL_get_chars  # FIXME:
+PL_get_chars = _lib.PL_get_chars  
 PL_get_chars.argtypes = [term_t, POINTER(c_char_p), c_uint]
 
 #PL_EXPORT(int)		PL_get_list_chars(term_t l, char **s,
@@ -264,24 +429,28 @@ PL_get_chars.argtypes = [term_t, POINTER(c_char_p), c_uint]
 #				      unsigned int flags);
 #PL_EXPORT(int)		PL_get_integer(term_t t, int *i);
 PL_get_integer = _lib.PL_get_integer
-PL_get_integer.argtypes = [term_t, POINTER(c_int)]
+PL_get_integer.argtypes = [term_t, c_int_p]
 
 #PL_EXPORT(int)		PL_get_long(term_t t, long *i);
 PL_get_long = _lib.PL_get_long
-PL_get_long.argtypes = [term_t, POINTER(c_long)]
+PL_get_long.argtypes = [term_t, c_long_p]
 
 #PL_EXPORT(int)		PL_get_pointer(term_t t, void **ptr);
+PL_get_pointer = _lib.PL_get_pointer
+PL_get_pointer.argtypes = [term_t, POINTER(c_void_p)]
+
 #PL_EXPORT(int)		PL_get_float(term_t t, double *f);
 PL_get_float = _lib.PL_get_float
 PL_get_float.argtypes = [term_t, c_double_p]
 
 #PL_EXPORT(int)		PL_get_functor(term_t t, functor_t *f);
 PL_get_functor = _lib.PL_get_functor
+#PL_get_functor.argtypes = [term_t, c_ulong]
 PL_get_functor.argtypes = [term_t, POINTER(functor_t)]
 
 #PL_EXPORT(int)		PL_get_name_arity(term_t t, atom_t *name, int *arity);
 PL_get_name_arity = _lib.PL_get_name_arity
-PL_get_name_arity.argtypes = [term_t, POINTER(atom_t), c_int_p]
+PL_get_name_arity.argtypes = [term_t, POINTER(atom_t), POINTER(c_int)]
 
 #PL_EXPORT(int)		PL_get_module(term_t t, module_t *module);
 #PL_EXPORT(int)		PL_get_arg(int index, term_t t, term_t a);
@@ -292,17 +461,23 @@ PL_get_arg.argtypes = [c_int, term_t, term_t]
 #PL_EXPORT(int)		PL_get_head(term_t l, term_t h);
 PL_get_head = _lib.PL_get_head
 PL_get_head.argtypes = [term_t, term_t]
+
 #PL_EXPORT(int)		PL_get_tail(term_t l, term_t t);
 PL_get_tail = _lib.PL_get_tail
 PL_get_tail.argtypes = [term_t, term_t]
+
 #PL_EXPORT(int)		PL_get_nil(term_t l);
 PL_get_nil = _lib.PL_get_nil
 PL_get_nil.argtypes = [term_t]
+
 #PL_EXPORT(int)		PL_get_term_value(term_t t, term_value_t *v);
 #PL_EXPORT(char *)	PL_quote(int chr, const char *data);
 
 PL_put_atom_chars = _lib.PL_put_atom_chars
 PL_put_atom_chars.argtypes = [term_t, c_char_p]
+
+PL_put_atom_nchars = _lib.PL_put_atom_nchars
+PL_put_atom_nchars.argtypes = [term_t, c_size_t, c_char_p]
 
 PL_atom_chars = _lib.PL_atom_chars
 PL_atom_chars.argtypes = [atom_t]
@@ -330,9 +505,6 @@ PL_copy_term_ref.restype = term_t
 PL_get_list = _lib.PL_get_list
 PL_get_list.argtypes = [term_t, term_t, term_t]
 
-PL_get_chars = _lib.PL_get_chars
-PL_get_chars.argtypes = [term_t, POINTER(c_char_p), c_uint]
-
 PL_close_query = _lib.PL_close_query
 PL_close_query.argtypes = [qid_t]
 
@@ -344,13 +516,13 @@ PL_halt = _lib.PL_halt
 PL_halt.argtypes = [c_int]
 
 PL_unify_integer = _lib.PL_unify_integer
-PL_unify_integer.argtypes = [term_t,c_long]
+PL_unify_integer.argtypes = [term_t,c_int]
 
 PL_unify = _lib.PL_unify
 PL_unify.argtypes = [term_t,term_t]
 
 PL_unify_arg = _lib.PL_unify_arg
-PL_unify.argtypes = [c_int,term_t,atom_t]
+PL_unify_arg.argtypes = [c_int,term_t,term_t]
 
 # Verify types
 
@@ -410,6 +582,8 @@ PL_is_number.restype = c_int
 #PL_EXPORT(void)		PL_put_variable(term_t t);
 PL_put_variable = _lib.PL_put_variable
 PL_put_variable.argtypes = [term_t]
+PL_put_variable.restype = None
+
 #PL_EXPORT(void)		PL_put_atom(term_t t, atom_t a);
 #PL_EXPORT(void)		PL_put_atom_chars(term_t t, const char *chars);
 #PL_EXPORT(void)		PL_put_string_chars(term_t t, const char *chars);
@@ -420,27 +594,39 @@ PL_put_variable.argtypes = [term_t]
 #PL_EXPORT(void)		PL_put_list_nchars(term_t t, size_t l, const char *chars);
 #PL_EXPORT(void)		PL_put_list_ncodes(term_t t, size_t l, const char *chars);
 #PL_EXPORT(void)		PL_put_integer(term_t t, long i);
+
 PL_put_integer = _lib.PL_put_integer
 PL_put_integer.argtypes = [term_t, c_long]
+PL_put_integer.restype = None
+
 #PL_EXPORT(void)		PL_put_pointer(term_t t, void *ptr);
 #PL_EXPORT(void)		PL_put_float(term_t t, double f);
 #PL_EXPORT(void)		PL_put_functor(term_t t, functor_t functor);
+
 PL_put_functor = _lib.PL_put_functor
 PL_put_functor.argtypes = [term_t, functor_t]
+PL_put_functor.restype = None
+
 #PL_EXPORT(void)		PL_put_list(term_t l);
 PL_put_list = _lib.PL_put_list
 PL_put_list.argtypes = [term_t]
+PL_put_list.restype = None
+
 #PL_EXPORT(void)		PL_put_nil(term_t l);
 PL_put_nil = _lib.PL_put_nil
 PL_put_nil.argtypes = [term_t]
+PL_put_nil.restype = None
+
 #PL_EXPORT(void)		PL_put_term(term_t t1, term_t t2);
 PL_put_term = _lib.PL_put_term
-PL_put_term.argtypes = [term_t,term_t]
+PL_put_term.argtypes = [term_t, term_t]
+PL_put_term.restype = None
 
 #			/* construct a functor or list-cell */
 #PL_EXPORT(void)		PL_cons_functor(term_t h, functor_t f, ...);
 #class _PL_cons_functor(object):
-PL_cons_functor = _lib.PL_cons_functor  # FIXME:
+#PL_cons_functor = _lib.PL_cons_functor  # FIXME:
+#PL_cons_functor.argtypes = [term_t, functor_t, 
     
 #PL_EXPORT(void)		PL_cons_functor_v(term_t h, functor_t fd, term_t a0);
 PL_cons_functor_v = _lib.PL_cons_functor_v
@@ -449,6 +635,7 @@ PL_cons_functor_v.restype = None
 
 #PL_EXPORT(void)		PL_cons_list(term_t l, term_t h, term_t t);
 PL_cons_list = _lib.PL_cons_list
+PL_cons_list.argtypes = [term_t, term_t, term_t]
 
 #
 # term_t PL_exception(qid_t qid)
@@ -456,9 +643,12 @@ PL_exception = _lib.PL_exception
 PL_exception.argtypes = [qid_t]
 PL_exception.restype = term_t
 #
+
+
+#func_t = CFUNCTYPE(c_int)
+
 PL_register_foreign = _lib.PL_register_foreign
 PL_register_foreign.argtypes = [c_char_p, c_int, c_void_p, c_int]
-PL_register_foreign.restype = None
 
 #
 #PL_EXPORT(atom_t)	PL_new_atom(const char *s);
@@ -483,12 +673,11 @@ PL_record.restype = record_t
 #PL_EXPORT(void)		PL_recorded(record_t record, term_t term);
 PL_recorded = _lib.PL_recorded
 PL_recorded.argtypes = [record_t,term_t]
-PL_recorded.restype = None
 
 #PL_EXPORT(void)		PL_erase(record_t record);
 PL_erase = _lib.PL_erase
 PL_erase.argtypes = [record_t]
-PL_erase.restype = None
+
 #
 #PL_EXPORT(char *)	PL_record_external(term_t t, size_t *size);
 #PL_EXPORT(int)		PL_recorded_external(const char *rec, term_t term);
@@ -580,16 +769,16 @@ IOSTREAM._fields_.extend([("tee",IOSTREAM),
 
 
 #PL_EXPORT(IOSTREAM *)	Sopen_string(IOSTREAM *s, char *buf, size_t sz, const char *m);
-#Sopen_string = _lib.Sopen_string
-#Sopen_string.argtypes = [POINTER(IOSTREAM), c_char_p, c_size_t, c_char_p]
-#Sopen_string.restype = POINTER(IOSTREAM)
+Sopen_string = _lib.Sopen_string
+Sopen_string.argtypes = [POINTER(IOSTREAM), c_char_p, c_size_t, c_char_p]
+Sopen_string.restype = POINTER(IOSTREAM)
 
 #PL_EXPORT(int)		Sclose(IOSTREAM *s);
-#Sclose = _lib.Sclose
-#Sclose.argtypes = [POINTER(IOSTREAM)]
+Sclose = _lib.Sclose
+Sclose.argtypes = [POINTER(IOSTREAM)]
 
 
 #PL_EXPORT(int)  	PL_unify_stream(term_t t, IOSTREAM *s);
-#PL_unify_stream = _lib.PL_unify_stream
-#PL_unify_stream.argtypes = [term_t, POINTER(IOSTREAM)]
+PL_unify_stream = _lib.PL_unify_stream
+PL_unify_stream.argtypes = [term_t, POINTER(IOSTREAM)]
 

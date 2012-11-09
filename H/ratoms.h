@@ -225,6 +225,7 @@
   AtomQuiet = AtomAdjust(AtomQuiet);
   AtomRadix = AtomAdjust(AtomRadix);
   AtomRandom = AtomAdjust(AtomRandom);
+  AtomRange = AtomAdjust(AtomRange);
   AtomRead = AtomAdjust(AtomRead);
   AtomReadutil = AtomAdjust(AtomReadutil);
   AtomRecordedP = AtomAdjust(AtomRecordedP);
@@ -383,6 +384,7 @@
   FunctorGPrimitive = FuncAdjust(FunctorGPrimitive);
   FunctorGVar = FuncAdjust(FunctorGVar);
   FunctorGeneratePredInfo = FuncAdjust(FunctorGeneratePredInfo);
+  FunctorGoalExpansion2 = FuncAdjust(FunctorGoalExpansion2);
   FunctorGoalExpansion = FuncAdjust(FunctorGoalExpansion);
   FunctorHandleThrow = FuncAdjust(FunctorHandleThrow);
   FunctorId = FuncAdjust(FunctorId);

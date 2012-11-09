@@ -898,8 +898,8 @@ p_save_program( USES_REGS1 )
 
 void Yap_InitQLY(void)
 {
-  Yap_InitCPred("$qsave_module_preds", 2, p_save_module_preds, SyncPredFlag|HiddenPredFlag|UserCPredFlag);
-  Yap_InitCPred("$qsave_program", 1, p_save_program, SyncPredFlag|HiddenPredFlag|UserCPredFlag);
+  Yap_InitCPred("$qsave_module_preds", 2, p_save_module_preds, SyncPredFlag|UserCPredFlag);
+  Yap_InitCPred("$qsave_program", 1, p_save_program, SyncPredFlag|UserCPredFlag);
   if (FALSE) {
     restore_codes();
   }

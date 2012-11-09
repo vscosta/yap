@@ -99,6 +99,9 @@
   GLOBALS_MODULE = AtomTermAdjust(GLOBALS_MODULE);
   SWI_MODULE = AtomTermAdjust(SWI_MODULE);
   DBLOAD_MODULE = AtomTermAdjust(DBLOAD_MODULE);
+  RANGE_MODULE = AtomTermAdjust(RANGE_MODULE);
+
+  RestoreHiddenPredicates();
 
 
 

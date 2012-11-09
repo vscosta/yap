@@ -256,6 +256,7 @@ C_SOURCES= \
 	$(srcdir)/C/parser.c \
 	$(srcdir)/C/qlyr.c \
 	$(srcdir)/C/qlyw.c \
+	$(srcdir)/C/range.c \
 	$(srcdir)/C/save.c $(srcdir)/C/scanner.c \
 	$(srcdir)/C/sort.c $(srcdir)/C/stdpreds.c $(srcdir)/C/sysbits.c \
 	$(srcdir)/C/threads.c \
@@ -366,7 +367,8 @@ ENGINE_OBJECTS = \
 	myddas_mysql.o myddas_odbc.o myddas_shared.o myddas_initialization.o \
 	myddas_util.o myddas_statistics.o myddas_top_level.o \
 	myddas_wkb2prolog.o modules.o other.o   \
-	parser.o qlyr.o qlyw.o save.o scanner.o sort.o stdpreds.o \
+	parser.o qlyr.o qlyw.o range.o \
+	save.o scanner.o sort.o stdpreds.o \
 	sysbits.o threads.o tracer.o \
 	udi.o rtree.o rtree_udi.o\
 	unify.o userpreds.o utilpreds.o \
@@ -715,6 +717,7 @@ all: startup.yss
 	@ENABLE_CLPBN_BP@ (cd packages/CLPBN/horus; $(MAKE))
 	@ENABLE_MINISAT@ (cd packages/swi-minisat2/C; $(MAKE))
 	@ENABLE_LIBARCHIVE@ @INSTALL_DLLS@ (cd packages/archive; $(MAKE))
+	@ENABLE_ODBC@ @INSTALL_DLLS@ (cd packages/odbc; $(MAKE))
 	@ENABLE_ZLIB@ @INSTALL_DLLS@ (cd packages/zlib; $(MAKE))
 	@ENABLE_CPLINT@ (cd packages/cplint/approx/simplecuddLPADs; $(MAKE))
 	@ENABLE_CPLINT@ (cd packages/cplint; $(MAKE))
@@ -724,6 +727,7 @@ all: startup.yss
 	@ENABLE_CUDD@ (cd packages/ProbLog/simplecudd; $(MAKE))
 	@ENABLE_CUDD@ (cd packages/ProbLog/simplecudd_lfi; $(MAKE))
 	@ENABLE_JPL@ @INSTALL_DLLS@ (cd packages/jpl; $(MAKE))
+	@ENABLE_PYTHON@ @INSTALL_DLLS@ (cd packages/python; $(MAKE))
 
 startup.yss: yap@EXEC_SUFFIX@ $(PL_SOURCES)
 	-rm -f startup.yss
@@ -787,12 +791,14 @@ install_unix: startup.yss libYap.a
 	@ENABLE_SGML@ @INSTALL_DLLS@ (cd packages/sgml; $(MAKE) install)
 	@ENABLE_ZLIB@ @INSTALL_DLLS@ (cd packages/zlib; $(MAKE) @ZLIB_INSTALL@)
 	@ENABLE_LIBARCHIVE@ @INSTALL_DLLS@ (cd packages/archive; $(MAKE) install)
+	@ENABLE_ODBC@ @INSTALL_DLLS@ (cd packages/odbc; $(MAKE) install)
 	@ENABLE_CLPBN_BP@ @INSTALL_DLLS@ (cd packages/CLPBN/horus; $(MAKE) install)
 	@ENABLE_MINISAT@ (cd packages/swi-minisat2/C; $(MAKE) install)
 	@INSTALL_MATLAB@ (cd library/matlab; $(MAKE) install)
 	@ENABLE_REAL@ (cd packages/real; $(MAKE) install)
 	@ENABLE_JPL@ @INSTALL_DLLS@ (cd packages/jpl; $(MAKE) install)
-	#@ENABLE_JPL@ @INSTALL_DLLS@ (cd packages/pyswip; $(MAKE) install)
+	@ENABLE_PYTHON@ @INSTALL_DLLS@ (cd packages/python; $(MAKE) install)
+	#@ENABLE_JPL@ @INSTALL_DLLS@ (cd packages/python; $(MAKE) install)
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)/src
 	$(INSTALL) $(HEADERS) $(DESTDIR)$(INCLUDEDIR)/src
@@ -857,6 +863,7 @@ install_win32: startup.yss @ENABLE_WINCONSOLE@ yap-win@EXEC_SUFFIX@
 	(cd packages/CLPBN ; $(MAKE) install)
 	@ENABLE_CLPBN_BP@ (cd packages/CLPBN/horus; $(MAKE) install)
 	@ENABLE_JPL@ (cd packages/jpl ; $(MAKE) install)
+	@ENABLE_PYTHON@ (cd packages/python ; $(MAKE) install)
 	@ENABLE_MINISAT@ (cd packages/swi-minisat2/C; $(MAKE) install)
 	@ENABLE_CPLINT@ (cd packages/cplint; $(MAKE) install)
 	@ENABLE_PRISM@ (cd packages/prism/src/c; $(MAKE) install)
@@ -928,9 +935,12 @@ clean: clean_docs
 	@ENABLE_CPLINT@ (cd packages/cplint/approx/simplecuddLPADs; $(MAKE) clean)
 	@ENABLE_CPLINT@ (cd packages/cplint; $(MAKE) clean)
 	@ENABLE_BDDLIB@ (cd packages/bdd; $(MAKE) clean)
+	@ENABLE_LIBARCHIVE@ (cd packages/archive; $(MAKE) clean)
+	@ENABLE_ODBC@ (cd packages/odbc; $(MAKE) clean)
 	@ENABLE_CUDD@ (cd packages/ProbLog/simplecudd; $(MAKE) clean)
 	@ENABLE_CUDD@ (cd packages/ProbLog/simplecudd_lfi; $(MAKE) clean)
 	@ENABLE_JPL@ @INSTALL_DLLS@ (cd packages/jpl; $(MAKE) clean)
+	@ENABLE_PYTHON@ @INSTALL_DLLS@ (cd packages/python; $(MAKE) clean)
 
 
 

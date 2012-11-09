@@ -563,12 +563,12 @@ Yap_InitCoroutPreds( void )
   WakeUpCode = pred;
 #endif
   Yap_InitAttVarPreds();
-  Yap_InitCPred("$yap_has_rational_trees", 0, p_yap_has_rational_trees, SafePredFlag|HiddenPredFlag);
-  Yap_InitCPred("$yap_has_coroutining", 0, p_yap_has_coroutining, SafePredFlag|HiddenPredFlag);
-  Yap_InitCPred("$can_unify", 3, p_can_unify, SafePredFlag|HiddenPredFlag);
-  Yap_InitCPred("$non_ground", 2, p_non_ground, SafePredFlag|HiddenPredFlag);
-  Yap_InitCPred("$coroutining", 0, p_coroutining, SafePredFlag|HiddenPredFlag);
-  Yap_InitCPred("$awoken_goals", 1, p_awoken_goals, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$yap_has_rational_trees", 0, p_yap_has_rational_trees, SafePredFlag);
+  Yap_InitCPred("$yap_has_coroutining", 0, p_yap_has_coroutining, SafePredFlag);
+  Yap_InitCPred("$can_unify", 3, p_can_unify, SafePredFlag);
+  Yap_InitCPred("$non_ground", 2, p_non_ground, SafePredFlag);
+  Yap_InitCPred("$coroutining", 0, p_coroutining, SafePredFlag);
+  Yap_InitCPred("$awoken_goals", 1, p_awoken_goals, SafePredFlag);
 }
 
 

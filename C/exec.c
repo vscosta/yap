@@ -236,7 +236,7 @@ do_execute(Term t, Term mod USES_REGS)
 
     if (a == AtomTrue || a == AtomOtherwise || a == AtomCut)
       return(TRUE);
-    else if (a == AtomFail || a == AtomFalse)
+    else if (a == AtomFail || (a == AtomFalse && !RepPredProp(PredPropByAtom(a, mod))->ModuleOfPred) )
       return(FALSE);
     /* call may not define new system predicates!! */
     pe = RepPredProp(PredPropByAtom(a, mod));
@@ -1789,56 +1789,56 @@ Yap_InitExecFs(void)
   CACHE_REGS
   Term cm = CurrentModule;
   Yap_InitComma();
-  Yap_InitCPred("$execute", 1, p_execute, HiddenPredFlag);
-  Yap_InitCPred("$execute", 2, p_execute2, HiddenPredFlag);
-  Yap_InitCPred("$execute", 3, p_execute3, HiddenPredFlag);
-  Yap_InitCPred("$execute", 4, p_execute4, HiddenPredFlag);
-  Yap_InitCPred("$execute", 5, p_execute5, HiddenPredFlag);
-  Yap_InitCPred("$execute", 6, p_execute6, HiddenPredFlag);
-  Yap_InitCPred("$execute", 7, p_execute7, HiddenPredFlag);
-  Yap_InitCPred("$execute", 8, p_execute8, HiddenPredFlag);
-  Yap_InitCPred("$execute", 9, p_execute9, HiddenPredFlag);
-  Yap_InitCPred("$execute", 10, p_execute10, HiddenPredFlag);
-  Yap_InitCPred("$execute", 11, p_execute11, HiddenPredFlag);
-  Yap_InitCPred("$execute", 12, p_execute12, HiddenPredFlag);
-  Yap_InitCPred("$execute_in_mod", 2, p_execute_in_mod, HiddenPredFlag);
-  Yap_InitCPred("$execute_wo_mod", 2, p_execute_in_mod, HiddenPredFlag);
-  Yap_InitCPred("call_with_args", 1, p_execute_0, HiddenPredFlag);
-  Yap_InitCPred("call_with_args", 2, p_execute_1, HiddenPredFlag);
-  Yap_InitCPred("call_with_args", 3, p_execute_2, HiddenPredFlag);
-  Yap_InitCPred("call_with_args", 4, p_execute_3, HiddenPredFlag);
-  Yap_InitCPred("call_with_args", 5, p_execute_4, HiddenPredFlag);
-  Yap_InitCPred("call_with_args", 6, p_execute_5, HiddenPredFlag);
-  Yap_InitCPred("call_with_args", 7, p_execute_6, HiddenPredFlag);
-  Yap_InitCPred("call_with_args", 8, p_execute_7, HiddenPredFlag);
-  Yap_InitCPred("call_with_args", 9, p_execute_8, HiddenPredFlag);
-  Yap_InitCPred("call_with_args", 10, p_execute_9, HiddenPredFlag);
-  Yap_InitCPred("call_with_args", 11, p_execute_10, HiddenPredFlag);
-  Yap_InitCPred("$debug_on", 1, p_debug_on, HiddenPredFlag);
+  Yap_InitCPred("$execute", 1, p_execute, 0);
+  Yap_InitCPred("$execute", 2, p_execute2, 0);
+  Yap_InitCPred("$execute", 3, p_execute3, 0);
+  Yap_InitCPred("$execute", 4, p_execute4, 0);
+  Yap_InitCPred("$execute", 5, p_execute5, 0);
+  Yap_InitCPred("$execute", 6, p_execute6, 0);
+  Yap_InitCPred("$execute", 7, p_execute7, 0);
+  Yap_InitCPred("$execute", 8, p_execute8, 0);
+  Yap_InitCPred("$execute", 9, p_execute9, 0);
+  Yap_InitCPred("$execute", 10, p_execute10, 0);
+  Yap_InitCPred("$execute", 11, p_execute11, 0);
+  Yap_InitCPred("$execute", 12, p_execute12, 0);
+  Yap_InitCPred("$execute_in_mod", 2, p_execute_in_mod, 0);
+  Yap_InitCPred("$execute_wo_mod", 2, p_execute_in_mod, 0);
+  Yap_InitCPred("call_with_args", 1, p_execute_0, 0);
+  Yap_InitCPred("call_with_args", 2, p_execute_1, 0);
+  Yap_InitCPred("call_with_args", 3, p_execute_2, 0);
+  Yap_InitCPred("call_with_args", 4, p_execute_3, 0);
+  Yap_InitCPred("call_with_args", 5, p_execute_4, 0);
+  Yap_InitCPred("call_with_args", 6, p_execute_5, 0);
+  Yap_InitCPred("call_with_args", 7, p_execute_6, 0);
+  Yap_InitCPred("call_with_args", 8, p_execute_7, 0);
+  Yap_InitCPred("call_with_args", 9, p_execute_8, 0);
+  Yap_InitCPred("call_with_args", 10, p_execute_9, 0);
+  Yap_InitCPred("call_with_args", 11, p_execute_10, 0);
+  Yap_InitCPred("$debug_on", 1, p_debug_on, 0);
 #ifdef DEPTH_LIMIT
-  Yap_InitCPred("$execute_under_depth_limit", 2, p_execute_depth_limit, HiddenPredFlag);
+  Yap_InitCPred("$execute_under_depth_limit", 2, p_execute_depth_limit, 0);
 #endif
-  Yap_InitCPred("$execute0", 2, p_execute0, HiddenPredFlag);
-  Yap_InitCPred("$execute_nonstop", 2, p_execute_nonstop, HiddenPredFlag);
-  Yap_InitCPred("$execute_clause", 4, p_execute_clause, HiddenPredFlag);
+  Yap_InitCPred("$execute0", 2, p_execute0, 0);
+  Yap_InitCPred("$execute_nonstop", 2, p_execute_nonstop, 0);
+  Yap_InitCPred("$execute_clause", 4, p_execute_clause, 0);
   CurrentModule = HACKS_MODULE;
-  Yap_InitCPred("current_choice_point", 1, p_save_cp, HiddenPredFlag);
-  Yap_InitCPred("current_choicepoint", 1, p_save_cp, HiddenPredFlag);
-  Yap_InitCPred("env_choice_point", 1, p_save_env_b, HiddenPredFlag);
-  Yap_InitCPred("trail_suspension_marker", 1, p_trail_suspension_marker, HiddenPredFlag);
+  Yap_InitCPred("current_choice_point", 1, p_save_cp, 0);
+  Yap_InitCPred("current_choicepoint", 1, p_save_cp, 0);
+  Yap_InitCPred("env_choice_point", 1, p_save_env_b, 0);
+  Yap_InitCPred("trail_suspension_marker", 1, p_trail_suspension_marker, 0);
   Yap_InitCPred("cut_at", 1, p_clean_ifcp, SafePredFlag);
   CurrentModule = cm;
-  Yap_InitCPred("$pred_goal_expansion_on", 0, p_pred_goal_expansion_on, SafePredFlag|HiddenPredFlag);
-  Yap_InitCPred("$restore_regs", 1, p_restore_regs, SafePredFlag|HiddenPredFlag);
-  Yap_InitCPred("$restore_regs", 2, p_restore_regs2, SafePredFlag|HiddenPredFlag);
-  Yap_InitCPred("$clean_ifcp", 1, p_clean_ifcp, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$pred_goal_expansion_on", 0, p_pred_goal_expansion_on, SafePredFlag);
+  Yap_InitCPred("$restore_regs", 1, p_restore_regs, SafePredFlag);
+  Yap_InitCPred("$restore_regs", 2, p_restore_regs2, SafePredFlag);
+  Yap_InitCPred("$clean_ifcp", 1, p_clean_ifcp, SafePredFlag);
   Yap_InitCPred("qpack_clean_up_to_disjunction", 0, p_cut_up_to_next_disjunction, SafePredFlag);
-  Yap_InitCPred("$jump_env_and_store_ball", 1, p_jump_env, HiddenPredFlag);
-  Yap_InitCPred("$creep_allowed", 0, p_creep_allowed, HiddenPredFlag);
-  Yap_InitCPred("$generate_pred_info", 4, p_generate_pred_info, HiddenPredFlag);
-  Yap_InitCPred("$uncaught_throw", 0, p_uncaught_throw, HiddenPredFlag);
-  Yap_InitCPred("$reset_exception", 1, p_reset_exception, HiddenPredFlag);
-  Yap_InitCPred("$get_exception", 1, p_get_exception, HiddenPredFlag);
+  Yap_InitCPred("$jump_env_and_store_ball", 1, p_jump_env, 0);
+  Yap_InitCPred("$creep_allowed", 0, p_creep_allowed, 0);
+  Yap_InitCPred("$generate_pred_info", 4, p_generate_pred_info, 0);
+  Yap_InitCPred("$uncaught_throw", 0, p_uncaught_throw, 0);
+  Yap_InitCPred("$reset_exception", 1, p_reset_exception, 0);
+  Yap_InitCPred("$get_exception", 1, p_get_exception, 0);
 }
 
 
