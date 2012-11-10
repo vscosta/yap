@@ -9,6 +9,9 @@ class LiftedOperations
     static void shatterAgainstQuery (
         ParfactorList& pfList, const Grounds& query);
         
+    static void runWeakBayesBall (
+        ParfactorList& pfList, const Grounds&); 
+        
     static void absorveEvidence (
         ParfactorList& pfList, ObservedFormulas& obsFormulas);
   
@@ -17,7 +20,6 @@ class LiftedOperations
     static Parfactor calcGroundMultiplication (Parfactor pf);
 
   private:
-
     static Parfactors absorve (ObservedFormula&, Parfactor*);    
 };
 

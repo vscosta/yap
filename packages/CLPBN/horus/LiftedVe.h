@@ -45,9 +45,9 @@ class ProductOperator : public LiftedOperator
   private:
     static bool validOp (Parfactor*, Parfactor*);
 
-    ParfactorList::iterator g1_;
-    ParfactorList::iterator g2_;
-    ParfactorList&  pfList_;
+    ParfactorList::iterator  g1_;
+    ParfactorList::iterator  g2_;
+    ParfactorList&           pfList_;
 };
 
 
@@ -125,9 +125,9 @@ class GroundOperator : public LiftedOperator
   private:
      vector<pair<PrvGroup, unsigned>> getAffectedFormulas (void);
 
-    PrvGroup                 group_;
-    unsigned                 lvIndex_;
-    ParfactorList&           pfList_;
+    PrvGroup        group_;
+    unsigned        lvIndex_;
+    ParfactorList&  pfList_;
 };
 
 
@@ -141,23 +141,13 @@ class LiftedVe
 
    void printSolverFlags (void) const;
 
-   static void absorveEvidence (
-       ParfactorList& pfList, ObservedFormulas& obsFormulas);
-
   private:
     void runSolver (const Grounds&);
 
     LiftedOperator* getBestOperation (const Grounds&);
 
-    void runWeakBayesBall (const Grounds&); 
-
-    void shatterAgainstQuery (const Grounds&);
-
-    static Parfactors absorve (ObservedFormula&, Parfactor*);
-
-    ParfactorList pfList_;
-
-    double largestCost_;
+    ParfactorList  pfList_;
+    double         largestCost_;
 };
 
 #endif // HORUS_LIFTEDVE_H

@@ -661,7 +661,7 @@ LiftedVe::runSolver (const Grounds& query)
 {
   largestCost_ = std::log (0);
   LiftedOperations::shatterAgainstQuery (pfList_, query);
-  runWeakBayesBall (query);
+  LiftedOperations::runWeakBayesBall (pfList_, query);
   while (true) {
     if (Globals::verbosity > 2) {
       Util::printDashedLine();
@@ -725,64 +725,5 @@ LiftedVe::getBestOperation (const Grounds& query)
     }
   }
   return bestOp;
-}
-
-
-
-void
-LiftedVe::runWeakBayesBall (const Grounds& query)
-{
-  queue<PrvGroup> todo; // groups to process
-  set<PrvGroup> done;   // processed or in queue 
-  for (size_t i = 0; i < query.size(); i++) {
-    ParfactorList::iterator it = pfList_.begin();
-    while (it != pfList_.end()) {
-      PrvGroup group = (*it)->findGroup (query[i]);
-      if (group != numeric_limits<PrvGroup>::max()) {
-        todo.push (group);
-        done.insert (group);
-        break;
-      }
-      ++ it;
-    }
-  }
-
-  set<Parfactor*> requiredPfs;
-  while (todo.empty() == false) {
-    PrvGroup group = todo.front();
-    ParfactorList::iterator it = pfList_.begin();
-    while (it != pfList_.end()) {
-      if (Util::contains (requiredPfs, *it) == false &&
-          (*it)->containsGroup (group)) {
-        vector<PrvGroup> groups = (*it)->getAllGroups();
-        for (size_t i = 0; i < groups.size(); i++) {
-          if (Util::contains (done, groups[i]) == false) {
-            todo.push (groups[i]);
-            done.insert (groups[i]);
-          }
-        }
-        requiredPfs.insert (*it);
-      }
-      ++ it;
-    }
-    todo.pop();
-  }
-
-  ParfactorList::iterator it = pfList_.begin();
-  bool foundNotRequired = false;
-  while (it != pfList_.end()) {
-    if (Util::contains (requiredPfs, *it) == false) {
-      if (Globals::verbosity > 2) {
-        if (foundNotRequired == false) {
-          Util::printHeader ("PARFACTORS TO DISCARD");
-          foundNotRequired = true;
-        }
-        (*it)->print();
-      }
-      it = pfList_.removeAndDelete (it);
-    } else {
-      ++ it;
-    }
-  }
 }
 

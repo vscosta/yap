@@ -55,6 +55,67 @@ LiftedOperations::shatterAgainstQuery (
 
 
 void
+LiftedOperations::runWeakBayesBall (
+    ParfactorList& pfList,
+    const Grounds& query)
+{
+  queue<PrvGroup> todo; // groups to process
+  set<PrvGroup> done;   // processed or in queue 
+  for (size_t i = 0; i < query.size(); i++) {
+    ParfactorList::iterator it = pfList.begin();
+    while (it != pfList.end()) {
+      PrvGroup group = (*it)->findGroup (query[i]);
+      if (group != numeric_limits<PrvGroup>::max()) {
+        todo.push (group);
+        done.insert (group);
+        break;
+      }
+      ++ it;
+    }
+  }
+
+  set<Parfactor*> requiredPfs;
+  while (todo.empty() == false) {
+    PrvGroup group = todo.front();
+    ParfactorList::iterator it = pfList.begin();
+    while (it != pfList.end()) {
+      if (Util::contains (requiredPfs, *it) == false &&
+          (*it)->containsGroup (group)) {
+        vector<PrvGroup> groups = (*it)->getAllGroups();
+        for (size_t i = 0; i < groups.size(); i++) {
+          if (Util::contains (done, groups[i]) == false) {
+            todo.push (groups[i]);
+            done.insert (groups[i]);
+          }
+        }
+        requiredPfs.insert (*it);
+      }
+      ++ it;
+    }
+    todo.pop();
+  }
+
+  ParfactorList::iterator it = pfList.begin();
+  bool foundNotRequired = false;
+  while (it != pfList.end()) {
+    if (Util::contains (requiredPfs, *it) == false) {
+      if (Globals::verbosity > 2) {
+        if (foundNotRequired == false) {
+          Util::printHeader ("PARFACTORS TO DISCARD");
+          foundNotRequired = true;
+        }
+        (*it)->print();
+      }
+      it = pfList.removeAndDelete (it);
+    } else {
+      ++ it;
+    }
+  }
+}
+
+
+
+void
 LiftedOperations::absorveEvidence (
     ParfactorList& pfList,
     ObservedFormulas& obsFormulas)

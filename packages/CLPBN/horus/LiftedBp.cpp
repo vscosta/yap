@@ -2,7 +2,6 @@
 #include "WeightedBp.h"
 #include "FactorGraph.h"
 #include "LiftedOperations.h"
-#include "LiftedVe.h"
 
 
 LiftedBp::LiftedBp (const ParfactorList& pfList)
@@ -190,12 +189,12 @@ LiftedBp::rangeOfGround (const Ground& gr)
 Params
 LiftedBp::getJointByConditioning (
     const ParfactorList& pfList,
-    const Grounds& grounds)
+    const Grounds& query)
 {
   LiftedBp solver (pfList);
-  Params prevBeliefs = solver.solveQuery ({grounds[0]});
-  Grounds obsGrounds = {grounds[0]};
-  for (size_t i = 1; i < grounds.size(); i++) {
+  Params prevBeliefs = solver.solveQuery ({query[0]});
+  Grounds obsGrounds = {query[0]};
+  for (size_t i = 1; i < query.size(); i++) {
     Params newBeliefs;
     vector<ObservedFormula> obsFs;
     Ranges obsRanges;
@@ -210,16 +209,16 @@ LiftedBp::getJointByConditioning (
         obsFs[j].setEvidence (indexer[j]);
       }
       ParfactorList tempPfList (pfList);
-      LiftedVe::absorveEvidence (tempPfList, obsFs);
+      LiftedOperations::absorveEvidence (tempPfList, obsFs);
       LiftedBp solver (tempPfList);
-      Params beliefs = solver.solveQuery ({grounds[i]});
+      Params beliefs = solver.solveQuery ({query[i]});
       for (size_t k = 0; k < beliefs.size(); k++) {
         newBeliefs.push_back (beliefs[k]);
       }
       ++ indexer;
     }
     int count = -1;
-    unsigned range = rangeOfGround (grounds[i]);
+    unsigned range = rangeOfGround (query[i]);
     for (size_t j = 0; j < newBeliefs.size(); j++) {
       if (j % range == 0) {
         count ++;
@@ -227,7 +226,7 @@ LiftedBp::getJointByConditioning (
       newBeliefs[j] *= prevBeliefs[count];
     }
     prevBeliefs = newBeliefs;
-    obsGrounds.push_back (grounds[i]);
+    obsGrounds.push_back (query[i]);
   }
   return prevBeliefs;
 }
