@@ -21,7 +21,7 @@ class LiftedKc
     LiftedWCNF*    lwcnf_;
     LiftedCircuit* circuit_;
 
-    const ParfactorList& pfList_;
+    ParfactorList pfList_;
 };
 
 #endif // HORUS_LIFTEDKC_H

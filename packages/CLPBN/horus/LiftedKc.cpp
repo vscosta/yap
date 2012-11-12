@@ -1,20 +1,22 @@
 #include "LiftedKc.h"
 #include "LiftedWCNF.h"
 #include "LiftedCircuit.h"
+#include "LiftedOperations.h"
 #include "Indexer.h"
 
 
 LiftedKc::LiftedKc (const ParfactorList& pfList)
     : pfList_(pfList)
 {
-  lwcnf_ = new LiftedWCNF (pfList);
-  circuit_ = new LiftedCircuit (lwcnf_);
+
 }
 
 
 
 LiftedKc::~LiftedKc (void)
 {
+  delete lwcnf_;
+  delete circuit_;
 }
 
 
@@ -22,6 +24,9 @@ LiftedKc::~LiftedKc (void)
 Params
 LiftedKc::solveQuery (const Grounds& query)
 {
+  LiftedOperations::shatterAgainstQuery (pfList_, query);
+  lwcnf_ = new LiftedWCNF (pfList_);
+  circuit_ = new LiftedCircuit (lwcnf_);
   vector<PrvGroup> groups;
   Ranges ranges;
   for (size_t i = 0; i < query.size(); i++) {
@@ -36,6 +41,7 @@ LiftedKc::solveQuery (const Grounds& query)
       ++ it;
     }
   }
+  assert (groups.size() == query.size());
   cout << "groups: " << groups << endl;
   cout << "ranges: " << ranges << endl;
   Params params;
