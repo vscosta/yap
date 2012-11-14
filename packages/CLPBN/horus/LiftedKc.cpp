@@ -51,9 +51,11 @@ LiftedKc::solveQuery (const Grounds& query)
       vector<LiteralId> litIds = lwcnf_->prvGroupLiterals (groups[i]);
       for (size_t j = 0; j < litIds.size(); j++) {
         if (indexer[i] == j) {
-          lwcnf_->addWeight (litIds[j], 1.0, 1.0); // TODO not log aware
+          lwcnf_->addWeight (litIds[j], LogAware::one(),
+              LogAware::one());
         } else {
-          lwcnf_->addWeight (litIds[j], 0.0, 1.0); // TODO not log aware
+          lwcnf_->addWeight (litIds[j], LogAware::zero(),
+              LogAware::one());
         }
       }
     }
@@ -63,8 +65,10 @@ LiftedKc::solveQuery (const Grounds& query)
     params.push_back (circuit_->getWeightedModelCount());
     ++ indexer;
   }
-  cout << "params: " << params << endl;
   LogAware::normalize (params);
+  if (Globals::logDomain) {
+    Util::exp (params);
+  }
   return params;
 }
 
