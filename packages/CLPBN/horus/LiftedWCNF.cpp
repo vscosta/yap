@@ -356,60 +356,39 @@ LiftedWCNF::LiftedWCNF (const ParfactorList& pfList)
   addParameterClauses (pfList);
 
   /*
+  // INCLUSION-EXCLUSION TEST
+  vector<vector<string>> names = {
+    // {"a1","b1"},{"a2","b2"},{"a1","b3"}
+    {"b1","a1"},{"b2","a2"},{"b3","a1"}
+  };
+  Clause c1 (names);
+  c1.addLiteral (Literal (0, LogVars() = {0}));
+  c1.addLiteral (Literal (1, LogVars() = {1}));
+  clauses_.push_back(c1);
+  freeLiteralId_ ++ ;
+  freeLiteralId_ ++ ;
+  */
+  
+  /*
+  // ATOM-COUNTING TEST
   vector<vector<string>> names = {
     {"p1","p1"},{"p1","p2"},{"p1","p3"},      
     {"p2","p1"},{"p2","p2"},{"p2","p3"},
     {"p3","p1"},{"p3","p2"},{"p3","p3"}
   };
-
   Clause c1 (names);
   c1.addLiteral (Literal (0, LogVars() = {0}));
   c1.addLiteralComplemented (Literal (1, {0,1}));
   clauses_.push_back(c1);
-
   Clause c2 (names);
   c2.addLiteral (Literal (0, LogVars()={0}));
   c2.addLiteralComplemented (Literal (1, {1,0}));
   clauses_.push_back(c2);
-
-  addWeight (0, 3.0, 4.0);
-  addWeight (1, 2.0, 5.0);
-
+  addWeight (0, LogAware::log(3.0), LogAware::log(4.0));
+  addWeight (1, LogAware::log(2.0), LogAware::log(5.0));
   freeLiteralId_ = 2;
   */
-
-  //Literal lit1 (0, {0});
-  //Literal lit2 (1, {0});
-  //Literal lit3 (2, {1});
-  //Literal lit4 (3, {1});
-
-  //vector<vector<string>> names = {{"p1","p2"},{"p3","p4"}};
-  //Clause c1 (names);
-  //c1.addLiteral (lit1);
-  //c1.addLiteral (lit2);
-  //c1.addLiteral (lit3);
-  //c1.addLiteral (lit4);
-  //c1.addPosCountedLogVar (0);
-  //clauses_.push_back (c1);
-
-  //Clause c2 (names);
-  //c2.addLiteral (lit1);
-  //c2.addLiteral (lit3);
-  //c2.addNegCountedLogVar (0);
-  //clauses_.push_back (c2);
-  /*
-  Clause c3;
-  c3.addLiteral (lit3);
-  c3.addLiteral (lit4);
-  clauses_.push_back (c3);
   
-  Clause c4;
-  c4.addLiteral (lit4);
-  c4.addLiteral (lit3);
-  clauses_.push_back (c4);
-  */
-  //freeLiteralId_ = 4;
-
   cout << "FORMULA INDICATORS:" << endl;
   printFormulaIndicators();
   cout << endl;
@@ -445,7 +424,7 @@ LiftedWCNF::posWeight (LiteralId lid) const
 {
   unordered_map<LiteralId, std::pair<double,double>>::const_iterator it;
   it = weights_.find (lid);
-  return it != weights_.end() ? it->second.first : 1.0;
+  return it != weights_.end() ? it->second.first : LogAware::one();
 }
 
 
@@ -455,7 +434,7 @@ LiftedWCNF::negWeight (LiteralId lid) const
 {
   unordered_map<LiteralId, std::pair<double,double>>::const_iterator it;
   it = weights_.find (lid);
-  return it != weights_.end() ? it->second.second : 1.0;
+  return it != weights_.end() ? it->second.second : LogAware::one();
 }
 
 

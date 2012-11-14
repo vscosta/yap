@@ -42,8 +42,6 @@ LiftedKc::solveQuery (const Grounds& query)
     }
   }
   assert (groups.size() == query.size());
-  cout << "groups: " << groups << endl;
-  cout << "ranges: " << ranges << endl;
   Params params;
   Indexer indexer (ranges);
   while (indexer.valid()) {
@@ -59,9 +57,6 @@ LiftedKc::solveQuery (const Grounds& query)
         }
       }
     }
-    // cout << "new weights ----- ----- -----" << endl;
-    // lwcnf_->printWeights();
-    // circuit_->exportToGraphViz ("ccircuit.dot");
     params.push_back (circuit_->getWeightedModelCount());
     ++ indexer;
   }
