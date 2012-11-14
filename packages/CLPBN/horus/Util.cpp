@@ -13,9 +13,9 @@ bool logDomain = false;
 
 unsigned verbosity = 0;
 
-LiftedSolver liftedSolver = LiftedSolver::LVE;
+LiftedSolverType liftedSolver = LiftedSolverType::LVE;
 
-GroundSolver groundSolver = GroundSolver::VE;
+GroundSolverType groundSolver = GroundSolverType::VE;
 
 };
 
@@ -211,11 +211,11 @@ setHorusFlag (string key, string value)
     ss >> Globals::verbosity;
   } else if (key == "lifted_solver") {
     if (       value == "lve") {
-      Globals::liftedSolver = LiftedSolver::LVE;
+      Globals::liftedSolver = LiftedSolverType::LVE;
     } else if (value == "lbp") {
-      Globals::liftedSolver = LiftedSolver::LBP;
+      Globals::liftedSolver = LiftedSolverType::LBP;
     } else if (value == "lkc") {
-      Globals::liftedSolver = LiftedSolver::LKC;
+      Globals::liftedSolver = LiftedSolverType::LKC;
     } else {
       cerr << "warning: invalid value `" << value << "' " ;
       cerr << "for `" << key << "'" << endl;
@@ -223,11 +223,11 @@ setHorusFlag (string key, string value)
     }
   } else if (key == "ground_solver") {
     if (       value == "ve") {
-      Globals::groundSolver = GroundSolver::VE;
+      Globals::groundSolver = GroundSolverType::VE;
     } else if (value == "bp") {
-      Globals::groundSolver = GroundSolver::BP;
+      Globals::groundSolver = GroundSolverType::BP;
     } else if (value == "cbp") {
-      Globals::groundSolver = GroundSolver::CBP;
+      Globals::groundSolver = GroundSolverType::CBP;
     } else {
       cerr << "warning: invalid value `" << value << "' " ;
       cerr << "for `" << key << "'" << endl;

@@ -1,15 +1,18 @@
 #ifndef HORUS_LIFTEDKC_H
 #define HORUS_LIFTEDKC_H
 
+#include "LiftedSolver.h"
 #include "ParfactorList.h"
 
 class LiftedWCNF;
 class LiftedCircuit;
 
-class LiftedKc
+
+class LiftedKc : public LiftedSolver
 {
   public:
-   LiftedKc (const ParfactorList& pfList);
+   LiftedKc (const ParfactorList& pfList)
+       : LiftedSolver(pfList), pfList_(pfList) { }
 
   ~LiftedKc (void);
 

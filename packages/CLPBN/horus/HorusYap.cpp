@@ -308,21 +308,21 @@ runLiftedSolver (void)
       }
       jointList = YAP_TailOfTerm (jointList);
     }
-    if (Globals::liftedSolver == LiftedSolver::LVE) {
+    if (Globals::liftedSolver == LiftedSolverType::LVE) {
       LiftedVe solver (pfListCopy);
       if (Globals::verbosity > 0 && taskList == YAP_ARG2) {
         solver.printSolverFlags();
         cout << endl;
       }
       results.push_back (solver.solveQuery (queryVars));
-    } else if (Globals::liftedSolver == LiftedSolver::LBP) {
+    } else if (Globals::liftedSolver == LiftedSolverType::LBP) {
       LiftedBp solver (pfListCopy);
       if (Globals::verbosity > 0 && taskList == YAP_ARG2) {
         solver.printSolverFlags();
         cout << endl;
       }
       results.push_back (solver.solveQuery (queryVars));
-    } else if (Globals::liftedSolver == LiftedSolver::LKC) {
+    } else if (Globals::liftedSolver == LiftedSolverType::LKC) {
       LiftedKc solver (pfListCopy);
       if (Globals::verbosity > 0 && taskList == YAP_ARG2) {
         solver.printSolverFlags();
@@ -369,18 +369,18 @@ runGroundSolver (void)
   for (size_t i = 0; i < tasks.size(); i++) {
     Util::addToSet (vids, tasks[i]);
   }
-  Solver* solver = 0;
+  GroundSolver* solver = 0;
   FactorGraph* mfg = fg;
   if (fg->bayesianFactors()) {
     mfg = BayesBall::getMinimalFactorGraph (
         *fg, VarIds (vids.begin(), vids.end()));
   }
 
-  if (Globals::groundSolver == GroundSolver::VE) {
+  if (Globals::groundSolver == GroundSolverType::VE) {
     solver = new VarElim (*mfg);
-  } else if (Globals::groundSolver == GroundSolver::BP) {
+  } else if (Globals::groundSolver == GroundSolverType::BP) {
     solver = new BeliefProp (*mfg);
-  } else if (Globals::groundSolver == GroundSolver::CBP) {
+  } else if (Globals::groundSolver == GroundSolverType::CBP) {
     CountingBp::checkForIdenticalFactors = false;
     solver = new CountingBp (*mfg);
   } else {

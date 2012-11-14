@@ -28,7 +28,7 @@ typedef vector<unsigned>    Ranges;
 typedef unsigned long long  ullong;
 
 
-enum LiftedSolver
+enum LiftedSolverType
 {
   LVE,  // generalized counting first-order variable elimination (GC-FOVE)
   LBP,  // lifted first-order belief propagation
@@ -36,7 +36,7 @@ enum LiftedSolver
 };
 
 
-enum GroundSolver
+enum GroundSolverType
 {
   VE,   // variable elimination
   BP,   // belief propagation
@@ -51,8 +51,8 @@ extern bool logDomain;
 // level of debug information
 extern unsigned verbosity;
 
-extern LiftedSolver liftedSolver;
-extern GroundSolver groundSolver;
+extern LiftedSolverType liftedSolver;
+extern GroundSolverType groundSolver;
 
 };
 

@@ -60,13 +60,14 @@ HEADERS = \
   $(srcdir)/LiftedCircuit.h \
   $(srcdir)/LiftedKc.h \
   $(srcdir)/LiftedOperations.h \
+  $(srcdir)/LiftedSolver.h \
 	$(srcdir)/LiftedUtils.h \
 	$(srcdir)/LiftedVe.h \
   $(srcdir)/LiftedWCNF.h \
 	$(srcdir)/Parfactor.h \
 	$(srcdir)/ParfactorList.h \
 	$(srcdir)/ProbFormula.h \
-	$(srcdir)/Solver.h \
+	$(srcdir)/GroundSolver.h \
 	$(srcdir)/TinySet.h \
 	$(srcdir)/Util.h \
 	$(srcdir)/Var.h \
@@ -95,7 +96,7 @@ CPP_SOURCES = \
 	$(srcdir)/Parfactor.cpp \
 	$(srcdir)/ParfactorList.cpp \
 	$(srcdir)/ProbFormula.cpp \
-	$(srcdir)/Solver.cpp \
+	$(srcdir)/GroundSolver.cpp \
 	$(srcdir)/Util.cpp \
 	$(srcdir)/Var.cpp \
 	$(srcdir)/VarElim.cpp \
@@ -122,7 +123,7 @@ OBJS = \
 	ProbFormula.o \
 	Parfactor.o \
 	ParfactorList.o \
-	Solver.o \
+	GroundSolver.o \
 	Util.o \
 	Var.o \
 	VarElim.o \
@@ -137,7 +138,7 @@ HCLI_OBJS = \
 	Factor.o \
 	FactorGraph.o \
 	HorusCli.o \
-	Solver.o \
+	GroundSolver.o \
 	Util.o \
 	Var.o \
 	VarElim.o \

@@ -5,7 +5,7 @@
 
 
 LiftedBp::LiftedBp (const ParfactorList& pfList)
-    : pfList_(pfList)
+    : LiftedSolver (pfList), pfList_(pfList)
 {
   refineParfactors();
   createFactorGraph();

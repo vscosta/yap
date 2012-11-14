@@ -1,7 +1,7 @@
 #ifndef HORUS_LIFTEDVE_H
 #define HORUS_LIFTEDVE_H
 
-
+#include "LiftedSolver.h"
 #include "ParfactorList.h"
 
 
@@ -132,10 +132,11 @@ class GroundOperator : public LiftedOperator
 
 
 
-class LiftedVe
+class LiftedVe : public LiftedSolver
 {
   public:
-   LiftedVe (const ParfactorList& pfList) : pfList_(pfList) { }
+   LiftedVe (const ParfactorList& pfList)
+       : LiftedSolver(pfList), pfList_(pfList) { }
 
    Params solveQuery (const Grounds&);
 

@@ -3,7 +3,7 @@
 
 #include "unordered_map"
 
-#include "Solver.h"
+#include "GroundSolver.h"
 #include "FactorGraph.h"
 #include "Horus.h"
 
@@ -11,10 +11,10 @@
 using namespace std;
 
 
-class VarElim : public Solver
+class VarElim : public GroundSolver
 {
   public:
-    VarElim (const FactorGraph& fg) : Solver (fg) { }
+    VarElim (const FactorGraph& fg) : GroundSolver (fg) { }
 
    ~VarElim (void);
 

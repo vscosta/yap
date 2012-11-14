@@ -5,14 +5,6 @@
 #include "Indexer.h"
 
 
-LiftedKc::LiftedKc (const ParfactorList& pfList)
-    : pfList_(pfList)
-{
-
-}
-
-
-
 LiftedKc::~LiftedKc (void)
 {
   delete lwcnf_;
