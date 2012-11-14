@@ -1,4 +1,2 @@
 - Handle formulas like f(X,X)
-- Find a way to decrease the time required to find an
-  elimination order for variable elimination
 

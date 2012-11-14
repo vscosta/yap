@@ -509,8 +509,6 @@ GroundOperator::getLogCost (void)
 void
 GroundOperator::apply (void)
 {
-  // TODO if we update the correct groups  
-  // we can skip shattering
   ParfactorList::iterator pfIter;
   pfIter = getParfactorsWithGroup (pfList_, group_).front();
   Parfactor* pf = *pfIter;
