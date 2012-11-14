@@ -136,7 +136,7 @@ class LiftedVe : public LiftedSolver
 {
   public:
    LiftedVe (const ParfactorList& pfList)
-       : LiftedSolver(pfList), pfList_(pfList) { }
+       : LiftedSolver(pfList) { }
 
    Params solveQuery (const Grounds&);
 

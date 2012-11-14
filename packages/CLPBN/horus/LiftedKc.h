@@ -12,7 +12,7 @@ class LiftedKc : public LiftedSolver
 {
   public:
    LiftedKc (const ParfactorList& pfList)
-       : LiftedSolver(pfList), pfList_(pfList) { }
+       : LiftedSolver(pfList) { }
 
   ~LiftedKc (void);
 
@@ -21,10 +21,9 @@ class LiftedKc : public LiftedSolver
    void printSolverFlags (void) const;
 
   private:
-    LiftedWCNF*    lwcnf_;
-    LiftedCircuit* circuit_;
-
-    ParfactorList pfList_;
+    LiftedWCNF*     lwcnf_;
+    LiftedCircuit*  circuit_;
+    ParfactorList   pfList_;
 };
 
 #endif // HORUS_LIFTEDKC_H

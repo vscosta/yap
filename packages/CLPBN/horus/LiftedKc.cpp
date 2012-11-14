@@ -16,7 +16,9 @@ LiftedKc::~LiftedKc (void)
 Params
 LiftedKc::solveQuery (const Grounds& query)
 {
+  pfList_ = parfactorList;
   LiftedOperations::shatterAgainstQuery (pfList_, query);
+  LiftedOperations::runWeakBayesBall (pfList_, query);
   lwcnf_ = new LiftedWCNF (pfList_);
   circuit_ = new LiftedCircuit (lwcnf_);
   vector<PrvGroup> groups;

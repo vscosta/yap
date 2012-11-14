@@ -631,6 +631,7 @@ Params
 LiftedVe::solveQuery (const Grounds& query)
 {
   assert (query.empty() == false);
+  pfList_ = parfactorList;
   runSolver (query);
   (*pfList_.begin())->normalize();
   Params params = (*pfList_.begin())->params();

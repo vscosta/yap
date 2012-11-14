@@ -4,8 +4,8 @@
 #include "LiftedOperations.h"
 
 
-LiftedBp::LiftedBp (const ParfactorList& pfList)
-    : LiftedSolver (pfList), pfList_(pfList)
+LiftedBp::LiftedBp (const ParfactorList& parfactorList)
+    : LiftedSolver (parfactorList)
 {
   refineParfactors();
   createFactorGraph();
@@ -82,6 +82,7 @@ LiftedBp::printSolverFlags (void) const
 void
 LiftedBp::refineParfactors (void)
 {
+  pfList_ = parfactorList;
   while (iterate() == false);
 
   if (Globals::verbosity > 2) {
