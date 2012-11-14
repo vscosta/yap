@@ -29,7 +29,7 @@ bayes car_color(P)::[t,f], hair_color(P) ; car_color_table(P); [people(P,_)].
 
 bayes height(P)::[t,f], gender(P) ; height_table(P) ; [people(P,_)].
 
-bayes shoe_size(P):[t,f], height(P) ; shoe_size_table(P); [people(P,_)].
+bayes shoe_size(P)::[t,f], height(P) ; shoe_size_table(P); [people(P,_)].
 
 bayes guilty(P)::[y,n] ; guilty_table(P) ; [people(P,_)].
 
