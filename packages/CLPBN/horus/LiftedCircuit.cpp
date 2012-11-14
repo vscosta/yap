@@ -37,14 +37,15 @@ SetOrNode::weight (void) const
       double w = std::log (Util::nrCombinations (nrGroundings_, i));
       weightSum = Util::logSum (weightSum, w + follow_->weight());
     } else {
-      cout << endl;
-      cout << "nr groundings = " << nrGroundings_ << endl;
-      cout << "nr positives  = " << nrPositives() << endl;
-      cout << "nr negatives  = " << nrNegatives() << endl;      
-      cout << "i             = " << i << endl;
-      cout << "nr combos     = " << Util::nrCombinations (nrGroundings_, i) << endl;
+      // cout << endl;
+      // cout << "nr groundings = " << nrGroundings_ << endl;
+      // cout << "nr positives  = " << nrPositives() << endl;
+      // cout << "nr negatives  = " << nrNegatives() << endl;      
+      // cout << "i             = " << i << endl;
+      // cout << "nr combos     = " ;
+      // cout << Util::nrCombinations (nrGroundings_, i) << endl;
       double w = follow_->weight();
-      cout << "weight        = " << w << endl;
+      // cout << "weight        = " << w << endl;
       weightSum += Util::nrCombinations (nrGroundings_, i) * w;
     }
   }
@@ -411,14 +412,19 @@ LiftedCircuit::tryInclusionExclusion (
       }
     }
     if (indepLits.empty() == false) {
-      // TODO this should be have to be count normalized too
       LogVarSet lvs1;
       for (size_t j = 0; j < depLits.size(); j++) {
         lvs1 |= depLits[j].logVarSet();
       }
+      if (clauses[i].constr().isCountNormalized (lvs1) == false) {
+        break;
+      }
       LogVarSet lvs2;
       for (size_t j = 0; j < indepLits.size(); j++) {
         lvs2 |= indepLits[j].logVarSet();
+      }
+      if (clauses[i].constr().isCountNormalized (lvs2) == false) {
+        break;
       }
       Clause c1 (clauses[i].constr().projectedCopy (lvs1));
       for (size_t j = 0; j < depLits.size(); j++) {
