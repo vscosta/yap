@@ -189,13 +189,12 @@ runGroundSolver (void)
     taskList = YAP_TailOfTerm (taskList);
   }
 
-  std::set<VarId> vids;
-  for (size_t i = 0; i < tasks.size(); i++) {
-    Util::addToSet (vids, tasks[i]);
-  }
-
   FactorGraph* mfg = fg;
   if (fg->bayesianFactors()) {
+    std::set<VarId> vids;
+    for (size_t i = 0; i < tasks.size(); i++) {
+      Util::addToSet (vids, tasks[i]);
+    }
     mfg = BayesBall::getMinimalFactorGraph (
         *fg, VarIds (vids.begin(), vids.end()));
   }
