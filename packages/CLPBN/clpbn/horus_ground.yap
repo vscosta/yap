@@ -52,13 +52,13 @@
 
 
 call_horus_ground_solver(QueryVars, QueryKeys, AllKeys, Factors, Evidence, Output) :-
-  init_horus_ground_solver(QueryKeys, AllKeys, Factors, Evidence, Network),
-  run_solver(Network, [QueryKeys], Solutions),
+  init_horus_ground_solver(QueryKeys, AllKeys, Factors, Evidence, State),
+  run_solver(State, [QueryKeys], Solutions),
   clpbn_bind_vals([QueryVars], Solutions, Output),
-  finalize_horus_ground_solver(Network).
+  finalize_horus_ground_solver(State).
 
 
-init_horus_ground_solver(QueryKeys, AllKeys, Factors, Evidence, ground(Network,Hash4,Id4)) :-
+init_horus_ground_solver(QueryKeys, AllKeys, Factors, Evidence, state(Network,Hash4,Id4)) :-
   get_factors_type(Factors, Type),
   keys_to_numbers(AllKeys, Factors, Evidence, Hash4, Id4, FactorIds, EvidenceIds),
   cpp_create_ground_network(Type, FactorIds, EvidenceIds, Network),
@@ -74,11 +74,11 @@ run_horus_ground_solver(_QueryVars, Solutions, horus(GKeys, Keys, Factors, Evide
 
 
 % TODO this is not beeing called!
-finalize_horus_ground_solver(ground(Network,_Hash,_Id)) :-
+finalize_horus_ground_solver(state(Network,_Hash,_Id)) :-
   cpp_free_ground_network(Network).
 
 
-run_solver(ground(Network,Hash,Id), QueryKeys, Solutions) :-
+run_solver(state(Network,Hash,Id), QueryKeys, Solutions) :-
   %get_dists_parameters(DistIds, DistsParams),
   %cpp_set_factors_params(Network, DistsParams),
   lists_of_keys_to_ids(QueryKeys, QueryIds, Hash, _, Id, _),
