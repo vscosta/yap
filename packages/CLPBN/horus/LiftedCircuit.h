@@ -234,8 +234,6 @@ class LiftedCircuit
 
     bool tryAtomCounting (CircuitNode** follow, Clauses& clauses);
 
-    bool tryGrounding (CircuitNode** follow, Clauses& clauses);
-
     void shatterCountedLogVars (Clauses& clauses);
 
     bool shatterCountedLogVarsAux (Clauses& clauses);
