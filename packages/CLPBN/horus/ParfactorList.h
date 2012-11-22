@@ -56,6 +56,8 @@ class ParfactorList
     bool isAllShattered (void) const;
 
     void print (void) const;
+    
+    ParfactorList& operator= (const ParfactorList& pfList);
 
   private:
     

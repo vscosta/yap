@@ -3,7 +3,7 @@
 source wa.sh
 source ../benchs.sh
 
-SOLVER="fove"
+SOLVER="lve"
 
 function run_all_graphs
 {
@@ -32,6 +32,6 @@ function run_all_graphs
 }
 
 prepare_new_run
-run_all_graphs "fove                                  "
+run_all_graphs "lve                                   "
 
 

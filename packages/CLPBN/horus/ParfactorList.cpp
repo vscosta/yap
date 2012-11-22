@@ -9,8 +9,7 @@ ParfactorList::ParfactorList (const ParfactorList& pfList)
   while (it != pfList.end()) {
     addShattered (new Parfactor (**it));
     ++ it;
-  }
-  
+  } 
 }
 
 
@@ -122,6 +121,27 @@ ParfactorList::print (void) const
     pfVec[i]->print();
     cout << endl;
   }
+}
+
+
+
+ParfactorList&
+ParfactorList::operator= (const ParfactorList& pfList)
+{
+  if (this != &pfList) {
+    ParfactorList::const_iterator it0 = pfList_.begin();
+    while (it0 != pfList_.end()) {
+      delete *it0;
+      ++ it0;
+    }
+    pfList_.clear();
+    ParfactorList::const_iterator it = pfList.begin();
+    while (it != pfList.end()) {
+      addShattered (new Parfactor (**it));
+      ++ it;
+    }
+  }
+  return *this;
 }
 
 

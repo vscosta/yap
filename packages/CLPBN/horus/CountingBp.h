@@ -3,7 +3,7 @@
 
 #include <unordered_map>
 
-#include "Solver.h"
+#include "GroundSolver.h"
 #include "FactorGraph.h"
 #include "Util.h"
 #include "Horus.h"
@@ -102,7 +102,7 @@ class FacCluster
 };
 
 
-class CountingBp : public Solver
+class CountingBp : public GroundSolver
 {
   public:
     CountingBp (const FactorGraph& fg);

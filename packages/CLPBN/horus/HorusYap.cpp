@@ -9,11 +9,13 @@
 
 #include "ParfactorList.h"
 #include "FactorGraph.h"
+#include "LiftedOperations.h"
 #include "LiftedVe.h"
 #include "VarElim.h"
 #include "LiftedBp.h"
 #include "CountingBp.h"
 #include "BeliefProp.h"
+#include "LiftedKc.h"
 #include "ElimGraph.h"
 #include "BayesBall.h"
 
@@ -22,25 +24,15 @@ using namespace std;
 
 typedef std::pair<ParfactorList*, ObservedFormulas*> LiftedNetwork;
 
-Params readParameters (YAP_Term);
-
-vector<unsigned> readUnsignedList (YAP_Term);
+Parfactor* readParfactor (YAP_Term);
 
 void readLiftedEvidence (YAP_Term, ObservedFormulas&);
 
-Parfactor* readParfactor (YAP_Term);
+vector<unsigned> readUnsignedList (YAP_Term list);
 
+Params readParameters (YAP_Term);
 
-vector<unsigned>
-readUnsignedList (YAP_Term list)
-{
-  vector<unsigned> vec;
-  while (list != YAP_TermNil()) {
-    vec.push_back ((unsigned) YAP_IntOfTerm (YAP_HeadOfTerm (list)));
-    list = YAP_TailOfTerm (list);
-  }
-  return vec;
-}
+YAP_Term fillAnswersPrologList (vector<Params>& results);
 
 
 
@@ -76,8 +68,289 @@ createLiftedNetwork (void)
   readLiftedEvidence (YAP_ARG2, *(obsFormulas));
 
   LiftedNetwork* net = new LiftedNetwork (pfList, obsFormulas);
+
   YAP_Int p = (YAP_Int) (net);
   return YAP_Unify (YAP_MkIntTerm (p), YAP_ARG3);
+}
+
+
+
+int
+createGroundNetwork (void)
+{
+  string factorsType ((char*) YAP_AtomName (YAP_AtomOfTerm (YAP_ARG1)));
+  FactorGraph* fg = new FactorGraph();
+  if (factorsType == "bayes") {
+    fg->setFactorsAsBayesian();
+  }
+  YAP_Term factorList = YAP_ARG2;
+  while (factorList != YAP_TermNil()) {
+    YAP_Term factor = YAP_HeadOfTerm (factorList);
+    // read the var ids
+    VarIds varIds = readUnsignedList (YAP_ArgOfTerm (1, factor));
+    // read the ranges
+    Ranges ranges = readUnsignedList (YAP_ArgOfTerm (2, factor));
+    // read the parameters
+    Params params = readParameters (YAP_ArgOfTerm (3, factor)); 
+    // read dist id
+    unsigned distId = (unsigned) YAP_IntOfTerm (YAP_ArgOfTerm (4, factor));
+    fg->addFactor (Factor (varIds, ranges, params, distId));
+    factorList = YAP_TailOfTerm (factorList);
+  }
+  unsigned nrObservedVars = 0;
+  YAP_Term evidenceList = YAP_ARG3;
+  while (evidenceList != YAP_TermNil()) {
+    YAP_Term evTerm = YAP_HeadOfTerm (evidenceList);
+    unsigned vid = (unsigned) YAP_IntOfTerm ((YAP_ArgOfTerm (1, evTerm)));
+    unsigned ev  = (unsigned) YAP_IntOfTerm ((YAP_ArgOfTerm (2, evTerm)));
+    assert (fg->getVarNode (vid));
+    fg->getVarNode (vid)->setEvidence (ev);
+    evidenceList = YAP_TailOfTerm (evidenceList);
+    nrObservedVars ++;
+  }
+  if (Globals::verbosity > 0) {
+    cout << "factor graph contains " ;
+    cout << fg->nrVarNodes() << " variables " ;
+    cout << "(" << nrObservedVars << " observed) and " ;
+    cout << fg->nrFacNodes() << " factors " << endl;
+  }
+  YAP_Int p = (YAP_Int) (fg);
+  return YAP_Unify (YAP_MkIntTerm (p), YAP_ARG4);
+}
+
+
+
+int
+runLiftedSolver (void)
+{
+  LiftedNetwork* network = (LiftedNetwork*) YAP_IntOfTerm (YAP_ARG1);
+  ParfactorList pfListCopy (*network->first);
+  LiftedOperations::absorveEvidence (pfListCopy, *network->second);
+  
+  LiftedSolver* solver = 0;
+  switch (Globals::liftedSolver) {
+    case LiftedSolverType::LVE:  solver = new LiftedVe (pfListCopy); break;
+    case LiftedSolverType::LBP:  solver = new LiftedBp (pfListCopy); break;
+    case LiftedSolverType::LKC:  solver = new LiftedKc (pfListCopy); break;
+  }
+  
+  if (Globals::verbosity > 0) {
+    solver->printSolverFlags();
+    cout << endl;
+  }
+  
+  YAP_Term taskList = YAP_ARG2;
+  vector<Params> results;
+  while (taskList != YAP_TermNil()) {
+    Grounds queryVars;
+    YAP_Term jointList = YAP_HeadOfTerm (taskList);
+    while (jointList != YAP_TermNil()) {
+      YAP_Term ground = YAP_HeadOfTerm (jointList);
+      if (YAP_IsAtomTerm (ground)) {
+        string name ((char*) YAP_AtomName (YAP_AtomOfTerm (ground)));
+        queryVars.push_back (Ground (LiftedUtils::getSymbol (name)));
+      } else {
+        assert (YAP_IsApplTerm (ground));
+        YAP_Functor yapFunctor = YAP_FunctorOfTerm (ground);
+        string name ((char*) (YAP_AtomName (YAP_NameOfFunctor (yapFunctor))));
+        unsigned arity = (unsigned) YAP_ArityOfFunctor (yapFunctor);
+        Symbol functor = LiftedUtils::getSymbol (name);
+        Symbols args;
+        for (unsigned i = 1; i <= arity; i++) {
+          YAP_Term ti = YAP_ArgOfTerm (i, ground);
+          assert (YAP_IsAtomTerm (ti));
+          string arg ((char *) YAP_AtomName (YAP_AtomOfTerm (ti)));
+          args.push_back (LiftedUtils::getSymbol (arg));
+        }
+        queryVars.push_back (Ground (functor, args));
+      }
+      jointList = YAP_TailOfTerm (jointList);
+    }
+    results.push_back (solver->solveQuery (queryVars));
+    taskList = YAP_TailOfTerm (taskList);
+  }
+
+  delete solver;
+
+  return YAP_Unify (fillAnswersPrologList (results), YAP_ARG3);
+}
+
+
+
+int
+runGroundSolver (void)
+{
+  FactorGraph* fg = (FactorGraph*) YAP_IntOfTerm (YAP_ARG1);
+  
+  vector<VarIds> tasks;
+  YAP_Term taskList = YAP_ARG2;
+  while (taskList != YAP_TermNil()) {
+    tasks.push_back (readUnsignedList (YAP_HeadOfTerm (taskList)));
+    taskList = YAP_TailOfTerm (taskList);
+  }
+
+  std::set<VarId> vids;
+  for (size_t i = 0; i < tasks.size(); i++) {
+    Util::addToSet (vids, tasks[i]);
+  }
+
+  FactorGraph* mfg = fg;
+  if (fg->bayesianFactors()) {
+    mfg = BayesBall::getMinimalFactorGraph (
+        *fg, VarIds (vids.begin(), vids.end()));
+  }
+
+  GroundSolver* solver = 0;
+  CountingBp::checkForIdenticalFactors = false;
+  switch (Globals::groundSolver) {
+    case GroundSolverType::VE:  solver = new VarElim    (*mfg); break;
+    case GroundSolverType::BP:  solver = new BeliefProp (*mfg); break;
+    case GroundSolverType::CBP: solver = new CountingBp (*mfg); break;
+  }
+
+  if (Globals::verbosity > 0) {
+    solver->printSolverFlags();
+    cout << endl;
+  }
+
+  vector<Params> results;
+  results.reserve (tasks.size());
+  for (size_t i = 0; i < tasks.size(); i++) {
+    results.push_back (solver->solveQuery (tasks[i]));
+  }
+
+  delete solver;
+  if (fg->bayesianFactors()) {
+    delete mfg;
+  }
+
+  return YAP_Unify (fillAnswersPrologList (results), YAP_ARG3);
+}
+
+
+
+int
+setParfactorsParams (void)
+{
+  LiftedNetwork* network = (LiftedNetwork*) YAP_IntOfTerm (YAP_ARG1);
+  ParfactorList* pfList = network->first;
+  YAP_Term distList = YAP_ARG2;
+  unordered_map<unsigned, Params> paramsMap;
+  while (distList != YAP_TermNil()) {
+    YAP_Term dist   = YAP_HeadOfTerm (distList);
+    unsigned distId = (unsigned) YAP_IntOfTerm (YAP_ArgOfTerm (1, dist));
+    assert (Util::contains (paramsMap, distId) == false);
+    paramsMap[distId] = readParameters (YAP_ArgOfTerm (2, dist));
+    distList = YAP_TailOfTerm (distList);
+  }
+  ParfactorList::iterator it = pfList->begin();
+  while (it != pfList->end()) {
+    assert (Util::contains (paramsMap, (*it)->distId()));
+    // (*it)->setParams (paramsMap[(*it)->distId()]); 
+    ++ it;
+  }
+  return TRUE;
+}
+
+
+
+int
+setFactorsParams (void)
+{
+  return TRUE; // TODO
+  FactorGraph* fg = (FactorGraph*) YAP_IntOfTerm (YAP_ARG1);
+  YAP_Term distList = YAP_ARG2;
+  unordered_map<unsigned, Params> paramsMap;
+  while (distList != YAP_TermNil()) {
+    YAP_Term dist   = YAP_HeadOfTerm (distList);
+    unsigned distId = (unsigned) YAP_IntOfTerm (YAP_ArgOfTerm (1, dist));
+    assert (Util::contains (paramsMap, distId) == false);
+    paramsMap[distId] = readParameters (YAP_ArgOfTerm (2, dist));
+    distList = YAP_TailOfTerm (distList);
+  }
+  const FacNodes& facNodes = fg->facNodes();
+  for (size_t i = 0; i < facNodes.size(); i++) {
+    unsigned distId = facNodes[i]->factor().distId();
+    assert (Util::contains (paramsMap, distId));
+    facNodes[i]->factor().setParams (paramsMap[distId]);
+  }
+  return TRUE;
+}
+
+
+
+int
+setVarsInformation (void)
+{
+  Var::clearVarsInfo();
+  vector<string> labels;
+  YAP_Term labelsL = YAP_ARG1;
+  while (labelsL != YAP_TermNil()) {
+    YAP_Atom atom = YAP_AtomOfTerm (YAP_HeadOfTerm (labelsL));
+    labels.push_back ((char*) YAP_AtomName (atom));
+    labelsL = YAP_TailOfTerm (labelsL);
+  }
+  unsigned count = 0;
+  YAP_Term stateNamesL = YAP_ARG2;
+  while (stateNamesL != YAP_TermNil()) {
+    States states;
+    YAP_Term namesL = YAP_HeadOfTerm (stateNamesL);
+    while (namesL != YAP_TermNil()) {
+      YAP_Atom atom = YAP_AtomOfTerm (YAP_HeadOfTerm (namesL));
+      states.push_back ((char*) YAP_AtomName (atom));
+      namesL = YAP_TailOfTerm (namesL);
+    }
+    Var::addVarInfo (count, labels[count], states);
+    count ++;
+    stateNamesL = YAP_TailOfTerm (stateNamesL);
+  }
+  return TRUE;
+}
+
+
+
+int
+setHorusFlag (void)
+{
+  string key ((char*) YAP_AtomName (YAP_AtomOfTerm (YAP_ARG1)));
+  string value;
+  if (key == "verbosity") {
+    stringstream ss;
+    ss << (int) YAP_IntOfTerm (YAP_ARG2);
+    ss >> value;
+  } else if (key == "accuracy") {
+    stringstream ss;
+    ss << (float) YAP_FloatOfTerm (YAP_ARG2);
+    ss >> value;
+  } else if (key == "max_iter") {
+    stringstream ss;
+    ss << (int) YAP_IntOfTerm (YAP_ARG2);
+    ss >> value;
+  } else {
+    value = ((char*) YAP_AtomName (YAP_AtomOfTerm (YAP_ARG2)));
+  }
+  return Util::setHorusFlag (key, value);
+}
+
+
+
+int
+freeGroundNetwork (void)
+{
+  delete (FactorGraph*) YAP_IntOfTerm (YAP_ARG1);
+  return TRUE;
+}
+
+
+
+int
+freeLiftedNetwork (void)
+{
+  LiftedNetwork* network = (LiftedNetwork*) YAP_IntOfTerm (YAP_ARG1);
+  delete network->first;
+  delete network->second;
+  delete network;
+  return TRUE;
 }
 
 
@@ -208,47 +481,15 @@ readLiftedEvidence (
 
 
 
-int
-createGroundNetwork (void)
+vector<unsigned>
+readUnsignedList (YAP_Term list)
 {
-  string factorsType ((char*) YAP_AtomName (YAP_AtomOfTerm (YAP_ARG1)));
-  FactorGraph* fg = new FactorGraph();
-  if (factorsType == "bayes") {
-    fg->setFactorsAsBayesian();
+  vector<unsigned> vec;
+  while (list != YAP_TermNil()) {
+    vec.push_back ((unsigned) YAP_IntOfTerm (YAP_HeadOfTerm (list)));
+    list = YAP_TailOfTerm (list);
   }
-  YAP_Term factorList = YAP_ARG2;
-  while (factorList != YAP_TermNil()) {
-    YAP_Term factor = YAP_HeadOfTerm (factorList);
-    // read the var ids
-    VarIds varIds = readUnsignedList (YAP_ArgOfTerm (1, factor));
-    // read the ranges
-    Ranges ranges = readUnsignedList (YAP_ArgOfTerm (2, factor));
-    // read the parameters
-    Params params = readParameters (YAP_ArgOfTerm (3, factor)); 
-    // read dist id
-    unsigned distId = (unsigned) YAP_IntOfTerm (YAP_ArgOfTerm (4, factor));
-    fg->addFactor (Factor (varIds, ranges, params, distId));
-    factorList = YAP_TailOfTerm (factorList);
-  }
-  unsigned nrObservedVars = 0;
-  YAP_Term evidenceList = YAP_ARG3;
-  while (evidenceList != YAP_TermNil()) {
-    YAP_Term evTerm = YAP_HeadOfTerm (evidenceList);
-    unsigned vid = (unsigned) YAP_IntOfTerm ((YAP_ArgOfTerm (1, evTerm)));
-    unsigned ev  = (unsigned) YAP_IntOfTerm ((YAP_ArgOfTerm (2, evTerm)));
-    assert (fg->getVarNode (vid));
-    fg->getVarNode (vid)->setEvidence (ev);
-    evidenceList = YAP_TailOfTerm (evidenceList);
-    nrObservedVars ++;
-  }
-  if (Globals::verbosity > 0) {
-    cout << "factor graph contains " ;
-    cout << fg->nrVarNodes() << " variables " ;
-    cout << "(" << nrObservedVars << " observed) and " ;
-    cout << fg->nrFacNodes() << " factors " << endl;
-  }
-  YAP_Int p = (YAP_Int) (fg);
-  return YAP_Unify (YAP_MkIntTerm (p), YAP_ARG4);
+  return vec;
 }
 
 
@@ -270,59 +511,9 @@ readParameters (YAP_Term paramL)
 
 
 
-int
-runLiftedSolver (void)
+YAP_Term
+fillAnswersPrologList (vector<Params>& results)
 {
-  LiftedNetwork* network = (LiftedNetwork*) YAP_IntOfTerm (YAP_ARG1);
-  YAP_Term taskList = YAP_ARG2;
-  vector<Params> results;
-  ParfactorList pfListCopy (*network->first);
-  LiftedVe::absorveEvidence (pfListCopy, *network->second);
-  while (taskList != YAP_TermNil()) {
-    Grounds queryVars;
-    YAP_Term jointList = YAP_HeadOfTerm (taskList);
-    while (jointList != YAP_TermNil()) {
-      YAP_Term ground = YAP_HeadOfTerm (jointList);
-      if (YAP_IsAtomTerm (ground)) {
-        string name ((char*) YAP_AtomName (YAP_AtomOfTerm (ground)));
-        queryVars.push_back (Ground (LiftedUtils::getSymbol (name)));
-      } else {
-        assert (YAP_IsApplTerm (ground));
-        YAP_Functor yapFunctor = YAP_FunctorOfTerm (ground);
-        string name ((char*) (YAP_AtomName (YAP_NameOfFunctor (yapFunctor))));
-        unsigned arity = (unsigned) YAP_ArityOfFunctor (yapFunctor);
-        Symbol functor = LiftedUtils::getSymbol (name);
-        Symbols args;
-        for (unsigned i = 1; i <= arity; i++) {
-          YAP_Term ti = YAP_ArgOfTerm (i, ground);
-          assert (YAP_IsAtomTerm (ti));
-          string arg ((char *) YAP_AtomName (YAP_AtomOfTerm (ti)));
-          args.push_back (LiftedUtils::getSymbol (arg));
-        }
-        queryVars.push_back (Ground (functor, args));
-      }
-      jointList = YAP_TailOfTerm (jointList);
-    }
-    if (Globals::liftedSolver == LiftedSolver::FOVE) {
-      LiftedVe solver (pfListCopy);
-      if (Globals::verbosity > 0 && taskList == YAP_ARG2) {
-        solver.printSolverFlags();
-        cout << endl;
-      }
-      results.push_back (solver.solveQuery (queryVars));
-    } else if (Globals::liftedSolver == LiftedSolver::LBP) {
-      LiftedBp solver (pfListCopy);
-      if (Globals::verbosity > 0 && taskList == YAP_ARG2) {
-        solver.printSolverFlags();
-        cout << endl;
-      }
-      results.push_back (solver.solveQuery (queryVars));
-    } else {
-      assert (false);
-    }
-    taskList = YAP_TailOfTerm (taskList);
-  }
-
   YAP_Term list = YAP_TermNil();
   for (size_t i = results.size(); i-- > 0; ) {
     const Params& beliefs = results[i];
@@ -336,201 +527,7 @@ runLiftedSolver (void)
     }
     list = YAP_MkPairTerm (queryBeliefsL, list);
   }
- 
-  return YAP_Unify (list, YAP_ARG3);
-}
-
-
-
-int
-runGroundSolver (void)
-{
-  FactorGraph* fg = (FactorGraph*) YAP_IntOfTerm (YAP_ARG1);
-  vector<VarIds> tasks;
-  YAP_Term taskList = YAP_ARG2;
-  while (taskList != YAP_TermNil()) {
-    tasks.push_back (readUnsignedList (YAP_HeadOfTerm (taskList)));
-    taskList = YAP_TailOfTerm (taskList);
-  }
-
-  std::set<VarId> vids;
-  for (size_t i = 0; i < tasks.size(); i++) {
-    Util::addToSet (vids, tasks[i]);
-  }
-  Solver* solver = 0;
-  FactorGraph* mfg = fg;
-  if (fg->bayesianFactors()) {
-    mfg = BayesBall::getMinimalFactorGraph (
-        *fg, VarIds (vids.begin(), vids.end()));
-  }
-
-  if (Globals::groundSolver == GroundSolver::VE) {
-    solver = new VarElim (*mfg);
-  } else if (Globals::groundSolver == GroundSolver::BP) {
-    solver = new BeliefProp (*mfg);
-  } else if (Globals::groundSolver == GroundSolver::CBP) {
-    CountingBp::checkForIdenticalFactors = false;
-    solver = new CountingBp (*mfg);
-  } else {
-    assert (false);
-  }
-
-  if (Globals::verbosity > 0) {
-    solver->printSolverFlags();
-    cout << endl;
-  }
-
-  vector<Params> results;
-  results.reserve (tasks.size());
-  for (size_t i = 0; i < tasks.size(); i++) {
-    results.push_back (solver->solveQuery (tasks[i]));
-  }
-
-  delete solver;
-  if (fg->bayesianFactors()) {
-    delete mfg;
-  }
-
-  YAP_Term list = YAP_TermNil();
-  for (size_t i = results.size(); i-- > 0; ) {
-    const Params& beliefs = results[i];
-    YAP_Term queryBeliefsL = YAP_TermNil();
-    for (size_t j = beliefs.size(); j-- > 0; ) {
-      YAP_Int sl1      = YAP_InitSlot (list);
-      YAP_Term belief  = YAP_MkFloatTerm (beliefs[j]);
-      queryBeliefsL    = YAP_MkPairTerm (belief, queryBeliefsL);
-      list             = YAP_GetFromSlot (sl1);
-      YAP_RecoverSlots (1);
-    }
-    list = YAP_MkPairTerm (queryBeliefsL, list);
-  }
-  return YAP_Unify (list, YAP_ARG3);
-}
-
-
-
-int
-setParfactorsParams (void)
-{
-  LiftedNetwork* network = (LiftedNetwork*) YAP_IntOfTerm (YAP_ARG1);
-  ParfactorList* pfList = network->first;
-  YAP_Term distList = YAP_ARG2;
-  unordered_map<unsigned, Params> paramsMap;
-  while (distList != YAP_TermNil()) {
-    YAP_Term dist   = YAP_HeadOfTerm (distList);
-    unsigned distId = (unsigned) YAP_IntOfTerm (YAP_ArgOfTerm (1, dist));
-    assert (Util::contains (paramsMap, distId) == false);
-    paramsMap[distId] = readParameters (YAP_ArgOfTerm (2, dist));
-    distList = YAP_TailOfTerm (distList);
-  }
-  ParfactorList::iterator it = pfList->begin();
-  while (it != pfList->end()) {
-    assert (Util::contains (paramsMap, (*it)->distId()));
-    // (*it)->setParams (paramsMap[(*it)->distId()]); 
-    ++ it;
-  }
-  return TRUE;
-}
-
-
-
-int
-setFactorsParams (void)
-{
-  return TRUE; // TODO
-  FactorGraph* fg = (FactorGraph*) YAP_IntOfTerm (YAP_ARG1);
-  YAP_Term distList = YAP_ARG2;
-  unordered_map<unsigned, Params> paramsMap;
-  while (distList != YAP_TermNil()) {
-    YAP_Term dist   = YAP_HeadOfTerm (distList);
-    unsigned distId = (unsigned) YAP_IntOfTerm (YAP_ArgOfTerm (1, dist));
-    assert (Util::contains (paramsMap, distId) == false);
-    paramsMap[distId] = readParameters (YAP_ArgOfTerm (2, dist));
-    distList = YAP_TailOfTerm (distList);
-  }
-  const FacNodes& facNodes = fg->facNodes();
-  for (size_t i = 0; i < facNodes.size(); i++) {
-    unsigned distId = facNodes[i]->factor().distId();
-    assert (Util::contains (paramsMap, distId));
-    facNodes[i]->factor().setParams (paramsMap[distId]);
-  }
-  return TRUE;
-}
-
-
-
-int
-setVarsInformation (void)
-{
-  Var::clearVarsInfo();
-  vector<string> labels;
-  YAP_Term labelsL = YAP_ARG1;
-  while (labelsL != YAP_TermNil()) {
-    YAP_Atom atom = YAP_AtomOfTerm (YAP_HeadOfTerm (labelsL));
-    labels.push_back ((char*) YAP_AtomName (atom));
-    labelsL = YAP_TailOfTerm (labelsL);
-  }
-  unsigned count = 0;
-  YAP_Term stateNamesL = YAP_ARG2;
-  while (stateNamesL != YAP_TermNil()) {
-    States states;
-    YAP_Term namesL = YAP_HeadOfTerm (stateNamesL);
-    while (namesL != YAP_TermNil()) {
-      YAP_Atom atom = YAP_AtomOfTerm (YAP_HeadOfTerm (namesL));
-      states.push_back ((char*) YAP_AtomName (atom));
-      namesL = YAP_TailOfTerm (namesL);
-    }
-    Var::addVarInfo (count, labels[count], states);
-    count ++;
-    stateNamesL = YAP_TailOfTerm (stateNamesL);
-  }
-  return TRUE;
-}
-
-
-
-int
-setHorusFlag (void)
-{
-  string key ((char*) YAP_AtomName (YAP_AtomOfTerm (YAP_ARG1)));
-  string value;
-  if (key == "verbosity") {
-    stringstream ss;
-    ss << (int) YAP_IntOfTerm (YAP_ARG2);
-    ss >> value;
-  } else if (key == "accuracy") {
-    stringstream ss;
-    ss << (float) YAP_FloatOfTerm (YAP_ARG2);
-    ss >> value;
-  } else if (key == "max_iter") {
-    stringstream ss;
-    ss << (int) YAP_IntOfTerm (YAP_ARG2);
-    ss >> value;
-  } else {
-    value = ((char*) YAP_AtomName (YAP_AtomOfTerm (YAP_ARG2)));
-  }
-  return Util::setHorusFlag (key, value);
-}
-
-
-
-int
-freeGroundNetwork (void)
-{
-  delete (FactorGraph*) YAP_IntOfTerm (YAP_ARG1);
-  return TRUE;
-}
-
-
-
-int
-freeLiftedNetwork (void)
-{
-  LiftedNetwork* network = (LiftedNetwork*) YAP_IntOfTerm (YAP_ARG1);
-  delete network->first;
-  delete network->second;
-  delete network;
-  return TRUE;
+  return list;
 }
 
 

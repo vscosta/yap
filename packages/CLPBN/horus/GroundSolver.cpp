@@ -1,4 +1,4 @@
-#include "Solver.h"
+#include "GroundSolver.h"
 #include "Util.h"
 #include "BeliefProp.h"
 #include "CountingBp.h"
@@ -6,7 +6,7 @@
 
 
 void
-Solver::printAnswer (const VarIds& vids)
+GroundSolver::printAnswer (const VarIds& vids)
 {
   Vars   unobservedVars;
   VarIds unobservedVids;
@@ -32,7 +32,7 @@ Solver::printAnswer (const VarIds& vids)
 
 
 void
-Solver::printAllPosterioris (void)
+GroundSolver::printAllPosterioris (void)
 {
   VarNodes vars = fg.varNodes();
   std::sort (vars.begin(), vars.end(), sortByVarId());
@@ -44,8 +44,8 @@ Solver::printAllPosterioris (void)
 
 
 Params
-Solver::getJointByConditioning (
-    GroundSolver solverType,
+GroundSolver::getJointByConditioning (
+    GroundSolverType solverType,
     FactorGraph fg,
     const VarIds& jointVarIds) const
 {
@@ -55,11 +55,11 @@ Solver::getJointByConditioning (
     jointVars.push_back (fg.getVarNode (jointVarIds[i]));
   }
 
-  Solver* solver = 0;
+  GroundSolver* solver = 0;
   switch (solverType) {
-    case GroundSolver::BP:  solver = new BeliefProp (fg); break;
-    case GroundSolver::CBP: solver = new CountingBp (fg); break;
-    case GroundSolver::VE:  solver = new VarElim (fg);    break;
+    case GroundSolverType::BP:  solver = new BeliefProp (fg); break;
+    case GroundSolverType::CBP: solver = new CountingBp (fg); break;
+    case GroundSolverType::VE:  solver = new VarElim (fg);    break;
   }
   Params prevBeliefs = solver->solveQuery ({jointVarIds[0]});
   VarIds observedVids = {jointVars[0]->varId()};
@@ -80,9 +80,9 @@ Solver::getJointByConditioning (
       }
       delete solver;
       switch (solverType) {
-        case GroundSolver::BP:  solver = new BeliefProp (fg); break;
-        case GroundSolver::CBP: solver = new CountingBp (fg); break;
-        case GroundSolver::VE:  solver = new VarElim (fg);    break;
+        case GroundSolverType::BP:  solver = new BeliefProp (fg); break;
+        case GroundSolverType::CBP: solver = new CountingBp (fg); break;
+        case GroundSolverType::VE:  solver = new VarElim (fg);    break;
       }
       Params beliefs = solver->solveQuery ({jointVarIds[i]});
       for (size_t k = 0; k < beliefs.size(); k++) {

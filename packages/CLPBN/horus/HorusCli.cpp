@@ -160,15 +160,15 @@ readQueryAndEvidence (
 void
 runSolver (const FactorGraph& fg, const VarIds& queryIds)
 {
-  Solver* solver = 0;
+  GroundSolver* solver = 0;
   switch (Globals::groundSolver) {
-    case GroundSolver::VE:
+    case GroundSolverType::VE:
       solver = new VarElim (fg);
       break;
-    case GroundSolver::BP:
+    case GroundSolverType::BP:
       solver = new BeliefProp (fg);
       break;
-    case GroundSolver::CBP:
+    case GroundSolverType::CBP:
       solver = new CountingBp (fg);
       break;
     default:

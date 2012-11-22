@@ -49,11 +49,12 @@ Inference Options
 PFL supports both ground and lifted inference. The inference algorithm
 can be chosen using the set_solver/1 predicate. The following algorithms
 are supported:
-- fove: lifted variable elimination with arbitrary constraints (GC-FOVE)
+- lve:  generalized counting first-order variable elimination (GC-FOVE)
 - hve:  (ground) variable elimination
 - lbp:  lifted first-order belief propagation
 - cbp:  counting belief propagation
 - bp:   (ground) belief propagation
+- lkc:  lifted first-order knowledge compilation
 
 For example, if we want to use ground variable elimination to solve some
 query, we need to call first the following goal:

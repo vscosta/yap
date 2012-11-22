@@ -18,7 +18,7 @@ total_students(256).
 :- ensure_loaded(parschema).
 
 :- yap_flag(unknown,error).
-%:- clpbn_horus:set_solver(fove).
+%:- clpbn_horus:set_solver(lve).
 %:- clpbn_horus:set_solver(hve).
 :- clpbn_horus:set_solver(bp).
 %:- clpbn_horus:set_solver(bdd).

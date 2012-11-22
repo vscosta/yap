@@ -1,5 +1,5 @@
-#ifndef HORUS_SOLVER_H
-#define HORUS_SOLVER_H
+#ifndef HORUS_GROUNDSOLVER_H
+#define HORUS_GROUNDSOLVER_H
 
 #include <iomanip>
 
@@ -10,12 +10,12 @@
 
 using namespace std;
 
-class Solver
+class GroundSolver
 {
   public:
-    Solver (const FactorGraph& factorGraph) : fg(factorGraph) { }
+    GroundSolver (const FactorGraph& factorGraph) : fg(factorGraph) { }
 
-    virtual ~Solver() { } // ensure that subclass destructor is called
+    virtual ~GroundSolver() { } // ensure that subclass destructor is called
 
     virtual Params solveQuery (VarIds queryVids) = 0;
 
@@ -25,12 +25,12 @@ class Solver
 
     void printAllPosterioris (void);
 
-    Params getJointByConditioning (GroundSolver,
+    Params getJointByConditioning (GroundSolverType,
         FactorGraph, const VarIds& jointVarIds) const;
    
   protected:
     const FactorGraph& fg;
 };
 
-#endif // HORUS_SOLVER_H
+#endif // HORUS_GROUNDSOLVER_H
 

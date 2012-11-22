@@ -5,7 +5,7 @@
 #include <vector>
 #include <sstream>
 
-#include "Solver.h"
+#include "GroundSolver.h"
 #include "Factor.h"
 #include "FactorGraph.h"
 #include "Util.h"
@@ -83,7 +83,7 @@ class SPNodeInfo
 };
 
 
-class BeliefProp : public Solver
+class BeliefProp : public GroundSolver
 {
   public:
     BeliefProp (const FactorGraph&);

@@ -108,6 +108,8 @@ class ConstraintTree
     ConstraintTree (const LogVars&);
 
     ConstraintTree (const LogVars&, const Tuples&);
+    
+    ConstraintTree (vector<vector<string>> names);
 
     ConstraintTree (const ConstraintTree&);
 
@@ -157,6 +159,8 @@ class ConstraintTree
     void applySubstitution (const Substitution&);
 
     void project (const LogVarSet&);
+    
+    ConstraintTree projectedCopy (const LogVarSet&);
 
     void remove (const LogVarSet&);
 
@@ -197,6 +201,8 @@ class ConstraintTree
     ConstraintTrees ground (LogVar);
 
     void copyLogVar (LogVar,LogVar);
+    
+    ConstraintTree& operator= (const ConstraintTree& ct);
    
   private:
     unsigned countTuples (const CTNode*) const;

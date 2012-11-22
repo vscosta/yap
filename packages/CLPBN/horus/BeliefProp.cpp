@@ -12,7 +12,7 @@
 #include "Horus.h"
 
 
-BeliefProp::BeliefProp (const FactorGraph& fg) : Solver (fg)
+BeliefProp::BeliefProp (const FactorGraph& fg) : GroundSolver (fg)
 {
   runned_ = false;
 }
@@ -377,7 +377,8 @@ BeliefProp::getVarToFactorMsg (const BpLink* link) const
 Params
 BeliefProp::getJointByConditioning (const VarIds& jointVarIds) const
 {
-  return Solver::getJointByConditioning (GroundSolver::BP, fg, jointVarIds);
+  return GroundSolver::getJointByConditioning (
+      GroundSolverType::BP, fg, jointVarIds);
 }
 
 
