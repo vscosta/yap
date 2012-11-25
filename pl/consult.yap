@@ -649,8 +649,10 @@ absolute_file_name(File0,File) :-
 '$full_filename'(F0,F,G) :-
 	'$absolute_file_name'(F0,[access(read),file_type(source),file_errors(fail),solutions(first),expand(true)],F,G).
 
+% fix wrong argument order, TrueFileName should be last.
 absolute_file_name(File,TrueFileName,Opts) :-
-	( var(TrueFileName) ; atom(TrueFileName) ), !,
+	( var(TrueFileName) -> true ; atom(TrueFileName), TrueFileName \= [] ),
+	!,
 	absolute_file_name(File,Opts,TrueFileName).
 absolute_file_name(File,Opts,TrueFileName) :-
 	'$absolute_file_name'(File,Opts,TrueFileName,absolute_file_name(File,Opts,TrueFileName)).
