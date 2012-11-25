@@ -11,9 +11,15 @@ static atom_t ATOM_true,
   ATOM_t;
 
 static functor_t FUNCTOR_dollar1,
+  FUNCTOR_abs1, 
+  FUNCTOR_all1, 
+  FUNCTOR_any1, 
+  FUNCTOR_bin1, 
   FUNCTOR_dir1, 
   FUNCTOR_iter1, 
   FUNCTOR_len1, 
+  FUNCTOR_curly1,
+  FUNCTOR_ord1,
   FUNCTOR_pointer1, 
   FUNCTOR_complex2, 
   FUNCTOR_plus2, 
@@ -22,14 +28,16 @@ static functor_t FUNCTOR_dollar1,
   FUNCTOR_div2,
   FUNCTOR_hat2,
   FUNCTOR_colon2,
+  FUNCTOR_comma2,
   FUNCTOR_equal2;
 
 static PyObject *py_Main;
+static PyObject *term_to_python(term_t t);
 
 static inline int
-proper_ascii_string(const char *s)
+proper_ascii_string(char *s)
 {
-  unsigned int c;
+  unsigned char c;
 
   while ((c = *s++)) {
     if (c > 127)
@@ -50,6 +58,165 @@ get_p_int(PyObject *o, Py_ssize_t def) {
   return def;
 }
 
+static int
+copy_to_dictionary(PyObject *dict, term_t targ, term_t taux)
+{
+  PyObject *lhs, *rhs;
+  term_t tleft = taux, tright = tleft;
+
+  if (!PL_get_arg(1, targ, tleft)) {
+    return FALSE;
+  }
+  lhs = term_to_python(tleft);
+  if (!PL_get_arg(2, targ, tright)) {
+    return FALSE;
+  }
+  rhs = term_to_python(tright);
+  if (PyDict_SetItem(dict, lhs, rhs) < 0 ) {
+    return FALSE;
+  }
+  //PyObject_Print(dict, stderr, 0); fprintf(stderr,"\n");
+  Py_DECREF(lhs);
+  Py_DECREF(rhs);
+  return TRUE;
+}
+
+static PyObject *
+bip_abs(term_t t)
+{
+  PyObject *pVal;
+	
+  if (! PL_get_arg(1, t, t) )
+    return NULL;
+  pVal = term_to_python(t);
+  return PyNumber_Absolute(pVal);
+}
+
+static PyObject *
+bip_all(term_t t)
+{
+  PyObject *it, *item, *v;
+  PyObject *(*iternext)(PyObject *);
+  int cmp;
+
+  if (! PL_get_arg(1, t, t) )
+    return NULL;
+  v = term_to_python(t);
+  it = PyObject_GetIter(v);
+  if (it == NULL)
+    return NULL;
+  iternext = *Py_TYPE(it)->tp_iternext;
+
+  //  PyObject_Print(v, stderr, 0);
+  for (;;) {
+    item = iternext(it);
+    if (item == NULL)
+      break;
+    cmp = PyObject_IsTrue(item);
+    Py_DECREF(item);
+    if (cmp < 0) {
+      Py_DECREF(it);
+      return NULL;
+    }
+    if (cmp == 0) {
+      Py_DECREF(it);
+      return Py_False;
+    }
+  }
+  Py_DECREF(it);
+  if (PyErr_Occurred()) {
+    if (PyErr_ExceptionMatches(PyExc_StopIteration))
+      PyErr_Clear();
+    else
+      return NULL;
+  }
+  return Py_True;
+}
+
+static PyObject *
+bip_any(term_t t)
+{
+  PyObject *it, *item, *v;
+  PyObject *(*iternext)(PyObject *);
+  int cmp;
+
+  if (! PL_get_arg(1, t, t) )
+    return NULL;
+  v = term_to_python(t);
+  it = PyObject_GetIter(v);
+  if (it == NULL)
+    return NULL;
+  iternext = *Py_TYPE(it)->tp_iternext;
+
+  for (;;) {
+    item = iternext(it);
+    if (item == NULL)
+      break;
+    cmp = PyObject_IsTrue(item);
+    Py_DECREF(item);
+    if (cmp < 0) {
+      Py_DECREF(it);
+      return NULL;
+    }
+    if (cmp == 1) {
+      Py_DECREF(it);
+      Py_RETURN_TRUE;
+    }
+  }
+  Py_DECREF(it);
+  if (PyErr_Occurred()) {
+    if (PyErr_ExceptionMatches(PyExc_StopIteration))
+      PyErr_Clear();
+    else
+      return NULL;
+  }
+  Py_RETURN_FALSE;
+}
+
+static PyObject *
+bip_bin(term_t t)
+{
+  PyObject *v;
+
+  if (! PL_get_arg(1, t, t) )
+    return NULL;
+  v = term_to_python(t);
+  return PyNumber_ToBase(v, 2);
+}
+
+
+static PyObject *
+bip_ord(term_t t)
+{
+  PyObject *pVal;
+  Py_ssize_t size;
+	
+  if (! PL_get_arg(1, t, t) )
+    return NULL;
+  pVal = term_to_python(t);
+  if (PyUnicode_Check(pVal)) {
+    size = PyUnicode_GET_SIZE(pVal);
+    if (size == 1) {
+      long ord = (long)*PyUnicode_AS_UNICODE(pVal);
+      return PyInt_FromLong(ord);
+    }
+    return NULL;
+  } else if (PyByteArray_Check(pVal)) {
+    char *s = PyByteArray_AsString(pVal);
+
+    if (s[1])
+      return NULL;
+    return PyInt_FromLong(s[0]);
+  } else if (PyString_Check(pVal)) {
+    char *s = PyString_AsString(pVal);
+
+    if (s[1])
+      return NULL;
+    return PyInt_FromLong(s[0]);
+  } else 
+    return NULL;
+}
+
 static PyObject *
 term_to_python(term_t t)
 {
@@ -60,22 +227,29 @@ term_to_python(term_t t)
   case PL_ATOM:
     {
       char *s;
+      atom_t at;
       
       if (!PL_get_atom_chars(t, &s)) {
 	wchar_t *w;
-	atom_t at;
 	size_t len;
 
 	if (!PL_get_atom(t, &at))
 	  return NULL;
 	if (!(w = PL_atom_wchars(at, &len)))
 	  return NULL;
-	return PyUnicode_FromWideChar(w, wcslen(w) );
+	return PyUnicode_FromWideChar(w, len );
       }
+      if (!PL_get_atom(t, &at)) {
+	return NULL;
+      }
+      if (at == ATOM_true) return Py_True;
+      if (at == ATOM_false) return Py_False;
       if (proper_ascii_string(s))
 	return PyString_FromStringAndSize(s, strlen(s) );
-      else
-	return PyUnicode_DecodeLatin1(s, strlen(s), NULL);
+      else {
+	PyObject *pobj = PyUnicode_DecodeLatin1(s, strlen(s), NULL);
+	return pobj;
+      }
     }
   case PL_INTEGER:
     {
@@ -146,6 +320,16 @@ term_to_python(term_t t)
 	  return NULL;
 	/* return __main__,s */
 	return (PyObject *)ptr;
+      } else if (fun == FUNCTOR_abs1) {
+	return bip_abs(t);
+      } else if (fun == FUNCTOR_all1) {
+	return bip_all(t);
+      } else if (fun == FUNCTOR_any1) {
+	return bip_any(t);
+      } else if (fun == FUNCTOR_bin1) {
+	return bip_bin(t);
+      } else if (fun == FUNCTOR_ord1) {
+	return bip_ord(t);
       } else if (fun == FUNCTOR_len1) {
 	term_t targ = PL_new_term_ref();
 	PyObject *ptr;
@@ -205,6 +389,33 @@ term_to_python(term_t t)
 	}
 
 	return PyComplex_FromDoubles(d1, d2);
+      } else if (fun == FUNCTOR_curly1) {
+	term_t targ = PL_new_term_ref(), taux = PL_new_term_ref();
+	PyObject *dict;
+
+	if (! PL_get_arg(1, t, t) )
+	  return NULL;
+	if (! (dict = PyDict_New() ) )
+	  return NULL;
+	while (PL_is_functor(t, FUNCTOR_comma2)) {
+	  if (! PL_get_arg(1, t, targ) )
+	    return NULL;
+	  if (PL_is_functor(targ, FUNCTOR_colon2)) {
+	    if ( !copy_to_dictionary(dict, targ, taux) )
+	      return NULL;
+	    if (! PL_get_arg(2, t, t) )
+	      return NULL;
+	  } else {
+	    return NULL;
+	  }
+	}
+	if (PL_is_functor(t, FUNCTOR_colon2)) {
+	  if ( !copy_to_dictionary(dict, t, taux) )
+	    return NULL;
+	} else {
+	  return NULL;
+	}
+	return dict;
       } else if (fun == FUNCTOR_plus2) {
 	term_t targ = PL_new_term_ref();
 	PyObject *lhs, *rhs;
@@ -327,7 +538,6 @@ term_to_python(term_t t)
 static int
 assign_python(PyObject *root, term_t t, PyObject *e)
 {
-  // Yap_DebugPlWrite(YAP_GetFromSlot(t));        fprintf(stderr, " here I am\n");
   switch (PL_term_type(t)) {
   case PL_VARIABLE:
     return -1;
@@ -433,16 +643,16 @@ assign_python(PyObject *root, term_t t, PyObject *e)
 static foreign_t
 python_to_term(PyObject *pVal, term_t t)
 {
-  if (PyLong_Check(pVal)) {
-    return PL_unify_int64(t, PyLong_AsLong(pVal));
-  } else if (PyInt_Check(pVal)) {
-    return PL_unify_int64(t, PyInt_AsLong(pVal));
-  } else if (PyBool_Check(pVal)) {
+  if (PyBool_Check(pVal)) {
     if (PyObject_IsTrue(pVal)) {
       return PL_unify_atom(t, ATOM_true);
     } else {
       return PL_unify_atom(t, ATOM_false);
     }
+  } else if (PyLong_Check(pVal)) {
+    return PL_unify_int64(t, PyLong_AsLong(pVal));
+  } else if (PyInt_Check(pVal)) {
+    return PL_unify_int64(t, PyInt_AsLong(pVal));
   } else if (PyFloat_Check(pVal)) {
     return PL_unify_float(t, PyFloat_AsDouble(pVal));
   } else if (PyComplex_Check(pVal)) {
@@ -455,9 +665,11 @@ python_to_term(PyObject *pVal, term_t t)
   } else if (PyUnicode_Check(pVal)) {
     Py_ssize_t sz = PyUnicode_GetSize(pVal)+1;
     wchar_t *ptr;
+    atom_t tmp_atom;
+
     ptr = malloc(sizeof(wchar_t)*sz);
-    sz = PyUnicode_AsWideChar((struct PyUnicodeObject *)pVal, ptr, sz-1);
-    atom_t tmp_atom = PL_new_atom_wchars(sz,ptr);
+    sz = PyUnicode_AsWideChar((PyUnicodeObject *)pVal, ptr, sz-1);
+    tmp_atom = PL_new_atom_wchars(sz,ptr);
     free(ptr);
     return PL_unify_atom(t, tmp_atom);
   } else if (PyByteArray_Check(pVal)) {
@@ -489,6 +701,36 @@ python_to_term(PyObject *pVal, term_t t)
 	return FALSE;
     }
     return PL_unify_nil(t);
+  } else if (PyDict_Check(pVal)) {
+    Py_ssize_t pos = 0;
+    term_t to = PL_new_term_ref(), ti = to;
+    int left = PyDict_Size(pVal);
+    PyObject *key, *value;
+    
+    while (PyDict_Next(pVal, &pos, &key, &value)) {
+      term_t tkey = PL_new_term_ref(), tval = PL_new_term_ref(), tint, tnew = PL_new_term_ref();
+      /* do something interesting with the values... */
+      if (!python_to_term(key, tkey)) {
+	return FALSE;
+      }
+      if (!python_to_term(value, tval)) {
+	return FALSE;
+      }
+      /* reuse */
+      tint = tkey;
+      if (!PL_cons_functor(tint, FUNCTOR_colon2, tkey, tval)) {
+	return FALSE;
+      }
+      if (--left) {
+	if (!PL_cons_functor(tint, FUNCTOR_comma2, tint, tnew))
+	  return FALSE;
+      }
+      if (!PL_unify(ti, tint))
+	return FALSE;
+      ti = tnew;
+    }
+    PL_cons_functor(to, FUNCTOR_curly1, to);
+    return PL_unify(t, to);
   } else {
     term_t to = PL_new_term_ref(), t1 = PL_new_term_ref();
     PL_put_pointer(t1, (void *)pVal);
@@ -546,6 +788,7 @@ python_f(term_t tmod, term_t fname, term_t tf)
     return FALSE;
   }
   pF = PyObject_GetAttrString(pModule, s);
+  Py_DECREF(pModule);
   if (pF == NULL || ! PyCallable_Check(pF)) {
     return FALSE;
   }
@@ -788,6 +1031,12 @@ install_python(void)
   ATOM_true  = PL_new_atom("true");
   ATOM_false = PL_new_atom("false");
   ATOM_t = PL_new_atom("t");
+  FUNCTOR_abs1 = PL_new_functor(PL_new_atom("abs"), 1);
+  FUNCTOR_all1 = PL_new_functor(PL_new_atom("all"), 1);
+  FUNCTOR_any1 = PL_new_functor(PL_new_atom("any"), 1);
+  FUNCTOR_bin1 = PL_new_functor(PL_new_atom("bin"), 1);
+  FUNCTOR_ord1 = PL_new_functor(PL_new_atom("ord"), 1);
+  FUNCTOR_curly1 = PL_new_functor(PL_new_atom("{}"), 1);
   FUNCTOR_dollar1 = PL_new_functor(PL_new_atom("$"), 1);
   FUNCTOR_pointer1 = PL_new_functor(PL_new_atom("__obj__"), 1);
   FUNCTOR_dir1 = PL_new_functor(PL_new_atom("dir"), 1);
@@ -800,6 +1049,7 @@ install_python(void)
   FUNCTOR_div2 = PL_new_functor(PL_new_atom("/"), 2);
   FUNCTOR_hat2 = PL_new_functor(PL_new_atom("^"), 2);
   FUNCTOR_colon2 = PL_new_functor(PL_new_atom(":"), 2);
+  FUNCTOR_comma2 = PL_new_functor(PL_new_atom(","), 2);
   FUNCTOR_equal2 = PL_new_functor(PL_new_atom("="), 2);
 
   PL_register_foreign("init_python",	  0, init_python,      0);
