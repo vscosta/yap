@@ -791,6 +791,23 @@ dynamic_predicate(P,Sem) :-
 	'$flags'(T,Mod,F,F),
 	F\/0x00400000 =\= 0.
 
+stash_predicate(V) :- var(V), !,
+	'$do_error'(instantiation_error,stash_predicate(V)).
+stash_predicate(M:P) :- !,
+	'$stash_predicate2'(P, M).
+stash_predicate(P) :-
+	'$current_module'(M),
+	'$stash_predicate2'(P, M).
+
+'$stash_predicate2'(V, M) :- var(V), !,
+	'$do_error'(instantiation_error,stash_predicate(M:V)).
+'$stash_predicate2'(N/A, M) :- !,
+	functor(S,N,A),
+	'$stash_predicate'(S, M) .
+'$stash_predicate2'(PredDesc, M) :-
+	'$do_error'(type_error(predicate_indicator,PredDesc),stash_predicate(M:PredDesc)).
+
+
 hide_predicate(V) :- var(V), !,
 	'$do_error'(instantiation_error,hide_predicate(V)).
 hide_predicate(M:P) :- !,
