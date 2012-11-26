@@ -482,12 +482,10 @@ void
 LiftedWCNF::addIndicatorClauses (const ParfactorList& pfList)
 {
   ParfactorList::const_iterator it = pfList.begin();
-  set<PrvGroup> allGroups;
   while (it != pfList.end()) {
     const ProbFormulas& formulas = (*it)->arguments();
     for (size_t i = 0; i < formulas.size(); i++) {
-      if (Util::contains (allGroups, formulas[i].group()) == false) {
-        allGroups.insert (formulas[i].group());
+      if (Util::contains (map_, formulas[i].group()) == false) {
         ConstraintTree tempConstr = *(*it)->constr();
         tempConstr.project (formulas[i].logVars());
         Clause clause (tempConstr);
