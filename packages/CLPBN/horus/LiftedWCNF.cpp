@@ -388,18 +388,18 @@ LiftedWCNF::LiftedWCNF (const ParfactorList& pfList)
   addWeight (1, LogAware::log(2.0), LogAware::log(5.0));
   freeLiteralId_ = 2;
   */
-  
-  cout << "FORMULA INDICATORS:" << endl;
-  printFormulaIndicators();
-  cout << endl;
-  
-  cout << "WEIGHTS:" << endl;
-  printWeights();
-  cout << endl;
-  
-  cout << "CLAUSES:" << endl;
-  printClauses();
-  cout << endl;
+
+  if (Globals::verbosity > 1) {
+    cout << "FORMULA INDICATORS:" << endl;
+    printFormulaIndicators();
+    cout << endl;
+    cout << "WEIGHTED INDICATORS:" << endl;
+    printWeights();
+    cout << endl;
+    cout << "CLAUSES:" << endl;
+    printClauses();
+    cout << endl;
+  }
 }
 
 
