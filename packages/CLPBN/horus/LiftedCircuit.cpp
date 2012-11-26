@@ -18,11 +18,6 @@ AndNode::weight (void) const
 {
   double lw = leftBranch_->weight();
   double rw = rightBranch_->weight();
-  if (Globals::logDomain) {
-//    cout << "andw1 = " << std::exp(lw + rw) << endl;
-  } else {
-//    cout << "andw2 = " << lw * rw << endl;
-  }
   return Globals::logDomain ? lw + rw : lw * rw;
 }
 
@@ -251,10 +246,6 @@ LiftedCircuit::compile (
     return;
   }
 
-  if (tryGrounding (follow, clauses)) {
-    return;
-  }
-
   // assert (false);
   *follow = new CompilationFailedNode (clauses);
 }
@@ -266,11 +257,8 @@ LiftedCircuit::tryUnitPropagation (
     CircuitNode** follow,
     Clauses& clauses)
 {
-  // cout << "ALL CLAUSES:" << endl;
-  // Clause::printClauses (clauses);
   for (size_t i = 0; i < clauses.size(); i++) {
     if (clauses[i].isUnit()) {
-      // cout << clauses[i] << " is unit!" << endl;
       Clauses newClauses;
       for (size_t j = 0; j < clauses.size(); j++) {
         if (i != j) {
@@ -553,36 +541,6 @@ LiftedCircuit::tryAtomCounting (
     }
   }
   return false;
-}
-
-
-
-bool
-LiftedCircuit::tryGrounding (
-    CircuitNode**,
-    Clauses&)
-{
-  return false;
-  /*
-  size_t bestClauseIdx = 0;
-  size_t bestLogVarIdx = 0;
-  unsigned minNrSymbols = Util::maxUnsigned();
-  for (size_t i = 0; i < clauses.size(); i++) {
-    LogVarSet lvs = clauses[i].constr().logVars();
-    ConstraintTree ct = clauses[i].constr();
-    for (unsigned j = 0; j < lvs.size(); j++) {
-      unsigned nrSymbols = ct.nrSymbols (lvs[j]);
-      if (nrSymbols < minNrSymbols) {
-        minNrSymbols = nrSymbols;
-        bestClauseIdx = i;
-        bestLogVarIdx = j;
-      }
-    }
-  }
-  LogVar bestLogVar = clauses[bestClauseIdx].constr().logVars()[bestLogVarIdx];
-  ConstraintTrees cts = clauses[bestClauseIdx].constr().ground (bestLogVar);
-  return true;
-  */
 }
 
 
