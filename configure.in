@@ -516,17 +516,19 @@ else
   INSTALL_MATLAB=""
 fi
 
-AC_LANG_PUSH([C++])
-my_save_cxxflags="$CXXFLAGS"
-CXXFLAGS=-std=c++0x
-AC_MSG_CHECKING([whether CXX supports -std-c++0x])
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([])],
+if test "$yap_cv_clpbn_bp"="yes"; then
+  AC_LANG_PUSH([C++])
+  my_save_cxxflags="$CXXFLAGS"
+  CXXFLAGS=-std=c++0x
+  AC_MSG_CHECKING([whether CXX supports -std-c++0x])
+  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([])],
     [AC_MSG_RESULT([yes])]
     [yap_cv_clpbn_bp=yes],
     [AC_MSG_RESULT([no])]
-)
-CXXFLAGS="$my_save_cxxflags"
-AC_LANG_POP()
+  )
+  CXXFLAGS="$my_save_cxxflags"
+  AC_LANG_POP()
+fi
 
 if test "$yap_cv_clpbn_bp" = no 
 then

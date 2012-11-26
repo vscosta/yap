@@ -5059,17 +5059,18 @@ else
   INSTALL_MATLAB=""
 fi
 
-ac_ext=cpp
+if test "$yap_cv_clpbn_bp"="yes"; then
+  ac_ext=cpp
 ac_cpp='$CXXCPP $CPPFLAGS'
 ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
-my_save_cxxflags="$CXXFLAGS"
-CXXFLAGS=-std=c++0x
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether CXX supports -std-c++0x" >&5
+  my_save_cxxflags="$CXXFLAGS"
+  CXXFLAGS=-std=c++0x
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether CXX supports -std-c++0x" >&5
 $as_echo_n "checking whether CXX supports -std-c++0x... " >&6; }
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
 int
@@ -5090,13 +5091,14 @@ $as_echo "no" >&6; }
 
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-CXXFLAGS="$my_save_cxxflags"
-ac_ext=c
+  CXXFLAGS="$my_save_cxxflags"
+  ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
+fi
 
 if test "$yap_cv_clpbn_bp" = no
 then
