@@ -7,6 +7,7 @@
 #include <assert.h>
 
 static atom_t ATOM_true,
+  ATOM_colon,
   ATOM_false,
   ATOM_t;
 
@@ -16,6 +17,9 @@ static functor_t FUNCTOR_dollar1,
   FUNCTOR_any1, 
   FUNCTOR_bin1, 
   FUNCTOR_dir1, 
+  FUNCTOR_float1, 
+  FUNCTOR_int1, 
+  FUNCTOR_long1, 
   FUNCTOR_iter1, 
   FUNCTOR_len1, 
   FUNCTOR_curly1,
@@ -186,6 +190,66 @@ bip_bin(term_t t)
 
 
 static PyObject *
+bip_float(term_t t)
+{
+  PyObject *pVal, *o;
+	
+  if (! PL_get_arg(1, t, t) )
+    return NULL;
+  pVal = term_to_python(t);
+  if (PyLong_Check(pVal)) {
+    o = PyFloat_FromDouble( PyLong_AsLong(pVal) );
+  } else if (PyInt_Check(pVal)) {
+    o =  PyFloat_FromDouble( PyInt_AsLong(pVal) );
+  } else if (PyFloat_Check(pVal)) {
+    return pVal;
+  } else
+    return NULL;
+  Py_DECREF(pVal);
+  return o;
+}
+
+static PyObject *
+bip_int(term_t t)
+{
+  PyObject *pVal, *o;
+	
+  if (! PL_get_arg(1, t, t) )
+    return NULL;
+  pVal = term_to_python(t);
+  if (PyLong_Check(pVal)) {
+    o = PyInt_FromLong( PyLong_AsLong(pVal) );
+  } else if (PyInt_Check(pVal)) {
+    return pVal;
+  } else if (PyFloat_Check(pVal)) {
+    o = PyInt_FromLong( PyFloat_AsDouble(pVal) );
+  } else
+    return NULL;
+  Py_DECREF(pVal);
+  return o;
+}
+
+static PyObject *
+bip_long(term_t t)
+{
+  PyObject *pVal, *o;
+	
+  if (! PL_get_arg(1, t, t) )
+    return NULL;
+  pVal = term_to_python(t);
+  if (PyLong_Check(pVal)) {
+    return pVal;
+  } else if (PyLong_Check(pVal)) {
+    o = PyLong_FromLong( PyInt_AsLong(pVal) );
+  } else if (PyFloat_Check(pVal)) {
+    o = PyLong_FromLong( PyFloat_AsDouble(pVal) );
+  } else
+    return NULL;
+  Py_DECREF(pVal);
+  return o;
+}
+
+static PyObject *
 bip_ord(term_t t)
 {
   PyObject *pVal;
@@ -330,6 +394,12 @@ term_to_python(term_t t)
 	return bip_bin(t);
       } else if (fun == FUNCTOR_ord1) {
 	return bip_ord(t);
+      } else if (fun == FUNCTOR_int1) {
+	return bip_int(t);
+      } else if (fun == FUNCTOR_long1) {
+	return bip_long(t);
+      } else if (fun == FUNCTOR_float1) {
+	return bip_float(t);
       } else if (fun == FUNCTOR_len1) {
 	term_t targ = PL_new_term_ref();
 	PyObject *ptr;
@@ -755,9 +825,9 @@ python_import(term_t mname, term_t mod)
     return FALSE;
   }
   pModule = PyImport_Import(pName);
-  // PyErr_Print();
   Py_DECREF(pName);
   if (pModule == NULL) {
+    PyErr_Clear();
     return FALSE;
   }
   return python_to_term(pModule, mod);
@@ -788,6 +858,7 @@ python_f(term_t tmod, term_t fname, term_t tf)
     return FALSE;
   }
   pF = PyObject_GetAttrString(pModule, s);
+  PyErr_Print();
   Py_DECREF(pModule);
   if (pF == NULL || ! PyCallable_Check(pF)) {
     return FALSE;
@@ -867,6 +938,24 @@ python_apply(term_t tin, term_t targs, term_t tf)
   if (! PL_get_name_arity( targs, &aname, &arity) ) {
     return FALSE;
   }
+  /* follow chains of the form a.b.c.d.e() */
+  while (aname == ATOM_colon && arity == 2) {
+    term_t tleft = PL_new_term_ref();
+    PyObject *lhs;
+
+    if (! PL_get_arg(1, targs, tleft) )
+      return FALSE;
+    lhs = term_to_python(tleft);
+    if ((pF = PyObject_GetAttr(pF, lhs)) == NULL) {
+      PyErr_Print();
+      return FALSE;
+    }
+    if (! PL_get_arg(2, targs, targs) )
+      return FALSE;    
+    if (! PL_get_name_arity( targs, &aname, &arity) ) {
+      return FALSE;
+    }    
+  }
   if (PyFunction_Check(pF)) {
     int tuple_inited = FALSE;
     PyObject *pOpt = NULL;
@@ -916,14 +1005,16 @@ python_apply(term_t tin, term_t targs, term_t tf)
   }
   if (PyCallable_Check(pF)) {
     pValue = PyObject_CallObject(pF, pArgs);      
+    PyErr_Print();
   } else {
+    PyErr_Print();
     return FALSE;
   }
   PyErr_Print();
   Py_DECREF(pArgs);
+  Py_DECREF(pF);
   if (pValue == NULL)
       return FALSE;
-  out = 0;
   out =  python_to_term(pValue, tf);
   Py_DECREF(pValue);
   return out;
@@ -953,8 +1044,10 @@ python_access(term_t obj, term_t f, term_t out)
   if ( PL_is_atom(f) ) {
     if (!PL_get_atom_chars(f, &s))
       return FALSE;
-    if ((pValue = PyObject_GetAttrString(o, s)) == NULL)
+    if ((pValue = PyObject_GetAttrString(o, s)) == NULL) {
+      PyErr_Print();
       return FALSE;  
+    }
     if ( PyCallable_Check(pValue) )
       pValue = PyObject_CallObject(pValue, NULL);
     PyErr_Print();
@@ -962,6 +1055,24 @@ python_access(term_t obj, term_t f, term_t out)
   }
   if (! PL_get_name_arity( f, &name, &arity) ) {
     return FALSE;
+  }
+  /* follow chains of the form a.b.c.d.e() */
+  while (name == ATOM_colon && arity == 2) {
+    term_t tleft = PL_new_term_ref();
+    PyObject *lhs;
+
+    if (! PL_get_arg(1, f, tleft) )
+      return FALSE;
+    lhs = term_to_python(tleft);
+    if ((o = PyObject_GetAttr(o, lhs)) == NULL) {
+      PyErr_Print();
+      return FALSE;        
+    }
+    if (! PL_get_arg(2, f, f) )
+      return FALSE;    
+    if (! PL_get_name_arity( f, &name, &arity) ) {
+      return FALSE;
+    }    
   }
   s = PL_atom_chars(name);
   if ((pF = PyObject_GetAttrString(o, s)) == NULL) {
@@ -1028,6 +1139,7 @@ install_python(void)
 { // FUNCTOR_dot2 = PL_new_functor(PL_new_atom("."), 2);
   // FUNCTOR_equal2 = PL_new_functor(PL_new_atom("="), 2);
   // FUNCTOR_boolop1 = PL_new_functor(PL_new_atom("@"), 1);
+  ATOM_colon = PL_new_atom(":");
   ATOM_true  = PL_new_atom("true");
   ATOM_false = PL_new_atom("false");
   ATOM_t = PL_new_atom("t");
@@ -1036,6 +1148,9 @@ install_python(void)
   FUNCTOR_any1 = PL_new_functor(PL_new_atom("any"), 1);
   FUNCTOR_bin1 = PL_new_functor(PL_new_atom("bin"), 1);
   FUNCTOR_ord1 = PL_new_functor(PL_new_atom("ord"), 1);
+  FUNCTOR_int1 = PL_new_functor(PL_new_atom("int"), 1);
+  FUNCTOR_long1 = PL_new_functor(PL_new_atom("long"), 1);
+  FUNCTOR_float1 = PL_new_functor(PL_new_atom("float"), 1);
   FUNCTOR_curly1 = PL_new_functor(PL_new_atom("{}"), 1);
   FUNCTOR_dollar1 = PL_new_functor(PL_new_atom("$"), 1);
   FUNCTOR_pointer1 = PL_new_functor(PL_new_atom("__obj__"), 1);
