@@ -19,11 +19,16 @@ static functor_t FUNCTOR_dollar1,
   FUNCTOR_dir1, 
   FUNCTOR_float1, 
   FUNCTOR_int1, 
+  FUNCTOR_iter1,
+  FUNCTOR_iter2,
   FUNCTOR_long1, 
-  FUNCTOR_iter1, 
   FUNCTOR_len1, 
   FUNCTOR_curly1,
   FUNCTOR_ord1,
+  FUNCTOR_range1, 
+  FUNCTOR_range2, 
+  FUNCTOR_range3, 
+  FUNCTOR_sum1, 
   FUNCTOR_pointer1, 
   FUNCTOR_complex2, 
   FUNCTOR_plus2, 
@@ -250,6 +255,18 @@ bip_long(term_t t)
 }
 
 static PyObject *
+bip_iter(term_t t)
+{
+  PyObject *v;
+  
+  if (! PL_get_arg(1, t, t) )
+    return NULL;
+  v = term_to_python(t);
+  return PyObject_GetIter(v);
+}
+
+
+static PyObject *
 bip_ord(term_t t)
 {
   PyObject *pVal;
@@ -280,6 +297,254 @@ bip_ord(term_t t)
   } else 
     return NULL;
 }
+
+static PyObject*
+bip_sum(term_t t)
+{
+  PyObject *seq;
+  PyObject *result = NULL;
+  PyObject *temp, *item, *iter;
+
+  if (! PL_get_arg(1, t, t) )
+    return NULL;
+  seq = term_to_python(t);
+  iter = PyObject_GetIter(seq);
+  if (iter == NULL)
+    return NULL;
+
+  if (result == NULL) {
+    result = PyInt_FromLong(0);
+    if (result == NULL) {
+      Py_DECREF(iter);
+      return NULL;
+    }
+  } else {
+    /* reject string values for 'start' parameter */
+    if (PyObject_TypeCheck(result, &PyBaseString_Type)) {
+      PyErr_SetString(PyExc_TypeError,
+		      "sum() can't sum strings [use ''.join(seq) instead]");
+      Py_DECREF(iter);
+      return NULL;
+    }
+    Py_INCREF(result);
+  }
+
+#ifndef SLOW_SUM
+  /* Fast addition by keeping temporary sums in C instead of new Python objects.
+     Assumes all inputs are the same type.  If the assumption fails, default
+     to the more general routine.
+  */
+  if (PyInt_CheckExact(result)) {
+    long i_result = PyInt_AS_LONG(result);
+    Py_DECREF(result);
+    result = NULL;
+    while(result == NULL) {
+      item = PyIter_Next(iter);
+      if (item == NULL) {
+	Py_DECREF(iter);
+	if (PyErr_Occurred())
+	  return NULL;
+	return PyInt_FromLong(i_result);
+      }
+      if (PyInt_CheckExact(item)) {
+	long b = PyInt_AS_LONG(item);
+	long x = i_result + b;
+	if ((x^i_result) >= 0 || (x^b) >= 0) {
+	  i_result = x;
+	  Py_DECREF(item);
+	  continue;
+	}
+      }
+      /* Either overflowed or is not an int. Restore real objects and process normally */
+      result = PyInt_FromLong(i_result);
+      temp = PyNumber_Add(result, item);
+      Py_DECREF(result);
+      Py_DECREF(item);
+      result = temp;
+      if (result == NULL) {
+	Py_DECREF(iter);
+	return NULL;
+      }
+    }
+  }
+
+  if (PyFloat_CheckExact(result)) {
+    double f_result = PyFloat_AS_DOUBLE(result);
+    Py_DECREF(result);
+    result = NULL;
+    while(result == NULL) {
+      item = PyIter_Next(iter);
+      if (item == NULL) {
+	Py_DECREF(iter);
+	if (PyErr_Occurred())
+	  return NULL;
+	return PyFloat_FromDouble(f_result);
+      }
+      if (PyFloat_CheckExact(item)) {
+	PyFPE_START_PROTECT("add", Py_DECREF(item); Py_DECREF(iter); return 0)
+	  f_result += PyFloat_AS_DOUBLE(item);
+	PyFPE_END_PROTECT(f_result)
+	  Py_DECREF(item);
+	continue;
+      }
+      if (PyInt_CheckExact(item)) {
+	PyFPE_START_PROTECT("add", Py_DECREF(item); Py_DECREF(iter); return 0)
+	  f_result += (double)PyInt_AS_LONG(item);
+	PyFPE_END_PROTECT(f_result)
+	  Py_DECREF(item);
+	continue;
+      }
+      result = PyFloat_FromDouble(f_result);
+      temp = PyNumber_Add(result, item);
+      Py_DECREF(result);
+      Py_DECREF(item);
+      result = temp;
+      if (result == NULL) {
+	Py_DECREF(iter);
+	return NULL;
+      }
+    }
+  }
+#endif
+
+  for(;;) {
+    item = PyIter_Next(iter);
+    if (item == NULL) {
+      /* error, or end-of-sequence */
+      if (PyErr_Occurred()) {
+	Py_DECREF(result);
+	result = NULL;
+      }
+      break;
+    }
+    /* It's tempting to use PyNumber_InPlaceAdd instead of
+       PyNumber_Add here, to avoid quadratic running time
+       when doing 'sum(list_of_lists, [])'.  However, this
+       would produce a change in behaviour: a snippet like
+
+       empty = []
+       sum([[x] for x in range(10)], empty)
+
+       would change the value of empty. */
+    temp = PyNumber_Add(result, item);
+    Py_DECREF(result);
+    Py_DECREF(item);
+    result = temp;
+    if (result == NULL)
+      break;
+  }
+  Py_DECREF(iter);
+  return result;
+}
+
+static long
+get_int(term_t arg)
+{
+  long ilow;
+
+  if (!PL_get_long(arg, &ilow)) {
+    PyObject *low = term_to_python(arg);
+    if (PyLong_Check(low)) {
+      return PyLong_AsLong(low);
+    } else if (PyInt_Check(low)) {
+      return PyInt_AsLong(low);
+    } else {
+      return 0;
+    }
+  }
+  return ilow;
+}
+
+
+/* Return number of items in range/xrange (lo, hi, step).  step > 0
+ * required.  Return a value < 0 if & only if the true value is too
+ * large to fit in a signed long.
+ */
+static long
+get_len_of_range(long lo, long hi, long step)
+{
+    /* -------------------------------------------------------------
+    If lo >= hi, the range is empty.
+    Else if n values are in the range, the last one is
+    lo + (n-1)*step, which must be <= hi-1.  Rearranging,
+    n <= (hi - lo - 1)/step + 1, so taking the floor of the RHS gives
+    the proper value.  Since lo < hi in this case, hi-lo-1 >= 0, so
+    the RHS is non-negative and so truncation is the same as the
+    floor.  Letting M be the largest positive long, the worst case
+    for the RHS numerator is hi=M, lo=-M-1, and then
+    hi-lo-1 = M-(-M-1)-1 = 2*M.  Therefore unsigned long has enough
+    precision to compute the RHS exactly.
+    ---------------------------------------------------------------*/
+    long n = 0;
+    if (lo < hi) {
+        unsigned long uhi = (unsigned long)hi;
+        unsigned long ulo = (unsigned long)lo;
+        unsigned long diff = uhi - ulo - 1;
+        n = (long)(diff / (unsigned long)step + 1);
+    }
+    return n;
+}
+
+static PyObject *
+bip_range(term_t t)
+{
+    long ilow = 0, ihigh = 0, istep = 1;
+    long bign;
+    Py_ssize_t i, n;
+    int arity;
+    atom_t name;
+    term_t arg = PL_new_term_ref();
+
+    PyObject *v;
+
+    if (!PL_get_name_arity(t, &name, &arity) )
+	return NULL;
+    if (! PL_get_arg(1, t, arg) )
+      return NULL;
+    ilow = get_int(arg);
+    if (arity == 1) {
+      ihigh = ilow;
+      ilow = 0;
+    } else {
+      if (! PL_get_arg(2, t, arg) )
+	return NULL;
+      ihigh = get_int(arg);
+      if (arity == 3) {
+	if (! PL_get_arg(3, t, arg) )
+	  return NULL;
+	istep = get_int(arg);
+      }
+    }
+    if (istep == 0) {
+        PyErr_SetString(PyExc_ValueError,
+                        "range() step argument must not be zero");
+        return NULL;
+    }
+    if (istep > 0)
+        bign = get_len_of_range(ilow, ihigh, istep);
+    else
+        bign = get_len_of_range(ihigh, ilow, -istep);
+    n = (Py_ssize_t)bign;
+    if (bign < 0 || (long)n != bign) {
+        PyErr_SetString(PyExc_OverflowError,
+                        "range() result has too many items");
+        return NULL;
+    }
+    v = PyList_New(n);
+    if (v == NULL)
+        return NULL;
+    for (i = 0; i < n; i++) {
+        PyObject *w = PyInt_FromLong(ilow);
+        if (w == NULL) {
+            Py_DECREF(v);
+            return NULL;
+        }
+        PyList_SET_ITEM(v, i, w);
+        ilow += istep;
+    }
+    return v;
+}
+
 
 static PyObject *
 term_to_python(term_t t)
@@ -400,6 +665,14 @@ term_to_python(term_t t)
 	return bip_long(t);
       } else if (fun == FUNCTOR_float1) {
 	return bip_float(t);
+      } else if (fun == FUNCTOR_iter1) {
+	return bip_iter(t);
+      } else if (fun == FUNCTOR_range1 ||
+		 fun == FUNCTOR_range2 ||
+		 fun == FUNCTOR_range3) {
+	return bip_range(t);
+      } else if (fun == FUNCTOR_sum1) {
+	return bip_sum(t);
       } else if (fun == FUNCTOR_len1) {
 	term_t targ = PL_new_term_ref();
 	PyObject *ptr;
@@ -416,14 +689,6 @@ term_to_python(term_t t)
 	  return NULL;
 	ptr = term_to_python(targ);
 	return PyObject_Dir(ptr);
-      } else if (fun == FUNCTOR_iter1) {
-	term_t targ = PL_new_term_ref();
-	PyObject *ptr;
-
-	if (! PL_get_arg(1, t, targ) )
-	  return NULL;
-	ptr = term_to_python(targ);
-	return PyObject_GetIter(ptr);
       } else if (fun == FUNCTOR_complex2) {
 	term_t targ = PL_new_term_ref();
 	PyObject *lhs, *rhs;
@@ -1051,6 +1316,8 @@ python_access(term_t obj, term_t f, term_t out)
     if ( PyCallable_Check(pValue) )
       pValue = PyObject_CallObject(pValue, NULL);
     PyErr_Print();
+    if (!pValue)
+      return FALSE;
     return python_to_term(pValue, out);
   }
   if (! PL_get_name_arity( f, &name, &arity) ) {
@@ -1156,7 +1423,12 @@ install_python(void)
   FUNCTOR_pointer1 = PL_new_functor(PL_new_atom("__obj__"), 1);
   FUNCTOR_dir1 = PL_new_functor(PL_new_atom("dir"), 1);
   FUNCTOR_iter1 = PL_new_functor(PL_new_atom("iter"), 1);
+  FUNCTOR_iter2 = PL_new_functor(PL_new_atom("iter"), 2);
   FUNCTOR_len1 = PL_new_functor(PL_new_atom("len"), 1);
+  FUNCTOR_range1 = PL_new_functor(PL_new_atom("range"), 1);
+  FUNCTOR_range2 = PL_new_functor(PL_new_atom("range"), 2);
+  FUNCTOR_range3 = PL_new_functor(PL_new_atom("range"), 3);
+  FUNCTOR_sum1 = PL_new_functor(PL_new_atom("sum"), 1);
   FUNCTOR_complex2 = PL_new_functor(PL_new_atom("complex"), 2);
   FUNCTOR_plus2 = PL_new_functor(PL_new_atom("+"), 2);
   FUNCTOR_sub2 = PL_new_functor(PL_new_atom("-"), 2);

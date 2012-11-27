@@ -95,21 +95,23 @@ module_extend(M, E, M, E, MRef, MRef).
 python_eval_term(Expression, O) :-
 	fetch_module(Expression, Module, Exp, MRef), !,
 	(
-	    atom(Exp)
-        ->
-	    python_access(MRef, Exp, O)
-	;
-	    Exp = Obj:Method
-        ->
+	 % avoid looking at : as field of module.
+	    Exp = Obj:Field
+	->
 	    python_access(MRef, Exp, O)
 	;
 	    functor(Exp, F, _),
 	    python_f(MRef, F, FRef),
-	    python_check_args(FRef, Exp, NExp),
+	    python_check_args(FRef, Exp, NExp)
+	->
 	    python_apply(FRef, NExp, O)
+	;
+	    python_access(MRef, Exp, O)
 	).
-python_eval_term(Obj:Field, O) :-
+python_eval_term(Obj:Field, O) :- !,
 	python_access(Obj, Field, O).
+python_eval_term(Obj, O) :-
+	python_is(Obj, O).
 
 
 python_check_args(FRef, Exp, NExp) :-
@@ -136,26 +138,7 @@ match_args([A|LArgs], Dict, [A|NLArgs], not_ok) :-
 	match_args(LArgs, Dict, NLArgs, _).
 
 python(Obj, Out) :-
-	 python_eval_term(Obj, Out), !.
-python(Obj, OArg) :-
-	python_do_is(Obj, Obj1),
-	python_is(Obj1, OArg).
-
-python_do_is(A+B, NA+NB) :- !,
-	python_do_is(A, NA),
-	python_do_is(B, NB).
-python_do_is(A-B, NA-NB) :- !,
-	python_do_is(A, NA),
-	python_do_is(B, NB).
-python_do_is(A*B, NA*NB) :- !,
-	python_do_is(A, NA),
-	python_do_is(B, NB).
-python_do_is(A/B, NA/NB) :- !,
-	python_do_is(A, NA),
-	python_do_is(B, NB).
-python_do_is(A, NA) :-
-	python_eval_term(A, NA), !.
-python_do_is(A, A).
+	 python_eval_term(Obj, Out).
 
 python_command(Cmd) :-
        python_run_command(Cmd).

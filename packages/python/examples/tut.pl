@@ -112,7 +112,7 @@ ex(slices) :-
 
 ex(lists) :-
 	a := [66.25, 333, 333, 1, 1234.5],
-        A1 := $a:count(333), A2 := $a:count(66.25), A3 := $a:count('x'),
+        A1 := $a:count(333), A2 := $a:count(66.25), A3 := $a:count(x),
 	format('counts=~d ~d ~d~n',[A1,A2,A3]),
 	:= $a:insert(2, -1),
 	:= $a:append(333),
@@ -128,4 +128,27 @@ ex(lists) :-
 	:= $a:sort,
 	D := $a,
 	format('a=~w~n', [D]).
+
+ex(iter) :-
+	it := iter(abc),
+	format('iter= ', []),
+	iterate(iter).
+
+iterate(iter) :-
+	repeat,
+	( X1 := $it:next,
+	  format('i ~a~n', [X1])
+	->
+	  fail
+	;
+	  !
+	).
+
+ex(range) :-
+	r1 := range(1000),
+	r2 := range(1000,2000),
+	r3 := range(2000,10000,1),
+	S := sum($r1+ $r2+ $r3),
+	format('range=~d~n', [S]).
+
 
