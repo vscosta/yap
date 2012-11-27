@@ -99,6 +99,10 @@ python_eval_term(Expression, O) :-
         ->
 	    python_access(MRef, Exp, O)
 	;
+	    Exp = Obj:Method
+        ->
+	    python_access(MRef, Exp, O)
+	;
 	    functor(Exp, F, _),
 	    python_f(MRef, F, FRef),
 	    python_check_args(FRef, Exp, NExp),
@@ -115,12 +119,12 @@ python_check_args(FRef, Exp, NExp) :-
 	Exp =.. [F|LArgs],
 	match_args(LArgs, Dict, NLArgs, _),
 	NExp =.. [F|NLArgs].
-python_check_args(FRef, Exp, NExp).
+python_check_args(FRef, Exp, Exp).
 
 fetch_args(FRef, Args) :-
 	python_import('inspect', M),
 	python_f(M, getargspec, F),
-	python_apply(F, getargspec(FRef), ExtraArgs),
+	python_apply(F, getargspec(FRef), Args),
 	ExtraArgs=t(Args, _, _, _).
 
 
