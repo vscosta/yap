@@ -156,10 +156,9 @@ TrueNode::weight (void) const
 double
 CompilationFailedNode::weight (void) const
 {
-  // we should not perform model counting
-  // in compilation failed nodes
-  // abort();
-  return 0.0;
+  // weighted model counting in compilation
+  // failed nodes should give nan
+  return 0.0 / 0.0;
 }
 
 
@@ -168,14 +167,25 @@ LiftedCircuit::LiftedCircuit (const LiftedWCNF* lwcnf)
     : lwcnf_(lwcnf)
 {
   root_ = 0;
+  compilationSucceeded_ = true;
   Clauses clauses = lwcnf->clauses();
   compile (&root_, clauses);
   if (Globals::verbosity > 1) {
     smoothCircuit (root_);
     exportToGraphViz("circuit.smooth.dot");
-    double wmc = LogAware::exp (getWeightedModelCount());
-    cout << "WEIGHTED MODEL COUNT: " << wmc << endl << endl;
+    if (compilationSucceeded_) {
+      double wmc = LogAware::exp (getWeightedModelCount());
+      cout << "WEIGHTED MODEL COUNT: " << wmc << endl << endl;
+    }
   }
+}
+
+
+
+bool
+LiftedCircuit::isCompilationSucceeded (void) const
+{
+  return compilationSucceeded_;
 }
 
 
@@ -183,6 +193,7 @@ LiftedCircuit::LiftedCircuit (const LiftedWCNF* lwcnf)
 double
 LiftedCircuit::getWeightedModelCount (void) const
 {
+  assert (compilationSucceeded_);
   return root_->weight();
 }
 
@@ -211,6 +222,11 @@ LiftedCircuit::compile (
     CircuitNode** follow,
     Clauses& clauses)
 {
+  if (compilationSucceeded_ == false
+      && Globals::verbosity <= 1) {
+    return;
+  }
+
   if (clauses.empty()) {
     *follow = new TrueNode ();
     return;
@@ -245,8 +261,8 @@ LiftedCircuit::compile (
     return;
   }
 
-  // assert (false);
   *follow = new CompilationFailedNode (clauses);
+  compilationSucceeded_ = false;
 }
 
 

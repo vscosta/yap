@@ -209,7 +209,9 @@ class CompilationFailedNode : public CircuitNode
 class LiftedCircuit
 {
   public:
-    LiftedCircuit (const LiftedWCNF* lwcnf);    
+    LiftedCircuit (const LiftedWCNF* lwcnf);
+
+    bool isCompilationSucceeded (void) const;
 
     double getWeightedModelCount (void) const;
 
@@ -266,6 +268,7 @@ class LiftedCircuit
 
     CircuitNode*       root_;
     const LiftedWCNF*  lwcnf_;
+    bool               compilationSucceeded_;
 };
 
 #endif // HORUS_LIFTEDCIRCUIT_H
