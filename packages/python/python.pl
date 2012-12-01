@@ -59,8 +59,7 @@ Data types are
 :- use_module(library(lists)).
 :- use_module(library(apply_macros)).
 :- use_module(library(charsio)).
-
-:- dynamic python_mref_cache/2.
+:- dynamic python_mref_cache/2, python_obj_cache/2.
 
 := F :- python(F,_).
 
@@ -91,51 +90,127 @@ module_extend(M0, M:E, MF, EF, MRef0, MRef) :-
 	module_extend(MM, E, MF, EF, MRef1, MRef).
 module_extend(M, E, M, E, MRef, MRef).
 
-% given an object, detect its len method
-python_eval_term(Expression, O) :-
-	fetch_module(Expression, Module, Exp, MRef), !,
+object_prefix('__obj__'(_)).
+object_prefix('$'(_)).
+object_prefix('__obj__'(_):_).
+object_prefix('$'(_):_).
+
+% from an exp take an object, and its corresponding Prolog representation
+descend_exp(V, _Obj, _F, _S) :-
+	var(V), !,
+	throw(error(instantiation_error,_)).
+descend_exp(Exp, Obj, F, S) :-
+	object_prefix(Exp),
+	!,
+	python_field(Exp, Obj, F, S).
+descend_exp(Exp, Obj, F, S) :-
+	python_mref_cache(_, MObj),
+	python_field(MObj:Exp, Obj, F, S), !.
+descend_exp(Mod:Exp, Obj, F, S) :-
+	atom(Mod), 
+	python_import(Mod, MObj),
+	python_field(MObj:Exp, Obj, F, S), !.
+
+python_class(Obj) :-
+	python_obj_cache(inspect:isclass(_), F),
+	python_apply(F, isclass(Obj), {}, true).
+
+process_obj(Obj, _, S, Obj, NS, Dict) :-
+	python_callable(Obj), !,
+	python_check_args(Obj, Obj, S, NS, Dict).
+process_obj(Obj, _, S, Obj, NS, Dict) :-
+	python_class(Obj),
+	descend_object(Obj:'__init__', FObj, _, _),
+	python_check_args(Obj, FObj,  S, NS, Dict).
+
+python_eval_term(Obj, Obj) :-
+	var(Obj), !.
+python_eval_term('__obj__'(Obj), '__obj__'(Obj)) :- !.
+python_eval_term($Name, Obj) :- !,
+	python_is($Name, Obj).
+python_eval_term([H|T], [NH|NT]) :- !,
+	python_eval_term(H, NH),
+	python_eval_term(T, NT).
+python_eval_term(N, N) :- atomic(N), !.
+python_eval_term(Exp, O) :-
+	descend_exp(Exp, Obj, Old, S), !,
 	(
-	 % avoid looking at : as field of module.
-	    Exp = Obj:Field
+	    python_function(Obj)
 	->
-	    python_access(MRef, Exp, O)
+	    python_check_args(Obj, Obj, S, NS, Dict),
+	    python_apply(Ob, NS, Dict, O)
 	;
-	    functor(Exp, F, _),
-	    python_f(MRef, F, FRef),
-	    python_check_args(FRef, Exp, NExp)
+	    descend_exp(Obj:im_func, FObj, _, _)
 	->
-	    python_apply(FRef, NExp, O)
-	;
-	    python_access(MRef, Exp, O)
+	    python_check_args(FObj, Obj, S, NS, Dict),
+	    python_apply(Obj, NS, Dict, O)
+        ;
+	    descend_exp(Obj:'__init__':im_func, FObj, _, _)
+	->
+	    python_check_args(FObj, Obj, S, NS, Dict),
+	    python_apply(Obj, NS, Dict, O)
+        ;
+	    python_check_args('.', '.', S, NS, {}),
+	    python_is(NS, O)
 	).
-python_eval_term(Obj:Field, O) :- !,
-	python_access(Obj, Field, O).
-python_eval_term(Obj, O) :-
-	python_is(Obj, O).
+python_eval_term(S, O) :-
+	python_check_args('.', '.', S, NS, {}),
+	python_is(NS, O).	
 
-
-python_check_args(FRef, Exp, NExp) :-
+python_check_args(_FRef, _Ref, Exp, t, {}) :-
+	Exp =.. [_,V], var(V), !.
+python_check_args(FRef, Ref, Exp, NExp, Dict) :-
 	functor(Exp, _, Arity),
-	arg(Arity, Exp, _=_), !,
-	fetch_args(FRef, Dict),
-	Exp =.. [F|LArgs],
-	match_args(LArgs, Dict, NLArgs, _),
-	NExp =.. [F|NLArgs].
-python_check_args(FRef, Exp, Exp).
+	arg(Arity, Exp, A), nonvar(A), A = (_=_), !,
+	fetch_args(FRef, ArgNames0, Kwd, Defaults),
+	Exp =.. [_F|LArgs],
+	Defaults =.. [t|DefsL],
+	splice_class(FRef, Ref, ArgNames0, ArgNames),
+	match_args(LArgs, ArgNames, DefsL, NLArgs, Dict),
+	NExp =.. [t|NLArgs].
+python_check_args(FRef, _, Exp, NExp, {}) :-
+	Exp =.. [F|L],
+	maplist(python_eval_term, L, LF),
+	NExp =.. [F|LF].
 
-fetch_args(FRef, Args) :-
-	python_import('inspect', M),
-	python_f(M, getargspec, F),
-	python_apply(F, getargspec(FRef), Args),
-	ExtraArgs=t(Args, _, _, _).
+% in case it is __init__ from __new__
+splice_class(Ref, Ref, ArgNames, ArgNames) :- !.
+splice_class(_FRef, _Ref, [_|ArgNames], ArgNames).
+
+match_args([], _ArgNames, _Defaults, [], {}).
+match_args([V=A|LArgs], ArgNames, Defaults, NLArgs, Dict) :- !,
+	match_named_args([V=A|LArgs], ArgNames, Defaults, NLArgs, Map),
+	map_to_dict(Map, Dict).
+match_args([A|LArgs], [_|ArgNames], [_|Defaults], [VA|NLArgs], Dict) :-
+	python_eval_term(A, VA),
+	match_args(LArgs, ArgNames, Defaults, NLArgs, Dict).
+
+match_named_args([], _ArgNames, Defaults, Defaults, []).
+match_named_args([K=A|LArgs], ArgNames, Defaults, NLArgs, Map) :-
+	match_from_anames(ArgNames, K, VA, Defaults, NDefaults), !,
+	python_eval_term(A, VA),
+	match_named_args(LArgs, ArgNames, NDefaults, NLArgs, Map).
+match_named_args([K=A|LArgs], ArgNames, Defaults, NLArgs, [K=VA|Map]) :-
+	python_eval_term(A, VA),
+	match_named_args(LArgs, ArgNames, Defaults, NLArgs, Map).
 
 
-match_args([], _, [], ok).
-match_args([A=V|LArgs], Dict, [I=V|NLArgs], OK) :-
-	match_args(LArgs, Dict, NLArgs,  ok), !,
-	( nth0(I, Dict, A) -> true ; throw(type_error(argument(A=V))) ).
-match_args([A|LArgs], Dict, [A|NLArgs], not_ok) :-
-	match_args(LArgs, Dict, NLArgs, _).
+map_to_dict([X=V], {X:V}) :- !.
+map_to_dict([X=V|Map], {X:V,NDict}) :-
+	map_to_dict(Map, {NDict}).
+
+match_from_anames([K|_ArgNames], K, VA, [_|Defaults], [VA|Defaults]) :- !.
+match_from_anames([_|ArgNames], K, VA, [V|Defaults], [V|NDefaults]) :-
+	match_from_anames(ArgNames, K, VA, Defaults, NDefaults).
+
+fetch_args(FRef, Args, Kwd, Defaults) :-
+	FRef = '__obj__'(_), !,
+	python_mref_cache('inspect', M),
+	python_obj_cache(inspect:getargspec(_), F),
+	python_apply(F, getargspec(FRef), {}, ExtraArgs),
+	ExtraArgs=t(Args, _, Kwd, Defaults).
+fetch_args(_, []).
+
 
 python(Obj, Out) :-
 	 python_eval_term(Obj, Out).
@@ -146,8 +221,15 @@ python_command(Cmd) :-
 start_python :-
 	use_foreign_library(foreign(python)),
 	init_python,
+	python_main_module(MRef),
+	assert(python_mref_cache('__main__', MRef)),
 	python_command('import sys'),
-	python_command('import inspect').
+	python_import('inspect'),
+	python_mref_cache(inspect, InspRef),
+	python_field(InspRef:isclass(_), IsClass, _, _),
+	assert(python_obj_cache(inspect:isclass(_), IsClass)),
+	python_field(InspRef:getargspec(_), GetArgSpec, _, _),
+	assert(python_obj_cache(inspect:getargspec(_), GetArgSpec)).
 
 add_cwd_to_python :-
 	unix(getcwd(Dir)),

@@ -43,6 +43,9 @@ static functor_t FUNCTOR_dollar1,
 static PyObject *py_Main;
 static PyObject *term_to_python(term_t t);
 
+static PyObject *ActiveModules[32];
+static int active_modules = 0;
+
 static inline int
 proper_ascii_string(char *s)
 {
@@ -65,6 +68,37 @@ get_p_int(PyObject *o, Py_ssize_t def) {
     return PyInt_AsLong(o);
   }
   return def;
+}
+
+static PyObject *
+find_obj(PyObject *ob, term_t lhs)
+{
+  char *s;
+  PyObject *out, *pName;
+  int arity = 0;
+
+  if (!PL_get_atom_chars(lhs, &s)) {
+    atom_t name;
+    if (!PL_get_name_arity(lhs, &name, &arity) )
+	return NULL;
+    s = PL_atom_chars(name);
+  }
+  if (ob) {
+    out = PyObject_GetAttrString(ob, s);
+    return out;
+  }
+  if (!ob && !arity) {
+    pName = PyString_FromString(s);
+    if (pName == NULL) {
+      return NULL;
+    }
+    if (( out = PyImport_Import(pName))) {
+      return out;
+    }
+  }
+  if (!ob && py_Main && (out = PyObject_GetAttrString(py_Main, s) ) )
+    return out;
+  return NULL;
 }
 
 static int
@@ -647,6 +681,7 @@ term_to_python(term_t t)
 	  return NULL;
 	if (!PL_get_pointer(targ, &ptr))
 	  return NULL;
+	Py_INCREF((PyObject *)ptr);
 	/* return __main__,s */
 	return (PyObject *)ptr;
       } else if (fun == FUNCTOR_abs1) {
@@ -839,6 +874,61 @@ term_to_python(term_t t)
 	  rhs = term_to_python(trhs);
 	  return PyObject_GetItem(lhs, rhs);
 	}
+      } else if (fun == FUNCTOR_colon2) {
+	term_t tleft = PL_new_term_ref();
+	PyObject *pArgs, *o;
+	long i;
+	int arity;
+	atom_t name;
+
+	o = NULL;
+	while (fun == FUNCTOR_colon2) {
+	  if (! PL_get_arg(1, t, tleft) )
+	    return FALSE;
+	  o = find_obj(o, tleft);
+	  if (!o)
+	    return FALSE;
+	  if (! PL_get_arg(2, t, t) )
+	    return FALSE;    
+	  if (!PL_get_functor(t, &fun))
+	    break;
+	}
+	if (! PL_get_name_arity( t, &name, &arity) ) {
+	  return NULL;
+	}
+	if (!arity) {
+	  char *s;
+	  PyObject *pValue;
+
+	  if (!PL_get_atom_chars(t, &s))
+	    return NULL;
+	  if ((pValue = PyObject_GetAttrString(o, s)) == NULL) {
+	    PyErr_Print();
+	    return NULL;  
+	  }
+	  return pValue;
+	}
+	o = PyObject_GetAttrString(o, PL_atom_chars(name));
+	if (!o || ! PyCallable_Check(o)) {
+	  return NULL;
+	}
+	pArgs = PyTuple_New(arity);
+	for (i = 0 ; i < arity; i++) {
+	  PyObject *pArg;
+	  if (! PL_get_arg(i+1, t, tleft) )
+	    return NULL;
+	  /* ignore (_) */
+	  if (i == 0 && PL_is_variable(tleft)) {
+	    Py_DECREF(pArgs);
+	    pArgs = NULL;
+	  }
+	  pArg = term_to_python(tleft);
+	  if (pArg == NULL)
+	    return NULL;
+	  /* pArg reference stolen here: */
+	  PyTuple_SetItem(pArgs, i,  pArg);
+	}
+	return PyObject_CallObject(o, pArgs);
       } else {
 	atom_t name;
 	int len;
@@ -976,6 +1066,16 @@ assign_python(PyObject *root, term_t t, PyObject *e)
 }
 
 static foreign_t
+address_to_term(PyObject *pVal, term_t t)
+{
+    term_t to = PL_new_term_ref(), t1 = PL_new_term_ref();
+    PL_put_pointer(t1, (void *)pVal);
+    PL_cons_functor(to, FUNCTOR_pointer1, t1);
+    Py_INCREF(pVal);
+    return PL_unify(t, to);  
+}
+
+static foreign_t
 python_to_term(PyObject *pVal, term_t t)
 {
   if (PyBool_Check(pVal)) {
@@ -1067,11 +1167,7 @@ python_to_term(PyObject *pVal, term_t t)
     PL_cons_functor(to, FUNCTOR_curly1, to);
     return PL_unify(t, to);
   } else {
-    term_t to = PL_new_term_ref(), t1 = PL_new_term_ref();
-    PL_put_pointer(t1, (void *)pVal);
-    PL_cons_functor(to, FUNCTOR_pointer1, t1);
-    Py_INCREF(pVal);
-    return PL_unify(t, to);
+    return address_to_term(pVal, t);
   }
 }
 
@@ -1095,6 +1191,7 @@ python_import(term_t mname, term_t mod)
     PyErr_Clear();
     return FALSE;
   }
+  ActiveModules[active_modules++] = pModule;
   return python_to_term(pModule, mod);
 }
 
@@ -1187,96 +1284,68 @@ python_is(term_t tobj, term_t tf)
 }
 
 static foreign_t
-python_apply(term_t tin, term_t targs, term_t tf)
+python_apply(term_t tin, term_t targs, term_t keywds, term_t tf)
 { 
   PyObject *pF, *pValue;
-  PyObject *pArgs;
-  int i, arity, j;
+  PyObject *pArgs, *pKeywords;
+  int i, arity;
   atom_t aname;
   foreign_t out;
   term_t targ = PL_new_term_ref();
 
   pF = term_to_python(tin);
+  if (PL_is_atom(keywds) )
+    pKeywords = NULL;
+  else
+    pKeywords = term_to_python(keywds);
   if ( pF == NULL ) {
     return FALSE;
   }
   if (! PL_get_name_arity( targs, &aname, &arity) ) {
     return FALSE;
   }
-  /* follow chains of the form a.b.c.d.e() */
-  while (aname == ATOM_colon && arity == 2) {
-    term_t tleft = PL_new_term_ref();
-    PyObject *lhs;
-
-    if (! PL_get_arg(1, targs, tleft) )
+  PyObject_Print(pF,stderr,0);fprintf(stderr, "\n");
+  if (aname == ATOM_t) {
+    if (arity == 0) 
+      pArgs = NULL;
+    else
+      pArgs = term_to_python( targs );
+    PyObject_Print(pArgs,stderr,0);fprintf(stderr, " ");
+    PyObject_Print(pKeywords,stderr,0);fprintf(stderr, "\n");
+  } else {
+    pArgs = PyTuple_New(arity);
+    if (!pArgs)
       return FALSE;
-    lhs = term_to_python(tleft);
-    if ((pF = PyObject_GetAttr(pF, lhs)) == NULL) {
-      PyErr_Print();
-      return FALSE;
-    }
-    if (! PL_get_arg(2, targs, targs) )
-      return FALSE;    
-    if (! PL_get_name_arity( targs, &aname, &arity) ) {
-      return FALSE;
-    }    
-  }
-  if (PyFunction_Check(pF)) {
-    int tuple_inited = FALSE;
-    PyObject *pOpt = NULL;
-    for (j = arity ; j > 0; j--) {
-      term_t tsubarg = PL_new_term_ref();
+    for (i = 0 ; i < arity; i++) {
       PyObject *pArg;
-      int posx;
-      Py_ssize_t pos;
-
-      if (! PL_get_arg(j, targs, targ) )
+      if (! PL_get_arg(i+1, targs, targ) )
 	return FALSE;
-      if (! PL_is_functor(targ, FUNCTOR_equal2) )
+      /* ignore (_) */
+      if (i == 0 && PL_is_variable(targ)) {
+	Py_DECREF(pArgs);
+	pArgs = NULL;
 	break;
-      if (! PL_get_arg(1, targ, tsubarg) || !PL_get_integer(tsubarg, &posx) )
-	break;
-      pos = posx;
-      if (!tuple_inited) {
-	if ((pOpt = PyFunction_GetDefaults(pF)) == NULL)
-	  break;
-	tuple_inited = TRUE;
       }
-      if (! PL_get_arg(2, targ, tsubarg) )
-	break;
-      pArg = term_to_python(tsubarg);
+      pArg = term_to_python(targ);
       if (pArg == NULL)
 	return FALSE;
       /* pArg reference stolen here: */
-      PyTuple_SetItem(pOpt, pos,  pArg);
+      PyTuple_SetItem(pArgs, i,  pArg);
     }
-    if (tuple_inited) {
-      if (PyFunction_SetDefaults(pF, pOpt) < 0) {
-	return FALSE;
-      }
-      arity = j;
-    }
-  }
-  pArgs = PyTuple_New(arity);
-  for (i = 0 ; i < arity; i++) {
-    PyObject *pArg;
-    if (! PL_get_arg(i+1, targs, targ) )
-      return FALSE;
-    pArg = term_to_python(targ);
-    if (pArg == NULL)
-      return FALSE;
-    /* pArg reference stolen here: */
-    PyTuple_SetItem(pArgs, i,  pArg);
   }
   if (PyCallable_Check(pF)) {
-    pValue = PyObject_CallObject(pF, pArgs);      
-    PyErr_Print();
+    if (!arity)
+      pValue = PyObject_CallObject(pF, NULL);
+    else
+      pValue = PyObject_Call(pF, pArgs, pKeywords);
+    if (!pValue)
+      PyErr_Print();
   } else {
     PyErr_Print();
     return FALSE;
   }
-  PyErr_Print();
-  Py_DECREF(pArgs);
+  if (pArgs)
+    Py_DECREF(pArgs);
   Py_DECREF(pF);
   if (pValue == NULL)
       return FALSE;
@@ -1313,11 +1382,6 @@ python_access(term_t obj, term_t f, term_t out)
       PyErr_Print();
       return FALSE;  
     }
-    if ( PyCallable_Check(pValue) )
-      pValue = PyObject_CallObject(pValue, NULL);
-    PyErr_Print();
-    if (!pValue)
-      return FALSE;
     return python_to_term(pValue, out);
   }
   if (! PL_get_name_arity( f, &name, &arity) ) {
@@ -1351,6 +1415,11 @@ python_access(term_t obj, term_t f, term_t out)
     PyObject *pArg;
     if (! PL_get_arg(i+1, f, targ) )
       return FALSE;
+    /* ignore (_) */
+    if (i == 0 && PL_is_variable(targ)) {
+      Py_DECREF(pArgs);
+      pArgs = NULL;
+    }
     pArg = term_to_python(targ);
     if (pArg == NULL)
       return FALSE;
@@ -1366,6 +1435,66 @@ python_access(term_t obj, term_t f, term_t out)
   Py_DECREF(pArgs);
   Py_DECREF(pF);
   return python_to_term(pValue, out);
+}
+
+static foreign_t
+python_field(term_t f, term_t tobj, term_t tname, term_t tout)
+{
+  PyObject *o = NULL, *pF;
+  atom_t name;
+  char *s;
+  int arity;
+
+  if (! PL_get_name_arity( f, &name, &arity) ) {
+    return FALSE;
+  }
+  /* follow chains of the form a.b.c.d.e() */
+  while (name == ATOM_colon && arity == 2) {
+    term_t tleft = PL_new_term_ref();
+    PyObject *lhs;
+
+   if (! PL_get_arg(1, f, tleft) )
+      return FALSE;
+    lhs = term_to_python(tleft);
+    if (o == NULL) {
+      o = lhs;
+    } else if ((o = PyObject_GetAttr(o, lhs)) == NULL) {
+      //      PyErr_Print();
+      PyErr_Clear();
+      return FALSE;        
+    }
+    if (! PL_get_arg(2, f, f) )
+      return FALSE;    
+    if (! PL_get_name_arity( f, &name, &arity) ) {
+      return FALSE;
+    }    
+  }
+  s = PL_atom_chars(name);
+  if (!s || !o) {
+    return FALSE;
+  } else if ((pF = PyObject_GetAttrString(o, s)) == NULL) {
+    //    PyErr_Print();
+    PyErr_Clear();
+    return FALSE;  
+  }
+  return
+    address_to_term(pF, tobj) &&
+    PL_unify_atom(tname, name) &&
+    PL_unify(tout, f);
+}
+
+static foreign_t
+python_main_module(term_t mod)
+{ 
+  return address_to_term(py_Main, mod);
+}
+
+static foreign_t
+python_function(term_t tobj)
+{ 
+  PyObject *obj = term_to_python(tobj);
+
+  return PyFunction_Check(obj);
 }
 
 static foreign_t
@@ -1447,9 +1576,12 @@ install_python(void)
   PL_register_foreign("python_len",	  2, python_len,       0);
   PL_register_foreign("python_is",	  2, python_is,       0);
   PL_register_foreign("python_dir",	  2, python_dir,       0);
-  PL_register_foreign("python_apply",	  3, python_apply,       0);
+  PL_register_foreign("python_apply",	  4, python_apply,       0);
   PL_register_foreign("python_access",	  3, python_access,       0);
+  PL_register_foreign("python_field",	  4, python_field,       0);
   PL_register_foreign("python_assign",	  2, python_assign,       0);
+  PL_register_foreign("python_function",  1, python_function,       0);
   PL_register_foreign("python_run_command",	  1, python_run_command,       0);
+  PL_register_foreign("python_main_module",	  1, python_main_module,       0);
 }
 

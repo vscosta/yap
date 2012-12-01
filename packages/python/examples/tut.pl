@@ -41,7 +41,7 @@ ex(home) :-
 	).
 
 ex(site) :-
-	X := site:getusersitepackages,
+	X := site:getusersitepackages(_),
 	format('site packages=~a~n',[X]).
 
 ex(arith) :-
@@ -122,10 +122,10 @@ ex(lists) :-
 	:= $a:remove(333),
 	B := $a,
 	format('a=~w~n', [B]),
-	:= $a:reverse,
+	:= $a:reverse(_),
 	C := $a,
 	format('a=~w~n', [C]),
-	:= $a:sort,
+	:= $a:sort(_),
 	D := $a,
 	format('a=~w~n', [D]).
 
