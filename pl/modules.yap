@@ -586,6 +586,7 @@ source_module(Mod) :-
 	assertz(:),
 	assertz(:,+),
 	assertz_static(:),
+	at_halt(0),
 	bagof(?,0,-),
 	bb_get(:,-),
 	bb_put(:,+),

@@ -92,7 +92,6 @@ true :- true.
 	'$init_or_threads',
 	'$run_at_thread_start'.
 
-
 '$init_globals' :-
 	'$init_consult',
 	nb_setval('$chr_toplevel_show_store',false),
@@ -218,7 +217,7 @@ true :- true.
 	get_value('$top_level_goal',GA), GA \= [], !,
 	set_value('$top_level_goal',[]),
 	'$run_atom_goal'(GA),
-	set_value('$live','$false').
+	halt(0).
 '$enter_top_level' :-
 	'$disable_docreep',
 	'$run_toplevel_hooks',
@@ -229,8 +228,7 @@ true :- true.
 	nb_setval('$debug_run',off),
 	nb_setval('$debug_jump',off),
 	'$command'(Command,Varnames,_Pos,top),
-	'$sync_mmapped_arrays',
-	set_value('$live','$false').
+	halt(0).
 
 
  '$erase_sets' :- 
@@ -537,7 +535,7 @@ true :- true.
 	  yap_hacks:current_choice_point(NCP1),
 	  '$attributes':delayed_goals(G, V, NV, LGs),
 	  yap_hacks:current_choice_point(NCP2),
-	 '$clean_ifcp'(CP),
+	  '$clean_ifcp'(CP),
 	   NCP is NCP2-NCP1
 	  ;
 	   copy_term_nat(V, NV), 
@@ -732,9 +730,8 @@ true :- true.
 	'$name_vars_in_goals1'(GVL, 0, _).
 
 '$name_well_known_vars'([]).
-'$name_well_known_vars'([[SName|V]|NVL0]) :-
+'$name_well_known_vars'([Name=V|NVL0]) :-
 	var(V), !,
-	atom_codes(Name, SName),
 	V = '$VAR'(Name),
 	'$name_well_known_vars'(NVL0).
 '$name_well_known_vars'([_|NVL0]) :-

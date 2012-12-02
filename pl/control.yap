@@ -289,11 +289,24 @@ version(T) :-
 	fail.
 '$set_toplevel_hook'(_).
 
+at_halt(G) :-
+	recorda('$halt', G, _),
+	fail.
+at_halt(_).
+
 halt :-
 	print_message(informational, halt),
+	fail.
+halt :-
 	'$halt'(0).
 
+halt(_) :-
+	recorded('$halt', G, _),
+	call(G),
+	fail.
 halt(X) :-
+	'$sync_mmapped_arrays',
+	set_value('$live','$false'),
 	'$halt'(X).
 
 prolog_current_frame(Env) :-
