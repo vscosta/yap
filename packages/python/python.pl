@@ -134,41 +134,21 @@ python_eval_term([H|T], [NH|NT]) :- !,
 python_eval_term(N, N) :- atomic(N), !.
 python_eval_term(Exp, O) :-
 	descend_exp(Exp, Obj, Old, S), !,
-	(
-	    python_function(Obj)
-	->
-	    python_check_args(Obj, Obj, S, NS, Dict),
-	    python_apply(Ob, NS, Dict, O)
-	;
-	    descend_exp(Obj:im_func, FObj, _, _)
-	->
-	    python_check_args(FObj, Obj, S, NS, Dict),
-	    python_apply(Obj, NS, Dict, O)
-        ;
-	    descend_exp(Obj:'__init__':im_func, FObj, _, _)
-	->
-	    python_check_args(FObj, Obj, S, NS, Dict),
-	    python_apply(Obj, NS, Dict, O)
-        ;
-	    python_check_args('.', '.', S, NS, {}),
-	    python_is(NS, O)
-	).
+	python_check_args(S, NS, Dict),
+	python_apply(Obj, NS, Dict, O).
 python_eval_term(S, O) :-
 	python_check_args('.', '.', S, NS, {}),
 	python_is(NS, O).	
 
-python_check_args(_FRef, _Ref, Exp, t, {}) :-
+python_check_args(Exp, t, {}) :-
 	Exp =.. [_,V], var(V), !.
-python_check_args(FRef, Ref, Exp, NExp, Dict) :-
+python_check_args(Exp, NExp, Dict) :-
 	functor(Exp, _, Arity),
 	arg(Arity, Exp, A), nonvar(A), A = (_=_), !,
-	fetch_args(FRef, ArgNames0, Kwd, Defaults),
 	Exp =.. [_F|LArgs],
-	Defaults =.. [t|DefsL],
-	splice_class(FRef, Ref, ArgNames0, ArgNames),
-	match_args(LArgs, ArgNames, DefsL, NLArgs, Dict),
+	match_args(LArgs, NLArgs, Dict),
 	NExp =.. [t|NLArgs].
-python_check_args(FRef, _, Exp, NExp, {}) :-
+python_check_args(Exp, NExp, {}) :-
 	Exp =.. [F|L],
 	maplist(python_eval_term, L, LF),
 	NExp =.. [F|LF].
@@ -177,22 +157,18 @@ python_check_args(FRef, _, Exp, NExp, {}) :-
 splice_class(Ref, Ref, ArgNames, ArgNames) :- !.
 splice_class(_FRef, _Ref, [_|ArgNames], ArgNames).
 
-match_args([], _ArgNames, _Defaults, [], {}).
-match_args([V=A|LArgs], ArgNames, Defaults, NLArgs, Dict) :- !,
-	match_named_args([V=A|LArgs], ArgNames, Defaults, NLArgs, Map),
+match_args([], [], {}).
+match_args([V=A|LArgs], [], Dict) :- !,
+	match_named_args([V=A|LArgs], Map),
 	map_to_dict(Map, Dict).
-match_args([A|LArgs], [_|ArgNames], [_|Defaults], [VA|NLArgs], Dict) :-
+match_args([A|LArgs], [VA|NLArgs], Dict) :-
 	python_eval_term(A, VA),
-	match_args(LArgs, ArgNames, Defaults, NLArgs, Dict).
+	match_args(LArgs, NLArgs, Dict).
 
-match_named_args([], _ArgNames, Defaults, Defaults, []).
-match_named_args([K=A|LArgs], ArgNames, Defaults, NLArgs, Map) :-
-	match_from_anames(ArgNames, K, VA, Defaults, NDefaults), !,
+match_named_args([], []).
+match_named_args([K=A|LArgs], [K=VA|Map]) :-
 	python_eval_term(A, VA),
-	match_named_args(LArgs, ArgNames, NDefaults, NLArgs, Map).
-match_named_args([K=A|LArgs], ArgNames, Defaults, NLArgs, [K=VA|Map]) :-
-	python_eval_term(A, VA),
-	match_named_args(LArgs, ArgNames, Defaults, NLArgs, Map).
+	match_named_args(LArgs, Map).
 
 
 map_to_dict([X=V], {X:V}) :- !.
@@ -229,7 +205,8 @@ start_python :-
 	python_field(InspRef:isclass(_), IsClass, _, _),
 	assert(python_obj_cache(inspect:isclass(_), IsClass)),
 	python_field(InspRef:getargspec(_), GetArgSpec, _, _),
-	assert(python_obj_cache(inspect:getargspec(_), GetArgSpec)).
+	assert(python_obj_cache(inspect:getargspec(_), GetArgSpec)),
+	at_halt(end_python).
 
 add_cwd_to_python :-
 	unix(getcwd(Dir)),

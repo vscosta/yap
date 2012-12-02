@@ -1304,14 +1304,11 @@ python_apply(term_t tin, term_t targs, term_t keywds, term_t tf)
   if (! PL_get_name_arity( targs, &aname, &arity) ) {
     return FALSE;
   }
-  PyObject_Print(pF,stderr,0);fprintf(stderr, "\n");
   if (aname == ATOM_t) {
     if (arity == 0) 
       pArgs = NULL;
     else
       pArgs = term_to_python( targs );
-    PyObject_Print(pArgs,stderr,0);fprintf(stderr, " ");
-    PyObject_Print(pKeywords,stderr,0);fprintf(stderr, "\n");
   } else {
     pArgs = PyTuple_New(arity);
     if (!pArgs)
@@ -1334,10 +1331,14 @@ python_apply(term_t tin, term_t targs, term_t keywds, term_t tf)
     }
   }
   if (PyCallable_Check(pF)) {
-    if (!arity)
-      pValue = PyObject_CallObject(pF, NULL);
-    else
+    if (!pKeywords)
+      pValue = PyObject_CallObject(pF, pArgs);
+    else {
       pValue = PyObject_Call(pF, pArgs, pKeywords);
+      //   PyObject_Print(pF,stderr,0);fprintf(stderr, "\n");
+      //PyObject_Print(pArgs,stderr,0);fprintf(stderr, " ");
+      //PyObject_Print(pKeywords,stderr,0);fprintf(stderr, "\n");
+    }
     if (!pValue)
       PyErr_Print();
   } else {
