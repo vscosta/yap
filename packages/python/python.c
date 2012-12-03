@@ -1294,13 +1294,13 @@ python_apply(term_t tin, term_t targs, term_t keywds, term_t tf)
   term_t targ = PL_new_term_ref();
 
   pF = term_to_python(tin);
+  if ( pF == NULL ) {
+    return FALSE;
+  }
   if (PL_is_atom(keywds) )
     pKeywords = NULL;
   else
     pKeywords = term_to_python(keywds);
-  if ( pF == NULL ) {
-    return FALSE;
-  }
   if (! PL_get_name_arity( targs, &aname, &arity) ) {
     return FALSE;
   }

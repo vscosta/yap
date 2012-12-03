@@ -117,11 +117,11 @@ python_class(Obj) :-
 
 process_obj(Obj, _, S, Obj, NS, Dict) :-
 	python_callable(Obj), !,
-	python_check_args(Obj, Obj, S, NS, Dict).
+	python_check_args(S, NS, Dict).
 process_obj(Obj, _, S, Obj, NS, Dict) :-
 	python_class(Obj),
 	descend_object(Obj:'__init__', FObj, _, _),
-	python_check_args(Obj, FObj,  S, NS, Dict).
+	python_check_args(S, NS, Dict).
 
 python_eval_term(Obj, Obj) :-
 	var(Obj), !.
@@ -134,10 +134,14 @@ python_eval_term([H|T], [NH|NT]) :- !,
 python_eval_term(N, N) :- atomic(N), !.
 python_eval_term(Exp, O) :-
 	descend_exp(Exp, Obj, Old, S), !,
-	python_check_args(S, NS, Dict),
-	python_apply(Obj, NS, Dict, O).
+	(functor(S, _, 0) -> 
+	   O = Obj
+        ; 
+	   python_check_args(S, NS, Dict),
+	   python_apply(Obj, NS, Dict, O)
+        ).
 python_eval_term(S, O) :-
-	python_check_args('.', '.', S, NS, {}),
+	python_check_args(S, NS, {}),
 	python_is(NS, O).	
 
 python_check_args(Exp, t, {}) :-
