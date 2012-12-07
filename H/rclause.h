@@ -53,6 +53,7 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
       break;
       /* instructions type Osbmp */
     case _p_execute:
+    case _p_execute_tail:
       OrArgAdjust(pc->u.Osbmp.or_arg);
       pc->u.Osbmp.s = ConstantAdjust(pc->u.Osbmp.s);
       pc->u.Osbmp.bmap = CellPtoHeapAdjust(pc->u.Osbmp.bmap);
@@ -75,7 +76,6 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
     case _call_usercpred:
     case _fcall:
     case _p_execute2:
-    case _p_execute_tail:
       OrArgAdjust(pc->u.Osbpp.or_arg);
       pc->u.Osbpp.s = ConstantAdjust(pc->u.Osbpp.s);
       pc->u.Osbpp.bmap = CellPtoHeapAdjust(pc->u.Osbpp.bmap);

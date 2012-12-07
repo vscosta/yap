@@ -1034,9 +1034,10 @@ opinfo("unify_l_n_atoms_write",[]).
 opinfo("write_n_atoms",[body]).
 opinfo("unify_struct",[]).
 opinfo("unify_struct_write",[]).
-opinfo("unify_l_struct",[]).
-opinfo("unify_l_struct_write",[]).
-opinfo("write_struct",[body]).
+opinfo("unify_l_struc",[]).
+opinfo("unify_l_struc_write",[]).
+opinfo("write_struc",[body]).
+opinfo("write_l_struc",[body]).
 opinfo("unify_float",[]).
 opinfo("unify_float_write",[]).
 opinfo("unify_l_float",[]).

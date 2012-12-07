@@ -319,9 +319,9 @@
   OPCODE(p_func2f_yx                ,yxx),
   OPCODE(p_func2f_yy                ,yyx),
   OPCODE(p_functor                  ,e),
+  OPCODE(p_execute_tail             ,Osbmp),
   OPCODE(p_execute2                 ,Osbpp),
   OPCODE(p_execute                  ,Osbmp),
-  OPCODE(p_execute_tail             ,Osbpp),
 #ifdef YAPOR
   OPCODE(getwork_first_time         ,e),
   OPCODE(getwork                    ,Otapl),

@@ -327,6 +327,12 @@
     case _unify_l_float_write:
       cl = NEXTOP(cl,od);
       break;
+    case _unify_l_struc:
+      cl = NEXTOP(cl,ofa);
+      break;
+    case _unify_l_struc_write:
+      cl = NEXTOP(cl,ofa);
+      break;
     case _unify_struct:
       cl = NEXTOP(cl,ofa);
       break;
