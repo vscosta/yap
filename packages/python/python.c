@@ -588,29 +588,23 @@ term_to_python(term_t t)
   case PL_VARIABLE:
     return NULL;
   case PL_ATOM:
+  case PL_STRING:
     {
       char *s;
       atom_t at;
       
-      if (!PL_get_atom_chars(t, &s)) {
-	wchar_t *w;
-	size_t len;
-
-	if (!PL_get_atom(t, &at))
-	  return NULL;
-	if (!(w = PL_atom_wchars(at, &len)))
-	  return NULL;
-	return PyUnicode_FromWideChar(w, len );
+      if (PL_get_atom(t, &at)) {
+	if (at == ATOM_true) return Py_True;
+	if (at == ATOM_false) return Py_False;
       }
-      if (!PL_get_atom(t, &at)) {
+      if (!PL_get_chars(t, &s, REP_UTF8|CVT_ATOM|CVT_STRING|BUF_DISCARDABLE) ) {
 	return NULL;
       }
-      if (at == ATOM_true) return Py_True;
-      if (at == ATOM_false) return Py_False;
-      if (proper_ascii_string(s))
+      if (proper_ascii_string(s)) {
 	return PyString_FromStringAndSize(s, strlen(s) );
-      else {
-	PyObject *pobj = PyUnicode_DecodeLatin1(s, strlen(s), NULL);
+      } else {
+	PyObject *pobj = PyUnicode_DecodeUTF8(s, strlen(s), NULL);
+	//fprintf(stderr, "%s\n", s);
 	return pobj;
       }
     }
@@ -620,15 +614,6 @@ term_to_python(term_t t)
       if (!PL_get_int64_ex(t, &j))
 	return NULL;
       return PyInt_FromLong(j);
-    }
-  case PL_STRING:
-    {
-      char *s;
-      size_t len;
-
-      if (!PL_get_string_chars(t, &s, &len))
-	return NULL;
-      return PyByteArray_FromStringAndSize(s, len);
     }
   case PL_FLOAT:
     {

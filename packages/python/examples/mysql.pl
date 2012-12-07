@@ -34,7 +34,7 @@ ex(create) :-
          LAST_NAME  CHAR(20),
          AGE INT,  
          SEX CHAR(1),
-         INCOME FLOAT )',
+         INCOME FLOAT ) DEFAULT charset=utf8',
 	:= $cursor:execute($sql),
 	close.
 
@@ -102,5 +102,5 @@ except:-
 
 customer('João', 'Matos', 40, 'M', 2000).
 customer('Maria', 'Söderling', 20, 'F', 3000).
-%customer('毛', '泽东', 44, 'M', 500).
-%customer('রবীন্দ্রনাথ', 'ঠাকুর', 30, 'M', 8000).
+customer('毛', '泽东', 44, 'M', 500).
+customer('রবীন্দ্রনাথ', 'ঠাকুর', 30, 'M', 8000).
