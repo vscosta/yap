@@ -647,6 +647,117 @@ p_execute_in_mod( USES_REGS1 )
 }
 
 static Int
+p_do_goal_expansion( USES_REGS1 )
+{
+  Int creeping = LOCAL_ActiveSignals & YAP_CREEP_SIGNAL;
+  Int out = FALSE;
+  PredEntry *pe;
+  Term cmod = Deref(ARG2);
+
+  ARG2 = ARG3;
+  /* disable creeping */
+  LOCK(LOCAL_SignalLock);
+  LOCAL_ActiveSignals &= ~YAP_CREEP_SIGNAL;    
+  if (!LOCAL_ActiveSignals)
+    CreepFlag = CalculateStackGap();
+  UNLOCK(LOCAL_SignalLock);
+  
+  /* CurMod:goal_expansion(A,B) */
+  if ( (pe = RepPredProp(Yap_GetPredPropByFunc(FunctorGoalExpansion2, cmod) ) ) &&
+       pe->OpcodeOfPred != FAIL_OPCODE &&
+       pe->OpcodeOfPred != UNDEF_OPCODE &&
+       CallPredicate(pe, B, pe->CodeOfPred PASS_REGS) ) {
+    out = TRUE;
+    ARG3 = ARG2;
+    goto complete;
+  }
+  /* system:goal_expansion(A,B) */
+  if ( (pe = RepPredProp(Yap_GetPredPropByFunc(FunctorGoalExpansion2, SYSTEM_MODULE ) ) ) &&
+       pe->OpcodeOfPred != FAIL_OPCODE &&
+       pe->OpcodeOfPred != UNDEF_OPCODE &&
+       CallPredicate(pe, B, pe->CodeOfPred PASS_REGS) ) {
+    out = TRUE;
+    ARG3 = ARG2;
+    goto complete;
+  }
+  ARG3 = ARG2;
+  ARG2 = cmod;
+  /* user:goal_expansion(A,CurMod,B) */
+  if ( (pe = RepPredProp(Yap_GetPredPropByFunc(FunctorGoalExpansion, USER_MODULE ) ) ) &&
+       pe->OpcodeOfPred != FAIL_OPCODE &&
+       pe->OpcodeOfPred != UNDEF_OPCODE &&
+       CallPredicate(pe, B, pe->CodeOfPred PASS_REGS) ) {
+    out = TRUE;
+    goto complete;
+  }
+  ARG2 = ARG3;
+  /* user:goal_expansion(A,B) */
+  if ( cmod != USER_MODULE && /* we have tried this before */
+       (pe = RepPredProp(Yap_GetPredPropByFunc(FunctorGoalExpansion2, USER_MODULE ) ) ) &&
+       pe->OpcodeOfPred != FAIL_OPCODE &&
+       pe->OpcodeOfPred != UNDEF_OPCODE &&
+       CallPredicate(pe, B, pe->CodeOfPred PASS_REGS) ) {
+    ARG3 = ARG2;
+    out = TRUE;
+  }
+ complete:
+  LOCK(LOCAL_SignalLock);
+  if (creeping) {
+    LOCAL_ActiveSignals |= YAP_CREEP_SIGNAL;    
+  }
+  UNLOCK(LOCAL_SignalLock);
+  return out;
+}
+
+static Int
+p_do_term_expansion( USES_REGS1 )
+{
+  Int creeping = LOCAL_ActiveSignals & YAP_CREEP_SIGNAL;
+  Int out = FALSE;
+  PredEntry *pe;
+  Term cmod = CurrentModule;
+
+  /* disable creeping */
+  LOCK(LOCAL_SignalLock);
+  LOCAL_ActiveSignals &= ~YAP_CREEP_SIGNAL;    
+  if (!LOCAL_ActiveSignals)
+    CreepFlag = CalculateStackGap();
+  UNLOCK(LOCAL_SignalLock);
+  
+  /* CurMod:term_expansion(A,B) */
+  if ( (pe = RepPredProp(Yap_GetPredPropByFunc(FunctorTermExpansion, cmod) ) ) &&
+       pe->OpcodeOfPred != FAIL_OPCODE &&
+       pe->OpcodeOfPred != UNDEF_OPCODE &&
+       CallPredicate(pe, B, pe->CodeOfPred PASS_REGS) ) {
+    out = TRUE;
+    goto complete;
+  }
+  /* system:term_expansion(A,B) */
+  if ( (pe = RepPredProp(Yap_GetPredPropByFunc(FunctorTermExpansion, SYSTEM_MODULE ) ) ) &&
+       pe->OpcodeOfPred != FAIL_OPCODE &&
+       pe->OpcodeOfPred != UNDEF_OPCODE &&
+       CallPredicate(pe, B, pe->CodeOfPred PASS_REGS) ) {
+    out = TRUE;
+    goto complete;
+  }
+  /* user:term_expansion(A,B) */
+  if ( cmod != USER_MODULE && /* we have tried this before */
+       (pe = RepPredProp(Yap_GetPredPropByFunc(FunctorTermExpansion, USER_MODULE ) ) ) &&
+       pe->OpcodeOfPred != FAIL_OPCODE &&
+       pe->OpcodeOfPred != UNDEF_OPCODE &&
+       CallPredicate(pe, B, pe->CodeOfPred PASS_REGS) ) {
+    out = TRUE;
+  }
+ complete:
+  LOCK(LOCAL_SignalLock);
+  if (creeping) {
+    LOCAL_ActiveSignals |= YAP_CREEP_SIGNAL;    
+  }
+  UNLOCK(LOCAL_SignalLock);
+  return out;
+}
+
+static Int
 p_execute0( USES_REGS1 )
 {				/* '$execute0'(Goal,Mod)	 */
   Term            t = Deref(ARG1), t0 = t;
@@ -1838,6 +1949,8 @@ Yap_InitExecFs(void)
   Yap_InitCPred("$generate_pred_info", 4, p_generate_pred_info, 0);
   Yap_InitCPred("$uncaught_throw", 0, p_uncaught_throw, 0);
   Yap_InitCPred("$reset_exception", 1, p_reset_exception, 0);
+  Yap_InitCPred("$do_goal_expansion", 3, p_do_goal_expansion, 0);
+  Yap_InitCPred("$do_term_expansion", 2, p_do_term_expansion, 0);
   Yap_InitCPred("$get_exception", 1, p_get_exception, 0);
 }
 

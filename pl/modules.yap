@@ -396,11 +396,7 @@ expand_goal(G, G).
 	% make built-in processing transparent.
 	'$match_mod'(G, M, ORIG, HM, G1),
 	'$c_built_in'(G1, M, Gi),
-	(Gi \== G1 ->
-	 '$module_expansion'(Gi, G2, _, M, CM, HM, HVars)
-	;
-	 G2 = G1
-	).
+	G1 = G2.
 '$complete_goal_expansion'(G, GMod, _, HM, NG, NG, _) :-
 	'$match_mod'(G, GMod, GMod, HM, NG).
 

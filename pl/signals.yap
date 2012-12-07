@@ -36,7 +36,7 @@
 '$do_signal'(sig_creep, [M|G]) :-
 	'$creep_allowed', !,
 	(
-	 ( G = '$notrace'(G0) ;  G = '$oncenotrace'(G0) ; G = '$execute0'(G0,M) ; '$system_module'(M), G = G0 )
+	 ( G = '$notrace'(G0) ;  G = '$oncenotrace'(G0) ; G = '$once0'(G0) ; G = '$execute0'(G0,M) ; '$system_module'(M), G = G0 )
 	->
 	 (
 	  '$execute_nonstop'(G0,M),
@@ -50,7 +50,7 @@
 	).
 % 
 '$do_signal'(sig_creep, [M|G]) :-
-	( G = '$notrace'(G0) ;  G = '$oncenotrace'(G0) ; G = '$execute0'(G0,M) ; '$system_module'(M), G = G0 ),
+	( G = '$notrace'(G0) ;  G = '$oncenotrace'(G0) ; G = '$once0'(G0) ; G = '$execute0'(G0,M) ; '$system_module'(M), G = G0 ),
 	!,
 	(
 	 '$execute_nonstop'(G0,M),
@@ -157,6 +157,18 @@
 	 fail	   
 	).
 '$start_creep'([M0|'$oncenotrace'(G)]) :-
+	!,
+	('$execute_nonstop'(G,M0),
+	 CP1 is '$last_choice_pt',
+	 % exit port: creep
+	 '$creep',
+	 !
+	;
+	   % put it back again on fail
+	 '$creep',
+	 fail	   
+	).
+'$start_creep'([M0|'$once0'(G)]) :-
 	!,
 	('$execute_nonstop'(G,M0),
 	 CP1 is '$last_choice_pt',

@@ -145,7 +145,7 @@ setup_call_catcher_cleanup(Setup, Goal, Catcher, Cleanup) :-
 '$clean_call'(_, _).
 
 '$cc_check_throw' :-
-	nb_getval('$catch',Ball),
+	'$nb_getval'('$catch', Ball, fail),
 	throw(Ball).	
 
 %%% The unknown predicate,
@@ -288,6 +288,97 @@ version(T) :-
 	recorda('$toplevel_hooks',H,_),
 	fail.
 '$set_toplevel_hook'(_).
+
+'$oncenotrace'(G) :-
+	'$disable_creep', !,
+	(
+	 '$execute'(G)
+	->
+	 '$creep'
+	;
+	 '$creep',
+	 fail
+	).	
+'$oncenotrace'(G) :-
+	'$execute'(G), !.
+
+
+'$once0'(G, M) :-
+	'$pred_exists'(G, M),
+	(
+	 '$disable_creep'
+	->
+	  (
+	   '$execute_nonstop'(G, M)
+	   ->
+	   '$creep'
+	  ;
+	   '$creep',
+	    fail
+	  )
+       ;
+	  '$execute_nonstop'(G,M)
+        ).
+
+nb_getval(GlobalVariable, Val) :-
+	'$nb_getval'(GlobalVariable, Val, Error),
+	(var(Error)
+	->
+	 true
+	;
+	 '$getval_exception'(GlobalVariable, Val, nb_getval(GlobalVariable, Val)) ->
+	 nb_getval(GlobalVariable, Val)
+	;
+	 '$do_error'(existence_error(variable, GlobalVariable),nb_getval(GlobalVariable, Val))
+	).
+		    
+
+b_getval(GlobalVariable, Val) :-
+	'$nb_getval'(GlobalVariable, Val, Error),
+	(var(Error)
+	->
+	 true
+	;
+	 '$getval_exception'(GlobalVariable, Val, b_getval(GlobalVariable, Val)) ->
+	 true
+	;
+	 '$do_error'(existence_error(variable, GlobalVariable),b_getval(GlobalVariable, Val))
+	).
+
+
+/* This is the break predicate,
+	it saves the importante data about current streams and
+	debugger state */
+
+break :-
+	nb_getval('$system_mode',SystemMode),
+	nb_getval('$trace',Trace),
+	nb_setval('$trace',off),
+	nb_getval('$debug_jump',Jump),
+	nb_getval('$debug_run',Run),
+	'$debug_on'(Debug),
+	'$debug_on'(false),
+	nb_getval('$break',BL), NBL is BL+1,
+	nb_getval('$spy_gn',SPY_GN),
+	b_getval('$spy_glist',GList),
+	b_setval('$spy_glist',[]),
+	nb_setval('$break',NBL),
+	current_output(OutStream), current_input(InpStream),
+	format(user_error, '% Break (level ~w)~n', [NBL]),
+	'$do_live',
+	!,
+	set_value('$live','$true'),
+	b_setval('$spy_glist',GList),
+	nb_setval('$spy_gn',SPY_GN),
+	set_input(InpStream), 
+	set_output(OutStream),
+	'$debug_on'(Debug),
+	nb_setval('$debug_jump',Jump),
+	nb_setval('$debug_run',Run),
+	nb_setval('$trace',Trace),
+	nb_setval('$break',BL),
+	nb_setval('$system_mode',SystemMode).
+
 
 at_halt(G) :-
 	recorda('$halt', G, _),

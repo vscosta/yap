@@ -2151,6 +2151,7 @@ goal_expansion_support(PredEntry *p, Term tf)
 	  if (p0) {
 	    mark_preds_with_this_func(FunctorOfTerm(tg), p0);
 	  } else {
+	    CACHE_REGS
 	    Term mod = CurrentModule;
 	    PredEntry *npe;
 	    if (CurrentModule == PROLOG_MODULE)

@@ -434,7 +434,7 @@ true :- true.
 	 ->
 	  '$assertz_dynamic'(L,G,G0,Mod)
 	 ;
-	  catch(nb_getval('$assert_all',on),_,fail)
+	  '$nb_getval'('$assert_all',on,fail)
 	 ->
 	  functor(H,N,A),
 	  '$dynamic'(N/A,Mod),
@@ -571,7 +571,7 @@ true :- true.
         flush_output,
 	fail.
 '$present_answer'((?-), Answ) :-
-	nb_getval('$break',BL),
+	'$nb_getval'('$break',BL,fail),
 	( BL \= 0 -> 	format(user_error, '[~p] ',[BL]) ;
 			true ),
         ( recorded('$print_options','$toplevel'(Opts),_) ->
@@ -900,8 +900,8 @@ not(G) :-    \+ '$execute'(G).
 '$call'(G, CP, G0, CurMod) :-
 	( '$is_expand_goal_or_meta_predicate'(G,CurMod) ->
 	   (
-	     '$notrace'(('$pred_exists'(goal_expansion(G,NG), CurMod), CurMod:goal_expansion(G,NG) ;  system:goal_expansion(G,NG) ; user:goal_expansion(G, CurMod, NG) ; user:goal_expansion(G,NG) )) ->
-	       '$call'(NG, CP, G0,CurMod)
+	     '$do_goal_expansion'(G, CurMod, NG) ->
+	     '$call'(NG, CP, G0,CurMod)
 	     ;
 	       % repeat other code.
              '$is_metapredicate'(G,CurMod) ->
@@ -993,39 +993,6 @@ not(G) :-    \+ '$execute'(G).
 	'$exit_undefp',
 	throw(Ball).
 
-
-/* This is the break predicate,
-	it saves the importante data about current streams and
-	debugger state */
-
-break :-
-	nb_getval('$system_mode',SystemMode),
-	nb_getval('$trace',Trace),
-	nb_setval('$trace',off),
-	nb_getval('$debug_jump',Jump),
-	nb_getval('$debug_run',Run),
-	'$debug_on'(Debug),
-	'$debug_on'(false),
-	nb_getval('$break',BL), NBL is BL+1,
-	nb_getval('$spy_gn',SPY_GN),
-	b_getval('$spy_glist',GList),
-	b_setval('$spy_glist',[]),
-	nb_setval('$break',NBL),
-	current_output(OutStream), current_input(InpStream),
-	format(user_error, '% Break (level ~w)~n', [NBL]),
-	'$do_live',
-	!,
-	set_value('$live','$true'),
-	b_setval('$spy_glist',GList),
-	nb_setval('$spy_gn',SPY_GN),
-	set_input(InpStream), 
-	set_output(OutStream),
-	'$debug_on'(Debug),
-	nb_setval('$debug_jump',Jump),
-	nb_setval('$debug_run',Run),
-	nb_setval('$trace',Trace),
-	nb_setval('$break',BL),
-	nb_setval('$system_mode',SystemMode).
 
 '$silent_bootstrap'(F) :-
 	'$init_globals',
@@ -1150,18 +1117,12 @@ bootstrap(F) :-
 	
 
 expand_term(Term,Expanded) :-
-	'$current_module'(Mod), 
-	( \+ '$undefined'(term_expansion(_,_), Mod),
-	  '$notrace'(Mod:term_expansion(Term,Expanded))
-        ; \+ '$undefined'(term_expansion(_,_), system),
-	  '$notrace'(system:term_expansion(Term,Expanded))
-        ;  Mod \= user, \+ '$undefined'(term_expansion(_,_), user),
-	  '$notrace'(user:term_expansion(Term,Expanded))
+	( '$do_term_expansion'(Term,Expanded)
+        ->
+	   true
         ;
 	  '$expand_term_grammar'(Term,Expanded)
-	),
-	!.
-
+	).
 
 %
 % Grammar Rules expansion
@@ -1169,15 +1130,6 @@ expand_term(Term,Expanded) :-
 '$expand_term_grammar'((A-->B), C) :-
 	'$translate_rule'((A-->B),C), !.
 '$expand_term_grammar'(A, A).
-
-%
-% Arithmetic expansion
-%
-'$expand_term_arith'(G1, G2) :-
-	get_value('$c_arith',true),
-	'$c_arith'(G1, G2), !.
-'$expand_term_arith'(G,G).
-
 
 %
 % Arithmetic expansion
@@ -1258,8 +1210,9 @@ catch_ball(Ball, V) :-
 catch_ball(C, C).
 
 '$run_toplevel_hooks' :-
-	nb_getval('$break',0),
-	recorded('$toplevel_hooks',H,_), !,
+	'$nb_getval'('$break', 0, fail),
+	recorded('$toplevel_hooks',H,_), 
+	H \= fail, !,
 	( '$oncenotrace'(H) -> true ; true).
 '$run_toplevel_hooks'.
 
@@ -1268,7 +1221,7 @@ catch_ball(C, C).
 
 '$exit_system_mode' :-
 	nb_setval('$system_mode',off),
-	( catch(nb_getval('$trace',on),_,fail) -> '$creep' ; true).
+	( '$nb_getval'('$trace',on,fail) -> '$creep' ; true).
 
 %
 % just prevent creeping from going on...
@@ -1298,51 +1251,11 @@ catch_ball(C, C).
 '$notrace'(G) :-
 	'$execute'(G).
 
-'$oncenotrace'(G) :-
-	'$disable_creep', !,
-	(
-	 '$execute'(G)
-	->
-	 '$creep'
-	;
-	 '$creep',
-	 fail
-	).	
-'$oncenotrace'(G) :-
-	'$execute'(G), !.
-
-
 '$run_at_thread_start' :-
 	recorded('$thread_initialization',M:D,_),
 	'$notrace'(M:D),
 	fail.
 '$run_at_thread_start'.
-
-
-nb_getval(GlobalVariable, Val) :-
-	'$nb_getval'(GlobalVariable, Val, Error),
-	(var(Error)
-	->
-	 true
-	;
-	 '$getval_exception'(GlobalVariable, Val, nb_getval(GlobalVariable, Val)) ->
-	 nb_getval(GlobalVariable, Val)
-	;
-	 '$do_error'(existence_error(variable, GlobalVariable),nb_getval(GlobalVariable, Val))
-	).
-		    
-
-b_getval(GlobalVariable, Val) :-
-	'$nb_getval'(GlobalVariable, Val, Error),
-	(var(Error)
-	->
-	 true
-	;
-	 '$getval_exception'(GlobalVariable, Val, b_getval(GlobalVariable, Val)) ->
-	 true
-	;
-	 '$do_error'(existence_error(variable, GlobalVariable),b_getval(GlobalVariable, Val))
-	).
 
 
 

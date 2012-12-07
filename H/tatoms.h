@@ -576,6 +576,8 @@
 #define AtomTerm Yap_heap_regs->AtomTerm_
   Atom AtomTerms_;
 #define AtomTerms Yap_heap_regs->AtomTerms_
+  Atom AtomTermExpansion_;
+#define AtomTermExpansion Yap_heap_regs->AtomTermExpansion_
   Atom AtomTextStream_;
 #define AtomTextStream Yap_heap_regs->AtomTextStream_
   Atom AtomThreads_;
@@ -846,6 +848,8 @@
 #define FunctorSyntaxError Yap_heap_regs->FunctorSyntaxError_
   Functor FunctorShortSyntaxError_;
 #define FunctorShortSyntaxError Yap_heap_regs->FunctorShortSyntaxError_
+  Functor FunctorTermExpansion_;
+#define FunctorTermExpansion Yap_heap_regs->FunctorTermExpansion_
   Functor FunctorThreadRun_;
 #define FunctorThreadRun Yap_heap_regs->FunctorThreadRun_
   Functor FunctorThrow_;

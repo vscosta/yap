@@ -289,6 +289,7 @@
   AtomSystemLibraryDir = AtomAdjust(AtomSystemLibraryDir);
   AtomTerm = AtomAdjust(AtomTerm);
   AtomTerms = AtomAdjust(AtomTerms);
+  AtomTermExpansion = AtomAdjust(AtomTermExpansion);
   AtomTextStream = AtomAdjust(AtomTextStream);
   AtomThreads = AtomAdjust(AtomThreads);
   AtomThrow = AtomAdjust(AtomThrow);
@@ -424,6 +425,7 @@
   FunctorStreamPos = FuncAdjust(FunctorStreamPos);
   FunctorSyntaxError = FuncAdjust(FunctorSyntaxError);
   FunctorShortSyntaxError = FuncAdjust(FunctorShortSyntaxError);
+  FunctorTermExpansion = FuncAdjust(FunctorTermExpansion);
   FunctorThreadRun = FuncAdjust(FunctorThreadRun);
   FunctorThrow = FuncAdjust(FunctorThrow);
   FunctorTimeoutError = FuncAdjust(FunctorTimeoutError);

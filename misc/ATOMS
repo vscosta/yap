@@ -294,6 +294,7 @@ A	SystemError		N	"system_error"
 A	SystemLibraryDir	N	"system_library_directory"
 A	Term			N	"term"
 A	Terms			N	"terms"
+A	TermExpansion		N	"term_expansion"
 A	TextStream		N	"text_stream"
 A	Threads			N	"threads"
 A	Throw			N	"throw"
@@ -429,6 +430,7 @@ F	StreamEOS		EndOfStream	1
 F	StreamPos		StreamPos	4
 F	SyntaxError		SyntaxError	7
 F	ShortSyntaxError	SyntaxError	1
+F	TermExpansion		TermExpansion	2
 F	ThreadRun		TopThreadGoal	2
 F	Throw			Throw		1
 F	TimeoutError		TimeoutError	2
