@@ -191,21 +191,27 @@ Yap_ShutdownLoadForeign(void)
 
   f_code = ForeignCodeLoaded;
   while (f_code != NULL) {
-    StringList objs, libs;
+    StringList objs, libs, old;
+    ForeignObj *of_code = f_code;
 
     objs = f_code->objs;
     while (objs != NULL) {
+      old = objs;
       if (dlclose(objs->handle) != 0)
       	return; /* ERROR */
       objs = objs->next;
+      Yap_FreeCodeSpace(old);
     }
     libs = f_code->libs;
     while (libs != NULL) {
+      old = libs;
       if (dlclose(libs->handle) != 0)
 	return; /* ERROR */
-      objs = libs->next;
+      libs = libs->next;
+      Yap_FreeCodeSpace(old);
     }
     f_code = f_code->next;
+    Yap_FreeCodeSpace((ADDR)of_code);
   }
   /*
     make sure that we don't try to close foreign code several times, eg,
