@@ -77,9 +77,8 @@ IncExcNode::weight (void) const
 double
 LeafNode::weight (void) const
 {
-  assert (clauses().size() == 1);
-  assert (clauses()[0].isUnit());
-  Clause c = clauses()[0];
+  assert (clause_.isUnit());
+  Clause c = clause_;
   double weight = c.literals()[0].isPositive()
       ? lwcnf_.posWeight (c.literals().front().lid())
       : lwcnf_.negWeight (c.literals().front().lid());
@@ -261,7 +260,11 @@ LiftedCircuit::compile (
     return;
   }
 
-  *follow = new CompilationFailedNode (clauses);
+  *follow = new CompilationFailedNode();
+  if (Globals::verbosity > 1) {
+    originClausesMap_[*follow] = clauses;
+    explanationMap_[*follow]   = "" ;
+  }
   compilationSucceeded_ = false;
 }
 
@@ -272,6 +275,9 @@ LiftedCircuit::tryUnitPropagation (
     CircuitNode** follow,
     Clauses& clauses)
 {
+  if (Globals::verbosity > 1) {
+    backupClauses_ = clauses;
+  }
   for (size_t i = 0; i < clauses.size(); i++) {
     if (clauses[i].isUnit()) {
       Clauses newClauses;
@@ -294,9 +300,13 @@ LiftedCircuit::tryUnitPropagation (
           }
         }
       }
-      stringstream explanation;
-      explanation << " UP on" << clauses[i].literals()[0];
-      AndNode* andNode = new AndNode (clauses, explanation.str());
+      AndNode* andNode = new AndNode();
+      if (Globals::verbosity > 1) {
+        originClausesMap_[andNode] = backupClauses_;
+        stringstream explanation;
+        explanation << " UP on>" << clauses[i].literals()[0];
+        explanationMap_[andNode] = explanation.str();
+      }
       Clauses leftClauses = {clauses[i]};
       compile (andNode->leftBranch(), leftClauses);
       compile (andNode->rightBranch(), newClauses);
@@ -317,6 +327,9 @@ LiftedCircuit::tryIndependence (
   if (clauses.size() == 1) {
     return false;
   }
+  if (Globals::verbosity > 1) {
+    backupClauses_ = clauses;
+  }
   Clauses depClauses = { clauses[0] };
   Clauses indepClauses (clauses.begin() + 1, clauses.end());
   bool finish = false;
@@ -332,7 +345,11 @@ LiftedCircuit::tryIndependence (
     }
   }
   if (indepClauses.empty() == false) {
-    AndNode* andNode = new AndNode (clauses, " Independence");
+    AndNode* andNode = new AndNode ();
+    if (Globals::verbosity > 1) {
+      originClausesMap_[andNode] = backupClauses_;
+      explanationMap_[andNode]   = " Independence" ;
+    }
     compile (andNode->leftBranch(), depClauses);
     compile (andNode->rightBranch(), indepClauses);
     (*follow) = andNode;
@@ -348,6 +365,9 @@ LiftedCircuit::tryShannonDecomp (
     CircuitNode** follow,
     Clauses& clauses)
 {
+  if (Globals::verbosity > 1) {
+    backupClauses_ = clauses;
+  }
   for (size_t i = 0; i < clauses.size(); i++) {
     const Literals& literals = clauses[i].literals();
     for (size_t j = 0; j < literals.size(); j++) {
@@ -364,9 +384,13 @@ LiftedCircuit::tryShannonDecomp (
         Clauses rightClauses = { c2 };
         leftClauses.insert (leftClauses.end(), clauses.begin(), clauses.end());
         rightClauses.insert (rightClauses.end(), clauses.begin(), clauses.end());
-        stringstream explanation;
-        explanation << " SD on " << literals[j];
-        OrNode* orNode = new OrNode (clauses, explanation.str());
+        OrNode* orNode = new OrNode();
+        if (Globals::verbosity > 1) {
+          originClausesMap_[orNode] = backupClauses_;
+          stringstream explanation;
+          explanation << " SD on " << literals[j];
+          explanationMap_[orNode] = explanation.str();
+        }
         compile (orNode->leftBranch(),  leftClauses);
         compile (orNode->rightBranch(), rightClauses);
         (*follow) = orNode;
@@ -384,6 +408,9 @@ LiftedCircuit::tryInclusionExclusion (
     CircuitNode** follow,
     Clauses& clauses)
 {
+  if (Globals::verbosity > 1) {
+    backupClauses_ = clauses;
+  }
   for (size_t i = 0; i < clauses.size(); i++) {
     Literals depLits = { clauses[i].literals().front() };
     Literals indepLits (clauses[i].literals().begin() + 1,
@@ -433,9 +460,13 @@ LiftedCircuit::tryInclusionExclusion (
       plus2Clauses.push_back (c2);
       minusClauses.push_back (c1);
       minusClauses.push_back (c2);
-      stringstream explanation;
-      explanation << " IncExc on clause nº " << i + 1;
-      IncExcNode* ieNode = new IncExcNode (clauses, explanation.str());
+      IncExcNode* ieNode = new IncExcNode();
+      if (Globals::verbosity > 1) {
+        originClausesMap_[ieNode] = backupClauses_;
+        stringstream explanation;
+        explanation << " IncExc on clause nº " << i + 1;
+        explanationMap_[ieNode] = explanation.str();
+      }
       compile (ieNode->plus1Branch(), plus1Clauses);
       compile (ieNode->plus2Branch(), plus2Clauses);
       compile (ieNode->minusBranch(), minusClauses);
@@ -455,6 +486,9 @@ LiftedCircuit::tryIndepPartialGrounding (
 { 
   // assumes that all literals have logical variables
   // else, shannon decomp was possible
+  if (Globals::verbosity > 1) {
+    backupClauses_ = clauses;
+  }
   LogVars rootLogVars;
   LogVarSet lvs = clauses[0].ipgCandidates();
   for (size_t i = 0; i < lvs.size(); i++) {
@@ -466,9 +500,13 @@ LiftedCircuit::tryIndepPartialGrounding (
       for (size_t j = 0; j < clauses.size(); j++) {
         newClauses[j].addIpgLogVar (rootLogVars[j]);
       }
-      SetAndNode* node = new SetAndNode (ct.size(), clauses);
-      *follow = node;
-      compile (node->follow(), newClauses);
+      SetAndNode* setAndNode = new SetAndNode (ct.size());
+      if (Globals::verbosity > 1) {
+        originClausesMap_[setAndNode] = backupClauses_;
+        explanationMap_[setAndNode]   = " IPG" ;
+      }
+      *follow = setAndNode;
+      compile (setAndNode->follow(), newClauses);
       return true;
     }
   }
@@ -531,6 +569,9 @@ LiftedCircuit::tryAtomCounting (
       return false;
     }
   }
+  if (Globals::verbosity > 1) {
+    backupClauses_ = clauses;
+  }  
   for (size_t i = 0; i < clauses.size(); i++) {
     Literals literals = clauses[i].literals();
     for (size_t j = 0; j < literals.size(); j++) {
@@ -539,7 +580,11 @@ LiftedCircuit::tryAtomCounting (
           && ! clauses[i].isCountedLogVar (literals[j].logVars().front())) {
         unsigned nrGroundings = clauses[i].constr().projectedCopy (
             literals[j].logVars()).size();
-        SetOrNode* setOrNode = new SetOrNode (nrGroundings, clauses);
+        SetOrNode* setOrNode = new SetOrNode (nrGroundings);
+        if (Globals::verbosity > 1) {
+          originClausesMap_[setOrNode] = backupClauses_;
+          explanationMap_[setOrNode]   = " AC" ;
+        }
         Clause c1 (clauses[i].constr().projectedCopy (literals[j].logVars()));
         Clause c2 (clauses[i].constr().projectedCopy (literals[j].logVars()));
         c1.addLiteral (literals[j]);
@@ -734,9 +779,10 @@ LiftedCircuit::smoothCircuit (CircuitNode* node)
     }
     
     case CircuitNodeType::LEAF_NODE: {
+      LeafNode* casted = dynamic_cast<LeafNode*>(node);    
       propagLits.insert (LitLvTypes (
-          node->clauses()[0].literals()[0].lid(),
-          node->clauses()[0].logVarTypes(0)));
+          casted->clause().literals()[0].lid(),
+          casted->clause().logVarTypes(0)));
     }
  
     default:
@@ -754,6 +800,10 @@ LiftedCircuit::createSmoothNode (
     CircuitNode** prev)
 {
   if (missingLits.empty() == false) {
+    if (Globals::verbosity > 1) {
+      // assert (Util::contains (originClausesMap_, prev));
+      backupClauses_ = originClausesMap_[*prev];
+    }  
     Clauses clauses;
     for (size_t i = 0; i < missingLits.size(); i++) {
       LiteralId lid = missingLits[i].lid();
@@ -771,8 +821,11 @@ LiftedCircuit::createSmoothNode (
       clauses.push_back (c);
     }
     SmoothNode* smoothNode = new SmoothNode (clauses, *lwcnf_);
-    *prev = new AndNode ((*prev)->clauses(), smoothNode,
-        *prev, " Smoothing");
+    *prev = new AndNode (smoothNode, *prev);
+    if (Globals::verbosity > 1) {
+      originClausesMap_[*prev] = backupClauses_;
+      explanationMap_[*prev]   = " Smoothing" ;
+    }
   }
 }
 
@@ -879,7 +932,7 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, ofstream& os)
 
       os << auxNode << " [" << opStyle << "label=\"∨\"]" << endl;
       os << escapeNode (node) << " -> " << auxNode;
-      os << " [label=\"" << node->explanation() << "\"]" ;
+      os << " [label=\"" << getExplanationString (node) << "\"]" ;
       os << endl;
       
       os << auxNode << " -> " ;
@@ -903,7 +956,7 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, ofstream& os)
 
       os << auxNode << " [" << opStyle << "label=\"∧\"]" << endl;
       os << escapeNode (node) << " -> " << auxNode;
-      os << " [label=\"" << node->explanation() << "\"]" ;
+      os << " [label=\"" << getExplanationString (node) << "\"]" ;
       os << endl;
 
       os << auxNode << " -> " ;
@@ -927,7 +980,7 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, ofstream& os)
 
       os << auxNode << " [" << opStyle << "label=\"∨(X)\"]" << endl;
       os << escapeNode (node) << " -> " << auxNode;
-      os << " [label=\"" << node->explanation() << "\"]" ;
+      os << " [label=\"" << getExplanationString (node) << "\"]" ;
       os << endl;
 
       os << auxNode << " -> " ;
@@ -945,7 +998,7 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, ofstream& os)
 
       os << auxNode << " [" << opStyle << "label=\"∧(X)\"]" << endl;
       os << escapeNode (node) << " -> " << auxNode;
-      os << " [label=\"" << node->explanation() << "\"]" ;
+      os << " [label=\"" << getExplanationString (node) << "\"]" ;
       os << endl;
 
       os << auxNode << " -> " ;
@@ -964,7 +1017,7 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, ofstream& os)
       os << auxNode << " [" << opStyle << "label=\"+ - +\"]" ;
       os << endl;
       os << escapeNode (node) << " -> " << auxNode;
-      os << " [label=\"" << node->explanation() << "\"]" ;
+      os << " [label=\"" << getExplanationString (node) << "\"]" ;
       os << endl;
 
       os << auxNode << " -> " ;
@@ -1027,14 +1080,31 @@ LiftedCircuit::escapeNode (const CircuitNode* node) const
 
 
 
+string
+LiftedCircuit::getExplanationString (CircuitNode* node)
+{
+  return Util::contains (explanationMap_, node)
+      ? explanationMap_[node]
+      : "" ;
+}
+
+
+
 void
 LiftedCircuit::printClauses (
-    const CircuitNode* node,
+    CircuitNode* node,
     ofstream& os,
     string extraOptions)
 {
-  const Clauses& clauses = node->clauses();
-  if (node->clauses().empty() == false) {
+  Clauses clauses;
+  if (Util::contains (originClausesMap_, node)) {
+    clauses = originClausesMap_[node];
+  } else if (getCircuitNodeType (node) == CircuitNodeType::LEAF_NODE) {
+    clauses  = { (dynamic_cast<LeafNode*>(node))->clause() } ;
+  } else if (getCircuitNodeType (node) == CircuitNodeType::SMOOTH_NODE) {
+    clauses  = (dynamic_cast<SmoothNode*>(node))->clauses();
+  }
+  if (clauses.empty() == false) {
     os << escapeNode (node);
     os << " [shape=box," << extraOptions << "label=\"" ;  
     for (size_t i = 0; i < clauses.size(); i++) {
@@ -1043,6 +1113,8 @@ LiftedCircuit::printClauses (
     }
     os << "\"]" ;
     os << endl;
+  } else {
+    os << " [shape=box]" << endl;  
   }
 }
 

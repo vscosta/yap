@@ -23,20 +23,9 @@ enum CircuitNodeType {
 class CircuitNode
 {
   public:
-    CircuitNode (const Clauses& clauses, string explanation = "")
-        : clauses_(clauses), explanation_(explanation) { }
-
-    const Clauses& clauses (void) const { return clauses_; }
-
-    Clauses clauses (void) { return clauses_; }
+    CircuitNode (void) { }
 
     virtual double weight (void) const = 0;
-
-    string explanation (void) const { return explanation_; }
-
-  private:    
-    Clauses  clauses_;
-    string   explanation_;
 };
 
 
@@ -44,9 +33,7 @@ class CircuitNode
 class OrNode : public CircuitNode
 {
   public:
-    OrNode (const Clauses& clauses, string explanation = "")
-        : CircuitNode (clauses, explanation),
-          leftBranch_(0), rightBranch_(0) { }
+    OrNode (void) : CircuitNode(), leftBranch_(0), rightBranch_(0) { }          
 
     CircuitNode** leftBranch  (void) { return &leftBranch_; }
     CircuitNode** rightBranch (void) { return &rightBranch_; }
@@ -63,24 +50,10 @@ class OrNode : public CircuitNode
 class AndNode : public CircuitNode
 {
   public:
-    AndNode (const Clauses& clauses, string explanation = "")
-        : CircuitNode (clauses, explanation),
-          leftBranch_(0), rightBranch_(0) { }
-
-    AndNode (
-        const Clauses& clauses,
-        CircuitNode* leftBranch,
-        CircuitNode* rightBranch,
-        string explanation = "")
-        : CircuitNode (clauses, explanation),
-          leftBranch_(leftBranch), rightBranch_(rightBranch) { }
-
-   AndNode (
-        CircuitNode* leftBranch,
-        CircuitNode* rightBranch,
-        string explanation = "")
-        : CircuitNode ({}, explanation),
-          leftBranch_(leftBranch), rightBranch_(rightBranch) { }
+    AndNode (void) : CircuitNode(), leftBranch_(0), rightBranch_(0) { }
+ 
+    AndNode (CircuitNode* leftBranch, CircuitNode* rightBranch)
+        : CircuitNode(), leftBranch_(leftBranch), rightBranch_(rightBranch) { }
 
     CircuitNode** leftBranch  (void) { return &leftBranch_;  }
     CircuitNode** rightBranch (void) { return &rightBranch_; }
@@ -97,9 +70,8 @@ class AndNode : public CircuitNode
 class SetOrNode	: public CircuitNode
 {
   public:
-    SetOrNode (unsigned nrGroundings, const Clauses& clauses)
-        : CircuitNode (clauses, " AC"), follow_(0),
-          nrGroundings_(nrGroundings) { }
+    SetOrNode (unsigned nrGroundings)
+        : CircuitNode(), follow_(0), nrGroundings_(nrGroundings) { }
 
     CircuitNode** follow (void) { return &follow_; }
 
@@ -121,9 +93,8 @@ class SetOrNode	: public CircuitNode
 class SetAndNode : public CircuitNode
 {
   public:
-    SetAndNode (unsigned nrGroundings, const Clauses& clauses)
-        : CircuitNode (clauses, " IPG"), follow_(0),
-          nrGroundings_(nrGroundings) { }
+    SetAndNode (unsigned nrGroundings)
+        : CircuitNode(), follow_(0), nrGroundings_(nrGroundings) { }
 
     CircuitNode** follow (void) { return &follow_; }
 
@@ -139,9 +110,8 @@ class SetAndNode : public CircuitNode
 class IncExcNode : public CircuitNode
 {
   public:
-    IncExcNode (const Clauses& clauses, string explanation)
-        : CircuitNode (clauses, explanation), plus1Branch_(0),
-        plus2Branch_(0), minusBranch_(0) { }
+    IncExcNode (void)
+        : CircuitNode(), plus1Branch_(0), plus2Branch_(0), minusBranch_(0) { }
 
     CircuitNode** plus1Branch (void) { return &plus1Branch_; }
     CircuitNode** plus2Branch (void) { return &plus2Branch_; }
@@ -161,11 +131,16 @@ class LeafNode : public CircuitNode
 {
   public:
     LeafNode (const Clause& clause, const LiftedWCNF& lwcnf)
-        : CircuitNode (Clauses() = {clause}), lwcnf_(lwcnf) { }
+        : CircuitNode(), clause_(clause), lwcnf_(lwcnf) { }
+
+    const Clause& clause (void) const { return clause_; }
+    
+    Clause& clause (void) { return clause_; }
 
     double weight (void) const;
 
   private:
+    Clause             clause_;
     const LiftedWCNF&  lwcnf_;
 };
 
@@ -175,11 +150,16 @@ class SmoothNode : public CircuitNode
 {
   public:
     SmoothNode (const Clauses& clauses, const LiftedWCNF& lwcnf)
-        : CircuitNode (clauses), lwcnf_(lwcnf) { }
+        : CircuitNode(), clauses_(clauses), lwcnf_(lwcnf) { }
+    
+    const Clauses& clauses (void) const { return clauses_; }
 
-    double weight (void) const;
-
+    Clauses clauses (void) { return clauses_; }
+    
+    double weight (void) const;    
+    
   private:
+    Clauses            clauses_;
     const LiftedWCNF&  lwcnf_;
 };
 
@@ -188,7 +168,7 @@ class SmoothNode : public CircuitNode
 class TrueNode : public CircuitNode
 {
   public:
-    TrueNode (void) : CircuitNode ({}) { }
+    TrueNode (void) : CircuitNode() { }
 
     double weight (void) const;
 };
@@ -198,8 +178,7 @@ class TrueNode : public CircuitNode
 class CompilationFailedNode : public CircuitNode
 {
   public:
-    CompilationFailedNode (const Clauses& clauses)
-        : CircuitNode (clauses) { }
+    CompilationFailedNode (void) : CircuitNode() { }
 
     double weight (void) const;
 };
@@ -261,13 +240,19 @@ class LiftedCircuit
 
     void exportToGraphViz (CircuitNode* node, ofstream&);
 
-    void printClauses (const CircuitNode* node, ofstream&,
+    void printClauses (CircuitNode* node, ofstream&,
         string extraOptions = "");
 
     string escapeNode (const CircuitNode* node) const;
+    
+    string getExplanationString (CircuitNode* node);
 
     CircuitNode*       root_;
     const LiftedWCNF*  lwcnf_;
+    
+    Clauses backupClauses_;
+    unordered_map<CircuitNode*, Clauses> originClausesMap_;
+    unordered_map<CircuitNode*, string>  explanationMap_;
     bool               compilationSucceeded_;
 };
 
