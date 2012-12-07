@@ -2367,7 +2367,7 @@ cls_head_info(ClauseDef *min, ClauseDef *max, UInt argno, int in_idb)
     }
   } else {
       while (cl <= max) {
-	add_head_info(cl, argno);
+	add_info(cl, argno);
 	/*    if (IsVarTerm(cl->Tag)) cl->Tag = (CELL)NULL; */
 	cl++;
       }
