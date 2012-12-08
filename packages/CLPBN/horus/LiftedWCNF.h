@@ -132,9 +132,11 @@ class Clause
     void removeLiteral (size_t litIdx);
     
     static bool independentClauses (Clause& c1, Clause& c2);
+    
+    static vector<Clause*> copyClauses (const vector<Clause*>& clauses);    
 
     static void printClauses (const vector<Clause*>& clauses);
-
+    
     friend std::ostream& operator<< (ostream &os, const Clause& clause);
 
   private:

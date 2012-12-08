@@ -161,14 +161,12 @@ CompilationFailedNode::weight (void) const
 
 
 
-Clauses copyClauses (const Clauses& clauses);
-
 LiftedCircuit::LiftedCircuit (const LiftedWCNF* lwcnf)
     : lwcnf_(lwcnf)
 {
   root_ = 0;
   compilationSucceeded_ = true;
-  Clauses clauses = copyClauses (lwcnf->clauses());
+  Clauses clauses = Clause::copyClauses (lwcnf->clauses());
   compile (&root_, clauses);
   if (Globals::verbosity > 1) {
     smoothCircuit (root_);
@@ -270,18 +268,6 @@ LiftedCircuit::compile (
 }
 
 
-// TODO
-Clauses copyClauses (const Clauses& clauses)
-{
-  Clauses copy;
-  copy.reserve (clauses.size());
-  for (size_t i = 0; i < clauses.size(); i++) {
-    copy.push_back (new Clause (*clauses[i]));
-  }
-  return copy;
-}
-
-
 
 bool
 LiftedCircuit::tryUnitPropagation (
@@ -289,7 +275,7 @@ LiftedCircuit::tryUnitPropagation (
     Clauses& clauses)
 {
   if (Globals::verbosity > 1) {
-    backupClauses_ = copyClauses (clauses);
+    backupClauses_ = Clause::copyClauses (clauses);
   }
   for (size_t i = 0; i < clauses.size(); i++) {
     if (clauses[i]->isUnit()) {
@@ -391,7 +377,7 @@ LiftedCircuit::tryShannonDecomp (
     Clauses& clauses)
 {
   if (Globals::verbosity > 1) {
-    backupClauses_ = copyClauses (clauses);
+    backupClauses_ = Clause::copyClauses (clauses);
   }
   for (size_t i = 0; i < clauses.size(); i++) {
     const Literals& literals = clauses[i]->literals();
@@ -403,7 +389,7 @@ LiftedCircuit::tryShannonDecomp (
         Clause* c2 = new Clause (*c1);
         c2->literals().front().complement();
 
-        Clauses otherClauses = copyClauses (clauses);
+        Clauses otherClauses = Clause::copyClauses (clauses);
         clauses.push_back (c1);
         otherClauses.push_back (c2);
 
@@ -433,7 +419,7 @@ LiftedCircuit::tryInclusionExclusion (
     Clauses& clauses)
 {
   if (Globals::verbosity > 1) {
-    backupClauses_ = copyClauses (clauses);
+    backupClauses_ = Clause::copyClauses (clauses);
   }
   for (size_t i = 0; i < clauses.size(); i++) {
     Literals depLits = { clauses[i]->literals().front() };
@@ -474,8 +460,8 @@ LiftedCircuit::tryInclusionExclusion (
       for (size_t j = 0; j < indepLits.size(); j++) {
         c2->addLiteral (indepLits[j]);
       }
-      Clauses plus1Clauses = copyClauses (clauses);
-      Clauses plus2Clauses = copyClauses (clauses);
+      Clauses plus1Clauses = Clause::copyClauses (clauses);
+      Clauses plus2Clauses = Clause::copyClauses (clauses);
 
       plus1Clauses.erase (plus1Clauses.begin() + i);
       plus2Clauses.erase (plus2Clauses.begin() + i);
@@ -513,7 +499,7 @@ LiftedCircuit::tryIndepPartialGrounding (
   // assumes that all literals have logical variables
   // else, shannon decomp was possible
   if (Globals::verbosity > 1) {
-    backupClauses_ = copyClauses (clauses);
+    backupClauses_ = Clause::copyClauses (clauses);
   }
   LogVars rootLogVars;
   LogVarSet lvs = clauses[0]->ipgCandidates();
@@ -595,7 +581,7 @@ LiftedCircuit::tryAtomCounting (
     }
   }
   if (Globals::verbosity > 1) {
-    backupClauses_ = copyClauses (clauses);
+    backupClauses_ = Clause::copyClauses (clauses);
   }  
   for (size_t i = 0; i < clauses.size(); i++) {
     Literals literals = clauses[i]->literals();
@@ -829,7 +815,7 @@ LiftedCircuit::createSmoothNode (
   if (missingLits.empty() == false) {
     if (Globals::verbosity > 1) {
       // assert (Util::contains (originClausesMap_, prev));
-      backupClauses_ = originClausesMap_[*prev]; // TODO copyClauses ?
+      backupClauses_ = originClausesMap_[*prev]; // TODO Clause::copyClauses ?
     }  
     Clauses clauses;
     for (size_t i = 0; i < missingLits.size(); i++) {

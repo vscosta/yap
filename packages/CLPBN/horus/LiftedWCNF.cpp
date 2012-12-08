@@ -308,6 +308,19 @@ Clause::independentClauses (Clause& c1, Clause& c2)
 
 
 
+Clauses
+Clause::copyClauses (const Clauses& clauses)
+{
+  Clauses copy;
+  copy.reserve (clauses.size());
+  for (size_t i = 0; i < clauses.size(); i++) {
+    copy.push_back (new Clause (*clauses[i]));
+  }
+  return copy;
+}
+
+
+
 void
 Clause::printClauses (const Clauses& clauses)
 {
