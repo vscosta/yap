@@ -312,7 +312,7 @@ void
 Clause::printClauses (const Clauses& clauses)
 {
   for (size_t i = 0; i < clauses.size(); i++) {
-    cout << clauses[i] << endl;
+    cout << *clauses[i] << endl;
   }
 }
 
@@ -448,23 +448,24 @@ LiftedWCNF::prvGroupLiterals (PrvGroup prvGroup)
 
 
 
-Clause
+Clause*
 LiftedWCNF::createClause (LiteralId lid) const
 {
   for (size_t i = 0; i < clauses_.size(); i++) {
-    const Literals& literals = clauses_[i].literals();
+    const Literals& literals = clauses_[i]->literals();
     for (size_t j = 0; j < literals.size(); j++) {
       if (literals[j].lid() == lid) {
-        ConstraintTree ct = clauses_[i].constr();
+        // TODO projectedCopy ?
+        ConstraintTree ct = clauses_[i]->constr();
         ct.project (literals[j].logVars());
-        Clause clause (ct);
-        clause.addLiteral (literals[j]);
-        return clause;
+        Clause* c = new Clause (ct);
+        c->addLiteral (literals[j]);
+        return c;
       }
     }
   }
   abort(); // we should not reach this point
-  return Clause (ConstraintTree({}));
+  return 0;
 }
 
 
@@ -488,10 +489,10 @@ LiftedWCNF::addIndicatorClauses (const ParfactorList& pfList)
       if (Util::contains (map_, formulas[i].group()) == false) {
         ConstraintTree tempConstr = *(*it)->constr();
         tempConstr.project (formulas[i].logVars());
-        Clause clause (tempConstr);
+        Clause* clause = new Clause (tempConstr);
         vector<LiteralId> lids;
         for (size_t j = 0; j < formulas[i].range(); j++) {
-          clause.addLiteral (Literal (freeLiteralId_, formulas[i].logVars()));
+          clause->addLiteral (Literal (freeLiteralId_, formulas[i].logVars()));
           lids.push_back (freeLiteralId_);
           freeLiteralId_ ++;
         }
@@ -500,9 +501,9 @@ LiftedWCNF::addIndicatorClauses (const ParfactorList& pfList)
           for (size_t k = j + 1; k < formulas[i].range(); k++) {
             ConstraintTree tempConstr2 = *(*it)->constr();
             tempConstr2.project (formulas[i].logVars());
-            Clause clause2 (tempConstr2);
-            clause2.addLiteralComplemented (Literal (clause.literals()[j]));
-            clause2.addLiteralComplemented (Literal (clause.literals()[k]));
+            Clause* clause2 = new Clause (tempConstr2);
+            clause2->addLiteralComplemented (Literal (clause->literals()[j]));
+            clause2->addLiteralComplemented (Literal (clause->literals()[k]));
             clauses_.push_back (clause2);
           }
         }
@@ -532,22 +533,22 @@ LiftedWCNF::addParameterClauses (const ParfactorList& pfList)
       double posWeight = (**it)[indexer];
       addWeight (paramVarLid, posWeight, 1.0);
       
-      Clause clause1 (*(*it)->constr());
+      Clause* clause1 = new Clause (*(*it)->constr());
 
       for (unsigned i = 0; i < groups.size(); i++) {
         LiteralId lid = getLiteralId (groups[i], indexer[i]);
 
-        clause1.addLiteralComplemented (
+        clause1->addLiteralComplemented (
             Literal (lid, (*it)->argument(i).logVars()));
 
         ConstraintTree ct = *(*it)->constr();
-        Clause tempClause (ct);
-        tempClause.addLiteralComplemented (Literal (
+        Clause* tempClause = new Clause (ct);
+        tempClause->addLiteralComplemented (Literal (
             paramVarLid, (*it)->constr()->logVars()));
-        tempClause.addLiteral (Literal (lid, (*it)->argument(i).logVars()));
+        tempClause->addLiteral (Literal (lid, (*it)->argument(i).logVars()));
         clauses_.push_back (tempClause);        
       }
-      clause1.addLiteral (Literal (paramVarLid, (*it)->constr()->logVars()));
+      clause1->addLiteral (Literal (paramVarLid, (*it)->constr()->logVars()));
       clauses_.push_back (clause1);
       freeLiteralId_ ++;
       ++ indexer;
@@ -601,8 +602,6 @@ LiftedWCNF::printWeights (void) const
 void
 LiftedWCNF::printClauses (void) const
 {
-  for (unsigned i = 0; i < clauses_.size(); i++) {
-    cout << clauses_[i] << endl;
-  }
+  Clause::printClauses (clauses_);
 }
 

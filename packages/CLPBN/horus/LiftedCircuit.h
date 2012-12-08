@@ -130,17 +130,17 @@ class IncExcNode : public CircuitNode
 class LeafNode : public CircuitNode
 {
   public:
-    LeafNode (const Clause& clause, const LiftedWCNF& lwcnf)
+    LeafNode (Clause* clause, const LiftedWCNF& lwcnf)
         : CircuitNode(), clause_(clause), lwcnf_(lwcnf) { }
 
-    const Clause& clause (void) const { return clause_; }
+    const Clause* clause (void) const { return clause_; }
     
-    Clause& clause (void) { return clause_; }
+    Clause* clause (void) { return clause_; }
 
     double weight (void) const;
 
   private:
-    Clause             clause_;
+    Clause*            clause_;
     const LiftedWCNF&  lwcnf_;
 };
 
