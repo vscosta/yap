@@ -75,19 +75,19 @@ class SetOrNode	: public CircuitNode
 
     CircuitNode** follow (void) { return &follow_; }
 
-    static unsigned nrPositives (void) { return nrGrsStack.top().first; }
+    static unsigned nrPositives (void) { return nrPos_; }
 
-    static unsigned nrNegatives (void) { return nrGrsStack.top().second; }
+    static unsigned nrNegatives (void) { return nrNeg_; }
     
-    static bool isSet (void) { return nrGrsStack.size() > 0; }
+    static bool isSet (void) { return nrPos_ >= 0; }
 
     double weight (void) const;
 
   private:
     CircuitNode*  follow_;
     unsigned      nrGroundings_;
-
-    static stack<pair<unsigned, unsigned>> nrGrsStack;
+    static int    nrPos_;
+    static int    nrNeg_;
 };
 
 

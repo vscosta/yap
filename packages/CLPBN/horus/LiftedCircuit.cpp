@@ -23,7 +23,8 @@ AndNode::weight (void) const
 
 
 
-stack<pair<unsigned, unsigned>> SetOrNode::nrGrsStack;
+int SetOrNode::nrPos_ = -1;
+int SetOrNode::nrNeg_ = -1;
 
 
 
@@ -32,7 +33,8 @@ SetOrNode::weight (void) const
 {
   double weightSum = LogAware::addIdenty();
   for (unsigned i = 0; i < nrGroundings_ + 1; i++) {
-    nrGrsStack.push (make_pair (nrGroundings_ - i, i));
+    nrPos_ = nrGroundings_ - i;
+    nrNeg_ = i;
     if (Globals::logDomain) {
       double nrCombs = Util::nrCombinations (nrGroundings_, i);
       double w = follow_->weight();
@@ -42,6 +44,8 @@ SetOrNode::weight (void) const
       weightSum += Util::nrCombinations (nrGroundings_, i) * w;
     }
   }
+  nrPos_ = -1;
+  nrNeg_ = -1;
   return weightSum;
 }
 
