@@ -349,7 +349,7 @@ LiftedCircuit::tryIndependence (
     return false;
   }
   if (Globals::verbosity > 1) {
-    backupClauses_ = clauses;
+    backupClauses_ = Clause::copyClauses (clauses);
   }
   Clauses depClauses = { clauses[0] };
   Clauses indepClauses (clauses.begin() + 1, clauses.end());
@@ -827,7 +827,8 @@ LiftedCircuit::createSmoothNode (
       if (it != originClausesMap_.end()) {
         backupClauses_ = it->second;
       } else {
-        backupClauses_ = { ((dynamic_cast<LeafNode*>(*prev))->clause()) };
+        backupClauses_ =  Clause::copyClauses (
+            {((dynamic_cast<LeafNode*>(*prev))->clause())});
       }
     }
     Clauses clauses;
