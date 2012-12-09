@@ -33,11 +33,6 @@ Literal::toString (
 {
   stringstream ss;
   negated_ ? ss << "¬" : ss << "" ;
-  // if (negated_ == false) {
-  //   posWeight_ < 0.0 ? ss << "λ" : ss << "Θ" ;
-  // } else {
-  //   negWeight_ < 0.0 ? ss << "λ" : ss << "Θ" ;  
-  // }
   ss << "λ" ;
   ss << lid_ ;
   if (logVars_.empty() == false) {
@@ -480,16 +475,14 @@ LiftedWCNF::createClause (LiteralId lid) const
     const Literals& literals = clauses_[i]->literals();
     for (size_t j = 0; j < literals.size(); j++) {
       if (literals[j].lid() == lid) {
-        // TODO projectedCopy ?
-        ConstraintTree ct = clauses_[i]->constr();
-        ct.project (literals[j].logVars());
+        ConstraintTree ct = clauses_[i]->constr().projectedCopy (
+            literals[j].logVars());
         Clause* c = new Clause (ct);
         c->addLiteral (literals[j]);
         return c;
       }
     }
   }
-  abort(); // we should not reach this point
   return 0;
 }
 
@@ -512,8 +505,8 @@ LiftedWCNF::addIndicatorClauses (const ParfactorList& pfList)
     const ProbFormulas& formulas = (*it)->arguments();
     for (size_t i = 0; i < formulas.size(); i++) {
       if (Util::contains (map_, formulas[i].group()) == false) {
-        ConstraintTree tempConstr = *(*it)->constr();
-        tempConstr.project (formulas[i].logVars());
+        ConstraintTree tempConstr = (*it)->constr()->projectedCopy(
+            formulas[i].logVars());
         Clause* clause = new Clause (tempConstr);
         vector<LiteralId> lids;
         for (size_t j = 0; j < formulas[i].range(); j++) {
@@ -524,8 +517,8 @@ LiftedWCNF::addIndicatorClauses (const ParfactorList& pfList)
         clauses_.push_back (clause);
         for (size_t j = 0; j < formulas[i].range() - 1; j++) {
           for (size_t k = j + 1; k < formulas[i].range(); k++) {
-            ConstraintTree tempConstr2 = *(*it)->constr();
-            tempConstr2.project (formulas[i].logVars());
+            ConstraintTree tempConstr2 = (*it)->constr()->projectedCopy (
+                formulas[i].logVars());
             Clause* clause2 = new Clause (tempConstr2);
             clause2->addLiteralComplemented (Literal (clause->literals()[j]));
             clause2->addLiteralComplemented (Literal (clause->literals()[k]));
@@ -598,8 +591,8 @@ LiftedWCNF::printFormulaIndicators (void) const
       if (Util::contains (allGroups, formulas[i].group()) == false) {
         allGroups.insert (formulas[i].group());
         cout << formulas[i] << " | " ;
-        ConstraintTree tempCt = *(*it)->constr();
-        tempCt.project (formulas[i].logVars());
+        ConstraintTree tempCt = (*it)->constr()->projectedCopy (
+            formulas[i].logVars());
         cout << tempCt.tupleSet();
         cout << " indicators => " ;
         vector<LiteralId> indicators = 

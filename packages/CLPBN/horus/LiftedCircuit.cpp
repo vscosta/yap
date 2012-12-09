@@ -101,9 +101,7 @@ LeafNode::weight (void) const
   lvs -= clause_->negCountedLogVars();
   unsigned nrGroundings = 1;
   if (lvs.empty() == false) {
-    ConstraintTree ct = clause_->constr();
-    ct.project (lvs);
-    nrGroundings = ct.size();
+    nrGroundings = clause_->constr().projectedCopy (lvs).size();
   }
   if (clause_->posCountedLogVars().empty() == false) {
     nrGroundings *= std::pow (SetOrNode::nrPositives(),
@@ -113,7 +111,7 @@ LeafNode::weight (void) const
     nrGroundings *= std::pow (SetOrNode::nrNegatives(),
         clause_->nrNegCountedLogVars());
   }
-  return Globals::logDomain 
+  return Globals::logDomain
       ? weight * nrGroundings
       : std::pow (weight, nrGroundings);
 }
@@ -134,9 +132,7 @@ SmoothNode::weight (void) const
     lvs -= cs[i]->negCountedLogVars();
     unsigned nrGroundings = 1;
     if (lvs.empty() == false) {
-      ConstraintTree ct = cs[i]->constr();
-      ct.project (lvs);
-      nrGroundings = ct.size();
+      nrGroundings = cs[i]->constr().projectedCopy (lvs).size();
     }
     if (cs[i]->posCountedLogVars().empty() == false) {
       nrGroundings *= std::pow (SetOrNode::nrPositives(), 
@@ -169,7 +165,7 @@ double
 CompilationFailedNode::weight (void) const
 {
   // weighted model counting in compilation
-  // failed nodes should give nan
+  // failed nodes should give NaN
   return 0.0 / 0.0;
 }
 
@@ -474,12 +470,10 @@ LiftedCircuit::tryInclusionExclusion (
       for (size_t j = 0; j < indepLits.size(); j++) {
         c2->addLiteral (indepLits[j]);
       }
+  
+      clauses.erase (clauses.begin() + i);
       Clauses plus1Clauses = Clause::copyClauses (clauses);
       Clauses plus2Clauses = Clause::copyClauses (clauses);
-
-      plus1Clauses.erase (plus1Clauses.begin() + i);
-      plus2Clauses.erase (plus2Clauses.begin() + i);
-      clauses.erase (clauses.begin() + i);
 
       plus1Clauses.push_back (c1);
       plus2Clauses.push_back (c2);
@@ -744,7 +738,7 @@ LiftedCircuit::smoothCircuit (CircuitNode* node)
       propagLits |= lids2;
       break;
     }
-  
+
     case CircuitNodeType::AND_NODE: {
       AndNode* casted = dynamic_cast<AndNode*>(node);
       LitLvTypesSet lids1 = smoothCircuit (*casted->leftBranch());
@@ -785,13 +779,13 @@ LiftedCircuit::smoothCircuit (CircuitNode* node)
       }
       break;
     }
-    
+
     case CircuitNodeType::SET_AND_NODE: {
       SetAndNode* casted = dynamic_cast<SetAndNode*>(node);
       propagLits = smoothCircuit (*casted->follow());
       break;
     }
-    
+
     case CircuitNodeType::INC_EXC_NODE: {
       IncExcNode* casted = dynamic_cast<IncExcNode*>(node);
       LitLvTypesSet lids1 = smoothCircuit (*casted->plus1Branch());
@@ -804,18 +798,18 @@ LiftedCircuit::smoothCircuit (CircuitNode* node)
       propagLits |= lids2;
       break;
     }
-    
+
     case CircuitNodeType::LEAF_NODE: {
       LeafNode* casted = dynamic_cast<LeafNode*>(node);    
       propagLits.insert (LitLvTypes (
           casted->clause()->literals()[0].lid(),
           casted->clause()->logVarTypes(0)));
     }
- 
+
     default:
       break;
   }
-  
+
   return propagLits;
 }
 
@@ -828,9 +822,14 @@ LiftedCircuit::createSmoothNode (
 {
   if (missingLits.empty() == false) {
     if (Globals::verbosity > 1) {
-      // assert (Util::contains (originClausesMap_, prev));
-      backupClauses_ = originClausesMap_[*prev]; // TODO Clause::copyClauses ?
-    }  
+      unordered_map<CircuitNode*, Clauses>::iterator it;
+      it = originClausesMap_.find (*prev);
+      if (it != originClausesMap_.end()) {
+        backupClauses_ = it->second;
+      } else {
+        backupClauses_ = { ((dynamic_cast<LeafNode*>(*prev))->clause()) };
+      }
+    }
     Clauses clauses;
     for (size_t i = 0; i < missingLits.size(); i++) {
       LiteralId lid = missingLits[i].lid();
@@ -1127,21 +1126,18 @@ LiftedCircuit::printClauses (
   if (Util::contains (originClausesMap_, node)) {
     clauses = originClausesMap_[node];
   } else if (getCircuitNodeType (node) == CircuitNodeType::LEAF_NODE) {
-    clauses  = { (dynamic_cast<LeafNode*>(node))->clause() } ;
+    clauses = { (dynamic_cast<LeafNode*>(node))->clause() } ;
   } else if (getCircuitNodeType (node) == CircuitNodeType::SMOOTH_NODE) {
-    clauses  = (dynamic_cast<SmoothNode*>(node))->clauses();
+    clauses = (dynamic_cast<SmoothNode*>(node))->clauses();
   }
-  if (clauses.empty() == false) {
-    os << escapeNode (node);
-    os << " [shape=box," << extraOptions << "label=\"" ;  
-    for (size_t i = 0; i < clauses.size(); i++) {
-      if (i != 0) os << "\\n" ;
-      os << *clauses[i];
-    }
-    os << "\"]" ;
-    os << endl;
-  } else {
-    os << " [shape=box]" << endl;  
+  assert (clauses.empty() == false);
+  os << escapeNode (node);
+  os << " [shape=box," << extraOptions << "label=\"" ;
+  for (size_t i = 0; i < clauses.size(); i++) {
+    if (i != 0) os << "\\n" ;
+    os << *clauses[i];
   }
+  os << "\"]" ;
+  os << endl;
 }
 
