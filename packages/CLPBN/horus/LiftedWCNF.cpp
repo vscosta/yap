@@ -367,41 +367,53 @@ LiftedWCNF::LiftedWCNF (const ParfactorList& pfList)
 {
   addIndicatorClauses (pfList);
   addParameterClauses (pfList);
-
-  /*
-  // INCLUSION-EXCLUSION TEST
-  vector<vector<string>> names = {
-    // {"a1","b1"},{"a2","b2"},{"a1","b3"}
-    {"b1","a1"},{"b2","a2"},{"b3","a1"}
-  };
-  Clause c1 (names);
-  c1.addLiteral (Literal (0, LogVars() = {0}));
-  c1.addLiteral (Literal (1, LogVars() = {1}));
-  clauses_.push_back(c1);
-  freeLiteralId_ ++ ;
-  freeLiteralId_ ++ ;
-  */
   
   /*
-  // ATOM-COUNTING TEST
+  // INCLUSION-EXCLUSION TEST
+  clauses_.clear();
   vector<vector<string>> names = {
-    {"p1","p1"},{"p1","p2"},{"p1","p3"},      
+    {"a1","b1"},{"a2","b2"}
+  };
+  Clause* c1 = new Clause (names);
+  c1->addLiteral (Literal (0, LogVars() = {0}));
+  c1->addLiteral (Literal (1, LogVars() = {1}));
+  clauses_.push_back(c1);
+  */
+
+  /*
+  // INDEPENDENT PARTIAL GROUND TEST
+  clauses_.clear();
+  vector<vector<string>> names = {
+    {"a1","b1"},{"a2","b2"}
+  };
+  Clause* c1 = new Clause (names);
+  c1->addLiteral (Literal (0, LogVars() = {0,1}));
+  c1->addLiteral (Literal (1, LogVars() = {0,1}));
+  clauses_.push_back(c1);
+  Clause* c2 = new Clause (names);
+  c2->addLiteral (Literal (2, LogVars() = {0}));
+  c2->addLiteral (Literal (1, LogVars() = {0,1}));
+  clauses_.push_back(c2);
+  */
+
+  /*
+  // ATOM-COUNTING TEST
+  clauses_.clear();
+  vector<vector<string>> names = {
+    {"p1","p1"},{"p1","p2"},{"p1","p3"},
     {"p2","p1"},{"p2","p2"},{"p2","p3"},
     {"p3","p1"},{"p3","p2"},{"p3","p3"}
   };
-  Clause c1 (names);
-  c1.addLiteral (Literal (0, LogVars() = {0}));
-  c1.addLiteralComplemented (Literal (1, {0,1}));
+  Clause* c1 = new Clause (names);
+  c1->addLiteral (Literal (0, LogVars() = {0}));
+  c1->addLiteralComplemented (Literal (1, {0,1}));
   clauses_.push_back(c1);
-  Clause c2 (names);
-  c2.addLiteral (Literal (0, LogVars()={0}));
-  c2.addLiteralComplemented (Literal (1, {1,0}));
+  Clause* c2 = new Clause (names);
+  c2->addLiteral (Literal (0, LogVars()={0}));
+  c2->addLiteralComplemented (Literal (1, {1,0}));
   clauses_.push_back(c2);
-  addWeight (0, LogAware::log(3.0), LogAware::log(4.0));
-  addWeight (1, LogAware::log(2.0), LogAware::log(5.0));
-  freeLiteralId_ = 2;
   */
-
+  
   if (Globals::verbosity > 1) {
     cout << "FORMULA INDICATORS:" << endl;
     printFormulaIndicators();
@@ -571,9 +583,13 @@ LiftedWCNF::addParameterClauses (const ParfactorList& pfList)
 }
 
 
+
 void
 LiftedWCNF::printFormulaIndicators (void) const
 {
+  if (map_.empty()) {
+    return;
+  }
   set<PrvGroup> allGroups;
   ParfactorList::const_iterator it = pfList_.begin();
   while (it != pfList_.end()) {
