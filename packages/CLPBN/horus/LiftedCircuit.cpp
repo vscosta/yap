@@ -78,6 +78,16 @@ double
 LeafNode::weight (void) const
 {
   assert (clause_->isUnit());
+  if (clause_->posCountedLogVars().empty() == false 
+    || clause_->negCountedLogVars().empty() == false) {
+    if (SetOrNode::isSet() == false) {
+      // return a NaN if we have a SetOrNode
+      // ancester that is not set. This can only
+      // happen when calculating the weights
+      // for the edge labels in graphviz
+      return 0.0 / 0.0;
+    }
+  }
   double weight = clause_->literals()[0].isPositive()
       ? lwcnf_.posWeight (clause_->literals().front().lid())
       : lwcnf_.negWeight (clause_->literals().front().lid());
@@ -226,7 +236,7 @@ LiftedCircuit::compile (
   }
 
   if (clauses.empty()) {
-    *follow = new TrueNode ();
+    *follow = new TrueNode();
     return;
   }
   
