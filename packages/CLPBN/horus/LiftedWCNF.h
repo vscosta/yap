@@ -165,7 +165,10 @@ class LitLvTypes
         if (types1.lid_ < types2.lid_) {
           return true;
         }
-        return types1.lvTypes_ < types2.lvTypes_;
+        if (types1.lid_ == types2.lid_) {
+          return types1.lvTypes_ < types2.lvTypes_;
+        }
+        return false;
       }
     };
   
