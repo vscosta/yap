@@ -60,7 +60,8 @@ Literal::toString (
 
 
 
-std::ostream& operator<< (ostream &os, const Literal& lit)
+std::ostream&
+operator<< (ostream &os, const Literal& lit)
 {
   os << lit.toString();
   return os;
@@ -256,7 +257,7 @@ LogVarTypes
 Clause::logVarTypes (size_t litIdx) const
 {
   LogVarTypes types;
-  const LogVars lvs = literals_[litIdx].logVars();
+  const LogVars& lvs = literals_[litIdx].logVars();
   for (size_t i = 0; i < lvs.size(); i++) {
     if (posCountedLvs_.contains (lvs[i])) {
       types.push_back (LogVarType::POS_LV);
@@ -326,7 +327,8 @@ Clause::printClauses (const Clauses& clauses)
 
 
 
-std::ostream& operator<< (ostream &os, const Clause& clause)
+std::ostream&
+operator<< (ostream &os, const Clause& clause)
 {
   for (unsigned i = 0; i < clause.literals_.size(); i++) {
     if (i != 0) os << " v " ;
@@ -353,6 +355,23 @@ Clause::getLogVarSetExcluding (size_t idx) const
     }
   }
   return lvs;
+}
+
+
+
+std::ostream&
+operator<< (std::ostream &os, const LitLvTypes& lit)
+{
+  os << lit.lid_ << "<" ;
+  for (size_t i = 0; i < lit.lvTypes_.size(); i++) {
+    switch (lit.lvTypes_[i]) {
+      case LogVarType::FULL_LV: os << "F" ; break;
+      case LogVarType::POS_LV:  os << "P" ; break;
+      case LogVarType::NEG_LV:  os << "N" ; break;
+    }
+  }
+  os << ">" ;
+  return os;
 }
 
 
@@ -494,7 +513,7 @@ LiftedWCNF::getLiteralId (PrvGroup prvGroup, unsigned range)
   assert (Util::contains (map_, prvGroup));
   return map_[prvGroup][range];
 }
-  
+
 
 
 void

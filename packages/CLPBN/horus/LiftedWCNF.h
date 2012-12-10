@@ -179,6 +179,8 @@ class LitLvTypes
     void setAllFullLogVars (void) {
         std::fill (lvTypes_.begin(), lvTypes_.end(), LogVarType::FULL_LV); }
 
+    friend std::ostream& operator<< (std::ostream &os, const LitLvTypes& lit);
+
   private:
     LiteralId    lid_;
     LogVarTypes  lvTypes_;
