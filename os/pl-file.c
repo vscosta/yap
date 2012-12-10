@@ -4786,7 +4786,6 @@ struct PL_local_data *Yap_InitThreadIO(int wid)
 {
   CACHE_REGS
   struct PL_local_data *p;
-  fprintf(stderr,"wid=%d\n", wid);
   if (wid) 
     p = (struct PL_local_data *)malloc(sizeof(struct PL_local_data));
   else
@@ -4800,7 +4799,6 @@ struct PL_local_data *Yap_InitThreadIO(int wid)
     memcpy(p, Yap_local[0]->PL_local_data_p_, sizeof(struct PL_local_data));
   }
 #endif
-  fprintf(stderr,"wid=%d done\n", wid);
   return p;
 }
 
