@@ -282,7 +282,7 @@ writebig(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, stru
     blob_info = big_tag - USER_BLOB_START;
     if (GLOBAL_OpaqueHandlers &&
 	(f= GLOBAL_OpaqueHandlers[blob_info].write_handler)) {
-	      (f)(wglb->stream, big_tag, ExternalBlobFromTerm(t), 0);
+      (f)(wglb->stream, big_tag, ExternalBlobFromTerm(t), 0);
     }
   }
   wrputs("0",wglb->stream);
