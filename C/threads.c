@@ -492,7 +492,6 @@ Yap_thread_create_engine(thread_attr *ops)
 Int
 Yap_thread_attach_engine(int wid)
 {
-  CACHE_REGS
   /* 
      already locked
      pthread_mutex_lock(&(REMOTE_ThreadHandle(wid).tlock));
@@ -507,6 +506,7 @@ Yap_thread_attach_engine(int wid)
   REMOTE_ThreadHandle(wid).pthread_handle = pthread_self();
   REMOTE_ThreadHandle(wid).ref_count++;
   pthread_setspecific(Yap_yaamregs_key, (const void *)REMOTE_ThreadHandle(wid).default_yaam_regs);
+  CACHE_REGS
   worker_id = wid;  /* ricroc: for what I understand, this shouldn't be necessary */
   DEBUG_TLOCK_ACCESS(9, wid);
   pthread_mutex_unlock(&(REMOTE_ThreadHandle(wid).tlock));
