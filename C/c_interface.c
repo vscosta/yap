@@ -2255,14 +2255,12 @@ YAP_AtomToPred(Atom at)
 X_API PredEntry *
 YAP_FunctorToPredInModule(Functor func, Term mod)
 {
-  CACHE_REGS
   return RepPredProp(PredPropByFunc(func, mod));
 }
 
 X_API PredEntry *
 YAP_AtomToPredInModule(Atom at, Term mod)
 {
-  CACHE_REGS
   return RepPredProp(PredPropByAtom(at, mod));  
 }
 
@@ -2433,7 +2431,6 @@ YAP_RunGoal(Term t)
     B = B->cp_b;
     LOCAL_AllowRestart = FALSE;
   }
-  
 
   RECOVER_MACHINE_REGS();
   return out;
@@ -2562,6 +2559,8 @@ YAP_RestartGoal(void)
   if (LOCAL_AllowRestart) {
     P = (yamop *)FAILCODE;
     LOCAL_PrologMode = UserMode;
+    // exec_absmi destroys slots on top of stack....
+    Yap_CloseSlots( PASS_REGS1 );
     out = Yap_exec_absmi(TRUE);
     LOCAL_PrologMode = UserCCallMode;
     if (out == FALSE) {
