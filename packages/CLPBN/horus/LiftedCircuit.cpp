@@ -178,8 +178,10 @@ LiftedCircuit::LiftedCircuit (const LiftedWCNF* lwcnf)
   compilationSucceeded_ = true;
   Clauses clauses = Clause::copyClauses (lwcnf->clauses());
   compile (&root_, clauses);
-  if (Globals::verbosity > 1) {
+  if (compilationSucceeded_) {
     smoothCircuit (root_);
+  }
+  if (Globals::verbosity > 1) {
     exportToGraphViz("circuit.smooth.dot");
     if (compilationSucceeded_) {
       double wmc = LogAware::exp (getWeightedModelCount());
