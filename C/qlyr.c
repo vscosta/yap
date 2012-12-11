@@ -1008,7 +1008,7 @@ ReInitProlog(void)
 #if defined(YAPOR) || defined(TABLING)
   Yap_init_root_frames();
 #endif /* YAPOR || TABLING */
-  Yap_InitYaamRegs();
+  Yap_InitYaamRegs( 0 );
   YAP_RunGoalOnce(t);
 }
 

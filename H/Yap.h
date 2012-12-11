@@ -749,6 +749,8 @@ typedef struct thandle {
 #if HAVE_GETRUSAGE||defined(_WIN32)
   struct timeval *start_of_timesp;
   struct timeval *last_timep;
+  struct timeval *start_of_times_sysp;
+  struct timeval *last_time_sysp;
 #endif
 } yap_thandle;
 #endif /* THREADS */

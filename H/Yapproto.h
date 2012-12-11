@@ -248,7 +248,7 @@ void	STD_PROTO(Yap_KillStacks,(int));
 #else
 void	STD_PROTO(Yap_KillStacks,(int));
 #endif
-void	STD_PROTO(Yap_InitYaamRegs,(void));
+void	STD_PROTO(Yap_InitYaamRegs,(int));
 void    STD_PROTO(Yap_ReInitWallTime, (void));
 int	STD_PROTO(Yap_OpDec,(int,char *,Atom,Term));
 void    STD_PROTO(Yap_CloseScratchPad,(void));
@@ -360,7 +360,7 @@ void    STD_PROTO(Yap_systime_interval,(Int *,Int *));
 void    STD_PROTO(Yap_walltime_interval,(Int *,Int *));
 void	STD_PROTO(Yap_InitSysbits,(void));
 void	STD_PROTO(Yap_InitSysPreds,(void));
-void	STD_PROTO(Yap_InitTime,(void));
+void	STD_PROTO(Yap_InitTime,(int));
 int     STD_PROTO(Yap_TrueFileName, (char *, char *, int));
 double  STD_PROTO(Yap_random, (void));
 #ifdef _WIN32

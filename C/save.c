@@ -1781,7 +1781,7 @@ Restore(char *s, char *lib_dir USES_REGS)
     break;
   case DO_ONLY_CODE:
     UnmarkTrEntries( PASS_REGS1 );
-    Yap_InitYaamRegs();
+    Yap_InitYaamRegs( 0 );
     break;
   }
 

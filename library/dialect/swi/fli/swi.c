@@ -2545,6 +2545,7 @@ X_API PL_engine_t
 PL_create_engine(const PL_thread_attr_t *attr)
 {
 #if THREADS
+  int eng;
   if (attr) {
     YAP_thread_attr yapt;
 
@@ -2552,13 +2553,15 @@ PL_create_engine(const PL_thread_attr_t *attr)
     yapt.tsize = attr->global_size;
     yapt.alias = (YAP_Term)attr->alias;
     yapt.cancel =  attr->cancel;
-    return  Yap_local+YAP_ThreadCreateEngine(&yapt);
+
+    eng = YAP_ThreadCreateEngine(&yapt);
   } else {
-    return Yap_local+YAP_ThreadCreateEngine(NULL);
+    eng = YAP_ThreadCreateEngine(NULL);
   }
-#else
-  return NULL;
+  if (eng >= 0)
+    return  Yap_local[eng];
 #endif
+  return NULL;
 }
 
 
@@ -2578,7 +2581,6 @@ PL_set_engine(PL_engine_t engine, PL_engine_t *old)
   CACHE_REGS
 #if THREADS
   int cwid = PL_thread_self(), nwid;
-
   if (cwid >= 0) {
     if (old) *old = (PL_engine_t)(Yap_local[cwid]);
   }
@@ -2599,7 +2601,7 @@ PL_set_engine(PL_engine_t engine, PL_engine_t *old)
     }
     return PL_ENGINE_SET;
   } else {
-    nwid = ((struct worker_local *)engine)->ThreadHandle_.current_yaam_regs->worker_id_;
+    nwid = ((struct worker_local *)engine)->ThreadHandle_.id;
   }
 
   pthread_mutex_lock(&(REMOTE_ThreadHandle(nwid).tlock));
@@ -2609,13 +2611,6 @@ PL_set_engine(PL_engine_t engine, PL_engine_t *old)
       return PL_ENGINE_INUSE;
     }
     return PL_ENGINE_SET;
-  }
-  if (cwid >= 0) {
-    if (!YAP_ThreadDetachEngine(cwid)) {
-      *old = NULL;
-      pthread_mutex_unlock(&(REMOTE_ThreadHandle(nwid).tlock));
-      return PL_ENGINE_INVAL;
-    }
   }
   if (!YAP_ThreadAttachEngine(nwid)) {
     return PL_ENGINE_INVAL;

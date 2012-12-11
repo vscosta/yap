@@ -237,8 +237,8 @@ setup_engine(int myworker_id, int init_thread)
   LOCAL = REMOTE(worker_id);
   Yap_InitExStacks(REMOTE_ThreadHandle(myworker_id).tsize, REMOTE_ThreadHandle(myworker_id).ssize);
   CurrentModule = REMOTE_ThreadHandle(myworker_id).cmod;
-  Yap_InitTime();
-  Yap_InitYaamRegs();
+  Yap_InitTime( myworker_id );
+  Yap_InitYaamRegs( myworker_id );
   Yap_ReleasePreAllocCodeSpace(Yap_PreAllocCodeSpace());
   /* I exist */
   GLOBAL_NOfThreadsCreated++;
@@ -246,7 +246,7 @@ setup_engine(int myworker_id, int init_thread)
   DEBUG_TLOCK_ACCESS(2, myworker_id);
   pthread_mutex_unlock(&(REMOTE_ThreadHandle(myworker_id).tlock));  
 #ifdef TABLING
-  new_dependency_frame(LOCAL_top_dep_fr, FALSE, NULL, NULL, B, NULL, FALSE, NULL);  /* same as in Yap_init_root_frames() */
+  new_dependency_frame(REMOTE_top_dep_fr(myworker_id), FALSE, NULL, NULL, B, NULL, FALSE, NULL);  /* same as in Yap_init_root_frames() */
 #endif /* TABLING */
   return TRUE;
 }
@@ -456,8 +456,9 @@ Yap_thread_create_engine(thread_attr *ops)
   Term t = TermNil;
 
   /* 
-     ok, this creates a problem, because we are initializing an engine from some "empty" thread. 
-     We need first to foool the thread into believing it is the main thread
+     ok, this creates a problem, because we are initializing an engine from
+     some "empty" thread. 
+     We need first to fool the thread into believing it is the main thread
   */
   if (new_id == -1) {
     /* YAP ERROR */

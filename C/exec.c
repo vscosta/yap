@@ -1715,18 +1715,22 @@ p_generate_pred_info( USES_REGS1 ) {
 }
 
 void
-Yap_InitYaamRegs(void)
+Yap_InitYaamRegs( int myworker_id )
 {
-  CACHE_REGS
   Term h0var;
 #if PUSH_REGS
   /* Guarantee that after a longjmp we go back to the original abstract
      machine registers */
 #ifdef THREADS
-  int myworker_id = worker_id;
-  pthread_setspecific(Yap_yaamregs_key, (const void *)REMOTE_ThreadHandle(myworker_id).default_yaam_regs);
-  REMOTE_ThreadHandle(myworker_id).current_yaam_regs = REMOTE_ThreadHandle(myworker_id).default_yaam_regs;
-  worker_id = myworker_id;  /* ricroc: for what I understand, this shouldn't be necessary */
+  CACHE_REGS
+  int wid = worker_id;
+  if (wid != myworker_id) {
+    pthread_setspecific(Yap_yaamregs_key, (const void *)REMOTE_ThreadHandle(myworker_id).default_yaam_regs);
+    REFRESH_CACHE_REGS
+    REMOTE_ThreadHandle(myworker_id).current_yaam_regs = REMOTE_ThreadHandle(myworker_id).default_yaam_regs;
+    worker_id = myworker_id;
+  }
+  /* may be run by worker_id on behalf on myworker_id */
 #else
   Yap_regp = &Yap_standard_regs;
 #endif
@@ -1734,12 +1738,10 @@ Yap_InitYaamRegs(void)
   Yap_ResetExceptionTerm ();
   Yap_PutValue (AtomBreak, MkIntTerm (0));
   TR = (tr_fr_ptr)LOCAL_TrailBase;
-  if (Yap_AttsSize > (LOCAL_LocalBase-LOCAL_GlobalBase)/8)
-    Yap_AttsSize = (LOCAL_LocalBase-LOCAL_GlobalBase)/8;
-  H = H0 = ((CELL *) LOCAL_GlobalBase)+ Yap_AttsSize/sizeof(CELL);
+  H = H0 = ((CELL *) REMOTE_GlobalBase(wid));
   RESET_VARIABLE(H0-1);
-  LCL0 = ASP = (CELL *) LOCAL_LocalBase;
-  CurrentTrailTop = (tr_fr_ptr)(LOCAL_TrailTop-MinTrailGap);
+  LCL0 = ASP = (CELL *) REMOTE_LocalBase(wid);
+  CurrentTrailTop = (tr_fr_ptr)(REMOTE_TrailTop(wid)-MinTrailGap);
   /* notice that an initial choice-point and environment
    *must* be created since for the garbage collector to work */
   B = NULL;
@@ -1754,27 +1756,27 @@ Yap_InitYaamRegs(void)
 #ifdef YAPOR_SBA
   BSEG =
 #endif /* YAPOR_SBA */
-  BBREG = B_FZ = (choiceptr) LOCAL_LocalBase;
-  TR = TR_FZ = (tr_fr_ptr) LOCAL_TrailBase;
+  BBREG = B_FZ = (choiceptr) REMOTE_LocalBase(wid);
+  TR = TR_FZ = (tr_fr_ptr) REMOTE_TrailBase(wid);
 #endif /* FROZEN_STACKS */
-  LOCK(LOCAL_SignalLock);
+  LOCK(REMOTE_SignalLock(wid));
   CreepFlag = CalculateStackGap();
-  UNLOCK(LOCAL_SignalLock);
+  UNLOCK(REMOTE_SignalLock(wid));
   EX = NULL;
   init_stack(0, NULL, TRUE, NULL PASS_REGS);
   /* the first real choice-point will also have AP=FAIL */ 
   /* always have an empty slots for people to use */
   CurSlot = 0;
   Yap_StartSlots( PASS_REGS1 );
-  LOCAL_GlobalArena = TermNil;
+  REMOTE_GlobalArena(wid) = TermNil;
   h0var = MkVarTerm();
 #if COROUTINING
-  LOCAL_WokenGoals = Yap_NewTimedVar(TermNil);
-  LOCAL_AttsMutableList = Yap_NewTimedVar(h0var);
+  REMOTE_WokenGoals(wid) = Yap_NewTimedVar(TermNil);
+  REMOTE_AttsMutableList(wid) = Yap_NewTimedVar(h0var);
 #endif
-  LOCAL_GcGeneration = Yap_NewTimedVar(h0var);
-  LOCAL_GcCurrentPhase = 0L;
-  LOCAL_GcPhase = Yap_NewTimedVar(MkIntTerm(LOCAL_GcCurrentPhase));
+  REMOTE_GcGeneration(wid) = Yap_NewTimedVar(h0var);
+  REMOTE_GcCurrentPhase(wid) = 0L;
+  REMOTE_GcPhase(wid) = Yap_NewTimedVar(MkIntTerm(REMOTE_GcCurrentPhase(wid)));
 #if defined(YAPOR) || defined(THREADS)
   PP = NULL;
   PREG_ADDR = NULL;
@@ -1789,8 +1791,14 @@ Yap_InitYaamRegs(void)
 #endif
 #ifdef TABLING
   /* ensure that LOCAL_top_dep_fr is always valid */
-  if (LOCAL_top_dep_fr)
-    DepFr_cons_cp(LOCAL_top_dep_fr) = NORM_CP(B);
+  if (REMOTE_top_dep_fr(wid))
+    DepFr_cons_cp(REMOTE_top_dep_fr(wid)) = NORM_CP(B);
+#endif
+#ifdef THREADS
+  worker_id = wid;
+  if (myworker_id != worker_id) {
+    pthread_setspecific(Yap_yaamregs_key, (const void *)REMOTE_ThreadHandle(worker_id).default_yaam_regs);
+  }
 #endif
 }
 
