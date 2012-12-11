@@ -1,21 +1,6 @@
+/* Base file for school database. Supposed to be called from school_*.yap */
 
 :- use_module(library(pfl)).
-
-/* base file for school database. Supposed to be called from school_*.yap */
-
-%
-% bayes is a parfactor for a bayesian network,
-% first argument is target of other arguments pop(K) <- abi(K)
-% second argument is the name of a predicate to call for \phi (CPT)
-% last argument is a list of goals defining the constraints over the elements
-% of the 
-%
-
-%
-% these states that skolem variables abi(K) are in a parametric factor with
-% with \phi defined by abi_table(X) and whose domain and constraints
-% is obtained from professor/1.
-%
 
 bayes abi(K)::[h,m,l] ; abi_table ; [professor(K)].
 
