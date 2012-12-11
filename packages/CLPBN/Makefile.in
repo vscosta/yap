@@ -106,13 +106,12 @@ CLPBN_EXAMPLES= \
 	$(CLPBN_EXDIR)/burglary-alarm.pfl \
 	$(CLPBN_EXDIR)/burglary-alarm.uai \
 	$(CLPBN_EXDIR)/cg.yap \
-	$(CLPBN_EXDIR)/city.yap \
-	$(CLPBN_EXDIR)/comp_workshops.yap \
-	$(CLPBN_EXDIR)/social_domain1.yap \
-	$(CLPBN_EXDIR)/social_domain2.yap \
+	$(CLPBN_EXDIR)/city.pfl \
+	$(CLPBN_EXDIR)/comp_workshops.pfl \
+	$(CLPBN_EXDIR)/social_domain1.pfl \
+	$(CLPBN_EXDIR)/social_domain2.pfl \
 	$(CLPBN_EXDIR)/sprinkler.pfl \
-	$(CLPBN_EXDIR)/sprinkler.yap \
-	$(CLPBN_EXDIR)/workshop_attrs.yap
+	$(CLPBN_EXDIR)/workshop_attrs.pfl
 
 
 install: $(CLBN_TOP) $(CLBN_PROGRAMS) $(CLPBN_PROGRAMS)
