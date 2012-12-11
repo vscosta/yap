@@ -870,7 +870,8 @@ LiftedCircuit::getAllPossibleTypes (unsigned nrLogVars) const
     return {{LogVarType::POS_LV},{LogVarType::NEG_LV}};
   }
   vector<LogVarTypes> res;
-  Indexer indexer (vector<unsigned> (nrLogVars, 2));
+  Ranges ranges (nrLogVars, 2);
+  Indexer indexer (ranges);
   while (indexer.valid()) {
     LogVarTypes types;
     for (size_t i = 0; i < nrLogVars; i++) {
