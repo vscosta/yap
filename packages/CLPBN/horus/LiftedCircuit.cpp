@@ -592,7 +592,7 @@ LiftedCircuit::tryAtomCounting (
   }
   if (Globals::verbosity > 1) {
     backupClauses_ = Clause::copyClauses (clauses);
-  }  
+  }
   for (size_t i = 0; i < clauses.size(); i++) {
     Literals literals = clauses[i]->literals();
     for (size_t j = 0; j < literals.size(); j++) {
@@ -765,7 +765,7 @@ LiftedCircuit::smoothCircuit (CircuitNode* node)
           bool typeFound = false;
           for (size_t k = 0; k < propagLits.size(); k++) {
             if (litSet[i].first == propagLits[k].lid()
-                && containsTypes (allTypes[j], propagLits[k].logVarTypes())) {
+                && containsTypes (propagLits[k].logVarTypes(), allTypes[j])) {
               typeFound = true;
               break;
             }
@@ -776,8 +776,13 @@ LiftedCircuit::smoothCircuit (CircuitNode* node)
         }
       }
       createSmoothNode (missingLids, casted->follow());
-      for (size_t i = 0; i < propagLits.size(); i++) {
-        propagLits[i].setAllFullLogVars();
+      // setAllFullLogVars() can cause repeated elements in
+      // the set. Fix this by reconstructing the set again
+      LitLvTypesSet copy = propagLits;
+      propagLits.clear();
+      for (size_t i = 0; i < copy.size(); i++) {
+        copy[i].setAllFullLogVars();
+        propagLits.insert (copy[i]);
       }
       break;
     }
