@@ -1,23 +1,45 @@
 :- use_module(library(pfl)).
 
-%:- set_solver(lve).
-%:- set_solver(hve).
+:- set_solver(hve).
+%:- set_solver(ve).
+%:- set_solver(jt).
+%:- set_solver(bdd).
 %:- set_solver(bp).
 %:- set_solver(cbp).
+%:- set_solver(gibbs).
+%:- set_solver(lve).
+%:- set_solver(lkc).
+%:- set_solver(lbp).
 
-:- yap_flag(write_strings, off).
+bayes burglary ; burglary_table ; [].
 
-bayes burglary::[t,f] ; [0.001, 0.999] ; [].
+bayes earthquake ; earthquake_table ; [].
 
-bayes earthquake::[t,f] ; [0.002, 0.998]; [].
+bayes alarm, burglary, earthquake ; alarm_table ; [].
 
-bayes alarm::[t,f], burglary, earthquake ;
-      [0.95, 0.94, 0.29, 0.001, 0.05, 0.06, 0.71, 0.999] ;
-      [].
+bayes john_calls, alarm ; john_calls_table ; [].
 
-bayes john_calls::[t,f], alarm ; [0.9, 0.05, 0.1, 0.95] ; [].
+bayes mary_calls, alarm ; mary_calls_table ; [].
 
-bayes mary_calls::[t,f], alarm ; [0.7, 0.01, 0.3, 0.99] ; [].
+burglary_table(
+    [ 0.001,
+      0.999 ]).
+
+earthquake_table(
+    [ 0.002,
+      0.998 ]).
+
+alarm_table(
+    [ 0.95, 0.94, 0.29, 0.001,
+      0.05, 0.06, 0.71, 0.999 ]).
+
+john_calls_table(
+    [ 0.9, 0.05,
+      0.1, 0.95 ]).
+
+mary_calls_table(
+    [ 0.7, 0.01,
+      0.3, 0.99 ]).
 
 % ?- john_calls(J), mary_calls(t).
 

@@ -1,12 +1,15 @@
-
-:- style_check(all).
-
 :- ensure_loaded(library(pfl)).
 
-% 1. define domain of random variables
-%    not necessary if they are boolean.
-
-% 2. define parfactors
+:- set_solver(hve).
+%:- set_solver(ve).
+%:- set_solver(jt).
+%:- set_solver(bdd).
+%:- set_solver(bp).
+%:- set_solver(cbp).
+%:- set_solver(gibbs).
+%:- set_solver(lve).
+%:- set_solver(lkc).
+%:- set_solver(lbp).
 
 bayes cloudy ; cloudy_table ; [].
 
@@ -16,18 +19,21 @@ bayes rain, cloudy ; rain_table ; [].
 
 bayes wet_grass, sprinkler, rain ; wet_grass_table ; [].
 
+cloudy_table(
+    [ 0.5,
+      0.5 ]).
 
-% 3. define CPTs.
+sprinkler_table(
+    [ 0.5, 0.9,
+		  0.5, 0.1 ]).
 
-wet_grass_table([1.0,0.1,0.1,0.01,
-                 0.0,0.9,0.9,0.99]).
+rain_table(
+    [ 0.8, 0.2,
+      0.2, 0.8 ]).
 
-sprinkler_table([0.5,0.9,
-		 0.5,0.1]).
+wet_grass_table(
+    [ 1.0, 0.1, 0.1, 0.01,
+      0.0, 0.9, 0.9, 0.99 ]).
 
-rain_table([0.8,0.2,
-	    0.2,0.8]).
-
-cloudy_table([0.5,0.5]).
-
+% ?- wet_grass(X).
 

@@ -1,11 +1,14 @@
 :- use_module(library(pfl)).
 
-%:- set_solver(lve).
-%:- set_solver(hve).
+:- set_solver(hve).
+%:- set_solver(ve).
+%:- set_solver(jt).
 %:- set_solver(bp).
 %:- set_solver(cbp).
-
-:- yap_flag(write_strings, off).
+%:- set_solver(gibbs).
+%:- set_solver(lve).
+%:- set_solver(lkc).
+%:- set_solver(lbp).
 
 :- multifile c/2.
 
@@ -25,9 +28,13 @@ c(p5,w1).
 c(p5,w2).
 c(p5,w3).
 
-markov attends(P)::[t,f], hot(W)::[t,f] ; [0.2, 0.8, 0.8, 0.8] ; [c(P,W)].
+markov attends(P), hot(W) ;
+    [0.2, 0.8, 0.8, 0.8] ;
+    [c(P,W)].
 
-markov attends(P)::[t,f], series::[t,f] ; [0.501, 0.499, 0.499, 0.499] ; [c(P,_)].
+markov attends(P), series ;
+    [0.501, 0.499, 0.499, 0.499] ;
+    [c(P,_)].
 
-% ?- series(X).
+?- series(X).
 

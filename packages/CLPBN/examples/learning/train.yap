@@ -1,5 +1,3 @@
-
-
 professor_ability(p0,h).
 professor_ability(p1,h).
 professor_ability(p2,m).
@@ -1250,6 +1248,7 @@ registration_grade(r854,c).
 registration_grade(r855,d).
 registration_grade(r856,c).
 
+
 registration_satisfaction(r0,h).
 registration_satisfaction(r1,l).
 registration_satisfaction(r2,h).
@@ -2431,3 +2430,4 @@ student_ranking(s252,b).
 student_ranking(s253,b).
 student_ranking(s254,b).
 student_ranking(s255,c).
+
