@@ -1487,7 +1487,7 @@ fi
 
 if test "$coroutining" = "yes"
   then
-  YAP_EXTRAS="$YAP_EXTRAS -DCOROUTINING=1"
+  YAP_EXTRAS="$YAP_EXTRAS -DCOROUTINING=1 -DCUT_C=1"
 fi
   
 if test "$rationaltrees" = "yes"

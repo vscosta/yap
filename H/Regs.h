@@ -108,7 +108,7 @@ typedef struct regstore_t
     yamop *CP_;			/* 28 continuation program counter            */
     CELL  *ENV_;		/* 1 current environment                      */
 #ifdef CUT_C
-    cut_c_str_ptr CUT_C_TOP;
+    struct cut_c_str *CUT_C_TOP;
 #endif
 #if defined CUT_C && (defined MYDDAS_ODBC || defined MYDDAS_MYSQL)
     MYDDAS_GLOBAL MYDDAS_GLOBAL_POINTER;
