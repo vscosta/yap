@@ -3295,6 +3295,9 @@ X_API int
 YAP_Reset(void)
 {
   CACHE_REGS
+#ifndef THREADS
+  int worker_id = 0;
+#endif
   BACKUP_MACHINE_REGS();
 
   /* first, backtrack to the root */

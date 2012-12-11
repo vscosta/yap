@@ -377,16 +377,16 @@ InitTime (int wid)
 #else
   getrusage(RUSAGE_SELF, &rusage);
   last_time.tv_sec =
-    start_of_times.tv_sec = 
+    StartOfTimes.tv_sec = 
     rusage.ru_utime.tv_sec;
   last_time.tv_usec =
-    start_of_times.tv_usec = 
+    StartOfTimes.tv_usec = 
     rusage.ru_utime.tv_usec;
   last_time_sys.tv_sec =
-    start_of_times_sys.tv_sec = 
+    StartOfTimes_sys.tv_sec = 
     rusage.ru_stime.tv_sec;
   last_time_sys.tv_usec =
-    start_of_times_sys.tv_usec = 
+    StartOfTimes_sys.tv_usec = 
     rusage.ru_stime.tv_usec;  
 #endif
 }
@@ -488,7 +488,7 @@ InitTime (int)
       KernelTime.dwLowDateTime;
     (*REMOTE_ThreadHandle(wid).last_time_sysp).dwHighDateTime = 
       KernelTime.dwHighDateTime;
-    (*REMOTE_ThreadHandle(wid).start_of_times_sysp).dwLowDateTime =
+    (*REMOTE_ThreadHandle(wid).start_of_times_sysp).dwLowDateTime =
       KernelTime.dwLowDateTime;
     (*REMOTE_ThreadHandle(wid).start_of_times_sysp).dwHighDateTime = 
       KernelTime.dwHighDateTime;
