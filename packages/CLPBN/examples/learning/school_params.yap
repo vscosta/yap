@@ -27,7 +27,7 @@ main :-
 
 %
 % Change to 0.0, 0.1, 0.2 to make things simpler/harder
-%%
+%
 missing(0.2).
 
 goal(professor_ability(P,V)) :-
