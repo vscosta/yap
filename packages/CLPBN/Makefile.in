@@ -96,6 +96,7 @@ CLPBN_HMMER_EXAMPLES= \
 	$(CLPBN_EXDIR)/HMMer/score.yap
 
 CLPBN_LEARNING_EXAMPLES= \
+	$(CLPBN_EXDIR)/learning/debug_school.yap \
 	$(CLPBN_EXDIR)/learning/prof_params.pfl \
 	$(CLPBN_EXDIR)/learning/school_params.yap \
 	$(CLPBN_EXDIR)/learning/sprinkler_params.yap \
