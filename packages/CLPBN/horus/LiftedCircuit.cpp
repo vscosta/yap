@@ -54,10 +54,7 @@ SetOrNode::weight (void) const
 double
 SetAndNode::weight (void) const
 {
-  double w = follow_->weight();
-  return Globals::logDomain
-      ? w * nrGroundings_
-      : std::pow (w, nrGroundings_);
+  return LogAware::pow (follow_->weight(), nrGroundings_);
 }
 
 
@@ -111,9 +108,7 @@ LeafNode::weight (void) const
     nrGroundings *= std::pow (SetOrNode::nrNegatives(),
         clause_->nrNegCountedLogVars());
   }
-  return Globals::logDomain
-      ? weight * nrGroundings
-      : std::pow (weight, nrGroundings);
+  return LogAware::pow (weight, nrGroundings);
 }
 
 
