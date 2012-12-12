@@ -1,8 +1,15 @@
-% learn distribution for school database.
+/* Learn distribution for a sprinkler database. */
 
 :- ['../sprinkler.pfl'].
 
 :- use_module(library(clpbn/learning/em)).
+
+%:- clpbn:set_clpbn_flag(em_solver,gibbs).
+%:- clpbn:set_clpbn_flag(em_solver,jt).
+%:- clpbn:set_clpbn_flag(em_solver,hve).
+:- clpbn:set_clpbn_flag(em_solver,bdd).
+%:- clpbn:set_clpbn_flag(em_solver,bp).
+%:- clpbn:set_clpbn_flag(em_solver,ve).
 
 data(t,t,t,t).
 data(_,t,_,t).
@@ -18,12 +25,7 @@ data(t,t,_,f).
 data(t,f,f,t).
 data(t,f,t,t).
 
-%:- clpbn:set_clpbn_flag(em_solver,gibbs).
-%:- clpbn:set_clpbn_flag(em_solver,jt).
-:- clpbn:set_clpbn_flag(em_solver,hve).
-:- clpbn:set_clpbn_flag(em_solver,bdd).
-%:- clpbn:set_clpbn_flag(em_solver,bp).
-%:- clpbn:set_clpbn_flag(em_solver,ve).
+:- dynamic id/1.
 
 timed_main :-
 	statistics(runtime, _),
@@ -33,19 +35,16 @@ timed_main :-
 
 main(Lik) :-
 	findall(X,scan_data(X),L),
-        em(L,0.01,10,_,Lik).
+	em(L,0.01,10,_,Lik).
 
 scan_data(I:[wet_grass(W),sprinkler(S),rain(R),cloudy(C)]) :-
 	data(W, S, R, C),
 	new_id(I).
 
-:- dynamic id/1.
-
 new_id(I) :-
-    retract(id(I)),
-    I1 is I+1,
-    assert(id(I1)).
+	retract(id(I)),
+	I1 is I+1,
+	assert(id(I1)).
 
 id(0).
-
 

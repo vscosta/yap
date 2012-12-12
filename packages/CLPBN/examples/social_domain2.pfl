@@ -20,17 +20,17 @@ people(X,Y) :-
     people(Y).
 %    X \== Y.
 
-markov smokes(X); [1.0, 4.0552]; [people(X)].
+markov smokes(X) ; [1.0, 4.0552]; [people(X)].
 
-markov asthma(X); [1.0, 9.9742] ; [people(X)].
+markov asthma(X) ; [1.0, 9.9742] ; [people(X)].
 
-markov friends(X,Y); [1.0, 99.48432] ; [people(X,Y)].
+markov friends(X,Y) ; [1.0, 99.48432] ; [people(X,Y)].
 
-markov asthma(X), smokes(X);
+markov asthma(X), smokes(X) ;
     [4.48169, 4.48169, 1.0, 4.48169] ;
     [people(X)].
 
-markov asthma(X), friends(X,Y), smokes(Y);
+markov asthma(X), friends(X,Y), smokes(Y) ;
     [3.004166, 3.004166, 3.004166, 3.004166, 3.004166, 1.0, 1.0, 3.004166] ;
     [people(X,Y)].
 

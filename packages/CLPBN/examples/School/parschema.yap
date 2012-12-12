@@ -6,17 +6,21 @@ bayes abi(K)::[h,m,l] ; abi_table ; [professor(K)].
 
 bayes pop(K)::[h,m,l], abi(K) ; pop_table ; [professor(K)].
 
-bayes diff(C) :: [h,m,l] ; diff_table ; [course(C,_)].
+bayes diff(C)::[h,m,l] ; diff_table ; [course(C,_)].
 
-bayes int(S) :: [h,m,l] ; int_table ; [student(S)].
+bayes int(S)::[h,m,l] ; int_table ; [student(S)].
 
-bayes grade(C,S)::[a,b,c,d], int(S), diff(C) ; grade_table ; [registration(_,C,S)].
+bayes grade(C,S)::[a,b,c,d], int(S), diff(C) ;
+	grade_table ;
+	[registration(_,C,S)].
 
-bayes satisfaction(C,S)::[h,m,l], abi(P), grade(C,S) ; sat_table ; [reg_satisfaction(C,S,P)].
+bayes satisfaction(C,S)::[h,m,l], abi(P), grade(C,S) ;
+	sat_table ;
+	[reg_satisfaction(C,S,P)].
 
-bayes rat(C) :: [h,m,l], Sats ; avg ; [course_rat(C, Sats)].
+bayes rat(C)::[h,m,l], Sats ; avg ; [course_rat(C, Sats)].
 
-bayes rank(S) :: [a,b,c,d], Grades ; avg ; [student_ranking(S,Grades)].
+bayes rank(S)::[a,b,c,d], Grades ; avg ; [student_ranking(S,Grades)].
 
 
 grade(Key, Grade) :-
@@ -30,19 +34,27 @@ reg_satisfaction(CKey, SKey, PKey) :-
 course_rat(CKey, Sats) :-
 	course(CKey,  _),
 	setof(satisfaction(CKey,SKey),
-	   PKey^reg_satisfaction(CKey, SKey, PKey),
-          Sats).
+		PKey^reg_satisfaction(CKey, SKey, PKey),
+		Sats).
 
 student_ranking(SKey, Grades) :-
 	student(SKey),
-	setof(grade(CKey,SKey), RKey^registration(RKey,CKey,SKey), Grades).
+	setof(grade(CKey,SKey),
+		RKey^registration(RKey,CKey,SKey),
+		Grades).
 
 :- ensure_loaded(tables).
 
 % convert to longer names 
-professor_ability(P,A) :- abi(P, A).
+professor_ability(P,A) :- abi(P,A).
 
-professor_popularity(P,A) :- pop(P, A).
+professor_popularity(P,A) :- pop(P,A).
+
+course_difficulty(P,A) :- diff(P,A).
+
+student_intelligence(P,A) :- int(P,A).
+	
+course_rating(C,X) :- rat(C,X).
 
 registration_grade(R,A) :-
 	registration(R,C,S),
@@ -52,24 +64,14 @@ registration_satisfaction(R,A) :-
 	registration(R,C,S),
 	satisfaction(C,S,A).
 
-student_intelligence(P,A) :- int(P, A).
+registration_course(R,C) :- registration(R,C,_).
 
-course_difficulty(P,A) :- diff(P, A).
-
-
-registration_course(R,C) :-
-	registration(R, C, _).
-
-registration_student(R,S) :-
-	registration(R, _, S).
-
-course_rating(C,X) :- rat(C,X).
+registration_student(R,S) :- registration(R,_,S).
 
 %
-% evidence
+% Evidence
 %
 %abi(p0, h).
-
 %pop(p1, m).
 %pop(p2, h).
 

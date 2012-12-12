@@ -4702,5 +4702,3 @@ registration(r3457,c5,s1023).
 registration(r3458,c37,s1023).
 registration(r3459,c57,s1023).
 
-
-

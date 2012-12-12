@@ -1,5 +1,4 @@
-
-/* base file for school database. Supposed to be called from school_*.yap */
+/* Base file for school database. Supposed to be called from school_*.yap */
 
 professor_key(Key) :-
 	professor(Key).
@@ -66,6 +65,4 @@ student_ranking(Key, Rank) :-
 	{ Rank = ranking(Key) with avg([a,b,c,d],Grades) }.
 
 :- ensure_loaded(tables).
-
-
 
