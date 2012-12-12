@@ -568,7 +568,7 @@ LiftedWCNF::addParameterClauses (const ParfactorList& pfList)
       // ¬θxi|u1,...,un v λu1           -> tempClause
       // ¬θxi|u1,...,un v λu2           -> tempClause
       double posWeight = (**it)[indexer];
-      addWeight (paramVarLid, posWeight, 1.0);
+      addWeight (paramVarLid, posWeight, LogAware::one());
       
       Clause* clause1 = new Clause (*(*it)->constr());
 
