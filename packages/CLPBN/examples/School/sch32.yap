@@ -17,9 +17,9 @@ total_students(256).
 
 :- yap_flag(write_strings,on).
 
-:- ensure_loaded(parschema).
+:- ensure_loaded('parschema.pfl').
 
 :- ensure_loaded(school32_data).
 
-:- set_clpbn_flag(solver, bdd).
+:- set_solver(hve).
 

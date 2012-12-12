@@ -78,7 +78,7 @@ CLPBN_SCHOOL_EXAMPLES= \
 	$(CLPBN_EXDIR)/School/README \
 	$(CLPBN_EXDIR)/School/evidence_128.yap \
 	$(CLPBN_EXDIR)/School/schema.yap \
-	$(CLPBN_EXDIR)/School/parschema.yap \
+	$(CLPBN_EXDIR)/School/parschema.pfl \
 	$(CLPBN_EXDIR)/School/school_128.yap \
 	$(CLPBN_EXDIR)/School/school_32.yap \
 	$(CLPBN_EXDIR)/School/sch32.yap \

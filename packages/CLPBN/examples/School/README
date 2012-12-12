@@ -5,11 +5,11 @@ There are four main files:
 
 school_128.yap: a school with 128 professors, 256 courses and 4096 students.
 school_64.yap: medium size school
-school_32.yap: small school (clp(bn))
+school_32.yap: small school (CLP(BN))
 
-sch32.yap: small school (pfl)
+sch32.yap: small school (PFL)
 
-parschema.yap: the PFL schema
+parschema.pfl: the PFL schema
 
 schema.yap: the CLP(BN) schema
 
