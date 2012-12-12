@@ -130,5 +130,5 @@ is_joe_guilty(Guilty) :-
     guilty(joe, Guilty).
 
 
-?- is_joe_guilty(Guilty).
+% ?- is_joe_guilty(Guilty).
 
