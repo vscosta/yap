@@ -45,7 +45,9 @@ student_ranking(SKey, Grades) :-
 
 :- ensure_loaded(tables).
 
-% convert to longer names 
+%
+% Convert to longer names 
+%
 professor_ability(P,A) :- abi(P,A).
 
 professor_popularity(P,A) :- pop(P,A).
