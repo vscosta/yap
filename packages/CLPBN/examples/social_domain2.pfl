@@ -34,5 +34,5 @@ markov asthma(X), friends(X,Y), smokes(Y) ;
     [3.004166, 3.004166, 3.004166, 3.004166, 3.004166, 1.0, 1.0, 3.004166] ;
     [people(X,Y)].
 
-% ?- smokes(p1,t), smokes(p2,t), friends(p1,p2,X)
+% ?- smokes(p1,t), smokes(p2,t), friends(p1,p2,X).
 
