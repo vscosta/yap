@@ -7,6 +7,8 @@ total_students(4096).
 
 */
 
+:- use_module(library(pfl)).
+
 :- source.
 
 :- style_check(all).
@@ -15,9 +17,9 @@ total_students(4096).
 
 :- yap_flag(write_strings,on).
 
-:- use_module(library(clpbn)).
+:- ensure_loaded('parschema.pfl').
 
-:- [-schema].
+:- set_solver(hve).
 
 professor(p0).
 professor(p1).
