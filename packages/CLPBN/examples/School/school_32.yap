@@ -4,7 +4,6 @@ total_professors(32).
 total_courses(64).
 
 total_students(256).
-
 */
 
 :- use_module(library(pfl)).
@@ -19,10 +18,7 @@ total_students(256).
 
 :- ensure_loaded('parschema.pfl').
 
-:- ensure_loaded(school32_data).
-
 :- set_solver(hve).
-
 
 
 professor(p0).
@@ -1240,6 +1236,4 @@ registration(r853,c61,s254).
 registration(r854,c60,s255).
 registration(r855,c48,s255).
 registration(r856,c0,s255).
-
-
 

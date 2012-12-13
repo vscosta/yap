@@ -4,7 +4,6 @@ total_professors(128).
 total_courses(256).
 
 total_students(4096).
-
 */
 
 :- use_module(library(pfl)).
@@ -20,6 +19,7 @@ total_students(4096).
 :- ensure_loaded('parschema.pfl').
 
 :- set_solver(hve).
+
 
 professor(p0).
 professor(p1).
@@ -18430,5 +18430,5 @@ registration(r13919,c221,s4095).
 registration(r13920,c39,s4095).
 
 
- :- [evidence_128].
+:- [evidence_128].
 
