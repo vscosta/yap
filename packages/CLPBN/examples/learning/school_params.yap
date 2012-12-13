@@ -4,14 +4,14 @@
 
 :- [pos:train].
 
-:- ['../../examples/School/sch32'].
+:- ['../../examples/School/school_32'].
 
 :- use_module(library(clpbn/learning/em)).
 
 %:- clpbn:set_clpbn_flag(em_solver,gibbs).
 %:- clpbn:set_clpbn_flag(em_solver,jt).
- :- clpbn:set_clpbn_flag(em_solver,ve).
-%:- clpbn:set_clpbn_flag(em_solver,bp).
+% :- clpbn:set_clpbn_flag(em_solver,ve).
+:- clpbn:set_clpbn_flag(em_solver,bp).
 
 timed_main :-
 	statistics(runtime, _),

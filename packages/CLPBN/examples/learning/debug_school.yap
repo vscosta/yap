@@ -4,7 +4,7 @@
 
 :- [pos:train].
 
-:- ['../../examples/School/sch32'].
+:- ['../../examples/School/parschema.pfl'].
 
 :- use_module(library(clpbn/learning/em)).
 
