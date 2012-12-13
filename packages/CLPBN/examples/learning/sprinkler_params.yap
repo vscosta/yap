@@ -11,6 +11,8 @@
 %:- set_pfl_flag(em_solver,ve).
 :- set_pfl_flag(em_solver,bdd).
 
+:- dynamic id/1.
+
 data(t,t,t,t).
 data(_,t,_,t).
 data(t,t,f,f).
