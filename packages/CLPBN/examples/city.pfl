@@ -26,36 +26,36 @@ ev(descn(p4, fits)).
 ev(descn(p5, fits)).
 
 bayes city_conservativeness(C)::[high,low] ;
-    cons_table(C) ;
+    cons_table ;
     [people(_,C)].
 
 bayes gender(P)::[male,female] ;
-    gender_table(P) ;
+    gender_table ;
     [people(P,_)].
 
 bayes hair_color(P)::[dark,bright], city_conservativeness(C) ;
-    hair_color_table(P) ;
+    hair_color_table ;
     [people(P,C)].
 
 bayes car_color(P)::[dark,bright], hair_color(P) ;
-    car_color_table(P) ;
+    car_color_table ;
     [people(P,_)].
 
 bayes height(P)::[tall,short], gender(P) ;
-    height_table(P) ;
+    height_table ;
     [people(P,_)].
 
 bayes shoe_size(P)::[big,small], height(P) ;
-    shoe_size_table(P) ;
+    shoe_size_table ;
     [people(P,_)].
 
 bayes guilty(P)::[y,n] ;
-    guilty_table(P) ;
+    guilty_table ;
     [people(P,_)].
 
 bayes descn(P)::[fits,dont_fit], car_color(P),
         hair_color(P), height(P), guilty(P) ;
-    descn_table(P) ;
+    descn_table ;
     [people(P,_)].
 
 bayes witness(C), descn(Joe), descn(P2) ;
@@ -63,44 +63,39 @@ bayes witness(C), descn(Joe), descn(P2) ;
     [people(_,C), Joe=joe, P2=p2].
 
 
-cons_table(amsterdam,
-% special case for amsterdam: amsterdam is
-% less conservative than other cities (is it?)
-/* y        */ [ 0.2,
-/* n        */   0.8 ]) :- !. % FIXME
-cons_table(_,
+cons_table(
 /* y        */ [ 0.8,
 /* n        */   0.2 ]).
 
-gender_table(_,
+gender_table(
 /* male     */ [ 0.55,
 /* female   */   0.45 ]).
 
-hair_color_table(_,
+hair_color_table(
 /*               high  low  */
 /* dark     */ [ 0.05, 0.1,
 /* bright   */   0.95, 0.9 ]).
     
-car_color_table(_,
+car_color_table(
 /*               dark bright */
 /* dark     */ [ 0.9, 0.2,
 /* bright   */   0.1, 0.8 ]).
 	
-height_table(_,
+height_table(
 /*               male female */
 /* tall     */ [ 0.6, 0.4,
 /* short    */   0.4, 0.6 ]).
 	
-shoe_size_table(_,
+shoe_size_table(
 /*               tall short */
 /* big      */ [ 0.9, 0.1,
 /* small    */   0.1, 0.9 ]).
 
-guilty_table(_,
+guilty_table(
 /* yes      */ [ 0.23,
 /* no       */   0.77 ]).
 
-descn_table(_,
+descn_table(
 /*               car_color(P), hair_color(P), height(P), guilty(P) */
 /* fits     */ [ 0.99, 0.5,  0.23, 0.88, 0.41, 0.3,  0.76, 0.87,
 /* fits     */   0.44, 0.43, 0.29, 0.72, 0.23, 0.91, 0.95, 0.92,
