@@ -1794,7 +1794,7 @@ Restore(char *s, char *lib_dir USES_REGS)
   Yap_InitSysPath();
 #if USE_DL_MALLOC || USE_SYSTEM_MALLOC
   if (!AuxSp) {
-    Yap_InitPreAllocCodeSpace();
+    Yap_InitPreAllocCodeSpace( 0 );
   }
 #endif
   CloseRestore();

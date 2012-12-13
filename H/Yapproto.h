@@ -91,7 +91,7 @@ int     STD_PROTO(Yap_ExtendWorkSpace,(Int));
 void	STD_PROTO(Yap_FreeAtomSpace,(char *));
 int     STD_PROTO(Yap_FreeWorkSpace, (void));
 void	STD_PROTO(Yap_InitMemory,(UInt,UInt,UInt));
-void	STD_PROTO(Yap_InitExStacks,(int,int));
+void	STD_PROTO(Yap_InitExStacks,(int,int,int));
 
 /* amasm.c */
 OPCODE	STD_PROTO(Yap_opcode,(op_numbers));
@@ -177,7 +177,7 @@ Term	STD_PROTO(Yap_ExecuteCallMetaCall,(Term));
 void	STD_PROTO(Yap_InitExecFs,(void));
 Int	STD_PROTO(Yap_JumpToEnv,(Term));
 Term	STD_PROTO(Yap_RunTopGoal,(Term));
-void	STD_PROTO(Yap_ResetExceptionTerm,(void));
+void	STD_PROTO(Yap_ResetExceptionTerm,(int));
 Int	STD_PROTO(Yap_execute_goal,(Term, int, Term));
 Int	STD_PROTO(Yap_exec_absmi,(int));
 void	STD_PROTO(Yap_trust_last,(void));
@@ -200,7 +200,7 @@ void	STD_PROTO(Yap_InitGlobals,(void));
 Term	STD_PROTO(Yap_SaveTerm, (Term));
 Term	STD_PROTO(Yap_SetGlobalVal, (Atom, Term));
 Int	STD_PROTO(Yap_DeleteGlobal, (Atom));
-void	STD_PROTO(Yap_AllocateDefaultArena, (Int, Int));
+void	STD_PROTO(Yap_AllocateDefaultArena, (Int, Int, int));
 
 /* grow.c */
 Int     STD_PROTO(Yap_total_stack_shift_time,(void));

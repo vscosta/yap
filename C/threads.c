@@ -230,15 +230,11 @@ setup_engine(int myworker_id, int init_thread)
   regcache = standard_regs;
   /* create the YAAM descriptor */
   REMOTE_ThreadHandle(myworker_id).default_yaam_regs = standard_regs;
-  if (init_thread) {
-    pthread_setspecific(Yap_yaamregs_key, (void *)REMOTE_ThreadHandle(myworker_id).default_yaam_regs);
-  }
-  worker_id = myworker_id;
-  LOCAL = REMOTE(worker_id);
-  Yap_InitExStacks(REMOTE_ThreadHandle(myworker_id).tsize, REMOTE_ThreadHandle(myworker_id).ssize);
+  Yap_InitExStacks(myworker_id, REMOTE_ThreadHandle(myworker_id).tsize, REMOTE_ThreadHandle(myworker_id).ssize);
   CurrentModule = REMOTE_ThreadHandle(myworker_id).cmod;
   Yap_InitTime( myworker_id );
   Yap_InitYaamRegs( myworker_id );
+  REFRESH_CACHE_REGS
   Yap_ReleasePreAllocCodeSpace(Yap_PreAllocCodeSpace());
   /* I exist */
   GLOBAL_NOfThreadsCreated++;
@@ -254,7 +250,11 @@ setup_engine(int myworker_id, int init_thread)
 static void
 start_thread(int myworker_id)
 {
-  setup_engine(myworker_id, TRUE);
+  CACHE_REGS
+  pthread_setspecific(Yap_yaamregs_key, (void *)REMOTE_ThreadHandle(myworker_id).default_yaam_regs);
+  REFRESH_CACHE_REGS;
+  worker_id = myworker_id;
+  LOCAL = REMOTE(myworker_id);
 }
 
 static void *
@@ -267,13 +267,14 @@ thread_run(void *widp)
 #ifdef OUTPUT_THREADS_TABLING
   char thread_name[25];
   char filename[YAP_FILENAME_MAX]; 
+
   sprintf(thread_name, "/thread_output_%d", myworker_id);
   strcpy(filename, YAP_BINDIR);
   strncat(filename, thread_name, 25);
-  LOCAL_thread_output = fopen(filename, "w");
+  REMOTE_thread_output(myworker_id) = fopen(filename, "w");
 #endif /* OUTPUT_THREADS_TABLING */
   start_thread(myworker_id);
-  regcache = ((REGSTORE *)pthread_getspecific(Yap_yaamregs_key));
+  REFRESH_CACHE_REGS;
   do {
     t = tgs[0] = Yap_PopTermFromDB(LOCAL_ThreadHandle.tgoal);
     if (t == 0) {
@@ -328,7 +329,8 @@ p_create_thread( USES_REGS1 )
   Term x2 = Deref(ARG2);
   Term x3 = Deref(ARG3);
   Term x4 = Deref(ARG4);
-  int new_worker_id = IntegerOfTerm(Deref(ARG7));
+  int new_worker_id = IntegerOfTerm(Deref(ARG7)),
+    owid = worker_id;
   
   //  fprintf(stderr," %d --> %d\n", worker_id, new_worker_id); 
   if (IsBigIntTerm(x2))
@@ -349,10 +351,13 @@ p_create_thread( USES_REGS1 )
   //REMOTE_ThreadHandle(new_worker_id).pthread_handle = 0L;
   REMOTE_ThreadHandle(new_worker_id).id = new_worker_id;
   REMOTE_ThreadHandle(new_worker_id).ref_count = 1;
+  setup_engine(new_worker_id, FALSE);
   if ((REMOTE_ThreadHandle(new_worker_id).ret = pthread_create(&REMOTE_ThreadHandle(new_worker_id).pthread_handle, NULL, thread_run, (void *)(&(REMOTE_ThreadHandle(new_worker_id).id)))) == 0) {
+    pthread_setspecific(Yap_yaamregs_key, (const void *)REMOTE_ThreadHandle(owid).current_yaam_regs);
     /* wait until the client is initialised */
     return TRUE;
   }
+  pthread_setspecific(Yap_yaamregs_key, (const void *)REMOTE_ThreadHandle(owid).current_yaam_regs);
   return FALSE;
 }
 
@@ -493,6 +498,7 @@ Yap_thread_create_engine(thread_attr *ops)
 Int
 Yap_thread_attach_engine(int wid)
 {
+  CACHE_REGS
   /* 
      already locked
      pthread_mutex_lock(&(REMOTE_ThreadHandle(wid).tlock));
@@ -506,9 +512,8 @@ Yap_thread_attach_engine(int wid)
   }
   REMOTE_ThreadHandle(wid).pthread_handle = pthread_self();
   REMOTE_ThreadHandle(wid).ref_count++;
-  pthread_setspecific(Yap_yaamregs_key, (const void *)REMOTE_ThreadHandle(wid).default_yaam_regs);
-  CACHE_REGS
-  worker_id = wid;  /* ricroc: for what I understand, this shouldn't be necessary */
+  pthread_setspecific(Yap_yaamregs_key, (const void *)REMOTE_ThreadHandle(wid).current_yaam_regs);
+  REFRESH_CACHE_REGS;
   DEBUG_TLOCK_ACCESS(9, wid);
   pthread_mutex_unlock(&(REMOTE_ThreadHandle(wid).tlock));
   return TRUE;
