@@ -177,11 +177,13 @@ LiftedCircuit::LiftedCircuit (const LiftedWCNF* lwcnf)
     smoothCircuit (root_);
   }
   if (Globals::verbosity > 1) {
-    exportToGraphViz("circuit.smooth.dot");
     if (compilationSucceeded_) {
       double wmc = LogAware::exp (getWeightedModelCount());
-      cout << "WEIGHTED MODEL COUNT: " << wmc << endl << endl;
+      cout << "Weighted model count = " << wmc << endl << endl;
     }
+    cout << "Exporting circuit to graphviz (circuit.dot)..." ;
+    cout << endl << endl;
+    exportToGraphViz ("circuit.dot");
   }
 }
 
