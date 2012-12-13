@@ -4694,7 +4694,7 @@ static Int numbervars_in_complex_term(register CELL *pt0, register CELL *pt0_end
     goto loop;
   }
 
-  prune(B);
+  prune(B PASS_REGS);
   Yap_ReleasePreAllocCodeSpace((ADDR)to_visit0);
   return numbv;
 

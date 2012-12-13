@@ -46,7 +46,7 @@ struct cut_c_str{
 
 
 /*Initializes CUT_C_TOP*/
-void cut_c_initialize(void);
+void cut_c_initialize(int wid );
 
 /*Removes a choice_point from the stack*/
 void cut_c_pop(void);

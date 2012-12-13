@@ -2699,12 +2699,12 @@ X_API void
 YAP_ClearExceptions(void)
 {
   CACHE_REGS
-  Yap_ResetExceptionTerm();
+
   if (EX) {
     LOCAL_BallTerm = EX;
   }
   EX = NULL;
-  Yap_ResetExceptionTerm();    
+  Yap_ResetExceptionTerm( 0 );    
   LOCAL_UncaughtThrow = FALSE;
 }
 
@@ -3065,13 +3065,13 @@ YAP_Init(YAP_init_args *yap_init)
   GLOBAL_AllowGlobalExpansion = TRUE;
   GLOBAL_AllowLocalExpansion = TRUE;
   GLOBAL_AllowTrailExpansion = TRUE;
-  Yap_InitExStacks (Trail, Stack);
+  Yap_InitExStacks (0, Trail, Stack);
   if (yap_init->QuietMode) {
     yap_flags[QUIET_MODE_FLAG] = TRUE;
   }
 
   { BACKUP_MACHINE_REGS();
-    Yap_InitYaamRegs( 0);
+    Yap_InitYaamRegs( 0 );
 
 #if HAVE_MPE
     Yap_InitMPE ();
@@ -3111,10 +3111,10 @@ YAP_Init(YAP_init_args *yap_init)
 	In the SBA we cannot just happily inherit registers
 	from the other workers
       */
-      Yap_InitYaamRegs( 0);
+      Yap_InitYaamRegs( 0 );
 #endif /* YAPOR_COPY || YAPOR_SBA */
 #ifndef YAPOR_THREADS
-      Yap_InitPreAllocCodeSpace();
+      Yap_InitPreAllocCodeSpace( 0 );
 #endif /* YAPOR_THREADS */
       /* slaves, waiting for work */
       CurrentModule = USER_MODULE;

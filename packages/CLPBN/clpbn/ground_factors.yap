@@ -109,7 +109,7 @@ collect(Keys, Factors) :-
 queue_in(K) :-
 	queue(K), !.
 queue_in(K) :-
-	%writeln(+K),
+%	writeln(q+K),
 	assert(queue(K)),
 	fail.
 queue_in(_).
@@ -139,7 +139,7 @@ do_propagate(_K) :-
         propagate.
 
 add_factor(factor(Type, Id, Ks, _, _Phi, Constraints), NKs) :-
-    %writeln(+Ks),
+%    writeln(+Ks),
 	( Ks = [K,Els], var(Els)
 	 ->
 	% aggregate factor
@@ -147,7 +147,7 @@ add_factor(factor(Type, Id, Ks, _, _Phi, Constraints), NKs) :-
 	  avg_factors(K, Els, 0.0, NewKeys, NewId),
 	  NKs = [K|NewKeys]
         ; 
-	  once(run(Constraints)),
+	  run(Constraints),
 	  NKs = Ks,
 	  Id = NewId
 	),

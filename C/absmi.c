@@ -2252,7 +2252,7 @@ Yap_absmi(int inp)
       PREG = NEXTOP(NEXTOP(NEXTOP(PREG, s),Osbpp),l);
       /* assume cut is always in stack */
       saveregs();
-      prune((choiceptr)YREG[E_CB]);
+      prune((choiceptr)YREG[E_CB] PASS_REGS);
       setregs();
       GONext();
       ENDOp();
@@ -2271,7 +2271,7 @@ Yap_absmi(int inp)
       SET_ASP(YREG, PREG->u.s.s);
       /* assume cut is always in stack */
       saveregs();
-      prune((choiceptr)YREG[E_CB]);
+      prune((choiceptr)YREG[E_CB] PASS_REGS);
       setregs();
       PREG = NEXTOP(NEXTOP(NEXTOP(PREG, s),Osbpp),l);
       GONext();
@@ -2290,7 +2290,7 @@ Yap_absmi(int inp)
       SET_ASP(YREG, PREG->u.s.s);
       PREG = NEXTOP(NEXTOP(NEXTOP(PREG, s),Osbpp),l);
       saveregs();
-      prune((choiceptr)SREG[E_CB]);
+      prune((choiceptr)SREG[E_CB] PASS_REGS);
       setregs();
       GONext();
       ENDOp();
@@ -2343,7 +2343,7 @@ Yap_absmi(int inp)
 	pt0 = (choiceptr)(LCL0-IntegerOfTerm(d0));
 #endif /* YAPOR_SBA && FROZEN_STACKS */
 	saveregs();
-	prune(pt0);
+	prune(pt0 PASS_REGS);
 	setregs();
       }
       GONext();
@@ -2379,7 +2379,7 @@ Yap_absmi(int inp)
 	pt0 = (choiceptr)(LCL0-IntegerOfTerm(d0));
 #endif
 	saveregs();
-	prune(pt0);
+	prune(pt0 PASS_REGS);
 	setregs();
       }
       GONext();
@@ -13080,7 +13080,7 @@ Yap_absmi(int inp)
 	  if (pen->FunctorOfPred == (Functor)AtomCut) {
 	    if (b_ptr != B) {
 	      saveregs();
-	      prune(b_ptr);
+	      prune(b_ptr PASS_REGS);
 	      setregs();
 	    }
 	  }
