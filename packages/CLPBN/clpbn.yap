@@ -256,6 +256,8 @@ project_attributes(GVars, AVars) :-
 	AVars = [_|_],
 	solver(Solver),
 	( GVars = [_|_] ; Solver = graphs), !,
+	% we don't pass query variables in this way
+	b_setval(clpbn_query_variables, none),
 	clpbn_vars(AVars, DiffVars, AllVars),
 	get_clpbn_vars(GVars,CLPBNGVars0),
 	simplify_query_vars(CLPBNGVars0, CLPBNGVars),

@@ -749,6 +749,8 @@ typedef struct thandle {
 #if HAVE_GETRUSAGE||defined(_WIN32)
   struct timeval *start_of_timesp;
   struct timeval *last_timep;
+  struct timeval *start_of_times_sysp;
+  struct timeval *last_time_sysp;
 #endif
 } yap_thandle;
 #endif /* THREADS */
@@ -850,22 +852,6 @@ Yap_StartSlots( USES_REGS1 ) {
   CurSlot = LCL0-ASP;
 }
 
-static inline void
-Yap_CloseSlots( USES_REGS1 ) {
-  Int old_slots;
-  if (CurSlot < LCL0-ASP)
-    return;
-  old_slots = IntOfTerm(ASP[0]);
-  ASP += (old_slots+1);
-  CurSlot = IntOfTerm(*ASP);
-  ASP++;
-}
-
-static inline Int
-Yap_CurrentSlot( USES_REGS1 ) {
-  return IntOfTerm(ASP[0]);
-}
-
 /* pop slots when pruning */
 static inline void
 Yap_PopSlots( USES_REGS1 ) {
@@ -876,6 +862,23 @@ Yap_PopSlots( USES_REGS1 ) {
     ptr += (old_slots+1);
     CurSlot = IntOfTerm(*ptr);    
   }
+}
+
+static inline void
+Yap_CloseSlots( USES_REGS1 ) {
+  Int old_slots;
+  Yap_PopSlots( PASS_REGS1 );
+  if (LCL0-CurSlot == ASP) {
+    old_slots = IntOfTerm(ASP[0]);
+    ASP += (old_slots+1);
+    CurSlot = IntOfTerm(*ASP);
+    ASP++;
+  }
+}
+
+static inline Int
+Yap_CurrentSlot( USES_REGS1 ) {
+  return IntOfTerm(ASP[0]);
 }
 
 static inline Term

@@ -225,7 +225,8 @@ process_err_stream_for_exec(Stream, Stream, _, L, L) :-
 	stream_property(Stream, input).
 
 close_temp_streams([]).
-close_temp_streams([S|Ss]) :- close(S),
+close_temp_streams([S|Ss]) :- 
+	close(S),
 	close_temp_streams(Ss).
 
 popen(Command, Mode, Stream) :-

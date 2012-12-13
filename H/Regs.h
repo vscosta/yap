@@ -83,6 +83,7 @@ INLINE_ONLY inline EXTERN void restore_B(void);
 INLINE_ONLY inline EXTERN void save_B(void);
 
 #define CACHE_REGS
+#define REFRESH_CACHE_REGS
 #define INIT_REGS
 #define PASS_REGS1 
 #define PASS_REGS
@@ -182,12 +183,14 @@ extern Term Yap_XREGS[MaxTemps];	/* 29                                     */
 extern pthread_key_t Yap_yaamregs_key;
 
 #undef CACHE_REGS
+#undef REFRESH_CACHE_REGS
 #undef INIT_REGS
 #undef PASS_REGS
 #undef PASS_REGS1
 #undef USES_REGS
 #undef USES_REGS1
 #define CACHE_REGS REGSTORE *regcache = ((REGSTORE *)pthread_getspecific(Yap_yaamregs_key));
+#define REFRESH_CACHE_REGS regcache = ((REGSTORE *)pthread_getspecific(Yap_yaamregs_key));
 #define INIT_REGS , ((REGSTORE *)pthread_getspecific(Yap_yaamregs_key))
 #define PASS_REGS1 regcache
 #define PASS_REGS , regcache

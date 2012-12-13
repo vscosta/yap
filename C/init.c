@@ -1157,6 +1157,7 @@ InitFirstWorkerThreadHandle(void)
   pthread_mutex_init(&REMOTE_ThreadHandle(0).tlock, NULL);
   pthread_mutex_init(&REMOTE_ThreadHandle(0).tlock_status, NULL);
   LOCAL_ThreadHandle.tdetach = MkAtomTerm(AtomFalse);
+  LOCAL_ThreadHandle.ref_count = 1;
 #endif
 }
 
@@ -1314,7 +1315,7 @@ Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts, UInt max_table_s
 #endif /* YAPOR || TABLING */
 
   Yap_AttsSize = Atts;
-  Yap_InitTime();
+  Yap_InitTime( 0 );
   /* InitAbsmi must be done before InitCodes */
   /* This must be done before initialising predicates */
   for (i = 0; i <= NUMBER_OF_YAP_FLAGS; i++) {

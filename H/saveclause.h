@@ -49,6 +49,7 @@
       break;
       /* instructions type Osbmp */
     case _p_execute:
+    case _p_execute_tail:
 #ifdef YAPOR
       CHECK(save_OrArg(stream, pc->u.Osbmp.or_arg));
 #endif
@@ -75,7 +76,6 @@
     case _call_usercpred:
     case _fcall:
     case _p_execute2:
-    case _p_execute_tail:
 #ifdef YAPOR
       CHECK(save_OrArg(stream, pc->u.Osbpp.or_arg));
 #endif

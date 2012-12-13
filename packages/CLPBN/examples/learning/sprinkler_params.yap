@@ -4,12 +4,12 @@
 
 :- use_module(library(clpbn/learning/em)).
 
-%:- clpbn:set_clpbn_flag(em_solver,gibbs).
-%:- clpbn:set_clpbn_flag(em_solver,jt).
-%:- clpbn:set_clpbn_flag(em_solver,hve).
-:- clpbn:set_clpbn_flag(em_solver,bdd).
-%:- clpbn:set_clpbn_flag(em_solver,bp).
-%:- clpbn:set_clpbn_flag(em_solver,ve).
+%:- set_pfl_flag(em_solver,gibbs).
+%:- set_pfl_flag(em_solver,jt).
+%:- set_pfl_flag(em_solver,hve).
+%:- set_pfl_flag(em_solver,bp).
+%:- set_pfl_flag(em_solver,ve).
+:- set_pfl_flag(em_solver,bdd).
 
 data(t,t,t,t).
 data(_,t,_,t).
@@ -24,8 +24,6 @@ data(f,f,t,t).
 data(t,t,_,f).
 data(t,f,f,t).
 data(t,f,t,t).
-
-:- dynamic id/1.
 
 timed_main :-
 	statistics(runtime, _),

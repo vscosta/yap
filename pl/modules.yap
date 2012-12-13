@@ -396,11 +396,7 @@ expand_goal(G, G).
 	% make built-in processing transparent.
 	'$match_mod'(G, M, ORIG, HM, G1),
 	'$c_built_in'(G1, M, Gi),
-	(Gi \== G1 ->
-	 '$module_expansion'(Gi, G2, _, M, CM, HM, HVars)
-	;
-	 G2 = G1
-	).
+	G1 = G2.
 '$complete_goal_expansion'(G, GMod, _, HM, NG, NG, _) :-
 	'$match_mod'(G, GMod, GMod, HM, NG).
 
@@ -586,6 +582,7 @@ source_module(Mod) :-
 	assertz(:),
 	assertz(:,+),
 	assertz_static(:),
+	at_halt(0),
 	bagof(?,0,-),
 	bb_get(:,-),
 	bb_put(:,+),
@@ -650,6 +647,7 @@ source_module(Mod) :-
 	setup_call_cleanup(0,0,0),
 	setup_call_catcher_cleanup(0,0,?,0),
 	spy(:),
+	stash_predicate(:),
 	unknown(+,:),
 	use_module(:),
 	use_module(:,?),

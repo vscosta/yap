@@ -290,26 +290,26 @@ use_module(M,F,Is) :-
 	!.
 
 '$reset_if'(OldIfLevel) :-
-	catch(nb_getval('$if_level',OldIfLevel),_,fail), !,
+	'$nb_getval'('$if_level', OldIfLevel, fail), !,
 	nb_setval('$if_level',0).
 '$reset_if'(0) :-
 	nb_setval('$if_level',0).
 
 '$get_if'(Level0) :-
-	catch(nb_getval('$if_level',Level),_,fail), !,
+	'$nb_getval'('$if_level', Level, fail), !,
 	Level0 = Level.
 '$get_if'(0).
 
 '$into_system_mode'(OldMode) :-
-	( catch(nb_getval('$system_mode', OldMode),_,fail) -> true ; OldMode = off),
+	( '$nb_getval'('$system_mode', OldMode, fail) -> true ; OldMode = off),
         ( OldMode == off -> '$enter_system_mode' ; true ).
 
 '$ensure_consulting_file'(OldF, Stream) :-
-	( catch(nb_getval('$consulting_file',OldF), _, fail) -> true ; OldF = []),
+	( '$nb_getval'('$consulting_file',OldF, fail) -> true ; OldF = []),
 	'$set_consulting_file'(Stream).
 
 '$ensure_consulting'(Old, New) :-
-	( catch(nb_getval('$consulting',Old), _, fail) -> true ; Old = false ),
+	( '$nb_getval'('$consulting',Old, fail) -> true ; Old = false ),
 	nb_setval('$consulting', New).
 
 '$bind_module'(_, load_files).
@@ -409,12 +409,12 @@ initialization(G,OPT) :-
 '$exec_initialisation_goals' :-
 	'$show_consult_level'(Level),
 	'$current_module'(M),
-	findall(
-		G,
-		(recorded('$initialisation',do(Level,G),R), erase(R), G\='$'),
+	recorded('$initialisation',do(Level,_),_),
+	findall(G,
+	        '$fetch_init_goal'(Level, G),
 		LGs),
 	lists:member(G,LGs),
-	nb_getval('$system_mode', OldMode),
+	'$nb_getval'('$system_mode', OldMode, fail),
         ( OldMode == on -> '$exit_system_mode' ; true ),
 	% run initialization under user control (so allow debugging this stuff).
 	(
@@ -428,6 +428,12 @@ initialization(G,OPT) :-
 '$exec_initialisation_goals' :-
 	nb_setval('$initialization_goals',off).
 
+
+'$fetch_init_goal'(Level, G) :-
+	recorded('$initialisation',do(Level,G),R),
+	erase(R),
+	G\='$'.
+
 '$include'(V, _) :- var(V), !,
 	'$do_error'(instantiation_error,include(V)).
 '$include'([], _) :- !.
@@ -437,7 +443,7 @@ initialization(G,OPT) :-
 '$include'(X, Status) :-
 	get_value('$lf_verbose',Verbosity),
 	'$full_filename'(X,Y,include(X)),
-	( catch( nb_getval('$included_file',OY), _, fail ) -> true ; OY = [] ),
+	( '$nb_getval'('$included_file', OY, fail ) -> true ; OY = [] ),
 	nb_setval('$included_file', Y),
 	'$current_module'(Mod),
 	H0 is heapused, '$cputime'(T0,_),
@@ -489,13 +495,13 @@ source_file(Mod:Pred, FileName) :-
 	'$owner_file'(T, Mod, FileName).
 
 prolog_load_context(_, _) :-
-	nb_getval('$consulting_file',[]), !, fail.
+	'$nb_getval'('$consulting_file', [], fail), !, fail.
 prolog_load_context(directory, DirName) :- 
 	getcwd(DirName).
 prolog_load_context(file, FileName) :- 
-	( catch( nb_getval('$included_file',IncFileName), _, fail ) -> true ; IncFileName = [] ),
+	( '$nb_getval'('$included_file', IncFileName, fail ) -> true ; IncFileName = [] ),
 	( IncFileName = [] ->
-	  nb_getval('$consulting_file',FileName),
+	  '$nb_getval'('$consulting_file', FileName, fail),
 	  FileName \= []
         ;
            FileName  = IncFileName
@@ -649,8 +655,10 @@ absolute_file_name(File0,File) :-
 '$full_filename'(F0,F,G) :-
 	'$absolute_file_name'(F0,[access(read),file_type(source),file_errors(fail),solutions(first),expand(true)],F,G).
 
+% fix wrong argument order, TrueFileName should be last.
 absolute_file_name(File,TrueFileName,Opts) :-
-	( var(TrueFileName) ; atom(TrueFileName) ), !,
+	( var(TrueFileName) -> true ; atom(TrueFileName), TrueFileName \= [] ),
+	!,
 	absolute_file_name(File,Opts,TrueFileName).
 absolute_file_name(File,Opts,TrueFileName) :-
 	'$absolute_file_name'(File,Opts,TrueFileName,absolute_file_name(File,Opts,TrueFileName)).
@@ -1006,7 +1014,7 @@ absolute_file_name(File,Opts,TrueFileName) :-
 	'$set_yap_flags'(11,0).
 
 '$fetch_comp_status'(assert_all) :-
-	catch(nb_getval('$assert_all',on), _, fail), !.
+	'$nb_getval'('$assert_all',on, fail), !.
 '$fetch_comp_status'(source) :-
 	 '$access_yap_flags'(11,1).
 '$fetch_comp_status'(compact).
@@ -1049,7 +1057,7 @@ make_library_index(_Directory).
 	).
 	    
 '$current_loop_stream'(Stream) :-
-	catch(nb_getval('$loop_stream',Stream), _, fail).
+	'$nb_getval'('$loop_stream',Stream, fail).
 
 exists_source(File) :-
 	'$full_filename'(File, AbsFile, exists_source(File)).

@@ -270,7 +270,7 @@ call_residue(Goal,Module,Residue) :-
 
 delayed_goals(G, Vs, NVs, Gs) :-
 	project_delayed_goals(G),
-	copy_term(G.Vs, _.NVs, Gs).
+	copy_term([G|Vs], [_|NVs], Gs).
 
 project_delayed_goals(G) :-
 % SICStus compatible step,

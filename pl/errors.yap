@@ -248,7 +248,7 @@ print_message(Severity, Term) :-
 	% first step at hook processing
 	'$message_to_lines'(Term, Lines),
 	(   nonvar(Term),
-	    '$oncenotrace'(user:message_hook(Term, Severity, Lines))
+	    '$once0'(message_hook(Term, Severity, Lines), user)
 	->
            true
 	;
@@ -263,9 +263,9 @@ print_message(_, Term) :-
 	format(user_error,'~q~n',[Term]).
 
 '$message_to_lines'(Term, Lines) :-
-	'$oncenotrace'(user:generate_message_hook(Term, [], Lines)), !.
+	'$once0'(generate_message_hook(Term, [], Lines), user), !.
 '$message_to_lines'(Term, Lines) :-
-	'$oncenotrace'(prolog:message(Term, Lines, [])), !.
+	'$once0'(message(Term, Lines, []), prolog), !.
 '$message_to_lines'(Term, Lines) :-
 	'$messages':generate_message(Term, Lines, []), !.
 	

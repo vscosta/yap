@@ -289,6 +289,7 @@
   AtomSystemLibraryDir = Yap_LookupAtom("system_library_directory");
   AtomTerm = Yap_LookupAtom("term");
   AtomTerms = Yap_LookupAtom("terms");
+  AtomTermExpansion = Yap_LookupAtom("term_expansion");
   AtomTextStream = Yap_LookupAtom("text_stream");
   AtomThreads = Yap_LookupAtom("threads");
   AtomThrow = Yap_LookupAtom("throw");
@@ -424,6 +425,7 @@
   FunctorStreamPos = Yap_MkFunctor(AtomStreamPos,4);
   FunctorSyntaxError = Yap_MkFunctor(AtomSyntaxError,7);
   FunctorShortSyntaxError = Yap_MkFunctor(AtomSyntaxError,1);
+  FunctorTermExpansion = Yap_MkFunctor(AtomTermExpansion,2);
   FunctorThreadRun = Yap_MkFunctor(AtomTopThreadGoal,2);
   FunctorThrow = Yap_MkFunctor(AtomThrow,1);
   FunctorTimeoutError = Yap_MkFunctor(AtomTimeoutError,2);

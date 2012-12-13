@@ -53,6 +53,8 @@
 :- use_module(library(lists),
 	      [reverse/2]).
 
+:- use_module(library(maplist)).
+
 :- use_module(library('clpbn/aggregates'),
 	      [check_for_agg_vars/2]).
 
@@ -87,33 +89,29 @@
 jt([[]],_,_) :- !.
 jt(LLVs,Vs0,AllDiffs) :-
 	init_jt_solver(LLVs, Vs0, AllDiffs, State),
-	run_jt_solver(LLVs, LLPs, State),
+	maplist(run_jt_solver, LLVs, LLPs, State),
 	clpbn_bind_vals(LLVs,LLPs,AllDiffs).
 
 
 init_jt_solver(LLVs, Vs0, _, State) :-
 	check_for_agg_vars(Vs0, Vs1), 
 	init_influences(Vs1, G, RG),
-	init_jt_solver_for_questions(LLVs, G, RG, State).
+	maplist(init_jt_solver_for_question(G, RG), LLVs, State).
 
-init_jt_solver_for_questions([], _, _, []).
-init_jt_solver_for_questions([LLVs|MoreLLVs], G, RG, [state(JTree, Evidence)|State]) :-
+init_jt_solver_for_question(G, RG, LLVs, state(JTree, Evidence)) :-
 	influences(LLVs, G, RG, NVs0),
 	sort(NVs0, NVs),
 	get_graph(NVs, BayesNet, CPTs, Evidence),
-	build_jt(BayesNet, CPTs, JTree),
-	init_jt_solver_for_questions(MoreLLVs, G, RG, State).
+	build_jt(BayesNet, CPTs, JTree).
 
-run_jt_solver([], [], []).
-run_jt_solver([LVs|MoreLVs], [LPs|MorePs], [state(JTree, Evidence)|MoreState]) :-
+run_jt_solver(LVs, LPs, state(JTree, Evidence)) :-
 	% JTree is a dgraph
 	% now our tree has cpts
 	fill_with_cpts(JTree, NewTree),
-%	write_tree(NewTree,0),
+%	write_tree(0, NewTree),
 	propagate_evidence(Evidence, NewTree, EvTree),
 	message_passing(EvTree, MTree),
-	get_margin(MTree, LVs, LPs),
-	run_jt_solver(MoreLVs, MorePs, MoreState).
+	get_margin(MTree, LVs, LPs).
 
 get_graph(LVs, BayesNet, CPTs, Evidence) :-
 	run_vars(LVs, Edges, Vertices, CPTs, Evidence),
@@ -510,16 +508,16 @@ find_clique_from_kids([_|Kids], LVs, Clique, Dist) :-
 	find_clique_from_kids(Kids, LVs, Clique, Dist).
 
 
-write_tree(tree(Clique-(Dist,_),Leaves), I0) :- !,
+write_tree(I0, tree(Clique-(Dist,_),Leaves)) :- !,
 	matrix:matrix_to_list(Dist,L),
 	format('~*c ~w:~w~n',[I0,0' ,Clique,L]),
 	I is I0+2,
-	write_subtree(Leaves, I).
-write_tree(tree(Clique-Dist,Leaves), I0) :-
+	maplist(write_tree(I), Leaves).
+write_tree(I0, tree(Clique-Dist,Leaves), I0) :-
 	matrix:matrix_to_list(Dist,L),
 	format('~*c ~w:~w~n',[I0,0' ,Clique, L]),
 	I is I0+2,
-	write_subtree(Leaves, I).
+	maplist(write_tree(I), Leaves).
 
 write_subtree([], _).
 write_subtree([Tree|Leaves], I) :-

@@ -52,7 +52,7 @@ set_bdd_from_list(T0, VS, Manager, Cudd) :-
 	numbervars(VS,0,_),
 	generate_releases(T0, Manager, T),
 %	T0 = T,
-%	writeln_list(T),
+%	writeln_list(T0),
 	list_to_cudd(T,Manager,_Cudd0,Cudd).
 
 generate_releases(T0, Manager, T) :-
@@ -82,31 +82,31 @@ writeln_list(B.Bindings) :-
 
 %list_to_cudd(H._List,_Manager,_Cudd0,_CuddF) :- writeln(l:H), fail.
 list_to_cudd([],_Manager,Cudd,Cudd) :- writeln('X').
-list_to_cudd(release_node(M,cudd(V)).T, Manager, Cudd0, CuddF) :- !,
+list_to_cudd([release_node(M,cudd(V))|T], Manager, Cudd0, CuddF) :- !,
 	write('-'), flush_output,
 	cudd_release_node(M,V),
 	list_to_cudd(T, Manager, Cudd0, CuddF).
-list_to_cudd((V=0*_Par).T, Manager, _Cudd0, CuddF) :- !,
+list_to_cudd([(V=0*_Par)|T], Manager, _Cudd0, CuddF) :- !,
 	write('0'), flush_output,
 	term_to_cudd(0, Manager, Cudd),
 	V = cudd(Cudd),
 	list_to_cudd(T, Manager, Cudd, CuddF).
-list_to_cudd((V=0).T, Manager, _Cudd0, CuddF) :- !,
+list_to_cudd([(V=0)|T], Manager, _Cudd0, CuddF) :- !,
 	write('0'), flush_output,
 	term_to_cudd(0, Manager, Cudd),
 	V = cudd(Cudd),
 	list_to_cudd(T, Manager, Cudd, CuddF).
-list_to_cudd((V=_Tree*0).T, Manager, _Cudd0, CuddF) :- !,
+list_to_cudd([(V=_Tree*0)|T], Manager, _Cudd0, CuddF) :- !,
 	write('0'), flush_output,
 	term_to_cudd(0, Manager, Cudd),
 	V = cudd(Cudd),
 	list_to_cudd(T, Manager, Cudd, CuddF).
-list_to_cudd((V=Tree*1).T, Manager, _Cudd0, CuddF) :- !,
+list_to_cudd([(V=Tree*1)|T], Manager, _Cudd0, CuddF) :- !,
 	write('.'), flush_output,
 	term_to_cudd(Tree, Manager, Cudd),
 	V = cudd(Cudd),
 	list_to_cudd(T, Manager, Cudd, CuddF).
-list_to_cudd((V=Tree).T, Manager, _Cudd0, CuddF) :-
+list_to_cudd([(V=Tree)|T], Manager, _Cudd0, CuddF) :-
 	write('.'), flush_output,
 	( ground(Tree) -> true ; throw(error(instantiation_error(Tree))) ),
 	term_to_cudd(Tree, Manager, Cudd),

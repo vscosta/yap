@@ -647,6 +647,117 @@ p_execute_in_mod( USES_REGS1 )
 }
 
 static Int
+p_do_goal_expansion( USES_REGS1 )
+{
+  Int creeping = LOCAL_ActiveSignals & YAP_CREEP_SIGNAL;
+  Int out = FALSE;
+  PredEntry *pe;
+  Term cmod = Deref(ARG2);
+
+  ARG2 = ARG3;
+  /* disable creeping */
+  LOCK(LOCAL_SignalLock);
+  LOCAL_ActiveSignals &= ~YAP_CREEP_SIGNAL;    
+  if (!LOCAL_ActiveSignals)
+    CreepFlag = CalculateStackGap();
+  UNLOCK(LOCAL_SignalLock);
+  
+  /* CurMod:goal_expansion(A,B) */
+  if ( (pe = RepPredProp(Yap_GetPredPropByFunc(FunctorGoalExpansion2, cmod) ) ) &&
+       pe->OpcodeOfPred != FAIL_OPCODE &&
+       pe->OpcodeOfPred != UNDEF_OPCODE &&
+       CallPredicate(pe, B, pe->CodeOfPred PASS_REGS) ) {
+    out = TRUE;
+    ARG3 = ARG2;
+    goto complete;
+  }
+  /* system:goal_expansion(A,B) */
+  if ( (pe = RepPredProp(Yap_GetPredPropByFunc(FunctorGoalExpansion2, SYSTEM_MODULE ) ) ) &&
+       pe->OpcodeOfPred != FAIL_OPCODE &&
+       pe->OpcodeOfPred != UNDEF_OPCODE &&
+       CallPredicate(pe, B, pe->CodeOfPred PASS_REGS) ) {
+    out = TRUE;
+    ARG3 = ARG2;
+    goto complete;
+  }
+  ARG3 = ARG2;
+  ARG2 = cmod;
+  /* user:goal_expansion(A,CurMod,B) */
+  if ( (pe = RepPredProp(Yap_GetPredPropByFunc(FunctorGoalExpansion, USER_MODULE ) ) ) &&
+       pe->OpcodeOfPred != FAIL_OPCODE &&
+       pe->OpcodeOfPred != UNDEF_OPCODE &&
+       CallPredicate(pe, B, pe->CodeOfPred PASS_REGS) ) {
+    out = TRUE;
+    goto complete;
+  }
+  ARG2 = ARG3;
+  /* user:goal_expansion(A,B) */
+  if ( cmod != USER_MODULE && /* we have tried this before */
+       (pe = RepPredProp(Yap_GetPredPropByFunc(FunctorGoalExpansion2, USER_MODULE ) ) ) &&
+       pe->OpcodeOfPred != FAIL_OPCODE &&
+       pe->OpcodeOfPred != UNDEF_OPCODE &&
+       CallPredicate(pe, B, pe->CodeOfPred PASS_REGS) ) {
+    ARG3 = ARG2;
+    out = TRUE;
+  }
+ complete:
+  LOCK(LOCAL_SignalLock);
+  if (creeping) {
+    LOCAL_ActiveSignals |= YAP_CREEP_SIGNAL;    
+  }
+  UNLOCK(LOCAL_SignalLock);
+  return out;
+}
+
+static Int
+p_do_term_expansion( USES_REGS1 )
+{
+  Int creeping = LOCAL_ActiveSignals & YAP_CREEP_SIGNAL;
+  Int out = FALSE;
+  PredEntry *pe;
+  Term cmod = CurrentModule;
+
+  /* disable creeping */
+  LOCK(LOCAL_SignalLock);
+  LOCAL_ActiveSignals &= ~YAP_CREEP_SIGNAL;    
+  if (!LOCAL_ActiveSignals)
+    CreepFlag = CalculateStackGap();
+  UNLOCK(LOCAL_SignalLock);
+  
+  /* CurMod:term_expansion(A,B) */
+  if ( (pe = RepPredProp(Yap_GetPredPropByFunc(FunctorTermExpansion, cmod) ) ) &&
+       pe->OpcodeOfPred != FAIL_OPCODE &&
+       pe->OpcodeOfPred != UNDEF_OPCODE &&
+       CallPredicate(pe, B, pe->CodeOfPred PASS_REGS) ) {
+    out = TRUE;
+    goto complete;
+  }
+  /* system:term_expansion(A,B) */
+  if ( (pe = RepPredProp(Yap_GetPredPropByFunc(FunctorTermExpansion, SYSTEM_MODULE ) ) ) &&
+       pe->OpcodeOfPred != FAIL_OPCODE &&
+       pe->OpcodeOfPred != UNDEF_OPCODE &&
+       CallPredicate(pe, B, pe->CodeOfPred PASS_REGS) ) {
+    out = TRUE;
+    goto complete;
+  }
+  /* user:term_expansion(A,B) */
+  if ( cmod != USER_MODULE && /* we have tried this before */
+       (pe = RepPredProp(Yap_GetPredPropByFunc(FunctorTermExpansion, USER_MODULE ) ) ) &&
+       pe->OpcodeOfPred != FAIL_OPCODE &&
+       pe->OpcodeOfPred != UNDEF_OPCODE &&
+       CallPredicate(pe, B, pe->CodeOfPred PASS_REGS) ) {
+    out = TRUE;
+  }
+ complete:
+  LOCK(LOCAL_SignalLock);
+  if (creeping) {
+    LOCAL_ActiveSignals |= YAP_CREEP_SIGNAL;    
+  }
+  UNLOCK(LOCAL_SignalLock);
+  return out;
+}
+
+static Int
 p_execute0( USES_REGS1 )
 {				/* '$execute0'(Goal,Mod)	 */
   Term            t = Deref(ARG1), t0 = t;
@@ -1604,18 +1715,22 @@ p_generate_pred_info( USES_REGS1 ) {
 }
 
 void
-Yap_InitYaamRegs(void)
+Yap_InitYaamRegs( int myworker_id )
 {
-  CACHE_REGS
   Term h0var;
 #if PUSH_REGS
   /* Guarantee that after a longjmp we go back to the original abstract
      machine registers */
 #ifdef THREADS
-  int myworker_id = worker_id;
-  pthread_setspecific(Yap_yaamregs_key, (const void *)REMOTE_ThreadHandle(myworker_id).default_yaam_regs);
-  REMOTE_ThreadHandle(myworker_id).current_yaam_regs = REMOTE_ThreadHandle(myworker_id).default_yaam_regs;
-  worker_id = myworker_id;  /* ricroc: for what I understand, this shouldn't be necessary */
+  CACHE_REGS
+  int wid = worker_id;
+  if (wid != myworker_id) {
+    pthread_setspecific(Yap_yaamregs_key, (const void *)REMOTE_ThreadHandle(myworker_id).default_yaam_regs);
+    REFRESH_CACHE_REGS
+    REMOTE_ThreadHandle(myworker_id).current_yaam_regs = REMOTE_ThreadHandle(myworker_id).default_yaam_regs;
+    worker_id = myworker_id;
+  }
+  /* may be run by worker_id on behalf on myworker_id */
 #else
   Yap_regp = &Yap_standard_regs;
 #endif
@@ -1623,12 +1738,10 @@ Yap_InitYaamRegs(void)
   Yap_ResetExceptionTerm ();
   Yap_PutValue (AtomBreak, MkIntTerm (0));
   TR = (tr_fr_ptr)LOCAL_TrailBase;
-  if (Yap_AttsSize > (LOCAL_LocalBase-LOCAL_GlobalBase)/8)
-    Yap_AttsSize = (LOCAL_LocalBase-LOCAL_GlobalBase)/8;
-  H = H0 = ((CELL *) LOCAL_GlobalBase)+ Yap_AttsSize/sizeof(CELL);
+  H = H0 = ((CELL *) REMOTE_GlobalBase(wid));
   RESET_VARIABLE(H0-1);
-  LCL0 = ASP = (CELL *) LOCAL_LocalBase;
-  CurrentTrailTop = (tr_fr_ptr)(LOCAL_TrailTop-MinTrailGap);
+  LCL0 = ASP = (CELL *) REMOTE_LocalBase(wid);
+  CurrentTrailTop = (tr_fr_ptr)(REMOTE_TrailTop(wid)-MinTrailGap);
   /* notice that an initial choice-point and environment
    *must* be created since for the garbage collector to work */
   B = NULL;
@@ -1643,27 +1756,27 @@ Yap_InitYaamRegs(void)
 #ifdef YAPOR_SBA
   BSEG =
 #endif /* YAPOR_SBA */
-  BBREG = B_FZ = (choiceptr) LOCAL_LocalBase;
-  TR = TR_FZ = (tr_fr_ptr) LOCAL_TrailBase;
+  BBREG = B_FZ = (choiceptr) REMOTE_LocalBase(wid);
+  TR = TR_FZ = (tr_fr_ptr) REMOTE_TrailBase(wid);
 #endif /* FROZEN_STACKS */
-  LOCK(LOCAL_SignalLock);
+  LOCK(REMOTE_SignalLock(wid));
   CreepFlag = CalculateStackGap();
-  UNLOCK(LOCAL_SignalLock);
+  UNLOCK(REMOTE_SignalLock(wid));
   EX = NULL;
   init_stack(0, NULL, TRUE, NULL PASS_REGS);
   /* the first real choice-point will also have AP=FAIL */ 
   /* always have an empty slots for people to use */
   CurSlot = 0;
   Yap_StartSlots( PASS_REGS1 );
-  LOCAL_GlobalArena = TermNil;
+  REMOTE_GlobalArena(wid) = TermNil;
   h0var = MkVarTerm();
 #if COROUTINING
-  LOCAL_WokenGoals = Yap_NewTimedVar(TermNil);
-  LOCAL_AttsMutableList = Yap_NewTimedVar(h0var);
+  REMOTE_WokenGoals(wid) = Yap_NewTimedVar(TermNil);
+  REMOTE_AttsMutableList(wid) = Yap_NewTimedVar(h0var);
 #endif
-  LOCAL_GcGeneration = Yap_NewTimedVar(h0var);
-  LOCAL_GcCurrentPhase = 0L;
-  LOCAL_GcPhase = Yap_NewTimedVar(MkIntTerm(LOCAL_GcCurrentPhase));
+  REMOTE_GcGeneration(wid) = Yap_NewTimedVar(h0var);
+  REMOTE_GcCurrentPhase(wid) = 0L;
+  REMOTE_GcPhase(wid) = Yap_NewTimedVar(MkIntTerm(REMOTE_GcCurrentPhase(wid)));
 #if defined(YAPOR) || defined(THREADS)
   PP = NULL;
   PREG_ADDR = NULL;
@@ -1678,8 +1791,14 @@ Yap_InitYaamRegs(void)
 #endif
 #ifdef TABLING
   /* ensure that LOCAL_top_dep_fr is always valid */
-  if (LOCAL_top_dep_fr)
-    DepFr_cons_cp(LOCAL_top_dep_fr) = NORM_CP(B);
+  if (REMOTE_top_dep_fr(wid))
+    DepFr_cons_cp(REMOTE_top_dep_fr(wid)) = NORM_CP(B);
+#endif
+#ifdef THREADS
+  worker_id = wid;
+  if (myworker_id != worker_id) {
+    pthread_setspecific(Yap_yaamregs_key, (const void *)REMOTE_ThreadHandle(worker_id).default_yaam_regs);
+  }
 #endif
 }
 
@@ -1838,6 +1957,8 @@ Yap_InitExecFs(void)
   Yap_InitCPred("$generate_pred_info", 4, p_generate_pred_info, 0);
   Yap_InitCPred("$uncaught_throw", 0, p_uncaught_throw, 0);
   Yap_InitCPred("$reset_exception", 1, p_reset_exception, 0);
+  Yap_InitCPred("$do_goal_expansion", 3, p_do_goal_expansion, 0);
+  Yap_InitCPred("$do_term_expansion", 2, p_do_term_expansion, 0);
   Yap_InitCPred("$get_exception", 1, p_get_exception, 0);
 }
 

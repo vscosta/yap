@@ -1818,6 +1818,14 @@ Make hidden atom @var{Atom} visible.
 Make predicate @var{Pred} invisible to @code{current_predicate/2},
 @code{listing}, and friends.
 
+@item stash_predicate(+@var{Pred})
+@findex stash_predicate/1
+@snindex stash_predicate/1
+@cnindex stash_predicate/1
+Make predicate @var{Pred} invisible to new code, and to @code{current_predicate/2},
+@code{listing}, and friends. New predicates with the same name and
+functor can be declared.
+
 @item expand_exprs(-@var{O},+@var{N})
 @findex expand_exprs/2
 @snindex expand_exprs/2
@@ -4616,10 +4624,10 @@ If @code{first} (default), the predicates leaves no choice-point.
 Otherwise a choice-point will be left and backtracking may yield
 more solutions.
 
-@c     @item expand(@code{true}/@code{false})
-@c If @code{true} (default is @code{false}) and @var{Spec} is atomic,
-@c call @code{expand_file_name/2} followed by @code{member/2} on @var{Spec} before
-@c proceeding.  This is a SWI-Prolog extension.
+ @item expand(@code{true}/@code{false})
+ If @code{true} (default is @code{false}) and @var{Spec} is atomic,
+ call @code{expand_file_name/2} followed by @code{member/2} on @var{Spec} before
+ proceeding.  This is originally a SWI-Prolog extension.
 @end table
 
 @c The Prolog flag @code{verbose_file_search} can be set to @code{true}

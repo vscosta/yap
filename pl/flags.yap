@@ -118,6 +118,18 @@ yap_flag(agc_margin,Margin) :-
 %
 % SWI compatibility flag
 %
+yap_flag(debug_on_error,X) :-
+	var(X), !,
+	X = false.
+yap_flag(debug_on_error,true) :- !,
+	X = true,
+	'$do_error'(domain_error(flag_value,debug_on_error+X),yap_flag(debug_on_error,X)).
+yap_flag(debug_on_error,false) :- !.
+yap_flag(debug_on_error,X) :-
+	'$do_error'(domain_error(flag_value,debug_on_error+X),yap_flag(debug_on_error,X)).
+
+
+
 yap_flag(generate_debug_info,X) :-
 	var(X), !,
         '$access_yap_flags'(18,Options),
@@ -830,6 +842,7 @@ yap_flag(dialect,yap).
 '$yap_system_flag'(character_escapes).
 '$yap_system_flag'(chr_toplevel_show_store).
 '$yap_system_flag'(debug).
+'$yap_system_flag'(debug_on_error    ).
 '$yap_system_flag'(debugger_print_options).
 '$yap_system_flag'(dialect).
 '$yap_system_flag'(discontiguous_warnings).

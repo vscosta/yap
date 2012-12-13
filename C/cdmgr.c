@@ -2151,6 +2151,7 @@ goal_expansion_support(PredEntry *p, Term tf)
 	  if (p0) {
 	    mark_preds_with_this_func(FunctorOfTerm(tg), p0);
 	  } else {
+	    CACHE_REGS
 	    Term mod = CurrentModule;
 	    PredEntry *npe;
 	    if (CurrentModule == PROLOG_MODULE)
@@ -4420,7 +4421,7 @@ Yap_HidePred(PredEntry *pe)
 }
 
 static Int			/* $system_predicate(P) */
-p_hide_predicate( USES_REGS1 )
+p_stash_predicate( USES_REGS1 )
 {
   PredEntry      *pe;
 
@@ -4460,6 +4461,50 @@ p_hide_predicate( USES_REGS1 )
   if (EndOfPAEntr(pe))
     return FALSE;
   Yap_HidePred(pe);
+  return TRUE;
+}
+
+static Int			/* $system_predicate(P) */
+p_hide_predicate( USES_REGS1 )
+{
+  PredEntry      *pe;
+
+  Term t1 = Deref(ARG1);
+  Term mod = Deref(ARG2);
+
+ restart_system_pred:
+  if (IsVarTerm(t1))
+    return (FALSE);
+  if (IsAtomTerm(t1)) {
+    Atom a = AtomOfTerm(t1);
+
+    pe = RepPredProp(Yap_GetPredPropByAtom(a, mod));
+  } else if (IsApplTerm(t1)) {
+    Functor         funt = FunctorOfTerm(t1);
+    if (IsExtensionFunctor(funt)) {
+      return(FALSE);
+    } 
+    if (funt == FunctorModule) {
+      Term nmod = ArgOfTerm(1, t1);
+      if (IsVarTerm(nmod)) {
+	Yap_Error(INSTANTIATION_ERROR,ARG1,"hide_predicate/1");
+	return(FALSE);
+      } 
+      if (!IsAtomTerm(nmod)) {
+	Yap_Error(TYPE_ERROR_ATOM,ARG1,"hide_predicate/1");
+	return(FALSE);
+      }
+      t1 = ArgOfTerm(2, t1);
+      goto restart_system_pred;
+    }
+    pe = RepPredProp(Yap_GetPredPropByFunc(funt, mod));
+  } else if (IsPairTerm(t1)) {
+    return TRUE;
+  } else
+    return FALSE;
+  if (EndOfPAEntr(pe))
+    return FALSE;
+  pe->PredFlags |= HiddenPredFlag;  
   return TRUE;
 }
 
@@ -6016,6 +6061,7 @@ Yap_InitCdMgr(void)
   Yap_InitCPred("$system_predicate", 2, p_system_pred, SafePredFlag);
   Yap_InitCPred("$all_system_predicate", 3, p_all_system_pred, SafePredFlag);
   Yap_InitCPred("$hide_predicate", 2, p_hide_predicate, SafePredFlag);
+  Yap_InitCPred("$stash_predicate", 2, p_stash_predicate, SafePredFlag);
   Yap_InitCPred("$hidden_predicate", 2, p_hidden_predicate, SafePredFlag);
   Yap_InitCPred("$pred_for_code", 5, p_pred_for_code, SyncPredFlag);
   Yap_InitCPred("$current_stack", 1, p_current_stack, SyncPredFlag);
