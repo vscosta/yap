@@ -1546,9 +1546,8 @@ Yap_regtoregno(wamreg reg)
 #endif
 
 static inline void
-prune(choiceptr cp)
+prune(choiceptr cp USES_REGS)
 {
-  CACHE_REGS
 #ifdef YAPOR
   CUT_prune_to(cp);
 #endif /* YAPOR */

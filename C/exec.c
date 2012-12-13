@@ -1723,25 +1723,22 @@ Yap_InitYaamRegs( int myworker_id )
      machine registers */
 #ifdef THREADS
   CACHE_REGS
-  int wid = worker_id;
-  if (wid != myworker_id) {
+   if (myworker_id) {
     pthread_setspecific(Yap_yaamregs_key, (const void *)REMOTE_ThreadHandle(myworker_id).default_yaam_regs);
-    REFRESH_CACHE_REGS
     REMOTE_ThreadHandle(myworker_id).current_yaam_regs = REMOTE_ThreadHandle(myworker_id).default_yaam_regs;
-    worker_id = myworker_id;
+    REFRESH_CACHE_REGS
   }
   /* may be run by worker_id on behalf on myworker_id */
 #else
   Yap_regp = &Yap_standard_regs;
 #endif
 #endif /* PUSH_REGS */
-  Yap_ResetExceptionTerm ();
+  Yap_ResetExceptionTerm ( myworker_id );
   Yap_PutValue (AtomBreak, MkIntTerm (0));
-  TR = (tr_fr_ptr)LOCAL_TrailBase;
-  H = H0 = ((CELL *) REMOTE_GlobalBase(wid));
-  RESET_VARIABLE(H0-1);
-  LCL0 = ASP = (CELL *) REMOTE_LocalBase(wid);
-  CurrentTrailTop = (tr_fr_ptr)(REMOTE_TrailTop(wid)-MinTrailGap);
+  TR = (tr_fr_ptr)REMOTE_TrailBase(myworker_id);
+  H = H0 = ((CELL *) REMOTE_GlobalBase(myworker_id));
+  LCL0 = ASP = (CELL *) REMOTE_LocalBase(myworker_id);
+  CurrentTrailTop = (tr_fr_ptr)(REMOTE_TrailTop(myworker_id)-MinTrailGap);
   /* notice that an initial choice-point and environment
    *must* be created since for the garbage collector to work */
   B = NULL;
@@ -1756,49 +1753,46 @@ Yap_InitYaamRegs( int myworker_id )
 #ifdef YAPOR_SBA
   BSEG =
 #endif /* YAPOR_SBA */
-  BBREG = B_FZ = (choiceptr) REMOTE_LocalBase(wid);
-  TR = TR_FZ = (tr_fr_ptr) REMOTE_TrailBase(wid);
+    BBREG = B_FZ = (choiceptr) REMOTE_LocalBase(myworker_id);
+  TR = TR_FZ = (tr_fr_ptr) REMOTE_TrailBase(myworker_id);
 #endif /* FROZEN_STACKS */
-  LOCK(REMOTE_SignalLock(wid));
+  LOCK(REMOTE_SignalLock(myworker_id));
   CreepFlag = CalculateStackGap();
-  UNLOCK(REMOTE_SignalLock(wid));
+  UNLOCK(REMOTE_SignalLock(myworker_id));
   EX = NULL;
   init_stack(0, NULL, TRUE, NULL PASS_REGS);
   /* the first real choice-point will also have AP=FAIL */ 
   /* always have an empty slots for people to use */
   CurSlot = 0;
   Yap_StartSlots( PASS_REGS1 );
-  REMOTE_GlobalArena(wid) = TermNil;
+  REMOTE_GlobalArena(myworker_id) = TermNil;
   h0var = MkVarTerm();
+#ifdef THREADS
+  LOCAL = REMOTE(myworker_id);
+#endif /* THREADS */
 #if COROUTINING
-  REMOTE_WokenGoals(wid) = Yap_NewTimedVar(TermNil);
-  REMOTE_AttsMutableList(wid) = Yap_NewTimedVar(h0var);
+  REMOTE_WokenGoals(myworker_id) = Yap_NewTimedVar(TermNil);
+  REMOTE_AttsMutableList(myworker_id) = Yap_NewTimedVar(h0var);
 #endif
-  REMOTE_GcGeneration(wid) = Yap_NewTimedVar(h0var);
-  REMOTE_GcCurrentPhase(wid) = 0L;
-  REMOTE_GcPhase(wid) = Yap_NewTimedVar(MkIntTerm(REMOTE_GcCurrentPhase(wid)));
+  REMOTE_GcGeneration(myworker_id) = Yap_NewTimedVar(h0var);
+  REMOTE_GcCurrentPhase(myworker_id) = 0L;
+  REMOTE_GcPhase(myworker_id) = Yap_NewTimedVar(MkIntTerm(REMOTE_GcCurrentPhase(myworker_id)));
 #if defined(YAPOR) || defined(THREADS)
   PP = NULL;
   PREG_ADDR = NULL;
 #endif
-  Yap_AllocateDefaultArena(128*1024, 2);
-  Yap_InitPreAllocCodeSpace();
+  Yap_AllocateDefaultArena(128*1024, 2, myworker_id);
+  Yap_InitPreAllocCodeSpace( myworker_id );
 #ifdef CUT_C
-  cut_c_initialize();
+  cut_c_initialize( myworker_id );
 #endif
 #if defined MYDDAS_MYSQL || defined MYDDAS_ODBC
   Yap_REGS.MYDDAS_GLOBAL_POINTER = NULL;
 #endif
 #ifdef TABLING
   /* ensure that LOCAL_top_dep_fr is always valid */
-  if (REMOTE_top_dep_fr(wid))
-    DepFr_cons_cp(REMOTE_top_dep_fr(wid)) = NORM_CP(B);
-#endif
-#ifdef THREADS
-  worker_id = wid;
-  if (myworker_id != worker_id) {
-    pthread_setspecific(Yap_yaamregs_key, (const void *)REMOTE_ThreadHandle(worker_id).default_yaam_regs);
-  }
+  if (REMOTE_top_dep_fr(myworker_id))
+    DepFr_cons_cp(REMOTE_top_dep_fr(myworker_id)) = NORM_CP(B);
 #endif
 }
 
@@ -1886,11 +1880,10 @@ p_reset_exception( USES_REGS1 )
 }
 
 void
-Yap_ResetExceptionTerm(void)
+Yap_ResetExceptionTerm(int wid)
 {
-  CACHE_REGS
-  Yap_ReleaseTermFromDB(LOCAL_BallTerm);
-  LOCAL_BallTerm = NULL;
+  Yap_ReleaseTermFromDB(REMOTE_BallTerm(wid));
+  REMOTE_BallTerm(wid) = NULL;
 }
 
 static Int
