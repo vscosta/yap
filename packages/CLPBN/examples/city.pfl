@@ -1,0 +1,134 @@
+:- use_module(library(pfl)).
+
+:- set_solver(hve).
+%:- set_solver(ve).
+%:- set_solver(jt).
+%:- set_solver(bdd).
+%:- set_solver(bp).
+%:- set_solver(cbp).
+%:- set_solver(gibbs).
+%:- set_solver(lve).
+%:- set_solver(lkc).
+%:- set_solver(lbp).
+
+:- multifile people/2.
+:- multifile ev/1.
+
+people(joe,nyc).
+people(p2, nyc).
+people(p3, nyc).
+people(p4, nyc).
+people(p5, nyc).
+
+ev(descn(p2, fits)).
+ev(descn(p3, fits)).
+ev(descn(p4, fits)).
+ev(descn(p5, fits)).
+
+bayes city_conservativeness(C)::[high,low] ;
+    cons_table(C) ;
+    [people(_,C)].
+
+bayes gender(P)::[male,female] ;
+    gender_table(P) ;
+    [people(P,_)].
+
+bayes hair_color(P)::[dark,bright], city_conservativeness(C) ;
+    hair_color_table(P) ;
+    [people(P,C)].
+
+bayes car_color(P)::[dark,bright], hair_color(P) ;
+    car_color_table(P) ;
+    [people(P,_)].
+
+bayes height(P)::[tall,short], gender(P) ;
+    height_table(P) ;
+    [people(P,_)].
+
+bayes shoe_size(P)::[big,small], height(P) ;
+    shoe_size_table(P) ;
+    [people(P,_)].
+
+bayes guilty(P)::[y,n] ;
+    guilty_table(P) ;
+    [people(P,_)].
+
+bayes descn(P)::[fits,dont_fit], car_color(P),
+        hair_color(P), height(P), guilty(P) ;
+    descn_table(P) ;
+    [people(P,_)].
+
+bayes witness(C), descn(Joe), descn(P2) ;
+    witness_table ;
+    [people(_,C), Joe=joe, P2=p2].
+
+
+cons_table(amsterdam,
+% special case for amsterdam: amsterdam is
+% less conservative than other cities (is it?)
+/* y        */ [ 0.2,
+/* n        */   0.8 ]) :- !. % FIXME
+cons_table(_,
+/* y        */ [ 0.8,
+/* n        */   0.2 ]).
+
+gender_table(_,
+/* male     */ [ 0.55,
+/* female   */   0.45 ]).
+
+hair_color_table(_,
+/*               high  low  */
+/* dark     */ [ 0.05, 0.1,
+/* bright   */   0.95, 0.9 ]).
+    
+car_color_table(_,
+/*               dark bright */
+/* dark     */ [ 0.9, 0.2,
+/* bright   */   0.1, 0.8 ]).
+	
+height_table(_,
+/*               male female */
+/* tall     */ [ 0.6, 0.4,
+/* short    */   0.4, 0.6 ]).
+	
+shoe_size_table(_,
+/*               tall short */
+/* big      */ [ 0.9, 0.1,
+/* small    */   0.1, 0.9 ]).
+
+guilty_table(_,
+/* yes      */ [ 0.23,
+/* no       */   0.77 ]).
+
+descn_table(_,
+/*               car_color(P), hair_color(P), height(P), guilty(P) */
+/* fits     */ [ 0.99, 0.5,  0.23, 0.88, 0.41, 0.3,  0.76, 0.87,
+/* fits     */   0.44, 0.43, 0.29, 0.72, 0.23, 0.91, 0.95, 0.92,
+/* dont_fit */   0.01, 0.5,  0.77, 0.12, 0.59, 0.7,  0.24, 0.13, 
+/* dont_fit */   0.56, 0.57, 0.71, 0.28, 0.77, 0.09, 0.05, 0.08 ]).
+
+witness_table(
+/*               descn(Joe), descn(P2) */
+/* t        */ [ 0.2, 0.45, 0.24, 0.34,
+/* f        */   0.8, 0.55, 0.76, 0.66 ]).
+
+
+runall(G, Wrapper) :-
+    findall(G, Wrapper, L),
+    execute_all(L).
+
+
+execute_all([]).
+execute_all(G.L) :-
+    call(G),
+    execute_all(L).
+
+
+is_joe_guilty(Guilty) :-
+    witness(nyc, t),
+    runall(X, ev(X)),
+    guilty(joe, Guilty).
+
+
+% ?- is_joe_guilty(Guilty).
+

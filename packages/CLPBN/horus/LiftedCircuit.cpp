@@ -18,17 +18,13 @@ AndNode::weight (void) const
 {
   double lw = leftBranch_->weight();
   double rw = rightBranch_->weight();
-  if (Globals::logDomain) {
-//    cout << "andw1 = " << std::exp(lw + rw) << endl;
-  } else {
-//    cout << "andw2 = " << lw * rw << endl;
-  }
   return Globals::logDomain ? lw + rw : lw * rw;
 }
 
 
 
-stack<pair<unsigned, unsigned>> SetOrNode::nrGrsStack;
+int SetOrNode::nrPos_ = -1;
+int SetOrNode::nrNeg_ = -1;
 
 
 
@@ -37,7 +33,8 @@ SetOrNode::weight (void) const
 {
   double weightSum = LogAware::addIdenty();
   for (unsigned i = 0; i < nrGroundings_ + 1; i++) {
-    nrGrsStack.push (make_pair (nrGroundings_ - i, i));
+    nrPos_ = nrGroundings_ - i;
+    nrNeg_ = i;
     if (Globals::logDomain) {
       double nrCombs = Util::nrCombinations (nrGroundings_, i);
       double w = follow_->weight();
@@ -47,6 +44,8 @@ SetOrNode::weight (void) const
       weightSum += Util::nrCombinations (nrGroundings_, i) * w;
     }
   }
+  nrPos_ = -1;
+  nrNeg_ = -1;
   return weightSum;
 }
 
@@ -55,10 +54,7 @@ SetOrNode::weight (void) const
 double
 SetAndNode::weight (void) const
 {
-  double w = follow_->weight();
-  return Globals::logDomain
-      ? w * nrGroundings_
-      : std::pow (w, nrGroundings_);
+  return LogAware::pow (follow_->weight(), nrGroundings_);
 }
 
 
@@ -82,33 +78,37 @@ IncExcNode::weight (void) const
 double
 LeafNode::weight (void) const
 {
-  assert (clauses().size() == 1);
-  assert (clauses()[0].isUnit());
-  Clause c = clauses()[0];
-  double weight = c.literals()[0].isPositive()
-      ? lwcnf_.posWeight (c.literals().front().lid())
-      : lwcnf_.negWeight (c.literals().front().lid());
-  LogVarSet lvs = c.constr().logVarSet();
-  lvs -= c.ipgLogVars();
-  lvs -= c.posCountedLogVars();
-  lvs -= c.negCountedLogVars();
+  assert (clause_->isUnit());
+  if (clause_->posCountedLogVars().empty() == false 
+    || clause_->negCountedLogVars().empty() == false) {
+    if (SetOrNode::isSet() == false) {
+      // return a NaN if we have a SetOrNode
+      // ancester that is not set. This can only
+      // happen when calculating the weights
+      // for the edge labels in graphviz
+      return 0.0 / 0.0;
+    }
+  }
+  double weight = clause_->literals()[0].isPositive()
+      ? lwcnf_.posWeight (clause_->literals().front().lid())
+      : lwcnf_.negWeight (clause_->literals().front().lid());
+  LogVarSet lvs = clause_->constr().logVarSet();
+  lvs -= clause_->ipgLogVars();
+  lvs -= clause_->posCountedLogVars();
+  lvs -= clause_->negCountedLogVars();
   unsigned nrGroundings = 1;
   if (lvs.empty() == false) {
-    ConstraintTree ct = c.constr();
-    ct.project (lvs);
-    nrGroundings = ct.size();
+    nrGroundings = clause_->constr().projectedCopy (lvs).size();
   }
-  if (c.posCountedLogVars().empty() == false) {
+  if (clause_->posCountedLogVars().empty() == false) {
     nrGroundings *= std::pow (SetOrNode::nrPositives(),
-        c.nrPosCountedLogVars());
+        clause_->nrPosCountedLogVars());
   }
-  if (c.negCountedLogVars().empty() == false) {
+  if (clause_->negCountedLogVars().empty() == false) {
     nrGroundings *= std::pow (SetOrNode::nrNegatives(),
-        c.nrNegCountedLogVars());
+        clause_->nrNegCountedLogVars());
   }
-  return Globals::logDomain 
-      ? weight * nrGroundings
-      : std::pow (weight, nrGroundings);
+  return LogAware::pow (weight, nrGroundings);
 }
 
 
@@ -119,25 +119,23 @@ SmoothNode::weight (void) const
   Clauses cs = clauses();
   double totalWeight = LogAware::multIdenty();
   for (size_t i = 0; i < cs.size(); i++) {
-    double posWeight = lwcnf_.posWeight (cs[i].literals()[0].lid());
-    double negWeight = lwcnf_.negWeight (cs[i].literals()[0].lid());
-    LogVarSet lvs = cs[i].constr().logVarSet();
-    lvs -= cs[i].ipgLogVars();
-    lvs -= cs[i].posCountedLogVars();
-    lvs -= cs[i].negCountedLogVars();
+    double posWeight = lwcnf_.posWeight (cs[i]->literals()[0].lid());
+    double negWeight = lwcnf_.negWeight (cs[i]->literals()[0].lid());
+    LogVarSet lvs = cs[i]->constr().logVarSet();
+    lvs -= cs[i]->ipgLogVars();
+    lvs -= cs[i]->posCountedLogVars();
+    lvs -= cs[i]->negCountedLogVars();
     unsigned nrGroundings = 1;
     if (lvs.empty() == false) {
-      ConstraintTree ct = cs[i].constr();
-      ct.project (lvs);
-      nrGroundings = ct.size();
+      nrGroundings = cs[i]->constr().projectedCopy (lvs).size();
     }
-    if (cs[i].posCountedLogVars().empty() == false) {
+    if (cs[i]->posCountedLogVars().empty() == false) {
       nrGroundings *= std::pow (SetOrNode::nrPositives(), 
-          cs[i].nrPosCountedLogVars());
+          cs[i]->nrPosCountedLogVars());
     }
-    if (cs[i].negCountedLogVars().empty() == false) {
+    if (cs[i]->negCountedLogVars().empty() == false) {
       nrGroundings *= std::pow (SetOrNode::nrNegatives(),
-          cs[i].nrNegCountedLogVars());      
+          cs[i]->nrNegCountedLogVars());      
     }
     if (Globals::logDomain) {
       totalWeight += Util::logSum (posWeight, negWeight) * nrGroundings;
@@ -161,10 +159,9 @@ TrueNode::weight (void) const
 double
 CompilationFailedNode::weight (void) const
 {
-  // we should not perform model counting
-  // in compilation failed nodes
-  // abort();
-  return 0.0;
+  // weighted model counting in compilation
+  // failed nodes should give NaN
+  return 0.0 / 0.0;
 }
 
 
@@ -173,15 +170,29 @@ LiftedCircuit::LiftedCircuit (const LiftedWCNF* lwcnf)
     : lwcnf_(lwcnf)
 {
   root_ = 0;
-  Clauses clauses = lwcnf->clauses();
+  compilationSucceeded_ = true;
+  Clauses clauses = Clause::copyClauses (lwcnf->clauses());
   compile (&root_, clauses);
-  exportToGraphViz("circuit.dot");
-  smoothCircuit (root_);
-  exportToGraphViz("circuit.smooth.dot");
-  cout << "--------------------------------------------------" << endl;
-  cout << "--------------------------------------------------" << endl;  
-  double wmc = LogAware::exp (getWeightedModelCount());
-  cout << "WEIGHTED MODEL COUNT = " << wmc << endl;
+  if (compilationSucceeded_) {
+    smoothCircuit (root_);
+  }
+  if (Globals::verbosity > 1) {
+    if (compilationSucceeded_) {
+      double wmc = LogAware::exp (getWeightedModelCount());
+      cout << "Weighted model count = " << wmc << endl << endl;
+    }
+    cout << "Exporting circuit to graphviz (circuit.dot)..." ;
+    cout << endl << endl;
+    exportToGraphViz ("circuit.dot");
+  }
+}
+
+
+
+bool
+LiftedCircuit::isCompilationSucceeded (void) const
+{
+  return compilationSucceeded_;
 }
 
 
@@ -189,6 +200,7 @@ LiftedCircuit::LiftedCircuit (const LiftedWCNF* lwcnf)
 double
 LiftedCircuit::getWeightedModelCount (void) const
 {
+  assert (compilationSucceeded_);
   return root_->weight();
 }
 
@@ -217,12 +229,17 @@ LiftedCircuit::compile (
     CircuitNode** follow,
     Clauses& clauses)
 {
+  if (compilationSucceeded_ == false
+      && Globals::verbosity <= 1) {
+    return;
+  }
+
   if (clauses.empty()) {
-    *follow = new TrueNode ();
+    *follow = new TrueNode();
     return;
   }
   
-  if (clauses.size() == 1 && clauses[0].isUnit()) {
+  if (clauses.size() == 1 && clauses[0]->isUnit()) {
     *follow = new LeafNode (clauses[0], *lwcnf_);
     return;
   }
@@ -251,12 +268,12 @@ LiftedCircuit::compile (
     return;
   }
 
-  if (tryGrounding (follow, clauses)) {
-    return;
+  *follow = new CompilationFailedNode();
+  if (Globals::verbosity > 1) {
+    originClausesMap_[*follow] = clauses;
+    explanationMap_[*follow]   = "" ;
   }
-
-  // assert (false);
-  *follow = new CompilationFailedNode (clauses);
+  compilationSucceeded_ = false;
 }
 
 
@@ -266,37 +283,53 @@ LiftedCircuit::tryUnitPropagation (
     CircuitNode** follow,
     Clauses& clauses)
 {
-  // cout << "ALL CLAUSES:" << endl;
-  // Clause::printClauses (clauses);
+  if (Globals::verbosity > 1) {
+    backupClauses_ = Clause::copyClauses (clauses);
+  }
   for (size_t i = 0; i < clauses.size(); i++) {
-    if (clauses[i].isUnit()) {
-      // cout << clauses[i] << " is unit!" << endl;
-      Clauses newClauses;
+    if (clauses[i]->isUnit()) {
+      Clauses propagClauses;
       for (size_t j = 0; j < clauses.size(); j++) {
         if (i != j) {
-          LiteralId lid = clauses[i].literals()[0].lid();
-          LogVarTypes types = clauses[i].logVarTypes (0);
-          if (clauses[i].literals()[0].isPositive()) {
-            if (clauses[j].containsPositiveLiteral (lid, types) == false) {
-              Clause newClause = clauses[j];
-              newClause.removeNegativeLiterals (lid, types);
-              newClauses.push_back (newClause);
+          LiteralId lid = clauses[i]->literals()[0].lid();
+          LogVarTypes types = clauses[i]->logVarTypes (0);
+          if (clauses[i]->literals()[0].isPositive()) {
+            if (clauses[j]->containsPositiveLiteral (lid, types) == false) {
+              clauses[j]->removeNegativeLiterals (lid, types);
+              if (clauses[j]->nrLiterals() > 0) {
+                propagClauses.push_back (clauses[j]);
+              } else {
+                delete clauses[j];
+              }
+            } else {
+              delete clauses[j];
             }
-          } else if (clauses[i].literals()[0].isNegative()) {
-            if (clauses[j].containsNegativeLiteral (lid, types) == false) {
-              Clause newClause = clauses[j];
-              newClause.removePositiveLiterals (lid, types);
-              newClauses.push_back (newClause);
-            }
+          } else if (clauses[i]->literals()[0].isNegative()) {
+            if (clauses[j]->containsNegativeLiteral (lid, types) == false) {
+              clauses[j]->removePositiveLiterals (lid, types);
+              if (clauses[j]->nrLiterals() > 0) {
+                propagClauses.push_back (clauses[j]);
+              } else {
+                delete clauses[j];
+              }
+            } else {
+              delete clauses[j];
+            }            
           }
         }
       }
-      stringstream explanation;
-      explanation << " UP on" << clauses[i].literals()[0];
-      AndNode* andNode = new AndNode (clauses, explanation.str());
-      Clauses leftClauses = {clauses[i]};
-      compile (andNode->leftBranch(), leftClauses);
-      compile (andNode->rightBranch(), newClauses);
+
+      AndNode* andNode = new AndNode();
+      if (Globals::verbosity > 1) {
+        originClausesMap_[andNode] = backupClauses_;
+        stringstream explanation;
+        explanation << " UP on " << clauses[i]->literals()[0];
+        explanationMap_[andNode] = explanation.str();
+      }
+      
+      Clauses unitClause = { clauses[i] };
+      compile (andNode->leftBranch(),  unitClause);
+      compile (andNode->rightBranch(), propagClauses);
       (*follow) = andNode;
       return true;     
     }   
@@ -314,13 +347,16 @@ LiftedCircuit::tryIndependence (
   if (clauses.size() == 1) {
     return false;
   }
+  if (Globals::verbosity > 1) {
+    backupClauses_ = Clause::copyClauses (clauses);
+  }
   Clauses depClauses = { clauses[0] };
   Clauses indepClauses (clauses.begin() + 1, clauses.end());
   bool finish = false;
   while (finish == false) {
     finish = true;
     for (size_t i = 0; i < indepClauses.size(); i++) {
-      if (independentClause (indepClauses[i], depClauses) == false) {
+      if (independentClause (*indepClauses[i], depClauses) == false) {
         depClauses.push_back (indepClauses[i]);
         indepClauses.erase (indepClauses.begin() + i);
         finish = false;
@@ -329,7 +365,11 @@ LiftedCircuit::tryIndependence (
     }
   }
   if (indepClauses.empty() == false) {
-    AndNode* andNode = new AndNode (clauses, " Independence");
+    AndNode* andNode = new AndNode ();
+    if (Globals::verbosity > 1) {
+      originClausesMap_[andNode] = backupClauses_;
+      explanationMap_[andNode]   = " Independence" ;
+    }
     compile (andNode->leftBranch(), depClauses);
     compile (andNode->rightBranch(), indepClauses);
     (*follow) = andNode;
@@ -345,27 +385,33 @@ LiftedCircuit::tryShannonDecomp (
     CircuitNode** follow,
     Clauses& clauses)
 {
+  if (Globals::verbosity > 1) {
+    backupClauses_ = Clause::copyClauses (clauses);
+  }
   for (size_t i = 0; i < clauses.size(); i++) {
-    const Literals& literals = clauses[i].literals();
+    const Literals& literals = clauses[i]->literals();
     for (size_t j = 0; j < literals.size(); j++) {
-      if (literals[j].isGround (clauses[i].constr(),clauses[i].ipgLogVars())) {
-        Literal posLit (literals[j], false);
-        Literal negLit (literals[j], true);
-        ConstraintTree ct1 = clauses[i].constr();
-        ConstraintTree ct2 = clauses[i].constr();
-        Clause c1 (ct1);
-        Clause c2 (ct2);
-        c1.addLiteral (posLit);
-        c2.addLiteral (negLit);
-        Clauses leftClauses  = { c1 };
-        Clauses rightClauses = { c2 };
-        leftClauses.insert (leftClauses.end(), clauses.begin(), clauses.end());
-        rightClauses.insert (rightClauses.end(), clauses.begin(), clauses.end());
-        stringstream explanation;
-        explanation << " SD on " << literals[j];
-        OrNode* orNode = new OrNode (clauses, explanation.str());
-        compile (orNode->leftBranch(),  leftClauses);
-        compile (orNode->rightBranch(), rightClauses);
+      if (literals[j].isGround (
+          clauses[i]->constr(), clauses[i]->ipgLogVars())) {
+
+        Clause* c1 = lwcnf_->createClause (literals[j].lid());
+        Clause* c2 = new Clause (*c1);
+        c2->literals().front().complement();
+
+        Clauses otherClauses = Clause::copyClauses (clauses);
+        clauses.push_back (c1);
+        otherClauses.push_back (c2);
+
+        OrNode* orNode = new OrNode();
+        if (Globals::verbosity > 1) {
+          originClausesMap_[orNode] = backupClauses_;
+          stringstream explanation;
+          explanation << " SD on " << literals[j];
+          explanationMap_[orNode] = explanation.str();
+        }
+        
+        compile (orNode->leftBranch(),  clauses);
+        compile (orNode->rightBranch(), otherClauses);
         (*follow) = orNode;
         return true;   
       }
@@ -381,10 +427,13 @@ LiftedCircuit::tryInclusionExclusion (
     CircuitNode** follow,
     Clauses& clauses)
 {
+  if (Globals::verbosity > 1) {
+    backupClauses_ = Clause::copyClauses (clauses);
+  }
   for (size_t i = 0; i < clauses.size(); i++) {
-    Literals depLits = { clauses[i].literals().front() };
-    Literals indepLits (clauses[i].literals().begin() + 1,
-        clauses[i].literals().end());
+    Literals depLits = { clauses[i]->literals().front() };
+    Literals indepLits (clauses[i]->literals().begin() + 1,
+        clauses[i]->literals().end());
     bool finish = false;
     while (finish == false) {
       finish = true;
@@ -402,40 +451,44 @@ LiftedCircuit::tryInclusionExclusion (
       for (size_t j = 0; j < depLits.size(); j++) {
         lvs1 |= depLits[j].logVarSet();
       }
-      if (clauses[i].constr().isCountNormalized (lvs1) == false) {
+      if (clauses[i]->constr().isCountNormalized (lvs1) == false) {
         break;
       }
       LogVarSet lvs2;
       for (size_t j = 0; j < indepLits.size(); j++) {
         lvs2 |= indepLits[j].logVarSet();
       }
-      if (clauses[i].constr().isCountNormalized (lvs2) == false) {
+      if (clauses[i]->constr().isCountNormalized (lvs2) == false) {
         break;
       }
-      Clause c1 (clauses[i].constr().projectedCopy (lvs1));
+      Clause* c1 = new Clause (clauses[i]->constr().projectedCopy (lvs1));
       for (size_t j = 0; j < depLits.size(); j++) {
-        c1.addLiteral (depLits[j]);
+        c1->addLiteral (depLits[j]);
       }
-      Clause c2 (clauses[i].constr().projectedCopy (lvs2));
+      Clause* c2 = new Clause (clauses[i]->constr().projectedCopy (lvs2));
       for (size_t j = 0; j < indepLits.size(); j++) {
-        c2.addLiteral (indepLits[j]);
+        c2->addLiteral (indepLits[j]);
       }
-      Clauses plus1Clauses = clauses;
-      Clauses plus2Clauses = clauses;
-      Clauses minusClauses = clauses;
-      plus1Clauses.erase (plus1Clauses.begin() + i);
-      plus2Clauses.erase (plus2Clauses.begin() + i);
-      minusClauses.erase (minusClauses.begin() + i);
+  
+      clauses.erase (clauses.begin() + i);
+      Clauses plus1Clauses = Clause::copyClauses (clauses);
+      Clauses plus2Clauses = Clause::copyClauses (clauses);
+
       plus1Clauses.push_back (c1);
       plus2Clauses.push_back (c2);
-      minusClauses.push_back (c1);
-      minusClauses.push_back (c2);
-      stringstream explanation;
-      explanation << " IncExc on clause nº " << i + 1;
-      IncExcNode* ieNode = new IncExcNode (clauses, explanation.str());
+      clauses.push_back (c1);
+      clauses.push_back (c2);
+
+      IncExcNode* ieNode = new IncExcNode();
+      if (Globals::verbosity > 1) {
+        originClausesMap_[ieNode] = backupClauses_;
+        stringstream explanation;
+        explanation << " IncExc on clause nº " << i + 1;
+        explanationMap_[ieNode] = explanation.str();
+      }
       compile (ieNode->plus1Branch(), plus1Clauses);
       compile (ieNode->plus2Branch(), plus2Clauses);
-      compile (ieNode->minusBranch(), minusClauses);
+      compile (ieNode->minusBranch(), clauses);
       *follow = ieNode;
       return true;
     }
@@ -452,20 +505,26 @@ LiftedCircuit::tryIndepPartialGrounding (
 { 
   // assumes that all literals have logical variables
   // else, shannon decomp was possible
+  if (Globals::verbosity > 1) {
+    backupClauses_ = Clause::copyClauses (clauses);
+  }
   LogVars rootLogVars;
-  LogVarSet lvs = clauses[0].ipgCandidates();
+  LogVarSet lvs = clauses[0]->ipgCandidates();
   for (size_t i = 0; i < lvs.size(); i++) {
     rootLogVars.clear();
     rootLogVars.push_back (lvs[i]);
-    ConstraintTree ct = clauses[0].constr().projectedCopy ({lvs[i]});
+    ConstraintTree ct = clauses[0]->constr().projectedCopy ({lvs[i]});
     if (tryIndepPartialGroundingAux (clauses, ct, rootLogVars)) {
-      Clauses newClauses = clauses;
       for (size_t j = 0; j < clauses.size(); j++) {
-        newClauses[j].addIpgLogVar (rootLogVars[j]);
+        clauses[j]->addIpgLogVar (rootLogVars[j]);
       }
-      SetAndNode* node = new SetAndNode (ct.size(), clauses);
-      *follow = node;
-      compile (node->follow(), newClauses);
+      SetAndNode* setAndNode = new SetAndNode (ct.size());
+      if (Globals::verbosity > 1) {
+        originClausesMap_[setAndNode] = backupClauses_;
+        explanationMap_[setAndNode]   = " IPG" ;
+      }
+      *follow = setAndNode;
+      compile (setAndNode->follow(), clauses);
       return true;
     }
   }
@@ -481,9 +540,9 @@ LiftedCircuit::tryIndepPartialGroundingAux (
     LogVars& rootLogVars)
 {
   for (size_t i = 1; i < clauses.size(); i++) {
-    LogVarSet lvs = clauses[i].ipgCandidates();
+    LogVarSet lvs = clauses[i]->ipgCandidates();
     for (size_t j = 0; j < lvs.size(); j++) {
-      ConstraintTree ct2 = clauses[i].constr().projectedCopy ({lvs[j]});
+      ConstraintTree ct2 = clauses[i]->constr().projectedCopy ({lvs[j]});
       if (ct.tupleSet() == ct2.tupleSet()) {
         rootLogVars.push_back (lvs[j]);
         break;
@@ -496,7 +555,7 @@ LiftedCircuit::tryIndepPartialGroundingAux (
   // verifies if the IPG logical vars appear in the same positions
   unordered_map<LiteralId, size_t> positions;
   for (size_t i = 0; i < clauses.size(); i++) {
-    const Literals& literals = clauses[i].literals();
+    const Literals& literals = clauses[i]->literals();
     for (size_t j = 0; j < literals.size(); j++) {
       size_t idx = literals[j].indexOfLogVar (rootLogVars[i]);
       assert (idx != literals[j].nrLogVars());
@@ -522,27 +581,36 @@ LiftedCircuit::tryAtomCounting (
     Clauses& clauses)
 {
   for (size_t i = 0; i < clauses.size(); i++) {
-    if (clauses[i].nrPosCountedLogVars() > 0
-        || clauses[i].nrNegCountedLogVars() > 0) {
+    if (clauses[i]->nrPosCountedLogVars() > 0
+        || clauses[i]->nrNegCountedLogVars() > 0) {
       // only allow one atom counting node per branch
       return false;
     }
   }
+  if (Globals::verbosity > 1) {
+    backupClauses_ = Clause::copyClauses (clauses);
+  }
   for (size_t i = 0; i < clauses.size(); i++) {
-    Literals literals = clauses[i].literals();
+    Literals literals = clauses[i]->literals();
     for (size_t j = 0; j < literals.size(); j++) {
       if (literals[j].nrLogVars() == 1
-          && ! clauses[i].isIpgLogVar (literals[j].logVars().front())
-          && ! clauses[i].isCountedLogVar (literals[j].logVars().front())) {
-        unsigned nrGroundings = clauses[i].constr().projectedCopy (
+          && ! clauses[i]->isIpgLogVar (literals[j].logVars().front())
+          && ! clauses[i]->isCountedLogVar (literals[j].logVars().front())) {
+        unsigned nrGroundings = clauses[i]->constr().projectedCopy (
             literals[j].logVars()).size();
-        SetOrNode* setOrNode = new SetOrNode (nrGroundings, clauses);
-        Clause c1 (clauses[i].constr().projectedCopy (literals[j].logVars()));
-        Clause c2 (clauses[i].constr().projectedCopy (literals[j].logVars()));
-        c1.addLiteral (literals[j]);
-        c2.addLiteralComplemented (literals[j]);
-        c1.addPosCountedLogVar (literals[j].logVars().front());
-        c2.addNegCountedLogVar (literals[j].logVars().front());
+        SetOrNode* setOrNode = new SetOrNode (nrGroundings);
+        if (Globals::verbosity > 1) {
+          originClausesMap_[setOrNode] = backupClauses_;
+          explanationMap_[setOrNode]   = " AC" ;
+        }
+        Clause* c1 = new Clause (
+            clauses[i]->constr().projectedCopy (literals[j].logVars()));
+        Clause* c2 = new Clause (
+            clauses[i]->constr().projectedCopy (literals[j].logVars()));
+        c1->addLiteral (literals[j]);
+        c2->addLiteralComplemented (literals[j]);
+        c1->addPosCountedLogVar (literals[j].logVars().front());
+        c2->addNegCountedLogVar (literals[j].logVars().front());
         clauses.push_back (c1);
         clauses.push_back (c2);        
         shatterCountedLogVars (clauses);
@@ -553,36 +621,6 @@ LiftedCircuit::tryAtomCounting (
     }
   }
   return false;
-}
-
-
-
-bool
-LiftedCircuit::tryGrounding (
-    CircuitNode**,
-    Clauses&)
-{
-  return false;
-  /*
-  size_t bestClauseIdx = 0;
-  size_t bestLogVarIdx = 0;
-  unsigned minNrSymbols = Util::maxUnsigned();
-  for (size_t i = 0; i < clauses.size(); i++) {
-    LogVarSet lvs = clauses[i].constr().logVars();
-    ConstraintTree ct = clauses[i].constr();
-    for (unsigned j = 0; j < lvs.size(); j++) {
-      unsigned nrSymbols = ct.nrSymbols (lvs[j]);
-      if (nrSymbols < minNrSymbols) {
-        minNrSymbols = nrSymbols;
-        bestClauseIdx = i;
-        bestLogVarIdx = j;
-      }
-    }
-  }
-  LogVar bestLogVar = clauses[bestClauseIdx].constr().logVars()[bestLogVarIdx];
-  ConstraintTrees cts = clauses[bestClauseIdx].constr().ground (bestLogVar);
-  return true;
-  */
 }
 
 
@@ -617,26 +655,26 @@ LiftedCircuit::shatterCountedLogVarsAux (
     size_t idx1,
     size_t idx2)
 {
-  Literals lits1 = clauses[idx1].literals();
-  Literals lits2 = clauses[idx2].literals();
+  Literals lits1 = clauses[idx1]->literals();
+  Literals lits2 = clauses[idx2]->literals();
   for (size_t i = 0; i < lits1.size(); i++) {
     for (size_t j = 0; j < lits2.size(); j++) {
       if (lits1[i].lid() == lits2[j].lid()) {
         LogVars lvs1 = lits1[i].logVars();
         LogVars lvs2 = lits2[j].logVars();
         for (size_t k = 0; k < lvs1.size(); k++) {
-          if (clauses[idx1].isCountedLogVar (lvs1[k])
-              && clauses[idx2].isCountedLogVar (lvs2[k]) == false) {
-            clauses.push_back (clauses[idx2]);
-            clauses[idx2].addPosCountedLogVar (lvs2[k]);
-            clauses.back().addNegCountedLogVar (lvs2[k]);
+          if (clauses[idx1]->isCountedLogVar (lvs1[k])
+              && clauses[idx2]->isCountedLogVar (lvs2[k]) == false) {
+            clauses.push_back (new Clause (*clauses[idx2]));
+            clauses[idx2]->addPosCountedLogVar (lvs2[k]);
+            clauses.back()->addNegCountedLogVar (lvs2[k]);
             return true;
           }
-          if (clauses[idx2].isCountedLogVar (lvs2[k])
-              && clauses[idx1].isCountedLogVar (lvs1[k]) == false) {
-            clauses.push_back (clauses[idx1]);
-            clauses[idx1].addPosCountedLogVar (lvs1[k]);
-            clauses.back().addNegCountedLogVar (lvs1[k]);
+          if (clauses[idx2]->isCountedLogVar (lvs2[k])
+              && clauses[idx1]->isCountedLogVar (lvs1[k]) == false) {
+            clauses.push_back (new Clause (*clauses[idx1]));
+            clauses[idx1]->addPosCountedLogVar (lvs1[k]);
+            clauses.back()->addNegCountedLogVar (lvs1[k]);
             return true;
           }          
         }
@@ -654,7 +692,7 @@ LiftedCircuit::independentClause (
     Clauses& otherClauses) const
 {
   for (size_t i = 0; i < otherClauses.size(); i++) {
-    if (Clause::independentClauses (clause, otherClauses[i]) == false) {
+    if (Clause::independentClauses (clause, *otherClauses[i]) == false) {
       return false;
     }
   }
@@ -699,7 +737,7 @@ LiftedCircuit::smoothCircuit (CircuitNode* node)
       propagLits |= lids2;
       break;
     }
-  
+
     case CircuitNodeType::AND_NODE: {
       AndNode* casted = dynamic_cast<AndNode*>(node);
       LitLvTypesSet lids1 = smoothCircuit (*casted->leftBranch());
@@ -724,7 +762,7 @@ LiftedCircuit::smoothCircuit (CircuitNode* node)
           bool typeFound = false;
           for (size_t k = 0; k < propagLits.size(); k++) {
             if (litSet[i].first == propagLits[k].lid()
-                && containsTypes (allTypes[j], propagLits[k].logVarTypes())) {
+                && containsTypes (propagLits[k].logVarTypes(), allTypes[j])) {
               typeFound = true;
               break;
             }
@@ -735,18 +773,23 @@ LiftedCircuit::smoothCircuit (CircuitNode* node)
         }
       }
       createSmoothNode (missingLids, casted->follow());
-      for (size_t i = 0; i < propagLits.size(); i++) {
-        propagLits[i].setAllFullLogVars();
+      // setAllFullLogVars() can cause repeated elements in
+      // the set. Fix this by reconstructing the set again
+      LitLvTypesSet copy = propagLits;
+      propagLits.clear();
+      for (size_t i = 0; i < copy.size(); i++) {
+        copy[i].setAllFullLogVars();
+        propagLits.insert (copy[i]);
       }
       break;
     }
-    
+
     case CircuitNodeType::SET_AND_NODE: {
       SetAndNode* casted = dynamic_cast<SetAndNode*>(node);
       propagLits = smoothCircuit (*casted->follow());
       break;
     }
-    
+
     case CircuitNodeType::INC_EXC_NODE: {
       IncExcNode* casted = dynamic_cast<IncExcNode*>(node);
       LitLvTypesSet lids1 = smoothCircuit (*casted->plus1Branch());
@@ -759,17 +802,18 @@ LiftedCircuit::smoothCircuit (CircuitNode* node)
       propagLits |= lids2;
       break;
     }
-    
+
     case CircuitNodeType::LEAF_NODE: {
+      LeafNode* casted = dynamic_cast<LeafNode*>(node);    
       propagLits.insert (LitLvTypes (
-          node->clauses()[0].literals()[0].lid(),
-          node->clauses()[0].logVarTypes(0)));
+          casted->clause()->literals()[0].lid(),
+          casted->clause()->logVarTypes(0)));
     }
- 
+
     default:
       break;
   }
-  
+
   return propagLits;
 }
 
@@ -781,25 +825,38 @@ LiftedCircuit::createSmoothNode (
     CircuitNode** prev)
 {
   if (missingLits.empty() == false) {
+    if (Globals::verbosity > 1) {
+      unordered_map<CircuitNode*, Clauses>::iterator it;
+      it = originClausesMap_.find (*prev);
+      if (it != originClausesMap_.end()) {
+        backupClauses_ = it->second;
+      } else {
+        backupClauses_ =  Clause::copyClauses (
+            {((dynamic_cast<LeafNode*>(*prev))->clause())});
+      }
+    }
     Clauses clauses;
     for (size_t i = 0; i < missingLits.size(); i++) {
       LiteralId lid = missingLits[i].lid();
       const LogVarTypes& types = missingLits[i].logVarTypes();
-      Clause c = lwcnf_->createClause (lid);
+      Clause* c = lwcnf_->createClause (lid);
       for (size_t j = 0; j < types.size(); j++) {
-        LogVar X = c.literals().front().logVars()[j];
+        LogVar X = c->literals().front().logVars()[j];
         if (types[j] == LogVarType::POS_LV) {
-          c.addPosCountedLogVar (X);
+          c->addPosCountedLogVar (X);
         } else if (types[j] == LogVarType::NEG_LV) {
-          c.addNegCountedLogVar (X);
+          c->addNegCountedLogVar (X);
         }
       }
-      c.addLiteralComplemented (c.literals()[0]);
+      c->addLiteralComplemented (c->literals()[0]);
       clauses.push_back (c);
     }
     SmoothNode* smoothNode = new SmoothNode (clauses, *lwcnf_);
-    *prev = new AndNode ((*prev)->clauses(), smoothNode,
-        *prev, " Smoothing");
+    *prev = new AndNode (smoothNode, *prev);
+    if (Globals::verbosity > 1) {
+      originClausesMap_[*prev] = backupClauses_;
+      explanationMap_[*prev]   = " Smoothing" ;
+    }
   }
 }
 
@@ -815,7 +872,8 @@ LiftedCircuit::getAllPossibleTypes (unsigned nrLogVars) const
     return {{LogVarType::POS_LV},{LogVarType::NEG_LV}};
   }
   vector<LogVarTypes> res;
-  Indexer indexer (vector<unsigned> (nrLogVars, 2));
+  Ranges ranges (nrLogVars, 2);
+  Indexer indexer (ranges);
   while (indexer.valid()) {
     LogVarTypes types;
     for (size_t i = 0; i < nrLogVars; i++) {
@@ -906,7 +964,7 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, ofstream& os)
 
       os << auxNode << " [" << opStyle << "label=\"∨\"]" << endl;
       os << escapeNode (node) << " -> " << auxNode;
-      os << " [label=\"" << node->explanation() << "\"]" ;
+      os << " [label=\"" << getExplanationString (node) << "\"]" ;
       os << endl;
       
       os << auxNode << " -> " ;
@@ -930,7 +988,7 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, ofstream& os)
 
       os << auxNode << " [" << opStyle << "label=\"∧\"]" << endl;
       os << escapeNode (node) << " -> " << auxNode;
-      os << " [label=\"" << node->explanation() << "\"]" ;
+      os << " [label=\"" << getExplanationString (node) << "\"]" ;
       os << endl;
 
       os << auxNode << " -> " ;
@@ -954,7 +1012,7 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, ofstream& os)
 
       os << auxNode << " [" << opStyle << "label=\"∨(X)\"]" << endl;
       os << escapeNode (node) << " -> " << auxNode;
-      os << " [label=\"" << node->explanation() << "\"]" ;
+      os << " [label=\"" << getExplanationString (node) << "\"]" ;
       os << endl;
 
       os << auxNode << " -> " ;
@@ -972,7 +1030,7 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, ofstream& os)
 
       os << auxNode << " [" << opStyle << "label=\"∧(X)\"]" << endl;
       os << escapeNode (node) << " -> " << auxNode;
-      os << " [label=\"" << node->explanation() << "\"]" ;
+      os << " [label=\"" << getExplanationString (node) << "\"]" ;
       os << endl;
 
       os << auxNode << " -> " ;
@@ -991,7 +1049,7 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, ofstream& os)
       os << auxNode << " [" << opStyle << "label=\"+ - +\"]" ;
       os << endl;
       os << escapeNode (node) << " -> " << auxNode;
-      os << " [label=\"" << node->explanation() << "\"]" ;
+      os << " [label=\"" << getExplanationString (node) << "\"]" ;
       os << endl;
 
       os << auxNode << " -> " ;
@@ -1054,22 +1112,38 @@ LiftedCircuit::escapeNode (const CircuitNode* node) const
 
 
 
+string
+LiftedCircuit::getExplanationString (CircuitNode* node)
+{
+  return Util::contains (explanationMap_, node)
+      ? explanationMap_[node]
+      : "" ;
+}
+
+
+
 void
 LiftedCircuit::printClauses (
-    const CircuitNode* node,
+    CircuitNode* node,
     ofstream& os,
     string extraOptions)
 {
-  const Clauses& clauses = node->clauses();
-  if (node->clauses().empty() == false) {
-    os << escapeNode (node);
-    os << " [shape=box," << extraOptions << "label=\"" ;  
-    for (size_t i = 0; i < clauses.size(); i++) {
-      if (i != 0) os << "\\n" ;
-      os << clauses[i];
-    }
-    os << "\"]" ;
-    os << endl;
+  Clauses clauses;
+  if (Util::contains (originClausesMap_, node)) {
+    clauses = originClausesMap_[node];
+  } else if (getCircuitNodeType (node) == CircuitNodeType::LEAF_NODE) {
+    clauses = { (dynamic_cast<LeafNode*>(node))->clause() } ;
+  } else if (getCircuitNodeType (node) == CircuitNodeType::SMOOTH_NODE) {
+    clauses = (dynamic_cast<SmoothNode*>(node))->clauses();
   }
+  assert (clauses.empty() == false);
+  os << escapeNode (node);
+  os << " [shape=box," << extraOptions << "label=\"" ;
+  for (size_t i = 0; i < clauses.size(); i++) {
+    if (i != 0) os << "\\n" ;
+    os << *clauses[i];
+  }
+  os << "\"]" ;
+  os << endl;
 }
 

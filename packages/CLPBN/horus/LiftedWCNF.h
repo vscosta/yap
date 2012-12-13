@@ -74,6 +74,10 @@ class Clause
     void addLiteral (const Literal& l) { literals_.push_back (l); }
 
     const Literals& literals (void) const { return literals_; }
+    
+    Literals& literals (void) { return literals_; }
+    
+    size_t nrLiterals (void) const { return literals_.size(); }
 
     const ConstraintTree& constr (void) const { return constr_; }
 
@@ -128,9 +132,11 @@ class Clause
     void removeLiteral (size_t litIdx);
     
     static bool independentClauses (Clause& c1, Clause& c2);
+    
+    static vector<Clause*> copyClauses (const vector<Clause*>& clauses);    
 
-    static void printClauses (const vector<Clause>& clauses);
-
+    static void printClauses (const vector<Clause*>& clauses);
+    
     friend std::ostream& operator<< (ostream &os, const Clause& clause);
 
   private:
@@ -143,7 +149,7 @@ class Clause
     ConstraintTree   constr_;
 };
 
-typedef vector<Clause> Clauses;
+typedef vector<Clause*> Clauses;
 
 
 
@@ -159,7 +165,10 @@ class LitLvTypes
         if (types1.lid_ < types2.lid_) {
           return true;
         }
-        return types1.lvTypes_ < types2.lvTypes_;
+        if (types1.lid_ == types2.lid_) {
+          return types1.lvTypes_ < types2.lvTypes_;
+        }
+        return false;
       }
     };
   
@@ -172,6 +181,8 @@ class LitLvTypes
     
     void setAllFullLogVars (void) {
         std::fill (lvTypes_.begin(), lvTypes_.end(), LogVarType::FULL_LV); }
+
+    friend std::ostream& operator<< (std::ostream &os, const LitLvTypes& lit);
 
   private:
     LiteralId    lid_;
@@ -199,7 +210,7 @@ class LiftedWCNF
 
     vector<LiteralId> prvGroupLiterals (PrvGroup prvGroup);
 
-    Clause createClause (LiteralId lid) const;
+    Clause* createClause (LiteralId lid) const;
 
     void printFormulaIndicators (void) const;
 

@@ -1,8 +1,10 @@
 /*******************************************************
 
  Interface to Horus Lifted Solvers. Used by:
-   - Lifted Variable Elimination
+   - Generalized Counting First-Order Variable Elimination (GC-FOVE)
    - Lifted First-Order Belief Propagation
+   - Lifted First-Order Knowledge Compilation
+
 ********************************************************/
 
 :- module(clpbn_horus_lifted,
@@ -33,22 +35,33 @@
           ]).
 
 
-call_horus_lifted_solver([[]], _, _) :- !.
-call_horus_lifted_solver([QueryVars], AllVars, Output) :-
-  init_horus_lifted_solver(_, AllVars, _, ParfactorList),
-  run_horus_lifted_solver([QueryVars], LPs, ParfactorList),
-  finalize_horus_lifted_solver(ParfactorList),
-  clpbn_bind_vals([QueryVars], LPs, Output).
+call_horus_lifted_solver(QueryVars, AllVars, Output) :-
+  init_horus_lifted_solver(_, AllVars, _, State),
+  run_horus_lifted_solver(QueryVars, Solutions, State),
+  clpbn_bind_vals(QueryVars, Solutions, Output),
+  finalize_horus_lifted_solver(State).
 
 
-init_horus_lifted_solver(_, AllAttVars, _, fove(ParfactorList, DistIds)) :-
+init_horus_lifted_solver(_, AllVars, _, state(ParfactorList, DistIds)) :-
   get_parfactors(Parfactors),
   get_dist_ids(Parfactors, DistIds0),
   sort(DistIds0, DistIds),
-  get_observed_vars(AllAttVars, ObservedVars),
+  get_observed_vars(AllVars, ObservedVars),
   %writeln(parfactors:Parfactors:'\n'),
   %writeln(evidence:ObservedVars:'\n'),
-  cpp_create_lifted_network(Parfactors,ObservedVars,ParfactorList).
+  cpp_create_lifted_network(Parfactors, ObservedVars, ParfactorList).
+
+
+run_horus_lifted_solver(QueryVars, Solutions, state(ParfactorList, DistIds)) :-
+  get_query_keys(QueryVars, QueryKeys),
+  get_dists_parameters(DistIds, DistsParams),
+  %writeln(dists:DistsParams), writeln(''),
+  cpp_set_parfactors_params(ParfactorList, DistsParams),
+  cpp_run_lifted_solver(ParfactorList, QueryKeys, Solutions).
+
+
+finalize_horus_lifted_solver(state(ParfactorList, _)) :-
+  cpp_free_lifted_network(ParfactorList).
 
 
 :- table get_parfactors/1.
@@ -76,7 +89,7 @@ is_factor(pf(Id, Ks, Rs, Phi, Tuples)) :-
 
 
 get_ranges([],[]).
-get_ranges(K.Ks, Range.Rs) :-	!,
+get_ranges(K.Ks, Range.Rs) :- !,
   skolem(K,Domain),
   length(Domain,Range),
   get_ranges(Ks, Rs).
@@ -116,33 +129,20 @@ get_observed_vars(V.AllAttVars, ObservedVars) :-
   get_observed_vars(AllAttVars, ObservedVars).
 
 
-get_query_vars([], []).
-get_query_vars(E1.L1, E2.L2) :-
-  get_query_vars_2(E1,E2),
-  get_query_vars(L1, L2).
+get_query_keys([], []).
+get_query_keys(E1.L1, E2.L2) :-
+  get_query_keys_2(E1,E2),
+  get_query_keys(L1, L2).
 
 
-get_query_vars_2([], []).
-get_query_vars_2(V.AttVars, [RV|RVs]) :-
+get_query_keys_2([], []).
+get_query_keys_2(V.AttVars, [RV|RVs]) :-
   clpbn:get_atts(V,[key(RV)]), !,
-  get_query_vars_2(AttVars, RVs).
+  get_query_keys_2(AttVars, RVs).
 
 
 get_dists_parameters([], []).
 get_dists_parameters([Id|Ids], [dist(Id, Params)|DistsInfo]) :-
   get_pfl_parameters(Id, Params),
   get_dists_parameters(Ids, DistsInfo).
-
-
-run_horus_lifted_solver(QueryVarsAtts, Solutions, fove(ParfactorList, DistIds)) :-
-  get_query_vars(QueryVarsAtts, QueryVars),
-  %writeln(queryVars:QueryVars), writeln(''),
-  get_dists_parameters(DistIds, DistsParams),
-  %writeln(dists:DistsParams), writeln(''),
-  cpp_set_parfactors_params(ParfactorList, DistsParams),
-  cpp_run_lifted_solver(ParfactorList, QueryVars, Solutions).
-
-
-finalize_horus_lifted_solver(fove(ParfactorList, _)) :-
-  cpp_free_lifted_network(ParfactorList).
 

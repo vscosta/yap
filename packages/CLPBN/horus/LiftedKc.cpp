@@ -21,6 +21,10 @@ LiftedKc::solveQuery (const Grounds& query)
   LiftedOperations::runWeakBayesBall (pfList_, query);
   lwcnf_ = new LiftedWCNF (pfList_);
   circuit_ = new LiftedCircuit (lwcnf_);
+  if (circuit_->isCompilationSucceeded() == false) {
+    cerr << "error: compilation failed" << endl;
+    abort();
+  }
   vector<PrvGroup> groups;
   Ranges ranges;
   for (size_t i = 0; i < query.size(); i++) {

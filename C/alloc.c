@@ -245,23 +245,24 @@ Yap_FreeAtomSpace(char *p)
 /* If you need to dinamically allocate space from the heap, this is
  * the macro you should use */
 ADDR
-Yap_InitPreAllocCodeSpace(void)
+Yap_InitPreAllocCodeSpace(int wid)
 {
   CACHE_REGS
   char *ptr;
-  UInt sz = LOCAL_ScratchPad.msz;
-  if (LOCAL_ScratchPad.ptr == NULL) {
+  UInt sz = REMOTE_ScratchPad(wid).msz;
+
+  if (REMOTE_ScratchPad(wid).ptr == NULL) {
 #if USE_DL_MALLOC
     LOCK(DLMallocLock);
 #endif
-    LOCAL_PrologMode |= MallocMode;
+    REMOTE_PrologMode(wid) |= MallocMode;
 #if INSTRUMENT_MALLOC
     mallocs++;
     tmalloc += sz;
     sz += sizeof(CELL);
 #endif
     while (!(ptr = my_malloc(sz))) {
-      LOCAL_PrologMode &= ~MallocMode;
+      REMOTE_PrologMode(wid) &= ~MallocMode;
 #if USE_DL_MALLOC
       UNLOCK(DLMallocLock);
 #endif
@@ -277,18 +278,18 @@ Yap_InitPreAllocCodeSpace(void)
 #if USE_DL_MALLOC
       LOCK(DLMallocLock);
 #endif
-      LOCAL_PrologMode |= MallocMode;
+      REMOTE_PrologMode(wid) |= MallocMode;
     }
-    LOCAL_PrologMode &= ~MallocMode;
+    REMOTE_PrologMode(wid) &= ~MallocMode;
 #if USE_DL_MALLOC
     UNLOCK(DLMallocLock);
 #endif
-    LOCAL_ScratchPad.ptr = ptr;
+    REMOTE_ScratchPad(wid).ptr = ptr;
   } else {
-    ptr = LOCAL_ScratchPad.ptr;
+    ptr = REMOTE_ScratchPad(wid).ptr;
   }
   AuxBase = (ADDR)(ptr);
-  AuxSp = (CELL *)(AuxTop = AuxBase+LOCAL_ScratchPad.sz);
+  AuxSp = (CELL *)(AuxTop = AuxBase+REMOTE_ScratchPad(wid).sz);
   return ptr;
 }
 
@@ -352,7 +353,7 @@ Yap_InitHeap(void *heap_addr)
 }
 
 static void
-InitExStacks(int Trail, int Stack)
+InitExStacks(int wid, int Trail, int Stack)
 {
   CACHE_REGS
   UInt pm, sa;
@@ -367,23 +368,24 @@ InitExStacks(int Trail, int Stack)
   sa = Stack*K;			/* stack area size   */
 
 #ifdef THREADS
-  if (worker_id)
-    LOCAL_GlobalBase = (ADDR)LOCAL_ThreadHandle.stack_address;
+  if (wid) 
+    REMOTE_GlobalBase(wid) = (ADDR)REMOTE_ThreadHandle(wid).stack_address;
+  else
+    AuxSp = NULL;
 #endif
-  LOCAL_TrailTop = LOCAL_GlobalBase + pm;
-  LOCAL_LocalBase = LOCAL_GlobalBase + sa;
-  LOCAL_TrailBase = LOCAL_LocalBase + sizeof(CELL);
+  REMOTE_TrailTop(wid) = REMOTE_GlobalBase(wid) + pm;
+  REMOTE_LocalBase(wid) = REMOTE_GlobalBase(wid) + sa;
+  REMOTE_TrailBase(wid) = REMOTE_LocalBase(wid) + sizeof(CELL);
 
-  LOCAL_ScratchPad.ptr = NULL;
-  LOCAL_ScratchPad.sz = LOCAL_ScratchPad.msz = SCRATCH_START_SIZE;
- AuxSp = NULL;
+  REMOTE_ScratchPad(wid).ptr = NULL;
+  REMOTE_ScratchPad(wid).sz = REMOTE_ScratchPad(wid).msz = SCRATCH_START_SIZE;
 
 #ifdef DEBUG
   if (Yap_output_msg) {
     UInt ta;
 
     fprintf(stderr, "HeapBase = %p  GlobalBase = %p\n  LocalBase = %p  TrailTop = %p\n",
-	       Yap_HeapBase, LOCAL_GlobalBase, LOCAL_LocalBase, LOCAL_TrailTop);
+	    Yap_HeapBase, REMOTE_GlobalBase(wid), REMOTE_LocalBase(wid), REMOTE_TrailTop(wid));
 
     ta = Trail*K;			/* trail area size   */
     fprintf(stderr, "Heap+Aux: %lu\tLocal+Global: %lu\tTrail: %lu\n",
@@ -393,9 +395,9 @@ InitExStacks(int Trail, int Stack)
 }
 
 void
-Yap_InitExStacks(int Trail, int Stack)
+Yap_InitExStacks(int wid, int Trail, int Stack)
 {
-  InitExStacks(Trail, Stack);
+  InitExStacks(wid, Trail, Stack);
 }
 
 #if defined(THREADS)
@@ -1557,11 +1559,11 @@ Yap_InitMemory(UInt Trail, UInt Heap, UInt Stack)
 }
 
 void
-Yap_InitExStacks(int Trail, int Stack)
+Yap_InitExStacks(int wid, int Trail, int Stack)
 {
 #if USE_DL_MALLOC
-  LOCAL_ScratchPad.ptr = NULL;
-  LOCAL_ScratchPad.sz = LOCAL_ScratchPad.msz = SCRATCH_START_SIZE;
+  REMOTE_ScratchPad(wid).ptr = NULL;
+  REMOTE_ScratchPad(wid).sz = REMOTE_ScratchPad(wid).msz = SCRATCH_START_SIZE;
   AuxSp = NULL;
 #endif
 }

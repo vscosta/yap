@@ -151,10 +151,10 @@ p_default_arena_size( USES_REGS1 )
 
 
 void
-Yap_AllocateDefaultArena(Int gsize, Int attsize)
+Yap_AllocateDefaultArena(Int gsize, Int attsize, int wid)
 {
   CACHE_REGS
-  LOCAL_GlobalArena = NewArena(gsize, 2, NULL PASS_REGS);
+    REMOTE_GlobalArena(wid) = NewArena(gsize, 2, NULL PASS_REGS);
 }
 
 static void

@@ -1,5 +1,3 @@
-
-
 /*
 total_professors(32).
 
@@ -13,17 +11,13 @@ total_students(256).
 
 :- style_check(all).
 
+:- yap_flag(unknown,error).
+
 :- yap_flag(write_strings,on).
 
-:- ensure_loaded(parschema).
+:- use_module(library(clpbn)).
 
-:- yap_flag(unknown,error).
-%:- clpbn_horus:set_solver(lve).
-%:- clpbn_horus:set_solver(hve).
-:- clpbn_horus:set_solver(bp).
-%:- clpbn_horus:set_solver(bdd).
-:- clpbn_horus:set_solver(ve).
-%:- clpbn_horus:set_solver(cbp).
+:- [-schema].
 
 :- ensure_loaded(school32_data).
 
