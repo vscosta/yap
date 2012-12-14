@@ -106,7 +106,7 @@ $pp_expl_one_goal(failure) :- !,
     $pp_expl_failure.
 $pp_expl_one_goal(Goal) :-
     $pp_is_dummy_goal(Goal),!,
-    call(Goal).
+    ( call(Goal), fail ; true ).
 $pp_expl_one_goal(Goal) :-
     % FIXME: handling non-tabled probabilistic predicate is future work
     $pp_require_tabled_probabilistic_atom(Goal,$msg(0006),$pp_expl_one_goal/1),
