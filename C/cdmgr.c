@@ -809,7 +809,7 @@ Yap_BuildMegaClause(PredEntry *ap)
   UInt sz;
   MegaClause *mcl;
   yamop *ptr;
-  UInt required;
+  size_t required;
   UInt has_blobs = 0;
 
   if (ap->PredFlags & (DynamicPredFlag|LogUpdatePredFlag|MegaClausePredFlag
@@ -839,6 +839,12 @@ Yap_BuildMegaClause(PredEntry *ap)
     sz -= (UInt)NEXTOP((yamop *)NULL,p) + sizeof(StaticClause);
   }
   required = sz*ap->cs.p_code.NOfClauses+sizeof(MegaClause)+(UInt)NEXTOP((yamop *)NULL,l);
+  while (!(mcl = (MegaClause *)Yap_AllocCodeSpace(required))) {
+    if (!Yap_growheap(FALSE, required, NULL)) {
+      /* just fail, the system will keep on going */
+      return;
+    }
+  }
 #ifdef DEBUG
   total_megaclause += required;
   cl =
@@ -846,12 +852,6 @@ Yap_BuildMegaClause(PredEntry *ap)
   total_released += ap->cs.p_code.NOfClauses*cl->ClSize;
   nof_megaclauses++;
 #endif
-  while (!(mcl = (MegaClause *)Yap_AllocCodeSpace(required))) {
-    if (!Yap_growheap(FALSE, required, NULL)) {
-      /* just fail, the system will keep on going */
-      return;
-    }
-  }
   Yap_ClauseSpace += required;
   /* cool, it's our turn to do the conversion */
   mcl->ClFlags = MegaMask | has_blobs;
