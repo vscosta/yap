@@ -1767,10 +1767,10 @@ Yap_InitYaamRegs( int myworker_id )
   Yap_StartSlots( PASS_REGS1 );
   REMOTE_GlobalArena(myworker_id) = TermNil;
   h0var = MkVarTerm();
-#ifdef THREADS
+#if defined(YAPOR) || defined(THREADS)
   LOCAL = REMOTE(myworker_id);
-#endif /* THREADS */
   worker_id = myworker_id;
+#endif /* THREADS */
 #if COROUTINING
   REMOTE_WokenGoals(myworker_id) = Yap_NewTimedVar(TermNil);
   REMOTE_AttsMutableList(myworker_id) = Yap_NewTimedVar(h0var);

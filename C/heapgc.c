@@ -3374,12 +3374,16 @@ compact_heap( USES_REGS1 )
 	ptr[0] = EndSpecials;
 	dest -= nofcells;
 	current = ptr;
+	fprintf(stderr,"%p B\n",current);
+	int i; for (i=0; i < nofcells;i++)
+		 fprintf(stderr,"%p U\n",current+i);
 	/* process the functor on a separate cycle */
 	DEBUG_printf21("%p %ld\n", current-1, (long int)(nofcells+1));
 	continue;
       } else {
 	DEBUG_printf20("%p 1\n", current);
       }
+      fprintf(stderr,"%p U\n",current);
 #ifdef DEBUG
       found_marked++;
 #endif /* DEBUG */
@@ -3403,6 +3407,7 @@ compact_heap( USES_REGS1 )
   if (in_garbage)
     start_from[0] = in_garbage;
 
+  fprintf(stderr,"done\n");
 #ifdef DEBUG
   if (dest != start_from-1)
     fprintf(GLOBAL_stderr,"%% Bad Dest (%lu): %p should be %p\n",
