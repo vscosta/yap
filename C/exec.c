@@ -1770,6 +1770,7 @@ Yap_InitYaamRegs( int myworker_id )
 #ifdef THREADS
   LOCAL = REMOTE(myworker_id);
 #endif /* THREADS */
+  worker_id = myworker_id;
 #if COROUTINING
   REMOTE_WokenGoals(myworker_id) = Yap_NewTimedVar(TermNil);
   REMOTE_AttsMutableList(myworker_id) = Yap_NewTimedVar(h0var);
