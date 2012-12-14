@@ -81,10 +81,10 @@ getclauses1(File, Prog, _Opts) :-
 
 '$bpe_process_pred'([], _F, N, Mode, _Delay, _Tabled, []) -->
 	{ '$init_mode'(N, Mode) }.
-'$bpe_process_pred'(Call.Prog0, F,N,Modes,Delay,Tabled, Cls0)  -->
+'$bpe_process_pred'([Call|Prog0], F,N, Modes, Delay, Tabled, Cls0)  -->
 	{ '$get_pred'(Call, F, N, Modes, Delay, Tabled, Cls0, ClsI) }, !,
-	'$bpe_process_pred'(Prog0, F,N,Modes,Delay,Tabled, ClsI).
-'$bpe_process_pred'(Call.Prog0, F,N,Modes,Delay,Tabled, Cls0) -->
+	'$bpe_process_pred'(Prog0, F, N, Modes, Delay, Tabled, ClsI).
+'$bpe_process_pred'([Call|Prog0], F, N, Modes, Delay, Tabled, Cls0) -->
 	[ Call ],
 	'$bpe_process_pred'(Prog0, F,N,Modes,Delay,Tabled, Cls0).
 
@@ -97,21 +97,22 @@ getclauses1(File, Prog, _Opts) :-
 '$get_pred'((P :- Q), F, N, _Modes, _Delay, _Tabled) -->
          { functor(P, F, N), ! },
 	 [(P:-Q)].
-'$get_pred'((:- mode Q), F, N, _Modes, _Delay, _Tabled) -->
+'$get_pred'((:- mode Q), F, N, Modes, _Delay, _Tabled) -->
          { functor(Q, F, N), !, Q =.. [_|Modes0],
-	   '$bpe_cvt_modes'(Modes0,Modes,[])
+	   '$bpe_cvt_modes'(Modes0, Modes, [])
          },
 	 [].
 %'$get_pred'((:- table _), F, N, Modes, Delay, Tabled) -->
 %         { functor(Q, F, N), !, Q =.. [_|Modes] },
 %	 [].
-'$get_pred'((:- _), _F, _N, _Modes, _Delay, _Tabled) --> !, { fail }.
+'$get_pred'((:- Q), '$damon_load', 0, _Modes, _Delay, _Tabled) --> 
+	[ ('$damon_load' :- '$query'( Q ) )].
 '$get_pred'((P), F, N, _Modes, _Delay, _Tabled) -->
          { functor(P, F, N), ! },
 	 [(P)].
 
 
-'$bpe_cvt_modes'(Mode.Modes0) --> [NewMode],
+'$bpe_cvt_modes'([Mode|Modes0]) --> [NewMode],
 	{ '$bpe_cvt_mode'(Mode, NewMode) },
 	'$bpe_cvt_modes'(Modes0).
 '$bpe_cvt_modes'([]) --> [].
@@ -127,20 +128,40 @@ preprocess_cl(Cl, Cl, _, _, _, _).
 
 phase_1_process(Prog, Prog).
 
-compileProgToFile(_,_File,[]).
-compileProgToFile(_,File,pred(F,N,_,_,Tabled,Clauses).Prog2) :-
+compileProgToFile(_, _File, []).
+compileProgToFile(_, File, [Pred|Prog2]) :-
+	consult_pred(Pred),
+	compileProgToFile(_, File, Prog2).
+
+consult_preds([], L) :- !,
+	consult_preds(L).
+consult_preds(L0, L) :-
+	writeln(consult_preds(L0,L)).
+
+consult_preds([]).
+consult_preds([P|L]) :-
+	consult_pred(P),
+	consult_preds(L).
+
+consult_pred(pred(F,N,_Mode,_Delay,Tabled,Clauses)) :-
 	(nonvar(Tabled) -> table(F/N) ; true),
 	functor(S,F,N),
 	assert(b_IS_CONSULTED_c(S)),
-	'$assert_clauses'(Clauses),
-	compileProgToFile(_,File,Prog2).
+	abolish(F/N),
+	'$assert_clauses'(Clauses).
+
+add_pred(Name, Arity, _Mode, _Delay, Tabled, Clauses) :-
+	'$assert_clauses'(Clauses).
 
 '$assert_clauses'([]).
-'$assert_clauses'(Cl.Clauses) :-
+'$assert_clauses'([Cl|Clauses]) :-
 	assert_static(Cl),
 	'$assert_clauses'(Clauses).
 
-'$myload'(_F).
+'$myload'(_F) :-
+	'$damon_load'.
+
+'$query'(G) :- call(G).
 
 initialize_table :- abolish_all_tables.
 
