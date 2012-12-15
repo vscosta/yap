@@ -15,10 +15,10 @@
 
 :- use_module(library(clpbn),
 	      [clpbn_init_graph/1,
-	       clpbn_init_solver/5,
-	       clpbn_run_solver/4,
-	       pfl_init_solver/6,
-	       pfl_run_solver/4,
+	       clpbn_init_solver/4,
+	       clpbn_run_solver/3,
+	       pfl_init_solver/5,
+	       pfl_run_solver/3,
 	       clpbn_finalize_solver/1,
 	       conditional_probability/3,
 	       clpbn_flag/2]).
@@ -110,7 +110,7 @@ setup_em_network(Items, Solver, state( AllDists, AllDistInstances, MargKeys, Sol
 	% get the EM CPT connections info from the factors
 	generate_dists(Factors, EList, AllDists, AllDistInstances, MargKeys),
 	% setup solver, if necessary
-	pfl_init_solver(MargKeys, Keys, Factors, EList, SolverState, Solver).
+	pfl_init_solver(MargKeys, Keys, Factors, EList, SolverState).
 setup_em_network(Items, Solver, state( AllDists, AllDistInstances, MargVars, SolverVars)) :-
 	% create the ground network
 	call_run_all(Items),
@@ -121,7 +121,7 @@ setup_em_network(Items, Solver, state( AllDists, AllDistInstances, MargVars, Sol
 	% remove variables that do not have to do with this query.
 	different_dists(AllVars, AllDists, AllDistInstances, MargVars),
 	% setup solver by doing parameter independent work.
-	clpbn_init_solver(Solver, MargVars, AllVars, _, SolverVars).
+	clpbn_init_solver(MargVars, AllVars, _, SolverVars).
 
 run_examples(user:Exs, Keys, Factors, EList) :-
     Exs = [_:_|_], !,
@@ -297,11 +297,9 @@ compact_mvars([X|MargVars], [X|CMVars]) :- !,
 
 estimate(state(_, _, Margs, SolverState), LPs) :-
 	clpbn:use_parfactors(on), !,
-	clpbn_flag(em_solver, Solver),
-	pfl_run_solver(Margs, LPs, SolverState, Solver).
+	pfl_run_solver(Margs, LPs, SolverState).
 estimate(state(_, _, Margs, SolverState), LPs) :-
-	clpbn_flag(em_solver, Solver),
-	clpbn_run_solver(Solver, Margs, LPs, SolverState).
+	clpbn_run_solver(Margs, LPs, SolverState).
 
 maximise(state(_,DistInstances,MargVars,_), Tables, LPs, Likelihood) :-
 	rb_new(MDistTable0),

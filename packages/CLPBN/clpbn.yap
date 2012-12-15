@@ -6,11 +6,9 @@
 		  clpbn_key/2,
 		  clpbn_init_solver/4,
 		  clpbn_run_solver/3,
-		  pfl_init_solver/6,
-		  pfl_run_solver/4,
+		  pfl_init_solver/5,
+		  pfl_run_solver/3,
 		  clpbn_finalize_solver/1,
-		  clpbn_init_solver/5,
-		  clpbn_run_solver/4,
 		  clpbn_init_graph/1,
 		  probability/2,
 		  conditional_probability/3,
@@ -589,21 +587,26 @@ clpbn_run_solver(pcg, LVs, LPs, State) :-
 %
 % This is a routine to start a solver, called by the learning procedures (ie, em).
 %
-pfl_init_solver(QueryKeys, AllKeys, Factors, Evidence, State, ve) :-
+
+pfl_init_solver(QueryKeys, AllKeys, Factors, Evidence, State) :-
+	solver(Solver),
+	pfl_init_solver(QueryKeys, AllKeys, Factors, Evidence, State, Solver).
+
+pfl_init_solver(QueryKeys, AllKeys, Factors, Evidence, State, ve) :- !,
 	init_ve_ground_solver(QueryKeys, AllKeys, Factors, Evidence, State).
 
-pfl_init_solver(QueryKeys, AllKeys, Factors, Evidence, State, bdd) :-
+pfl_init_solver(QueryKeys, AllKeys, Factors, Evidence, State, bdd) :- !,
 	init_bdd_ground_solver(QueryKeys, AllKeys, Factors, Evidence, State).
 
-pfl_init_solver(QueryKeys, AllKeys, Factors, Evidence, State, hve) :-
+pfl_init_solver(QueryKeys, AllKeys, Factors, Evidence, State, hve) :- !,
           clpbn_horus:set_horus_flag(ground_solver, ve),
 	init_horus_ground_solver(QueryKeys, AllKeys, Factors, Evidence, State).
 
-pfl_init_solver(QueryKeys, AllKeys, Factors, Evidence, State, bp) :-
+pfl_init_solver(QueryKeys, AllKeys, Factors, Evidence, State, bp) :- !,
           clpbn_horus:set_horus_flag(ground_solver, bp),
 	init_horus_ground_solver(QueryKeys, AllKeys, Factors, Evidence, State).
 
-pfl_init_solver(QueryKeys, AllKeys, Factors, Evidence, State, cbp) :-
+pfl_init_solver(QueryKeys, AllKeys, Factors, Evidence, State, cbp) :- !,
           clpbn_horus:set_horus_flag(ground_solver, cbp),
 	init_horus_ground_solver(QueryKeys, AllKeys, Factors, Evidence, State).
 	
@@ -611,20 +614,24 @@ pfl_init_solver(_, _, _, _, _, Solver) :-
 	write('Error: solver `'), 
 	write(Solver),
 	write('\' cannot be used for learning').
+	
+pfl_run_solver(LVs, LPs, State) :-
+	solver(Solver),
+	pfl_run_solver(LVs, LPs, State, Solver).
 
-pfl_run_solver(LVs, LPs, State, ve) :-
+pfl_run_solver(LVs, LPs, State, ve) :- !,
 	run_ve_ground_solver(LVs, LPs, State).
 
-pfl_run_solver(LVs, LPs, State, bdd) :-
+pfl_run_solver(LVs, LPs, State, bdd) :- !,
 	run_bdd_ground_solver(LVs, LPs, State).
 
-pfl_run_solver(LVs, LPs, State, hve) :-
+pfl_run_solver(LVs, LPs, State, hve) :- !,
 	run_horus_ground_solver(LVs, LPs, State).
 
-pfl_run_solver(LVs, LPs, State, bp) :-
+pfl_run_solver(LVs, LPs, State, bp) :- !,
 	run_horus_ground_solver(LVs, LPs, State).
 	
-pfl_run_solver(LVs, LPs, State, cbp) :-
+pfl_run_solver(LVs, LPs, State, cbp) :- !,
 	run_horus_ground_solver(LVs, LPs, State).
 
 
