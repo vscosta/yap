@@ -1736,7 +1736,7 @@ Yap_InitYaamRegs( int myworker_id )
   Yap_ResetExceptionTerm ( myworker_id );
   Yap_PutValue (AtomBreak, MkIntTerm (0));
   TR = (tr_fr_ptr)REMOTE_TrailBase(myworker_id);
-  H = H0 = ((CELL *) REMOTE_GlobalBase(myworker_id));
+  H = H0 = ((CELL *) REMOTE_GlobalBase(myworker_id))+1;
   LCL0 = ASP = (CELL *) REMOTE_LocalBase(myworker_id);
   CurrentTrailTop = (tr_fr_ptr)(REMOTE_TrailTop(myworker_id)-MinTrailGap);
   /* notice that an initial choice-point and environment
