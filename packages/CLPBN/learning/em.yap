@@ -166,7 +166,7 @@ em_loop(Its, Likelihood0, State, MaxError, MaxIts, LikelihoodF, FTables) :-
 	estimate(State, LPs),
 	maximise(State, Tables, LPs, Likelihood),
 	ltables(Tables, F0Tables),
-	writeln(iteration:Its:Likelihood:Its:Likelihood0:F0Tables),
+	%writeln(iteration:Its:Likelihood:Its:Likelihood0:F0Tables),
 	(
 	    (
 	     abs((Likelihood - Likelihood0)/Likelihood) < MaxError
