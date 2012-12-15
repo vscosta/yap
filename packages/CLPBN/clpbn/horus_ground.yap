@@ -11,7 +11,7 @@
           [call_horus_ground_solver/6,
            check_if_horus_ground_solver_done/1,
            init_horus_ground_solver/5,
-           run_horus_ground_solver/4,
+           run_horus_ground_solver/3,
            finalize_horus_ground_solver/1
           ]).
 
@@ -53,9 +53,16 @@
 
 call_horus_ground_solver(QueryVars, QueryKeys, AllKeys, Factors, Evidence, Output) :-
   init_horus_ground_solver(QueryKeys, AllKeys, Factors, Evidence, State),
-  run_solver(State, [QueryKeys], Solutions),
+  run_horus_ground_solver([QueryKeys], Solutions, State),
   clpbn_bind_vals([QueryVars], Solutions, Output),
   finalize_horus_ground_solver(State).
+  
+
+run_horus_ground_solver(QueryKeys, Solutions, state(Network,Hash,Id)) :-
+  %get_dists_parameters(DistIds, DistsParams),
+  %cpp_set_factors_params(Network, DistsParams),
+  lists_of_keys_to_ids(QueryKeys, QueryIds, Hash, _, Id, _),
+  cpp_run_ground_solver(Network, QueryIds, Solutions).
 
 
 init_horus_ground_solver(QueryKeys, AllKeys, Factors, Evidence, state(Network,Hash4,Id4)) :-
@@ -68,21 +75,9 @@ init_horus_ground_solver(QueryKeys, AllKeys, Factors, Evidence, state(Network,Ha
   cpp_set_vars_information(KeysAtoms, StatesNames).
 
 
-run_horus_ground_solver(_QueryVars, Solutions, horus(GKeys, Keys, Factors, Evidence), Solver) :- 
-  set_solver(Solver),
-  call_horus_ground_solver_for_probabilities(GKeys, Keys, Factors, Evidence, Solutions).
-
-
 % TODO this is not beeing called!
 finalize_horus_ground_solver(state(Network,_Hash,_Id)) :-
   cpp_free_ground_network(Network).
-
-
-run_solver(state(Network,Hash,Id), QueryKeys, Solutions) :-
-  %get_dists_parameters(DistIds, DistsParams),
-  %cpp_set_factors_params(Network, DistsParams),
-  lists_of_keys_to_ids(QueryKeys, QueryIds, Hash, _, Id, _),
-  cpp_run_ground_solver(Network, QueryIds, Solutions).
 
 
 get_factors_type([f(bayes, _, _)|_], bayes) :- ! .

@@ -49,7 +49,7 @@
 	      [call_horus_ground_solver/6,
 	       check_if_horus_ground_solver_done/1,
 	       init_horus_ground_solver/5,
-	       run_horus_ground_solver/4,
+	       run_horus_ground_solver/3,
 	       finalize_horus_ground_solver/1
 	      ]).
 
@@ -606,6 +606,11 @@ pfl_init_solver(QueryKeys, AllKeys, Factors, Evidence, State, bp) :-
 pfl_init_solver(QueryKeys, AllKeys, Factors, Evidence, State, cbp) :-
           clpbn_horus:set_horus_flag(ground_solver, cbp),
 	init_horus_ground_solver(QueryKeys, AllKeys, Factors, Evidence, State).
+	
+pfl_init_solver(_, _, _, _, _, Solver) :-
+	write('Error: solver `'), 
+	write(Solver),
+	write('\' cannot be used for learning').
 
 pfl_run_solver(LVs, LPs, State, ve) :-
 	run_ve_ground_solver(LVs, LPs, State).
@@ -613,14 +618,14 @@ pfl_run_solver(LVs, LPs, State, ve) :-
 pfl_run_solver(LVs, LPs, State, bdd) :-
 	run_bdd_ground_solver(LVs, LPs, State).
 
-pfl_run_solver(LVs, LPs, State, hve),
-	run_horus_ground_solver(LVs, LPs, State, hve).
+pfl_run_solver(LVs, LPs, State, hve) :-
+	run_horus_ground_solver(LVs, LPs, State).
 
 pfl_run_solver(LVs, LPs, State, bp) :-
-	run_horus_ground_solver(LVs, LPs, State, bp).
+	run_horus_ground_solver(LVs, LPs, State).
 	
 pfl_run_solver(LVs, LPs, State, cbp) :-
-	run_horus_ground_solver(LVs, LPs, State, cbp).
+	run_horus_ground_solver(LVs, LPs, State).
 
 
 add_keys(Key1+V1,_Key2,Key1+V1).
