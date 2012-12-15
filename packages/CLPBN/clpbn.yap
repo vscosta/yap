@@ -589,17 +589,17 @@ clpbn_run_solver(pcg, LVs, LPs, State) :-
 %
 % This is a routine to start a solver, called by the learning procedures (ie, em).
 %
-pfl_init_solver(QueryKeys, AllKeys, Factors, Evidence, VE, bdd) :-
-	init_bdd_ground_solver(QueryKeys, AllKeys, Factors, Evidence, VE).
+pfl_init_solver(QueryKeys, AllKeys, Factors, Evidence, State, bdd) :-
+	init_bdd_ground_solver(QueryKeys, AllKeys, Factors, Evidence, State).
 
-pfl_init_solver(QueryKeys, AllKeys, Factors, Evidence, VE, ve) :-
-	init_ve_ground_solver(QueryKeys, AllKeys, Factors, Evidence, VE).
+pfl_init_solver(QueryKeys, AllKeys, Factors, Evidence, State, ve) :-
+	init_ve_ground_solver(QueryKeys, AllKeys, Factors, Evidence, State).
 
-pfl_init_solver(QueryKeys, AllKeys, Factors, Evidence, VE, bp) :-
-	init_horus_ground_solver(QueryKeys, AllKeys, Factors, Evidence, VE).
+pfl_init_solver(QueryKeys, AllKeys, Factors, Evidence, State, bp) :-
+	init_horus_ground_solver(QueryKeys, AllKeys, Factors, Evidence, State).
 
-pfl_init_solver(QueryKeys, AllKeys, Factors, Evidence, VE, hve) :-
-	init_horus_ground_solver(QueryKeys, AllKeys, Factors, Evidence, VE).
+pfl_init_solver(QueryKeys, AllKeys, Factors, Evidence, State, hve) :-
+	init_horus_ground_solver(QueryKeys, AllKeys, Factors, Evidence, State).
 
 pfl_run_solver(LVs, LPs, State, ve) :-
 	run_ve_ground_solver(LVs, LPs, State).
