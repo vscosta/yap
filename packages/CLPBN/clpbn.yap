@@ -588,11 +588,6 @@ clpbn_run_solver(pcg, LVs, LPs, State) :-
 
 %
 % This is a routine to start a solver, called by the learning procedures (ie, em).
-% LVs is a list of lists of variables one is interested in eventually marginalising out
-% Vs0 gives the original graph
-% AllDiffs gives variables that are not fully constrainted, ie, we don't fully know
-% the key. In this case, we assume different instances will be bound to different
-% values at the end of the day.
 %
 pfl_init_solver(QueryKeys, AllKeys, Factors, Evidence, VE, bdd) :-
 	init_bdd_ground_solver(QueryKeys, AllKeys, Factors, Evidence, VE).
