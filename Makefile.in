@@ -111,7 +111,6 @@ INTERFACE_HEADERS = \
 	$(srcdir)/include/clause_list.h \
 	$(srcdir)/include/dswiatoms.h \
 	$(srcdir)/include/udi.h \
-	$(srcdir)/include/rtree_udi.h \
 	$(srcdir)/include/yap_structs.h \
 	$(srcdir)/include/YapInterface.h \
 	$(srcdir)/include/SWI-Prolog.h \
@@ -262,8 +261,6 @@ C_SOURCES= \
 	$(srcdir)/C/threads.c \
 	$(srcdir)/C/tracer.c $(srcdir)/C/unify.c $(srcdir)/C/userpreds.c  \
 	$(srcdir)/C/udi.c \
-	$(srcdir)/packages/udi/rtree.c \
-	$(srcdir)/packages/udi/rtree_udi.c \
 	$(srcdir)/C/utilpreds.c $(srcdir)/C/write.c $(srcdir)/console/yap.c \
 	$(srcdir)/C/yap-args.c \
 	$(srcdir)/C/ypstdio.c \
@@ -370,7 +367,7 @@ ENGINE_OBJECTS = \
 	parser.o qlyr.o qlyw.o range.o \
 	save.o scanner.o sort.o stdpreds.o \
 	sysbits.o threads.o tracer.o \
-	udi.o rtree.o rtree_udi.o\
+	udi.o\
 	unify.o userpreds.o utilpreds.o \
 	yap-args.o write.o \
 	blobs.o swi.o ypstdio.o $(IOLIB_OBJECTS)  @MPI_OBJS@
@@ -473,12 +470,6 @@ sysbits.o: $(srcdir)/C/sysbits.c config.h
 
 udi.o: $(srcdir)/C/udi.c config.h
 	$(CC) -c $(C_INTERF_FLAGS) $(srcdir)/C/udi.c -o $@
-
-rtree.o: $(srcdir)/packages/udi/rtree.c config.h
-	$(CC) -c $(C_INTERF_FLAGS) $(srcdir)/packages/udi/rtree.c -o $@
-
-rtree_udi.o: $(srcdir)/packages/udi/rtree_udi.c config.h
-	$(CC) -c $(C_INTERF_FLAGS) $(srcdir)/packages/udi/rtree_udi.c -o $@
 
 yap.o: $(srcdir)/console/yap.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include $(srcdir)/console/yap.c -o $@

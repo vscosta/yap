@@ -1,4 +1,3 @@
-
 /*chamada a cada index/2
   controi estrutura de control, para definir a indexação, contem a
   rtree p.e.
@@ -6,13 +5,13 @@
 */
 typedef void *
 (* Yap_UdiInit)(
-		Term  spec,  /* mode spec */
+		YAP_Term  spec,  /* mode spec */
 		void *pred, /* pass predicate information */
 		int   arity);
 
 /*chamada a cada assert*/
 typedef void *
-(* Yap_UdiInsert)(Term t, /* termo asserted */
+(* Yap_UdiInsert)(YAP_Term t, /* termo asserted */
 		  void *control, /* estrutura de control*/
 		  void *clausule); /* valor a guardar na arvore, para retornar na pesquisa */
 
@@ -37,9 +36,12 @@ typedef int
 (* Yap_UdiDestroy)(void * control);
 
 typedef struct udi_control_block {
+  YAP_Atom decl; //atom that triggers this indexing structure
   Yap_UdiInit   init;
   Yap_UdiInsert insert;
   Yap_UdiSearch search;
   Yap_UdiDestroy destroy;
 } *UdiControlBlock;
 
+/* used to register the new indexing structure */
+void Yap_UdiRegister(UdiControlBlock);
