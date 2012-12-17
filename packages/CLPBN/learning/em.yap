@@ -193,12 +193,12 @@ ltables([Id-T|Tables], [Key-LTable|FTables]) :-
 
 
 generate_dists(Factors, EList, AllDists, AllInfo, MargVars) :-	
-    b_hash_new(Ev0), 
-    foldl(elist_to_hash, EList, Ev0, Ev),
-    maplist(process_factor(Ev), Factors, Dists0),
-    sort(Dists0, Dists1),
-    group(Dists1, AllDists, AllInfo, MargVars0, []),
-    sort(MargVars0, MargVars).
+	b_hash_new(Ev0), 
+	foldl(elist_to_hash, EList, Ev0, Ev),
+	maplist(process_factor(Ev), Factors, Dists0),
+	sort(Dists0, Dists1),
+	group(Dists1, AllDists, AllInfo, MargVars0, []),
+	sort(MargVars0, MargVars).
 
 elist_to_hash(K=V, Ev0, Ev) :-
 	b_hash_insert(Ev0, K, V, Ev).
