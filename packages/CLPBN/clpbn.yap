@@ -63,11 +63,6 @@
 		 run_gibbs_solver/3
 		]).
 
-%% :- use_module('clpbn/bnt',
-%%		[do_bnt/3,
-%%		 check_if_bnt_done/1
-%%		]).
-
 :- use_module('clpbn/pgrammar',
 		[pcg_init_graph/0,
 		 init_pcg_solver/4,
@@ -89,6 +84,11 @@
 		 run_horus_lifted_solver/3,
 		 finalize_horus_lifted_solver/1
 		]).
+
+%% :- use_module('clpbn/bnt',
+%%		[do_bnt/3,
+%%		 check_if_bnt_done/1
+%%		]).
 
 :- use_module('clpbn/dists',
 		[dist/4,
@@ -623,20 +623,17 @@ clpbn_init_solver(LVs, Vs0, VarsWithUnboundKeys, State) :-
 	solver(Solver),
 	clpbn_init_solver(Solver, LVs, Vs0, VarsWithUnboundKeys, State).
 
-clpbn_init_solver(gibbs, LVs, Vs0, VarsWithUnboundKeys, State) :-
-	init_gibbs_solver(LVs, Vs0, VarsWithUnboundKeys, State).
-
 clpbn_init_solver(ve, LVs, Vs0, VarsWithUnboundKeys, State) :-
 	init_ve_solver(LVs, Vs0, VarsWithUnboundKeys, State).
-
-clpbn_init_solver(bp, LVs, Vs0, VarsWithUnboundKeys, State) :-
-	init_horus_ground_solver(LVs, Vs0, VarsWithUnboundKeys, State).
 
 clpbn_init_solver(jt, LVs, Vs0, VarsWithUnboundKeys, State) :-
 	init_jt_solver(LVs, Vs0, VarsWithUnboundKeys, State).
 
 clpbn_init_solver(bdd, LVs, Vs0, VarsWithUnboundKeys, State) :-
 	init_bdd_solver(LVs, Vs0, VarsWithUnboundKeys, State).
+
+clpbn_init_solver(gibbs, LVs, Vs0, VarsWithUnboundKeys, State) :-
+	init_gibbs_solver(LVs, Vs0, VarsWithUnboundKeys, State).
 
 clpbn_init_solver(pcg, LVs, Vs0, VarsWithUnboundKeys, State) :-
 	init_pcg_solver(LVs, Vs0, VarsWithUnboundKeys, State).
@@ -650,14 +647,8 @@ clpbn_run_solver(LVs, LPs, State) :-
 	solver(Solver),
 	clpbn_run_solver(Solver, LVs, LPs, State).
 
-clpbn_run_solver(gibbs, LVs, LPs, State) :-
-	run_gibbs_solver(LVs, LPs, State).
-
 clpbn_run_solver(ve, LVs, LPs, State) :-
 	run_ve_solver(LVs, LPs, State).
-
-clpbn_run_solver(bp, LVs, LPs, State) :-
-	run_horus_ground_solver(LVs, LPs, State).
 
 clpbn_run_solver(jt, LVs, LPs, State) :-
 	run_jt_solver(LVs, LPs, State).
@@ -665,14 +656,17 @@ clpbn_run_solver(jt, LVs, LPs, State) :-
 clpbn_run_solver(bdd, LVs, LPs, State) :-
 	run_bdd_solver(LVs, LPs, State).
 
+clpbn_run_solver(gibbs, LVs, LPs, State) :-
+	run_gibbs_solver(LVs, LPs, State).
+
 clpbn_run_solver(pcg, LVs, LPs, State) :-
 	run_pcg_solver(LVs, LPs, State).
 
-clpbn_finalize_solver(State) :-
-	solver(bp), !,
-	functor(State, _, Last),
-	arg(Last, State, Info),
-	finalize_horus_ground_solver(Info).
+%clpbn_finalize_solver(State) :-
+%	solver(bp), !,
+%	functor(State, _, Last),
+%	arg(Last, State, Info),
+%	finalize_horus_ground_solver(Info).
 clpbn_finalize_solver(_State).
 
 %
