@@ -10,9 +10,9 @@
 		 clpbn_init_graph/1,
 		 clpbn_init_solver/4,
 		 clpbn_run_solver/3,
-		 clpbn_finalize_solver/1,
 		 pfl_init_solver/5,
 		 pfl_run_solver/3,
+		 pfl_end_solver/1,
 		 probability/2,
 		 conditional_probability/3,
 		 use_parfactors/1,
@@ -662,17 +662,9 @@ clpbn_run_solver(gibbs, LVs, LPs, State) :-
 clpbn_run_solver(pcg, LVs, LPs, State) :-
 	run_pcg_solver(LVs, LPs, State).
 
-%clpbn_finalize_solver(State) :-
-%	solver(bp), !,
-%	functor(State, _, Last),
-%	arg(Last, State, Info),
-%	finalize_horus_ground_solver(Info).
-clpbn_finalize_solver(_State).
-
 %
 % This is a routine to start a solver, called by the learning procedures (ie, em).
 %
-
 pfl_init_solver(QueryKeys, AllKeys, Factors, Evidence, State) :-
 	em_solver(Solver),
 	(lifted_solver(Solver) ->
@@ -728,6 +720,11 @@ pfl_run_solver(LVs, LPs, State, bp) :- !,
 
 pfl_run_solver(LVs, LPs, State, cbp) :- !,
 	run_horus_ground_solver(LVs, LPs, State).
+
+pfl_end_solver(State) :-
+	(em_solver(hve) ; em_solver(bp) ; em_solver(cbp)),
+	finalize_horus_ground_solver(State).
+pfl_end_solver(_State).
 
 
 add_keys(Key1+V1,_Key2,Key1+V1).

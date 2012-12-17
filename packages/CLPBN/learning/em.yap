@@ -13,9 +13,9 @@
 		[clpbn_init_graph/1,
 		 clpbn_init_solver/4,
 		 clpbn_run_solver/3,
-		 clpbn_finalize_solver/1,
 		 pfl_init_solver/5,
 		 pfl_run_solver/3,
+		 pfl_end_solver/1,
 		 conditional_probability/3,
 		 clpbn_flag/2
 		]).
@@ -75,7 +75,7 @@
 em(Items, MaxError, MaxIts, Tables, Likelihood) :-
 	catch(init_em(Items, State),Error,handle_em(Error)),
 	em_loop(0, 0.0, State, MaxError, MaxIts, Likelihood, Tables),
-	clpbn_finalize_solver(State),
+	end_em(State),
 	assert(em_found(Tables, Likelihood)),
 	fail.
 % get rid of new random variables the easy way :)
@@ -88,6 +88,12 @@ handle_em(error(repeated_parents)) :- !,
 	fail.
 handle_em(Error) :-
 	throw(Error).
+
+
+end_em(state(_AllDists, _AllDistInstances, _MargKeys, SolverState)) :-
+	clpbn:use_parfactors(on), !,
+	pfl_end_solver(SolverState).
+end_em(_).
 
 % This gets you an initial configuration. If there is a lot of evidence
 % tables may be filled in close to optimal, otherwise they may be
