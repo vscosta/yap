@@ -608,23 +608,45 @@ clpbn_finalize_solver(State) :-
 clpbn_finalize_solver(_State).
 
 
+ground_solver(ve).
+ground_solver(hve).
+ground_solver(jt).
+ground_solver(bdd).
+ground_solver(bp).
+ground_solver(cbp).
+ground_solver(gibbs).
+
+lifted_solver(lve).
+lifted_solver(lkc).
+lifted_solver(lbp).
+
 %
 % This is a routine to start a solver, called by the learning procedures (ie, em).
 %
 
 pfl_init_solver(QueryKeys, AllKeys, Factors, Evidence, State) :-
 	em_solver(Solver),
+	(lifted_solver(Solver) ->
+	  format("Error: you cannot use a lifted solver for learning.", [Solver]), fail
+	;
+	  true
+	),
+	(ground_solver(Solver) ->
+	  true
+	;
+	  format("Error: `~w' is an unknow solver.", [Solver]), fail
+	),
 	pfl_init_solver(QueryKeys, AllKeys, Factors, Evidence, State, Solver).
 
 pfl_init_solver(QueryKeys, AllKeys, Factors, Evidence, State, ve) :- !,
 	init_ve_ground_solver(QueryKeys, AllKeys, Factors, Evidence, State).
 
-pfl_init_solver(QueryKeys, AllKeys, Factors, Evidence, State, bdd) :- !,
-	init_bdd_ground_solver(QueryKeys, AllKeys, Factors, Evidence, State).
-
 pfl_init_solver(QueryKeys, AllKeys, Factors, Evidence, State, hve) :- !,
 	clpbn_horus:set_horus_flag(ground_solver, ve),
 	init_horus_ground_solver(QueryKeys, AllKeys, Factors, Evidence, State).
+
+pfl_init_solver(QueryKeys, AllKeys, Factors, Evidence, State, bdd) :- !,
+	init_bdd_ground_solver(QueryKeys, AllKeys, Factors, Evidence, State).
 
 pfl_init_solver(QueryKeys, AllKeys, Factors, Evidence, State, bp) :- !,
 	clpbn_horus:set_horus_flag(ground_solver, bp),
@@ -635,9 +657,9 @@ pfl_init_solver(QueryKeys, AllKeys, Factors, Evidence, State, cbp) :- !,
 	init_horus_ground_solver(QueryKeys, AllKeys, Factors, Evidence, State).
 
 pfl_init_solver(_, _, _, _, _, Solver) :-
-	write('Error: solver `'), 
-	write(Solver),
-	write('\' cannot be used for learning').
+	format("Error: solver `~w' cannot be used for learning.", [Solver]),
+	fail.
+
 
 pfl_run_solver(LVs, LPs, State) :-
 	em_solver(Solver),
@@ -645,12 +667,12 @@ pfl_run_solver(LVs, LPs, State) :-
 
 pfl_run_solver(LVs, LPs, State, ve) :- !,
 	run_ve_ground_solver(LVs, LPs, State).
+	
+pfl_run_solver(LVs, LPs, State, hve) :- !,
+	run_horus_ground_solver(LVs, LPs, State).
 
 pfl_run_solver(LVs, LPs, State, bdd) :- !,
 	run_bdd_ground_solver(LVs, LPs, State).
-
-pfl_run_solver(LVs, LPs, State, hve) :- !,
-	run_horus_ground_solver(LVs, LPs, State).
 
 pfl_run_solver(LVs, LPs, State, bp) :- !,
 	run_horus_ground_solver(LVs, LPs, State).
