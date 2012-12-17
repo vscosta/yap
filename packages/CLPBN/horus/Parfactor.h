@@ -33,21 +33,21 @@ class Parfactor : public TFactor<ProbFormula>
     const ConstraintTree* constr (void) const { return constr_; }
 
     const LogVars& logVars (void) const { return constr_->logVars(); }
- 
+
     const LogVarSet& logVarSet (void) const { return constr_->logVarSet(); }
 
     LogVarSet countedLogVars (void) const;
 
     LogVarSet uncountedLogVars (void) const;
-   
+
     LogVarSet elimLogVars (void) const;
-  
+
     LogVarSet exclusiveLogVars (size_t fIdx) const;
-    
+
     void sumOutIndex (size_t fIdx);
 
     void multiply (Parfactor&);
-    
+
     bool canCountConvert (LogVar X);
 
     void countConvert (LogVar);
@@ -75,7 +75,7 @@ class Parfactor : public TFactor<ProbFormula>
     bool containsGroup (PrvGroup) const;
 
     bool containsGroups (vector<PrvGroup>) const;
-  
+
     unsigned nrFormulas (LogVar) const;
 
     int indexOfLogVar (LogVar) const;
@@ -99,7 +99,7 @@ class Parfactor : public TFactor<ProbFormula>
     static bool canMultiply (Parfactor*, Parfactor*);
 
   private:
- 
+
     void simplifyCountingFormulas (size_t fIdx);
 
     void simplifyParfactor (size_t fIdx1, size_t fIdx2);
@@ -113,7 +113,7 @@ class Parfactor : public TFactor<ProbFormula>
     static void alignAndExponentiate (Parfactor*, Parfactor*);
 
     static void alignLogicalVars (Parfactor*, Parfactor*);
-   
+
     ConstraintTree*  constr_;
  
 };

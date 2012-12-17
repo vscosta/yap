@@ -238,7 +238,7 @@ LiftedCircuit::compile (
     *follow = new TrueNode();
     return;
   }
-  
+
   if (clauses.size() == 1 && clauses[0]->isUnit()) {
     *follow = new LeafNode (clauses[0], *lwcnf_);
     return;
@@ -326,13 +326,13 @@ LiftedCircuit::tryUnitPropagation (
         explanation << " UP on " << clauses[i]->literals()[0];
         explanationMap_[andNode] = explanation.str();
       }
-      
+
       Clauses unitClause = { clauses[i] };
       compile (andNode->leftBranch(),  unitClause);
       compile (andNode->rightBranch(), propagClauses);
       (*follow) = andNode;
-      return true;     
-    }   
+      return true;
+    }
   }
   return false;
 }
@@ -409,11 +409,11 @@ LiftedCircuit::tryShannonDecomp (
           explanation << " SD on " << literals[j];
           explanationMap_[orNode] = explanation.str();
         }
-        
+
         compile (orNode->leftBranch(),  clauses);
         compile (orNode->rightBranch(), otherClauses);
         (*follow) = orNode;
-        return true;   
+        return true;
       }
     }
   }
@@ -949,7 +949,7 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, ofstream& os)
 {
   assert (node != 0);
 
-  static unsigned nrAuxNodes = 0;  
+  static unsigned nrAuxNodes = 0;
   stringstream ss;
   ss << "n" << nrAuxNodes;
   string auxNode = ss.str();
@@ -957,7 +957,7 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, ofstream& os)
   string opStyle = "shape=circle,width=0.7,margin=\"0.0,0.0\"," ;
 
   switch (getCircuitNodeType (node)) {
-  
+
     case OR_NODE: {
       OrNode* casted = dynamic_cast<OrNode*>(node);
       printClauses (casted, os);
@@ -966,7 +966,7 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, ofstream& os)
       os << escapeNode (node) << " -> " << auxNode;
       os << " [label=\"" << getExplanationString (node) << "\"]" ;
       os << endl;
-      
+
       os << auxNode << " -> " ;
       os << escapeNode (*casted->leftBranch());
       os << " [label=\" " << (*casted->leftBranch())->weight() << "\"]" ;

@@ -79,7 +79,7 @@ VarElim::createFactorList (void)
       it->second.push_back (i);
     }
   }
-}	
+}
 
 
 

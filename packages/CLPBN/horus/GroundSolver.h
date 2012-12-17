@@ -27,7 +27,7 @@ class GroundSolver
 
     Params getJointByConditioning (GroundSolverType,
         FactorGraph, const VarIds& jointVarIds) const;
-   
+
   protected:
     const FactorGraph& fg;
 };

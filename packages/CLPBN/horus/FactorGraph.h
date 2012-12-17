@@ -15,8 +15,8 @@ class FacNode;
 class VarNode : public Var
 {
   public:
-    VarNode (VarId varId, unsigned nrStates, 
-        int evidence = Constants::NO_EVIDENCE) 
+    VarNode (VarId varId, unsigned nrStates,
+        int evidence = Constants::NO_EVIDENCE)
         : Var (varId, nrStates, evidence) { }
 
     VarNode (const Var* v) : Var (v) { }
@@ -77,7 +77,7 @@ class FactorGraph
 
     void setFactorsAsBayesian (void) { bayesFactors_ = true; }
  
-    bool bayesianFactors (void) const { return bayesFactors_ ; }
+    bool bayesianFactors (void) const { return bayesFactors_; }
 
     size_t nrVarNodes (void) const { return varNodes_.size(); }
 
@@ -112,7 +112,7 @@ class FactorGraph
     void exportToUaiFormat (const char*) const;
 
     void exportToLibDaiFormat (const char*) const;
-                      
+
   private:
     // DISALLOW_COPY_AND_ASSIGN (FactorGraph);
 
@@ -130,7 +130,7 @@ class FactorGraph
     FacNodes  facNodes_;
 
     BayesBallGraph   structure_;
-    bool      bayesFactors_;
+    bool             bayesFactors_;
 
     typedef unordered_map<unsigned, VarNode*> VarMap;
     VarMap varMap_;
@@ -139,8 +139,8 @@ class FactorGraph
 
 
 struct sortByVarId
-{ 
-  bool operator()(VarNode* vn1, VarNode* vn2) { 
+{
+  bool operator()(VarNode* vn1, VarNode* vn2) {
     return vn1->varId() < vn2->varId();
   }
 };

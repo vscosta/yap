@@ -221,7 +221,7 @@ ParfactorList::isShattered (
 }
 
 
-	
+
 void
 ParfactorList::addToShatteredList (Parfactor* g)
 {
@@ -481,7 +481,7 @@ ParfactorList::shatter (
   ConstraintTree* commCt2 = split2.first;
   ConstraintTree* exclCt2 = split2.second;
 
-  assert (commCt1->tupleSet (f1.logVars()) == 
+  assert (commCt1->tupleSet (f1.logVars()) ==
           commCt2->tupleSet (f2.logVars()));
 
    // stringstream ss1; ss1 << "" << count << "_A.dot" ;

@@ -133,12 +133,12 @@ runLiftedSolver (void)
     case LiftedSolverType::LBP:  solver = new LiftedBp (pfListCopy); break;
     case LiftedSolverType::LKC:  solver = new LiftedKc (pfListCopy); break;
   }
-  
+
   if (Globals::verbosity > 0) {
     solver->printSolverFlags();
     cout << endl;
   }
-  
+
   YAP_Term taskList = YAP_ARG2;
   vector<Params> results;
   while (taskList != YAP_TermNil()) {

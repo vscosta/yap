@@ -225,7 +225,7 @@ class TinySet
       typename vector<T>::size_type i;
       for (i = 0; i < s.size(); i++) {
         out << ((i != 0) ? "," : "") << s.vec_[i];
-      } 
+      }
       out << "}" ;
       return out;
     }

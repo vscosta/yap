@@ -63,7 +63,7 @@ class BayesBallGraph
     void addEdge (VarId vid1, VarId vid2);
 
     const BBNode* getNode (VarId vid) const;
- 
+
     BBNode* getNode (VarId vid);
 
     bool empty (void) const { return nodes_.empty(); }

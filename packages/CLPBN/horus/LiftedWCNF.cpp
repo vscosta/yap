@@ -108,7 +108,7 @@ Clause::containsPositiveLiteral (
 }
 
 
-    
+
 bool
 Clause::containsNegativeLiteral (
     LiteralId lid,
@@ -427,7 +427,7 @@ LiftedWCNF::LiftedWCNF (const ParfactorList& pfList)
   c2->addLiteralComplemented (Literal (1, {1,0}));
   clauses_.push_back(c2);
   */
-  
+
   if (Globals::verbosity > 1) {
     cout << "FORMULA INDICATORS:" << endl;
     printFormulaIndicators();
@@ -631,7 +631,7 @@ LiftedWCNF::printWeights (void) const
   unordered_map<LiteralId, std::pair<double,double>>::const_iterator it;
   it = weights_.begin();
   while (it != weights_.end()) {
-    cout << "λ" << it->first << " weights: " ;     
+    cout << "λ" << it->first << " weights: " ;
     cout << it->second.first << " " << it->second.second;
     cout << endl;
     ++ it;

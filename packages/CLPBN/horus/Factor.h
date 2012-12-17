@@ -34,7 +34,7 @@ class TFactor
     void setDistId (unsigned id) { distId_ = id; }
 
     void normalize (void) { LogAware::normalize (params_); }
-  
+
     void randomize (void)
     {
       for (size_t i = 0; i < params_.size(); ++i) {
@@ -207,7 +207,7 @@ class TFactor
     Ranges     ranges_;
     Params     params_;
     unsigned   distId_;
-  
+
   private:
     void extend (unsigned range_prod)
     {

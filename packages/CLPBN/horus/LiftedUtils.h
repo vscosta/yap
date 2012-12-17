@@ -149,7 +149,7 @@ class Substitution
     {
       return Util::contains (subs_, X);
     }
- 
+
     size_t nrReplacements (void) const { return subs_.size(); }
 
     LogVars getDiscardedLogVars (void) const;

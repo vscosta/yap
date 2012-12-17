@@ -33,7 +33,7 @@ class CircuitNode
 class OrNode : public CircuitNode
 {
   public:
-    OrNode (void) : CircuitNode(), leftBranch_(0), rightBranch_(0) { }          
+    OrNode (void) : CircuitNode(), leftBranch_(0), rightBranch_(0) { }
 
     CircuitNode** leftBranch  (void) { return &leftBranch_; }
     CircuitNode** rightBranch (void) { return &rightBranch_; }
@@ -51,7 +51,7 @@ class AndNode : public CircuitNode
 {
   public:
     AndNode (void) : CircuitNode(), leftBranch_(0), rightBranch_(0) { }
- 
+
     AndNode (CircuitNode* leftBranch, CircuitNode* rightBranch)
         : CircuitNode(), leftBranch_(leftBranch), rightBranch_(rightBranch) { }
 
@@ -153,13 +153,13 @@ class SmoothNode : public CircuitNode
   public:
     SmoothNode (const Clauses& clauses, const LiftedWCNF& lwcnf)
         : CircuitNode(), clauses_(clauses), lwcnf_(lwcnf) { }
-    
+
     const Clauses& clauses (void) const { return clauses_; }
 
     Clauses clauses (void) { return clauses_; }
-    
-    double weight (void) const;    
-    
+
+    double weight (void) const;
+
   private:
     Clauses            clauses_;
     const LiftedWCNF&  lwcnf_;
@@ -246,16 +246,15 @@ class LiftedCircuit
         string extraOptions = "");
 
     string escapeNode (const CircuitNode* node) const;
-    
+
     string getExplanationString (CircuitNode* node);
 
     CircuitNode*       root_;
     const LiftedWCNF*  lwcnf_;
-    
+    bool compilationSucceeded_;
     Clauses backupClauses_;
     unordered_map<CircuitNode*, Clauses> originClausesMap_;
     unordered_map<CircuitNode*, string>  explanationMap_;
-    bool               compilationSucceeded_;
 };
 
 #endif // HORUS_LIFTEDCIRCUIT_H

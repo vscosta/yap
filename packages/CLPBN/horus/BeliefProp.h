@@ -59,7 +59,7 @@ class BpLink
       ss << var_->label();
       return ss.str();
     }
- 
+
   protected:
     FacNode*  fac_;
     VarNode*  var_;
@@ -97,7 +97,7 @@ class BeliefProp : public GroundSolver
     virtual Params getPosterioriOf (VarId);
 
     virtual Params getJointDistributionOf (const VarIds&);
- 
+
   protected:
     void runSolver (void);
 

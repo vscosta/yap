@@ -23,10 +23,10 @@ CC=@CC@
 CXX=@CXX@
 
 # normal
-#CXXFLAGS= -std=c++0x @SHLIB_CXXFLAGS@ $(YAP_EXTRAS) $(DEFS) -D_YAP_NOT_INSTALLED_=1 -I$(srcdir) -I../../.. -I$(srcdir)/../../../include @CPPFLAGS@ -DNDEBUG
+CXXFLAGS= -std=c++0x @SHLIB_CXXFLAGS@ $(YAP_EXTRAS) $(DEFS) -D_YAP_NOT_INSTALLED_=1 -I$(srcdir) -I../../.. -I$(srcdir)/../../../include @CPPFLAGS@ -DNDEBUG
 
 # debug 
-CXXFLAGS= -std=c++0x @SHLIB_CXXFLAGS@ $(YAP_EXTRAS) $(DEFS) -D_YAP_NOT_INSTALLED_=1 -I$(srcdir) -I../../.. -I$(srcdir)/../../../include @CPPFLAGS@ -g -O0 -Wextra
+#CXXFLAGS= -std=c++0x @SHLIB_CXXFLAGS@ $(YAP_EXTRAS) $(DEFS) -D_YAP_NOT_INSTALLED_=1 -I$(srcdir) -I../../.. -I$(srcdir)/../../../include @CPPFLAGS@ -g -O0 -Wextra
 
 
 #
@@ -57,13 +57,13 @@ HEADERS = \
 	$(srcdir)/Horus.h \
 	$(srcdir)/Indexer.h \
 	$(srcdir)/LiftedBp.h \
-  $(srcdir)/LiftedCircuit.h \
-  $(srcdir)/LiftedKc.h \
-  $(srcdir)/LiftedOperations.h \
-  $(srcdir)/LiftedSolver.h \
+	$(srcdir)/LiftedCircuit.h \
+	$(srcdir)/LiftedKc.h \
+	$(srcdir)/LiftedOperations.h \
+	$(srcdir)/LiftedSolver.h \
 	$(srcdir)/LiftedUtils.h \
 	$(srcdir)/LiftedVe.h \
-  $(srcdir)/LiftedWCNF.h \
+	$(srcdir)/LiftedWCNF.h \
 	$(srcdir)/Parfactor.h \
 	$(srcdir)/ParfactorList.h \
 	$(srcdir)/ProbFormula.h \
@@ -73,7 +73,7 @@ HEADERS = \
 	$(srcdir)/Var.h \
 	$(srcdir)/VarElim.h \
 	$(srcdir)/WeightedBp.h
-	
+
 CPP_SOURCES = \
 	$(srcdir)/BayesBall.cpp \
 	$(srcdir)/BayesBallGraph.cpp \
@@ -87,12 +87,12 @@ CPP_SOURCES = \
 	$(srcdir)/HorusCli.cpp \
 	$(srcdir)/HorusYap.cpp \
 	$(srcdir)/LiftedBp.cpp \
-  $(srcdir)/LiftedCircuit.cpp \
-  $(srcdir)/LiftedKc.cpp \
-  $(srcdir)/LiftedOperations.cpp \
+	$(srcdir)/LiftedCircuit.cpp \
+	$(srcdir)/LiftedKc.cpp \
+	$(srcdir)/LiftedOperations.cpp \
 	$(srcdir)/LiftedUtils.cpp \
 	$(srcdir)/LiftedVe.cpp \
-  $(srcdir)/LiftedWCNF.cpp \
+	$(srcdir)/LiftedWCNF.cpp \
 	$(srcdir)/Parfactor.cpp \
 	$(srcdir)/ParfactorList.cpp \
 	$(srcdir)/ProbFormula.cpp \
@@ -114,12 +114,12 @@ OBJS = \
 	Histogram.o \
 	HorusYap.o \
 	LiftedBp.o \
-  LiftedCircuit.o \
-  LiftedKc.o \
-  LiftedOperations.o \
+	LiftedCircuit.o \
+	LiftedKc.o \
+	LiftedOperations.o \
 	LiftedUtils.o \
 	LiftedVe.o \
-  LiftedWCNF.o \
+	LiftedWCNF.o \
 	ProbFormula.o \
 	Parfactor.o \
 	ParfactorList.o \
@@ -178,8 +178,8 @@ depend: $(HEADERS) $(CPP_SOURCES)
 	-@if test "$(GCC)" = yes; then\
 	  $(CC) -std=c++0x -MM -MG $(CFLAGS) -I$(srcdir) -I$(srcdir)/../../../../include -I$(srcdir)/../../../../H $(CPP_SOURCES) >> Makefile;\
 	else\
-          makedepend -f - -- $(CFLAGS) -I$(srcdir)/../../../../H -I$(srcdir)/../../../../include -- $(CPP_SOURCES) |\
-          sed 's|.*/\([^:]*\):|\1:|' >> Makefile ;\
+	  makedepend -f - -- $(CFLAGS) -I$(srcdir)/../../../../H -I$(srcdir)/../../../../include -- $(CPP_SOURCES) |\
+	  sed 's|.*/\([^:]*\):|\1:|' >> Makefile ;\
 	fi
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.

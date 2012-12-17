@@ -10,7 +10,7 @@
 
 using namespace std;
 
-enum ElimHeuristic 
+enum ElimHeuristic
 {
   SEQUENTIAL,
   MIN_NEIGHBORS,
@@ -49,7 +49,7 @@ class ElimGraph
     ElimGraph (const Factors&);
 
    ~ElimGraph (void);
-   
+
     VarIds getEliminatingOrder (const VarIds&);
 
     void print (void) const;

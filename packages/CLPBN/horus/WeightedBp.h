@@ -22,7 +22,7 @@ class WeightedLink : public BpLink
       swap (currMsg_, nextMsg_);
       LogAware::pow (pwdMsg_, weight_);
     }
-  
+
   private:
     size_t    index_;
     unsigned  weight_;
@@ -33,13 +33,13 @@ class WeightedLink : public BpLink
 
 class WeightedBp : public BeliefProp
 {
-  public:   
+  public:
     WeightedBp (const FactorGraph& fg,
         const vector<vector<unsigned>>& weights)
       : BeliefProp (fg), weights_(weights) { }
 
    ~WeightedBp (void);
-  
+
     Params getPosterioriOf (VarId);
 
    private:
@@ -53,7 +53,7 @@ class WeightedBp : public BeliefProp
      Params getVarToFactorMsg (const BpLink*) const;
 
      void printLinkInformation (void) const;
-    
+
      vector<vector<unsigned>> weights_;
 };
 

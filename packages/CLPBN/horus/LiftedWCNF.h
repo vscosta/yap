@@ -33,19 +33,19 @@ class Literal
     LiteralId lid (void) const { return lid_; }
 
     LogVars logVars (void) const { return logVars_; }
-    
-    size_t nrLogVars (void) const { return logVars_.size(); }    
+
+    size_t nrLogVars (void) const { return logVars_.size(); }
 
     LogVarSet logVarSet (void) const { return LogVarSet (logVars_); }
-   
+
     void complement (void) { negated_ = !negated_; }
 
     bool isPositive (void) const { return negated_ == false; }
 
     bool isNegative (void) const { return negated_; }
-    
+
     bool isGround (ConstraintTree constr, LogVarSet ipgLogVars) const;
-    
+
     size_t indexOfLogVar (LogVar X) const;
 
     string toString (LogVarSet ipgLogVars = LogVarSet(),
@@ -74,9 +74,9 @@ class Clause
     void addLiteral (const Literal& l) { literals_.push_back (l); }
 
     const Literals& literals (void) const { return literals_; }
-    
+
     Literals& literals (void) { return literals_; }
-    
+
     size_t nrLiterals (void) const { return literals_.size(); }
 
     const ConstraintTree& constr (void) const { return constr_; }
@@ -100,7 +100,7 @@ class Clause
     unsigned nrPosCountedLogVars (void) const { return posCountedLvs_.size(); }
 
     unsigned nrNegCountedLogVars (void) const { return negCountedLvs_.size(); }
-    
+
     void addLiteralComplemented (const Literal& lit);
 
     bool containsLiteral (LiteralId lid) const;
@@ -119,8 +119,8 @@ class Clause
 
     bool isPositiveCountedLogVar (LogVar X) const;
 
-    bool isNegativeCountedLogVar (LogVar X) const;    
-    
+    bool isNegativeCountedLogVar (LogVar X) const;
+
     bool isIpgLogVar (LogVar X) const;
 
     TinySet<LiteralId> lidSet (void) const;
@@ -130,13 +130,13 @@ class Clause
     LogVarTypes logVarTypes (size_t litIdx) const;
 
     void removeLiteral (size_t litIdx);
-    
+
     static bool independentClauses (Clause& c1, Clause& c2);
-    
-    static vector<Clause*> copyClauses (const vector<Clause*>& clauses);    
+
+    static vector<Clause*> copyClauses (const vector<Clause*>& clauses);
 
     static void printClauses (const vector<Clause*>& clauses);
-    
+
     friend std::ostream& operator<< (ostream &os, const Clause& clause);
 
   private:
@@ -171,14 +171,14 @@ class LitLvTypes
         return false;
       }
     };
-  
+
     LitLvTypes (LiteralId lid, const LogVarTypes& lvTypes) :
         lid_(lid), lvTypes_(lvTypes) { }
-        
+
     LiteralId lid (void) const { return lid_; }
-    
+
     const LogVarTypes& logVarTypes (void) const { return lvTypes_; }
-    
+
     void setAllFullLogVars (void) {
         std::fill (lvTypes_.begin(), lvTypes_.end(), LogVarType::FULL_LV); }
 
@@ -228,7 +228,7 @@ class LiftedWCNF
 
     Clauses                                             clauses_;
     LiteralId                                           freeLiteralId_;
-    const ParfactorList&                                pfList_;    
+    const ParfactorList&                                pfList_;
     unordered_map<PrvGroup, vector<LiteralId>>          map_;
     unordered_map<LiteralId, std::pair<double,double>>  weights_;
 };

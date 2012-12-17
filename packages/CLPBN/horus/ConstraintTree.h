@@ -57,7 +57,7 @@ class CTNode
     CTChilds_& childs (void) { return childs_; }
 
     const CTChilds_& childs (void) const { return childs_; }
- 
+
     size_t nrChilds (void) const { return childs_.size(); }
 
     bool isRoot (void) const { return level_ == 0; }
@@ -108,7 +108,7 @@ class ConstraintTree
     ConstraintTree (const LogVars&);
 
     ConstraintTree (const LogVars&, const Tuples&);
-    
+
     ConstraintTree (vector<vector<string>> names);
 
     ConstraintTree (const ConstraintTree&);
@@ -121,7 +121,7 @@ class ConstraintTree
    ~ConstraintTree (void);
 
     CTNode* root (void) const { return root_; }
-    
+
     bool empty (void) const { return root_->childs().empty(); }
 
     const LogVars& logVars (void) const
@@ -135,17 +135,17 @@ class ConstraintTree
       assert (LogVarSet (logVars_) == logVarSet_);
       return logVarSet_;
     }
-   
+
     size_t nrLogVars (void) const
     {
       return logVars_.size();
       assert (LogVarSet (logVars_) == logVarSet_);
     }
-  
+
     void addTuple (const Tuple&);
-  
+
     bool containsTuple (const Tuple&);
-  
+
     void moveToTop (const LogVars&);
 
     void moveToBottom (const LogVars&);
@@ -159,7 +159,7 @@ class ConstraintTree
     void applySubstitution (const Substitution&);
 
     void project (const LogVarSet&);
-    
+
     ConstraintTree projectedCopy (const LogVarSet&);
 
     void remove (const LogVarSet&);
@@ -201,9 +201,9 @@ class ConstraintTree
     ConstraintTrees ground (LogVar);
 
     void copyLogVar (LogVar,LogVar);
-    
+
     ConstraintTree& operator= (const ConstraintTree& ct);
-   
+
   private:
     unsigned countTuples (const CTNode*) const;
 

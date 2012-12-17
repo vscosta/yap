@@ -30,11 +30,11 @@ class ProbFormula
     const LogVars& logVars (void) const { return logVars_; }
 
     LogVarSet logVarSet (void) const { return LogVarSet (logVars_); }
-  
+
     PrvGroup group (void) const { return group_; }
 
     void setGroup (PrvGroup g) { group_ = g; }
-   
+
     bool sameSkeletonAs (const ProbFormula&) const;
 
     bool contains (LogVar) const;
@@ -48,20 +48,20 @@ class ProbFormula
     bool isCounting (void) const;
 
     LogVar countedLogVar (void) const;
-    
+
     void setCountedLogVar (LogVar);
 
     void clearCountedLogVar (void);
- 
+
     void rename (LogVar, LogVar);
-    
+
     static PrvGroup getNewGroup (void);
 
     friend std::ostream& operator<< (ostream &os, const ProbFormula& f);
 
     friend bool operator== (const ProbFormula& f1, const ProbFormula& f2);
 
-  private: 
+  private:
     Symbol     functor_;
     LogVars    logVars_;
     unsigned   range_;

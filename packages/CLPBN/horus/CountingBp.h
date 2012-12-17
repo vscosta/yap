@@ -88,13 +88,13 @@ class FacCluster
     const FacNode* first (void) const { return members_.front(); }
 
     const FacNodes& members (void) const { return members_; }
-   
+
     FacNode* representative (void) const { return repr_; }
 
     void setRepresentative (FacNode* fn) { repr_ = fn; }
 
     VarClusters& varClusters (void) { return varClusters_; }
- 
+
   private:
     FacNodes     members_;
     FacNode*     repr_;
@@ -112,9 +112,9 @@ class CountingBp : public GroundSolver
     void printSolverFlags (void) const;
 
     Params solveQuery (VarIds);
-   
+
     static bool checkForIdenticalFactors;
- 
+
   private:
     Color getNewColor (void)
     {

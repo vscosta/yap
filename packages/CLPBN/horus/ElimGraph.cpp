@@ -44,7 +44,7 @@ ElimGraph::ElimGraph (const vector<Factor*>& factors)
 ElimGraph::~ElimGraph (void)
 {
   for (size_t i = 0; i < nodes_.size(); i++) {
-    delete nodes_[i];    
+    delete nodes_[i];
   }
 }
 

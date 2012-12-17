@@ -185,7 +185,7 @@ LiftedBp::rangeOfGround (const Ground& gr)
   return std::numeric_limits<unsigned>::max();
 }
 
-	
+
 
 Params
 LiftedBp::getJointByConditioning (
