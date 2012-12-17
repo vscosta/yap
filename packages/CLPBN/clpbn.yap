@@ -3,6 +3,7 @@
 		[{}/1,
 		 clpbn_flag/2,
 		 set_clpbn_flag/2,
+		 set_em_solver/1,
 		 clpbn_flag/3,
 		 clpbn_key/2,
 		 clpbn_init_graph/1,
@@ -178,6 +179,9 @@ clpbn_flag(parameter_softening,Before,After) :-
 clpbn_flag(use_factors,Before,After) :-
 	retract(use_parfactors(Before)),
 	assert(use_parfactors(After)).
+
+set_em_solver(Solver) :-
+	set_clpbn_flag(em_solver, Solver).
 
 {_} :-
 	solver(none), !.

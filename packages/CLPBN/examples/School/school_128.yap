@@ -18,9 +18,6 @@ total_students(4096).
 
 :- ensure_loaded('parschema.pfl').
 
-:- set_solver(hve).
-
-
 professor(p0).
 professor(p1).
 professor(p2).

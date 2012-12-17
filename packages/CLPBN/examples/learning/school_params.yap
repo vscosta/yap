@@ -2,16 +2,17 @@
 
 /* We do not consider aggregates yet.      */
 
+:- use_module(library(clpbn/learning/em)).
+
 :- [pos:train].
 
 :- ['../../examples/School/school_32'].
 
-:- use_module(library(clpbn/learning/em)).
-
-%:- clpbn:set_clpbn_flag(em_solver,gibbs).
-%:- clpbn:set_clpbn_flag(em_solver,jt).
-% :- clpbn:set_clpbn_flag(em_solver,ve).
-:- clpbn:set_clpbn_flag(em_solver,bp).
+:- set_em_solver(ve).
+%:- set_em_solver(hve).
+%:- set_em_solver(bdd).
+%:- set_em_solver(bp).
+%:- set_em_solver(cbp).
 
 timed_main :-
 	statistics(runtime, _),
