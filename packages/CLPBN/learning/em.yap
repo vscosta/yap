@@ -4,67 +4,71 @@
 
 :- module(clpbn_em, [em/5]).
 
-:- use_module(library(lists),
-	      [append/3,
-	       delete/3]).
-
 :- reexport(library(clpbn),
-	      [
-	       clpbn_flag/2,
-	       clpbn_flag/3]).
+	[clpbn_flag/2,
+	 clpbn_flag/3
+	]).
 
 :- use_module(library(clpbn),
-	      [clpbn_init_graph/1,
-	       clpbn_init_solver/4,
-	       clpbn_run_solver/3,
-	       pfl_init_solver/5,
-	       pfl_run_solver/3,
-	       clpbn_finalize_solver/1,
-	       conditional_probability/3,
-	       clpbn_flag/2]).
+	[clpbn_init_graph/1,
+	 clpbn_init_solver/4,
+	 clpbn_run_solver/3,
+	 clpbn_finalize_solver/1,	       
+	 pfl_init_solver/5,
+	 pfl_run_solver/3,
+	 conditional_probability/3,
+	 clpbn_flag/2
+	]).
 
 :- use_module(library('clpbn/dists'),
-	      [get_dist_domain_size/2,
-	       empty_dist/2,
-	       dist_new_table/2,
-	       get_dist_key/2,
-	       randomise_all_dists/0,
-	       uniformise_all_dists/0]).
+	[get_dist_domain_size/2,
+	 empty_dist/2,
+	 dist_new_table/2,
+	 get_dist_key/2,
+	 randomise_all_dists/0,
+	 uniformise_all_dists/0
+	]).
 
-:- use_module(library(clpbn/ground_factors),
-	      [generate_network/5,
-	      f/3]).
-
-:- use_module(library(bhash), [
-          b_hash_new/1,
-          b_hash_lookup/3,
-	  b_hash_insert/4]).
+:- use_module(library('clpbn/ground_factors'),
+	[generate_network/5,
+	 f/3
+	]).
+	
+:- use_module(library('clpbn/utils'),
+	[check_for_hidden_vars/3,
+	 sort_vars_by_key/3
+	]).
 
 :- use_module(library('clpbn/learning/learn_utils'),
-	      [run_all/1,
-	       clpbn_vars/2,
-	       normalise_counts/2,
-	       compute_likelihood/3,
-	       soften_sample/2]).
+	[run_all/1,
+	 clpbn_vars/2,
+	 normalise_counts/2,
+	 compute_likelihood/3,
+	 soften_sample/2
+	]).
+	
+:- use_module(library(bhash),
+	[b_hash_new/1,
+	 b_hash_lookup/3,
+	 b_hash_insert/4
+	]).
 
+:- use_module(library(matrix),
+	[matrix_add/3,
+	 matrix_to_list/2
+	]).
+	
 :- use_module(library(lists),
-	      [member/2]).
+	[member/2]).
+	
+:- use_module(library(rbtrees),
+	[rb_new/1,
+	 rb_insert/4,
+	 rb_lookup/3
+	]).
 
 :- use_module(library(maplist)).
 
-:- use_module(library(matrix),
-	      [matrix_add/3,
-	       matrix_to_list/2]).
-
-:- use_module(library(rbtrees),
-	      [rb_new/1,
-	       rb_insert/4,
-	       rb_lookup/3]).
-
-:- use_module(library('clpbn/utils'),
-	      [
-	       check_for_hidden_vars/3,
-	       sort_vars_by_key/3]).
 
 :- meta_predicate em(:,+,+,-,-), init_em(:,-).
 
@@ -101,9 +105,9 @@ init_em(Items, State) :-
 %	randomise_all_dists,
 	% set initial values for distributions
 	uniformise_all_dists,
-	setup_em_network(Items, Solver, State).
+	setup_em_network(Items, State).
 
-setup_em_network(Items, Solver, state( AllDists, AllDistInstances, MargKeys, SolverState)) :-
+setup_em_network(Items, state(AllDists, AllDistInstances, MargKeys, SolverState)) :-
 	clpbn:use_parfactors(on), !,
 	% get all variables to marginalise
 	run_examples(Items, Keys, Factors, EList),
@@ -111,7 +115,7 @@ setup_em_network(Items, Solver, state( AllDists, AllDistInstances, MargKeys, Sol
 	generate_dists(Factors, EList, AllDists, AllDistInstances, MargKeys),
 	% setup solver, if necessary
 	pfl_init_solver(MargKeys, Keys, Factors, EList, SolverState).
-setup_em_network(Items, Solver, state( AllDists, AllDistInstances, MargVars, SolverVars)) :-
+setup_em_network(Items, state(AllDists, AllDistInstances, MargVars, SolverState)) :-
 	% create the ground network
 	call_run_all(Items),
 	% get all variables to marginalise
@@ -121,7 +125,7 @@ setup_em_network(Items, Solver, state( AllDists, AllDistInstances, MargVars, Sol
 	% remove variables that do not have to do with this query.
 	different_dists(AllVars, AllDists, AllDistInstances, MargVars),
 	% setup solver by doing parameter independent work.
-	clpbn_init_solver(MargVars, AllVars, _, SolverVars).
+	clpbn_init_solver(MargVars, AllVars, _, SolverState).
 
 run_examples(user:Exs, Keys, Factors, EList) :-
     Exs = [_:_|_], !,
@@ -232,9 +236,9 @@ all_dists([], _, []).
 all_dists([V|AllVars], AllVars0, [i(Id, [V|Parents], Cases, Hiddens)|Dists]) :-
 	% V is an instance of Id
 	clpbn:get_atts(V, [dist(Id,Parents)]),
- 	sort([V|Parents], Sorted),
+	sort([V|Parents], Sorted),
 	length(Sorted, LengSorted),
-        length(Parents, LengParents),
+	length(Parents, LengParents),
 	(
 	    LengParents+1 =:= LengSorted
 	-> 

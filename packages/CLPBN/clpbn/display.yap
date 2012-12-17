@@ -12,6 +12,8 @@
 
 :- use_module(library(maplist)).
 
+:- use_module(library(atts)).
+
 :- attribute posterior/4.
 
 

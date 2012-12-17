@@ -21,8 +21,8 @@
 		     init_ve_ground_solver/5,
 		     run_ve_ground_solver/3,
 		     call_ve_ground_solver/6]).
-
-:- attribute size/1, all_diffs/1.
+		     
+:- use_module(library(atts)).
 
 :- use_module(library(ordsets),
 	[ord_union/3, 
@@ -72,6 +72,8 @@
 
 :- use_module(library('clpbn/aggregates'),
 	      [check_for_agg_vars/2]).
+	      
+:- attribute size/1, all_diffs/1.	      
 
 %
 % uses a bipartite graph where bigraph(Vs, NFs, Fs)

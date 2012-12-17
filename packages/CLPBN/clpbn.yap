@@ -1,37 +1,33 @@
 
-:- module(clpbn, [{}/1,
-		  clpbn_flag/2,
-		  set_clpbn_flag/2,
-		  clpbn_flag/3,
-		  clpbn_key/2,
-		  clpbn_init_solver/4,
-		  clpbn_run_solver/3,
-		  pfl_init_solver/5,
-		  pfl_run_solver/3,
-		  clpbn_finalize_solver/1,
-		  clpbn_init_graph/1,
-		  probability/2,
-		  conditional_probability/3,
-		  use_parfactors/1,
-		  op( 500, xfy, with)]).
-
+:- module(clpbn,
+	      [{}/1,
+	       clpbn_flag/2,
+	       set_clpbn_flag/2,
+	       clpbn_flag/3,
+	       clpbn_key/2,
+	       clpbn_init_graph/1,		  
+	       clpbn_init_solver/4,
+	       clpbn_run_solver/3,
+	       clpbn_finalize_solver/1,		  
+	       pfl_init_solver/5,
+	       pfl_run_solver/3,
+	       probability/2,
+	       conditional_probability/3,
+	       use_parfactors/1,
+	       op(500, xfy, with)
+	      ]).
+	      
 :- use_module(library(atts)).
+
 :- use_module(library(bhash)).
+
 :- use_module(library(lists)).
+
 :- use_module(library(terms)).
+
 :- use_module(library(maplist)).
 
-%
-% avoid the overhead of using goal_expansion/2.
-%
-:- multifile
-	user:term_expansion/2.
-
-:- dynamic
-	user:term_expansion/2.
-
 :- attribute key/1, dist/2, evidence/1.
-
 
 :- use_module('clpbn/ve',
 	      [ve/3,
@@ -41,6 +37,39 @@
 	       init_ve_ground_solver/5,
 	       run_ve_ground_solver/3,
 	       call_ve_ground_solver/6
+	      ]).
+
+:- use_module('clpbn/jt',
+	      [jt/3,
+	       init_jt_solver/4,
+	       run_jt_solver/3
+	      ]).
+
+:- use_module('clpbn/bdd',
+	      [bdd/3,
+	       init_bdd_solver/4,
+	       run_bdd_solver/3,
+	       init_bdd_ground_solver/5,
+	       run_bdd_ground_solver/3,
+	       call_bdd_ground_solver/6
+	      ]).
+
+:- use_module('clpbn/gibbs',
+	      [gibbs/3,
+	       check_if_gibbs_done/1,
+	       init_gibbs_solver/4,
+	       run_gibbs_solver/3
+	      ]).
+
+%% :- use_module('clpbn/bnt',
+%% 	      [do_bnt/3,
+%% 	       check_if_bnt_done/1
+%% 	      ]).
+
+:- use_module('clpbn/pgrammar',
+	      [init_pcg_solver/4,
+	       run_pcg_solver/3,
+	       pcg_init_graph/0
 	      ]).
 
 :- use_module('clpbn/horus_ground',
@@ -59,47 +88,8 @@
 	       finalize_horus_lifted_solver/1
 	      ]).
 
-:- use_module('clpbn/jt',
-	      [jt/3,
-	       init_jt_solver/4,
-	       run_jt_solver/3
-	      ]).
-
-:- use_module('clpbn/bdd',
-	      [bdd/3,
-	       init_bdd_solver/4,
-	       run_bdd_solver/3,
-	       init_bdd_ground_solver/5,
-	       run_bdd_ground_solver/3,
-	       call_bdd_ground_solver/6
-	      ]).
-
-%% :- use_module('clpbn/bnt',
-%% 	      [do_bnt/3,
-%% 	       check_if_bnt_done/1
-%% 	      ]).
-
-:- use_module('clpbn/gibbs',
-	      [gibbs/3,
-	       check_if_gibbs_done/1,
-	       init_gibbs_solver/4,
-	       run_gibbs_solver/3
-	      ]).
-
-:- use_module('clpbn/pgrammar',
-	      [init_pcg_solver/4,
-	       run_pcg_solver/3,
-	       pcg_init_graph/0
-	      ]).
-
-:- use_module('clpbn/graphs',
-	      [
-	       clpbn2graph/1
-	      ]).
-
 :- use_module('clpbn/dists',
-	      [
-	       dist/4,
+	      [dist/4,
 	       get_dist/4,
 	       get_evidence_position/3,
 	       get_evidence_from_position/3,
@@ -107,39 +97,54 @@
 	      ]).
 
 :- use_module('clpbn/evidence',
-	      [
-	       store_evidence/1,
+	      [store_evidence/1,
 	       add_stored_evidence/2,
 	       incorporate_evidence/2,
 	       check_stored_evidence/2,
 	       put_evidence/2
 	      ]).
+	      
+:- use_module('clpbn/ground_factors',
+	      [generate_network/5]).
 
 :- use_module('clpbn/utils',
-	      [
-	       sort_vars_by_key/3
-	      ]).
+	      [sort_vars_by_key/3]).
+
+:- use_module('clpbn/graphs',
+	      [clpbn2graph/1]).
 
 :- use_module('clpbn/graphviz',
-	[clpbn2gviz/4]).
-
-:- use_module(clpbn/ground_factors,
-	[generate_network/5]).
+	      [clpbn2gviz/4]).
 
 
-:- dynamic solver/1,output/1,use/1,suppress_attribute_display/1, parameter_softening/1, em_solver/1, use_parfactors/1.
+%
+% avoid the overhead of using goal_expansion/2.
+%
+:- multifile user:term_expansion/2.
+
+:- dynamic user:term_expansion/2.
+
+:- dynamic
+	solver/1,
+	output/1,
+	use/1,
+	suppress_attribute_display/1,
+	parameter_softening/1,
+	em_solver/1,
+	use_parfactors/1.
+	
+:- meta_predicate probability(:,-), conditional_probability(:,:,-).
+
 
 solver(ve).
 em_solver(bp).
-
-:- meta_predicate probability(:,-), conditional_probability(:,:,-).
-
 %output(xbif(user_error)).
 %output(gviz(user_error)).
 output(no).
 suppress_attribute_display(false).
 parameter_softening(m_estimate(10)).
 use_parfactors(off).
+
 
 clpbn_flag(Flag,Option) :-
 	clpbn_flag(Flag, Option, Option).
@@ -182,7 +187,7 @@ clpbn_flag(use_factors,Before,After) :-
 	dist(Dist, DistInfo, Key, Parents),
 	add_evidence(Var,Key,DistInfo,El)
 %	,writeln({Var = Key with Dist})
-.
+	.
 
 %
 % make sure a query variable is reachable by the garbage collector.
@@ -331,8 +336,7 @@ write_out(jt, GVars, AVars, DiffVars) :-
 write_out(bdd, GVars, AVars, DiffVars) :-
 	bdd(GVars, AVars, DiffVars).
 write_out(bp, _GVars, _AVars, _DiffVars) :- 
-    writeln('interface not supported any longer').
-	%bp(GVars, AVars, DiffVars).
+	writeln('interface not supported any longer').
 write_out(gibbs, GVars, AVars, DiffVars) :-
 	gibbs(GVars, AVars, DiffVars).
 write_out(bnt, GVars, AVars, DiffVars) :-
@@ -427,7 +431,7 @@ find_var([_|DVars], V, Key, [_|DKeys]) :-
 
 process_vars([], []).
 process_vars([V|Vs], [K|Ks]) :-
-        process_var(V, K),
+	process_var(V, K),
 	process_vars(Vs, Ks).
 
 process_var(V, K) :- get_atts(V, [key(K)]), !. 
@@ -529,6 +533,15 @@ user:term_expansion((A :- {}), ( :- true )) :-	 !, % evidence
 
 clpbn_key(Var,Key) :-
 	get_atts(Var, [key(Key)]).
+	
+	
+%
+% only useful for probabilistic context free grammars
+%
+clpbn_init_graph(pcg) :- !,
+	pcg_init_graph.
+clpbn_init_graph(_).
+
 
 %
 % This is a routine to start a solver, called by the learning procedures (ie, em).
@@ -544,22 +557,26 @@ clpbn_init_solver(LVs, Vs0, VarsWithUnboundKeys, State) :-
 
 clpbn_init_solver(gibbs, LVs, Vs0, VarsWithUnboundKeys, State) :-
 	init_gibbs_solver(LVs, Vs0, VarsWithUnboundKeys, State).
+	
 clpbn_init_solver(ve, LVs, Vs0, VarsWithUnboundKeys, State) :-
 	init_ve_solver(LVs, Vs0, VarsWithUnboundKeys, State).
+	
 clpbn_init_solver(bp, LVs, Vs0, VarsWithUnboundKeys, State) :-
 	init_horus_ground_solver(LVs, Vs0, VarsWithUnboundKeys, State).
+	
 clpbn_init_solver(jt, LVs, Vs0, VarsWithUnboundKeys, State) :-
 	init_jt_solver(LVs, Vs0, VarsWithUnboundKeys, State).
+	
 clpbn_init_solver(bdd, LVs, Vs0, VarsWithUnboundKeys, State) :-
 	init_bdd_solver(LVs, Vs0, VarsWithUnboundKeys, State).
+	
 clpbn_init_solver(pcg, LVs, Vs0, VarsWithUnboundKeys, State) :-
 	init_pcg_solver(LVs, Vs0, VarsWithUnboundKeys, State).
 
 %
 % LVs is the list of lists of variables to marginalise
 % Vs is the full graph
-% Ps are the probabilities on LVs.
-% 
+% Ps are the probabilities on LVs. 
 %
 clpbn_run_solver(LVs, LPs, State) :-
 	solver(Solver),
@@ -582,6 +599,13 @@ clpbn_run_solver(bdd, LVs, LPs, State) :-
 
 clpbn_run_solver(pcg, LVs, LPs, State) :-
 	run_pcg_solver(LVs, LPs, State).
+	
+clpbn_finalize_solver(State) :-
+	solver(bp), !,
+	functor(State, _, Last),
+	arg(Last, State, Info),
+	finalize_horus_ground_solver(Info).
+clpbn_finalize_solver(_State).
 
 
 %
@@ -637,19 +661,6 @@ pfl_run_solver(LVs, LPs, State, cbp) :- !,
 
 add_keys(Key1+V1,_Key2,Key1+V1).
 
-%
-% only useful for probabilistic context free grammars
-%
-clpbn_init_graph(pcg) :- !,
-	pcg_init_graph.
-clpbn_init_graph(_).
-
-clpbn_finalize_solver(State) :-
-	solver(bp), !,
-	functor(State, _, Last),
-	arg(Last, State, Info),
-	finalize_horus_ground_solver(Info).
-clpbn_finalize_solver(_State).
 
 probability(Goal, Prob) :-
 	findall(Prob, do_probability(Goal, [], Prob), [Prob]).
@@ -693,20 +704,20 @@ variabilise_last([Arg1,Arg2|Args], Arg, Arg1.NArgs, V) :-
 	variabilise_last(Arg2.Args, Arg, NArgs, V).
 
 match_probability(VPs, Goal, C, V, Prob) :-
-    match_probabilities(VPs, Goal, C, V, Prob).
+	match_probabilities(VPs, Goal, C, V, Prob).
 
 match_probabilities([p(V0=C)=Prob|_], _, C, V, Prob) :-
-    V0 == V,
-    !.
+	V0 == V,
+	!.
 match_probabilities([_|Probs], G, C, V, Prob) :-
-    match_probabilities(Probs, G, C, V, Prob).
+	match_probabilities(Probs, G, C, V, Prob).
 
 goal_to_key(_:Goal, Skolem) :-
-    goal_to_key(Goal, Skolem).
+	goal_to_key(Goal, Skolem).
 goal_to_key(Goal, Skolem) :-
-    functor(Goal, Na, Ar),
-    Ar1 is Ar-1,
-    functor(Skolem, Na, Ar1).
+	functor(Goal, Na, Ar),
+	Ar1 is Ar-1,
+	functor(Skolem, Na, Ar1).
 
 :- use_parfactors(on) -> true ; assert(use_parfactors(off)).
 

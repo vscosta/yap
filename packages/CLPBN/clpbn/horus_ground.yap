@@ -21,7 +21,7 @@
            cpp_run_ground_solver/3,
            cpp_set_vars_information/2,
            cpp_free_ground_network/1,
-	   set_solver/1
+           set_solver/1
           ]).
 
 :- use_module(library('clpbn/dists'),
@@ -34,7 +34,7 @@
 :- use_module(library('clpbn/display'),
           [clpbn_bind_vals/3]).
 
-:- use_module(library(clpbn/numbers)).
+:- use_module(library('clpbn/numbers')).
 
 :- use_module(library(charsio),
           [term_to_atom/2]).
