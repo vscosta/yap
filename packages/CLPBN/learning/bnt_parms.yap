@@ -8,23 +8,23 @@
 
 :- module(bnt_parameters, [learn_parameters/2]).
 
-:- use_module(library('clpbn'), [
-	clpbn_flag/3]).
+:- use_module(library('clpbn'),
+		[clpbn_flag/3]).
 
-:- use_module(library('clpbn/bnt'), [
-	create_bnt_graph/2]).
+:- use_module(library('clpbn/bnt'),
+		[create_bnt_graph/2]).
 
-:- use_module(library('clpbn/display'), [
-	clpbn_bind_vals/3]).
+:- use_module(library('clpbn/display'),
+		[clpbn_bind_vals/3]).
 
-:- use_module(library('clpbn/dists'), [
-				       get_dist_domain/2
-				      ]).
+:- use_module(library('clpbn/dists'),
+		[get_dist_domain/2]).
 
-:- use_module(library(matlab), [matlab_initialized_cells/4,
-				matlab_call/2,
-				matlab_get_variable/2
-			      ]).
+:- use_module(library(matlab),
+		[matlab_initialized_cells/4,
+		 matlab_call/2,
+		 matlab_get_variable/2
+		]).
 
 :- dynamic bnt_em_max_iter/1.
 bnt_em_max_iter(10).
@@ -61,7 +61,7 @@ clpbn_vars(Vs,BVars) :-
 	get_clpbn_vars(Vs,CVs),
 	keysort(CVs,KVs),
 	merge_vars(KVs,BVars).
-	
+
 get_clpbn_vars([],[]).
 get_clpbn_vars([V|GVars],[K-V|CLPBNGVars]) :-
 	clpbn:get_atts(V, [key(K)]), !,
@@ -73,8 +73,8 @@ merge_vars([],[]).
 merge_vars([K-V|KVs],[V|BVars]) :-
 	get_var_has_same_key(KVs,K,V,KVs0),
 	merge_vars(KVs0,BVars).
-	
-get_var_has_same_key([K-V|KVs],K,V,KVs0)  :- !,
+
+get_var_has_same_key([K-V|KVs],K,V,KVs0) :- !,
 	get_var_has_same_key(KVs,K,V,KVs0).
 get_var_has_same_key(KVs,_,_,KVs).
 
@@ -84,7 +84,7 @@ mk_sample(AllVars,NVars, LL) :-
 	length(LN,LL),
 	matlab_initialized_cells( NVars, 1, LN, sample).
 
-add2sample([],  []).
+add2sample([], []).
 add2sample([V|Vs],[val(VId,1,Val)|Vals]) :-
 	clpbn:get_atts(V, [evidence(Ev),dist(Id,_)]), !,
 	bnt:get_atts(V,[bnt_id(VId)]),
@@ -113,9 +113,9 @@ get_parameters([],[]).
 get_parameters([Rep-v(_,_,_)|Reps],[CPT|CPTs]) :-
 	get_new_table(Rep,CPT),
 	get_parameters(Reps,CPTs).
-	
+
 get_new_table(Rep,CPT) :-
 	s <-- struct(new_bnet.'CPD'({Rep})),
 	matlab_get_variable( s.'CPT', CPT).
-	
-	
+
+

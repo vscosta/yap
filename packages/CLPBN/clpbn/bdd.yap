@@ -93,37 +93,37 @@ run_bdd_ground_solver(_QueryVars, Solutions, bdd(GKeys, Keys, Factors, Evidence)
 check_if_bdd_done(_Var).
 
 call_bdd_ground_solver(QueryVars, QueryKeys, AllKeys, Factors, Evidence, Output) :-
-    call_bdd_ground_solver_for_probabilities([QueryKeys], AllKeys, Factors, Evidence, Solutions),
-    clpbn_bind_vals([QueryVars], Solutions, Output).
+	call_bdd_ground_solver_for_probabilities([QueryKeys], AllKeys, Factors, Evidence, Solutions),
+	clpbn_bind_vals([QueryVars], Solutions, Output).
 
 call_bdd_ground_solver_for_probabilities(QueryKeys, AllKeys, Factors, Evidence, Solutions) :-
-    keys_to_numbers(AllKeys, Factors, Evidence, Hash4, Id4, FactorIds, EvidenceIds),
-    init_bdd(FactorIds, EvidenceIds, Hash4, Id4, BDD),
-    run_solver(QueryKeys, Solutions, BDD).
+	keys_to_numbers(AllKeys, Factors, Evidence, Hash4, Id4, FactorIds, EvidenceIds),
+	init_bdd(FactorIds, EvidenceIds, Hash4, Id4, BDD),
+	run_solver(QueryKeys, Solutions, BDD).
 
 init_bdd(FactorIds, EvidenceIds, Hash, Id, bdd(Term, Leaves, Tops, Hash, Id)) :-
-    sort_keys(FactorIds, AllVars, Leaves),
-    rb_new(OrderVs0),
-    foldl2(order_key, AllVars, 0, _, OrderVs0, OrderVs),
-    rb_new(Vars0),
-    rb_new(Pars0),
-    rb_new(Ev0),
-    foldl(evtotree,EvidenceIds,Ev0,Ev),
-    rb_new(Fs0),
-    foldl(ftotree,FactorIds,Fs0,Fs),
-    init_tops(Leaves,Tops),
-    get_keys_info(AllVars, Ev, Fs, OrderVs, Vars0, _Vars, Pars0, _Pars, Leaves, Tops, Term, []).
+	sort_keys(FactorIds, AllVars, Leaves),
+	rb_new(OrderVs0),
+	foldl2(order_key, AllVars, 0, _, OrderVs0, OrderVs),
+	rb_new(Vars0),
+	rb_new(Pars0),
+	rb_new(Ev0),
+	foldl(evtotree,EvidenceIds,Ev0,Ev),
+	rb_new(Fs0),
+	foldl(ftotree,FactorIds,Fs0,Fs),
+	init_tops(Leaves,Tops),
+	get_keys_info(AllVars, Ev, Fs, OrderVs, Vars0, _Vars, Pars0, _Pars, Leaves, Tops, Term, []).
 
 order_key( Id, I0, I, OrderVs0, OrderVs) :-
-    I is I0+1,
-    rb_insert(OrderVs0, Id, I0, OrderVs).
+	I is I0+1,
+	rb_insert(OrderVs0, Id, I0, OrderVs).
 
 evtotree(K=V,Ev0,Ev) :-
-    rb_insert(Ev0, K, V, Ev).
+	rb_insert(Ev0, K, V, Ev).
 
 ftotree(F, Fs0, Fs) :-
-    F = f([K|_Parents],_,_,_),
-    rb_insert(Fs0, K, F, Fs).
+	F = f([K|_Parents],_,_,_),
+	rb_insert(Fs0, K, F, Fs).
 
 bdd([[]],_,_) :- !.
 bdd([QueryVars], AllVars, AllDiffs) :-
@@ -155,59 +155,59 @@ init_tops([_|Leaves],[_|Tops]) :-
 	init_tops(Leaves,Tops).
 
 sort_keys(AllFs, AllVars, Leaves) :-
-    dgraph_new(Graph0),
-    foldl(add_node, AllFs, Graph0, Graph),
-    dgraph_leaves(Graph, Leaves),
-    dgraph_top_sort(Graph, AllVars).
+	dgraph_new(Graph0),
+	foldl(add_node, AllFs, Graph0, Graph),
+	dgraph_leaves(Graph, Leaves),
+	dgraph_top_sort(Graph, AllVars).
 
 add_node(f([K|Parents],_,_,_), Graph0, Graph) :-
-    dgraph_add_vertex(Graph0, K, Graph1), 
-    foldl(add_edge(K), Parents, Graph1, Graph).
-    
+	dgraph_add_vertex(Graph0, K, Graph1), 
+	foldl(add_edge(K), Parents, Graph1, Graph).
+
 add_edge(K, K0, Graph0, Graph) :-
-    dgraph_add_edge(Graph0, K0, K, Graph).
+	dgraph_add_edge(Graph0, K0, K, Graph).
 
 sort_vars(AllVars0, AllVars, Leaves) :-
-    dgraph_new(Graph0),
-    build_graph(AllVars0, Graph0, Graph),
-    dgraph_leaves(Graph, Leaves),
-    dgraph_top_sort(Graph, AllVars).
+	dgraph_new(Graph0),
+	build_graph(AllVars0, Graph0, Graph),
+	dgraph_leaves(Graph, Leaves),
+	dgraph_top_sort(Graph, AllVars).
 
 build_graph([], Graph, Graph).
 build_graph([V|AllVars0], Graph0, Graph) :-
-    clpbn:get_atts(V, [dist(_DistId, Parents)]), !,
-    dgraph_add_vertex(Graph0, V, Graph1), 
-    add_parents(Parents, V, Graph1, GraphI),
-    build_graph(AllVars0, GraphI, Graph).
+	clpbn:get_atts(V, [dist(_DistId, Parents)]), !,
+	dgraph_add_vertex(Graph0, V, Graph1), 
+	add_parents(Parents, V, Graph1, GraphI),
+	build_graph(AllVars0, GraphI, Graph).
 build_graph(_V.AllVars0, Graph0, Graph) :-
-    build_graph(AllVars0, Graph0, Graph).
+	build_graph(AllVars0, Graph0, Graph).
 
 add_parents([], _V, Graph, Graph).
 add_parents([V0|Parents], V, Graph0, GraphF) :-
-    dgraph_add_edge(Graph0, V0, V, GraphI), 
-    add_parents(Parents, V, GraphI, GraphF).
+	dgraph_add_edge(Graph0, V0, V, GraphI), 
+	add_parents(Parents, V, GraphI, GraphF).
 
 get_keys_info([], _, _, _, Vs, Vs, Ps, Ps, _, _) --> [].
 get_keys_info([V|MoreVs], Evs, Fs, OrderVs, Vs, VsF, Ps, PsF, Lvs, Outs) -->
-    { rb_lookup(V, F, Fs) }, !,
-    { F = f([V|Parents], _, _, DistId) },
+	{ rb_lookup(V, F, Fs) }, !,
+	{ F = f([V|Parents], _, _, DistId) },
 %{writeln(v:DistId:Parents)},
-    [DIST],
-    {  get_key_info(V, F, Fs, Evs, OrderVs, DistId, Parents, Vs, Vs2, Ps, Ps1, Lvs, Outs, DIST) },
-    get_keys_info(MoreVs, Evs, Fs, OrderVs, Vs2, VsF, Ps1, PsF, Lvs, Outs).
+	[DIST],
+	{ get_key_info(V, F, Fs, Evs, OrderVs, DistId, Parents, Vs, Vs2, Ps, Ps1, Lvs, Outs, DIST) },
+	get_keys_info(MoreVs, Evs, Fs, OrderVs, Vs2, VsF, Ps1, PsF, Lvs, Outs).
 
 get_key_info(V, F, Fs, Evs, OrderVs, DistId, Parents0, Vs, Vs2, Ps, Ps1, Lvs, Outs, DIST) :-
-    reorder_keys(Parents0, OrderVs, Parents, Map),
-    check_key_p(DistId, F, Map, Parms, _ParmVars, Ps, Ps1),
-    unbound_parms(Parms, ParmVars),
-    F = f(_,[Size|_],_,_),
-    check_key(V, Size, DIST, Vs, Vs1),
-    DIST = info(V, Tree, Ev, Values, Formula, ParmVars, Parms),
-    % get a list of form [[P00,P01], [P10,P11], [P20,P21]]
-    foldl(get_key_parent(Fs), Parents, PVars, Vs1, Vs2),
-    cross_product(Values, Ev, PVars, ParmVars, Formula0),
+	reorder_keys(Parents0, OrderVs, Parents, Map),
+	check_key_p(DistId, F, Map, Parms, _ParmVars, Ps, Ps1),
+	unbound_parms(Parms, ParmVars),
+	F = f(_,[Size|_],_,_),
+	check_key(V, Size, DIST, Vs, Vs1),
+	DIST = info(V, Tree, Ev, Values, Formula, ParmVars, Parms),
+	% get a list of form [[P00,P01], [P10,P11], [P20,P21]]
+	foldl(get_key_parent(Fs), Parents, PVars, Vs1, Vs2),
+	cross_product(Values, Ev, PVars, ParmVars, Formula0),
 %	(numbervars(Formula0,0,_),writeln(formula0:Ev:Formula0), fail ; true),
-    get_key_evidence(V, Evs, DistId, Tree, Ev, Formula0, Formula, Lvs, Outs).
+	get_key_evidence(V, Evs, DistId, Tree, Ev, Formula0, Formula, Lvs, Outs).
 %	(numbervars(Formula,0,_),writeln(formula:Formula), fail ; true).
 
 get_vars_info([], Vs, Vs, Ps, Ps, _, _) --> [].
@@ -215,7 +215,7 @@ get_vars_info([V|MoreVs], Vs, VsF, Ps, PsF, Lvs, Outs) -->
 	{ clpbn:get_atts(V, [dist(DistId, Parents)]) }, !,
 %{writeln(v:DistId:Parents)},
 	[DIST],
-	{  get_var_info(V, DistId, Parents, Vs, Vs2, Ps, Ps1, Lvs, Outs, DIST) },
+	{ get_var_info(V, DistId, Parents, Vs, Vs2, Ps, Ps1, Lvs, Outs, DIST) },
 	get_vars_info(MoreVs, Vs2, VsF, Ps1, PsF, Lvs, Outs).
 get_vars_info([_|MoreVs], Vs0, VsF, Ps0, PsF, VarsInfo, Lvs, Outs) :-
 	get_vars_info(MoreVs, Vs0, VsF, Ps0, PsF, VarsInfo, Lvs, Outs).
@@ -298,17 +298,17 @@ generate_3tree(OUT, [[P0,P1,P2]], I00, I10, I20, IR0, N0, N1, N2, R, Exp, _ExpF)
 	IR is IR0-1,
 	( satisf(I00+1, I10, I20, IR, N0, N1, N2, R, Exp) ->
 	  L0 = [P0|L1]
-	  ;
+	;
 	  L0 = L1
 	),
 	( satisf(I00, I10+1, I20, IR, N0, N1, N2, R, Exp) ->
 	  L1 = [P1|L2]
-	  ;
+	;
 	  L1 = L2
 	),
 	( satisf(I00, I10, I20+1, IR, N0, N1, N2, R, Exp) ->
 	  L2 = [P2]
-	  ;
+	;
 	  L2 = []
 	),
 	to_disj(L0, OUT).
@@ -316,23 +316,23 @@ generate_3tree(OUT, [[P0,P1,P2]|Ps], I00, I10, I20, IR0, N0, N1, N2, R, Exp, Exp
 	IR is IR0-1,
 	( satisf(I00+1, I10, I20, IR, N0, N1, N2, R, Exp) ->
 	  I0 is I00+1, generate_3tree(O0, Ps, I0, I10, I20, IR, N0, N1, N2, R, Exp, ExpF)
-	  ->
+	->
 	  L0 = [P0*O0|L1]
-	  ;
+	;
 	  L0 = L1
 	),
 	( satisf(I00, I10+1, I20, IR0, N0, N1, N2, R, Exp) ->
 	  I1 is I10+1, generate_3tree(O1, Ps, I00, I1, I20, IR, N0, N1, N2, R, Exp, ExpF)
-	  ->
+	->
 	  L1 = [P1*O1|L2]
-	  ;
+	;
 	  L1 = L2
 	),
 	( satisf(I00, I10, I20+1, IR0, N0, N1, N2, R, Exp) ->
 	  I2 is I20+1, generate_3tree(O2, Ps, I00, I10, I2, IR, N0, N1, N2, R, Exp, ExpF)
-	  ->	  
+	->
 	  L2 = [P2*O2]
-	  ;
+	;
 	  L2 = []
 	),
 	to_disj(L0, OUT).
@@ -384,12 +384,12 @@ avg_exp([Val|Vals], PVars, I0, P0, Max, Size, Im, IM, HI, HF, O) :-
 	(Vals = [] -> O=O1 ; O = Val*O1+not(Val)*O2 ),
 	Im1 is max(0, Im-I0),
 	IM1 is IM-I0,
-	( IM1 < 0 -> O1 = 0, H2 = HI;      /* we have exceed maximum */
-	  Im1 > Max -> O1 = 0, H2 = HI;  /* we cannot make to minimum */
-	  Im1 = 0, IM1 > Max -> O1 = 1, H2 = HI;  /* we cannot exceed maximum */
+	( IM1 < 0 -> O1 = 0, H2 = HI ;  /* we have exceed maximum */
+	  Im1 > Max -> O1 = 0, H2 = HI ;  /* we cannot make to minimum */
+	  Im1 = 0, IM1 > Max -> O1 = 1, H2 = HI ;  /* we cannot exceed maximum */
 	  P is P0+1,
 	  avg_tree(PVars, P, Max, Im1, IM1, Size, O1, HI, H2)
-        ),
+	),
 	I is I0+1,
 	avg_exp(Vals, PVars, I, P0, Max, Size, Im, IM, H2, HF, O2).
 
@@ -437,11 +437,11 @@ bin_sums(Vs, Sums, F) :-
 	
 vs_to_sums([], []).
 vs_to_sums([V|Vs], [Sum|Sums0]) :-
-	  Sum =.. [sum|V],
-	  vs_to_sums(Vs, Sums0).
+	Sum =.. [sum|V],
+	vs_to_sums(Vs, Sums0).
 
 bin_sums([Sum], Sum) --> !.
-bin_sums(LSums, Sum) --> 
+bin_sums(LSums, Sum) -->
 	{ halve(LSums, Sums1, Sums2) },
 	bin_sums(Sums1, Sum1),
 	bin_sums(Sums2, Sum2),
@@ -458,14 +458,14 @@ head(Take, [H|L], [H|Sums1], Sum2) :-
 	head(Take1, L, Sums1, Sum2).
 
 sum(Sum1, Sum2, Sum) -->
-	  { functor(Sum1, _, M1),
-	    functor(Sum2, _, M2),
-	    Max is M1+M2-2,
-	    Max1 is Max+1,
-	    Max0 is M2-1,
-	    functor(Sum, sum, Max1),
-	    Sum1 =.. [_|PVals] },
-	  expand_sums(PVals, 0, Max0, Max1, M2, Sum2, Sum).
+	{ functor(Sum1, _, M1),
+	  functor(Sum2, _, M2),
+	  Max is M1+M2-2,
+	  Max1 is Max+1,
+	  Max0 is M2-1,
+	  functor(Sum, sum, Max1),
+	  Sum1 =.. [_|PVals] },
+	expand_sums(PVals, 0, Max0, Max1, M2, Sum2, Sum).
 
 %
 % bottom up step by step
@@ -509,12 +509,12 @@ expand_sums(Parents, I0, Max0, Max, Size, Sums, Prot, NewSums, [O=SUM*1|F], F0) 
 	arg(I, NewSums, O),
 	sum_all(Parents, 0, I0, Max0, Sums, List),
 	to_disj(List, SUM),
-        expand_sums(Parents, I, Max0, Max, Size, Sums, Prot, NewSums, F, F0).
+	expand_sums(Parents, I, Max0, Max, Size, Sums, Prot, NewSums, F, F0).
 expand_sums(Parents, I0, Max0, Max, Size, Sums, Prot, NewSums, F, F0) :-
 	I is I0+1,
 	arg(I, Sums, O),
 	arg(I, NewSums, O),
-        expand_sums(Parents, I, Max0, Max, Size, Sums, Prot, NewSums, F, F0).
+	expand_sums(Parents, I, Max0, Max, Size, Sums, Prot, NewSums, F, F0).
 
 %
 %inner loop: find all parents that contribute to A_ji,
@@ -538,12 +538,12 @@ gen_arg(J, Sums, Max, S0) :-
 	gen_arg(0, Max, J, Sums, S0).
 	
 gen_arg(Max, Max, J, Sums, S0) :- !,
-	     I is Max+1,
-	     arg(I, Sums, A),
+	I is Max+1,
+	arg(I, Sums, A),
 	( Max = J -> S0 = A ; S0 = not(A)).
 gen_arg(I0, Max, J, Sums, S) :-
-	     I is I0+1,
-	     arg(I, Sums, A),
+	I is I0+1,
+	arg(I, Sums, A),
 	( I0 = J -> S = A*S0 ; S = not(A)*S0),
 	gen_arg(I, Max, J, Sums, S0).
 
@@ -692,9 +692,9 @@ get_parents(V.Parents, Values.PVars, Vs0, Vs) :-
 	get_parents(Parents, PVars, Vs1, Vs).
 
 get_key_parent(Fs, V, Values, Vs0, Vs) :-
-    INFO = info(V, _Parent, _Ev, Values, _, _, _),
-    rb_lookup(V, f(_, [Size|_], _, _), Fs),
-    check_key(V, Size, INFO, Vs0, Vs).
+	INFO = info(V, _Parent, _Ev, Values, _, _, _),
+	rb_lookup(V, f(_, [Size|_], _, _), Fs),
+	check_key(V, Size, INFO, Vs0, Vs).
 
 check_key(V, _, INFO, Vs, Vs) :-
 	rb_lookup(V, INFO, Vs), !.
@@ -809,20 +809,20 @@ skim_for_theta([[P|Other]|More], not(P)*Ps, [Other|Left], New ) :-
 	skim_for_theta(More, Ps, Left, New ).
 
 get_key_evidence(V, Evs, _, Tree, Ev, F0, F, Leaves, Finals) :-
-    rb_lookup(V, Pos, Evs), !,
-    zero_pos(0, Pos, Ev),
-    insert_output(Leaves, V, Finals, Tree, Outs, SendOut),
-    get_outs(F0, F, SendOut, Outs).
+	rb_lookup(V, Pos, Evs), !,
+	zero_pos(0, Pos, Ev),
+	insert_output(Leaves, V, Finals, Tree, Outs, SendOut),
+	get_outs(F0, F, SendOut, Outs).
 % hidden deterministic node, can be removed.
 %% get_key_evidence(V, _, DistId, _Tree, Ev, F0, [], _Leaves, _Finals) :-
-%%         deterministic(V, DistId),
+%% 	deterministic(V, DistId),
 %% 	!,
 %% 	one_list(Ev),
 %% 	eval_outs(F0).	
 %% no evidence !!!
 get_key_evidence(V, _, _, Tree, _Values, F0, F1, Leaves, Finals) :-
-    insert_output(Leaves, V, Finals, Tree, Outs, SendOut),
-    get_outs(F0, F1, SendOut, Outs).
+	insert_output(Leaves, V, Finals, Tree, Outs, SendOut),
+	get_outs(F0, F1, SendOut, Outs).
 
 get_evidence(V, Tree, Ev, F0, F, Leaves, Finals) :-
 	clpbn:get_atts(V, [evidence(Pos)]), !,
@@ -846,7 +846,7 @@ zero_pos(_, _Pos, []).
 zero_pos(Pos, Pos, [1|Values]) :- !, 
 	I is Pos+1,
 	zero_pos(I, Pos, Values).
-zero_pos(I0, Pos, [0|Values]) :- 
+zero_pos(I0, Pos, [0|Values]) :-
 	I is I0+1,
 	zero_pos(I, Pos, Values).
 
@@ -863,7 +863,7 @@ insert_output(_.Leaves, V, _.Finals, Top, Outs, SendOut) :-
 	insert_output(Leaves, V, Finals, Top, Outs, SendOut).
 
 
-get_outs([V=F], [V=NF|End], End,  V) :- !,
+get_outs([V=F], [V=NF|End], End, V) :- !,
 %	writeln(f0:F),
 	simplify_exp(F,NF).
 get_outs([(V=F)|Outs], [(V=NF)|NOuts], End, (F0 + V)) :-
@@ -878,11 +878,11 @@ eval_outs([(V=F)|Outs]) :-
 	eval_outs(Outs).
 
 run_solver(Qs, LLPs, bdd(Term, Leaves, Nodes, Hash, Id)) :-
-    lists_of_keys_to_ids(Qs, QIds, Hash, _, Id, _),
-    findall(LPs,
-	    (member(Q, QIds),
-	     run_bdd_solver([Q],LPs,bdd(Term,Leaves,Nodes))),
-	    LLPs).
+	lists_of_keys_to_ids(Qs, QIds, Hash, _, Id, _),
+	findall(LPs,
+	  (member(Q, QIds),
+	    run_bdd_solver([Q],LPs,bdd(Term,Leaves,Nodes))),
+	  LLPs).
 
 run_bdd_solver([Vs], LPs, bdd(Term, _Leaves, Nodes)) :-
 	build_out_node(Nodes, Node),
@@ -988,7 +988,7 @@ all_cnfs([info(_V, Tree, Ev, Values, Formula, ParmVars, Parms)|Term], BindsF, IV
 
 v_in(V, [V0|_]) :- V == V0, !.
 v_in(V, [_|Vs]) :-
-    v_in(V, Vs).
+	v_in(V, Vs).
 
 all_indicators(Values) -->
 	{ values_to_disj(Values, Disj) },
@@ -1017,7 +1017,7 @@ parameters([(V0=Disj*_I0)|Formula], Tree) -->
 	parameters(Formula, Tree).
 
 % transform V0<- A*B+C*(D+not(E))
-%        [V0+not(A)+not(B),V0+not(C)+not(D),V0+not(C)+E]
+%    [V0+not(A)+not(B),V0+not(C)+not(D),V0+not(C)+E]
 conj(Disj, V0) -->
 	{ conj2(Disj, [[V0]], LVs) },
 	to_disjs(LVs).

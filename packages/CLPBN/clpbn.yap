@@ -5,10 +5,10 @@
 		 set_clpbn_flag/2,
 		 clpbn_flag/3,
 		 clpbn_key/2,
-		 clpbn_init_graph/1,		  
+		 clpbn_init_graph/1,
 		 clpbn_init_solver/4,
 		 clpbn_run_solver/3,
-		 clpbn_finalize_solver/1,		  
+		 clpbn_finalize_solver/1,
 		 pfl_init_solver/5,
 		 pfl_run_solver/3,
 		 probability/2,
@@ -16,7 +16,7 @@
 		 use_parfactors/1,
 		 op(500, xfy, with)
 		]).
-	      
+
 :- use_module(library(atts)).
 
 :- use_module(library(bhash)).
@@ -103,7 +103,7 @@
 		 check_stored_evidence/2,
 		 put_evidence/2
 		]).
-	      
+
 :- use_module('clpbn/ground_factors',
 		[generate_network/5]).
 
@@ -131,7 +131,7 @@
 	parameter_softening/1,
 	em_solver/1,
 	use_parfactors/1.
-	
+
 :- meta_predicate probability(:,-), conditional_probability(:,:,-).
 
 
@@ -199,7 +199,7 @@ store_var(El) :-
 	get_mutable(Tail, Mutable),
 	update_mutable(El.Tail, Mutable).
 store_var(El) :- 
-       init_clpbn_vars(El).
+	init_clpbn_vars(El).
 	
 init_clpbn_vars(El) :-
 	create_mutable(El, Mutable),
@@ -246,13 +246,14 @@ project_attributes(GVars0, _AVars0) :-
 	generate_network(GVars0, GKeys, Keys, Factors, Evidence),
 	b_setval(clpbn_query_variables, f(GVars0,Evidence)),
 	simplify_query(GVars0, GVars),
-	( GKeys = [] 
-        ->
+	(
+	  GKeys = [] 
+	->
 	  GVars0 = [V|_],
 	  clpbn_display:put_atts(V, [posterior([],[],[],[])])
 	;
 	  call_ground_solver(Solver, GVars, GKeys, Keys, Factors, Evidence)
-        ).
+	).
 project_attributes(GVars, AVars) :-
 	suppress_attribute_display(false),
 	AVars = [_|_],
@@ -266,11 +267,11 @@ project_attributes(GVars, AVars) :-
 	(output(xbif(XBifStream)) -> clpbn2xbif(XBifStream,ve,AllVars) ; true),
 	(output(gviz(XBifStream)) -> clpbn2gviz(XBifStream,sort,AllVars,GVars) ; true),
 	(
-	    Solver = graphs
+	  Solver = graphs
 	->
-	    write_out(Solver, [[]], AllVars, DiffVars)
+	  write_out(Solver, [[]], AllVars, DiffVars)
 	;
-	    write_out(Solver, [CLPBNGVars], AllVars, DiffVars)
+	  write_out(Solver, [CLPBNGVars], AllVars, DiffVars)
 	).
 project_attributes(_, _).
 
@@ -334,7 +335,7 @@ write_out(jt, GVars, AVars, DiffVars) :-
 	jt(GVars, AVars, DiffVars).
 write_out(bdd, GVars, AVars, DiffVars) :-
 	bdd(GVars, AVars, DiffVars).
-write_out(bp, _GVars, _AVars, _DiffVars) :- 
+write_out(bp, _GVars, _AVars, _DiffVars) :-
 	writeln('interface not supported any longer').
 write_out(gibbs, GVars, AVars, DiffVars) :-
 	gibbs(GVars, AVars, DiffVars).
@@ -453,19 +454,19 @@ bind_clpbn(T, Var, _, _, _, do_not_bind_variable([put_evidence(T,Var)])) :-
 bind_clpbn(T, Var, Key, Dist, Parents, []) :- var(T),
 	get_atts(T, [key(Key1),dist(Dist1,Parents1)]),
 	(
-	 bind_clpbns(Key, Dist, Parents, Key1, Dist1, Parents1)
+	  bind_clpbns(Key, Dist, Parents, Key1, Dist1, Parents1)
 	->
-	 (
-	  get_atts(T, [evidence(Ev1)]) ->
-	    bind_evidence_from_extra_var(Ev1,Var)
-	 ;
-	  get_atts(Var, [evidence(Ev)]) ->
-	    bind_evidence_from_extra_var(Ev,T)
-	 ;
-	  true
-	 )
+	  (
+	    get_atts(T, [evidence(Ev1)]) ->
+	      bind_evidence_from_extra_var(Ev1,Var)
+	    ;
+	      get_atts(Var, [evidence(Ev)]) ->
+	        bind_evidence_from_extra_var(Ev,T)
+	      ;
+	        true
+	  )
 	;
-	 fail
+	  fail
 	).
 bind_clpbn(_, Var, _, _, _, _, []) :-
 	use(bnt),
@@ -487,7 +488,7 @@ bind_clpbn(T, Var, Key0, _, _, _, []) :-
 	(
 	  Key = Key0 -> true
 	;
-	 % let us not loose whatever we had.
+	  % let us not loose whatever we had.
 	  put_evidence(T,Var)
 	).
 
@@ -497,7 +498,7 @@ fresh_attvar(Var, NVar) :-
 
 % I will now allow two CLPBN variables to be bound together.
 %bind_clpbns(Key, Dist, Parents, Key, Dist, Parents).
-bind_clpbns(Key, Dist, Parents, Key1, Dist1, Parents1) :- 
+bind_clpbns(Key, Dist, Parents, Key1, Dist1, Parents1) :-
 	Key == Key1, !,
 	get_dist(Dist,_Type,_Domain,_Table),
 	get_dist(Dist1,_Type1,_Domain1,_Table1),
@@ -526,14 +527,14 @@ bind_evidence_from_extra_var(Ev1,Var) :-
 bind_evidence_from_extra_var(Ev1,Var) :-
 	put_atts(Var, [evidence(Ev1)]).
 
-user:term_expansion((A :- {}), ( :- true )) :-	 !, % evidence
+user:term_expansion((A :- {}), ( :- true )) :- !, % evidence
 	prolog_load_context(module, M),
 	store_evidence(M:A).
 
 clpbn_key(Var,Key) :-
 	get_atts(Var, [key(Key)]).
-	
-	
+
+
 %
 % only useful for probabilistic context free grammars
 %
@@ -556,19 +557,19 @@ clpbn_init_solver(LVs, Vs0, VarsWithUnboundKeys, State) :-
 
 clpbn_init_solver(gibbs, LVs, Vs0, VarsWithUnboundKeys, State) :-
 	init_gibbs_solver(LVs, Vs0, VarsWithUnboundKeys, State).
-	
+
 clpbn_init_solver(ve, LVs, Vs0, VarsWithUnboundKeys, State) :-
 	init_ve_solver(LVs, Vs0, VarsWithUnboundKeys, State).
-	
+
 clpbn_init_solver(bp, LVs, Vs0, VarsWithUnboundKeys, State) :-
 	init_horus_ground_solver(LVs, Vs0, VarsWithUnboundKeys, State).
-	
+
 clpbn_init_solver(jt, LVs, Vs0, VarsWithUnboundKeys, State) :-
 	init_jt_solver(LVs, Vs0, VarsWithUnboundKeys, State).
-	
+
 clpbn_init_solver(bdd, LVs, Vs0, VarsWithUnboundKeys, State) :-
 	init_bdd_solver(LVs, Vs0, VarsWithUnboundKeys, State).
-	
+
 clpbn_init_solver(pcg, LVs, Vs0, VarsWithUnboundKeys, State) :-
 	init_pcg_solver(LVs, Vs0, VarsWithUnboundKeys, State).
 
@@ -598,7 +599,7 @@ clpbn_run_solver(bdd, LVs, LPs, State) :-
 
 clpbn_run_solver(pcg, LVs, LPs, State) :-
 	run_pcg_solver(LVs, LPs, State).
-	
+
 clpbn_finalize_solver(State) :-
 	solver(bp), !,
 	functor(State, _, Last),
@@ -622,22 +623,22 @@ pfl_init_solver(QueryKeys, AllKeys, Factors, Evidence, State, bdd) :- !,
 	init_bdd_ground_solver(QueryKeys, AllKeys, Factors, Evidence, State).
 
 pfl_init_solver(QueryKeys, AllKeys, Factors, Evidence, State, hve) :- !,
-          clpbn_horus:set_horus_flag(ground_solver, ve),
+	clpbn_horus:set_horus_flag(ground_solver, ve),
 	init_horus_ground_solver(QueryKeys, AllKeys, Factors, Evidence, State).
 
 pfl_init_solver(QueryKeys, AllKeys, Factors, Evidence, State, bp) :- !,
-          clpbn_horus:set_horus_flag(ground_solver, bp),
+	clpbn_horus:set_horus_flag(ground_solver, bp),
 	init_horus_ground_solver(QueryKeys, AllKeys, Factors, Evidence, State).
 
 pfl_init_solver(QueryKeys, AllKeys, Factors, Evidence, State, cbp) :- !,
-          clpbn_horus:set_horus_flag(ground_solver, cbp),
+	clpbn_horus:set_horus_flag(ground_solver, cbp),
 	init_horus_ground_solver(QueryKeys, AllKeys, Factors, Evidence, State).
-	
+
 pfl_init_solver(_, _, _, _, _, Solver) :-
 	write('Error: solver `'), 
 	write(Solver),
 	write('\' cannot be used for learning').
-	
+
 pfl_run_solver(LVs, LPs, State) :-
 	solver(Solver),
 	pfl_run_solver(LVs, LPs, State, Solver).
@@ -653,7 +654,7 @@ pfl_run_solver(LVs, LPs, State, hve) :- !,
 
 pfl_run_solver(LVs, LPs, State, bp) :- !,
 	run_horus_ground_solver(LVs, LPs, State).
-	
+
 pfl_run_solver(LVs, LPs, State, cbp) :- !,
 	run_horus_ground_solver(LVs, LPs, State).
 

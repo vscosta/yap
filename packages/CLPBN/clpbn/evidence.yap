@@ -61,7 +61,7 @@ evidence_error(Ball,PreviousSolver) :-
 
 store_graph([]).
 store_graph([V|Vars]) :-
-	clpbn:get_atts(V,[key(K),dist(Id,Vs)]),        
+	clpbn:get_atts(V,[key(K),dist(Id,Vs)]),
 	\+ node(K, Id, _), !,
 	translate_vars(Vs,TVs),
 	assert(node(K,Id,TVs)),
@@ -83,7 +83,6 @@ add_links([K0|TVs],K) :-
 add_links([K0|TVs],K) :-
 	assert(edge(K,K0)),
 	add_links(TVs,K).
-
 
 incorporate_evidence(Vs,AllVs) :-
 	rb_new(Cache0),

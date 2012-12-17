@@ -13,7 +13,7 @@
 		[clpbn_init_graph/1,
 		 clpbn_init_solver/4,
 		 clpbn_run_solver/3,
-		 clpbn_finalize_solver/1,	       
+		 clpbn_finalize_solver/1,
 		 pfl_init_solver/5,
 		 pfl_run_solver/3,
 		 conditional_probability/3,
@@ -57,10 +57,10 @@
 		[matrix_add/3,
 		 matrix_to_list/2
 		]).
-	
+
 :- use_module(library(lists),
 		[member/2]).
-	
+
 :- use_module(library(rbtrees),
 		[rb_new/1,
 		 rb_insert/4,
@@ -85,9 +85,9 @@ em(_, _, _, Tables, Likelihood) :-
 
 handle_em(error(repeated_parents)) :- !,
 	assert(em_found(_, -inf)),
-	fail.	
+	fail.
 handle_em(Error) :-
-	throw(Error).	
+	throw(Error).
 
 % This gets you an initial configuration. If there is a lot of evidence
 % tables may be filled in close to optimal, otherwise they may be
@@ -128,32 +128,31 @@ setup_em_network(Items, state(AllDists, AllDistInstances, MargVars, SolverState)
 	clpbn_init_solver(MargVars, AllVars, _, SolverState).
 
 run_examples(user:Exs, Keys, Factors, EList) :-
-    Exs = [_:_|_], !,
-    findall(ex(EKs, EFs, EEs), run_example(Exs, EKs, EFs, EEs),
-	    VExs),
-    foldl4(join_example, VExs, [], Keys, [], Factors, [], EList, 0, _).
+	Exs = [_:_|_], !,
+	findall(ex(EKs, EFs, EEs), run_example(Exs, EKs, EFs, EEs), VExs),
+	foldl4(join_example, VExs, [], Keys, [], Factors, [], EList, 0, _).
 run_examples(Items, Keys, Factors, EList) :-
-    run_ex(Items, Keys, Factors, EList).
+	run_ex(Items, Keys, Factors, EList).
 
 join_example( ex(EKs, EFs, EEs), Keys0, Keys, Factors0, Factors, EList0, EList, I0, I) :-
-    I is I0+1,
-    foldl(process_key(I0), EKs, Keys0, Keys),
-    foldl(process_factor(I0), EFs, Factors0, Factors),
-    foldl(process_ev(I0), EEs, EList0, EList).
+	I is I0+1,
+	foldl(process_key(I0), EKs, Keys0, Keys),
+	foldl(process_factor(I0), EFs, Factors0, Factors),
+	foldl(process_ev(I0), EEs, EList0, EList).
 
 process_key(I0, K, Keys0, [I0:K|Keys0]).
 
 process_factor(I0, f(Type, Id, Keys), Keys0, [f(Type, Id, NKeys)|Keys0]) :-
-    maplist(update_key(I0), Keys, NKeys).
+	maplist(update_key(I0), Keys, NKeys).
 
 update_key(I0, K, I0:K).
 
 process_ev(I0, K=V, Es0, [(I0:K)=V|Es0]).
 
 run_example([_:Items|_], Keys, Factors, EList) :-
-    run_ex(user:Items, Keys, Factors, EList).
+	run_ex(user:Items, Keys, Factors, EList).
 run_example([_|LItems], Keys, Factors, EList) :-
-    run_example(LItems, Keys, Factors, EList).
+	run_example(LItems, Keys, Factors, EList).
 
 run_ex(Items, Keys, Factors, EList) :-
 	% create the ground network
@@ -172,17 +171,17 @@ em_loop(Its, Likelihood0, State, MaxError, MaxIts, LikelihoodF, FTables) :-
 	ltables(Tables, F0Tables),
 	%writeln(iteration:Its:Likelihood:Its:Likelihood0:F0Tables),
 	(
-	    (
-	     abs((Likelihood - Likelihood0)/Likelihood) < MaxError
-	    ;
-	     Its == MaxIts
-	    )	 
+	  (
+	    abs((Likelihood - Likelihood0)/Likelihood) < MaxError
+	  ;
+	    Its == MaxIts
+	  )
 	->
-	 ltables(Tables, FTables),
-	 LikelihoodF = Likelihood
+	  ltables(Tables, FTables),
+	  LikelihoodF = Likelihood
 	;
-	 Its1 is Its+1,
-	 em_loop(Its1, Likelihood, State, MaxError, MaxIts, LikelihoodF, FTables)
+	  Its1 is Its+1,
+	  em_loop(Its1, Likelihood, State, MaxError, MaxIts, LikelihoodF, FTables)
 	).
 
 ltables([], []).
@@ -192,7 +191,7 @@ ltables([Id-T|Tables], [Key-LTable|FTables]) :-
 	ltables(Tables, FTables).
 
 
-generate_dists(Factors, EList, AllDists, AllInfo, MargVars) :-	
+generate_dists(Factors, EList, AllDists, AllInfo, MargVars) :-
 	b_hash_new(Ev0), 
 	foldl(elist_to_hash, EList, Ev0, Ev),
 	maplist(process_factor(Ev), Factors, Dists0),
@@ -240,11 +239,11 @@ all_dists([V|AllVars], AllVars0, [i(Id, [V|Parents], Cases, Hiddens)|Dists]) :-
 	length(Sorted, LengSorted),
 	length(Parents, LengParents),
 	(
-	    LengParents+1 =:= LengSorted
-	-> 
-	    true
+	  LengParents+1 =:= LengSorted
+	->
+	  true
 	;
-	    throw(error(repeated_parents))
+	  throw(error(repeated_parents))
 	),
 	generate_hidden_cases([V|Parents], CompactCases, Hiddens),
 	uncompact_cases(CompactCases, Cases),
@@ -314,7 +313,7 @@ create_mdist_table(Vs, Ps, MDistTable0, MDistTable) :-
 	rb_insert(MDistTable0, Vs, Ps, MDistTable).
 
 compute_parameters([], [], _, Lik, Lik, _).
-compute_parameters([Id-Samples|Dists], [Id-NewTable|Tables],  MDistTable, Lik0, Lik, LPs:MargVars) :-
+compute_parameters([Id-Samples|Dists], [Id-NewTable|Tables], MDistTable, Lik0, Lik, LPs:MargVars) :-
 	empty_dist(Id, Table0),
 	add_samples(Samples, Table0, MDistTable),
 %matrix_to_list(Table0,Mat), lists:sumlist(Mat, Sum), format(user_error, 'FINAL ~d ~w ~w~n', [Id,Sum,Mat]),
@@ -324,7 +323,7 @@ compute_parameters([Id-Samples|Dists], [Id-NewTable|Tables],  MDistTable, Lik0, 
 	compute_likelihood(Table0, NewTable, DeltaLik),
 	dist_new_table(Id, NewTable),
 	NewLik is Lik0+DeltaLik,
-	compute_parameters(Dists, Tables,  MDistTable, NewLik, Lik, LPs:MargVars).
+	compute_parameters(Dists, Tables, MDistTable, NewLik, Lik, LPs:MargVars).
 
 add_samples([], _, _).
 add_samples([i(_,_,[Case],[])|Samples], Table, MDistTable) :- !,

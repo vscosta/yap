@@ -30,16 +30,16 @@ keys_to_numbers(AllKeys, Factors, Evidence, Hash0, Hash4, Id0, Id4, FactorIds, E
 	foldl2(key_to_id, SKeys, _, Hash3, Hash4, Id3, Id4).
 
 lists_of_keys_to_ids(QueryKeys, QueryIds, Hash0, Hash, Id0, Id) :-
-        foldl2(list_of_keys_to_ids, QueryKeys, QueryIds, Hash0, Hash, Id0, Id).
+	foldl2(list_of_keys_to_ids, QueryKeys, QueryIds, Hash0, Hash, Id0, Id).
 
 list_of_keys_to_ids(List, IdList, Hash0, Hash, I0, I) :-
 	foldl2(key_to_id, List, IdList, Hash0, Hash, I0, I).
 
 key_to_id(Key, Id, Hash0, Hash0, I0, I0) :-
-    b_hash_lookup(Key, Id, Hash0), !.
+	b_hash_lookup(Key, Id, Hash0), !.
 key_to_id(Key, I0, Hash0, Hash, I0, I) :-
-    b_hash_insert(Hash0, Key, I0, Hash),
-    I is I0+1.
+	b_hash_insert(Hash0, Key, I0, Hash),
+	I is I0+1.
 
 factor_to_id(Ev, f(_, DistId, Keys), f(Ids, Ranges, CPT, DistId), Hash0, Hash, I0, I) :-
 	get_pfl_cpt(DistId, Keys, Ev, NKeys, CPT),

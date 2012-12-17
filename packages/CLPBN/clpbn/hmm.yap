@@ -47,22 +47,19 @@ hmm_state(N/A,Mod) :-
 	Key =.. [T|KArgs],
 	Head =.. [N|LArgs],
 	asserta_static( (Mod:Head :-
-	        ( First > 2 -> 
-		  Last = Key, !
-		;
-		  nb_getval(trie, Trie), trie_check_entry(Trie, Key, _)
-		->
-		  % leave work for solver!
-		  %
-		  Last = Key, !
-		;
-		  % first time we saw this entry
-		  nb_getval(trie, Trie), trie_put_entry(Trie, Key, _),
-		  fail
-		)
-	      )
-	      ).
-	
+	  (First > 2 ->
+	    Last = Key, !
+	  ;
+	    nb_getval(trie, Trie), trie_check_entry(Trie, Key, _) ->
+	      % leave work for solver!
+	      Last = Key, !
+	    ;
+	      % first time we saw this entry
+	      nb_getval(trie, Trie), trie_put_entry(Trie, Key, _),
+	      fail
+	  )
+	)).
+
 build_args(4,[A,B,C,D],[A,B,C],A,D).
 build_args(3,  [A,B,C],  [A,B],A,C).
 build_args(2,    [A,B],    [A],A,B).

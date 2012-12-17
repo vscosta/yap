@@ -135,7 +135,7 @@ run_vars([V|LVs], Edges, [V|Vs], [CPTVars-dist([V|Parents],Id)|CPTs], Ev) :-
 add_evidence_from_vars(V, [e(V,P)|Evs], Evs) :-
 	clpbn:get_atts(V, [evidence(P)]), !.
 add_evidence_from_vars(_, Evs, Evs).
-	
+
 find_nth0([Id|_], Id, P, P) :- !.
 find_nth0([_|D], Id, P0, P) :-
 	P1 is P0+1,
@@ -175,7 +175,7 @@ add_parents([], _, Graph, Graph).
 add_parents([P|Parents], V, Graph0, [P-V|GraphF]) :-
 	add_parents(Parents, V, Graph0, GraphF).
 
-		
+
 % From David Page's lectures
 test_graph(0,
 	   [1-3,2-3,2-4,5-4,5-7,10-7,10-9,11-9,3-6,4-6,7-8,9-8,6-12,8-12],
@@ -232,19 +232,19 @@ choose([V|Vertices], Graph, Score0, _, _, Best, _, Cliques0, Cliques, EdgesF) :-
 	ord_insert(Neighbors, V, PossibleClique),
 	new_edges(Neighbors, Graph, NewEdges),
 	(
-           % simplicial edge
-	   NewEdges == []
+	  % simplicial edge
+	  NewEdges == []
 	->
-	   !,
-	   Best = V,
-	   NewEdges = EdgesF,
-	   length(PossibleClique,L),
-	   Cliques = [L-PossibleClique|Cliques0]
+	  !,
+	  Best = V,
+	  NewEdges = EdgesF,
+	  length(PossibleClique,L),
+	  Cliques = [L-PossibleClique|Cliques0]
 	;
-%	   cliquelength(PossibleClique,1,CL),
-	 length(PossibleClique,CL),
-	   CL < Score0, !,
-	   choose(Vertices,Graph,CL,NewEdges, V, Best, CL-PossibleClique, Cliques0,Cliques,EdgesF)
+%	  cliquelength(PossibleClique,1,CL),
+	  length(PossibleClique,CL),
+	  CL < Score0, !,
+	  choose(Vertices,Graph,CL,NewEdges, V, Best, CL-PossibleClique, Cliques0,Cliques,EdgesF)
 	).
 choose([_|Vertices], Graph, Score0, Edges0, BestSoFar, Best, Clique, Cliques0, Cliques, EdgesF) :-
 	choose(Vertices,Graph,Score0,Edges0, BestSoFar, Best, Clique, Cliques0,Cliques,EdgesF).
@@ -289,18 +289,17 @@ get_links([Sz-Clique|Cliques], SoFar, Vertices, Edges0, Edges) :-
 	get_links(Cliques, [Clique|SoFar], Vertices, EdgesI, Edges).
 get_links([_|Cliques], SoFar, Vertices, Edges0, Edges) :-
 	get_links(Cliques, SoFar, Vertices, Edges0, Edges).
-	
+
 add_clique_edges([], _, _, Edges, Edges).
 add_clique_edges([Clique1|Cliques], Clique, Sz, Edges0, EdgesF) :-
 	ord_intersection(Clique1, Clique, Int),
 	Int \== Clique,
-	(
-	 Int = [] ->
-	 add_clique_edges(Cliques, Clique, Sz, Edges0, EdgesF)
+	(Int = [] ->
+	  add_clique_edges(Cliques, Clique, Sz, Edges0, EdgesF)
 	;
-	 % we connect
-	 length(Int, LSz),
-	 add_clique_edges(Cliques, Clique, Sz, [Clique-(Clique1-LSz)|Edges0], EdgesF)
+	  % we connect
+	  length(Int, LSz),
+	  add_clique_edges(Cliques, Clique, Sz, [Clique-(Clique1-LSz)|Edges0], EdgesF)
 	).
 
 root(WTree, JTree) :-
@@ -362,25 +361,25 @@ get_cpts([], _, [], []).
 get_cpts([CPT|CPts], [], [], [CPT|CPts]) :- !.
 get_cpts([[I|MCPT]-Info|CPTs], [J|Clique], MyCPTs, MoreCPTs) :-
 	compare(C,I,J),
-	( C == < ->
+	(C == < ->
 	  % our CPT cannot be a part of the clique.
 	  MoreCPTs = [[I|MCPT]-Info|LeftoverCPTs],
 	  get_cpts(CPTs, [J|Clique], MyCPTs, LeftoverCPTs)
 	;
-	   C == = ->
-	  % our CPT cannot be a part of the clique.
-	  get_cpt(MCPT, Clique, I, Info, MyCPTs, MyCPTs0, MoreCPTs, MoreCPTs0),
-	  get_cpts(CPTs, [J|Clique], MyCPTs0, MoreCPTs0)
-	;
-	  % the first element in our CPT may not be in a clique
-	  get_cpts([[I|MCPT]-Info|CPTs], Clique, MyCPTs, MoreCPTs)
+	  C == = ->
+	    % our CPT cannot be a part of the clique.
+	    get_cpt(MCPT, Clique, I, Info, MyCPTs, MyCPTs0, MoreCPTs, MoreCPTs0),
+	    get_cpts(CPTs, [J|Clique], MyCPTs0, MoreCPTs0)
+	  ;
+	    % the first element in our CPT may not be in a clique
+	    get_cpts([[I|MCPT]-Info|CPTs], Clique, MyCPTs, MoreCPTs)
 	).
 
 get_cpt(MCPT, Clique, I, Info, [[I|MCPT]-Info|MyCPTs], MyCPTs, MoreCPTs, MoreCPTs) :-
 	ord_subset(MCPT, Clique), !.
 get_cpt(MCPT, _, I, Info, MyCPTs, MyCPTs, [[I|MCPT]-Info|MoreCPTs], MoreCPTs).
 
-	
+
 translate_edges([], [], []).
 translate_edges([E1-E2|Edges], [(E1-A)-(E2-B)|NEdges], [E1-A,E2-B|Vs]) :-
 	translate_edges(Edges, NEdges, Vs).
@@ -389,13 +388,13 @@ match_vs(_,[]).
 match_vs([K-A|Cls],[K1-B|KVs]) :-
 	compare(C, K, K1),
 	(C == = ->
-	 A = B,
-	 match_vs([K-A|Cls], KVs)
+	  A = B,
+	  match_vs([K-A|Cls], KVs)
 	;
-	 C = < ->
-	 match_vs(Cls,[K1-B|KVs])
+	  C = < ->
+	  match_vs(Cls,[K1-B|KVs])
 	;
-	 match_vs([K-A|Cls],KVs)
+	  match_vs([K-A|Cls],KVs)
 	).
 
 fill_with_cpts(tree(Clique-Dists,Leafs), tree(Clique-NewDists,NewLeafs)) :-

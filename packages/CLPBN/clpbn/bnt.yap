@@ -154,7 +154,7 @@ extract_kvars([V|AllVars],[N-i(V,Parents)|KVars]) :-
 	extract_kvars(AllVars,KVars).
 
 split_tied_vars([],[],[]).
-split_tied_vars([N-i(V,Par)|More],[N-g(Vs,Ns,Es)|TVars],[N|LNs]) :-	
+split_tied_vars([N-i(V,Par)|More],[N-g(Vs,Ns,Es)|TVars],[N|LNs]) :-
 	get_pars(Par,N,V,NPs,[],Es0,Es),
 	get_tied(More,N,Vs,[V],Ns,NPs,Es,Es0,SVars),
 	split_tied_vars(SVars,TVars,LNs).
@@ -206,7 +206,7 @@ extract_graph(AllVars, Graph) :-
 	dgraph_add_vertices(Graph0, AllVars, Graph1),
 	get_edges(AllVars,Edges),
 	dgraph_add_edges(Graph1, Edges, Graph).
-	
+
 get_edges([],[]).
 get_edges([V|AllVars],Edges) :-
 	clpbn:get_atts(V, [dist(_,Parents)]),
@@ -224,13 +224,13 @@ number_graph([V|SortedGraph], [I|Is], I0, IF) :-
 %	clpbn:get_atts(V,[key(K)]),
 %	write(I:K),nl,
 	number_graph(SortedGraph, Is, I, IF).
-	
+
 init_bnet(propositional, SortedGraph, NumberedGraph, Size, []) :-
 	build_dag(SortedGraph, Size),
 	init_discrete_nodes(SortedGraph, Size),
 	bnet <-- mk_bnet(dag, node_sizes, \discrete, discrete_nodes),
 	dump_cpts(SortedGraph, NumberedGraph).
-	
+
 init_bnet(tied, SortedGraph, NumberedGraph, Size, Representatives) :-
 	build_dag(SortedGraph, Size),
 	init_discrete_nodes(SortedGraph, Size),
@@ -382,7 +382,7 @@ add_evidence(Graph, Size, Is) :-
 	mk_evidence(Graph, Is, LN),
 	matlab_initialized_cells( 1, Size, LN, evidence),
 	[engine_ev, loglik] <-- enter_evidence(engine, evidence).
-	
+
 mk_evidence([], [], []).
 mk_evidence([V|L], [I|Is], [ar(1,I,EvVal1)|LN]) :-
 	clpbn:get_atts(V, [evidence(EvVal)]), !,
@@ -409,7 +409,7 @@ marginalize([Vs], SortedVars, NumberedVars,Ps) :-
 	length(SortedVars,L),
 	cycle_values(Den, Ev, Vs, L, Vals, Ps).
 
-cycle_values(_D, _Ev, _Vs, _Size, [], []).	
+cycle_values(_D, _Ev, _Vs, _Size, [], []).
 
 cycle_values(Den,Ev,Vs,Size,[H|T],[HP|TP]):-
 	mk_evidence_query(Vs, H, EvQuery),
@@ -427,5 +427,4 @@ mk_evidence_query([V|L], [H|T], [ar(1,Pos,El)|LN]) :-
 	get_dist_domain(Id,D),
 	nth(El,D,H),
 	mk_evidence_query(L, T, LN).
-
 

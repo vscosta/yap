@@ -54,15 +54,13 @@ get_keys([_|AVars], KeysVars) :-  % may be non-CLPBN vars.
 merge_same_key([], [], _, []).
 merge_same_key([K1-V1,K2-V2|Vs], SortedAVars, Ks, UnifiableVars) :-
 	K1 == K2, !,
-	(clpbn:get_atts(V1, [evidence(E)])
-        ->
-	    clpbn:put_atts(V2, [evidence(E)])
+	(clpbn:get_atts(V1, [evidence(E)]) ->
+	  clpbn:put_atts(V2, [evidence(E)])
 	;
-	    clpbn:get_atts(V2, [evidence(E)])
-	->
+	  clpbn:get_atts(V2, [evidence(E)]) ->
 	    clpbn:put_atts(V1, [evidence(E)])
-	;
-	     true
+	  ;
+	    true
 	),
 %	V1 = V2,
 	attributes:fast_unify_attributed(V1,V2),
@@ -78,7 +76,7 @@ merge_same_key([K-V|Vs], [V|SortedAVars], Ks, UnifiableVars) :-
 in_keys(K1,[K|_]) :- \+ \+ K1 = K, !.
 in_keys(K1,[_|Ks]) :- 
 	in_keys(K1,Ks).
-	
+
 add_to_keys(K1, Ks, Ks) :- ground(K1), !.
 add_to_keys(K1, Ks, [K1|Ks]).
 
@@ -104,7 +102,7 @@ add_parents(Parents,V,Id,KeyVarsF,KeyVars0) :-
 
 all_vars([]).
 all_vars([P|Parents]) :-
-	var(P), 
+	var(P),
 	all_vars(Parents).
 
 

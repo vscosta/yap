@@ -2,29 +2,31 @@
 % Utilities for learning
 %
 
-:- module(clpbn_learn_utils, [run_all/1,
-			      clpbn_vars/2,
-			      normalise_counts/2,
-			      compute_likelihood/3,
-			      soften_sample/2,
-			      soften_sample/3]).
+:- module(clpbn_learn_utils,
+		[run_all/1,
+		 clpbn_vars/2,
+		 normalise_counts/2,
+		 compute_likelihood/3,
+		 soften_sample/2,
+		 soften_sample/3
+		]).
 
 :- use_module(library(clpbn),
-	      [clpbn_flag/2]).
+		[clpbn_flag/2]).
 
 :- use_module(library('clpbn/table'),
-	      [clpbn_reset_tables/0]).
+		[clpbn_reset_tables/0]).
 
 :- use_module(library(matrix),
-	      [matrix_agg_lines/3,
-	       matrix_op_to_lines/4,
-	       matrix_agg_cols/3,
-	       matrix_op_to_cols/4,
-	       matrix_to_logs/2,
-	       matrix_op/4,
-	       matrix_sum/2,
-	       matrix_to_list/2,
-	       matrix_op_to_all/4]).
+		[matrix_agg_lines/3,
+		 matrix_op_to_lines/4,
+		 matrix_agg_cols/3,
+		 matrix_op_to_cols/4,
+		 matrix_to_logs/2,
+		 matrix_op/4,
+		 matrix_sum/2,
+		 matrix_to_list/2,
+		 matrix_op_to_all/4]).
 
 :- meta_predicate run_all(:).
 
@@ -47,7 +49,7 @@ clpbn_vars(Vs,BVars) :-
 	get_clpbn_vars(Vs,CVs),
 	keysort(CVs,KVs),
 	merge_vars(KVs,BVars).
-	
+
 get_clpbn_vars([],[]).
 get_clpbn_vars([V|GVars],[K-V|CLPBNGVars]) :-
 	clpbn:get_atts(V, [key(K)]), !,
@@ -59,7 +61,7 @@ merge_vars([],[]).
 merge_vars([K-V|KVs],[V|BVars]) :-
 	get_var_has_same_key(KVs,K,V,KVs0),
 	merge_vars(KVs0,BVars).
-	
+
 get_var_has_same_key([K-V|KVs],K,V,KVs0)  :- !,
 	get_var_has_same_key(KVs,K,V,KVs0).
 get_var_has_same_key(KVs,_,_,KVs).

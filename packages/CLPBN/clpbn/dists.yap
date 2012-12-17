@@ -326,11 +326,11 @@ randomise_all_dists.
 
 randomise_dist(Dist) :-
 	(
-		  use_parfactors(on)
+	    use_parfactors(on)
 	->
-		  pfl:get_pfl_factor_sizes(Dist, DSizes)
+	    pfl:get_pfl_factor_sizes(Dist, DSizes)
 	;
-		  recorded(clpbn_dist_psizes, db(Dist,DSizes), _)
+	    recorded(clpbn_dist_psizes, db(Dist,DSizes), _)
 	),
 	random_CPT(DSizes, NewCPT),
 	dist_new_table(Dist, NewCPT).
@@ -342,11 +342,11 @@ uniformise_all_dists.
 
 uniformise_dist(Dist) :-
 	(
-		  use_parfactors(on)
+	    use_parfactors(on)
 	->
-		  pfl:get_pfl_factor_sizes(Dist, DSizes)
+	    pfl:get_pfl_factor_sizes(Dist, DSizes)
 	;
-		  recorded(clpbn_dist_psizes, db(Dist,DSizes), _)
+	    recorded(clpbn_dist_psizes, db(Dist,DSizes), _)
 	),
 	uniform_CPT(DSizes, NewCPT),
 	dist_new_table(Dist, NewCPT).

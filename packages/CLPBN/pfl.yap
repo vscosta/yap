@@ -6,7 +6,7 @@
 :- module(pfl,
 		[op(550,yfx,@),
 		 op(550,yfx,::),
-	 	 op(1150,fx,bayes),
+		 op(1150,fx,bayes),
 		 op(1150,fx,markov),
 		 factor/6,
 		 skolem/2,
@@ -133,19 +133,19 @@ process_args(Arg1, Id, I0, I ) -->
 process_arg(Sk::D, Id, _I) -->
 	!,
 	{
-         new_skolem(Sk,D),
-	 assert(skolem_in(Sk, Id))
-        },
+	  new_skolem(Sk,D),
+	  assert(skolem_in(Sk, Id))
+	},
 	[Sk].
 process_arg(Sk, Id, _I) -->
 	!,
 	{
-	 % if :: been used before for this skolem
-	 % just keep on using it,
-         % otherwise, assume it is t,f
-         ( \+ \+ skolem(Sk,_D) -> true ; new_skolem(Sk,[t,f]) ),	
-	 assert(skolem_in(Sk, Id))
-        },
+	  % if :: been used before for this skolem
+	  % just keep on using it,
+	  % otherwise, assume it is t,f
+	  ( \+ \+ skolem(Sk,_D) -> true ; new_skolem(Sk,[t,f]) ),
+	  assert(skolem_in(Sk, Id))
+	},
 	[Sk].
 
 new_skolem(Sk,D) :-
@@ -165,11 +165,10 @@ interface_predicate(Sk) :-
 	assert(preprocess(ESk, Sk, Var)),
 	% transform from PFL to CLP(BN) call
 	assert_static((user:ESk :-
-	     evidence(Sk,Ev) -> Ev = Var;
-	     var(Var) -> insert_atts(Var,Sk) ;
-	     add_evidence(Sk,Var)
-	  )
-	).
+	  evidence(Sk,Ev) -> Ev = Var;
+	  var(Var) -> insert_atts(Var,Sk) ;
+	  add_evidence(Sk,Var)
+	)).
 
 insert_atts(Var,Sk) :-
 	clpbn:put_atts(Var,[key(Sk)]).
@@ -186,7 +185,7 @@ add_evidence(Sk,Var) :-
 %% 	writeln(Key:Parents),
 %% 	avg_factors(Key, Parents, 0.0, Ev, NewKeys, Out).
 get_pfl_cpt(Id, Keys, _, Keys, Out) :-
-        get_pfl_parameters(Id,Out).
+	get_pfl_parameters(Id,Out).
 
 get_pfl_parameters(Id,Out) :-
 	factor(_Type,Id,_FList,_FV,Phi,_Constraints),
@@ -208,7 +207,7 @@ get_sizes(Key.FList, Sz.DSizes) :-
 	skolem(Key, Domain),
 	length(Domain, Sz),
 	get_sizes(FList, DSizes).
-	
+
 % only makes sense for bayesian networks
 get_first_pvariable(Id,Var) :-
 	factor(_Type, Id,Var._FList,_FV,_Phi,_Constraints).

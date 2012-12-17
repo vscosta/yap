@@ -1,3 +1,4 @@
+
 :- module(clpbn_matrix_utils,
 		[init_CPT/3,
 		 project_from_CPT/3,
@@ -95,21 +96,21 @@ reorder_CPT(Vs0,T0,Vs,TF,Sizes) :-
 	var(Vs), !,
 	order_vec(Vs0,Vs,Map),
 	(
-	 Vs == Vs0
+	  Vs == Vs0
 	->
-	 TF = T0
+	  TF = T0
 	;
-	 matrix_shuffle(T0,Map,TF)
+	  matrix_shuffle(T0,Map,TF)
 	),
 	matrix_dims(TF, Sizes).
 reorder_CPT(Vs0,T0,Vs,TF,Sizes) :-
 	mapping(Vs0,Vs,Map),
 	(
-	 Vs == Vs0
+	  Vs == Vs0
 	->
-	 TF = T0
+	  TF = T0
 	;
-	 matrix_shuffle(T0,Map,TF)
+	  matrix_shuffle(T0,Map,TF)
 	),
 	matrix_dims(TF, Sizes).
 
@@ -126,7 +127,7 @@ add_indices([V|Vs0],I0,[V-I0|Is]) :-
 get_els([], [], []).
 get_els([V-I|NIs], [V|Vs], [I|Map]) :-
 	get_els(NIs, Vs, Map).
-	
+
 mapping(Vs0,Vs,Map) :-
 	add_indices(Vs0,0,I1s),
 	add_indices( Vs,I2s),
@@ -169,26 +170,26 @@ expand_tabs([], [], [V2|Deps2], [S2|Sz2], [S2|Map1], [0|Map2], [V2|NDeps]) :-
 expand_tabs([V1|Deps1], [S1|Sz1], [V2|Deps2], [S2|Sz2], Map1, Map2, NDeps) :-
 	compare(C,V1,V2),
 	(C == = ->
-	 NDeps = [V1|MDeps],
-	 Map1 = [0|M1],
-	 Map2 = [0|M2],
-	 NDeps = [V1|MDeps],
-	 expand_tabs(Deps1, Sz1, Deps2, Sz2, M1, M2, MDeps)
+	  NDeps = [V1|MDeps],
+	  Map1 = [0|M1],
+	  Map2 = [0|M2],
+	  NDeps = [V1|MDeps],
+	  expand_tabs(Deps1, Sz1, Deps2, Sz2, M1, M2, MDeps)
 	;
-	 C == < ->
-	 NDeps = [V1|MDeps],
-	 Map1 = [0|M1],
-	 Map2 = [S1|M2],
-	 NDeps = [V1|MDeps],
-	 expand_tabs(Deps1, Sz1, [V2|Deps2], [S2|Sz2], M1, M2, MDeps)
-	;
-	 NDeps = [V2|MDeps],
-	 Map1 = [S2|M1],
-	 Map2 = [0|M2],
-	 NDeps = [V2|MDeps],
-	 expand_tabs([V1|Deps1], [S1|Sz1], Deps2, Sz2, M1, M2, MDeps)
+	  C == < ->
+	    NDeps = [V1|MDeps],
+	    Map1 = [0|M1],
+	    Map2 = [S1|M2],
+	    NDeps = [V1|MDeps],
+	    expand_tabs(Deps1, Sz1, [V2|Deps2], [S2|Sz2], M1, M2, MDeps)
+	  ;
+	    NDeps = [V2|MDeps],
+	    Map1 = [S2|M1],
+	    Map2 = [0|M2],
+	    NDeps = [V2|MDeps],
+	    expand_tabs([V1|Deps1], [S1|Sz1], Deps2, Sz2, M1, M2, MDeps)
 	).
-	
+
 normalise_CPT(MAT,NMAT) :-
 	matrix_to_exps2(MAT),
 	matrix_sum(MAT, Sum),

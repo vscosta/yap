@@ -108,30 +108,28 @@ clpbn_table(F/N,M) :-
 	L0 = [_|Args0],
 	IGoal =.. [NF|Args0],
 	asserta(clpbn_table(S, M, IGoal)),
-	assert(
-	       (M:S :-
-	        !,
-%		write(S: ' ' ),
-	        b_getval(clpbn_tables, Tab),
-		% V2 is unbound.
-		( b_hash_lookup(Key, V2, Tab) ->
-%		 (attvar(V2) -> writeln(ok:A0:V2) ; writeln(error(V2:should_be_attvar(S)))),
-		 ( var(A0) -> A0 = V2 ; put_evidence(A0, V2) )
-		;
-%		writeln(new),
-		  b_hash_insert(Tab, Key, V2, NewTab),
-		  b_setval(clpbn_tables,NewTab),
-		  once(M:Goal), !,
-		  % enter evidence after binding.
-		  ( var(A0) -> A0 = V2 ; put_evidence(A0, V2) )
-		;
-		  clpbn:clpbn_flag(solver,none) ->
-		  true
-	        ;
-		  throw(error(tabled_clpbn_predicate_should_never_fail,S))
-		)
-	       )
-	      ).
+	assert((M:S :-
+	  !,
+%	  write(S: ' ' ),
+	  b_getval(clpbn_tables, Tab),
+	  % V2 is unbound.
+	  (b_hash_lookup(Key, V2, Tab) ->
+%	    (attvar(V2) -> writeln(ok:A0:V2) ; writeln(error(V2:should_be_attvar(S)))),
+	    (var(A0) -> A0 = V2 ; put_evidence(A0, V2))
+	  ;
+%	    writeln(new),
+	    b_hash_insert(Tab, Key, V2, NewTab),
+	    b_setval(clpbn_tables,NewTab),
+	    once(M:Goal), !,
+	    % enter evidence after binding.
+	    (var(A0) -> A0 = V2 ; put_evidence(A0, V2))
+	  ;
+	    clpbn:clpbn_flag(solver,none) ->
+	      true
+	    ;
+	      throw(error(tabled_clpbn_predicate_should_never_fail,S))
+	  )
+	)).
 
 take_tail([V], V, [], V1, [V1]) :- !.
 take_tail([A|L0], V, [A|L1], V1, [A|L2]) :-
@@ -154,19 +152,17 @@ clpbn_tableallargs(F/N,M) :-
 	atom_concat(F, '___tabled', NF),
 	NKey =.. [NF|Args],
 	asserta(clpbn_table(Key, M, NKey)),
-	assert(
-	       (M:Key :-
-	        !,
-	        b_getval(clpbn_tables, Tab),
-		( b_hash_lookup(Key, Out, Tab) ->
-		  true
-		;
-		  b_hash_insert(Tab, Key, Out, NewTab),
-	          b_setval(clpbn_tables, NewTab),
-		  once(M:NKey)
-		)
-	       )
-	      ).
+	assert((M:Key :-
+	  !,
+	  b_getval(clpbn_tables, Tab),
+	  (b_hash_lookup(Key, Out, Tab) ->
+	    true
+	  ;
+	    b_hash_insert(Tab, Key, Out, NewTab),
+	    b_setval(clpbn_tables, NewTab),
+	    once(M:NKey)
+	  )
+	)).
 
 clpbn_table_nondet(M:X) :- !,
 	clpbn_table_nondet(X,M).
@@ -185,18 +181,17 @@ clpbn_table_nondet(F/N,M) :-
 	atom_concat(F, '___tabled', NF),
 	NKey =.. [NF|Args],
 	asserta(clpbn_table(Key, M, NKey)),
-	assert(
-	       (M:Key :- % writeln(in:Key),
-	        b_getval(clpbn_tables, Tab),
-		( b_hash_lookup(Key, Out, Tab) ->
-		  fail
-		;
-		  b_hash_insert(Tab, Key, Out, NewTab),
-	          b_setval(clpbn_tables, NewTab),
-		  M:NKey
-		)
-	       )
-	      ).
+	assert((M:Key :-
+	  % writeln(in:Key),
+	  b_getval(clpbn_tables, Tab),
+	  (b_hash_lookup(Key, Out, Tab) ->
+	    fail
+	  ;
+	    b_hash_insert(Tab, Key, Out, NewTab),
+	    b_setval(clpbn_tables, NewTab),
+	    M:NKey
+	  )
+	)).
 
 user:term_expansion((P :- Gs), NC) :-
 	clpbn_table(P, M, NP),

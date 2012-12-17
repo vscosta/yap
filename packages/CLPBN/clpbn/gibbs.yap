@@ -249,11 +249,11 @@ compile_var(_,_,_,_,_,_,_,_).
 multiply_all(I,Parents,CPTs,Sz,Graph) :-
 	markov_blanket_instance(Parents,Graph,Values),
 	(
-	    multiply_all(CPTs,Graph,Probs)
+	  multiply_all(CPTs,Graph,Probs)
 	->
-	    store_mblanket(I,Values,Probs)
+	  store_mblanket(I,Values,Probs)
 	;
-	    throw(error(domain_error(bayesian_domain),gibbs_cpt(I,Parents,Values,Sz)))
+	  throw(error(domain_error(bayesian_domain),gibbs_cpt(I,Parents,Values,Sz)))
 	),
 	fail.
 multiply_all(I,_,_,_,_) :-
@@ -283,7 +283,7 @@ fetch_parents([], _, []).
 fetch_parents([P|Parents], Graph, [Val|Vals]) :-
 	arg(P,Graph,var(_,_,Val,_,_,_,_,_,_)),
 	fetch_parents(Parents, Graph, Vals).
-	
+
 multiply_more([],_,Probs0,LProbs) :-
 	normalise_possibly_deterministic_CPT(Probs0, Probs),
 	list_from_CPT(Probs, LProbs0),
@@ -299,7 +299,7 @@ accumulate_up_list([P|LProbs], P0, [P1|L]) :-
 	P1 is P0+P,
 	accumulate_up_list(LProbs, P1, L).
 
-	
+
 store_mblanket(I,Values,Probs) :-
 	recordz(mblanket,m(I,Values,Probs),_).
 
@@ -458,7 +458,7 @@ get_estimate_pos([I|Is], Sample, [M|Mult], V0, V) :-
 	get_estimate_pos(Is, Sample, Mult, VI, V).
 
 update_estimate_for_var(V0,[X|T],[X1|NT]) :-
-	( V0 == 0 ->
+	(V0 == 0 ->
 	  X1 is X+1,
 	  NT = T
 	;
@@ -499,7 +499,7 @@ do_probs([E|Es],Sum,[P|Ps]) :-
 
 show_sorted([], _) :- nl.
 show_sorted([I|VarOrder], Graph) :-
-	arg(I,Graph,var(V,I,_,_,_,_,_,_,_)),		
+	arg(I,Graph,var(V,I,_,_,_,_,_,_,_)),
 	clpbn:get_atts(V,[key(K)]),
 	format('~w ',[K]),
 	show_sorted(VarOrder, Graph).

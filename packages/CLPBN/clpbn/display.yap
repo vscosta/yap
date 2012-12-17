@@ -1,3 +1,4 @@
+
 :- module(clpbn_display,
 		[clpbn_bind_vals/3]).
 

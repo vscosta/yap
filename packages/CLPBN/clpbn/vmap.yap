@@ -16,7 +16,7 @@
 % contiguous Vs to contiguous integers
 %
 init_vmap(vmap(0,Empty)) :-
-    rb_new(Empty).
+	rb_new(Empty).
 
 get_from_vmap(V, I, VMap0) :-
 	VMap0 = vmap(_I,Map0),
