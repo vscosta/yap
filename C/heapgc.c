@@ -410,8 +410,15 @@ push_registers(Int num_regs, yamop *nextop USES_REGS)
     al = al->NextAE;
   }
   while (gl) {
-    check_pr_trail(TR PASS_REGS);
-    TrailTerm(TR++) = gl->global;
+    Term t = gl->global;
+    if (!IsUnboundVar(&gl->global) &&
+	!IsAtomTerm(t) &&
+	!IsIntTerm(t)
+	) {
+      check_pr_trail(TR PASS_REGS);
+      //fprintf(stderr,"in=%s %p\n", gl->AtomOfGE->StrOfAE, gl->global);
+      TrailTerm(TR++) = t;
+    }
     gl = gl->NextGE;
   }
   while (sal) {
@@ -504,7 +511,14 @@ pop_registers(Int num_regs, yamop *nextop USES_REGS)
     al = al->NextAE;
   }
   while (gl) {
-    gl->global = TrailTerm(ptr++);
+    Term t = gl->global;
+    if (!IsUnboundVar(&gl->global) &&
+	!IsAtomTerm(t) &&
+	!IsIntTerm(t)
+	) {
+      //fprintf(stderr,"out=%s %p\n", gl->AtomOfGE->StrOfAE, gl->global);
+      gl->global = TrailTerm(ptr++);
+    }
     gl = gl->NextGE;
   }
   sal = LOCAL_StaticArrays;
@@ -1150,6 +1164,7 @@ mark_variable(CELL_PTR current USES_REGS)
     POP_CONTINUATION();
   }
   if (current >= H0 && current < H) {
+    //fprintf(stderr,"%p M\n", current);
     LOCAL_total_marked++;
     if (current < LOCAL_HGEN) {
       LOCAL_total_oldies++;
@@ -1165,6 +1180,7 @@ mark_variable(CELL_PTR current USES_REGS)
     if (IN_BETWEEN(LOCAL_GlobalBase,current,H) && GlobalIsAttVar(current) && current==next) {
       if (next < H0) POP_CONTINUATION();
       if (!UNMARKED_MARK(next-1,local_bp)) {
+	//fprintf(stderr,"%p M\n", next-1);
 	LOCAL_total_marked++;
 	if (next-1 < LOCAL_HGEN) {
 	  LOCAL_total_oldies++;
@@ -1207,6 +1223,7 @@ mark_variable(CELL_PTR current USES_REGS)
 	    UNMARK(current);
 	    *current = cnext;
 	    if (current >= H0 && current < H) {
+	      //fprintf(stderr,"%p M\n", current-1);
 	      LOCAL_total_marked--;
 	      if (current < LOCAL_HGEN) {
 		LOCAL_total_oldies--;
@@ -1231,6 +1248,7 @@ mark_variable(CELL_PTR current USES_REGS)
 	*current = UNMARK_CELL(cnext);
 	UNMARK(current);
 	if (current >= H0 && current < H ) {
+	  //fprintf(stderr,"%p M\n", current);
 	  LOCAL_total_marked--;
 	  if (current < LOCAL_HGEN) {
 	    LOCAL_total_oldies--;
@@ -1278,6 +1296,7 @@ mark_variable(CELL_PTR current USES_REGS)
       /* speedup for strings */
       if (IsAtomOrIntTerm(*next)) {
 	if (!UNMARKED_MARK(next,local_bp)) {
+	  //fprintf(stderr,"%p M\n", next);
 	  LOCAL_total_marked++;
 	  if (next < LOCAL_HGEN) {
 	    LOCAL_total_oldies++;
@@ -1337,6 +1356,7 @@ mark_variable(CELL_PTR current USES_REGS)
 	  DEBUG_printf0("%p 1\n", next);
 	  DEBUG_printf0("%p 3\n", next);
 	}
+	//fprintf(stderr,"%p M 3\n", next);
 	LOCAL_total_marked += 3;
 	PUSH_POINTER(next PASS_REGS);
 	PUSH_POINTER(next+2 PASS_REGS);
@@ -1352,6 +1372,7 @@ mark_variable(CELL_PTR current USES_REGS)
 	    DEBUG_printf0("%p 1\n", next);
 	    DEBUG_printf1("%p %ld\n", next, (long int)(sz+1));
 	  }
+	  //fprintf(stderr,"%p M %d\n", next,1+sz);
 	  LOCAL_total_marked += 1+sz;
 	  PUSH_POINTER(next+sz PASS_REGS);
 	  MARK(next+sz);
@@ -1390,6 +1411,7 @@ mark_variable(CELL_PTR current USES_REGS)
 	    DEBUG_printf0("%p 1\n", next);
 	    DEBUG_printf1("%p %ld\n", next, (long int)(sz+2));
 	  }
+	  //fprintf(stderr,"%p M %d\n", next,2+sz);
 	  LOCAL_total_marked += 2+sz;
 	  PUSH_POINTER(next PASS_REGS);
 	  sz++;
@@ -1411,6 +1433,7 @@ mark_variable(CELL_PTR current USES_REGS)
 #endif
     arity = ArityOfFunctor((Functor)(cnext));
     MARK(next);
+    //fprintf(stderr,"%p M\n", next);
     ++LOCAL_total_marked;
     if (next < LOCAL_HGEN) {
       ++LOCAL_total_oldies;
@@ -1422,6 +1445,7 @@ mark_variable(CELL_PTR current USES_REGS)
     /* speedup for leaves */
     while (arity && IsAtomOrIntTerm(*next)) {
       if (!UNMARKED_MARK(next,local_bp)) {
+	//fprintf(stderr,"%p M\n", next);
 	LOCAL_total_marked++;
 	if (next < LOCAL_HGEN) {
 	  LOCAL_total_oldies++;
@@ -1695,6 +1719,7 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 	     The ideal solution would be to unbind all variables. The current solution is to
 	     remark it as an attributed variable */
 	  if (IN_BETWEEN(LOCAL_GlobalBase,hp,H) && GlobalIsAttVar(hp) && !UNMARKED_MARK(hp-1,LOCAL_bp)) {
+	    //fprintf(stderr,"%p M\n", hp);
 	    LOCAL_total_marked++;
 	    PUSH_POINTER(hp-1 PASS_REGS);
 	    if (hp-1 < LOCAL_HGEN) {
@@ -3367,6 +3392,7 @@ compact_heap( USES_REGS1 )
 	ptr++;
 	MARK(ptr);
 #ifdef DEBUG
+	//fprintf(stderr,"%p U %d\n", ptr, nofcells);
 	found_marked+=nofcells;
 #endif
 	/* first swap the tag so that it will be seen by the next step */
@@ -3381,6 +3407,7 @@ compact_heap( USES_REGS1 )
 	DEBUG_printf20("%p 1\n", current);
       }
 #ifdef DEBUG
+      //  fprintf(stderr,"%p U\n", current);
       found_marked++;
 #endif /* DEBUG */
       update_relocation_chain(current, dest PASS_REGS);
