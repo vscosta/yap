@@ -1,34 +1,34 @@
 
 :- module(pfl_ground_factors,
-	[generate_network/5,
-	 f/3
-	]).
+		[generate_network/5,
+		 f/3
+		]).
 
 :- use_module(library(bhash),
-	[b_hash_new/1,
-	 b_hash_lookup/3,
-	 b_hash_insert/4,
-	 b_hash_to_list/2
-	]).
+		[b_hash_new/1,
+		 b_hash_lookup/3,
+		 b_hash_insert/4,
+		 b_hash_to_list/2
+		]).
 
 :- use_module(library(lists),
-	[member/2]).
+		[member/2]).
 
 :- use_module(library(maplist)).
 
 :- use_module(library(atts)).
 
 :- use_module(library(pfl),
-	[factor/6,
-	 defined_in_factor/2,
-	 skolem/2
-	]).
+		[factor/6,
+		 defined_in_factor/2,
+		 skolem/2
+		]).
 
 :- use_module(library(clpbn/aggregates),
-	[avg_factors/5]).
+		[avg_factors/5]).
 
 :- use_module(library(clpbn/dists),
-	[dist/4]).
+		[dist/4]).
 
 :- dynamic currently_defined/1, queue/1, f/4.
 

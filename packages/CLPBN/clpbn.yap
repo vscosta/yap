@@ -1,21 +1,21 @@
 
 :- module(clpbn,
-	      [{}/1,
-	       clpbn_flag/2,
-	       set_clpbn_flag/2,
-	       clpbn_flag/3,
-	       clpbn_key/2,
-	       clpbn_init_graph/1,		  
-	       clpbn_init_solver/4,
-	       clpbn_run_solver/3,
-	       clpbn_finalize_solver/1,		  
-	       pfl_init_solver/5,
-	       pfl_run_solver/3,
-	       probability/2,
-	       conditional_probability/3,
-	       use_parfactors/1,
-	       op(500, xfy, with)
-	      ]).
+		[{}/1,
+		 clpbn_flag/2,
+		 set_clpbn_flag/2,
+		 clpbn_flag/3,
+		 clpbn_key/2,
+		 clpbn_init_graph/1,		  
+		 clpbn_init_solver/4,
+		 clpbn_run_solver/3,
+		 clpbn_finalize_solver/1,		  
+		 pfl_init_solver/5,
+		 pfl_run_solver/3,
+		 probability/2,
+		 conditional_probability/3,
+		 use_parfactors/1,
+		 op(500, xfy, with)
+		]).
 	      
 :- use_module(library(atts)).
 
@@ -30,92 +30,91 @@
 :- attribute key/1, dist/2, evidence/1.
 
 :- use_module('clpbn/ve',
-	      [ve/3,
-	       check_if_ve_done/1,
-	       init_ve_solver/4,
-	       run_ve_solver/3,
-	       init_ve_ground_solver/5,
-	       run_ve_ground_solver/3,
-	       call_ve_ground_solver/6
-	      ]).
+		[ve/3,
+		 check_if_ve_done/1,
+		 init_ve_solver/4,
+		 run_ve_solver/3,
+		 init_ve_ground_solver/5,
+		 run_ve_ground_solver/3,
+		 call_ve_ground_solver/6
+		]).
 
 :- use_module('clpbn/jt',
-	      [jt/3,
-	       init_jt_solver/4,
-	       run_jt_solver/3
-	      ]).
+		[jt/3,
+		 init_jt_solver/4,
+		 run_jt_solver/3
+		]).
 
 :- use_module('clpbn/bdd',
-	      [bdd/3,
-	       init_bdd_solver/4,
-	       run_bdd_solver/3,
-	       init_bdd_ground_solver/5,
-	       run_bdd_ground_solver/3,
-	       call_bdd_ground_solver/6
-	      ]).
+		[bdd/3,
+		 init_bdd_solver/4,
+		 run_bdd_solver/3,
+		 init_bdd_ground_solver/5,
+		 run_bdd_ground_solver/3,
+		 call_bdd_ground_solver/6
+		]).
 
 :- use_module('clpbn/gibbs',
-	      [gibbs/3,
-	       check_if_gibbs_done/1,
-	       init_gibbs_solver/4,
-	       run_gibbs_solver/3
-	      ]).
+		[gibbs/3,
+		 check_if_gibbs_done/1,
+		 init_gibbs_solver/4,
+		 run_gibbs_solver/3
+		]).
 
 %% :- use_module('clpbn/bnt',
-%% 	      [do_bnt/3,
-%% 	       check_if_bnt_done/1
-%% 	      ]).
+%%		[do_bnt/3,
+%%		 check_if_bnt_done/1
+%%		]).
 
 :- use_module('clpbn/pgrammar',
-	      [init_pcg_solver/4,
-	       run_pcg_solver/3,
-	       pcg_init_graph/0
-	      ]).
+		[init_pcg_solver/4,
+		 run_pcg_solver/3,
+		 pcg_init_graph/0
+		]).
 
 :- use_module('clpbn/horus_ground',
-	      [call_horus_ground_solver/6,
-	       check_if_horus_ground_solver_done/1,
-	       init_horus_ground_solver/5,
-	       run_horus_ground_solver/3,
-	       finalize_horus_ground_solver/1
-	      ]).
+		[call_horus_ground_solver/6,
+		 check_if_horus_ground_solver_done/1,
+		 init_horus_ground_solver/5,
+		 run_horus_ground_solver/3,
+		 finalize_horus_ground_solver/1
+		]).
 
 :- use_module('clpbn/horus_lifted',
-	      [call_horus_lifted_solver/3,
-	       check_if_horus_lifted_solver_done/1,
-	       init_horus_lifted_solver/4,
-	       run_horus_lifted_solver/3,
-	       finalize_horus_lifted_solver/1
-	      ]).
+		[call_horus_lifted_solver/3,
+		 check_if_horus_lifted_solver_done/1,
+		 init_horus_lifted_solver/4,
+		 run_horus_lifted_solver/3,
+		 finalize_horus_lifted_solver/1
+		]).
 
 :- use_module('clpbn/dists',
-	      [dist/4,
-	       get_dist/4,
-	       get_evidence_position/3,
-	       get_evidence_from_position/3,
-	       additive_dists/6
-	      ]).
+		[dist/4,
+		 get_dist/4,
+		 get_evidence_position/3,
+		 get_evidence_from_position/3,
+		 additive_dists/6
+		]).
 
 :- use_module('clpbn/evidence',
-	      [store_evidence/1,
-	       add_stored_evidence/2,
-	       incorporate_evidence/2,
-	       check_stored_evidence/2,
-	       put_evidence/2
-	      ]).
+		[store_evidence/1,
+		 add_stored_evidence/2,
+		 incorporate_evidence/2,
+		 check_stored_evidence/2,
+		 put_evidence/2
+		]).
 	      
 :- use_module('clpbn/ground_factors',
-	      [generate_network/5]).
+		[generate_network/5]).
 
 :- use_module('clpbn/utils',
-	      [sort_vars_by_key/3]).
+		[sort_vars_by_key/3]).
 
 :- use_module('clpbn/graphs',
-	      [clpbn2graph/1]).
+		[clpbn2graph/1]).
 
 :- use_module('clpbn/graphviz',
-	      [clpbn2gviz/4]).
-
+		[clpbn2gviz/4]).
 
 %
 % avoid the overhead of using goal_expansion/2.

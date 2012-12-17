@@ -1,26 +1,28 @@
 
 :- module(clpbn_connected,
-	[influences/3,
-	 factor_influences/4,
-	 init_influences/3,
-	 influences/4]
-	 ).
+		[influences/3,
+		 factor_influences/4,
+		 init_influences/3,
+		 influences/4
+		]).
 
 :- use_module(library(maplist)).
 
 :- use_module(library(dgraphs),
-	[dgraph_new/1,
-	dgraph_add_edges/3,
-	dgraph_add_vertex/3,
-	dgraph_neighbors/3,
-	dgraph_edge/3,
-	dgraph_transpose/2]).
+		[dgraph_new/1,
+		 dgraph_add_edges/3,
+		 dgraph_add_vertex/3,
+		 dgraph_neighbors/3,
+		 dgraph_edge/3,
+		 dgraph_transpose/2
+		]).
 
 :- use_module(library(rbtrees),
-	[rb_new/1,
-	rb_lookup/3,
-	rb_insert/4,
-	rb_visit/2]).
+		[rb_new/1,
+		 rb_lookup/3,
+		 rb_insert/4,
+		 rb_visit/2
+		]).
 
 factor_influences(Vs, QVars, Ev, LV) :-
 	init_factor_influences(Vs, G, RG),

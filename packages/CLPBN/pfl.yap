@@ -4,34 +4,34 @@
 %
 
 :- module(pfl,
-	[op(550,yfx,@),
-	 op(550,yfx,::),
- 	 op(1150,fx,bayes),
-	 op(1150,fx,markov),
-	 factor/6,
-	 skolem/2,
-	 defined_in_factor/2,
-	 get_pfl_cpt/5, % given id and keys,  return new keys and cpt
-	 get_pfl_parameters/2, % given id return par factor parameter
-	 new_pfl_parameters/2, % given id  set new parameters
-	 get_first_pvariable/2, % given id get firt pvar (useful in bayesian)
-	 get_factor_pvariable/2, % given id get any pvar
-	 add_ground_factor/5    %add a new bayesian variable (for now)
-	]).
+		[op(550,yfx,@),
+		 op(550,yfx,::),
+	 	 op(1150,fx,bayes),
+		 op(1150,fx,markov),
+		 factor/6,
+		 skolem/2,
+		 defined_in_factor/2,
+		 get_pfl_cpt/5, % given id and keys,  return new keys and cpt
+		 get_pfl_parameters/2, % given id return par factor parameter
+		 new_pfl_parameters/2, % given id  set new parameters
+		 get_first_pvariable/2, % given id get firt pvar (useful in bayesian)
+		 get_factor_pvariable/2, % given id get any pvar
+		 add_ground_factor/5    %add a new bayesian variable (for now)
+		]).
 
 :- reexport(library(clpbn),
-	[clpbn_flag/2 as pfl_flag,
-	 set_clpbn_flag/2 as set_pfl_flag,
-	 conditional_probability/3,
-	 pfl_init_solver/5,
-	 pfl_run_solver/3
-	]).
+		[clpbn_flag/2 as pfl_flag,
+		 set_clpbn_flag/2 as set_pfl_flag,
+		 conditional_probability/3,
+		 pfl_init_solver/5,
+		 pfl_run_solver/3
+		]).
 
 :- reexport(library(clpbn/horus),
-	[set_solver/1]).
+		[set_solver/1]).
 
 :- reexport(library(clpbn/aggregates),
-	[avg_factors/5]).
+		[avg_factors/5]).
 
 :- ( % if clp(bn) has done loading, we're top-level
 	predicate_property(set_pfl_flag(_,_), imported_from(clpbn))
@@ -47,10 +47,10 @@
 :- use_module(library(atts)).
 
 :- use_module(library(lists),
-	[nth0/3,
-	 append/3,
-	 member/2
-	]).
+		[nth0/3,
+		 append/3,
+		 member/2
+		]).
 	 
 :- dynamic factor/6, skolem_in/2, skolem/2, preprocess/3, evidence/2, id/1.
 

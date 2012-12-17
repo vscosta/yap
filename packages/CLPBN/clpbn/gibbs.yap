@@ -8,51 +8,54 @@
 %
 
 :- module(clpbn_gibbs,
-	  [gibbs/3,
-	   check_if_gibbs_done/1,
-	   init_gibbs_solver/4,
-	   run_gibbs_solver/3]).
+		[gibbs/3,
+		 check_if_gibbs_done/1,
+		 init_gibbs_solver/4,
+		 run_gibbs_solver/3
+		]).
 
 :- use_module(library(rbtrees),
-	      [rb_new/1,
-	       rb_insert/4,
-	       rb_lookup/3]).
+		[rb_new/1,
+		 rb_insert/4,
+		 rb_lookup/3
+		]).
 
 :- use_module(library(lists),
-	      [member/2,
-	       append/3,
-	       delete/3,
-	       max_list/2,
-	       sum_list/2]).
+		[member/2,
+		 append/3,
+		 delete/3,
+		 max_list/2,
+		 sum_list/2
+		]).
 
 :- use_module(library(ordsets),
-	      [ord_subtract/3]).
+		[ord_subtract/3]).
 
-:- use_module(library('clpbn/matrix_cpt_utils'), [
-	project_from_CPT/3,
-	reorder_CPT/5,
-	multiply_possibly_deterministic_factors/3,
-	column_from_possibly_deterministic_CPT/3,
-	normalise_possibly_deterministic_CPT/2,
-	list_from_CPT/2]).
+:- use_module(library('clpbn/matrix_cpt_utils'),
+		[project_from_CPT/3,
+		 reorder_CPT/5,
+		 multiply_possibly_deterministic_factors/3,
+		 column_from_possibly_deterministic_CPT/3,
+		 normalise_possibly_deterministic_CPT/2,
+		 list_from_CPT/2
+		]).
 
-:- use_module(library('clpbn/utils'), [
-	check_for_hidden_vars/3]).
+:- use_module(library('clpbn/utils'),
+		[check_for_hidden_vars/3]).
 
-:- use_module(library('clpbn/dists'), [
-	get_possibly_deterministic_dist_matrix/5,
-	get_dist_domain_size/2]).
+:- use_module(library('clpbn/dists'),
+		[get_possibly_deterministic_dist_matrix/5,
+		 get_dist_domain_size/2
+		]).
 
-:- use_module(library('clpbn/topsort'), [
-	topsort/2]).
+:- use_module(library('clpbn/topsort'),
+		[topsort/2]).
 
-:- use_module(library('clpbn/display'), [
-	clpbn_bind_vals/3]).
+:- use_module(library('clpbn/display'),
+		[clpbn_bind_vals/3]).
 
 :- use_module(library('clpbn/connected'),
-	      [
-	       influences/3
-	      ]).
+		[influences/3]).
 
 :- dynamic gibbs_params/3.
 
@@ -541,6 +544,4 @@ divide_list([],  _, []).
 divide_list([C|Add], Sum, [P|Dist]) :-
 	P is C/Sum,
 	divide_list(Add, Sum, Dist).
-
-
 

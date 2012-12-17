@@ -4,29 +4,27 @@
 %
 
 :- module(clpbn_evidence,
-	  [
-	   store_evidence/1,
-	   incorporate_evidence/2,
-	   check_stored_evidence/2,
-	   add_stored_evidence/2,
-	   put_evidence/2
-	  ]).
+		[store_evidence/1,
+		 incorporate_evidence/2,
+		 check_stored_evidence/2,
+		 add_stored_evidence/2,
+		 put_evidence/2
+		]).
 
-:- use_module(library(clpbn), [
-	{}/1,
-	clpbn_flag/3,
-	set_clpbn_flag/2
-    ]).
+:- use_module(library(clpbn),
+		[{}/1,
+		 clpbn_flag/3,
+		 set_clpbn_flag/2
+		]).
 
-:- use_module(library('clpbn/dists'), [
-	get_dist/4
-    ]).
+:- use_module(library('clpbn/dists'),
+		[get_dist/4]).
 
-:- use_module(library(rbtrees), [
-	rb_new/1,
-	rb_lookup/3,
-	rb_insert/4
-    ]).
+:- use_module(library(rbtrees),
+		[rb_new/1,
+		 rb_lookup/3,
+		 rb_insert/4
+		]).
 
 :- meta_predicate store_evidence(:).
 

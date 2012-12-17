@@ -1,42 +1,45 @@
 				%
 % generate explicit CPTs
 %
-:- module(clpbn_aggregates, [
-        check_for_agg_vars/2,
-	cpt_average/6,
-	cpt_average/7,
-	cpt_max/6,
-	cpt_min/6,
-        avg_factors/5
-	]).
+:- module(clpbn_aggregates,
+		[check_for_agg_vars/2,
+		 cpt_average/6,
+		 cpt_average/7,
+		 cpt_max/6,
+		 cpt_min/6,
+		 avg_factors/5
+		]).
 
-:- use_module(library(clpbn), [{}/1]).
+:- use_module(library(clpbn),
+		[{}/1]).
 
 :- use_module(library(lists),
-	[last/2,
-	sumlist/2,
-	sum_list/3,
-	max_list/2,
-	min_list/2,
-	nth0/3
-    ]).
+		[last/2,
+		 sumlist/2,
+		 sum_list/3,
+		 max_list/2,
+		 min_list/2,
+		 nth0/3
+		]).
 
 :- use_module(library(matrix),
-	[matrix_new/3,
-	matrix_to_list/2,
-	matrix_set/3]).
+		[matrix_new/3,
+		 matrix_to_list/2,
+		 matrix_set/3
+		]).
 
 :- use_module(library(clpbn/dists),
-	      [
-	       add_dist/6,
-	       get_dist_domain_size/2]).
+		[add_dist/6,
+		 get_dist_domain_size/2
+		]).
 
 :- use_module(library(clpbn/matrix_cpt_utils),
-	[normalise_CPT_on_lines/3]).
+		[normalise_CPT_on_lines/3]).
 
 :- use_module(library(pfl),
-	[skolem/2,
-	 add_ground_factor/5]).
+		[skolem/2,
+		 add_ground_factor/5
+		]).
 
 :- use_module(library(bhash)).
 
@@ -369,7 +372,7 @@ fill_in_min(_,_).
 
 
 get_vdist_size(V, Sz) :-
-        var(V), !,
+	var(V), !,
 	clpbn:get_atts(V, [dist(Dist,_)]),
 	get_dist_domain_size(Dist, Sz).
 get_vdist_size(V, Sz) :-

@@ -1,19 +1,20 @@
 
-
-:- module(hmm, [init_hmm/0,
-		  hmm_state/1,
-		  emission/1]).
+:- module(hmm,
+		[init_hmm/0,
+		 hmm_state/1,
+		 emission/1
+		]).
 
 :- ensure_loaded(library(clpbn)).
 
 :- use_module(library(lists),
-	      [nth/3]).
+		[nth/3]).
 
 :- use_module(library(nbhash),
-	      [nb_hash_new/2,
-	       nb_hash_lookup/3,
-	       nb_hash_insert/3
-	      ]).
+		[nb_hash_new/2,
+		 nb_hash_lookup/3,
+		 nb_hash_insert/3
+		]).
 
 :- ensure_loaded(library(tries)).
 
@@ -78,6 +79,4 @@ cvt_vals([A|B],[A|B]).
 % first, try standard representation
 find_probs(Logs,Nth,Log) :-
 	arg(Nth,Logs,Log).
-
-
 

@@ -1,9 +1,11 @@
-:- module(clpbn_utils, [
-	clpbn_not_var_member/2,
-	clpbn_var_member/2,
-	check_for_hidden_vars/3,
-	sort_vars_by_key/3,
-	sort_vars_by_key_and_parents/3]).
+
+:- module(clpbn_utils,
+		[clpbn_not_var_member/2,
+		 clpbn_var_member/2,
+		 check_for_hidden_vars/3,
+		 sort_vars_by_key/3,
+		 sort_vars_by_key_and_parents/3
+		]).
 
 %
 % It may happen that variables from a previous query may still be around.
@@ -112,5 +114,4 @@ transform_parents([P|Parents0],[P|NParents],KeyVarsF,KeyVars0) :-
 	transform_parents(Parents0,NParents,KeyVarsF,KeyVars0).
 transform_parents([P|Parents0],[V|NParents],[P-V|KeyVarsF],KeyVars0) :-
 	transform_parents(Parents0,NParents,KeyVarsF,KeyVars0).
-
 

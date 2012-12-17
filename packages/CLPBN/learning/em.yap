@@ -5,67 +5,67 @@
 :- module(clpbn_em, [em/5]).
 
 :- reexport(library(clpbn),
-	[clpbn_flag/2,
-	 clpbn_flag/3
-	]).
+		[clpbn_flag/2,
+		 clpbn_flag/3
+		]).
 
 :- use_module(library(clpbn),
-	[clpbn_init_graph/1,
-	 clpbn_init_solver/4,
-	 clpbn_run_solver/3,
-	 clpbn_finalize_solver/1,	       
-	 pfl_init_solver/5,
-	 pfl_run_solver/3,
-	 conditional_probability/3,
-	 clpbn_flag/2
-	]).
+		[clpbn_init_graph/1,
+		 clpbn_init_solver/4,
+		 clpbn_run_solver/3,
+		 clpbn_finalize_solver/1,	       
+		 pfl_init_solver/5,
+		 pfl_run_solver/3,
+		 conditional_probability/3,
+		 clpbn_flag/2
+		]).
 
 :- use_module(library('clpbn/dists'),
-	[get_dist_domain_size/2,
-	 empty_dist/2,
-	 dist_new_table/2,
-	 get_dist_key/2,
-	 randomise_all_dists/0,
-	 uniformise_all_dists/0
-	]).
+		[get_dist_domain_size/2,
+		 empty_dist/2,
+		 dist_new_table/2,
+		 get_dist_key/2,
+		 randomise_all_dists/0,
+		 uniformise_all_dists/0
+		]).
 
 :- use_module(library('clpbn/ground_factors'),
-	[generate_network/5,
-	 f/3
-	]).
+		[generate_network/5,
+		 f/3
+		]).
 	
 :- use_module(library('clpbn/utils'),
-	[check_for_hidden_vars/3,
-	 sort_vars_by_key/3
-	]).
+		[check_for_hidden_vars/3,
+		 sort_vars_by_key/3
+		]).
 
 :- use_module(library('clpbn/learning/learn_utils'),
-	[run_all/1,
-	 clpbn_vars/2,
-	 normalise_counts/2,
-	 compute_likelihood/3,
-	 soften_sample/2
-	]).
+		[run_all/1,
+		 clpbn_vars/2,
+		 normalise_counts/2,
+		 compute_likelihood/3,
+		 soften_sample/2
+		]).
 	
 :- use_module(library(bhash),
-	[b_hash_new/1,
-	 b_hash_lookup/3,
-	 b_hash_insert/4
-	]).
+		[b_hash_new/1,
+		 b_hash_lookup/3,
+		 b_hash_insert/4
+		]).
 
 :- use_module(library(matrix),
-	[matrix_add/3,
-	 matrix_to_list/2
-	]).
+		[matrix_add/3,
+		 matrix_to_list/2
+		]).
 	
 :- use_module(library(lists),
-	[member/2]).
+		[member/2]).
 	
 :- use_module(library(rbtrees),
-	[rb_new/1,
-	 rb_insert/4,
-	 rb_lookup/3
-	]).
+		[rb_new/1,
+		 rb_insert/4,
+		 rb_lookup/3
+		]).
 
 :- use_module(library(maplist)).
 

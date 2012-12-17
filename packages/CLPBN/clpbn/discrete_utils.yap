@@ -1,10 +1,14 @@
 
-:- module(discrete_utils, [project_from_CPT/3,
-			   reorder_CPT/5,
-			   get_dist_size/2]).
+:- module(discrete_utils,
+		[project_from_CPT/3,
+		 reorder_CPT/5,
+		 get_dist_size/2
+		]).
 
-:- use_module(library(clpbn/dists), [get_dist_domain_size/2,
-		      get_dist_domain/2]).
+:- use_module(library(clpbn/dists),
+		[get_dist_domain_size/2,
+		 get_dist_domain/2
+		]).
 %
 % remove columns from a table
 %
@@ -142,5 +146,4 @@ get_sizes([V|Deps], [Sz|Sizes]) :-
 	clpbn:get_atts(V, [dist(Id,_)]),
 	get_dist_domain_size(Id,Sz),
 	get_sizes(Deps, Sizes).
-
 

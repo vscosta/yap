@@ -2,30 +2,29 @@
 
 :- style_check(all).
 
-:- module(clpbn_pgrammar,[grammar_to_atts/1,
-			  grammar_prob/2,
-			  grammar_mle/2,
-			  init_pcg_solver/4,
-			  run_pcg_solver/3,
-			  pcg_init_graph/0]).
+:- module(clpbn_pgrammar,
+		[grammar_to_atts/1,
+		 grammar_prob/2,
+		 grammar_mle/2,
+		 init_pcg_solver/4,
+		 run_pcg_solver/3,
+		 pcg_init_graph/0
+		]).
 
 :- load_files([library(clpbn)],
-	      [ if(not_loaded),
-		silent(true)
-	      ]).
+		[if(not_loaded), silent(true)]).
 
 :- use_module([library(lists)],
-	      [ sum_list/2
-	      ]).
+		[sum_list/2]).
 
 :- use_module([library(matrix)],
-	      [ matrix_new/3,
-		matrix_add/3,
-		matrix_get/3,
-		matrix_op/4,
-		matrix_op_to_all/4,
-		matrix_set_all/2
-	      ]).
+		[matrix_new/3,
+		 matrix_add/3,
+		 matrix_get/3,
+		 matrix_op/4,
+		 matrix_op_to_all/4,
+		 matrix_set_all/2
+		]).
 
 :- op(600, xfy,'::').
 

@@ -1,89 +1,93 @@
 
-:- module(jt, [jt/3,
-	       init_jt_solver/4,
-	       run_jt_solver/3]).
-
+:- module(jt,
+		[jt/3,
+		 init_jt_solver/4,
+		 run_jt_solver/3
+		]).
 
 :- use_module(library(dgraphs),
-	      [dgraph_new/1,
-	       dgraph_add_edges/3,
-	       dgraph_add_vertex/3,
-	       dgraph_add_vertices/3,
-	       dgraph_edges/2,
-	       dgraph_vertices/2,
-	       dgraph_transpose/2,
-	       dgraph_to_ugraph/2,
-	       ugraph_to_dgraph/2,
-	       dgraph_neighbors/3
-	      ]).
+		[dgraph_new/1,
+		 dgraph_add_edges/3,
+		 dgraph_add_vertex/3,
+		 dgraph_add_vertices/3,
+		 dgraph_edges/2,
+		 dgraph_vertices/2,
+		 dgraph_transpose/2,
+		 dgraph_to_ugraph/2,
+		 ugraph_to_dgraph/2,
+		 dgraph_neighbors/3
+		]).
 
 :- use_module(library(undgraphs),
-	      [undgraph_new/1,
-	       undgraph_add_edge/4,
-	       undgraph_add_edges/3,
-	       undgraph_del_vertex/3,
-	       undgraph_del_vertices/3,
-	       undgraph_vertices/2,
-	       undgraph_edges/2,
-	       undgraph_neighbors/3,
-	       undgraph_edge/3,
-	       dgraph_to_undgraph/2
-	      ]).
+		[undgraph_new/1,
+		 undgraph_add_edge/4,
+		 undgraph_add_edges/3,
+		 undgraph_del_vertex/3,
+		 undgraph_del_vertices/3,
+		 undgraph_vertices/2,
+		 undgraph_edges/2,
+		 undgraph_neighbors/3,
+		 undgraph_edge/3,
+		 dgraph_to_undgraph/2
+		]).
 
 :- use_module(library(wundgraphs),
-	      [wundgraph_new/1,
-	       wundgraph_max_tree/3,
-	       wundgraph_add_edges/3,
-	       wundgraph_add_vertices/3,
-	       wundgraph_to_undgraph/2
-	      ]).
+		[wundgraph_new/1,
+		 wundgraph_max_tree/3,
+		 wundgraph_add_edges/3,
+		 wundgraph_add_vertices/3,
+		 wundgraph_to_undgraph/2
+		]).
 
 :- use_module(library(rbtrees),
-	      [rb_new/1,
-	       rb_insert/4,
-	       rb_lookup/3]).
+		[rb_new/1,
+		 rb_insert/4,
+		 rb_lookup/3
+		]).
 
 :- use_module(library(ordsets),
-	      [ord_subset/2,
-	       ord_insert/3,
-	       ord_intersection/3,
-	       ord_del_element/3,
-	       ord_memberchk/2]).
+		[ord_subset/2,
+		 ord_insert/3,
+		 ord_intersection/3,
+		 ord_del_element/3,
+		 ord_memberchk/2
+		]).
 
 :- use_module(library(lists),
-	      [reverse/2]).
+		[reverse/2]).
 
 :- use_module(library(maplist)).
 
 :- use_module(library('clpbn/aggregates'),
-	      [check_for_agg_vars/2]).
+		[check_for_agg_vars/2]).
 
 :- use_module(library('clpbn/dists'),
-	      [get_dist_domain_size/2,
-	       get_dist_domain/2,
-	       get_dist_matrix/5]).
+		[get_dist_domain_size/2,
+		 get_dist_domain/2,
+		 get_dist_matrix/5
+		]).
 
 :- use_module(library('clpbn/matrix_cpt_utils'),
-	      [project_from_CPT/3,
-	       reorder_CPT/5,
-	       unit_CPT/2,
-	       multiply_CPTs/4,
-	       divide_CPTs/3,
-	       normalise_CPT/2,
-	       expand_CPT/4,
-	       get_CPT_sizes/2,
-	       reset_CPT_that_disagrees/5,
-	       sum_out_from_CPT/4,
-	       list_from_CPT/2]).
+		[project_from_CPT/3,
+		 reorder_CPT/5,
+		 unit_CPT/2,
+		 multiply_CPTs/4,
+		 divide_CPTs/3,
+		 normalise_CPT/2,
+		 expand_CPT/4,
+		 get_CPT_sizes/2,
+		 reset_CPT_that_disagrees/5,
+		 sum_out_from_CPT/4,
+		 list_from_CPT/2
+		]).
 
-:- use_module(library('clpbn/display'), [
-	clpbn_bind_vals/3]).
+:- use_module(library('clpbn/display'),
+		[clpbn_bind_vals/3]).
 
 :- use_module(library('clpbn/connected'),
-	      [
-	       init_influences/3,
-	       influences/4
-	      ]).
+		[init_influences/3,
+		 influences/4
+		]).
 
 
 jt([[]],_,_) :- !.
@@ -171,7 +175,7 @@ add_parents([], _, Graph, Graph).
 add_parents([P|Parents], V, Graph0, [P-V|GraphF]) :-
 	add_parents(Parents, V, Graph0, GraphF).
 
-	      
+		
 % From David Page's lectures
 test_graph(0,
 	   [1-3,2-3,2-4,5-4,5-7,10-7,10-9,11-9,3-6,4-6,7-8,9-8,6-12,8-12],

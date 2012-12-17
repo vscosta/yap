@@ -1,45 +1,51 @@
-:- module(bnt, [do_bnt/3,
-		create_bnt_graph/2,
-		check_if_bnt_done/1]).
+:- module(bnt,
+		[do_bnt/3,
+		 create_bnt_graph/2,
+		 check_if_bnt_done/1
+		]).
 
-:- use_module(library('clpbn/display'), [
-	clpbn_bind_vals/3]).
+:- use_module(library('clpbn/display'),
+		[clpbn_bind_vals/3]).
 
-:- use_module(library('clpbn/dists'), [
-				       get_dist_domain_size/2,
-				       get_dist_domain/2,
-				       get_dist_params/2
-				      ]).
+:- use_module(library('clpbn/dists'),
+		[get_dist_domain_size/2,
+		 get_dist_domain/2,
+		 get_dist_params/2
+		]).
 
-:- use_module(library('clpbn/discrete_utils'), [
-	reorder_CPT/5]).
+:- use_module(library('clpbn/discrete_utils'),
+		[reorder_CPT/5]).
 
-:- use_module(library(matlab), [start_matlab/1,
-				close_matlab/0,
-				matlab_on/0,
-				matlab_eval_string/1,
-				matlab_eval_string/2,
-				matlab_matrix/4,
-				matlab_vector/2,
-				matlab_sequence/3,
-				matlab_initialized_cells/4,
-				matlab_get_variable/2,
-				matlab_call/2
-			      ]).
+:- use_module(library(matlab),
+		[start_matlab/1,
+		 close_matlab/0,
+		 matlab_on/0,
+		 matlab_eval_string/1,
+		 matlab_eval_string/2,
+		 matlab_matrix/4,
+		 matlab_vector/2,
+		 matlab_sequence/3,
+		 matlab_initialized_cells/4,
+		 matlab_get_variable/2,
+		 matlab_call/2
+		]).
 
-:- use_module(library(dgraphs), [dgraph_new/1,
-				dgraph_add_vertices/3,
-				dgraph_add_edges/3,
-				dgraph_top_sort/2,
-				dgraph_vertices/2,
-				dgraph_edges/2
-			      ]).
+:- use_module(library(dgraphs),
+		[dgraph_new/1,
+		 dgraph_add_vertices/3,
+		 dgraph_add_edges/3,
+		 dgraph_top_sort/2,
+		 dgraph_vertices/2,
+		 dgraph_edges/2
+		]).
 
-:- use_module(library(lists), [append/3,
-	member/2,nth/3]).
+:- use_module(library(lists),
+		[append/3,
+		 member/2,nth/3
+		]).
 
-:- use_module(library(ordsets), [
-	ord_insert/3]).
+:- use_module(library(ordsets),
+		[ord_insert/3]).
 
 :- yap_flag(write_strings,on).
 
@@ -421,5 +427,5 @@ mk_evidence_query([V|L], [H|T], [ar(1,Pos,El)|LN]) :-
 	get_dist_domain(Id,D),
 	nth(El,D,H),
 	mk_evidence_query(L, T, LN).
-	
+
 

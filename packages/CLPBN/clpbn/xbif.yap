@@ -2,10 +2,11 @@
 % XMLBIF support for CLP(BN)
 %
 
-:- module(xbif, [clpbn2xbif/3]).
+:- module(xbif,
+		[clpbn2xbif/3]).
 
-:- use_module(library('clpbn/dists'), [
-	get_dist_domain/2]).
+:- use_module(library('clpbn/dists'),
+		[get_dist_domain/2]).
 
 clpbn2xbif(Stream, Name, Network) :-
 	format(Stream, '<?xml version="1.0" encoding="US-ASCII"?>

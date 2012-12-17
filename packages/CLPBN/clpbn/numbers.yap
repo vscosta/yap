@@ -1,17 +1,17 @@
 
 :- module(clpbn_numbers,
-	[
-         keys_to_numbers/7, 
-         keys_to_numbers/9, 
-	 lists_of_keys_to_ids/6
-     ]).
+		[keys_to_numbers/7, 
+		 keys_to_numbers/9, 
+		 lists_of_keys_to_ids/6
+		]).
 
 :- use_module(library(bhash)).
 :- use_module(library(maplist)).
+
 :- use_module(library(pfl),
-          [skolem/2,
-           get_pfl_cpt/5
-          ]).
+		[skolem/2,
+		 get_pfl_cpt/5
+		]).
 
 %
 % convert key representation into numeric representation
@@ -59,5 +59,4 @@ evidence_to_id(Key=Ev, Id=Ev, Hash0, Hash0, I0, I0) :-
 evidence_to_id(Key=Ev, I0=Ev, Hash0, Hash, I0, I) :-
 	b_hash_insert(Hash0, Key, I0, Hash),
 	I is I0+1.
-
 

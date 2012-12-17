@@ -14,55 +14,58 @@
   
 *********************************/
 
-:- module(clpbn_ve, [ve/3,
-		     check_if_ve_done/1,
-		     init_ve_solver/4,
-		     run_ve_solver/3,
-		     init_ve_ground_solver/5,
-		     run_ve_ground_solver/3,
-		     call_ve_ground_solver/6]).
+:- module(clpbn_ve,
+		[ve/3,
+		 check_if_ve_done/1,
+		 init_ve_solver/4,
+		 run_ve_solver/3,
+		 init_ve_ground_solver/5,
+		 run_ve_ground_solver/3,
+		 call_ve_ground_solver/6
+		]).
 		     
 :- use_module(library(atts)).
 
 :- use_module(library(ordsets),
-	[ord_union/3, 
-	 ord_member/2]).
+		[ord_union/3,
+		 ord_member/2
+		]).
 
-:- use_module(library('clpbn/xbif'), [clpbn2xbif/3]).
+:- use_module(library('clpbn/xbif'),
+		[clpbn2xbif/3]).
 
-:- use_module(library('clpbn/graphviz'), [clpbn2gviz/4]).
+:- use_module(library('clpbn/graphviz'),
+		[clpbn2gviz/4]).
 
 :- use_module(library('clpbn/dists'),
-	      [
-	       dist/4,
-	       get_dist_domain_size/2,
-	       get_dist_params/2,
-	       get_dist_domain_size/2,
-	       get_dist_matrix/5]).
+		[dist/4,
+		 get_dist_domain_size/2,
+		 get_dist_params/2,
+		 get_dist_domain_size/2,
+		 get_dist_matrix/5
+		]).
 
-:- use_module(library('clpbn/utils'), [
-	clpbn_not_var_member/2]).
+:- use_module(library('clpbn/utils'),
+		[clpbn_not_var_member/2]).
 
-:- use_module(library('clpbn/display'), [
-	clpbn_bind_vals/3]).
+:- use_module(library('clpbn/display'),
+		[clpbn_bind_vals/3]).
 
 :- use_module(library('clpbn/connected'),
-	      [
-	       init_influences/3,
-	       influences/4,
-	       factor_influences/4
-	      ]).
+		[init_influences/3,
+		 influences/4,
+		 factor_influences/4
+		]).
 
 :- use_module(library(clpbn/matrix_cpt_utils)).
 
 :- use_module(library(clpbn/numbers)).
 
 :- use_module(library(lists),
-	      [
-	       member/2,
-	       append/3,
-	       delete/3
-	      ]).
+		[member/2,
+		 append/3,
+		 delete/3
+		]).
 
 :- use_module(library(maplist)).
 
@@ -71,7 +74,7 @@
 :- use_module(library(clpbn/vmap)).
 
 :- use_module(library('clpbn/aggregates'),
-	      [check_for_agg_vars/2]).
+		[check_for_agg_vars/2]).
 	      
 :- attribute size/1, all_diffs/1.	      
 
@@ -473,5 +476,4 @@ multiply([F0|Fs], Vs, T) :-
 
 multiply_factor(f(_,Vs1,T1), f(_,Vs0,T0), f(_,Vs,T)) :-
 	multiply_CPTs(T1, Vs1, T0, Vs0, T, Vs).
-
 

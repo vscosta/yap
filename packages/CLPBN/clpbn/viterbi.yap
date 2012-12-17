@@ -1,11 +1,13 @@
 
 %:- style_check(all).
 
-:- module(viterbi, [viterbi/4]).
+:- module(viterbi,
+		[viterbi/4]).
 
 :- use_module(library(lists),
-	      [nth/3,
-	       member/2]).
+		[nth/3,
+		 member/2
+		]).
 
 :- use_module(library(assoc)).
 
@@ -17,8 +19,8 @@
 
 :- ensure_loaded(library('clpbn/hmm')).
 
-:- use_module(library('clpbn/dists'), [
-	get_dist_params/2]).
+:- use_module(library('clpbn/dists'),
+		[get_dist_params/2]).
 
 :- meta_predicate viterbi(:,:,+,-).
 
@@ -231,5 +233,3 @@ trace(L1,Next,Dump,Map,Trace0,Trace) :-
 	matrix_get(Dump,[NL,P],New),
 	trace(NL,New,Dump,Map,[Key|Trace0],Trace).
 
-
-	

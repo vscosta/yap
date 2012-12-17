@@ -1,4 +1,6 @@
-:- module(clpbn_gviz, [clpbn2gviz/4]).
+
+:- module(clpbn_gviz,
+		[clpbn2gviz/4]).
 
 clpbn2gviz(Stream, Name, Network, Output) :-
 	format(Stream, 'digraph ~w {

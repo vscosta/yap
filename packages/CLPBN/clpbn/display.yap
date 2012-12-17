@@ -1,14 +1,14 @@
-:- module(clpbn_display, [
-	clpbn_bind_vals/3]).
+:- module(clpbn_display,
+		[clpbn_bind_vals/3]).
 
 :- use_module(library(lists),
-	      [
-	       member/2
-	      ]).
+		[member/2]).
 
-:- use_module(library(clpbn/dists), [get_dist_domain/2]).
+:- use_module(library(clpbn/dists),
+		[get_dist_domain/2]).
 
-:- use_module(library(clpbn), [use_parfactors/1]).
+:- use_module(library(clpbn),
+		[use_parfactors/1]).
 
 :- use_module(library(maplist)).
 

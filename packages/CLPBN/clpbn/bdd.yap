@@ -18,32 +18,32 @@ Va <- P*X1*Y1 + Q*X2*Y2 + ...
 **************************************************/
 
 :- module(clpbn_bdd,
-          [bdd/3,
-           set_solver_parameter/2,
-           init_bdd_solver/4,
-           init_bdd_ground_solver/5,
-           run_bdd_solver/3,
-           run_bdd_ground_solver/3,
-           finalize_bdd_solver/1,
-	   check_if_bdd_done/1,
-	   call_bdd_ground_solver/6
-          ]).
+		[bdd/3,
+		 set_solver_parameter/2,
+		 init_bdd_solver/4,
+		 init_bdd_ground_solver/5,
+		 run_bdd_solver/3,
+		 run_bdd_ground_solver/3,
+		 finalize_bdd_solver/1,
+		 check_if_bdd_done/1,
+		 call_bdd_ground_solver/6
+		]).
 
 
 :- use_module(library('clpbn/dists'),
-          [dist/4,
-           get_dist_domain/2,
-           get_dist_domain_size/2,
-           get_dist_all_sizes/2,
-           get_dist_params/2
-          ]).
+		[dist/4,
+		 get_dist_domain/2,
+		 get_dist_domain_size/2,
+		 get_dist_all_sizes/2,
+		 get_dist_params/2
+		]).
 
 
 :- use_module(library('clpbn/display'),
-         [clpbn_bind_vals/3]).
+		[clpbn_bind_vals/3]).
 
 :- use_module(library('clpbn/aggregates'),
-	      [check_for_agg_vars/2]).
+		[check_for_agg_vars/2]).
 
 
 :- use_module(library(atts)).
@@ -1063,5 +1063,4 @@ build_cnf(CNF, IVs, Indics, AllParms, AllParmValues, Val) :-
 	term_variables(CNF, Extra),
 	set_to_ones(Extra),
 	ddnnf_is(F, Val).
-
 
