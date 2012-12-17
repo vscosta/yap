@@ -613,7 +613,7 @@ clpbn_finalize_solver(_State).
 %
 
 pfl_init_solver(QueryKeys, AllKeys, Factors, Evidence, State) :-
-	solver(Solver),
+	em_solver(Solver),
 	pfl_init_solver(QueryKeys, AllKeys, Factors, Evidence, State, Solver).
 
 pfl_init_solver(QueryKeys, AllKeys, Factors, Evidence, State, ve) :- !,
@@ -640,7 +640,7 @@ pfl_init_solver(_, _, _, _, _, Solver) :-
 	write('\' cannot be used for learning').
 
 pfl_run_solver(LVs, LPs, State) :-
-	solver(Solver),
+	em_solver(Solver),
 	pfl_run_solver(LVs, LPs, State, Solver).
 
 pfl_run_solver(LVs, LPs, State, ve) :- !,
