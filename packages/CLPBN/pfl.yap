@@ -22,14 +22,12 @@
 :- reexport(library(clpbn),
 		[clpbn_flag/2 as pfl_flag,
 		 set_clpbn_flag/2 as set_pfl_flag,
+		 set_solver/1,
 		 set_em_solver/1,
 		 conditional_probability/3,
 		 pfl_init_solver/5,
 		 pfl_run_solver/3
 		]).
-
-:- reexport(library(clpbn/horus),
-		[set_solver/1]).
 
 :- reexport(library(clpbn/aggregates),
 		[avg_factors/5]).

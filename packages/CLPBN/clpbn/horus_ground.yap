@@ -20,8 +20,7 @@
 		 cpp_set_factors_params/2,
 		 cpp_run_ground_solver/3,
 		 cpp_set_vars_information/2,
-		 cpp_free_ground_network/1,
-		 set_solver/1
+		 cpp_free_ground_network/1
 		]).
 
 :- use_module(library('clpbn/dists'),
