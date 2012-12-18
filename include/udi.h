@@ -15,6 +15,12 @@ typedef void *
 		  void *control, /* estrutura de control*/
 		  void *clausule); /* valor a guardar na arvore, para retornar na pesquisa */
 
+/* Callback for each value found in a search */
+typedef int /* with a FALSE return should abort the search */
+(* Yap_UdiCallback) (void *key, /*index key*/
+                     void *clausule, /*clause*/
+                     void *arg); /* auxiliary to callback */
+
 /* chamada cada vez que um predicado indexado aparece no código
    Returns:
        NULL quando não há indexação usavel no predicado (fallback to
@@ -23,7 +29,9 @@ yap indexing)
        TRY_RETRY_TRUST quando há resultados positivos
 */
 typedef void *
-(* Yap_UdiSearch)(void * control);
+(* Yap_UdiSearch)(void * control,
+				  Yap_UdiCallback f, /* callback on each found value*/
+		          void *arg);
 
 /* chamada cada vez que um predicado indexado aparece no código
    Returns:

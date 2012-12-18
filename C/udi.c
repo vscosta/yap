@@ -2,6 +2,7 @@
 #include "Yap.h"
 #include "YapInterface.h"
 #include "clause.h"
+#include "clause_list.h"
 #include "udi.h"
 #include "utarray.h"
 
@@ -78,7 +79,7 @@ p_new_udi( USES_REGS1 )
   UdiInfo blk;
   int info;
 
-  fprintf(stderr,"new pred\n");
+  //fprintf(stderr,"new pred\n");
 
   /* get the predicate from the spec, copied from cdmgr.c */
   if (IsVarTerm(spec)) {
@@ -123,13 +124,18 @@ p_new_udi( USES_REGS1 )
 
   /* this is the real work */
   blk = (UdiInfo) Yap_AllocCodeSpace(sizeof(struct udi_info));
+  memset((void *) blk,0, sizeof(struct udi_info));
+
   if (!blk) {
 	  Yap_Error(OUT_OF_HEAP_ERROR, spec, "new user index/1");
 	  return FALSE;
   }
   blk->next = UdiControlBlocks;
-  blk->clauselist = NULL;
+  utarray_new(blk->clauselist, &ptr_icd);
   blk->p = p;
+  UdiControlBlocks = blk;
+
+  //fprintf(stderr,"PRED %p\n",p);
 
   info = Yap_udi_args_init(spec, p->ArityOfPE, blk);
   if (!info)
@@ -150,24 +156,22 @@ Yap_udi_args_init(Term spec, int arity, UdiInfo blk)
 	Atom idxtype;
 	UdiControlBlock *p;
 
-	fprintf(stderr,"udi init\n");
+	//fprintf(stderr,"udi init\n");
+
 	for (i = 1; i <= arity && i <= UDI_MI ; i++) {
-		blk->args[i-1].idxstr = NULL;
-		blk->args[i-1].control = NULL;
-		fprintf(stderr,"%d\n",i);
 		arg = ArgOfTerm(i,spec);
 		if (IsAtomTerm(arg)) {
 			idxtype = AtomOfTerm(arg);
-			fprintf(stderr,"%p-%s %p-%s\n",idxtype, YAP_AtomName(idxtype),
-						                   AtomMinus, YAP_AtomName(AtomMinus));
+//			fprintf(stderr,"%p-%s %p-%s\n",idxtype, YAP_AtomName(idxtype),
+//						                   AtomMinus, YAP_AtomName(AtomMinus));
 			if (idxtype == AtomMinus)
 				continue;
 			p = NULL;
 			while ((p = (UdiControlBlock *) utarray_next(indexing_structures, p))) {
-				fprintf(stderr,"cb: %p %p-%s\n", *p, (*p)->decl, YAP_AtomName((*p)->decl));
+				//fprintf(stderr,"cb: %p %p-%s\n", *p, (*p)->decl, YAP_AtomName((*p)->decl));
 				if (idxtype == (*p)->decl){
-					blk->args[i-1].idxstr = NULL;
 					blk->args[i-1].control = *p;
+					blk->args[i-1].idxstr = (*p)->init(spec, NULL, arity);
 				}
 			}
 			if (blk->args[i-1].control == NULL){ /* not "-" and not found*/
@@ -183,6 +187,8 @@ Yap_udi_args_init(Term spec, int arity, UdiInfo blk)
 int
 Yap_new_udi_clause(PredEntry *p, yamop *cl, Term t)
 {
+	int i;
+
 	/* find our structure*/
 	struct udi_info *info = UdiControlBlocks;
 	while (info->p != p && info)
@@ -191,21 +197,81 @@ Yap_new_udi_clause(PredEntry *p, yamop *cl, Term t)
 		return FALSE;
 
 	/* do the actual insertion */
-	fprintf(stderr,"udi insert\n");
-//	info->cb = info->functions->insert(t, info->cb, (void *)cl);
+
+	/*insert into clauselist*/
+	utarray_push_back(info->clauselist,(void *) cl);
+
+	for (i = 0; i < UDI_MI ; i++) {
+		if (info->args[i].control != NULL){
+//			fprintf(stderr,"call insert\n");
+			info->args[i].control->insert(t,info->args[i].idxstr, (void *)cl);
+			//	info->cb = info->functions->insert(t, info->cb, (void *)cl);
+		}
+	}
 	return TRUE;
+}
+
+struct CallbackM
+{
+  clause_list_t cl;
+  void * pred;
+};
+typedef struct CallbackM * callback_m_t;
+
+static int callback(void *key, void *data, void *arg)
+{
+	callback_m_t x;
+	x = (callback_m_t) arg;
+	return Yap_ClauseListExtend(x->cl,data,x->pred);
 }
 
 /* index, called from absmi.c */
 yamop *
 Yap_udi_search(PredEntry *p)
 {
+	int i, r = -1;
+	struct ClauseList clauselist;
+	struct CallbackM cm;
+	callback_m_t c;
+
+	/* find our structure*/
 	struct udi_info *info = UdiControlBlocks;
 	while (info->p != p && info)
 		info = info->next;
 	if (!info)
 		return NULL;
-	return NULL; /*info->functions->search(info->cb);*/
+
+	/*TODO: handle intersection*/
+	c = &cm;
+	c->cl = Yap_ClauseListInit(&clauselist);
+	c->pred = p;
+	for (i = 0; i < UDI_MI ; i++) {
+		if (info->args[i].control != NULL){
+//			fprintf(stderr,"call search %d %p\n", i, (void *)c);
+			r = info->args[i].control->search(info->args[i].idxstr, callback,c);
+			/*info->functions->search(info->cb);*/
+		}
+	}
+	Yap_ClauseListClose(c->cl);
+
+	if (r >= 0) {
+		if (Yap_ClauseListCount(c->cl) == 0)
+		{
+			Yap_ClauseListDestroy(c->cl);
+			return Yap_FAILCODE();
+		}
+
+		if (Yap_ClauseListCount(c->cl) == 1)
+		{
+			return Yap_ClauseListToClause(c->cl);
+		}
+
+		return Yap_ClauseListCode(c->cl);
+	}
+	else
+		Yap_ClauseListDestroy(c->cl);
+
+	return NULL;
 }
 
 /* index, called from absmi.c */

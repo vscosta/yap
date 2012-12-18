@@ -22,5 +22,4 @@
 ******************/
 
 udi(Pred) :-
-   writeln(('udi.yap ',Pred)),
    '$udi_init'(Pred).
