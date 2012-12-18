@@ -17,7 +17,7 @@
 
 :- use_module(horus,
 		[cpp_create_lifted_network/3,
-		 cpp_set_parfactors_params/2,
+		 cpp_set_parfactors_params/3,
 		 cpp_run_lifted_solver/3,
 		 cpp_free_lifted_network/1
 		]).
@@ -43,22 +43,17 @@ call_horus_lifted_solver(QueryVars, AllVars, Output) :-
 
 init_horus_lifted_solver(_, AllVars, _, state(Network, DistIds)) :-
 	get_parfactors(Parfactors),
-	get_dist_ids(Parfactors, DistIds0),
-	sort(DistIds0, DistIds),
 	get_observed_keys(AllVars, ObservedKeys),
-	%writeln(parfactors:Parfactors:'\n'),
-	%writeln(evidence:ObservedKeys:'\n'),
-	cpp_create_lifted_network(Parfactors, ObservedKeys, Network).
+	%writeln(network:(parfactors=Parfactors, evidence=ObservedKeys)), nl,
+	cpp_create_lifted_network(Parfactors, ObservedKeys, Network),
+	maplist(get_dist_id, Parfactors, DistIds0),
+	sort(DistIds0, DistIds).
 
 
 run_horus_lifted_solver(QueryVars, Solutions, state(Network, DistIds)) :-
 	maplist(get_query_keys, QueryVars, QueryKeys),
-	get_dists_parameters(DistIds, DistsParams),
-	%writeln(distparams1:DistsParams),
-	%maplist(get_pfl_parameters, DistIds,DistsParams2),
-	%writeln(distparams1:DistsParams2),
-	%writeln(dists:DistsParams), writeln(''),
-	cpp_set_parfactors_params(Network, DistsParams),
+	%maplist(get_pfl_parameters, DistIds,DistsParams),
+	%cpp_set_parfactors_params(Network, DistIds, DistsParams),
 	cpp_run_lifted_solver(Network, QueryKeys, Solutions).
 
 
@@ -67,13 +62,6 @@ end_horus_lifted_solver(state(Network, _)) :-
 
 %
 % Enumerate all parfactors and enumerate their domain as tuples.
-%
-% output is list of pf(
-%   Id: an unique number
-%   Ks: a list of keys, also known as the pf formula [a(X),b(Y),c(X,Y)]
-%   Vs: the list of free variables [X,Y]
-%   Phi: the table following usual CLP(BN) convention
-%   Tuples: ground bindings for variables in Vs, of the form [fv(x,y)]
 %
 :- table get_parfactors/1.
 
@@ -90,8 +78,8 @@ is_factor(pf(Id, Ks, Rs, Phi, Tuples)) :-
 
 
 get_range(K, Range) :-
-	skolem(K,Domain),
-	length(Domain,Range).
+	skolem(K, Domain),
+	length(Domain, Range).
 
 
 gen_table(Table, Phi) :-
@@ -108,9 +96,7 @@ run(Goal.Constraints) :-
 	run(Constraints).
 
 
-get_dist_ids([], []).
-get_dist_ids(pf(Id, _, _, _, _).Parfactors, Id.DistIds) :-
-	get_dist_ids(Parfactors, DistIds).
+get_dist_id(pf(DistId, _, _, _, _), DistId).
 
 
 get_observed_keys([], []).
@@ -118,8 +104,7 @@ get_observed_keys(V.AllAttVars, [K:E|ObservedKeys]) :-
 	clpbn:get_atts(V,[key(K)]),
 	( clpbn:get_atts(V,[evidence(E)]) ; pfl:evidence(K,E) ), !,
 	get_observed_keys(AllAttVars, ObservedKeys).
-get_observed_keys(V.AllAttVars, ObservedKeys) :-
-	clpbn:get_atts(V,[key(_K)]), !,
+get_observed_keys(_V.AllAttVars, ObservedKeys) :-
 	get_observed_keys(AllAttVars, ObservedKeys).
 
 
@@ -127,10 +112,4 @@ get_query_keys([], []).
 get_query_keys(V.AttVars, K.Ks) :-
 	clpbn:get_atts(V,[key(K)]), !,
 	get_query_keys(AttVars, Ks).
-
-
-get_dists_parameters([], []).
-get_dists_parameters([Id|Ids], [dist(Id, Params)|DistsInfo]) :-
-	get_pfl_parameters(Id, Params),
-	get_dists_parameters(Ids, DistsInfo).
 

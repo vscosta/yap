@@ -233,19 +233,21 @@ setParfactorsParams (void)
 {
   LiftedNetwork* network = (LiftedNetwork*) YAP_IntOfTerm (YAP_ARG1);
   ParfactorList* pfList = network->first;
-  YAP_Term distList = YAP_ARG2;
+  YAP_Term distIdsList = YAP_ARG2;
+  YAP_Term paramsList  = YAP_ARG3;
   unordered_map<unsigned, Params> paramsMap;
-  while (distList != YAP_TermNil()) {
-    YAP_Term dist   = YAP_HeadOfTerm (distList);
-    unsigned distId = (unsigned) YAP_IntOfTerm (YAP_ArgOfTerm (1, dist));
+  while (distIdsList != YAP_TermNil()) {
+    unsigned distId = (unsigned) YAP_IntOfTerm (
+        YAP_HeadOfTerm (distIdsList));
     assert (Util::contains (paramsMap, distId) == false);
-    paramsMap[distId] = readParameters (YAP_ArgOfTerm (2, dist));
-    distList = YAP_TailOfTerm (distList);
+    paramsMap[distId] = readParameters (YAP_HeadOfTerm (paramsList));
+    distIdsList = YAP_TailOfTerm (distIdsList);
+    paramsList  = YAP_TailOfTerm (paramsList);
   }
   ParfactorList::iterator it = pfList->begin();
   while (it != pfList->end()) {
     assert (Util::contains (paramsMap, (*it)->distId()));
-    // (*it)->setParams (paramsMap[(*it)->distId()]); 
+    (*it)->setParams (paramsMap[(*it)->distId()]);
     ++ it;
   }
   return TRUE;
@@ -256,16 +258,17 @@ setParfactorsParams (void)
 int
 setFactorsParams (void)
 {
-  return TRUE; // TODO
   FactorGraph* fg = (FactorGraph*) YAP_IntOfTerm (YAP_ARG1);
-  YAP_Term distList = YAP_ARG2;
+  YAP_Term distIdsList = YAP_ARG2;
+  YAP_Term paramsList  = YAP_ARG3;
   unordered_map<unsigned, Params> paramsMap;
-  while (distList != YAP_TermNil()) {
-    YAP_Term dist   = YAP_HeadOfTerm (distList);
-    unsigned distId = (unsigned) YAP_IntOfTerm (YAP_ArgOfTerm (1, dist));
+  while (distIdsList != YAP_TermNil()) {
+    unsigned distId = (unsigned) YAP_IntOfTerm (
+        YAP_HeadOfTerm (distIdsList));
     assert (Util::contains (paramsMap, distId) == false);
-    paramsMap[distId] = readParameters (YAP_ArgOfTerm (2, dist));
-    distList = YAP_TailOfTerm (distList);
+    paramsMap[distId] = readParameters (YAP_HeadOfTerm (paramsList));
+    distIdsList = YAP_TailOfTerm (distIdsList);
+    paramsList  = YAP_TailOfTerm (paramsList);
   }
   const FacNodes& facNodes = fg->facNodes();
   for (size_t i = 0; i < facNodes.size(); i++) {
@@ -534,15 +537,34 @@ fillAnswersPrologList (vector<Params>& results)
 extern "C" void
 init_predicates (void)
 {
-  YAP_UserCPredicate ("cpp_create_lifted_network",  createLiftedNetwork, 3);
-  YAP_UserCPredicate ("cpp_create_ground_network",  createGroundNetwork, 4);
-  YAP_UserCPredicate ("cpp_run_lifted_solver",      runLiftedSolver,     3);
-  YAP_UserCPredicate ("cpp_run_ground_solver",      runGroundSolver,     3);
-  YAP_UserCPredicate ("cpp_set_parfactors_params",  setParfactorsParams, 2);
-  YAP_UserCPredicate ("cpp_cpp_set_factors_params", setFactorsParams,    2);
-  YAP_UserCPredicate ("cpp_set_vars_information",   setVarsInformation,  2);
-  YAP_UserCPredicate ("cpp_set_horus_flag",         setHorusFlag,        2);
-  YAP_UserCPredicate ("cpp_free_lifted_network",    freeLiftedNetwork,   1);
-  YAP_UserCPredicate ("cpp_free_ground_network",    freeGroundNetwork,   1);
+  YAP_UserCPredicate ("cpp_create_lifted_network",
+      createLiftedNetwork, 3);
+
+  YAP_UserCPredicate ("cpp_create_ground_network",
+      createGroundNetwork, 4);
+
+  YAP_UserCPredicate ("cpp_run_lifted_solver",
+      runLiftedSolver, 3);
+
+  YAP_UserCPredicate ("cpp_run_ground_solver",
+      runGroundSolver, 3);
+
+  YAP_UserCPredicate ("cpp_set_parfactors_params",
+      setParfactorsParams, 3);
+
+  YAP_UserCPredicate ("cpp_set_factors_params",
+      setFactorsParams, 3);
+
+  YAP_UserCPredicate ("cpp_set_vars_information",
+      setVarsInformation, 2);
+
+  YAP_UserCPredicate ("cpp_set_horus_flag",
+      setHorusFlag, 2);
+
+  YAP_UserCPredicate ("cpp_free_lifted_network",
+      freeLiftedNetwork, 1);
+
+  YAP_UserCPredicate ("cpp_free_ground_network",
+     freeGroundNetwork, 1);
 }
 
