@@ -883,7 +883,7 @@ ConstraintTree::ground (LogVar X)
 
 
 void
-ConstraintTree::copyLogVar (LogVar X_1, LogVar X_2)
+ConstraintTree::cloneLogVar (LogVar X_1, LogVar X_2)
 {
   moveToBottom ({X_1});
   CTNodes leafs = getNodesAtLevel (logVars_.size());

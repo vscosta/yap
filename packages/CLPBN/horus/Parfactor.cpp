@@ -26,7 +26,24 @@ Parfactor::Parfactor (
       }
     }
   }
+  LogVar newLv = logVars.size();
   constr_ = new ConstraintTree (logVars, tuples);
+  // Change formulas like f(X,X), X in {(p1),(p2),...}
+  // to be like f(X,Y), (X,Y) in {(p1,p1),(p2,p2),...}.
+  // This will simplify shattering on the constraint tree.
+  for (size_t i = 0; i < args_.size(); i++) {
+    LogVarSet lvSet;
+    LogVars& lvs = args_[i].logVars();
+    for (size_t j = 0; j < lvs.size(); j++) {
+      if (lvSet.contains (lvs[j]) == false) {
+        lvSet |= lvs[j];
+      } else {
+        constr_->cloneLogVar (lvs[j], newLv);
+        lvs[j] = newLv;
+        ++ newLv;
+      }
+    }
+  }
   assert (params_.size() == Util::sizeExpected (ranges_));
 }
 

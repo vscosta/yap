@@ -200,7 +200,7 @@ class ConstraintTree
 
     ConstraintTrees ground (LogVar);
 
-    void copyLogVar (LogVar,LogVar);
+    void cloneLogVar (LogVar, LogVar);
 
     ConstraintTree& operator= (const ConstraintTree& ct);
 
