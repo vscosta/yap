@@ -74,7 +74,7 @@
 		 check_if_horus_ground_solver_done/1,
 		 init_horus_ground_solver/5,
 		 run_horus_ground_solver/3,
-		 finalize_horus_ground_solver/1
+		 end_horus_ground_solver/1
 		]).
 
 :- use_module('clpbn/horus_lifted',
@@ -82,7 +82,7 @@
 		 check_if_horus_lifted_solver_done/1,
 		 init_horus_lifted_solver/4,
 		 run_horus_lifted_solver/3,
-		 finalize_horus_lifted_solver/1
+		 end_horus_lifted_solver/1
 		]).
 
 %% :- use_module('clpbn/bnt',
@@ -723,7 +723,7 @@ pfl_run_solver(LVs, LPs, State, cbp) :- !,
 
 pfl_end_solver(State) :-
 	(em_solver(hve) ; em_solver(bp) ; em_solver(cbp)),
-	finalize_horus_ground_solver(State).
+	end_horus_ground_solver(State).
 pfl_end_solver(_State).
 
 

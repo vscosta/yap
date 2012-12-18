@@ -12,7 +12,7 @@
 		 check_if_horus_lifted_solver_done/1,
 		 init_horus_lifted_solver/4,
 		 run_horus_lifted_solver/3,
-		 finalize_horus_lifted_solver/1
+		 end_horus_lifted_solver/1
 		]).
 
 :- use_module(horus,
@@ -25,49 +25,48 @@
 :- use_module(library('clpbn/display'),
 		[clpbn_bind_vals/3]).
 
-:- use_module(library('clpbn/dists'),
-		[get_dist_params/2]).
-
 :- use_module(library(pfl),
 		[factor/6,
 		 skolem/2,
 		 get_pfl_parameters/2
 		]).
 
+:- use_module(library(maplist)).
+
 
 call_horus_lifted_solver(QueryVars, AllVars, Output) :-
 	init_horus_lifted_solver(_, AllVars, _, State),
 	run_horus_lifted_solver(QueryVars, Solutions, State),
 	clpbn_bind_vals(QueryVars, Solutions, Output),
-	finalize_horus_lifted_solver(State).
+	end_horus_lifted_solver(State).
 
 
-init_horus_lifted_solver(_, AllVars, _, state(ParfactorList, DistIds)) :-
+init_horus_lifted_solver(_, AllVars, _, state(Network, DistIds)) :-
 	get_parfactors(Parfactors),
 	get_dist_ids(Parfactors, DistIds0),
 	sort(DistIds0, DistIds),
-	get_observed_vars(AllVars, ObservedVars),
+	get_observed_keys(AllVars, ObservedKeys),
 	%writeln(parfactors:Parfactors:'\n'),
-	%writeln(evidence:ObservedVars:'\n'),
-	cpp_create_lifted_network(Parfactors, ObservedVars, ParfactorList).
+	%writeln(evidence:ObservedKeys:'\n'),
+	cpp_create_lifted_network(Parfactors, ObservedKeys, Network).
 
 
-run_horus_lifted_solver(QueryVars, Solutions, state(ParfactorList, DistIds)) :-
-	get_query_keys(QueryVars, QueryKeys),
+run_horus_lifted_solver(QueryVars, Solutions, state(Network, DistIds)) :-
+	maplist(get_query_keys, QueryVars, QueryKeys),
 	get_dists_parameters(DistIds, DistsParams),
+	%writeln(distparams1:DistsParams),
+	%maplist(get_pfl_parameters, DistIds,DistsParams2),
+	%writeln(distparams1:DistsParams2),
 	%writeln(dists:DistsParams), writeln(''),
-	cpp_set_parfactors_params(ParfactorList, DistsParams),
-	cpp_run_lifted_solver(ParfactorList, QueryKeys, Solutions).
+	cpp_set_parfactors_params(Network, DistsParams),
+	cpp_run_lifted_solver(Network, QueryKeys, Solutions).
 
 
-finalize_horus_lifted_solver(state(ParfactorList, _)) :-
-	cpp_free_lifted_network(ParfactorList).
-
-
-:- table get_parfactors/1.
+end_horus_lifted_solver(state(Network, _)) :-
+	cpp_free_lifted_network(Network).
 
 %
-% enumerate all parfactors and enumerate their domain as tuples.
+% Enumerate all parfactors and enumerate their domain as tuples.
 %
 % output is list of pf(
 %   Id: an unique number
@@ -76,33 +75,27 @@ finalize_horus_lifted_solver(state(ParfactorList, _)) :-
 %   Phi: the table following usual CLP(BN) convention
 %   Tuples: ground bindings for variables in Vs, of the form [fv(x,y)]
 %
+:- table get_parfactors/1.
+
 get_parfactors(Factors) :-
 	findall(F, is_factor(F), Factors).
 
 
 is_factor(pf(Id, Ks, Rs, Phi, Tuples)) :-
 	factor(_Type, Id, Ks, Vs, Table, Constraints),
-	get_ranges(Ks,Rs),
+	maplist(get_range, Ks, Rs),
 	Table \= avg,
 	gen_table(Table, Phi),
 	all_tuples(Constraints, Vs, Tuples).
 
 
-get_ranges([],[]).
-get_ranges(K.Ks, Range.Rs) :- !,
+get_range(K, Range) :-
 	skolem(K,Domain),
-	length(Domain,Range),
-	get_ranges(Ks, Rs).
+	length(Domain,Range).
 
 
 gen_table(Table, Phi) :-
-	(
-	  is_list(Table)
-	-> 
-	  Phi = Table
-	;
-	  call(user:Table, Phi)
-	).
+	( is_list(Table) -> Phi = Table ; call(user:Table, Phi) ).
 
 
 all_tuples(Constraints, Tuple, Tuples) :-
@@ -120,26 +113,20 @@ get_dist_ids(pf(Id, _, _, _, _).Parfactors, Id.DistIds) :-
 	get_dist_ids(Parfactors, DistIds).
 
 
-get_observed_vars([], []).
-get_observed_vars(V.AllAttVars, [K:E|ObservedVars]) :-
+get_observed_keys([], []).
+get_observed_keys(V.AllAttVars, [K:E|ObservedKeys]) :-
 	clpbn:get_atts(V,[key(K)]),
 	( clpbn:get_atts(V,[evidence(E)]) ; pfl:evidence(K,E) ), !,
-	get_observed_vars(AllAttVars, ObservedVars).
-get_observed_vars(V.AllAttVars, ObservedVars) :-
+	get_observed_keys(AllAttVars, ObservedKeys).
+get_observed_keys(V.AllAttVars, ObservedKeys) :-
 	clpbn:get_atts(V,[key(_K)]), !,
-	get_observed_vars(AllAttVars, ObservedVars).
+	get_observed_keys(AllAttVars, ObservedKeys).
 
 
 get_query_keys([], []).
-get_query_keys(E1.L1, E2.L2) :-
-	get_query_keys_2(E1,E2),
-	get_query_keys(L1, L2).
-
-
-get_query_keys_2([], []).
-get_query_keys_2(V.AttVars, [RV|RVs]) :-
-	clpbn:get_atts(V,[key(RV)]), !,
-	get_query_keys_2(AttVars, RVs).
+get_query_keys(V.AttVars, K.Ks) :-
+	clpbn:get_atts(V,[key(K)]), !,
+	get_query_keys(AttVars, Ks).
 
 
 get_dists_parameters([], []).
