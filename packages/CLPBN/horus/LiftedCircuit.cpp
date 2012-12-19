@@ -3,12 +3,28 @@
 #include "LiftedCircuit.h"
 
 
+OrNode::~OrNode (void)
+{
+  delete leftBranch_;
+  delete rightBranch_;
+}
+
+
+
 double
 OrNode::weight (void) const
 {
   double lw = leftBranch_->weight();
   double rw = rightBranch_->weight();
   return Globals::logDomain ? Util::logSum (lw, rw) : lw + rw;
+}
+
+
+
+AndNode::~AndNode (void)
+{
+  delete leftBranch_;
+  delete rightBranch_;
 }
 
 
@@ -25,6 +41,13 @@ AndNode::weight (void) const
 
 int SetOrNode::nrPos_ = -1;
 int SetOrNode::nrNeg_ = -1;
+
+
+
+SetOrNode::~SetOrNode (void)
+{
+  delete follow_;
+}
 
 
 
@@ -51,10 +74,26 @@ SetOrNode::weight (void) const
 
 
 
+SetAndNode::~SetAndNode (void)
+{
+  delete follow_;
+}
+
+
+
 double
 SetAndNode::weight (void) const
 {
   return LogAware::pow (follow_->weight(), nrGroundings_);
+}
+
+
+
+IncExcNode::~IncExcNode (void)
+{
+  delete plus1Branch_;
+  delete plus2Branch_;
+  delete minusBranch_;
 }
 
 
@@ -71,6 +110,13 @@ IncExcNode::weight (void) const
     w -= minusBranch_->weight();
   }
   return w;
+}
+
+
+
+LeafNode::~LeafNode (void)
+{
+  delete clause_;
 }
 
 
@@ -109,6 +155,13 @@ LeafNode::weight (void) const
         clause_->nrNegCountedLogVars());
   }
   return LogAware::pow (weight, nrGroundings);
+}
+
+
+
+SmoothNode::~SmoothNode (void)
+{
+  Clause::deleteClauses (clauses_);
 }
 
 
@@ -184,6 +237,19 @@ LiftedCircuit::LiftedCircuit (const LiftedWCNF* lwcnf)
     cout << "Exporting circuit to graphviz (circuit.dot)..." ;
     cout << endl << endl;
     exportToGraphViz ("circuit.dot");
+  }
+}
+
+
+
+LiftedCircuit::~LiftedCircuit (void)
+{
+  delete root_;
+  unordered_map<CircuitNode*, Clauses>::iterator it;
+  it = originClausesMap_.begin();
+  while (it != originClausesMap_.end()) {
+    Clause::deleteClauses (it->second);
+    ++ it;
   }
 }
 
@@ -334,6 +400,9 @@ LiftedCircuit::tryUnitPropagation (
       return true;
     }
   }
+  if (Globals::verbosity > 1) {
+    Clause::deleteClauses (backupClauses_);
+  }
   return false;
 }
 
@@ -374,6 +443,9 @@ LiftedCircuit::tryIndependence (
     compile (andNode->rightBranch(), indepClauses);
     (*follow) = andNode;
     return true;
+  }
+  if (Globals::verbosity > 1) {
+    Clause::deleteClauses (backupClauses_);
   }
   return false;
 }
@@ -416,6 +488,9 @@ LiftedCircuit::tryShannonDecomp (
         return true;
       }
     }
+  }
+  if (Globals::verbosity > 1) {
+    Clause::deleteClauses (backupClauses_);
   }
   return false;
 }
@@ -493,6 +568,9 @@ LiftedCircuit::tryInclusionExclusion (
       return true;
     }
   }
+  if (Globals::verbosity > 1) {
+    Clause::deleteClauses (backupClauses_);
+  }
   return false;
 }
 
@@ -527,6 +605,9 @@ LiftedCircuit::tryIndepPartialGrounding (
       compile (setAndNode->follow(), clauses);
       return true;
     }
+  }
+  if (Globals::verbosity > 1) {
+    Clause::deleteClauses (backupClauses_);
   }
   return false;
 }
@@ -619,6 +700,9 @@ LiftedCircuit::tryAtomCounting (
         return true;
       }
     }
+  }
+  if (Globals::verbosity > 1) {
+    Clause::deleteClauses (backupClauses_);
   }
   return false;
 }

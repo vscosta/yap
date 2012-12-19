@@ -137,6 +137,8 @@ class Clause
 
     static void printClauses (const vector<Clause*>& clauses);
 
+    static void deleteClauses (vector<Clause*>& clauses);
+
     friend std::ostream& operator<< (ostream &os, const Clause& clause);
 
   private:

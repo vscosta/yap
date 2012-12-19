@@ -327,6 +327,16 @@ Clause::printClauses (const Clauses& clauses)
 
 
 
+void
+Clause::deleteClauses (Clauses& clauses)
+{
+  for (size_t i = 0; i < clauses.size(); i++) {
+    delete clauses[i];
+  }
+}
+
+
+
 std::ostream&
 operator<< (ostream &os, const Clause& clause)
 {
@@ -445,7 +455,7 @@ LiftedWCNF::LiftedWCNF (const ParfactorList& pfList)
 
 LiftedWCNF::~LiftedWCNF (void)
 {
-
+  Clause::deleteClauses (clauses_);
 }
 
 
