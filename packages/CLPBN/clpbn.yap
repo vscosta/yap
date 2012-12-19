@@ -137,8 +137,8 @@
 :- meta_predicate probability(:,-), conditional_probability(:,:,-).
 
 
-solver(ve).
-em_solver(bp).
+solver(hve).
+em_solver(hve).
 suppress_attribute_display(false).
 parameter_softening(m_estimate(10)).
 use_parfactors(off).
