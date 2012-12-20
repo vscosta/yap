@@ -32,18 +32,6 @@ FactorGraph::FactorGraph (const FactorGraph& fg)
 
 
 
-FactorGraph::~FactorGraph (void)
-{
-  for (size_t i = 0; i < varNodes_.size(); i++) {
-    delete varNodes_[i];
-  }
-  for (size_t i = 0; i < facNodes_.size(); i++) {
-    delete facNodes_[i];
-  }
-}
-
-
-
 void
 FactorGraph::readFromUaiFormat (const char* fileName)
 {
@@ -175,6 +163,18 @@ FactorGraph::readFromLibDaiFormat (const char* fileName)
     addFactor (f);
   }
   is.close();
+}
+
+
+
+FactorGraph::~FactorGraph (void)
+{
+  for (size_t i = 0; i < varNodes_.size(); i++) {
+    delete varNodes_[i];
+  }
+  for (size_t i = 0; i < facNodes_.size(); i++) {
+    delete facNodes_[i];
+  }
 }
 
 
