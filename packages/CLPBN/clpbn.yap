@@ -423,7 +423,7 @@ write_out(bnt, GVars, AVars, DiffVars) :- !,
 	do_bnt(GVars, AVars, DiffVars).
 
 write_out(Solver, _, _, _) :-
-	format("Error: solver `~w' is unknown", [Solver]),
+	format("Error: solver '~w' is unknown.", [Solver]),
 	fail.
 
 %
@@ -675,7 +675,7 @@ pfl_init_solver(QueryKeys, AllKeys, Factors, Evidence, State) :-
 	(ground_solver(Solver) ->
 	  true
 	;
-	  format("Error: `~w' is an unknow solver.", [Solver]), fail
+	  format("Error: solver '~w' is unknown.", [Solver]), fail
 	),
 	pfl_init_solver(QueryKeys, AllKeys, Factors, Evidence, State, Solver).
 
@@ -698,7 +698,7 @@ pfl_init_solver(QueryKeys, AllKeys, Factors, Evidence, State, cbp) :- !,
 	init_horus_ground_solver(QueryKeys, AllKeys, Factors, Evidence, State).
 
 pfl_init_solver(_, _, _, _, _, Solver) :-
-	format("Error: solver `~w' cannot be used for learning.", [Solver]),
+	format("Error: solver '~w' can't be used for learning.", [Solver]),
 	fail.
 
 
