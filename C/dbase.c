@@ -1892,7 +1892,10 @@ record_lu(PredEntry *pe, Term t, int position)
   if ((cl = new_lu_db_entry(t, pe)) == NULL) {
     return NULL;
   }
-  Yap_inform_profiler_of_clause(cl, (char *)cl+cl->ClSize, pe, GPROF_NEW_LU_CLAUSE); 
+  {
+    CACHE_REGS
+    Yap_inform_profiler_of_clause(cl, (char *)cl+cl->ClSize, pe, GPROF_NEW_LU_CLAUSE); 
+  }
   Yap_add_logupd_clause(pe, cl, (position == MkFirst ? 2 : 0));
   return cl;
 }
@@ -4429,7 +4432,7 @@ p_increase_reference_counter( USES_REGS1 )
   cl = (LogUpdClause *)DBRefOfTerm(t1);
   PELOCK(67,cl->ClPred);
   cl->ClRefCount++;
-  UNLOCK(cl->ClPred);
+  UNLOCK(cl->ClPred->PELock);
   return TRUE;
 }
 
@@ -4452,10 +4455,10 @@ p_decrease_reference_counter( USES_REGS1 )
   PELOCK(67,cl->ClPred);
   if (cl->ClRefCount) {
     cl->ClRefCount--;
-    UNLOCK(cl->ClPred);
+    UNLOCK(cl->ClPred->PELock);
     return TRUE;
   }
-  UNLOCK(cl->ClPred);
+  UNLOCK(cl->ClPred->PELock);
   return FALSE;
 }
 
