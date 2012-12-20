@@ -423,7 +423,7 @@ readParfactor (YAP_Term pfTerm)
       for (unsigned i = 1; i <= arity; i++) {
         YAP_Term ti = YAP_ArgOfTerm (i, term);
         if (YAP_IsAtomTerm (ti) == false) {
-          cerr << "error: constraint has free variables" << endl;
+          cerr << "Error: the constraint contains free variables." << endl;
           exit (EXIT_FAILURE);
         }
         string name ((char*) YAP_AtomName (YAP_AtomOfTerm (ti)));

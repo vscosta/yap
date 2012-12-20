@@ -35,8 +35,8 @@ LiftedOperations::shatterAgainstQuery (
       }
     }
     if (found == false) {
-      cerr << "error: could not find a parfactor with ground " ;
-      cerr << "`" << query[i] << "'" << endl;
+      cerr << "Error: could not find a parfactor with ground " ;
+      cerr << "`" << query[i] << "'." << endl;
       exit (EXIT_FAILURE);
     }
     pfList.add (newPfs);

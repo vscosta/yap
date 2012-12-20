@@ -689,7 +689,7 @@ Parfactor::expandPotential (
 {
   ullong newSize = (params_.size() / ranges_[fIdx]) * newRange;
   if (newSize > params_.max_size()) {
-    cerr << "error: an overflow occurred when performing expansion" ;
+    cerr << "Error: an overflow occurred when performing expansion." ;
     cerr << endl;
     exit (EXIT_FAILURE);
   }

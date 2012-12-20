@@ -334,7 +334,7 @@ ParfactorList::shatterAgainstMySelf (
   ProbFormula& f1 = g->argument (fIdx1);
   ProbFormula& f2 = g->argument (fIdx2);
   if (f1.isAtom()) {
-    cerr << "error: a ground occurs twice in a parfactor" << endl;
+    cerr << "Error: a ground occurs twice in the same parfactor." << endl;
     cerr << endl;
     exit (EXIT_FAILURE);
   }

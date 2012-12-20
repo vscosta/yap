@@ -277,8 +277,7 @@ LiftedCircuit::exportToGraphViz (const char* fileName)
 {
   ofstream out (fileName);
   if (!out.is_open()) {
-    cerr << "error: cannot open file to write at " ;
-    cerr << "LiftedCircuit::exportToDotFile()" << endl;
+    cerr << "Error: couldn't open file '" << fileName << "'." ;
     return;
   }
   out << "digraph {" << endl;

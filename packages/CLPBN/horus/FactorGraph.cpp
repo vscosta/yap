@@ -37,14 +37,14 @@ FactorGraph::readFromUaiFormat (const char* fileName)
 {
   std::ifstream is (fileName);
   if (!is.is_open()) {
-    cerr << "error: cannot read from file " << fileName << endl;
+    cerr << "Error: couldn't open file '" << fileName << "'." ;
     exit (EXIT_FAILURE);
   }
   ignoreLines (is);
   string line;
   getline (is, line);
   if (line != "MARKOV") {
-    cerr << "error: the network must be a MARKOV network " << endl;
+    cerr << "Error: the network must be a MARKOV network." << endl;
     exit (EXIT_FAILURE);
   }
   // read the number of vars
@@ -71,9 +71,9 @@ FactorGraph::readFromUaiFormat (const char* fileName)
     for (unsigned j = 0; j < nrArgs; j++) {
       is >> vid;
       if (vid >= ranges.size()) {
-        cerr << "error: invalid variable identifier `" << vid << "'" << endl;
-        cerr << "identifiers must be between 0 and " << ranges.size() - 1 ;
-        cerr << endl;
+        cerr << "Error: invalid variable identifier `" << vid << "'. " ;
+        cerr << "Identifiers must be between 0 and " << ranges.size() - 1 ;
+        cerr << "." << endl;
         exit (EXIT_FAILURE);
       }
       factorVarIds.back().push_back (vid);
@@ -86,9 +86,9 @@ FactorGraph::readFromUaiFormat (const char* fileName)
     ignoreLines (is);
     is >> nrParams;
     if (nrParams != Util::sizeExpected (factorRanges[i])) {
-      cerr << "error: invalid number of parameters for factor nº " << i ;
-      cerr << ", expected: " << Util::sizeExpected (factorRanges[i]);
-      cerr << ", given: " << nrParams << endl;
+      cerr << "Error: invalid number of parameters for factor nº " << i ;
+      cerr << ", " << Util::sizeExpected (factorRanges[i]);
+      cerr << " expected, " << nrParams << " given." << endl;
       exit (EXIT_FAILURE);
     }
     Params params (nrParams);
@@ -110,7 +110,7 @@ FactorGraph::readFromLibDaiFormat (const char* fileName)
 {
   std::ifstream is (fileName);
   if (!is.is_open()) {
-    cerr << "error: cannot read from file " << fileName << endl;
+    cerr << "Error: couldn't open file '" << fileName << "'." ;
     exit (EXIT_FAILURE);
   }
   ignoreLines (is);
@@ -135,8 +135,8 @@ FactorGraph::readFromLibDaiFormat (const char* fileName)
       is >> ranges[j];
       VarNode* var = getVarNode (vids[j]);
       if (var != 0 && ranges[j] != var->range()) {
-        cerr << "error: variable `" << vids[j] << "' appears in two or " ;
-        cerr << "more factors with a different range" << endl;
+        cerr << "Error: variable `" << vids[j] << "' appears in two or " ;
+        cerr << "more factors with a different range." << endl;
       }
     }
     // read parameters
@@ -281,8 +281,7 @@ FactorGraph::exportToGraphViz (const char* fileName) const
 {
   ofstream out (fileName);
   if (!out.is_open()) {
-    cerr << "error: cannot open file to write at " ;
-    cerr << "FactorGraph::exportToDotFile()" << endl;
+    cerr << "Error: couldn't open file '" << fileName << "'." ;
     return;
   }
   out << "graph \"" << fileName << "\" {" << endl;
@@ -316,8 +315,7 @@ FactorGraph::exportToUaiFormat (const char* fileName) const
 {
   ofstream out (fileName);
   if (!out.is_open()) {
-    cerr << "error: cannot open file to write at " ;
-    cerr << "ConstraintTree::exportToUaiFormat()" << endl;
+    cerr << "Error: couldn't open file '" << fileName << "'." ;
     return;
   }
   out << "MARKOV" << endl;
@@ -351,8 +349,7 @@ FactorGraph::exportToLibDaiFormat (const char* fileName) const
 {
   ofstream out (fileName);
   if (!out.is_open()) {
-    cerr << "error: cannot open file to write at " ;
-    cerr << "ConstraintTree::exportToUaiFormat()" << endl;
+    cerr << "Error: couldn't open file '" << fileName << "'." ;
     return;
   }
   out << facNodes_.size() << endl << endl;

@@ -521,8 +521,7 @@ ConstraintTree::exportToGraphViz (
 {
   ofstream out (fileName);
   if (!out.is_open()) {
-    cerr << "error: cannot open file to write at " ;
-    cerr << "ConstraintTree::exportToDotFile()" << endl;
+    cerr << "Error: couldn't open file '" << fileName << "'." ;
     return;
   }
   out << "digraph {" << endl;

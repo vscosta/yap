@@ -17,14 +17,14 @@ VarIds readQueryAndEvidence (FactorGraph&, int, const char* [], int);
 void runSolver (const FactorGraph&, const VarIds&);
 
 const string USAGE = "usage: ./hcli [HORUS_FLAG=VALUE] \
-NETWORK_FILE [VARIABLE | OBSERVED_VARIABLE=EVIDENCE] ..." ;
+MODEL_FILE [VARIABLE | OBSERVED_VARIABLE=EVIDENCE] ..." ;
 
 
 int
 main (int argc, const char* argv[])
 {
   if (argc <= 1) {
-    cerr << "error: no graphical model specified" << endl;
+    cerr << "Error: no probabilistic graphical model was given." << endl;
     cerr << USAGE << endl;
     exit (EXIT_FAILURE);
   }
@@ -51,12 +51,12 @@ readHorusFlags (int argc, const char* argv[])
     string leftArg  = arg.substr (0, pos);
     string rightArg = arg.substr (pos + 1);
     if (leftArg.empty()) {
-      cerr << "error: missing left argument" << endl;
+      cerr << "Error: missing left argument." << endl;
       cerr << USAGE << endl;
       exit (EXIT_FAILURE);
     }
     if (rightArg.empty()) {
-      cerr << "error: missing right argument" << endl;
+      cerr << "Error: missing right argument." << endl;
       cerr << USAGE << endl;
       exit (EXIT_FAILURE);
     }
@@ -77,8 +77,8 @@ readFactorGraph (FactorGraph& fg, const char* s)
   } else if (extension == "fg") {
     fg.readFromLibDaiFormat (fileName.c_str());
   } else {
-    cerr << "error: the graphical model must be defined either " ; 
-    cerr << "in a UAI or libDAI file" << endl;
+    cerr << "Error: the probabilistic graphical model must be " ; 
+    cerr << "defined either in a UAI or libDAI file." << endl;
     exit (EXIT_FAILURE);
   }
 }
@@ -97,16 +97,16 @@ readQueryAndEvidence (
     const string& arg = argv[i];
     if (arg.find ('=') == std::string::npos) {
       if (Util::isInteger (arg) == false) {
-        cerr << "error: `" << arg << "' " ;
-        cerr << "is not a variable id" ;
+        cerr << "Error: `" << arg << "' " ;
+        cerr << "is not a variable id." ;
         cerr << endl;
         exit (EXIT_FAILURE);
       }
       VarId vid = Util::stringToUnsigned (arg);
       VarNode* queryVar = fg.getVarNode (vid);
       if (queryVar == false) {
-        cerr << "error: unknow variable with id " ;
-        cerr << "`" << vid << "'"  << endl;
+        cerr << "Error: unknow variable with id " ;
+        cerr << "`" << vid << "'."  << endl;
         exit (EXIT_FAILURE);
       }
       queryIds.push_back (vid);
@@ -115,37 +115,37 @@ readQueryAndEvidence (
       string leftArg  = arg.substr (0, pos);
       string rightArg = arg.substr (pos + 1);
       if (leftArg.empty()) {
-        cerr << "error: missing left argument" << endl;
+        cerr << "Error: missing left argument." << endl;
         cerr << USAGE << endl;
         exit (EXIT_FAILURE);
       }
       if (Util::isInteger (leftArg) == false) {
-        cerr << "error: `" << leftArg << "' " ;
-        cerr << "is not a variable id" << endl ;
+        cerr << "Error: `" << leftArg << "' " ;
+        cerr << "is not a variable id." << endl ;
         exit (EXIT_FAILURE);
       }
       VarId vid = Util::stringToUnsigned (leftArg);
       VarNode* observedVar = fg.getVarNode (vid);
       if (observedVar == false) {
-        cerr << "error: unknow variable with id " ;
-        cerr << "`" << vid << "'"  << endl;
+        cerr << "Error: unknow variable with id " ;
+        cerr << "`" << vid << "'."  << endl;
         exit (EXIT_FAILURE);
       }
       if (rightArg.empty()) {
-        cerr << "error: missing right argument" << endl;
+        cerr << "Error: missing right argument." << endl;
         cerr << USAGE << endl;
         exit (EXIT_FAILURE);
       }
       if (Util::isInteger (rightArg) == false) {
-        cerr << "error: `" << rightArg << "' " ;
-        cerr << "is not a state index" << endl ;
+        cerr << "Error: `" << rightArg << "' " ;
+        cerr << "is not a state index." << endl ;
         exit (EXIT_FAILURE);
       }
       unsigned stateIdx = Util::stringToUnsigned (rightArg);
       if (observedVar->isValidState (stateIdx) == false) {
-        cerr << "error: `" << stateIdx << "' " ;
+        cerr << "Error: `" << stateIdx << "' " ;
         cerr << "is not a valid state index for variable with id " ;
-        cerr << "`" << vid << "'"  << endl;
+        cerr << "`" << vid << "'."  << endl;
         exit (EXIT_FAILURE);
       }
       observedVar->setEvidence (stateIdx);

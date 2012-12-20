@@ -79,8 +79,7 @@ BayesBallGraph::exportToGraphViz (const char* fileName)
 {
   ofstream out (fileName);
   if (!out.is_open()) {
-    cerr << "error: cannot open file to write at " ;
-    cerr << "BayesBallGraph::exportToDotFile()" << endl;
+    cerr << "Error: couldn't open file '" << fileName << "'." ;
     return;
   }
   out << "digraph {" << endl;

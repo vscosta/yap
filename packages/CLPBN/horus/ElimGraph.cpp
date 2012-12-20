@@ -99,8 +99,7 @@ ElimGraph::exportToGraphViz (
 {
   ofstream out (fileName);
   if (!out.is_open()) {
-    cerr << "error: cannot open file to write at " ;
-    cerr << "ElimGraph::exportToDotFile()" << endl;
+    cerr << "Error: couldn't open file '" << fileName << "'." ;
     return;
   }
   out << "strict graph {" << endl;
@@ -115,7 +114,8 @@ ElimGraph::exportToGraphViz (
       out << '"' << node->label() << '"' ;
       out << " [shape=box3d]" << endl;
     } else {
-      cerr << "error: invalid variable id: " << highlightVarIds[i] << endl;
+      cerr << "Error: invalid variable id: " << highlightVarIds[i] << "." ;
+      cerr << endl;
       exit (EXIT_FAILURE);
     }
   }

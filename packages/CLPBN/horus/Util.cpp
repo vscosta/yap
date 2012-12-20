@@ -53,7 +53,7 @@ stringToUnsigned (string str)
   ss << str;
   ss >> val;
   if (val < 0) {
-    cerr << "error: the readed number is negative" << endl;
+    cerr << "Error: the number readed is negative." << endl;
     exit (EXIT_FAILURE);
   }
   return static_cast<unsigned> (val);
