@@ -691,7 +691,7 @@ Parfactor::expandPotential (
   if (newSize > params_.max_size()) {
     cerr << "error: an overflow occurred when performing expansion" ;
     cerr << endl;
-    abort();
+    exit (EXIT_FAILURE);
   }
 
   Params backup = params_;

@@ -116,7 +116,7 @@ ElimGraph::exportToGraphViz (
       out << " [shape=box3d]" << endl;
     } else {
       cout << "error: invalid variable id: " << highlightVarIds[i] << endl;
-      abort();
+      exit (EXIT_FAILURE);
     }
   }
   for (size_t i = 0; i < nodes_.size(); i++) {

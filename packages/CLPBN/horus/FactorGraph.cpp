@@ -38,14 +38,14 @@ FactorGraph::readFromUaiFormat (const char* fileName)
   std::ifstream is (fileName);
   if (!is.is_open()) {
     cerr << "error: cannot read from file " << fileName << endl;
-    abort();
+    exit (EXIT_FAILURE);
   }
   ignoreLines (is);
   string line;
   getline (is, line);
   if (line != "MARKOV") {
     cerr << "error: the network must be a MARKOV network " << endl;
-    abort();
+    exit (EXIT_FAILURE);
   }
   // read the number of vars
   ignoreLines (is);
@@ -74,7 +74,7 @@ FactorGraph::readFromUaiFormat (const char* fileName)
         cerr << "error: invalid variable identifier `" << vid << "'" << endl;
         cerr << "identifiers must be between 0 and " << ranges.size() - 1 ;
         cerr << endl;
-        abort();
+        exit (EXIT_FAILURE);
       }
       factorVarIds.back().push_back (vid);
       factorRanges.back().push_back (ranges[vid]);
@@ -89,7 +89,7 @@ FactorGraph::readFromUaiFormat (const char* fileName)
       cerr << "error: invalid number of parameters for factor nº " << i ;
       cerr << ", expected: " << Util::sizeExpected (factorRanges[i]);
       cerr << ", given: " << nrParams << endl;
-      abort();
+      exit (EXIT_FAILURE);
     }
     Params params (nrParams);
     for (unsigned j = 0; j < nrParams; j++) {
@@ -111,7 +111,7 @@ FactorGraph::readFromLibDaiFormat (const char* fileName)
   std::ifstream is (fileName);
   if (!is.is_open()) {
     cerr << "error: cannot read from file " << fileName << endl;
-    abort();
+    exit (EXIT_FAILURE);
   }
   ignoreLines (is);
   unsigned nrFactors;

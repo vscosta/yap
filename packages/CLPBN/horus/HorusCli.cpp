@@ -26,7 +26,7 @@ main (int argc, const char* argv[])
   if (argc <= 1) {
     cerr << "error: no graphical model specified" << endl;
     cerr << USAGE << endl;
-    exit (0);
+    exit (EXIT_FAILURE);
   }
   int idx = readHorusFlags (argc, argv);
   FactorGraph fg;
@@ -53,12 +53,12 @@ readHorusFlags (int argc, const char* argv[])
     if (leftArg.empty()) {
       cerr << "error: missing left argument" << endl;
       cerr << USAGE << endl;
-      exit (0);
+      exit (EXIT_FAILURE);
     }
     if (rightArg.empty()) {
       cerr << "error: missing right argument" << endl;
       cerr << USAGE << endl;
-      exit (0);
+      exit (EXIT_FAILURE);
     }
     Util::setHorusFlag (leftArg, rightArg);
   }
@@ -79,7 +79,7 @@ readFactorGraph (FactorGraph& fg, const char* s)
   } else {
     cerr << "error: the graphical model must be defined either " ; 
     cerr << "in a UAI or libDAI file" << endl;
-    exit (0);
+    exit (EXIT_FAILURE);
   }
 }
 
@@ -100,14 +100,14 @@ readQueryAndEvidence (
         cerr << "error: `" << arg << "' " ;
         cerr << "is not a variable id" ;
         cerr << endl;
-        exit (0);
+        exit (EXIT_FAILURE);
       }
       VarId vid = Util::stringToUnsigned (arg);
       VarNode* queryVar = fg.getVarNode (vid);
       if (queryVar == false) {
         cerr << "error: unknow variable with id " ;
         cerr << "`" << vid << "'"  << endl;
-        exit (0);
+        exit (EXIT_FAILURE);
       }
       queryIds.push_back (vid);
     } else {
@@ -117,37 +117,36 @@ readQueryAndEvidence (
       if (leftArg.empty()) {
         cerr << "error: missing left argument" << endl;
         cerr << USAGE << endl;
-        exit (0);
+        exit (EXIT_FAILURE);
       }
       if (Util::isInteger (leftArg) == false) {
         cerr << "error: `" << leftArg << "' " ;
         cerr << "is not a variable id" << endl ;
-        exit (0);
-        continue;
+        exit (EXIT_FAILURE);
       }
       VarId vid = Util::stringToUnsigned (leftArg);
       VarNode* observedVar = fg.getVarNode (vid);
       if (observedVar == false) {
         cerr << "error: unknow variable with id " ;
         cerr << "`" << vid << "'"  << endl;
-        exit (0);
+        exit (EXIT_FAILURE);
       }
       if (rightArg.empty()) {
         cerr << "error: missing right argument" << endl;
         cerr << USAGE << endl;
-        exit (0);
+        exit (EXIT_FAILURE);
       }
       if (Util::isInteger (rightArg) == false) {
         cerr << "error: `" << rightArg << "' " ;
         cerr << "is not a state index" << endl ;
-        exit (0);
+        exit (EXIT_FAILURE);
       }
       unsigned stateIdx = Util::stringToUnsigned (rightArg);
       if (observedVar->isValidState (stateIdx) == false) {
         cerr << "error: `" << stateIdx << "' " ;
         cerr << "is not a valid state index for variable with id " ;
         cerr << "`" << vid << "'"  << endl;
-        exit (0);
+        exit (EXIT_FAILURE);
       }
       observedVar->setEvidence (stateIdx);
     }

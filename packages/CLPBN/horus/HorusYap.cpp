@@ -424,7 +424,7 @@ readParfactor (YAP_Term pfTerm)
         YAP_Term ti = YAP_ArgOfTerm (i, term);
         if (YAP_IsAtomTerm (ti) == false) {
           cerr << "error: constraint has free variables" << endl;
-          abort();
+          exit (EXIT_FAILURE);
         }
         string name ((char*) YAP_AtomName (YAP_AtomOfTerm (ti)));
         tuple[i - 1] = LiftedUtils::getSymbol (name);

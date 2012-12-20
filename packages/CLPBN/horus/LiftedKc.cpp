@@ -23,7 +23,7 @@ LiftedKc::solveQuery (const Grounds& query)
   circuit_ = new LiftedCircuit (lwcnf_);
   if (circuit_->isCompilationSucceeded() == false) {
     cerr << "error: compilation failed" << endl;
-    abort();
+    exit (EXIT_FAILURE);
   }
   vector<PrvGroup> groups;
   Ranges ranges;

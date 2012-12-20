@@ -336,7 +336,7 @@ ParfactorList::shatterAgainstMySelf (
   if (f1.isAtom()) {
     cerr << "error: a ground occurs twice in a parfactor" << endl;
     cerr << endl;
-    abort();
+    exit (EXIT_FAILURE);
   }
   assert (g->constr()->empty() == false);
   ConstraintTree ctCopy (*g->constr());
