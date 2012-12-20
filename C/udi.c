@@ -68,7 +68,7 @@ int Yap_udi_args_init(Term spec, int arity, UdiInfo blk);
  * New user indexed predicate:
  * the first argument is the term.
  */
-static Int
+static int
 p_new_udi( USES_REGS1 )
 {
   Term spec = Deref(ARG1);
@@ -171,7 +171,7 @@ Yap_udi_args_init(Term spec, int arity, UdiInfo blk)
 				//fprintf(stderr,"cb: %p %p-%s\n", *p, (*p)->decl, YAP_AtomName((*p)->decl));
 				if (idxtype == (*p)->decl){
 					blk->args[i-1].control = *p;
-					blk->args[i-1].idxstr = (*p)->init(spec, NULL, arity);
+					blk->args[i-1].idxstr = (*p)->init(spec, i, arity);
 				}
 			}
 			if (blk->args[i-1].control == NULL){ /* not "-" and not found*/
@@ -203,8 +203,8 @@ Yap_new_udi_clause(PredEntry *p, yamop *cl, Term t)
 
 	for (i = 0; i < UDI_MI ; i++) {
 		if (info->args[i].control != NULL){
-//			fprintf(stderr,"call insert\n");
-			info->args[i].control->insert(t,info->args[i].idxstr, (void *)cl);
+			//fprintf(stderr,"call insert\n");
+			info->args[i].idxstr = info->args[i].control->insert(info->args[i].idxstr, t, i + 1, (void *)cl);
 			//	info->cb = info->functions->insert(t, info->cb, (void *)cl);
 		}
 	}
@@ -248,7 +248,7 @@ Yap_udi_search(PredEntry *p)
 	for (i = 0; i < UDI_MI ; i++) {
 		if (info->args[i].control != NULL){
 //			fprintf(stderr,"call search %d %p\n", i, (void *)c);
-			r = info->args[i].control->search(info->args[i].idxstr, callback,c);
+			r = info->args[i].control->search(info->args[i].idxstr, i + 1, callback, c);
 			/*info->functions->search(info->cb);*/
 		}
 	}
