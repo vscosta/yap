@@ -1888,7 +1888,6 @@ emit_single_switch_case(ClauseDef *min, struct intermediates *cint, int first, i
 static UInt
 suspend_indexing(ClauseDef *min, ClauseDef *max, PredEntry *ap, struct intermediates *cint)
 {
-  CACHE_REGS
   UInt tcls = ap->cs.p_code.NOfClauses;
   UInt cls = (max-min)+1;
 

@@ -1887,7 +1887,6 @@ Yap_new_ludbe(Term t, PredEntry *pe, UInt nargs)
 static LogUpdClause *
 record_lu(PredEntry *pe, Term t, int position)
 {
-  CACHE_REGS
   LogUpdClause *cl;
   
   if ((cl = new_lu_db_entry(t, pe)) == NULL) {

@@ -2050,7 +2050,6 @@ a_try(op_numbers opcode, CELL lab, CELL opr, int nofalts, int hascut, yamop *cod
     yamop *newcp;
     /* emit a special instruction and then a label for backpatching */
     if (pass_no) {
-      CACHE_REGS
       UInt size = (UInt)NEXTOP((yamop *)NULL,OtaLl);
       if ((newcp = (yamop *)Yap_AllocCodeSpace(size)) == NULL) {
 	/* OOOPS, got in trouble, must do a longjmp and recover space */
