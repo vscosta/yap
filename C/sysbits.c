@@ -477,8 +477,12 @@ InitTime (int wid)
     Times_last_time = TimesStartOfTimes = t;
   } else {
 #if THREADS
+    REMOTE_ThreadHandle(wid).start_of_timesp = (struct _FILETIME *)malloc(sizeof(FILETIME));
+    REMOTE_ThreadHandle(wid).last_timep = (struct _FILETIME *)malloc(sizeof(FILETIME));
+    REMOTE_ThreadHandle(wid).start_of_times_sysp = (struct _FILETIME *)malloc(sizeof(FILETIME));
+    REMOTE_ThreadHandle(wid).last_time_sysp = (struct _FILETIME *)malloc(sizeof(FILETIME));
     (*REMOTE_ThreadHandle(wid).last_timep).dwLowDateTime = 
-      UserTime.dwLowDateTime;pp
+      UserTime.dwLowDateTime;
     (*REMOTE_ThreadHandle(wid).last_timep).dwHighDateTime =
       UserTime.dwHighDateTime;
     (*REMOTE_ThreadHandle(wid).start_of_timesp).dwLowDateTime =
@@ -1494,8 +1498,8 @@ STATIC_PROTO (void my_signal, (int, void (*)(int)));
 static RETSIGTYPE
 HandleMatherr(int sig)
 {
-#if HAVE_FETESTEXCEPT
   CACHE_REGS
+#if HAVE_FETESTEXCEPT
   /* This should work in Linux, but it doesn't seem to. */
   
   int raised = fetestexcept(FE_ALL_EXCEPT);

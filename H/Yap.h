@@ -746,11 +746,16 @@ typedef struct thandle {
 #endif
   pthread_mutex_t tlock;
   pthread_mutex_t tlock_status;
-#if HAVE_GETRUSAGE||defined(_WIN32)
+#if HAVE_GETRUSAGE
   struct timeval *start_of_timesp;
   struct timeval *last_timep;
   struct timeval *start_of_times_sysp;
   struct timeval *last_time_sysp;
+#elif _WIN32
+  struct _FILETIME *start_of_timesp;
+  struct _FILETIME *last_timep;
+  struct _FILETIME *start_of_times_sysp;
+  struct _FILETIME *last_time_sysp;
 #endif
 } yap_thandle;
 #endif /* THREADS */
