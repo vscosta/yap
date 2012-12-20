@@ -81,7 +81,7 @@ BayesBallGraph::exportToGraphViz (const char* fileName)
   if (!out.is_open()) {
     cerr << "error: cannot open file to write at " ;
     cerr << "BayesBallGraph::exportToDotFile()" << endl;
-    abort();
+    return;
   }
   out << "digraph {" << endl;
   out << "ranksep=1" << endl;

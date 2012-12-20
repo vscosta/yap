@@ -283,7 +283,7 @@ FactorGraph::exportToGraphViz (const char* fileName) const
   if (!out.is_open()) {
     cerr << "error: cannot open file to write at " ;
     cerr << "FactorGraph::exportToDotFile()" << endl;
-    abort();
+    return;
   }
   out << "graph \"" << fileName << "\" {" << endl;
   for (size_t i = 0; i < varNodes_.size(); i++) {
@@ -316,8 +316,9 @@ FactorGraph::exportToUaiFormat (const char* fileName) const
 {
   ofstream out (fileName);
   if (!out.is_open()) {
-    cerr << "error: cannot open file " << fileName << endl;
-    abort();
+    cerr << "error: cannot open file to write at " ;
+    cerr << "ConstraintTree::exportToUaiFormat()" << endl;
+    return;
   }
   out << "MARKOV" << endl;
   out << varNodes_.size() << endl;
@@ -350,8 +351,9 @@ FactorGraph::exportToLibDaiFormat (const char* fileName) const
 {
   ofstream out (fileName);
   if (!out.is_open()) {
-    cerr << "error: cannot open file " << fileName << endl;
-    abort();
+    cerr << "error: cannot open file to write at " ;
+    cerr << "ConstraintTree::exportToUaiFormat()" << endl;
+    return;
   }
   out << facNodes_.size() << endl << endl;
   for (size_t i = 0; i < facNodes_.size(); i++) {

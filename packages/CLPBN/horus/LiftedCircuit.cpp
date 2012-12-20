@@ -278,8 +278,8 @@ LiftedCircuit::exportToGraphViz (const char* fileName)
   ofstream out (fileName);
   if (!out.is_open()) {
     cerr << "error: cannot open file to write at " ;
-    cerr << "BayesBallGraph::exportToDotFile()" << endl;
-    abort();
+    cerr << "LiftedCircuit::exportToDotFile()" << endl;
+    return;
   }
   out << "digraph {" << endl;
   out << "ranksep=1" << endl; 

@@ -101,17 +101,14 @@ ElimGraph::exportToGraphViz (
   if (!out.is_open()) {
     cerr << "error: cannot open file to write at " ;
     cerr << "Markov::exportToDotFile()" << endl;
-    abort();
+    return;
   }
-
   out << "strict graph {" << endl;
-
   for (size_t i = 0; i < nodes_.size(); i++) {
     if (showNeighborless || nodes_[i]->neighbors().size() != 0) {
       out << '"' << nodes_[i]->label() << '"' << endl;
     }
   }
-
   for (size_t i = 0; i < highlightVarIds.size(); i++) {
     EgNode* node =getEgNode (highlightVarIds[i]);
     if (node) {
@@ -122,7 +119,6 @@ ElimGraph::exportToGraphViz (
       abort();
     }
   }
-
   for (size_t i = 0; i < nodes_.size(); i++) {
     EGNeighs neighs = nodes_[i]->neighbors();
     for (size_t j = 0; j < neighs.size(); j++) {
@@ -130,7 +126,6 @@ ElimGraph::exportToGraphViz (
       out << '"' << neighs[j]->label() << '"' << endl;
     }
   }
-
   out << "}" << endl;
   out.close();
 }

@@ -523,7 +523,7 @@ ConstraintTree::exportToGraphViz (
   if (!out.is_open()) {
     cerr << "error: cannot open file to write at " ;
     cerr << "ConstraintTree::exportToDotFile()" << endl;
-    abort();
+    return;
   }
   out << "digraph {" << endl;
   ConstraintTree copy (*this);
