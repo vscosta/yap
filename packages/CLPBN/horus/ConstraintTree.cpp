@@ -527,7 +527,7 @@ ConstraintTree::exportToGraphViz (
   }
   out << "digraph {" << endl;
   ConstraintTree copy (*this);
-  // copy.moveToTop (copy.logVarSet_.elements());
+  copy.moveToTop (copy.logVarSet_.elements());
   CTNodes nodes = getNodesBelow (copy.root_);
   out << "\"" << copy.root_ << "\"" << " [label=\"R\"]" << endl;
   for (CTNodes::const_iterator it = ++ nodes.begin();
