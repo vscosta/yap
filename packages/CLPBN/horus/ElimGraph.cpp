@@ -100,7 +100,7 @@ ElimGraph::exportToGraphViz (
   ofstream out (fileName);
   if (!out.is_open()) {
     cerr << "error: cannot open file to write at " ;
-    cerr << "Markov::exportToDotFile()" << endl;
+    cerr << "ElimGraph::exportToDotFile()" << endl;
     return;
   }
   out << "strict graph {" << endl;
@@ -115,7 +115,7 @@ ElimGraph::exportToGraphViz (
       out << '"' << node->label() << '"' ;
       out << " [shape=box3d]" << endl;
     } else {
-      cout << "error: invalid variable id: " << highlightVarIds[i] << endl;
+      cerr << "error: invalid variable id: " << highlightVarIds[i] << endl;
       exit (EXIT_FAILURE);
     }
   }
