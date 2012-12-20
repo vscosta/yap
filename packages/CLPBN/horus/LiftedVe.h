@@ -9,7 +9,7 @@ class LiftedOperator
 {
   public:
     virtual ~LiftedOperator (void) { }
-  
+
     virtual double getLogCost (void) = 0;
 
     virtual void apply (void) = 0;
@@ -55,7 +55,7 @@ class ProductOperator : public LiftedOperator
 class SumOutOperator : public LiftedOperator
 {
   public:
-    SumOutOperator (PrvGroup group, ParfactorList& pfList) 
+    SumOutOperator (PrvGroup group, ParfactorList& pfList)
         : group_(group), pfList_(pfList) { }
 
     double getLogCost (void);

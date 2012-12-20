@@ -128,7 +128,7 @@ double
 LeafNode::weight (void) const
 {
   assert (clause_->isUnit());
-  if (clause_->posCountedLogVars().empty() == false 
+  if (clause_->posCountedLogVars().empty() == false
     || clause_->negCountedLogVars().empty() == false) {
     if (SetOrNode::isSet() == false) {
       // return a NaN if we have a SetOrNode

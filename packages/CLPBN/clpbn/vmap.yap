@@ -12,7 +12,7 @@
 :- use_module(library(maplist)).
 
 %
-% vmap: map V->I 
+% vmap: map V->I
 % contiguous Vs to contiguous integers
 %
 init_vmap(vmap(0,Empty)) :-

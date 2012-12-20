@@ -176,7 +176,7 @@ get_internal(S, InternalS, Arg) :-
 
 extract_probability(p(Id,Goals), P) :-
 	id(Id,_,P0,_),
-	LogP0 is log(P0),	
+	LogP0 is log(P0),
 	extract_logprobability(Goals, LogP0, LogP),
 	P is exp(LogP).
 

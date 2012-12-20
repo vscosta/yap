@@ -28,7 +28,7 @@ ElimGraph::ElimGraph (const vector<Factor*>& factors)
         }
         if (neighbors (n1, n2) == false) {
           addEdge (n1, n2);
-        } 
+        }
       }
     }
     if (vids.size() == 1) {
@@ -86,7 +86,7 @@ ElimGraph::print (void) const
       cout << "  " << neighs[j]->label();
     }
     cout << endl;
-  }  
+  }
 }
 
 
@@ -142,7 +142,7 @@ ElimGraph::getEliminationOrder (
     Factors::const_iterator first = factors.begin();
     Factors::const_iterator end   = factors.end();
     for (; first != end; ++first) {
-      Util::addToVector (allVids, (*first)->arguments());      
+      Util::addToVector (allVids, (*first)->arguments());
     }
     TinySet<VarId> elimOrder (allVids);
     elimOrder -= TinySet<VarId> (excludedVids);

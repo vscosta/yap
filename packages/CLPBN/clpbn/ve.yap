@@ -11,7 +11,7 @@
       all tables they connect to;
       multiply their size
       order by size
-  
+
 *********************************/
 
 :- module(clpbn_ve,
@@ -134,7 +134,7 @@ evtotree(K=V,Ev0,Ev) :-
 factor_to_graph( f(Nodes, Sizes, _Pars0, Id), Factors0, Factors, Edges0, Edges, I0, I) :-
 	I is I0+1,
 	pfl:get_pfl_parameters(Id, Pars0),
-	init_CPT(Pars0, Sizes, CPT0), 
+	init_CPT(Pars0, Sizes, CPT0),
 	reorder_CPT(Nodes, CPT0, FIPs, CPT, _),
 	F = f(I0, FIPs, CPT),
 	rb_insert(Factors0, I0, F, Factors),
@@ -196,7 +196,7 @@ id_to_factor(VMap, V-I, IF0, IF, Fs0, Fs, Evs0, Evs) :-
 	get_dist_params(D, Pars0),
 	get_dist_domain_size(D, DS),
 	maplist(parent_to_id(VMap), Ps, Sizes, IPs),
-	init_CPT(Pars0, [DS|Sizes], CPT0), 
+	init_CPT(Pars0, [DS|Sizes], CPT0),
 	reorder_CPT([I|IPs], CPT0, FIPs, CPT, _),
 	rb_insert(Fs0, IF0, f(IF0, FIPs, CPT), Fs),
 	IF is IF0+1.
@@ -261,7 +261,7 @@ solve([_|LQVs], FIds, Bigraph, Ev, LPs) :-
 
 do_solve(IQVs, IVs, bigraph(OldVs, IF, _Fs), Ev, Ps) :-
 	% get only what is relevant to query,
-	project_to_query_related(IVs, OldVs, SVs, Fs1), 
+	project_to_query_related(IVs, OldVs, SVs, Fs1),
 	% and also prune using evidence
 	rb_visit(Ev, EvL),
 	foldl2(clean_v_ev, EvL, Fs1, Fs2, SVs, EVs),
@@ -300,9 +300,9 @@ run_ve_solver(_, LLPs, state(LQVs, LVs, _VMap,  Bigraph, Ev)) :-
 %
 solve_ve([IQVs|_], [IVs|_], bigraph(OldVs, IF, _Fs), Ev, Ps) :-
 	% get only what is relevant to query,
-	project_to_query_related(IVs, OldVs, SVs, Fs1), 
+	project_to_query_related(IVs, OldVs, SVs, Fs1),
 	% and also prune using evidence
-	foldl2(clean_v_ev, Ev, Fs1, Fs2, SVs, EVs), 
+	foldl2(clean_v_ev, Ev, Fs1, Fs2, SVs, EVs),
 	% eliminate
 	eliminate(IQVs, digraph(EVs, IF, Fs2), Dist),
 % writeln(m:Dist),matrix:matrix_to_list(Dist,LD),writeln(LD),
@@ -319,7 +319,7 @@ solve_ve([_|MoreLVs], [_|MoreLVis], Digraph, Ev, Ps) :-
 project_to_query_related(IVs0, OldVs, NVs, NFs) :-
 	sort(IVs0, IVs),
 	rb_new(Vs0),
-	foldl(cp_to_vs, IVs, Vs0, AuxVs), 
+	foldl(cp_to_vs, IVs, Vs0, AuxVs),
 	rb_new(NFs0),
 	foldl(simplify_graph_node(OldVs, AuxVs), IVs, VFs, NFs0, NFs),
 	list_to_rbtree(VFs, NVs).
@@ -343,14 +343,14 @@ simplify_graph_node(OldVs, NVs, V, V-RemFs, NFs0, NFs) :-
 %
 % Two cases: first time factor comes up: all its vars must be in subgraph
 % second case: second time it comes up, it must be already in graph
-% 
-% args: +Factor F, +current V (int), +rbtree with all Vs, 
+%
+% args: +Factor F, +current V (int), +rbtree with all Vs,
 %       -Factors in new Graph, +factors in current graph, -rbtree of factors
 %
 %
 check_factor(V, NVs, F, NFs0, NFs, RemFs, NewRemFs) :-
 	F = f(IF, [V|More], _), !,
-	( 
+	(
 	  checklist(check_v(NVs), More)
 	->
 	  rb_insert(NFs0, IF, F, NFs),
@@ -361,7 +361,7 @@ check_factor(V, NVs, F, NFs0, NFs, RemFs, NewRemFs) :-
 	).
 check_factor(_V, _NVs, F, NFs, NFs, RemFs, NewRemFs) :-
 	F = f(Id, _, _),
-	( 
+	(
 	  rb_lookup(Id, F, NFs)
 	->
 	  NewRemFs = [F|RemFs]

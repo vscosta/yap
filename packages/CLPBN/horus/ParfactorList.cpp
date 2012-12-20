@@ -9,7 +9,7 @@ ParfactorList::ParfactorList (const ParfactorList& pfList)
   while (it != pfList.end()) {
     addShattered (new Parfactor (**it));
     ++ it;
-  } 
+  }
 }
 
 
@@ -74,7 +74,7 @@ ParfactorList::insertShattered (
 
 
 list<Parfactor*>::iterator
-ParfactorList::remove (list<Parfactor*>::iterator it) 
+ParfactorList::remove (list<Parfactor*>::iterator it)
 {
   return pfList_.erase (it);
 }
@@ -418,7 +418,7 @@ ParfactorList::shatter (Parfactor* g1, Parfactor* g2)
       if (formulas1[i].sameSkeletonAs (formulas2[j])) {
         std::pair<Parfactors, Parfactors> res;
         res = shatter (i, g1, j, g2);
-        if (res.first.empty()  == false || 
+        if (res.first.empty()  == false ||
             res.second.empty() == false) {
           return res;
         }
@@ -470,7 +470,7 @@ ParfactorList::shatter (
   ConstraintTree* exclCt1 = split1.second;
 
   if (commCt1->empty()) {
-    // disjoint 
+    // disjoint
     delete commCt1;
     delete exclCt1;
     return { };
@@ -549,11 +549,11 @@ ParfactorList::shatter (
       Parfactor* newPf = new Parfactor (g, cts[i]);
       if (cts[i]->nrLogVars() == g->constr()->nrLogVars() + 1) {
         newPf->expand (f.countedLogVar(), X_new1, X_new2);
-        assert (g->constr()->getConditionalCount (f.countedLogVar()) == 
+        assert (g->constr()->getConditionalCount (f.countedLogVar()) ==
             cts[i]->getConditionalCount (X_new1) +
             cts[i]->getConditionalCount (X_new2));
       } else {
-        assert (g->constr()->getConditionalCount (f.countedLogVar()) == 
+        assert (g->constr()->getConditionalCount (f.countedLogVar()) ==
             cts[i]->getConditionalCount (f.countedLogVar()));
       }
       newPf->setNewGroups();

@@ -221,14 +221,14 @@ set_em_solver(Solver) :-
 %
 % we use a mutable variable to avoid unnecessary trailing.
 %
-store_var(El) :- 
-	nb_current(clpbn_qvars, Mutable), 
+store_var(El) :-
+	nb_current(clpbn_qvars, Mutable),
 	nonvar(Mutable), !,
 	get_mutable(Tail, Mutable),
 	update_mutable(El.Tail, Mutable).
-store_var(El) :- 
+store_var(El) :-
 	init_clpbn_vars(El).
-	
+
 init_clpbn_vars(El) :-
 	create_mutable(El, Mutable),
 	b_setval(clpbn_qvars, Mutable).
@@ -278,7 +278,7 @@ project_attributes(GVars0, _AVars0) :-
 	b_setval(clpbn_query_variables, f(GVars0,Evidence)),
 	simplify_query(GVars0, GVars),
 	(
-	  GKeys = [] 
+	  GKeys = []
 	->
 	  GVars0 = [V|_],
 	  clpbn_display:put_atts(V, [posterior([],[],[],[])])
@@ -378,7 +378,7 @@ call_ground_solver(cbp, GVars, GoalKeys, Keys, Factors, Evidence) :- !,
 call_ground_solver(Solver, GVars, _GoalKeys, Keys, Factors, Evidence) :-
 	% fall back to traditional solver
 	b_hash_new(Hash0),
-	foldl(gvar_in_hash, GVars, Hash0, HashI), 
+	foldl(gvar_in_hash, GVars, Hash0, HashI),
 	foldl(key_to_var, Keys, AllVars, HashI, Hash1),
 	foldl(evidence_to_v, Evidence, _EVars, Hash1, Hash),
 	%writeln(Keys:AllVars),
@@ -432,7 +432,7 @@ write_out(Solver, _, _, _) :-
 %
 gvar_in_hash(V, Hash0, Hash) :-
 	get_atts(V, [key(K)]),
-	b_hash_insert(Hash0, K, V, Hash). 
+	b_hash_insert(Hash0, K, V, Hash).
 
 key_to_var(K, V, Hash0, Hash0) :-
 	b_hash_lookup(K, V, Hash0), !.
@@ -496,12 +496,12 @@ process_vars([V|Vs], [K|Ks]) :-
 	process_var(V, K),
 	process_vars(Vs, Ks).
 
-process_var(V, K) :- get_atts(V, [key(K)]), !. 
+process_var(V, K) :- get_atts(V, [key(K)]), !.
 % oops: this variable has no attributes.
 process_var(V, _) :- throw(error(instantiation_error,clpbn(attribute_goal(V)))).
 
 %
-% unify a CLPBN variable with something. 
+% unify a CLPBN variable with something.
 %
 verify_attributes(Var, T, Goal) :-
 	get_atts(Var, [key(Key),dist(Dist,Parents)]), !,
@@ -641,7 +641,7 @@ clpbn_init_solver(pcg, LVs, Vs0, VarsWithUnboundKeys, State) :-
 %
 % LVs is the list of lists of variables to marginalise
 % Vs is the full graph
-% Ps are the probabilities on LVs. 
+% Ps are the probabilities on LVs.
 %
 clpbn_run_solver(LVs, LPs, State) :-
 	solver(Solver),
@@ -708,7 +708,7 @@ pfl_run_solver(LVs, LPs, State) :-
 
 pfl_run_solver(LVs, LPs, State, ve) :- !,
 	run_ve_ground_solver(LVs, LPs, State).
-	
+
 pfl_run_solver(LVs, LPs, State, hve) :- !,
 	run_horus_ground_solver(LVs, LPs, State).
 
@@ -732,7 +732,7 @@ add_keys(Key1+V1,_Key2,Key1+V1).
 
 probability(Goal, Prob) :-
 	findall(Prob, do_probability(Goal, [], Prob), [Prob]).
-	
+
 conditional_probability(Goal, ListOfGoals, Prob) :-
 	\+ ground(Goal),
 	throw(error(ground(Goal),conditional_probability(Goal, ListOfGoals, Prob))).
@@ -766,7 +766,7 @@ evidence_to_var(Goal, C, VItem, V) :-
 	Goal =.. [L|Args],
 	variabilise_last(Args, C, NArgs, V),
 	VItem =.. [L|NArgs].
-	
+
 variabilise_last([Arg], Arg, [V], V).
 variabilise_last([Arg1,Arg2|Args], Arg, Arg1.NArgs, V) :-
 	variabilise_last(Arg2.Args, Arg, NArgs, V).

@@ -50,7 +50,7 @@
 		 append/3,
 		 member/2
 		]).
-	 
+
 :- dynamic factor/6, skolem_in/2, skolem/2, preprocess/3, evidence/2, id/1.
 
 user:term_expansion( bayes((Formula ; Phi ; Constraints)), pfl:factor(bayes,Id,FList,FV,Phi,Constraints)) :-
@@ -178,7 +178,7 @@ add_evidence(Sk,Var) :-
 	clpbn:put_atts(_V,[key(Sk),evidence(E)]).
 
 
-%% get_pfl_cpt(Id, Keys, Ev, NewKeys, Out) :- 
+%% get_pfl_cpt(Id, Keys, Ev, NewKeys, Out) :-
 %% 	factor(_Type,Id,[Key|_],_FV,avg,_Constraints), !,
 %% 	Keys = [Key|Parents],
 %% 	writeln(Key:Parents),

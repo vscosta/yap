@@ -57,7 +57,7 @@ createLiftedNetwork (void)
   }
 
   ParfactorList* pfList = new ParfactorList (parfactors);
-  
+
   if (Globals::verbosity > 2) {
     Util::printHeader ("SHATTERED PARFACTORS");
     pfList->print();
@@ -91,7 +91,7 @@ createGroundNetwork (void)
     // read the ranges
     Ranges ranges = readUnsignedList (YAP_ArgOfTerm (2, factor));
     // read the parameters
-    Params params = readParameters (YAP_ArgOfTerm (3, factor)); 
+    Params params = readParameters (YAP_ArgOfTerm (3, factor));
     // read dist id
     unsigned distId = (unsigned) YAP_IntOfTerm (YAP_ArgOfTerm (4, factor));
     fg->addFactor (Factor (varIds, ranges, params, distId));
@@ -126,7 +126,7 @@ runLiftedSolver (void)
   LiftedNetwork* network = (LiftedNetwork*) YAP_IntOfTerm (YAP_ARG1);
   ParfactorList pfListCopy (*network->first);
   LiftedOperations::absorveEvidence (pfListCopy, *network->second);
-  
+
   LiftedSolver* solver = 0;
   switch (Globals::liftedSolver) {
     case LiftedSolverType::LVE:  solver = new LiftedVe (pfListCopy); break;
@@ -181,7 +181,7 @@ int
 runGroundSolver (void)
 {
   FactorGraph* fg = (FactorGraph*) YAP_IntOfTerm (YAP_ARG1);
-  
+
   vector<VarIds> tasks;
   YAP_Term taskList = YAP_ARG2;
   while (taskList != YAP_TermNil()) {
@@ -407,7 +407,7 @@ readParfactor (YAP_Term pfTerm)
   }
 
   // read the parameters
-  const Params& params = readParameters (YAP_ArgOfTerm (4, pfTerm)); 
+  const Params& params = readParameters (YAP_ArgOfTerm (4, pfTerm));
 
   // read the constraint
   Tuples tuples;
@@ -478,7 +478,7 @@ readLiftedEvidence (
       obsFormulas.push_back (ObservedFormula (functor, evidence, args));
     }
     observedList = YAP_TailOfTerm (observedList);
-  } 
+  }
 }
 
 

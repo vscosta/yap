@@ -98,7 +98,7 @@ jt(LLVs,Vs0,AllDiffs) :-
 
 
 init_jt_solver(LLVs, Vs0, _, State) :-
-	check_for_agg_vars(Vs0, Vs1), 
+	check_for_agg_vars(Vs0, Vs1),
 	init_influences(Vs1, G, RG),
 	maplist(init_jt_solver_for_question(G, RG), LLVs, State).
 
@@ -163,7 +163,7 @@ initial_graph(_,Parents, CPTs) :-
 	% from the very beginning.
 	dgraph_transpose(V1, V2),
 	dgraph_to_ugraph(V2, Parents).
-	
+
 
 problem_graph([], []).
 problem_graph([V|BNet], GraphF) :-

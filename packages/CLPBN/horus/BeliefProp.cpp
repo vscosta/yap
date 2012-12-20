@@ -146,7 +146,7 @@ BeliefProp::getFactorJoint (
   if (Globals::logDomain) {
     Util::exp (jointDist);
   }
-  return jointDist; 
+  return jointDist;
 }
 
 
@@ -185,7 +185,7 @@ BeliefProp::runSolver (void)
   }
   if (Globals::verbosity > 0) {
     if (nIters_ < BpOptions::maxIter) {
-      cout << "Belief propagation converged in " ; 
+      cout << "Belief propagation converged in " ;
       cout << nIters_ << " iterations" << endl;
     } else {
       cout << "The maximum number of iterations was hit, terminating..." ;
@@ -459,7 +459,7 @@ void
 BeliefProp::printLinkInformation (void) const
 {
   for (size_t i = 0; i < links_.size(); i++) {
-    BpLink* l = links_[i]; 
+    BpLink* l = links_[i];
     cout << l->toString() << ":" << endl;
     cout << "    curr msg = " ;
     cout << l->message() << endl;

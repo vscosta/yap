@@ -4,7 +4,7 @@
 	- Variable Elimination
 	- Belief Propagation
 	- Counting Belief Propagation
- 
+
 ********************************************************/
 
 :- module(clpbn_horus_ground,

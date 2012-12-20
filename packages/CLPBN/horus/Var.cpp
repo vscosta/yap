@@ -49,7 +49,7 @@ Var::isValidState (const string& stateName)
 
 
 void
-Var::setEvidence (int ev) 
+Var::setEvidence (int ev)
 {
   assert (ev < (int) range_);
   evidence_ = ev;
@@ -58,8 +58,8 @@ Var::setEvidence (int ev)
 
 
 void
-Var::setEvidence (const string& ev) 
-{ 
+Var::setEvidence (const string& ev)
+{
   States states = Var::getVarInfo (varId_).states;
   for (size_t i = 0; i < states.size(); i++) {
     if (states[i] == ev) {

@@ -75,17 +75,17 @@ hair_color_table(
 /*               high  low  */
 /* dark     */ [ 0.05, 0.1,
 /* bright   */   0.95, 0.9 ]).
-    
+
 car_color_table(
 /*               dark bright */
 /* dark     */ [ 0.9, 0.2,
 /* bright   */   0.1, 0.8 ]).
-	
+
 height_table(
 /*               male female */
 /* tall     */ [ 0.6, 0.4,
 /* short    */   0.4, 0.6 ]).
-	
+
 shoe_size_table(
 /*               tall short */
 /* big      */ [ 0.9, 0.1,
@@ -99,7 +99,7 @@ descn_table(
 /*               car_color(P), hair_color(P), height(P), guilty(P) */
 /* fits     */ [ 0.99, 0.5,  0.23, 0.88, 0.41, 0.3,  0.76, 0.87,
 /* fits     */   0.44, 0.43, 0.29, 0.72, 0.23, 0.91, 0.95, 0.92,
-/* dont_fit */   0.01, 0.5,  0.77, 0.12, 0.59, 0.7,  0.24, 0.13, 
+/* dont_fit */   0.01, 0.5,  0.77, 0.12, 0.59, 0.7,  0.24, 0.13,
 /* dont_fit */   0.56, 0.57, 0.71, 0.28, 0.77, 0.09, 0.05, 0.08 ]).
 
 witness_table(

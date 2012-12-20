@@ -17,7 +17,7 @@ class BpLink
 {
   public:
     BpLink (FacNode* fn, VarNode* vn)
-    { 
+    {
       fac_ = fn;
       var_ = vn;
       v1_.resize (vn->range(), LogAware::log (1.0 / vn->range()));
@@ -46,7 +46,7 @@ class BpLink
       residual_ = LogAware::getMaxNorm (v1_,v2_);
     }
 
-    virtual void updateMessage (void) 
+    virtual void updateMessage (void)
     {
       swap (currMsg_, nextMsg_);
     }

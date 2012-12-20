@@ -66,7 +66,7 @@ merge_same_key([K1-V1,K2-V2|Vs], SortedAVars, Ks, UnifiableVars) :-
 	attributes:fast_unify_attributed(V1,V2),
 	merge_same_key([K1-V1|Vs], SortedAVars, Ks, UnifiableVars).
 merge_same_key([K1-V1,K2-V2|Vs], [V1|SortedAVars], Ks, [K1|UnifiableVars]) :-
-	(in_keys(K1, Ks) ; \+ \+ K1 == K2), !, 
+	(in_keys(K1, Ks) ; \+ \+ K1 == K2), !,
 	add_to_keys(K1, Ks, NKs),
 	merge_same_key([K2-V2|Vs], SortedAVars, NKs, UnifiableVars).
 merge_same_key([K-V|Vs], [V|SortedAVars], Ks, UnifiableVars) :-
@@ -74,7 +74,7 @@ merge_same_key([K-V|Vs], [V|SortedAVars], Ks, UnifiableVars) :-
 	merge_same_key(Vs, SortedAVars, NKs, UnifiableVars).
 
 in_keys(K1,[K|_]) :- \+ \+ K1 = K, !.
-in_keys(K1,[_|Ks]) :- 
+in_keys(K1,[_|Ks]) :-
 	in_keys(K1,Ks).
 
 add_to_keys(K1, Ks, Ks) :- ground(K1), !.

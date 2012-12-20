@@ -1,7 +1,7 @@
 
 :- module(clpbn_numbers,
-		[keys_to_numbers/7, 
-		 keys_to_numbers/9, 
+		[keys_to_numbers/7,
+		 keys_to_numbers/9,
 		 lists_of_keys_to_ids/6
 		]).
 

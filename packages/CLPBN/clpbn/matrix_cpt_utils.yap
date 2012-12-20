@@ -87,7 +87,7 @@ evidence(V, Pos) :-
 	clpbn:get_atts(V, [evidence(Pos)]).
 
 vnth([V1|Deps], N, V, N, Deps) :-
-	V == V1, !.	
+	V == V1, !.
 vnth([V1|Deps], N0, V, N, [V1|NDeps]) :-
 	N1 is N0+1,
 	vnth(Deps, N1, V, N, NDeps).
@@ -207,9 +207,9 @@ generate_map([V|DimsNew], [V0|Dims0], [0|Map]) :- V == V0, !,
 	generate_map(DimsNew, Dims0, Map).
 generate_map([V|DimsNew], Dims0, [Sz|Map]) :-
 	clpbn:get_atts(V, [dist(Id,_)]),
-	clpbn_dist:get_dist_domain_size(Id, Sz),	
+	clpbn_dist:get_dist_domain_size(Id, Sz),
 	generate_map(DimsNew, Dims0, Map).
-	
+
 unit_CPT(V,CPT) :-
 	clpbn:get_atts(V, [dist(Id,_)]),
 	clpbn_dist:get_dist_domain_size(Id, Sz),
@@ -287,7 +287,7 @@ uniform_CPT(Dims, M) :-
 	normalise_possibly_deterministic_CPT(M1, M).
 
 normalise_CPT_on_lines(MAT0, MAT2, L1) :-
-	matrix_agg_cols(MAT0, +, MAT1), 
+	matrix_agg_cols(MAT0, +, MAT1),
 	matrix_sum(MAT1, SUM),
 	matrix_op_to_all(MAT1, /, SUM, MAT2),
 	matrix:matrix_to_list(MAT2,L1).

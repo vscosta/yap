@@ -140,7 +140,7 @@ nrDigits (int num)
 {
   unsigned count = 1;
   while (num >= 10) {
-    num /= 10; 
+    num /= 10;
     count ++;
   }
   return count;
@@ -166,7 +166,7 @@ parametersToString (const Params& v, unsigned precision)
 {
   stringstream ss;
   ss.precision (precision);
-  ss << "[" ; 
+  ss << "[" ;
   for (size_t i = 0; i < v.size(); i++) {
     if (i != 0) ss << ", " ;
     ss << v[i];

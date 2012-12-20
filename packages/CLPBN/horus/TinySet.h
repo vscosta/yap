@@ -21,7 +21,7 @@ class TinySet
     TinySet (const Compare& cmp = Compare())
         : vec_(), cmp_(cmp) { }
 
-    TinySet (const T& t, const Compare& cmp = Compare()) 
+    TinySet (const T& t, const Compare& cmp = Compare())
         : vec_(1, t), cmp_(cmp) { }
 
     TinySet (const vector<T>& elements, const Compare& cmp = Compare())
@@ -153,12 +153,12 @@ class TinySet
     {
       return vec_[i];
     }
-    
+
     T& operator[] (typename vector<T>::size_type i)
     {
       return vec_[i];
     }
-  
+
     T front (void) const
     {
       return vec_.front();
@@ -219,7 +219,7 @@ class TinySet
       return ! (s1.vec_ == s2.vec_);
     }
 
-    friend std::ostream& operator << (std::ostream& out, const TinySet& s)
+    friend std::ostream& operator<< (std::ostream& out, const TinySet& s)
     {
       out << "{" ;
       typename vector<T>::size_type i;

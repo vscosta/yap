@@ -8,7 +8,7 @@
 
 Parfactor::Parfactor (
     const ProbFormulas& formulas,
-    const Params& params, 
+    const Params& params,
     const Tuples& tuples,
     unsigned distId)
 {
@@ -221,7 +221,7 @@ Parfactor::countConvert (LogVar X)
   assert (constr_->isCountNormalized (X));
   assert (constr_->getConditionalCount (X) > 1);
   assert (canCountConvert (X));
- 
+
   unsigned N = constr_->getConditionalCount (X);
   unsigned R = ranges_[fIdx];
   unsigned H = HistogramSet::nrHistograms (N, R);
@@ -336,7 +336,7 @@ Parfactor::fullExpand (LogVar X)
     sumIndexes.push_back (HistogramSet::findIndex (hist, originHists));
     ++ indexer;
   }
-  
+
   expandPotential (fIdx, std::pow (R, N), sumIndexes);
 
   ProbFormula f = args_[fIdx];
@@ -360,7 +360,7 @@ Parfactor::reorderAccordingGrounds (const Grounds& grounds)
   ProbFormulas newFormulas;
   for (size_t i = 0; i < grounds.size(); i++) {
     for (size_t j = 0; j < args_.size(); j++) {
-      if (grounds[i].functor() == args_[j].functor() && 
+      if (grounds[i].functor() == args_[j].functor() &&
           grounds[i].arity()   == args_[j].arity()) {
         constr_->moveToTop (args_[j].logVars());
         if (constr_->containsTuple (grounds[i].args())) {
@@ -424,7 +424,7 @@ Parfactor::indexOfGround (const Ground& ground) const
 {
   size_t idx = args_.size();
   for (size_t i = 0; i < args_.size(); i++) {
-    if (args_[i].functor() == ground.functor() && 
+    if (args_[i].functor() == ground.functor() &&
         args_[i].arity()   == ground.arity()) {
       constr_->moveToTop (args_[i].logVars());
       if (constr_->containsTuple (ground.args())) {
@@ -806,7 +806,7 @@ Parfactor::simplifyParfactor (size_t fIdx1, size_t fIdx2)
   while (indexer.valid()) {
     if (indexer[fIdx1] == indexer[fIdx2]) {
       params_.push_back (backup[indexer]);
-    }     
+    }
     ++ indexer;
   }
   for (size_t i = 0; i < args_[fIdx2].logVars().size(); i++) {
@@ -829,7 +829,7 @@ Parfactor::getAlignLogVars (Parfactor* g1, Parfactor* g2)
   TinySet<size_t> matchedI;
   TinySet<size_t> matchedJ;
   ProbFormulas& formulas1 = g1->arguments();
-  ProbFormulas& formulas2 = g2->arguments(); 
+  ProbFormulas& formulas2 = g2->arguments();
   for (size_t i = 0; i < formulas1.size(); i++) {
     for (size_t j = 0; j < formulas2.size(); j++) {
       if (formulas1[i].group() == formulas2[j].group() &&
@@ -882,7 +882,7 @@ Parfactor::alignLogicalVars (Parfactor* g1, Parfactor* g2)
   LogVar freeLogVar (0);
   Substitution theta1, theta2;
   for (size_t i = 0; i < alignLvs1.size(); i++) {
-    bool b1 = theta1.containsReplacementFor (alignLvs1[i]); 
+    bool b1 = theta1.containsReplacementFor (alignLvs1[i]);
     bool b2 = theta2.containsReplacementFor (alignLvs2[i]);
     if (b1 == false && b2 == false) {
       theta1.add (alignLvs1[i], freeLogVar);
@@ -911,11 +911,11 @@ Parfactor::alignLogicalVars (Parfactor* g1, Parfactor* g2)
   }
 
   // handle this type of situation:
-  // g1 = p(X), q(X) ;  X    in {(p1),(p2)} 
+  // g1 = p(X), q(X) ;  X    in {(p1),(p2)}
   // g2 = p(X), q(Y) ; (X,Y) in {(p1,p2),(p2,p1)}
   LogVars discardedLvs1 = theta1.getDiscardedLogVars();
   for (size_t i = 0; i < discardedLvs1.size(); i++) {
-    if (g1->constr()->isSingleton (discardedLvs1[i]) && 
+    if (g1->constr()->isSingleton (discardedLvs1[i]) &&
         g1->nrFormulas (discardedLvs1[i]) == 1) {
       g1->constr()->remove (discardedLvs1[i]);
     } else {

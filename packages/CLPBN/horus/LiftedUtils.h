@@ -51,7 +51,7 @@ class LogVar
     }
 
     bool valid (void) const
-    { 
+    {
       return id_ != Util::maxUnsigned();
     }
 
@@ -145,7 +145,7 @@ class Substitution
       return X;
     }
 
-    bool containsReplacementFor (LogVar X) const 
+    bool containsReplacementFor (LogVar X) const
     {
       return Util::contains (subs_, X);
     }

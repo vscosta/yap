@@ -143,7 +143,7 @@ class TFactor
       assert (idx != args_.size());
       assert (obsIdx < ranges_[idx]);
       Params newps;
-      newps.reserve (params_.size() / ranges_[idx]); 
+      newps.reserve (params_.size() / ranges_[idx]);
       Indexer indexer (ranges_);
       for (unsigned i = 0; i < obsIdx; ++i) {
         indexer.incrementDimension (idx);
@@ -285,7 +285,7 @@ class Factor : public TFactor<VarId>
     void sumOutLastVariable (void);
 
     void sumOutArgs (const vector<bool>& mask);
-   
+
     void clone (const Factor& f);
 
 };

@@ -12,11 +12,11 @@ typedef unsigned long PrvGroup;
 class ProbFormula
 {
   public:
-    ProbFormula (Symbol f, const LogVars& lvs, unsigned range) 
+    ProbFormula (Symbol f, const LogVars& lvs, unsigned range)
         : functor_(f), logVars_(lvs), range_(range),
           countedLogVar_(), group_(numeric_limits<PrvGroup>::max()) { }
 
-    ProbFormula (Symbol f, unsigned r) 
+    ProbFormula (Symbol f, unsigned r)
         : functor_(f), range_(r), group_(numeric_limits<PrvGroup>::max()) { }
 
     Symbol functor (void) const { return functor_; }
@@ -76,10 +76,10 @@ typedef vector<ProbFormula> ProbFormulas;
 class ObservedFormula
 {
   public:
-    ObservedFormula (Symbol f, unsigned a, unsigned ev) 
+    ObservedFormula (Symbol f, unsigned a, unsigned ev)
         : functor_(f), arity_(a), evidence_(ev), constr_(a) { }
 
-    ObservedFormula (Symbol f, unsigned ev, const Tuple& tuple) 
+    ObservedFormula (Symbol f, unsigned ev, const Tuple& tuple)
         : functor_(f), arity_(tuple.size()), evidence_(ev), constr_(arity_)
     {
       constr_.addTuple (tuple);

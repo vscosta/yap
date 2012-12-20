@@ -78,7 +78,7 @@ clpbn_bind_vals([Vs|MoreVs],[Ps|MorePs],AllDiffs) :-
 
 clpbn_bind_vals2([],_,_) :- !.
 % simple case, we want a distribution on a single variable.
-clpbn_bind_vals2([V],Ps,AllDiffs) :- 
+clpbn_bind_vals2([V],Ps,AllDiffs) :-
 	use_parfactors(on), !,
 	clpbn:get_atts(V, [key(K)]),
 	pfl:skolem(K,Vals),

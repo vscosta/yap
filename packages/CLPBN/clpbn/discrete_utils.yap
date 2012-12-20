@@ -24,7 +24,7 @@ propagate_evidence(V, Evs) :-
 	clpbn:get_atts(V, [evidence(Ev),dist(Id,_)]), !,
 	get_dist_domain(Id, Out),
 	generate_szs_with_evidence(Out,Ev,0,Evs,Found),
-	(var(Found) -> 
+	(var(Found) ->
 	  clpbn:get_atts(V, [key(K)]),
 	  throw(clpbn(evidence_does_not_match,K,Ev,[Out]))
 	;

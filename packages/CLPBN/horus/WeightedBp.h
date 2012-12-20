@@ -6,7 +6,7 @@
 class WeightedLink : public BpLink
 {
   public:
-    WeightedLink (FacNode* fn, VarNode* vn, size_t idx, unsigned weight) 
+    WeightedLink (FacNode* fn, VarNode* vn, size_t idx, unsigned weight)
         : BpLink (fn, vn), index_(idx), weight_(weight),
           pwdMsg_(vn->range(), LogAware::one()) { }
 
@@ -16,7 +16,7 @@ class WeightedLink : public BpLink
 
     const Params& powMessage (void) const { return pwdMsg_; }
 
-    void updateMessage (void) 
+    void updateMessage (void)
     {
       pwdMsg_ = *nextMsg_;
       swap (currMsg_, nextMsg_);

@@ -47,8 +47,7 @@ CountingBp::printSolverFlags (void) const
   ss << ",max_iter=" << BpOptions::maxIter;
   ss << ",accuracy=" << BpOptions::accuracy;
   ss << ",log_domain=" << Util::toString (Globals::logDomain);
-  ss << ",chkif=" << 
-      Util::toString (CountingBp::checkForIdenticalFactors);
+  ss << ",chkif=" << Util::toString (CountingBp::checkForIdenticalFactors);
   ss << "]" ;
   cout << ss.str() << endl;
 }
@@ -139,7 +138,7 @@ CountingBp::setInitialColors (void)
     VarColorMap::iterator it = colorMap.find (range);
     if (it == colorMap.end()) {
       it = colorMap.insert (make_pair (
-          range, Colors (range + 1, -1))).first; 
+          range, Colors (range + 1, -1))).first;
     }
     unsigned idx = varNodes[i]->hasEvidence()
                  ? varNodes[i]->getEvidence()

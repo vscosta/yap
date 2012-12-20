@@ -167,7 +167,7 @@ class MapIndexer
         }
       }
     }
-    
+
    template <typename T>
    MapIndexer (
         const vector<T>& allArgs,

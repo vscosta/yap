@@ -37,11 +37,11 @@
 	clpbn_tabled_clause_ref(:.?,?),
 	clpbn_tabled_retract(:),
 	clpbn_tabled_abolish(:),
-	clpbn_tabled_asserta(:), 
-	clpbn_tabled_assertz(:), 
-	clpbn_tabled_asserta(:,-), 
-	clpbn_tabled_assertz(:,-), 
-	clpbn_tabled_number_of_clauses(:,-), 
+	clpbn_tabled_asserta(:),
+	clpbn_tabled_assertz(:),
+	clpbn_tabled_asserta(:,-),
+	clpbn_tabled_assertz(:,-),
+	clpbn_tabled_number_of_clauses(:,-),
 	clpbn_is_tabled(:).
 
 :- use_module(library(terms),

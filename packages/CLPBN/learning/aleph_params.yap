@@ -50,7 +50,7 @@
 %
 % Tell Aleph not to use default solver during saturation
 %
-% all work will be done by EM 
+% all work will be done by EM
 %:- set_clpbn_flag(solver,none).
 
 %
@@ -123,7 +123,7 @@ add_new_clause(_,(H :- B),_,_) :-
 	  asserta(user:(H :- IB))
 	),
 	user:setting(verbosity,V),
-	( V >= 1 -> 
+	( V >= 1 ->
 	  user:p_message('CLP(BN) Theory'),
 	  functor(H,N,Ar), listing(user:N/Ar)
 	;
@@ -138,7 +138,7 @@ update_tabled_theory(H) :-
 	clpbn_tabled_assertz((user:(H:-NB))),
 	fail.
 update_tabled_theory(_).
-	
+
 update_theory(H) :-
 	clause(user:H,B,Ref),
 	add_correct_cpt(B,NB),
@@ -161,7 +161,7 @@ correct_tab(p(Vs,_,Ps),K,p(Vs,TDist,Ps)) :-
 	get_dist_key(Id, K),
 	get_dist_params(Id, TDist).
 
-% user-defined cost function, Aleph knows about this (and only about this). 
+% user-defined cost function, Aleph knows about this (and only about this).
 user:cost((H :- B),Inf,Score) :-
 	domain(H, K, V, D),
 	check_info(Inf),
@@ -261,7 +261,7 @@ rewrite_body((A,B), (user:NA,NB), [V|Vs], [D|Ds], Tail) :-
 	rewrite_body(B, NB, Vs, Ds, Tail).
 rewrite_body((A,B), (user:A,NB), Vs, Ds, Tail) :- !,
 	rewrite_body(B,NB, Vs, Ds, Tail).
-rewrite_body(A,(user:NA,Tail), [V], [D], Tail) :- 
+rewrite_body(A,(user:NA,Tail), [V], [D], Tail) :-
 	rewrite_goal(A, V, D, NA), !.
 rewrite_body(A, (user:A,Tail), [], [], Tail).
 

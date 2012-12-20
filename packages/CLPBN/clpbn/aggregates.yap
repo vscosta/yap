@@ -96,11 +96,11 @@ find_ev(_Evs, Key, RemKeys, [Key|RemKeys], Ev, Ev).
 % +final CPT
 % - New Parents
 % + - list of new keys
-% 
+%
 avg_table(Vars, OVars, Domain, Key, TotEvidence, Softness, Vars, Vs, Vs, Id) :-
 	length(Domain, SDomain),
 	int_power(Vars, SDomain, 1, TabSize),
-	TabSize =< 256, 
+	TabSize =< 256,
 	/* case gmp is not there !! */
 	TabSize > 0, !,
 	average_cpt(Vars, OVars, Domain, TotEvidence,  Softness, CPT),
@@ -170,7 +170,7 @@ cpt_min([_|Vars], Key, Els0, CPT, Vs, NewVs) :-
 build_avg_table(Vars, OVars, Domain, _, TotEvidence, Softness, CPT, Vars, Vs, Vs) :-
 	length(Domain, SDomain),
 	int_power(Vars, SDomain, 1, TabSize),
-	TabSize =< 256, 
+	TabSize =< 256,
 	/* case gmp is not there !! */
 	TabSize > 0, !,
 	average_cpt(Vars, OVars, Domain, TotEvidence,  Softness, CPT).
@@ -304,7 +304,7 @@ get_ds_lengths([],[]).
 get_ds_lengths([V|Vs],[Sz|Lengs]) :-
 	get_vdist_size(V, Sz),
 	get_ds_lengths(Vs,Lengs).
-	
+
 fill_in_average(Lengs, N, Base, MCPT) :-
 	generate(Lengs, Case),
 	average(Case, N, Base, Val),

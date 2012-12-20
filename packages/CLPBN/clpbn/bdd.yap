@@ -9,12 +9,12 @@ V = v(Va, Vb, Vc)
 
 The generic formula is
 
-V <- X, Y 
+V <- X, Y
 
 Va <- P*X1*Y1 + Q*X2*Y2 + ...
 
 
- 
+
 **************************************************/
 
 :- module(clpbn_bdd,
@@ -80,8 +80,8 @@ bdds(bdd).
 
 %
 % QVars: all query variables?
-% 
-% 
+%
+%
 init_bdd_ground_solver(QueryKeys, AllKeys, Factors, Evidence, bdd(QueryKeys, AllKeys, Factors, Evidence)).
 
 %
@@ -161,7 +161,7 @@ sort_keys(AllFs, AllVars, Leaves) :-
 	dgraph_top_sort(Graph, AllVars).
 
 add_node(f([K|Parents],_,_,_), Graph0, Graph) :-
-	dgraph_add_vertex(Graph0, K, Graph1), 
+	dgraph_add_vertex(Graph0, K, Graph1),
 	foldl(add_edge(K), Parents, Graph1, Graph).
 
 add_edge(K, K0, Graph0, Graph) :-
@@ -176,7 +176,7 @@ sort_vars(AllVars0, AllVars, Leaves) :-
 build_graph([], Graph, Graph).
 build_graph([V|AllVars0], Graph0, Graph) :-
 	clpbn:get_atts(V, [dist(_DistId, Parents)]), !,
-	dgraph_add_vertex(Graph0, V, Graph1), 
+	dgraph_add_vertex(Graph0, V, Graph1),
 	add_parents(Parents, V, Graph1, GraphI),
 	build_graph(AllVars0, GraphI, Graph).
 build_graph(_V.AllVars0, Graph0, Graph) :-
@@ -184,7 +184,7 @@ build_graph(_V.AllVars0, Graph0, Graph) :-
 
 add_parents([], _V, Graph, Graph).
 add_parents([V0|Parents], V, Graph0, GraphF) :-
-	dgraph_add_edge(Graph0, V0, V, GraphI), 
+	dgraph_add_edge(Graph0, V0, V, GraphI),
 	add_parents(Parents, V, GraphI, GraphF).
 
 get_keys_info([], _, _, _, Vs, Vs, Ps, Ps, _, _) --> [].
@@ -378,7 +378,7 @@ avg_tree([Vals|PVars], P, Max, Im, IM, Size, O, H0, HF) :-
 	MaxI is Max-(Size-1),
 	avg_exp(Vals, PVars, 0, P, MaxI, Size, Im, IM, HI, HF, Exp),
 	simplify_exp(Exp, Simp).
-	
+
 avg_exp([], _, _, _P, _Max, _Size, _Im, _IM, H, H, 0).
 avg_exp([Val|Vals], PVars, I0, P0, Max, Size, Im, IM, HI, HF, O) :-
 	(Vals = [] -> O=O1 ; O = Val*O1+not(Val)*O2 ),
@@ -434,7 +434,7 @@ bup_avg(V, Size, Domain, Parents0, Vs, Vs2, Lvs, Outs, DIST) :-
 bin_sums(Vs, Sums, F) :-
 	 vs_to_sums(Vs, Sums0),
 	 bin_sums(Sums0, Sums, F, []).
-	
+
 vs_to_sums([], []).
 vs_to_sums([V|Vs], [Sum|Sums0]) :-
 	Sum =.. [sum|V],
@@ -536,7 +536,7 @@ sum_all([_V|Vs], Pos, I, Max0, Sums, List) :-
 
 gen_arg(J, Sums, Max, S0) :-
 	gen_arg(0, Max, J, Sums, S0).
-	
+
 gen_arg(Max, Max, J, Sums, S0) :- !,
 	I is Max+1,
 	arg(I, Sums, A),
@@ -647,19 +647,19 @@ copy(N, [], [], Ms, Parms0, Parms, ParmVars) :-!,
 	copy(N, Ms, NewMs, NewMs, Parms0, Parms, ParmVars).
 copy(N, D.Ds, ND.NDs, New, El.Parms0, NEl.Parms, V.ParmVars) :-
 	N1 is N-1,
-	(El == 0.0 -> 
+	(El == 0.0 ->
 	    NEl = 0,
 	    V = NEl,
 	    ND = D
-	;El == 1.0 -> 
+	;El == 1.0 ->
 	    NEl = 1,
 	    V = NEl,
 	    ND = 0.0
-	;El == 0 -> 
+	;El == 0 ->
 	    NEl = 0,
 	    V = NEl,
 	    ND = D
-	;El =:= 1 -> 
+	;El =:= 1 ->
 	    NEl = 1,
 	    V = NEl,
 	    ND = 0.0,
@@ -818,7 +818,7 @@ get_key_evidence(V, Evs, _, Tree, Ev, F0, F, Leaves, Finals) :-
 %% 	deterministic(V, DistId),
 %% 	!,
 %% 	one_list(Ev),
-%% 	eval_outs(F0).	
+%% 	eval_outs(F0).
 %% no evidence !!!
 get_key_evidence(V, _, _, Tree, _Values, F0, F1, Leaves, Finals) :-
 	insert_output(Leaves, V, Finals, Tree, Outs, SendOut),
@@ -836,14 +836,14 @@ get_evidence(V, _Tree, Ev, F0, [], _Leaves, _Finals) :-
 	( Name = 'AVG' ; Name = 'MAX' ; Name = 'MIN' ),
 	!,
 	one_list(Ev),
-	eval_outs(F0).	
+	eval_outs(F0).
 %% no evidence !!!
 get_evidence(V, Tree, _Values, F0, F1, Leaves, Finals) :-
 	insert_output(Leaves, V, Finals, Tree, Outs, SendOut),
 	get_outs(F0, F1, SendOut, Outs).
 
 zero_pos(_, _Pos, []).
-zero_pos(Pos, Pos, [1|Values]) :- !, 
+zero_pos(Pos, Pos, [1|Values]) :- !,
 	I is Pos+1,
 	zero_pos(I, Pos, Values).
 zero_pos(I0, Pos, [0|Values]) :-
@@ -855,7 +855,7 @@ one_list(1.Ev) :-
 	one_list(Ev).
 
 %
-% insert a node with the disj of all alternatives, this is only done if node ends up to be in the output 
+% insert a node with the disj of all alternatives, this is only done if node ends up to be in the output
 %
 insert_output([], _V, [], _Out, _Outs, []).
 insert_output(V._Leaves, V0, [Top|_], Top, Outs, [Top = Outs]) :- V == V0, !.
@@ -1057,7 +1057,7 @@ generate_exclusions([V0|SeenVs], V) -->
 
 build_cnf(CNF, IVs, Indics, AllParms, AllParmValues, Val) :-
 %(numbervars(CNF,1,_), writeln(cnf_to_ddnnf(CNF, Vars, IVs, [], F)), fail ; true ),
-	cnf_to_ddnnf(CNF, AllParms, F), 
+	cnf_to_ddnnf(CNF, AllParms, F),
 	AllParms = AllParmValues,
 	IVs = Indics,
 	term_variables(CNF, Extra),

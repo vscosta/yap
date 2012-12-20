@@ -60,7 +60,7 @@ LiftedOperations::runWeakBayesBall (
     const Grounds& query)
 {
   queue<PrvGroup> todo; // groups to process
-  set<PrvGroup> done;   // processed or in queue 
+  set<PrvGroup> done;   // processed or in queue
   for (size_t i = 0; i < query.size(); i++) {
     ParfactorList::iterator it = pfList.begin();
     while (it != pfList.end()) {
@@ -225,7 +225,7 @@ LiftedOperations::absorve (
           absorvedPfs.push_back (0);
         }
         break;
-      } 
+      }
 
       g->constr()->moveToTop (formulas[i].logVars());
       std::pair<ConstraintTree*, ConstraintTree*> res;

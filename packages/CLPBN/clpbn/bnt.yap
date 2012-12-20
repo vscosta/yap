@@ -101,7 +101,7 @@ do_bnt(QueryVars, AllVars, AllDiffs)  :-
 	add_evidence(SortedVertices, Size, NumberedVertices),
 	marginalize(QueryVars, SortedVertices, NumberedVertices, Ps),
 	clpbn_bind_vals(QueryVars, Ps, AllDiffs).
-	
+
 create_bnt_graph(AllVars, Representatives) :-
 	create_bnt_graph(AllVars, Representatives, _, _, _).
 
@@ -320,7 +320,7 @@ get_sizes_and_ids([V|Parents],[Id-V|Ids]) :-
 extract_vars([], L, L).
 extract_vars([_-V|NIds], NParents, Vs) :-
 	extract_vars(NIds, [V|NParents], Vs).
-	
+
 mkcpt(BayesNet, I, Tab) :-
 	(BayesNet.'CPD'({I})) <-- tabular_CPD(BayesNet,I,Tab).
 
@@ -336,7 +336,7 @@ create_class_vector([], [], [],[]).
 create_class_vector([V|Graph], [I|Is],  [Id|Classes], [Id-v(V,I,Parents)|Sets]) :-
 	clpbn:get_atts(V, [dist(Id,Parents)]),
 	create_class_vector(Graph, Is,Classes,Sets).
-	
+
 representatives([],[]).
 representatives([Class-Rep|Reps1],[Class-Rep|Reps]) :-
 	nonrepresentatives(Reps1, Class, Reps2),
@@ -390,7 +390,7 @@ mk_evidence([V|L], [I|Is], [ar(1,I,EvVal1)|LN]) :-
 	mk_evidence(L, Is, LN).
 mk_evidence([_|L], [_|Is], LN) :-
 	mk_evidence(L, Is, LN).
-	
+
 evidence_val(Ev,Val,[Ev|_],Val) :- !.
 evidence_val(Ev,I0,[_|Domain],Val) :-
 	I1 is I0+1,

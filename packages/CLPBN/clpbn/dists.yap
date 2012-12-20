@@ -90,7 +90,7 @@ where Id is the id,
     dna for [a,c,g,t]
     rna for [a,c,g,u]
     reals
-	
+
 
 ********************************************/
 

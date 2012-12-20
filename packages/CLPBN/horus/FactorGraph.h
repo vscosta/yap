@@ -76,7 +76,7 @@ class FactorGraph
     const FacNodes& facNodes (void) const { return facNodes_; }
 
     void setFactorsAsBayesian (void) { bayesFactors_ = true; }
- 
+
     bool bayesianFactors (void) const { return bayesFactors_; }
 
     size_t nrVarNodes (void) const { return varNodes_.size(); }

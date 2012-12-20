@@ -70,7 +70,7 @@ VarElim::createFactorList (void)
     factorList_.push_back (new Factor (facNodes[i]->factor()));
     const VarNodes& neighs = facNodes[i]->neighbors();
     for (size_t j = 0; j < neighs.size(); j++) {
-      unordered_map<VarId, vector<size_t>>::iterator it 
+      unordered_map<VarId, vector<size_t>>::iterator it
           = varFactors_.find (neighs[j]->varId());
       if (it == varFactors_.end()) {
         it = varFactors_.insert (make_pair (

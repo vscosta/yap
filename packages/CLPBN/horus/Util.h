@@ -373,8 +373,8 @@ void operator^=(std::vector<T>& v, int iexp)
 
 
 
-template <typename T> 
-std::ostream& operator << (std::ostream& os, const vector<T>& v)
+template <typename T>
+std::ostream& operator<< (std::ostream& os, const vector<T>& v)
 {
   os << "[" ;
   os << Util::elementsToString (v, ", ");

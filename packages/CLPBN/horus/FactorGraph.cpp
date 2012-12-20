@@ -171,7 +171,7 @@ FactorGraph::readFromLibDaiFormat (const char* fileName)
     std::reverse (vids.begin(), vids.end());
     Factor f (vids, ranges, params);
     std::reverse (vids.begin(), vids.end());
-    f.reorderArguments (vids); 
+    f.reorderArguments (vids);
     addFactor (f);
   }
   is.close();
@@ -188,7 +188,7 @@ FactorGraph::addFactor (const Factor& factor)
   for (size_t i = 0; i < vids.size(); i++) {
     VarMap::const_iterator it = varMap_.find (vids[i]);
     if (it != varMap_.end()) {
-      addEdge (it->second, fn);      
+      addEdge (it->second, fn);
     } else {
       VarNode* vn = new VarNode (vids[i], fn->factor().range (i));
       addVarNode (vn);
@@ -293,7 +293,7 @@ FactorGraph::exportToGraphViz (const char* fileName) const
   }
   for (size_t i = 0; i < facNodes_.size(); i++) {
     out << '"' << facNodes_[i]->getLabel() << '"' ;
-    out << " [label=\"" << facNodes_[i]->getLabel(); 
+    out << " [label=\"" << facNodes_[i]->getLabel();
     out << "\"" << ", shape=box]" << endl;
   }
   for (size_t i = 0; i < facNodes_.size(); i++) {

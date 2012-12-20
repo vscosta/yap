@@ -30,15 +30,15 @@ class BBNode : public Var
     void addChild (BBNode* c) { childs_.push_back (c); }
 
     bool isVisited (void) const { return visited_; }
- 
+
     void setAsVisited (void) { visited_ = true; }
 
     bool isMarkedOnTop (void) const { return markedOnTop_; }
- 
+
     void markOnTop (void) { markedOnTop_ = true; }
 
     bool isMarkedOnBottom (void) const { return markedOnBottom_; }
- 
+
     void markOnBottom (void) { markedOnBottom_ = true; }
 
     void clear (void) { visited_ = markedOnTop_ = markedOnBottom_ = false; }

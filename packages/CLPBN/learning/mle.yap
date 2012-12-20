@@ -57,7 +57,7 @@ mk_sample(AllVars, SortedSample) :-
 	msort(Sample, SortedSample).
 
 %
-% assumes we have full data, meaning evidence for every variable 
+% assumes we have full data, meaning evidence for every variable
 %
 add2sample([],  []).
 add2sample([V|Vs],[val(Id,[Ev|EParents])|Vals]) :-

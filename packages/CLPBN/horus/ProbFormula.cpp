@@ -61,7 +61,7 @@ ProbFormula::countedLogVar (void) const
 }
 
 
-    
+
 void
 ProbFormula::setCountedLogVar (LogVar lv)
 {
@@ -92,9 +92,10 @@ ProbFormula::rename (LogVar oldName, LogVar newName)
 }
 
 
+
 bool operator== (const ProbFormula& f1, const ProbFormula& f2)
-{ 
-  return f1.group_   == f2.group_ && 
+{
+  return f1.group_   == f2.group_ &&
          f1.logVars_ == f2.logVars_;
 }
 

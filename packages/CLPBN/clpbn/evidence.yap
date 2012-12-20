@@ -31,7 +31,7 @@
 :- dynamic node/3, edge/2, evidence/2.
 
 %
-% new evidence storage algorithm. The idea is that instead of 
+% new evidence storage algorithm. The idea is that instead of
 % redoing all the evidence every time we query the network, we shall
 % keep a precompiled version around.
 %
@@ -51,9 +51,9 @@ compute_evidence(_,PreviousSolver) :-
 	set_clpbn_flag(solver, PreviousSolver).
 
 get_clpbn_vars(G, Vars) :-
-%	attributes:all_attvars(Vars0),	
+%	attributes:all_attvars(Vars0),
 	once(G),
-	attributes:all_attvars(Vars).	
+	attributes:all_attvars(Vars).
 
 evidence_error(Ball,PreviousSolver) :-
 	set_clpbn_flag(solver,PreviousSolver),

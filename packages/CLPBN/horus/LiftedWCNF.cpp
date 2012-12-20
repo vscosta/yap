@@ -195,7 +195,7 @@ Clause::isPositiveCountedLogVar (LogVar X) const
   assert (constr_.logVarSet().contains (X));
   return posCountedLvs_.contains (X);
 }
-  
+
 
 
 bool
@@ -235,7 +235,7 @@ Clause::ipgCandidates (void) const
   LogVarSet allLvs = constr_.logVarSet();
   allLvs -= ipgLvs_;
   allLvs -= posCountedLvs_;
-  allLvs -= negCountedLvs_;  
+  allLvs -= negCountedLvs_;
   for (size_t i = 0; i < allLvs.size(); i++) {
     bool valid = true;
     for (size_t j = 0; j < literals_.size(); j++) {
@@ -262,7 +262,7 @@ Clause::logVarTypes (size_t litIdx) const
     if (posCountedLvs_.contains (lvs[i])) {
       types.push_back (LogVarType::POS_LV);
     } else if (negCountedLvs_.contains (lvs[i])) {
-      types.push_back (LogVarType::NEG_LV);    
+      types.push_back (LogVarType::NEG_LV);
     } else {
       types.push_back (LogVarType::FULL_LV);
     }
@@ -391,7 +391,7 @@ LiftedWCNF::LiftedWCNF (const ParfactorList& pfList)
 {
   addIndicatorClauses (pfList);
   addParameterClauses (pfList);
-  
+
   /*
   // INCLUSION-EXCLUSION TEST
   clauses_.clear();
@@ -579,7 +579,7 @@ LiftedWCNF::addParameterClauses (const ParfactorList& pfList)
       // ¬θxi|u1,...,un v λu2           -> tempClause
       double posWeight = (**it)[indexer];
       addWeight (paramVarLid, posWeight, LogAware::one());
-      
+
       Clause* clause1 = new Clause (*(*it)->constr());
 
       for (unsigned i = 0; i < groups.size(); i++) {
@@ -593,7 +593,7 @@ LiftedWCNF::addParameterClauses (const ParfactorList& pfList)
         tempClause->addLiteralComplemented (Literal (
             paramVarLid, (*it)->constr()->logVars()));
         tempClause->addLiteral (Literal (lid, (*it)->argument(i).logVars()));
-        clauses_.push_back (tempClause);        
+        clauses_.push_back (tempClause);
       }
       clause1->addLiteral (Literal (paramVarLid, (*it)->constr()->logVars()));
       clauses_.push_back (clause1);

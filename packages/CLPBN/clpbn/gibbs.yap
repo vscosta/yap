@@ -137,7 +137,7 @@ graph_representation([V|Vs], Graph, I0, Keys, [I-IParents|TGraph]) :-
 	graph_representation(Vs, Graph, I, Keys, TGraph).
 
 write_pars([]).
-write_pars([V|Parents]) :- 
+write_pars([V|Parents]) :-
 	clpbn:get_atts(V, [key(K),dist(I,_)]),write(K:I),nl,
 	write_pars(Parents).
 
@@ -149,7 +149,7 @@ get_sizes([V|Parents], [Sz|Szs]) :-
 
 parent_indices([], _, []).
 parent_indices([V|Parents], Keys, [I|IParents]) :-
-	rb_lookup(V, I, Keys),	
+	rb_lookup(V, I, Keys),
 	parent_indices(Parents, Keys, IParents).
 
 
@@ -174,7 +174,7 @@ propagate2parents([V|NewParents], Table, Variables, Graph, Keys) :-
 	propagate2parents(NewParents,Table, Variables, Graph, Keys).
 
 add2graph(V, Vals, Table, IParents, Graph, Keys) :-
-	rb_lookup(V, Index, Keys),	
+	rb_lookup(V, Index, Keys),
 	(var(Vals) -> true ; length(Vals,Sz)),
 	arg(Index, Graph, var(V,Index,_,Vals,Sz,VarSlot,_,_,_)),
 	member(tabular(Table,Index,IParents), VarSlot), !.
@@ -239,7 +239,7 @@ mult_list([Sz|Sizes],Mult0,Mult) :-
 	MultI is Sz*Mult0,
 	mult_list(Sizes,MultI,Mult).
 
-% compile node as set of facts, faster execution 
+% compile node as set of facts, faster execution
 compile_var(TotSize,I,_Vals,Sz,CPTs,Parents,_Sizes,Graph) :-
 	TotSize < 1024*64, TotSize > 0, !,
 	multiply_all(I,Parents,CPTs,Sz,Graph).
@@ -367,8 +367,8 @@ generate_est_mults([], [], _, [], 1).
 generate_est_mults([V|Vs], [I|Is], Graph, [M0|Mults], M) :-
 	arg(V,Graph,var(_,I,_,_,Sz,_,_,_,_)),
 	generate_est_mults(Vs, Is, Graph, Mults, M0),
-	M is M0*Sz.	
-	
+	M is M0*Sz.
+
 gen_e0(0,[]) :- !.
 gen_e0(Sz,[0|E0L]) :-
 	Sz1 is Sz-1,
@@ -531,7 +531,7 @@ add_up_mes(Counts,[me(_,_,Cs)|Chains], Add) :-
 	sum_lists(Counts, Cs, NCounts),
 	add_up_mes(NCounts, Chains, Add).
 
-sum_lists([],[],[]).	
+sum_lists([],[],[]).
 sum_lists([Count|Counts], [C|Cs], [NC|NCounts]) :-
 	NC is Count+C,
 	sum_lists(Counts, Cs, NCounts).

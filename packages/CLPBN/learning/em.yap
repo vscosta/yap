@@ -33,7 +33,7 @@
 		[generate_network/5,
 		 f/3
 		]).
-	
+
 :- use_module(library('clpbn/utils'),
 		[check_for_hidden_vars/3,
 		 sort_vars_by_key/3
@@ -46,7 +46,7 @@
 		 compute_likelihood/3,
 		 soften_sample/2
 		]).
-	
+
 :- use_module(library(bhash),
 		[b_hash_new/1,
 		 b_hash_lookup/3,
@@ -198,7 +198,7 @@ ltables([Id-T|Tables], [Key-LTable|FTables]) :-
 
 
 generate_dists(Factors, EList, AllDists, AllInfo, MargVars) :-
-	b_hash_new(Ev0), 
+	b_hash_new(Ev0),
 	foldl(elist_to_hash, EList, Ev0, Ev),
 	maplist(process_factor(Ev), Factors, Dists0),
 	sort(Dists0, Dists1),
@@ -220,7 +220,7 @@ fetch_evidence(_Ev, K, Ns, NonEvs, [K|NonEvs]) :-
 
 domain_to_number(_, I0, I0, I) :-
 	I is I0+1.
-	
+
 
 % collect the different dists we are going to learn next.
 different_dists(AllVars, AllDists, AllInfo, MargVars) :-
@@ -232,9 +232,9 @@ different_dists(AllVars, AllDists, AllInfo, MargVars) :-
 %
 % V -> to Id defining V. We get:
 % the random variables that are parents
-% the cases that can happen, eg if we have A <- B, C 
+% the cases that can happen, eg if we have A <- B, C
 % A and B are boolean w/o evidence, and C is f, the cases could be
-% [0,0,1], [0,1,1], [1,0,0], [1,1,0], 
+% [0,0,1], [0,1,1], [1,0,0], [1,1,0],
 % Hiddens will be C
 %
 all_dists([], _, []).

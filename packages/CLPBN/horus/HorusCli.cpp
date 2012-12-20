@@ -77,7 +77,7 @@ readFactorGraph (FactorGraph& fg, const char* s)
   } else if (extension == "fg") {
     fg.readFromLibDaiFormat (fileName.c_str());
   } else {
-    cerr << "Error: the probabilistic graphical model must be " ; 
+    cerr << "Error: the probabilistic graphical model must be " ;
     cerr << "defined either in a UAI or libDAI file." << endl;
     exit (EXIT_FAILURE);
   }
