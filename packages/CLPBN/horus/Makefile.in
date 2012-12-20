@@ -23,10 +23,10 @@ CC=@CC@
 CXX=@CXX@
 
 # normal
-#CXXFLAGS= -std=c++0x @SHLIB_CXXFLAGS@ $(YAP_EXTRAS) $(DEFS) -D_YAP_NOT_INSTALLED_=1 -I$(srcdir) -I../../.. -I$(srcdir)/../../../include @CPPFLAGS@ -DNDEBUG
+CXXFLAGS= -std=c++0x @SHLIB_CXXFLAGS@ $(YAP_EXTRAS) $(DEFS) -D_YAP_NOT_INSTALLED_=1 -I$(srcdir) -I../../.. -I$(srcdir)/../../../include @CPPFLAGS@ -DNDEBUG
 
 # debug 
-CXXFLAGS= -std=c++0x @SHLIB_CXXFLAGS@ $(YAP_EXTRAS) $(DEFS) -D_YAP_NOT_INSTALLED_=1 -I$(srcdir) -I../../.. -I$(srcdir)/../../../include @CPPFLAGS@ -g -O0 -Wextra
+#CXXFLAGS= -std=c++0x @SHLIB_CXXFLAGS@ $(YAP_EXTRAS) $(DEFS) -D_YAP_NOT_INSTALLED_=1 -I$(srcdir) -I../../.. -I$(srcdir)/../../../include @CPPFLAGS@ -g -O0 -Wextra
 
 
 #
@@ -57,7 +57,6 @@ HEADERS = \
 	$(srcdir)/Horus.h \
 	$(srcdir)/Indexer.h \
 	$(srcdir)/LiftedBp.h \
-	$(srcdir)/LiftedCircuit.h \
 	$(srcdir)/LiftedKc.h \
 	$(srcdir)/LiftedOperations.h \
 	$(srcdir)/LiftedSolver.h \
@@ -87,7 +86,6 @@ CPP_SOURCES = \
 	$(srcdir)/HorusCli.cpp \
 	$(srcdir)/HorusYap.cpp \
 	$(srcdir)/LiftedBp.cpp \
-	$(srcdir)/LiftedCircuit.cpp \
 	$(srcdir)/LiftedKc.cpp \
 	$(srcdir)/LiftedOperations.cpp \
 	$(srcdir)/LiftedUtils.cpp \
@@ -114,7 +112,6 @@ OBJS = \
 	Histogram.o \
 	HorusYap.o \
 	LiftedBp.o \
-	LiftedCircuit.o \
 	LiftedKc.o \
 	LiftedOperations.o \
 	LiftedUtils.o \
