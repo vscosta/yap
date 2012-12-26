@@ -1003,7 +1003,7 @@ LiftedCircuit::containsTypes (
 CircuitNodeType
 LiftedCircuit::getCircuitNodeType (const CircuitNode* node) const
 {
-  CircuitNodeType type;
+  CircuitNodeType type = CircuitNodeType::OR_NODE;
   if (dynamic_cast<const OrNode*>(node) != 0) {
     type = CircuitNodeType::OR_NODE;
   } else if (dynamic_cast<const AndNode*>(node) != 0) {
