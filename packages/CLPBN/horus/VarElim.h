@@ -16,7 +16,7 @@ class VarElim : public GroundSolver
   public:
     VarElim (const FactorGraph& fg) : GroundSolver (fg) { }
 
-   ~VarElim (void);
+   ~VarElim (void) { }
 
     Params solveQuery (VarIds);
 
@@ -27,19 +27,16 @@ class VarElim : public GroundSolver
 
     void absorveEvidence (void);
 
-    void findEliminationOrder (const VarIds&);
-
-    void processFactorList (const VarIds&);
+    Params processFactorList (const VarIds&);
 
     void eliminate (VarId);
 
     void printActiveFactors (void);
 
-    Factors  factorList_;
-    VarIds   elimOrder_;
-    unsigned largestFactorSize_;
-    unsigned totalFactorSize_;
-    unordered_map<VarId, vector<size_t>> varFactors_;
+    Factors   factorList_;
+    unsigned  largestFactorSize_;
+    unsigned  totalFactorSize_;
+    unordered_map<VarId, vector<size_t>> varMap_;
 };
 
 #endif // HORUS_VARELIM_H
