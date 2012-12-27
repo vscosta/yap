@@ -9,9 +9,9 @@
 #include "Horus.h"
 
 
-MsgSchedule BeliefProp::schedule = MsgSchedule::SEQ_FIXED;
-double      BeliefProp::accuracy = 0.0001;
-unsigned    BeliefProp::maxIter  = 1000;
+double      BeliefProp::accuracy_ = 0.0001;
+unsigned    BeliefProp::maxIter_  = 1000;
+MsgSchedule BeliefProp::schedule_ = MsgSchedule::SEQ_FIXED;
 
 
 BeliefProp::BeliefProp (const FactorGraph& fg) : GroundSolver (fg)
@@ -53,14 +53,14 @@ BeliefProp::printSolverFlags (void) const
   stringstream ss;
   ss << "belief propagation [" ;
   ss << "schedule=" ;
-  switch (schedule) {
+  switch (schedule_) {
     case MsgSchedule::SEQ_FIXED:    ss << "seq_fixed";    break;
     case MsgSchedule::SEQ_RANDOM:   ss << "seq_random";   break;
     case MsgSchedule::PARALLEL:     ss << "parallel";     break;
     case MsgSchedule::MAX_RESIDUAL: ss << "max_residual"; break;
   }
-  ss << ",max_iter="   << Util::toString (maxIter);
-  ss << ",accuracy="   << Util::toString (accuracy);
+  ss << ",max_iter="   << Util::toString (maxIter_);
+  ss << ",accuracy="   << Util::toString (accuracy_);
   ss << ",log_domain=" << Util::toString (Globals::logDomain);
   ss << "]" ;
   cout << ss.str() << endl;
@@ -157,12 +157,12 @@ BeliefProp::runSolver (void)
 {
   initializeSolver();
   nIters_ = 0;
-  while (!converged() && nIters_ < maxIter) {
+  while (!converged() && nIters_ < maxIter_) {
     nIters_ ++;
     if (Globals::verbosity > 1) {
       Util::printHeader (string ("Iteration ") + Util::toString (nIters_));
     }
-    switch (schedule) {
+    switch (schedule_) {
      case MsgSchedule::SEQ_RANDOM:
        std::random_shuffle (links_.begin(), links_.end());
        // no break
@@ -185,7 +185,7 @@ BeliefProp::runSolver (void)
     }
   }
   if (Globals::verbosity > 0) {
-    if (nIters_ < maxIter) {
+    if (nIters_ < maxIter_) {
       cout << "Belief propagation converged in " ;
       cout << nIters_ << " iterations" << endl;
     } else {
@@ -237,7 +237,7 @@ BeliefProp::maxResidualSchedule (void)
 
     SortedOrder::iterator it = sortedOrder_.begin();
     BpLink* link = *it;
-    if (link->residual() < accuracy) {
+    if (link->residual() < accuracy_) {
       return;
     }
     updateMessage (link);
@@ -427,9 +427,9 @@ BeliefProp::converged (void)
     return false;
   }
   bool converged = true;
-  if (schedule == MsgSchedule::MAX_RESIDUAL) {
+  if (schedule_ == MsgSchedule::MAX_RESIDUAL) {
     double maxResidual = (*(sortedOrder_.begin()))->residual();
-    if (maxResidual > accuracy) {
+    if (maxResidual > accuracy_) {
       converged = false;
     } else {
       converged = true;
@@ -440,7 +440,7 @@ BeliefProp::converged (void)
       if (Globals::verbosity > 1) {
         cout << links_[i]->toString() + " residual = " << residual << endl;
       }
-      if (residual > accuracy) {
+      if (residual > accuracy_) {
         converged = false;
         if (Globals::verbosity < 2) {
           break;

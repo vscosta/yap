@@ -108,9 +108,17 @@ class BeliefProp : public GroundSolver
 
     Params getFactorJoint (FacNode* fn, const VarIds&);
 
-    static MsgSchedule  schedule;
-    static double       accuracy;
-    static unsigned     maxIter;
+    static double accuracy (void) { return accuracy_; }
+
+    static void setAccuracy (double acc) { accuracy_ = acc; }
+
+    static unsigned maxIterations (void) { return maxIter_; }
+
+    static void setMaxIterations (unsigned mi) { maxIter_ = mi; }
+
+    static MsgSchedule msgSchedule (void) { return schedule_; }
+
+    static void setMsgSchedule (MsgSchedule sch) { schedule_ = sch; }
 
   protected:
     SPNodeInfo* ninf (const VarNode* var) const
@@ -185,6 +193,10 @@ class BeliefProp : public GroundSolver
 
     typedef unordered_map<BpLink*, SortedOrder::iterator> BpLinkMap;
     BpLinkMap linkMap_;
+
+    static double       accuracy_;
+    static unsigned     maxIter_;
+    static MsgSchedule  schedule_;
 
   private:
     void initializeSolver (void);

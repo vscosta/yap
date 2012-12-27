@@ -38,13 +38,12 @@ VarElim::printSolverFlags (void) const
   stringstream ss;
   ss << "variable elimination [" ;
   ss << "elim_heuristic=" ;
-  ElimHeuristic eh = ElimGraph::elimHeuristic;
-  switch (eh) {
-    case SEQUENTIAL:        ss << "sequential";        break;
-    case MIN_NEIGHBORS:     ss << "min_neighbors";     break;
-    case MIN_WEIGHT:        ss << "min_weight";        break;
-    case MIN_FILL:          ss << "min_fill";          break;
-    case WEIGHTED_MIN_FILL: ss << "weighted_min_fill"; break;
+  switch (ElimGraph::elimHeuristic()) {
+    case ElimHeuristic::SEQUENTIAL:        ss << "sequential";        break;
+    case ElimHeuristic::MIN_NEIGHBORS:     ss << "min_neighbors";     break;
+    case ElimHeuristic::MIN_WEIGHT:        ss << "min_weight";        break;
+    case ElimHeuristic::MIN_FILL:          ss << "min_fill";          break;
+    case ElimHeuristic::WEIGHTED_MIN_FILL: ss << "weighted_min_fill"; break;
   }
   ss << ",log_domain=" << Util::toString (Globals::logDomain);
   ss << "]" ;

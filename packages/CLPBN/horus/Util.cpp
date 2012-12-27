@@ -222,15 +222,15 @@ setHorusFlag (string key, string value)
     }
   } else if (key == "elim_heuristic") {
     if (       value == "sequential") {
-      ElimGraph::elimHeuristic = ElimHeuristic::SEQUENTIAL;
+      ElimGraph::setElimHeuristic (ElimHeuristic::SEQUENTIAL);
     } else if (value == "min_neighbors") {
-      ElimGraph::elimHeuristic = ElimHeuristic::MIN_NEIGHBORS;
+      ElimGraph::setElimHeuristic (ElimHeuristic::MIN_NEIGHBORS);
     } else if (value == "min_weight") {
-      ElimGraph::elimHeuristic = ElimHeuristic::MIN_WEIGHT;
+      ElimGraph::setElimHeuristic (ElimHeuristic::MIN_WEIGHT);
     } else if (value == "min_fill") {
-      ElimGraph::elimHeuristic = ElimHeuristic::MIN_FILL;
+      ElimGraph::setElimHeuristic (ElimHeuristic::MIN_FILL);
     } else if (value == "weighted_min_fill") {
-      ElimGraph::elimHeuristic = ElimHeuristic::WEIGHTED_MIN_FILL;
+      ElimGraph::setElimHeuristic (ElimHeuristic::WEIGHTED_MIN_FILL);
     } else {
       cerr << "warning: invalid value `" << value << "' " ;
       cerr << "for `" << key << "'" << endl;
@@ -238,13 +238,13 @@ setHorusFlag (string key, string value)
     }
   } else if (key == "schedule") {
     if (       value == "seq_fixed") {
-      BeliefProp::schedule = MsgSchedule::SEQ_FIXED;
+      BeliefProp::setMsgSchedule (MsgSchedule::SEQ_FIXED);
     } else if (value == "seq_random") {
-      BeliefProp::schedule = MsgSchedule::SEQ_RANDOM;
+      BeliefProp::setMsgSchedule (MsgSchedule::SEQ_RANDOM);
     } else if (value == "parallel") {
-      BeliefProp::schedule = MsgSchedule::PARALLEL;
+      BeliefProp::setMsgSchedule (MsgSchedule::PARALLEL);
     } else if (value == "max_residual") {
-      BeliefProp::schedule = MsgSchedule::MAX_RESIDUAL;
+      BeliefProp::setMsgSchedule (MsgSchedule::MAX_RESIDUAL);
     } else {
       cerr << "warning: invalid value `" << value << "' " ;
       cerr << "for `" << key << "'" << endl;
@@ -252,12 +252,16 @@ setHorusFlag (string key, string value)
     }
   } else if (key == "accuracy") {
     stringstream ss;
+    double acc;
     ss << value;
-    ss >> BeliefProp::accuracy;
+    ss >> acc;
+    BeliefProp::setAccuracy (acc);
   } else if (key == "max_iter") {
     stringstream ss;
+    unsigned mi;
     ss << value;
-    ss >> BeliefProp::maxIter;
+    ss >> mi;
+    BeliefProp::setMaxIterations (mi);
   } else if (key == "use_logarithms") {
     if (       value == "true") {
       Globals::logDomain = true;

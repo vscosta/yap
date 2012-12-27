@@ -2,7 +2,7 @@
 
 #include "ElimGraph.h"
 
-ElimHeuristic ElimGraph::elimHeuristic = MIN_NEIGHBORS;
+ElimHeuristic ElimGraph::elimHeuristic_ = MIN_NEIGHBORS;
 
 
 ElimGraph::ElimGraph (const vector<Factor*>& factors)
@@ -132,7 +132,7 @@ ElimGraph::getEliminationOrder (
     const Factors& factors,
     VarIds excludedVids)
 {
-  if (elimHeuristic == ElimHeuristic::SEQUENTIAL) {
+  if (elimHeuristic_ == ElimHeuristic::SEQUENTIAL) {
     VarIds allVids;
     Factors::const_iterator first = factors.begin();
     Factors::const_iterator end   = factors.end();
@@ -175,7 +175,7 @@ ElimGraph::getLowestCostNode (void) const
   EgNode* bestNode = 0;
   unsigned minCost = Util::maxUnsigned();
   EGNeighs::const_iterator it;
-  switch (elimHeuristic) {
+  switch (elimHeuristic_) {
     case MIN_NEIGHBORS: {
       for (it = unmarked_.begin(); it != unmarked_.end(); ++ it) {
         unsigned cost = getNeighborsCost (*it);
