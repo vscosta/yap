@@ -1,8 +1,8 @@
 #include "GroundSolver.h"
-#include "Util.h"
 #include "BeliefProp.h"
 #include "CountingBp.h"
 #include "VarElim.h"
+#include "Util.h"
 
 
 void
@@ -47,7 +47,7 @@ Params
 GroundSolver::getJointByConditioning (
     GroundSolverType solverType,
     FactorGraph fg,
-    const VarIds& jointVarIds) const
+    const VarIds& jointVarIds)
 {
   VarNodes jointVars;
   for (size_t i = 0; i < jointVarIds.size(); i++) {

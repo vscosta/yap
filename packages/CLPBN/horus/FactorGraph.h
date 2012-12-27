@@ -9,7 +9,6 @@
 
 using namespace std;
 
-
 class FacNode;
 
 class VarNode : public Var

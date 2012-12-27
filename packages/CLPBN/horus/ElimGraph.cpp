@@ -1,5 +1,3 @@
-#include <limits>
-
 #include <fstream>
 
 #include "ElimGraph.h"
@@ -10,30 +8,27 @@ ElimHeuristic ElimGraph::elimHeuristic = MIN_NEIGHBORS;
 ElimGraph::ElimGraph (const vector<Factor*>& factors)
 {
   for (size_t i = 0; i < factors.size(); i++) {
-    if (factors[i] == 0) { // if contained just one var with evidence
-      continue;
-    }
-    const VarIds& vids = factors[i]->arguments();
-    for (size_t j = 0; j < vids.size() - 1; j++) {
-      EgNode* n1 = getEgNode (vids[j]);
-      if (n1 == 0) {
-        n1 = new EgNode (vids[j], factors[i]->range (j));
-        addNode (n1);
-      }
-      for (size_t k = j + 1; k < vids.size(); k++) {
-        EgNode* n2 = getEgNode (vids[k]);
-        if (n2 == 0) {
-          n2 = new EgNode (vids[k], factors[i]->range (k));
-          addNode (n2);
+    if (factors[i]) {
+      const VarIds& args = factors[i]->arguments();
+      for (size_t j = 0; j < args.size() - 1; j++) {
+        EgNode* n1 = getEgNode (args[j]);
+        if (!n1) {
+          n1 = new EgNode (args[j], factors[i]->range (j));
+          addNode (n1);
         }
-        if (neighbors (n1, n2) == false) {
-          addEdge (n1, n2);
+        for (size_t k = j + 1; k < args.size(); k++) {
+          EgNode* n2 = getEgNode (args[k]);
+          if (!n2) {
+            n2 = new EgNode (args[k], factors[i]->range (k));
+            addNode (n2);
+          }
+          if (!neighbors (n1, n2)) {
+            addEdge (n1, n2);
+          }
         }
       }
-    }
-    if (vids.size() == 1) {
-      if (getEgNode (vids[0]) == 0) {
-        addNode (new EgNode (vids[0], factors[i]->range (0)));
+      if (args.size() == 1 && !getEgNode (args[0])) {
+        addNode (new EgNode (args[0], factors[i]->range (0)));
       }
     }
   }
@@ -51,16 +46,16 @@ ElimGraph::~ElimGraph (void)
 
 
 VarIds
-ElimGraph::getEliminatingOrder (const VarIds& exclude)
+ElimGraph::getEliminatingOrder (const VarIds& excludedVids)
 {
   VarIds elimOrder;
   unmarked_.reserve (nodes_.size());
   for (size_t i = 0; i < nodes_.size(); i++) {
-    if (Util::contains (exclude, nodes_[i]->varId()) == false) {
+    if (Util::contains (excludedVids, nodes_[i]->varId()) == false) {
       unmarked_.insert (nodes_[i]);
     }
   }
-  size_t nrVarsToEliminate = nodes_.size() - exclude.size();
+  size_t nrVarsToEliminate = nodes_.size() - excludedVids.size();
   for (size_t i = 0; i < nrVarsToEliminate; i++) {
     EgNode* node = getLowestCostNode();
     unmarked_.remove (node);
@@ -104,7 +99,7 @@ ElimGraph::exportToGraphViz (
   }
   out << "strict graph {" << endl;
   for (size_t i = 0; i < nodes_.size(); i++) {
-    if (showNeighborless || nodes_[i]->neighbors().size() != 0) {
+    if (showNeighborless || nodes_[i]->neighbors().empty() == false) {
       out << '"' << nodes_[i]->label() << '"' << endl;
     }
   }
@@ -178,7 +173,7 @@ EgNode*
 ElimGraph::getLowestCostNode (void) const
 {
   EgNode* bestNode = 0;
-  unsigned minCost = std::numeric_limits<unsigned>::max();
+  unsigned minCost = Util::maxUnsigned();
   EGNeighs::const_iterator it;
   switch (elimHeuristic) {
     case MIN_NEIGHBORS: {
@@ -233,7 +228,7 @@ ElimGraph::connectAllNeighbors (const EgNode* n)
   if (neighs.size() > 0) {
     for (size_t i = 0; i < neighs.size() - 1; i++) {
       for (size_t j = i + 1; j < neighs.size(); j++) {
-        if ( ! neighbors (neighs[i], neighs[j])) {
+        if (!neighbors (neighs[i], neighs[j])) {
           addEdge (neighs[i], neighs[j]);
         }
       }

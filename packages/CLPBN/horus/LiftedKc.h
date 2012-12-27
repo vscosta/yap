@@ -1,9 +1,8 @@
 #ifndef HORUS_LIFTEDKC_H
 #define HORUS_LIFTEDKC_H
 
-
-#include "LiftedWCNF.h"
 #include "LiftedSolver.h"
+#include "LiftedWCNF.h"
 #include "ParfactorList.h"
 
 

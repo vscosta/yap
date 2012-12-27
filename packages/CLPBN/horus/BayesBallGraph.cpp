@@ -2,8 +2,8 @@
 #include <cassert>
 
 #include <iostream>
-#include <fstream>
 #include <sstream>
+#include <fstream>
 
 #include "BayesBallGraph.h"
 #include "Util.h"

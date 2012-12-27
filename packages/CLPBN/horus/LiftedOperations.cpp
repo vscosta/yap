@@ -65,7 +65,7 @@ LiftedOperations::runWeakBayesBall (
     ParfactorList::iterator it = pfList.begin();
     while (it != pfList.end()) {
       PrvGroup group = (*it)->findGroup (query[i]);
-      if (group != numeric_limits<PrvGroup>::max()) {
+      if (group != std::numeric_limits<PrvGroup>::max()) {
         todo.push (group);
         done.insert (group);
         break;
@@ -128,7 +128,7 @@ LiftedOperations::absorveEvidence (
       it = pfList.remove (it);
       Parfactors absorvedPfs = absorve (obsFormulas[i], pf);
       if (absorvedPfs.empty() == false) {
-        if (absorvedPfs.size() == 1 && absorvedPfs[0] == 0) {
+        if (absorvedPfs.size() == 1 && !absorvedPfs[0]) {
           // just remove pf;
         } else {
           Util::addToVector (newPfs, absorvedPfs);

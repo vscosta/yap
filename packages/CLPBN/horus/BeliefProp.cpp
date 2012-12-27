@@ -1,13 +1,10 @@
 #include <cassert>
-#include <limits>
 
 #include <algorithm>
 
 #include <iostream>
 
 #include "BeliefProp.h"
-#include "FactorGraph.h"
-#include "Factor.h"
 #include "Indexer.h"
 #include "Horus.h"
 
@@ -410,7 +407,7 @@ BeliefProp::initializeSolver (void)
 bool
 BeliefProp::converged (void)
 {
-  if (links_.size() == 0) {
+  if (links_.empty()) {
     return true;
   }
   if (nIters_ == 0) {

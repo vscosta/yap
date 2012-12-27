@@ -1,5 +1,7 @@
 #include <cassert>
 
+#include <queue>
+
 #include "ParfactorList.h"
 
 
@@ -412,7 +414,7 @@ ParfactorList::shatter (Parfactor* g1, Parfactor* g2)
 {
   ProbFormulas& formulas1 = g1->arguments();
   ProbFormulas& formulas2 = g2->arguments();
-  assert (g1 != 0 && g2 != 0 && g1 != g2);
+  assert (g1 && g2 && g1 != g2);
   for (size_t i = 0; i < formulas1.size(); i++) {
     for (size_t j = 0; j < formulas2.size(); j++) {
       if (formulas1[i].sameSkeletonAs (formulas2[j])) {

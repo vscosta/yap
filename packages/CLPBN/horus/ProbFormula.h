@@ -14,10 +14,11 @@ class ProbFormula
   public:
     ProbFormula (Symbol f, const LogVars& lvs, unsigned range)
         : functor_(f), logVars_(lvs), range_(range),
-          countedLogVar_(), group_(numeric_limits<PrvGroup>::max()) { }
+          countedLogVar_(), group_(std::numeric_limits<PrvGroup>::max()) { }
 
     ProbFormula (Symbol f, unsigned r)
-        : functor_(f), range_(r), group_(numeric_limits<PrvGroup>::max()) { }
+        : functor_(f), range_(r),
+          group_(std::numeric_limits<PrvGroup>::max()) { }
 
     Symbol functor (void) const { return functor_; }
 

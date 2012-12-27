@@ -1,4 +1,5 @@
 #include <algorithm>
+
 #include <set>
 
 #include "LiftedVe.h"
@@ -710,7 +711,7 @@ LiftedVe::getBestOperation (const Grounds& query)
   validOps = LiftedOperator::getValidOps (pfList_, query);
   for (size_t i = 0; i < validOps.size(); i++) {
     double cost = validOps[i]->getLogCost();
-    if ((bestOp == 0) || (cost < bestCost)) {
+    if (!bestOp || cost < bestCost) {
       bestOp   = validOps[i];
       bestCost = cost;
     }

@@ -2,9 +2,7 @@
 #define HORUS_BAYESBALLGRAPH_H
 
 #include <vector>
-#include <queue>
-#include <list>
-#include <map>
+#include <unordered_map>
 
 #include "Var.h"
 #include "Horus.h"
@@ -14,7 +12,7 @@ using namespace std;
 class BBNode : public Var
 {
   public:
-    BBNode (Var* v) : Var (v) , visited_(false),
+    BBNode (Var* v) : Var (v), visited_(false),
         markedOnTop_(false), markedOnBottom_(false) { }
 
     const vector<BBNode*>& childs (void) const { return childs_;  }

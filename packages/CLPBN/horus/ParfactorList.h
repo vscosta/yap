@@ -2,7 +2,6 @@
 #define HORUS_PARFACTORLIST_H
 
 #include <list>
-#include <queue>
 
 #include "Parfactor.h"
 #include "ProbFormula.h"
@@ -10,6 +9,8 @@
 
 using namespace std;
 
+
+class Parfactor;
 
 class ParfactorList
 {

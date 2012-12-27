@@ -3,11 +3,10 @@
 #include "Indexer.h"
 
 
-
 bool
 Literal::isGround (ConstraintTree constr, LogVarSet ipgLogVars) const
 {
-  if (logVars_.size() == 0) {
+  if (logVars_.empty()) {
     return true;
   }
   LogVarSet lvs (logVars_);

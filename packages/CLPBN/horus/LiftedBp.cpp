@@ -1,7 +1,7 @@
 #include "LiftedBp.h"
+#include "LiftedOperations.h"
 #include "WeightedBp.h"
 #include "FactorGraph.h"
-#include "LiftedOperations.h"
 
 
 LiftedBp::LiftedBp (const ParfactorList& parfactorList)
@@ -182,7 +182,7 @@ LiftedBp::rangeOfGround (const Ground& gr)
     }
     ++ it;
   }
-  return std::numeric_limits<unsigned>::max();
+  return Util::maxUnsigned();
 }
 
 

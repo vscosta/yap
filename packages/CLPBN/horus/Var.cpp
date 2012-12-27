@@ -1,9 +1,6 @@
-#include <algorithm>
 #include <sstream>
 
 #include "Var.h"
-
-using namespace std;
 
 
 unordered_map<VarId, VarInfo> Var::varsInfo_;
@@ -14,7 +11,7 @@ Var::Var (const Var* v)
   varId_    = v->varId();
   range_    = v->range();
   evidence_ = v->getEvidence();
-  index_    = std::numeric_limits<unsigned>::max();
+  index_    = Util::maxUnsigned();
 }
 
 
@@ -26,7 +23,7 @@ Var::Var (VarId varId, unsigned range, int evidence)
   varId_    = varId;
   range_    = range;
   evidence_ = evidence;
-  index_    = std::numeric_limits<unsigned>::max();
+  index_    = Util::maxUnsigned();
 }
 
 

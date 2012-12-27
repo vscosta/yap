@@ -5,7 +5,6 @@
 #include "Indexer.h"
 
 
-
 OrNode::~OrNode (void)
 {
   delete leftBranch_;
@@ -806,7 +805,7 @@ LiftedCircuit::independentLiteral (
 LitLvTypesSet
 LiftedCircuit::smoothCircuit (CircuitNode* node)
 {
-  assert (node != 0);
+  assert (node);
   LitLvTypesSet propagLits;
 
   switch (getCircuitNodeType (node)) {
@@ -1004,23 +1003,23 @@ CircuitNodeType
 LiftedCircuit::getCircuitNodeType (const CircuitNode* node) const
 {
   CircuitNodeType type = CircuitNodeType::OR_NODE;
-  if (dynamic_cast<const OrNode*>(node) != 0) {
+  if (dynamic_cast<const OrNode*>(node)) {
     type = CircuitNodeType::OR_NODE;
-  } else if (dynamic_cast<const AndNode*>(node) != 0) {
+  } else if (dynamic_cast<const AndNode*>(node)) {
     type = CircuitNodeType::AND_NODE;
-  } else if (dynamic_cast<const SetOrNode*>(node) != 0) {
+  } else if (dynamic_cast<const SetOrNode*>(node)) {
     type = CircuitNodeType::SET_OR_NODE;
-  } else if (dynamic_cast<const SetAndNode*>(node) != 0) {
+  } else if (dynamic_cast<const SetAndNode*>(node)) {
     type = CircuitNodeType::SET_AND_NODE;
-  } else if (dynamic_cast<const IncExcNode*>(node) != 0) {
+  } else if (dynamic_cast<const IncExcNode*>(node)) {
     type = CircuitNodeType::INC_EXC_NODE;
-  } else if (dynamic_cast<const LeafNode*>(node) != 0) {
+  } else if (dynamic_cast<const LeafNode*>(node)) {
     type = CircuitNodeType::LEAF_NODE;
-  } else if (dynamic_cast<const SmoothNode*>(node) != 0) {
+  } else if (dynamic_cast<const SmoothNode*>(node)) {
     type = CircuitNodeType::SMOOTH_NODE;
-  } else if (dynamic_cast<const TrueNode*>(node) != 0) {
+  } else if (dynamic_cast<const TrueNode*>(node)) {
     type = CircuitNodeType::TRUE_NODE;
-  } else if (dynamic_cast<const CompilationFailedNode*>(node) != 0) {
+  } else if (dynamic_cast<const CompilationFailedNode*>(node)) {
     type = CircuitNodeType::COMPILATION_FAILED_NODE;
   } else {
     assert (false);
@@ -1033,7 +1032,7 @@ LiftedCircuit::getCircuitNodeType (const CircuitNode* node) const
 void
 LiftedCircuit::exportToGraphViz (CircuitNode* node, ofstream& os)
 {
-  assert (node != 0);
+  assert (node);
 
   static unsigned nrAuxNodes = 0;
   stringstream ss;

@@ -40,7 +40,7 @@ ProbFormula::indexOf (LogVar X) const
 bool
 ProbFormula::isAtom (void) const
 {
-  return logVars_.size() == 0;
+  return logVars_.empty();
 }
 
 
@@ -125,7 +125,7 @@ PrvGroup
 ProbFormula::getNewGroup (void)
 {
   freeGroup_ ++;
-  assert (freeGroup_ != numeric_limits<PrvGroup>::max());
+  assert (freeGroup_ != std::numeric_limits<PrvGroup>::max());
   return freeGroup_;
 }
 

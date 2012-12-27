@@ -1,8 +1,9 @@
 #ifndef HORUS_TINYSET_H
 #define HORUS_TINYSET_H
 
-#include <vector>
 #include <algorithm>
+
+#include <vector>
 
 using namespace std;
 
@@ -186,7 +187,7 @@ class TinySet
 
     bool empty (void) const
     {
-      return size() == 0;
+      return vec_.empty();
     }
 
     typename vector<T>::size_type size (void) const

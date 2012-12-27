@@ -1,8 +1,6 @@
 #ifndef HORUS_HORUS_H
 #define HORUS_HORUS_H
 
-#include <limits>
-
 #include <vector>
 
 #define DISALLOW_COPY_AND_ASSIGN(TypeName) \

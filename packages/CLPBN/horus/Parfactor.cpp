@@ -1,4 +1,3 @@
-
 #include "Parfactor.h"
 #include "Histogram.h"
 #include "Indexer.h"
@@ -443,7 +442,7 @@ Parfactor::findGroup (const Ground& ground) const
 {
   size_t idx = indexOfGround (ground);
   return idx == args_.size()
-         ? numeric_limits<PrvGroup>::max()
+         ? std::numeric_limits<PrvGroup>::max()
          : args_[idx].group();
 }
 
@@ -452,7 +451,7 @@ Parfactor::findGroup (const Ground& ground) const
 bool
 Parfactor::containsGround (const Ground& ground) const
 {
-  return findGroup (ground) != numeric_limits<PrvGroup>::max();
+  return findGroup (ground) != std::numeric_limits<PrvGroup>::max();
 }
 
 

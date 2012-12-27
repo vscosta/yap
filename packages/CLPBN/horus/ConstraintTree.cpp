@@ -120,7 +120,7 @@ CTNode::copySubtree (const CTNode* root1)
          chIt != n1->childs().end(); ++ chIt) {
       CTNode* chCopy = new CTNode (**chIt);
       n2->childs().insert_sorted (chCopy);
-      if ((*chIt)->nrChilds() != 0) {
+      if ((*chIt)->nrChilds() > 0) {
         stack.push_back (StackPair (*chIt, chCopy));
       }
     }
@@ -813,10 +813,10 @@ ConstraintTree::jointCountNormalize (
     cts[i]->join (exclCt);
   }
 
-  if (excl1 != 0) {
+  if (excl1) {
     cts.push_back (excl1);
   }
-  if (excl2 != 0) {
+  if (excl2) {
     cts.push_back (excl2);
   }
 
@@ -1072,7 +1072,7 @@ ConstraintTree::getTuples (
     CTNodes& continuationNodes) const
 {
   if (n->isRoot() == false) {
-    if (currTuples.size() == 0) {
+    if (currTuples.empty()) {
         currTuples.push_back ({ n->symbol()});
     } else {
       for (size_t i = 0; i < currTuples.size(); i++) {

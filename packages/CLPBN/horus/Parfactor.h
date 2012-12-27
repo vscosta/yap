@@ -1,15 +1,12 @@
 #ifndef HORUS_PARFACTOR_H
 #define HORUS_PARFACTOR_H
 
-#include <list>
-#include <unordered_map>
-
+#include "Factor.h"
 #include "ProbFormula.h"
 #include "ConstraintTree.h"
 #include "LiftedUtils.h"
 #include "Horus.h"
 
-#include "Factor.h"
 
 class Parfactor : public TFactor<ProbFormula>
 {

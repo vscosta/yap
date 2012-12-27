@@ -1,14 +1,13 @@
 #ifndef HORUS_LIFTEDWCNF_H
 #define HORUS_LIFTEDWCNF_H
 
+#include <unordered_map>
+
 #include "ParfactorList.h"
 
 using namespace std;
 
-typedef long LiteralId;
-
 class ConstraintTree;
-
 
 enum LogVarType
 {
@@ -17,8 +16,8 @@ enum LogVarType
   NEG_LV
 };
 
-typedef vector<LogVarType> LogVarTypes;
-
+typedef long                LiteralId;
+typedef vector<LogVarType>  LogVarTypes;
 
 
 class Literal

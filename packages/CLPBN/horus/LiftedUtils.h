@@ -1,11 +1,10 @@
 #ifndef HORUS_LIFTEDUTILS_H
 #define HORUS_LIFTEDUTILS_H
 
-#include <limits>
 #include <string>
+
 #include <vector>
 #include <unordered_map>
-
 
 #include "TinySet.h"
 #include "Util.h"
@@ -107,7 +106,7 @@ class Ground
 
     size_t arity (void) const { return args_.size(); }
 
-    bool isAtom (void) const { return args_.size() == 0; }
+    bool isAtom (void) const { return args_.empty(); }
 
     friend ostream& operator<< (ostream &os, const Ground& gr);
 

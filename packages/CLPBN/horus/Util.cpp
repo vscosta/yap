@@ -1,6 +1,3 @@
-#include <limits>
-
-#include <sstream>
 #include <fstream>
 
 #include "Util.h"
@@ -341,7 +338,7 @@ normalize (Params& v)
   if (Globals::logDomain) {
     double sum = std::accumulate (v.begin(), v.end(),
         LogAware::addIdenty(), Util::logSum);
-    assert (sum != -numeric_limits<double>::infinity());
+    assert (sum != -std::numeric_limits<double>::infinity());
     v -= sum;
   } else {
     double sum = std::accumulate (v.begin(), v.end(), 0.0);

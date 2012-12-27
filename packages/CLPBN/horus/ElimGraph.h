@@ -7,7 +7,6 @@
 #include "TinySet.h"
 #include "Horus.h"
 
-
 using namespace std;
 
 enum ElimHeuristic

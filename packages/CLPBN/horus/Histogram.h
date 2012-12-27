@@ -2,6 +2,7 @@
 #define HORUS_HISTOGRAM_H
 
 #include <vector>
+
 #include <ostream>
 
 using namespace std;

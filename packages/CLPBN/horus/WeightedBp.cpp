@@ -18,7 +18,7 @@ WeightedBp::getPosterioriOf (VarId vid)
     runSolver();
   }
   VarNode* var = fg.getVarNode (vid);
-  assert (var != 0);
+  assert (var);
   Params probs;
   if (var->hasEvidence()) {
     probs.resize (var->range(), LogAware::noEvidence());

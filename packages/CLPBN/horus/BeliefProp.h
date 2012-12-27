@@ -3,12 +3,12 @@
 
 #include <set>
 #include <vector>
+
 #include <sstream>
 
 #include "GroundSolver.h"
-#include "Factor.h"
 #include "FactorGraph.h"
-#include "Util.h"
+
 
 using namespace std;
 

@@ -5,7 +5,6 @@
 
 #include "GroundSolver.h"
 #include "FactorGraph.h"
-#include "Util.h"
 #include "Horus.h"
 
 class VarCluster;

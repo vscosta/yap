@@ -1,13 +1,13 @@
-#include <set>
-#include <vector>
 #include <algorithm>
 
+#include <set>
+#include <vector>
+
 #include <iostream>
-#include <fstream>
 #include <sstream>
+#include <fstream>
 
 #include "FactorGraph.h"
-#include "Factor.h"
 #include "BayesBall.h"
 #include "Util.h"
 
@@ -146,7 +146,7 @@ FactorGraph::readFromLibDaiFormat (const char* fileName)
       ignoreLines (is);
       is >> ranges[j];
       VarNode* var = getVarNode (vids[j]);
-      if (var != 0 && ranges[j] != var->range()) {
+      if (var && ranges[j] != var->range()) {
         cerr << "Error: variable `" << vids[j] << "' appears in two or " ;
         cerr << "more factors with a different range." << endl;
       }
