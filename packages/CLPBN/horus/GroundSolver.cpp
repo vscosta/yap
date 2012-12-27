@@ -1,7 +1,7 @@
 #include "GroundSolver.h"
+#include "VarElim.h"
 #include "BeliefProp.h"
 #include "CountingBp.h"
-#include "VarElim.h"
 #include "Util.h"
 
 
