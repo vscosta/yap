@@ -96,7 +96,6 @@ class Parfactor : public TFactor<ProbFormula>
     static bool canMultiply (Parfactor*, Parfactor*);
 
   private:
-
     void simplifyCountingFormulas (size_t fIdx);
 
     void simplifyParfactor (size_t fIdx1, size_t fIdx2);
@@ -113,8 +112,8 @@ class Parfactor : public TFactor<ProbFormula>
 
     ConstraintTree*  constr_;
 
+    DISALLOW_ASSIGN (Parfactor);
 };
-
 
 typedef vector<Parfactor*> Parfactors;
 

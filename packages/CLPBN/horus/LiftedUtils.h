@@ -160,6 +160,5 @@ class Substitution
 
 };
 
-
 #endif // HORUS_LIFTEDUTILS_H
 

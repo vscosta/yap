@@ -37,6 +37,8 @@ class LiftedBp : public LiftedSolver
     WeightedBp*    solver_;
     FactorGraph*   fg_;
 
+    DISALLOW_COPY_AND_ASSIGN (LiftedBp);
+
 };
 
 #endif // HORUS_LIFTEDBP_H

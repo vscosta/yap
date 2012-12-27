@@ -24,6 +24,8 @@ class WeightedLink : public BpLink
     }
 
   private:
+    DISALLOW_COPY_AND_ASSIGN (WeightedLink);
+
     size_t    index_;
     unsigned  weight_;
     Params    pwdMsg_;
@@ -43,7 +45,6 @@ class WeightedBp : public BeliefProp
     Params getPosterioriOf (VarId);
 
    private:
-
      void createLinks (void);
 
      void maxResidualSchedule (void);
@@ -55,6 +56,8 @@ class WeightedBp : public BeliefProp
      void printLinkInformation (void) const;
 
      vector<vector<unsigned>> weights_;
+
+     DISALLOW_COPY_AND_ASSIGN (WeightedBp);
 };
 
 #endif // HORUS_WEIGHTEDBP_H

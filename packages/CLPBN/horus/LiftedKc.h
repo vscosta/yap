@@ -217,7 +217,6 @@ class LiftedCircuit
     void exportToGraphViz (const char*);
 
   private:
-
     void compile (CircuitNode** follow, Clauses& clauses);
 
     bool tryUnitPropagation (CircuitNode** follow, Clauses& clauses);
@@ -273,6 +272,8 @@ class LiftedCircuit
     Clauses backupClauses_;
     unordered_map<CircuitNode*, Clauses> originClausesMap_;
     unordered_map<CircuitNode*, string>  explanationMap_;
+
+    DISALLOW_COPY_AND_ASSIGN (LiftedCircuit);
 };
 
 
@@ -293,6 +294,8 @@ class LiftedKc : public LiftedSolver
     LiftedWCNF*     lwcnf_;
     LiftedCircuit*  circuit_;
     ParfactorList   pfList_;
+
+    DISALLOW_COPY_AND_ASSIGN (LiftedKc);
 };
 
 #endif // HORUS_LIFTEDKC_H

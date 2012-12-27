@@ -25,9 +25,9 @@ class VarNode : public Var
     const FacNodes& neighbors (void) const { return neighs_; }
 
   private:
-    DISALLOW_COPY_AND_ASSIGN (VarNode);
-
     FacNodes neighs_;
+
+    DISALLOW_COPY_AND_ASSIGN (VarNode);
 };
 
 
@@ -52,11 +52,11 @@ class FacNode
     string getLabel (void) { return factor_.getLabel(); }
 
   private:
-    DISALLOW_COPY_AND_ASSIGN (FacNode);
-
     VarNodes  neighs_;
     Factor    factor_;
     size_t    index_;
+
+    DISALLOW_COPY_AND_ASSIGN (FacNode);
 };
 
 
@@ -113,8 +113,6 @@ class FactorGraph
     void exportToLibDaiFormat (const char*) const;
 
   private:
-    // DISALLOW_COPY_AND_ASSIGN (FactorGraph);
-
     void ignoreLines (std::ifstream&) const;
 
     bool containsCycle (void) const;
@@ -128,11 +126,13 @@ class FactorGraph
     VarNodes  varNodes_;
     FacNodes  facNodes_;
 
-    BayesBallGraph   structure_;
-    bool             bayesFactors_;
+    BayesBallGraph  structure_;
+    bool            bayesFactors_;
 
     typedef unordered_map<unsigned, VarNode*> VarMap;
     VarMap varMap_;
+
+    DISALLOW_ASSIGN (FactorGraph);
 };
 
 

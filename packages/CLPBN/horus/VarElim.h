@@ -37,6 +37,8 @@ class VarElim : public GroundSolver
     unsigned  largestFactorSize_;
     unsigned  totalFactorSize_;
     unordered_map<VarId, vector<size_t>> varMap_;
+
+    DISALLOW_COPY_AND_ASSIGN (VarElim);
 };
 
 #endif // HORUS_VARELIM_H

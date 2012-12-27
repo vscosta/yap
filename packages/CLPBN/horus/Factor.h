@@ -287,6 +287,7 @@ class Factor : public TFactor<VarId>
 
     void clone (const Factor& f);
 
+    DISALLOW_ASSIGN (Factor);
 };
 
 #endif // HORUS_FACTOR_H

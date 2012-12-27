@@ -21,6 +21,8 @@ class LiftedOperations
 
   private:
     static Parfactors absorve (ObservedFormula&, Parfactor*);
+
+    DISALLOW_COPY_AND_ASSIGN (LiftedOperations);
 };
 
 #endif // HORUS_LIFTEDOPERATIONS_H

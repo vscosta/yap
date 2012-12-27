@@ -75,6 +75,8 @@ class VarCluster
   private:
     VarNodes  members_;
     VarNode*  repr_;
+
+    DISALLOW_COPY_AND_ASSIGN (VarCluster);
 };
 
 
@@ -98,6 +100,8 @@ class FacCluster
     FacNodes     members_;
     FacNode*     repr_;
     VarClusters  varClusters_;
+
+    DISALLOW_COPY_AND_ASSIGN (FacCluster);
 };
 
 
@@ -166,7 +170,6 @@ class CountingBp : public GroundSolver
     unsigned getWeight (const FacCluster*,
         const VarCluster*, size_t index) const;
 
-
     Color               freeColor_;
     Colors              varColors_;
     Colors              facColors_;
@@ -175,6 +178,8 @@ class CountingBp : public GroundSolver
     VarClusterMap       varClusterMap_;
     const FactorGraph*  compressedFg_;
     WeightedBp*         solver_;
+
+    DISALLOW_COPY_AND_ASSIGN (CountingBp);
 };
 
 #endif // HORUS_COUNTINGBP_H

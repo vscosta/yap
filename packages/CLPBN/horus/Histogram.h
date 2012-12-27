@@ -5,6 +5,8 @@
 
 #include <ostream>
 
+#include "Horus.h"
+
 using namespace std;
 
 typedef vector<unsigned> Histogram;
@@ -40,6 +42,8 @@ class HistogramSet
 
     unsigned   size_;
     Histogram  hist_;
+
+    DISALLOW_COPY_AND_ASSIGN (HistogramSet);
 };
 
 #endif // HORUS_HISTOGRAM_H

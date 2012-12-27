@@ -148,6 +148,8 @@ class Clause
     LogVarSet        posCountedLvs_;
     LogVarSet        negCountedLvs_;
     ConstraintTree   constr_;
+
+    DISALLOW_ASSIGN (Clause);
 };
 
 typedef vector<Clause*> Clauses;
@@ -220,7 +222,6 @@ class LiftedWCNF
     void printClauses (void) const;
 
   private:
-
     LiteralId getLiteralId (PrvGroup prvGroup, unsigned range);
 
     void addIndicatorClauses (const ParfactorList& pfList);
@@ -232,6 +233,8 @@ class LiftedWCNF
     const ParfactorList&                                pfList_;
     unordered_map<PrvGroup, vector<LiteralId>>          map_;
     unordered_map<LiteralId, std::pair<double,double>>  weights_;
+
+    DISALLOW_COPY_AND_ASSIGN (LiftedWCNF);
 };
 
 #endif // HORUS_LIFTEDWCNF_H

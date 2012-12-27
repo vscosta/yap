@@ -29,6 +29,8 @@ class GroundSolver
 
   protected:
     const FactorGraph& fg;
+
+    DISALLOW_COPY_AND_ASSIGN (GroundSolver);
 };
 
 #endif // HORUS_GROUNDSOLVER_H

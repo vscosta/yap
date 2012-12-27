@@ -23,7 +23,6 @@ typedef vector<ConstraintTree*> ConstraintTrees;
 class CTNode
 {
   public:
-
     struct CompareSymbol
     {
       bool operator() (const CTNode* n1, const CTNode* n2) const
@@ -33,11 +32,9 @@ class CTNode
     };
 
   private:
-
     typedef TinySet<CTNode*, CompareSymbol> CTChilds_;
 
   public:
-
     CTNode (const CTNode& n, const CTChilds_& chs = CTChilds_()) 
         : symbol_(n.symbol()), childs_(chs), level_(n.level()) { }
 
@@ -51,8 +48,6 @@ class CTNode
     Symbol symbol (void) const { return symbol_; }
 
     void setSymbol (const Symbol s) { symbol_ = s; }
-
-  public:
 
     CTChilds_& childs (void) { return childs_; }
 
@@ -89,9 +84,11 @@ class CTNode
   private:
     void updateChildLevels (CTNode*, unsigned);
 
-    Symbol    symbol_;
-    CTChilds_ childs_;
-    unsigned  level_;
+    Symbol     symbol_;
+    CTChilds_  childs_;
+    unsigned   level_;
+
+    DISALLOW_ASSIGN (CTNode);
 };
 
 ostream& operator<< (ostream &out, const CTNode&);

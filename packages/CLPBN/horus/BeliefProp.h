@@ -76,6 +76,9 @@ class BpLink
     Params*   currMsg_;
     Params*   nextMsg_;
     double    residual_;
+
+  private:
+    DISALLOW_COPY_AND_ASSIGN (BpLink);
 };
 
 typedef vector<BpLink*> BpLinks;
@@ -84,10 +87,12 @@ typedef vector<BpLink*> BpLinks;
 class SPNodeInfo
 {
   public:
+    SPNodeInfo (void) { }
     void addBpLink (BpLink* link) { links_.push_back (link); }
     const BpLinks& getLinks (void) { return links_; }
   private:
     BpLinks links_;
+    DISALLOW_COPY_AND_ASSIGN (SPNodeInfo);
 };
 
 
@@ -204,6 +209,8 @@ class BeliefProp : public GroundSolver
     bool converged (void);
 
     virtual void printLinkInformation (void) const;
+
+    DISALLOW_COPY_AND_ASSIGN (BeliefProp);
 };
 
 #endif // HORUS_BELIEFPROP_H
