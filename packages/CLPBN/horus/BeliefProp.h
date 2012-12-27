@@ -106,25 +106,11 @@ class BeliefProp : public GroundSolver
 
     virtual Params getJointDistributionOf (const VarIds&);
 
+    Params getFactorJoint (FacNode* fn, const VarIds&);
+
     static MsgSchedule  schedule;
     static double       accuracy;
     static unsigned     maxIter;
-
-  protected:
-    void runSolver (void);
-
-    virtual void createLinks (void);
-
-    virtual void maxResidualSchedule (void);
-
-    virtual void calcFactorToVarMsg (BpLink*);
-
-    virtual Params getVarToFactorMsg (const BpLink*) const;
-
-    virtual Params getJointByConditioning (const VarIds&) const;
-
-  public:
-    Params getFactorJoint (FacNode* fn, const VarIds&);
 
   protected:
     SPNodeInfo* ninf (const VarNode* var) const
@@ -175,6 +161,18 @@ class BeliefProp : public GroundSolver
         return link1->residual() > link2->residual();
       }
     };
+
+    void runSolver (void);
+
+    virtual void createLinks (void);
+
+    virtual void maxResidualSchedule (void);
+
+    virtual void calcFactorToVarMsg (BpLink*);
+
+    virtual Params getVarToFactorMsg (const BpLink*) const;
+
+    virtual Params getJointByConditioning (const VarIds&) const;
 
     BpLinks              links_;
     unsigned             nIters_;
