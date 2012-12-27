@@ -3,17 +3,14 @@
 #include "YapInterface.h"
 #include "clause.h"
 #include "clause_list.h"
-#include "udi.h"
-#include "utarray.h"
+#include "udi_private.h"
 
 /* to keep a vector of udi indexers */
 UT_icd udicb_icd = {sizeof(UdiControlBlock), NULL, NULL, NULL};
 UT_array *indexing_structures;
 
 /*
- * New user indexed predicate:
- *   first argument is the decl term.
- *   second argument is the init call with the structure
+ * New user indexed predicate (used by the public udi interface)
  */
 void
 Yap_UdiRegister(UdiControlBlock cb){
@@ -21,61 +18,16 @@ Yap_UdiRegister(UdiControlBlock cb){
 	utarray_push_back(indexing_structures, &cb);
 }
 
-struct udi_p_args {
-	void *idxstr; //user indexing structure
-	UdiControlBlock control; //user indexing structure functions
-};
-
-/* a pointer utarray list
- * This is a hack, becouse I do no know the real type of clauses*/
-UT_icd ptr_icd = {sizeof(void *), NULL, NULL, NULL };
-
-#define UDI_MI 10
-
-/******
-    All the info we need to enter user indexed code:
-	right now, this is just a linked list....
-******/
-typedef struct udi_info
-{
-  PredEntry *p;                //predicate (need to identify asserts)
-  UT_array *clauselist;        //clause list used on returns
-  struct udi_p_args args[UDI_MI];  //indexed args only the first UDI_MI
-  struct udi_info *next;
-} *UdiInfo;
-
-int Yap_udi_args_init(Term spec, int arity, UdiInfo blk);
-
-/******
-      we now have one extra user indexed predicate. We assume these
-      are few, so we can do with a linked list.
-******/
-//static int
-//add_udi_block(PredEntry *p, void *info,  UdiControlBlock cmd)
-//{
-//  UdiInfo blk = (UdiInfo) Yap_AllocCodeSpace(sizeof(struct udi_info));
-//  if (!blk)
-//    return FALSE;
-//  blk->next = UdiControlBlocks;
-//  UdiControlBlocks = blk;
-//  blk->p = p;
-//  blk->functions = cmd;
-//  blk->cb = info;
-//  return TRUE;
-//}
-
 /*
  * New user indexed predicate:
  * the first argument is the term.
  */
-static int
+static YAP_Int
 p_new_udi( USES_REGS1 )
 {
   Term spec = Deref(ARG1);
 
   PredEntry *p;
-//  UdiControlBlock cmd;
-//  Atom udi_t;
   UdiInfo blk;
   int info;
 
@@ -130,15 +82,14 @@ p_new_udi( USES_REGS1 )
 	  Yap_Error(OUT_OF_HEAP_ERROR, spec, "new user index/1");
 	  return FALSE;
   }
-  blk->next = UdiControlBlocks;
   utarray_new(blk->clauselist, &ptr_icd);
+  utarray_new(blk->args, &arg_icd);
   blk->p = p;
-  UdiControlBlocks = blk;
-
+  HASH_ADD_UdiInfo(UdiControlBlocks, p, blk);
   //fprintf(stderr,"PRED %p\n",p);
 
   info = Yap_udi_args_init(spec, p->ArityOfPE, blk);
-  if (!info)
+  if (!info) /*TODO: clear blk here*/
     return FALSE;
 
   p->PredFlags |= UDIPredFlag;
@@ -155,10 +106,11 @@ Yap_udi_args_init(Term spec, int arity, UdiInfo blk)
 	Term arg;
 	Atom idxtype;
 	UdiControlBlock *p;
+	struct udi_p_args p_arg;
 
 	//fprintf(stderr,"udi init\n");
 
-	for (i = 1; i <= arity && i <= UDI_MI ; i++) {
+	for (i = 1; i <= arity; i++) {
 		arg = ArgOfTerm(i,spec);
 		if (IsAtomTerm(arg)) {
 			idxtype = AtomOfTerm(arg);
@@ -166,15 +118,18 @@ Yap_udi_args_init(Term spec, int arity, UdiInfo blk)
 //						                   AtomMinus, YAP_AtomName(AtomMinus));
 			if (idxtype == AtomMinus)
 				continue;
+			p_arg.control = NULL;
 			p = NULL;
 			while ((p = (UdiControlBlock *) utarray_next(indexing_structures, p))) {
 				//fprintf(stderr,"cb: %p %p-%s\n", *p, (*p)->decl, YAP_AtomName((*p)->decl));
 				if (idxtype == (*p)->decl){
-					blk->args[i-1].control = *p;
-					blk->args[i-1].idxstr = (*p)->init(spec, i, arity);
+					p_arg.arg = i;
+					p_arg.control = *p;
+					p_arg.idxstr = (*p)->init(spec, i, arity);
+					utarray_push_back(blk->args, &p_arg);
 				}
 			}
-			if (blk->args[i-1].control == NULL){ /* not "-" and not found*/
+			if (p_arg.control == NULL){ /* not "-" and not found*/
 				fprintf(stderr, "Invalid Spec (%s)\n", AtomName(idxtype));
 				return FALSE;
 			}
@@ -188,41 +143,24 @@ int
 Yap_new_udi_clause(PredEntry *p, yamop *cl, Term t)
 {
 	int i;
+	UdiPArg parg;
+	UdiInfo info;
 
-	/* find our structure*/
-	struct udi_info *info = UdiControlBlocks;
-	while (info->p != p && info)
-		info = info->next;
+	/* try to find our structure*/
+	HASH_FIND_UdiInfo(UdiControlBlocks,p,info);
 	if (!info)
 		return FALSE;
 
-	/* do the actual insertion */
-
-	/*insert into clauselist*/
+	/*insert into clauselist will be used latter*/
 	utarray_push_back(info->clauselist,(void *) cl);
 
-	for (i = 0; i < UDI_MI ; i++) {
-		if (info->args[i].control != NULL){
-			//fprintf(stderr,"call insert\n");
-			info->args[i].idxstr = info->args[i].control->insert(info->args[i].idxstr, t, i + 1, (void *)cl);
-			//	info->cb = info->functions->insert(t, info->cb, (void *)cl);
-		}
+	for (i = 0; i < utarray_len(info->args) ; i++) {
+		parg = (UdiPArg) utarray_eltptr(info->args,i);
+		//fprintf(stderr,"call insert\n");
+		parg->idxstr = parg->control->insert(parg->idxstr, t, parg->arg, (void *)cl);
+		//info->cb = info->functions->insert(t, info->cb, (void *)cl);
 	}
 	return TRUE;
-}
-
-struct CallbackM
-{
-  clause_list_t cl;
-  void * pred;
-};
-typedef struct CallbackM * callback_m_t;
-
-static int callback(void *key, void *data, void *arg)
-{
-	callback_m_t x;
-	x = (callback_m_t) arg;
-	return Yap_ClauseListExtend(x->cl,data,x->pred);
 }
 
 /* index, called from absmi.c */
@@ -233,11 +171,11 @@ Yap_udi_search(PredEntry *p)
 	struct ClauseList clauselist;
 	struct CallbackM cm;
 	callback_m_t c;
+	UdiPArg parg;
+	UdiInfo info;
 
 	/* find our structure*/
-	struct udi_info *info = UdiControlBlocks;
-	while (info->p != p && info)
-		info = info->next;
+	HASH_FIND_UdiInfo(UdiControlBlocks,p,info);
 	if (!info)
 		return NULL;
 
@@ -245,12 +183,12 @@ Yap_udi_search(PredEntry *p)
 	c = &cm;
 	c->cl = Yap_ClauseListInit(&clauselist);
 	c->pred = p;
-	for (i = 0; i < UDI_MI ; i++) {
-		if (info->args[i].control != NULL){
-//			fprintf(stderr,"call search %d %p\n", i, (void *)c);
-			r = info->args[i].control->search(info->args[i].idxstr, i + 1, callback, c);
-			/*info->functions->search(info->cb);*/
-		}
+
+	for (i = 0; i < utarray_len(info->args) ; i++) {
+		parg = (UdiPArg) utarray_eltptr(info->args,i);
+		//fprintf(stderr,"call search %d %p\n", i, (void *)c);
+		r = parg->control->search(parg->idxstr, parg->arg, callback, c);
+		/*info->functions->search(info->cb);*/
 	}
 	Yap_ClauseListClose(c->cl);
 
@@ -281,6 +219,9 @@ Yap_udi_abolish(PredEntry *p)
 	/* tell the predicate destroy */
 }
 
+/*
+ * Init Yap udi interface
+ */
 void
 Yap_udi_init(void)
 {
@@ -290,6 +231,5 @@ Yap_udi_init(void)
   utarray_new(indexing_structures, &udicb_icd);
 
   Yap_InitCPred("$udi_init", 1, p_new_udi, 0);
-  /* TODO: decide if yap.udi should be loaded automaticaly in init.yap */
+  /* TODO: decide if udi.yap should be loaded automaticaly in init.yap */
 }
-

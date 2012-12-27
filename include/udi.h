@@ -17,7 +17,7 @@
  *   For now each indexing structure only works with a single argument
  *   even when multiple arguments are indexed with the same struture.
  *
- *   TODO: think of alternamive ways of support both cases, e.g. a rtree
+ *   TODO: think of alternative ways of support both cases, e.g. a rtree
  *   does not benefit from multiple rtree indexing, but a hash table do
  */
 
