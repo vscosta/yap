@@ -67,19 +67,5 @@ const unsigned PRECISION = 6;
 
 };
 
-
-namespace BpOptions
-{
-  enum Schedule {
-    SEQ_FIXED,
-    SEQ_RANDOM,
-    PARALLEL,
-    MAX_RESIDUAL
-  };
-  extern Schedule  schedule;
-  extern double    accuracy;
-  extern unsigned  maxIter;
-}
-
 #endif // HORUS_HORUS_H
 

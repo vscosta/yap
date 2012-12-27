@@ -9,6 +9,11 @@
 #include "Horus.h"
 
 
+MsgSchedule BeliefProp::schedule = MsgSchedule::SEQ_FIXED;
+double      BeliefProp::accuracy = 0.0001;
+unsigned    BeliefProp::maxIter  = 1000;
+
+
 BeliefProp::BeliefProp (const FactorGraph& fg) : GroundSolver (fg)
 {
   runned_ = false;
@@ -48,15 +53,14 @@ BeliefProp::printSolverFlags (void) const
   stringstream ss;
   ss << "belief propagation [" ;
   ss << "schedule=" ;
-  typedef BpOptions::Schedule Sch;
-  switch (BpOptions::schedule) {
-    case Sch::SEQ_FIXED:    ss << "seq_fixed";    break;
-    case Sch::SEQ_RANDOM:   ss << "seq_random";   break;
-    case Sch::PARALLEL:     ss << "parallel";     break;
-    case Sch::MAX_RESIDUAL: ss << "max_residual"; break;
+  switch (schedule) {
+    case MsgSchedule::SEQ_FIXED:    ss << "seq_fixed";    break;
+    case MsgSchedule::SEQ_RANDOM:   ss << "seq_random";   break;
+    case MsgSchedule::PARALLEL:     ss << "parallel";     break;
+    case MsgSchedule::MAX_RESIDUAL: ss << "max_residual"; break;
   }
-  ss << ",max_iter="   << Util::toString (BpOptions::maxIter);
-  ss << ",accuracy="   << Util::toString (BpOptions::accuracy);
+  ss << ",max_iter="   << Util::toString (maxIter);
+  ss << ",accuracy="   << Util::toString (accuracy);
   ss << ",log_domain=" << Util::toString (Globals::logDomain);
   ss << "]" ;
   cout << ss.str() << endl;
@@ -153,21 +157,21 @@ BeliefProp::runSolver (void)
 {
   initializeSolver();
   nIters_ = 0;
-  while (!converged() && nIters_ < BpOptions::maxIter) {
+  while (!converged() && nIters_ < maxIter) {
     nIters_ ++;
     if (Globals::verbosity > 1) {
       Util::printHeader (string ("Iteration ") + Util::toString (nIters_));
     }
-    switch (BpOptions::schedule) {
-     case BpOptions::Schedule::SEQ_RANDOM:
+    switch (schedule) {
+     case MsgSchedule::SEQ_RANDOM:
        std::random_shuffle (links_.begin(), links_.end());
        // no break
-      case BpOptions::Schedule::SEQ_FIXED:
+      case MsgSchedule::SEQ_FIXED:
         for (size_t i = 0; i < links_.size(); i++) {
           calculateAndUpdateMessage (links_[i]);
         }
         break;
-      case BpOptions::Schedule::PARALLEL:
+      case MsgSchedule::PARALLEL:
         for (size_t i = 0; i < links_.size(); i++) {
           calculateMessage (links_[i]);
         }
@@ -175,13 +179,13 @@ BeliefProp::runSolver (void)
           updateMessage(links_[i]);
         }
         break;
-      case BpOptions::Schedule::MAX_RESIDUAL:
+      case MsgSchedule::MAX_RESIDUAL:
         maxResidualSchedule();
         break;
     }
   }
   if (Globals::verbosity > 0) {
-    if (nIters_ < BpOptions::maxIter) {
+    if (nIters_ < maxIter) {
       cout << "Belief propagation converged in " ;
       cout << nIters_ << " iterations" << endl;
     } else {
@@ -233,7 +237,7 @@ BeliefProp::maxResidualSchedule (void)
 
     SortedOrder::iterator it = sortedOrder_.begin();
     BpLink* link = *it;
-    if (link->residual() < BpOptions::accuracy) {
+    if (link->residual() < accuracy) {
       return;
     }
     updateMessage (link);
@@ -423,9 +427,9 @@ BeliefProp::converged (void)
     return false;
   }
   bool converged = true;
-  if (BpOptions::schedule == BpOptions::Schedule::MAX_RESIDUAL) {
+  if (schedule == MsgSchedule::MAX_RESIDUAL) {
     double maxResidual = (*(sortedOrder_.begin()))->residual();
-    if (maxResidual > BpOptions::accuracy) {
+    if (maxResidual > accuracy) {
       converged = false;
     } else {
       converged = true;
@@ -436,7 +440,7 @@ BeliefProp::converged (void)
       if (Globals::verbosity > 1) {
         cout << links_[i]->toString() + " residual = " << residual << endl;
       }
-      if (residual > BpOptions::accuracy) {
+      if (residual > accuracy) {
         converged = false;
         if (Globals::verbosity < 2) {
           break;

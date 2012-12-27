@@ -37,15 +37,14 @@ CountingBp::printSolverFlags (void) const
   stringstream ss;
   ss << "counting bp [" ;
   ss << "schedule=" ;
-  typedef BpOptions::Schedule Sch;
-  switch (BpOptions::schedule) {
-    case Sch::SEQ_FIXED:    ss << "seq_fixed";    break;
-    case Sch::SEQ_RANDOM:   ss << "seq_random";   break;
-    case Sch::PARALLEL:     ss << "parallel";     break;
-    case Sch::MAX_RESIDUAL: ss << "max_residual"; break;
+  switch (WeightedBp::schedule) {
+    case MsgSchedule::SEQ_FIXED:    ss << "seq_fixed";    break;
+    case MsgSchedule::SEQ_RANDOM:   ss << "seq_random";   break;
+    case MsgSchedule::PARALLEL:     ss << "parallel";     break;
+    case MsgSchedule::MAX_RESIDUAL: ss << "max_residual"; break;
   }
-  ss << ",max_iter=" << BpOptions::maxIter;
-  ss << ",accuracy=" << BpOptions::accuracy;
+  ss << ",max_iter=" << WeightedBp::maxIter;
+  ss << ",accuracy=" << WeightedBp::accuracy;
   ss << ",log_domain=" << Util::toString (Globals::logDomain);
   ss << ",chkif=" << Util::toString (CountingBp::checkForIdenticalFactors);
   ss << "]" ;

@@ -3,6 +3,7 @@
 #include "Util.h"
 #include "Indexer.h"
 #include "ElimGraph.h"
+#include "BeliefProp.h"
 
 
 namespace Globals {
@@ -15,17 +16,6 @@ LiftedSolverType liftedSolver = LiftedSolverType::LVE;
 GroundSolverType groundSolver = GroundSolverType::VE;
 
 };
-
-
-
-namespace BpOptions {
-Schedule schedule = BpOptions::Schedule::SEQ_FIXED;
-//Schedule schedule = BpOptions::Schedule::SEQ_RANDOM;
-//Schedule schedule = BpOptions::Schedule::PARALLEL;
-//Schedule schedule = BpOptions::Schedule::MAX_RESIDUAL;
-double    accuracy  = 0.0001;
-unsigned  maxIter   = 1000;
-}
 
 
 
@@ -248,13 +238,13 @@ setHorusFlag (string key, string value)
     }
   } else if (key == "schedule") {
     if (       value == "seq_fixed") {
-      BpOptions::schedule = BpOptions::Schedule::SEQ_FIXED;
+      BeliefProp::schedule = MsgSchedule::SEQ_FIXED;
     } else if (value == "seq_random") {
-      BpOptions::schedule = BpOptions::Schedule::SEQ_RANDOM;
+      BeliefProp::schedule = MsgSchedule::SEQ_RANDOM;
     } else if (value == "parallel") {
-      BpOptions::schedule = BpOptions::Schedule::PARALLEL;
+      BeliefProp::schedule = MsgSchedule::PARALLEL;
     } else if (value == "max_residual") {
-      BpOptions::schedule = BpOptions::Schedule::MAX_RESIDUAL;
+      BeliefProp::schedule = MsgSchedule::MAX_RESIDUAL;
     } else {
       cerr << "warning: invalid value `" << value << "' " ;
       cerr << "for `" << key << "'" << endl;
@@ -263,11 +253,11 @@ setHorusFlag (string key, string value)
   } else if (key == "accuracy") {
     stringstream ss;
     ss << value;
-    ss >> BpOptions::accuracy;
+    ss >> BeliefProp::accuracy;
   } else if (key == "max_iter") {
     stringstream ss;
     ss << value;
-    ss >> BpOptions::maxIter;
+    ss >> BeliefProp::maxIter;
   } else if (key == "use_logarithms") {
     if (       value == "true") {
       Globals::logDomain = true;

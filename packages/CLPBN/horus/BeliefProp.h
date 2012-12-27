@@ -13,6 +13,14 @@
 using namespace std;
 
 
+enum MsgSchedule {
+  SEQ_FIXED,
+  SEQ_RANDOM,
+  PARALLEL,
+  MAX_RESIDUAL
+};
+
+
 class BpLink
 {
   public:
@@ -97,6 +105,10 @@ class BeliefProp : public GroundSolver
     virtual Params getPosterioriOf (VarId);
 
     virtual Params getJointDistributionOf (const VarIds&);
+
+    static MsgSchedule  schedule;
+    static double       accuracy;
+    static unsigned     maxIter;
 
   protected:
     void runSolver (void);

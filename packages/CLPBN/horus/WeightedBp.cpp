@@ -107,7 +107,7 @@ WeightedBp::maxResidualSchedule (void)
     if (Globals::verbosity >= 1) {
       cout << "updating " << (*sortedOrder_.begin())->toString() << endl;
     }
-    if (link->residual() < BpOptions::accuracy) {
+    if (link->residual() < accuracy) {
       return;
     }
     link->updateMessage();
