@@ -52,7 +52,7 @@ BeliefProp::printSolverFlags (void) const
 {
   stringstream ss;
   ss << "belief propagation [" ;
-  ss << "schedule=" ;
+  ss << "msg_schedule=" ;
   switch (schedule_) {
     case MsgSchedule::SEQ_FIXED:    ss << "seq_fixed";    break;
     case MsgSchedule::SEQ_RANDOM:   ss << "seq_random";   break;

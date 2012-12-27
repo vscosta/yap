@@ -34,15 +34,23 @@ warning :-
 set_horus_flag(K,V) :- cpp_set_horus_flag(K,V).
 
 
-:- cpp_set_horus_flag(schedule, seq_fixed).
-%:- cpp_set_horus_flag(schedule, seq_random).
-%:- cpp_set_horus_flag(schedule, parallel).
-%:- cpp_set_horus_flag(schedule, max_residual).
-
-:- cpp_set_horus_flag(accuracy, 0.0001).
-
-:- cpp_set_horus_flag(max_iter, 1000).
+:- cpp_set_horus_flag(verbosity, 0).
 
 :- cpp_set_horus_flag(use_logarithms, false).
-% :- cpp_set_horus_flag(use_logarithms, true).
+%:- cpp_set_horus_flag(use_logarithms, true).
+
+%:- cpp_set_horus_flag(hve_elim_heuristic, sequential).
+%:- cpp_set_horus_flag(hve_elim_heuristic, min_neighbors).
+%:- cpp_set_horus_flag(hve_elim_heuristic, min_weight).
+%:- cpp_set_horus_flag(hve_elim_heuristic, min_fill).
+:- cpp_set_horus_flag(hve_elim_heuristic, weighted_min_fill).
+
+:- cpp_set_horus_flag(bp_msg_schedule, seq_fixed).
+%:- cpp_set_horus_flag(bp_msg_schedule, seq_random).
+%:- cpp_set_horus_flag(bp_msg_schedule, parallel).
+%:- cpp_set_horus_flag(bp_msg_schedule, max_residual).
+
+:- cpp_set_horus_flag(bp_accuracy, 0.0001).
+
+:- cpp_set_horus_flag(bp_max_iter, 1000).
 

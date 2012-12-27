@@ -62,7 +62,7 @@ LiftedBp::printSolverFlags (void) const
 {
   stringstream ss;
   ss << "lifted bp [" ;
-  ss << "schedule=" ;
+  ss << "msg_schedule=" ;
   switch (WeightedBp::msgSchedule()) {
     case MsgSchedule::SEQ_FIXED:    ss << "seq_fixed";    break;
     case MsgSchedule::SEQ_RANDOM:   ss << "seq_random";   break;

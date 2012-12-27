@@ -200,7 +200,7 @@ runGroundSolver (void)
   }
 
   GroundSolver* solver = 0;
-  CountingBp::checkForIdenticalFactors = false;
+  CountingBp::setFindIdenticalFactorsFlag (false);
   switch (Globals::groundSolver) {
     case GroundSolverType::VE:  solver = new VarElim    (*mfg); break;
     case GroundSolverType::BP:  solver = new BeliefProp (*mfg); break;
@@ -320,11 +320,11 @@ setHorusFlag (void)
     stringstream ss;
     ss << (int) YAP_IntOfTerm (YAP_ARG2);
     ss >> value;
-  } else if (key == "accuracy") {
+  } else if (key == "bp_accuracy") {
     stringstream ss;
     ss << (float) YAP_FloatOfTerm (YAP_ARG2);
     ss >> value;
-  } else if (key == "max_iter") {
+  } else if (key == "bp_max_iter") {
     stringstream ss;
     ss << (int) YAP_IntOfTerm (YAP_ARG2);
     ss >> value;

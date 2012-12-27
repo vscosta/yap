@@ -2,7 +2,7 @@
 #include "WeightedBp.h"
 
 
-bool CountingBp::checkForIdenticalFactors = true;
+bool CountingBp::fif_ = true;
 
 
 CountingBp::CountingBp (const FactorGraph& fg)
@@ -36,7 +36,7 @@ CountingBp::printSolverFlags (void) const
 {
   stringstream ss;
   ss << "counting bp [" ;
-  ss << "schedule=" ;
+  ss << "msg_schedule=" ;
   switch (WeightedBp::msgSchedule()) {
     case MsgSchedule::SEQ_FIXED:    ss << "seq_fixed";    break;
     case MsgSchedule::SEQ_RANDOM:   ss << "seq_random";   break;
@@ -46,7 +46,7 @@ CountingBp::printSolverFlags (void) const
   ss << ",max_iter=" << WeightedBp::maxIterations();
   ss << ",accuracy=" << WeightedBp::accuracy();
   ss << ",log_domain=" << Util::toString (Globals::logDomain);
-  ss << ",chkif=" << Util::toString (CountingBp::checkForIdenticalFactors);
+  ss << ",fif=" << Util::toString (CountingBp::fif_);
   ss << "]" ;
   cout << ss.str() << endl;
 }
@@ -93,8 +93,7 @@ void
 CountingBp::findIdenticalFactors()
 {
   const FacNodes& facNodes = fg.facNodes();
-  if (checkForIdenticalFactors == false ||
-      facNodes.size() == 1) {
+  if (fif_ == false || facNodes.size() == 1) {
     return;
   }
   for (size_t i = 0; i < facNodes.size(); i++) {

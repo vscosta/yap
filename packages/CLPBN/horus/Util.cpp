@@ -192,11 +192,7 @@ bool
 setHorusFlag (string key, string value)
 {
   bool returnVal = true;
-  if (key == "verbosity") {
-    stringstream ss;
-    ss << value;
-    ss >> Globals::verbosity;
-  } else if (key == "lifted_solver") {
+  if (       key == "lifted_solver") {
     if (       value == "lve") {
       Globals::liftedSolver = LiftedSolverType::LVE;
     } else if (value == "lbp") {
@@ -209,7 +205,7 @@ setHorusFlag (string key, string value)
       returnVal = false;
     }
   } else if (key == "ground_solver") {
-    if (       value == "ve") {
+    if (       value == "ve" || value == "hve") {
       Globals::groundSolver = GroundSolverType::VE;
     } else if (value == "bp") {
       Globals::groundSolver = GroundSolverType::BP;
@@ -220,7 +216,21 @@ setHorusFlag (string key, string value)
       cerr << "for `" << key << "'" << endl;
       returnVal = false;
     }
-  } else if (key == "elim_heuristic") {
+  } else if (key == "verbosity") {
+    stringstream ss;
+    ss << value;
+    ss >> Globals::verbosity;
+  } else if (key == "use_logarithms") {
+    if (       value == "true") {
+      Globals::logDomain = true;
+    } else if (value == "false") {
+      Globals::logDomain = false;
+    } else {
+      cerr << "warning: invalid value `" << value << "' " ;
+      cerr << "for `" << key << "'" << endl;
+      returnVal = false;
+    }
+  } else if (key == "ve_elim_heuristic" || key == "hve_elim_heuristic") {
     if (       value == "sequential") {
       ElimGraph::setElimHeuristic (ElimHeuristic::SEQUENTIAL);
     } else if (value == "min_neighbors") {
@@ -236,7 +246,7 @@ setHorusFlag (string key, string value)
       cerr << "for `" << key << "'" << endl;
       returnVal = false;
     }
-  } else if (key == "schedule") {
+  } else if (key == "bp_msg_schedule") {
     if (       value == "seq_fixed") {
       BeliefProp::setMsgSchedule (MsgSchedule::SEQ_FIXED);
     } else if (value == "seq_random") {
@@ -250,28 +260,18 @@ setHorusFlag (string key, string value)
       cerr << "for `" << key << "'" << endl;
       returnVal = false;
     }
-  } else if (key == "accuracy") {
+  } else if (key == "bp_accuracy") {
     stringstream ss;
     double acc;
     ss << value;
     ss >> acc;
     BeliefProp::setAccuracy (acc);
-  } else if (key == "max_iter") {
+  } else if (key == "bp_max_iter") {
     stringstream ss;
     unsigned mi;
     ss << value;
     ss >> mi;
     BeliefProp::setMaxIterations (mi);
-  } else if (key == "use_logarithms") {
-    if (       value == "true") {
-      Globals::logDomain = true;
-    } else if (value == "false") {
-      Globals::logDomain = false;
-    } else {
-      cerr << "warning: invalid value `" << value << "' " ;
-      cerr << "for `" << key << "'" << endl;
-      returnVal = false;
-    }
   } else {
     cerr << "warning: invalid key `" << key << "'" << endl;
     returnVal = false;

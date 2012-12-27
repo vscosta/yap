@@ -116,7 +116,7 @@ class CountingBp : public GroundSolver
 
     Params solveQuery (VarIds);
 
-    static bool checkForIdenticalFactors;
+    static void setFindIdenticalFactorsFlag (bool fif) { fif_ = fif; }
 
   private:
     Color getNewColor (void)
@@ -178,6 +178,8 @@ class CountingBp : public GroundSolver
     VarClusterMap       varClusterMap_;
     const FactorGraph*  compressedFg_;
     WeightedBp*         solver_;
+
+    static bool fif_;
 
     DISALLOW_COPY_AND_ASSIGN (CountingBp);
 };
