@@ -24,7 +24,7 @@ class HistogramSet
 
     void reset (void);
 
-    static vector<Histogram> getHistograms (unsigned ,unsigned);
+    static vector<Histogram> getHistograms (unsigned, unsigned);
 
     static unsigned nrHistograms (unsigned, unsigned);
 
