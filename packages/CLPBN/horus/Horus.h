@@ -12,24 +12,23 @@
   void operator=(const TypeName&)
 
 #include <vector>
-
-using namespace std;
+#include <string>
 
 class Var;
 class Factor;
 class VarNode;
 class FacNode;
 
-typedef vector<double>      Params;
-typedef unsigned            VarId;
-typedef vector<VarId>       VarIds;
-typedef vector<Var*>        Vars;
-typedef vector<VarNode*>    VarNodes;
-typedef vector<FacNode*>    FacNodes;
-typedef vector<Factor*>     Factors;
-typedef vector<string>      States;
-typedef vector<unsigned>    Ranges;
-typedef unsigned long long  ullong;
+typedef std::vector<double>      Params;
+typedef unsigned                 VarId;
+typedef std::vector<VarId>       VarIds;
+typedef std::vector<Var*>        Vars;
+typedef std::vector<VarNode*>    VarNodes;
+typedef std::vector<FacNode*>    FacNodes;
+typedef std::vector<Factor*>     Factors;
+typedef std::vector<std::string> States;
+typedef std::vector<unsigned>    Ranges;
+typedef unsigned long long       ullong;
 
 
 enum LiftedSolverType
