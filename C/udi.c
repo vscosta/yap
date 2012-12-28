@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <assert.h>
+#include <Judy.h>
 #include "Yap.h"
 #include "YapInterface.h"
 #include "clause.h"
@@ -82,7 +84,7 @@ p_new_udi( USES_REGS1 )
 	  Yap_Error(OUT_OF_HEAP_ERROR, spec, "new user index/1");
 	  return FALSE;
   }
-  utarray_new(blk->clauselist, &ptr_icd);
+  utarray_new(blk->clauselist, &cl_icd);
   utarray_new(blk->args, &arg_icd);
   blk->p = p;
   HASH_ADD_UdiInfo(UdiControlBlocks, p, blk);
@@ -145,6 +147,8 @@ Yap_new_udi_clause(PredEntry *p, yamop *cl, Term t)
 	int i;
 	UdiPArg parg;
 	UdiInfo info;
+	int index;
+//	yamop **x;
 
 	/* try to find our structure*/
 	HASH_FIND_UdiInfo(UdiControlBlocks,p,info);
@@ -152,14 +156,34 @@ Yap_new_udi_clause(PredEntry *p, yamop *cl, Term t)
 		return FALSE;
 
 	/*insert into clauselist will be used latter*/
-	utarray_push_back(info->clauselist,(void *) cl);
+	utarray_push_back(info->clauselist, &cl);
 
 	for (i = 0; i < utarray_len(info->args) ; i++) {
 		parg = (UdiPArg) utarray_eltptr(info->args,i);
-		//fprintf(stderr,"call insert\n");
-		parg->idxstr = parg->control->insert(parg->idxstr, t, parg->arg, (void *)cl);
+		index = utarray_len(info->clauselist);
+//		x = (yamop **) utarray_eltptr(info->clauselist, index);
+//		fprintf(stderr,"Insert (%p %p %d) %d - %p %p %p\n",
+//				info->clauselist,info->clauselist->d,info->clauselist->icd.sz,
+//				index,
+//				cl, *x, *((yamop **) utarray_eltptr(info->clauselist, index)));
+		parg->idxstr = parg->control->insert(parg->idxstr, t,
+											 parg->arg,
+											 (void *) index);
 		//info->cb = info->functions->insert(t, info->cb, (void *)cl);
 	}
+	return TRUE;
+}
+
+static inline int callback(void *key, void *data, void *arg)
+{
+	int r;
+	Pvoid_t *array = (Pvoid_t *) arg;
+//	fprintf(stderr,"Found %p %d",data, (int) data);
+	J1S(r, *array, (int) data);
+	if (r == JERR)
+		return FALSE;
+	J1C(r, *array, 0 , -1);
+//	fprintf(stderr," (%d)\n",r);
 	return TRUE;
 }
 
@@ -167,49 +191,133 @@ Yap_new_udi_clause(PredEntry *p, yamop *cl, Term t)
 yamop *
 Yap_udi_search(PredEntry *p)
 {
-	int i, r = -1;
+	int i, r;
 	struct ClauseList clauselist;
-	struct CallbackM cm;
-	callback_m_t c;
+//	struct CallbackM cm;
+//	callback_m_t c;
 	UdiPArg parg;
 	UdiInfo info;
+	Pvoid_t tmp, result;
+	Word_t count;
+	Word_t idx_r = 0L;
+	yamop **x;
 
 	/* find our structure*/
 	HASH_FIND_UdiInfo(UdiControlBlocks,p,info);
 	if (!info)
 		return NULL;
 
-	/*TODO: handle intersection*/
-	c = &cm;
-	c->cl = Yap_ClauseListInit(&clauselist);
-	c->pred = p;
+//	/*TODO: handle intersection*/
+//	c = &cm;
+//	c->cl = Yap_ClauseListInit(&clauselist);
+//	c->pred = p;
 
+	/*
+	 * I will start with the simplest case
+	 * for each index create a set and intersect it with the
+	 * next
+	 */
+	result = (Pvoid_t) NULL;
+	tmp = (Pvoid_t) NULL;
+	r = -1;
 	for (i = 0; i < utarray_len(info->args) ; i++) {
+//		fprintf(stderr,"Start Search\n");
 		parg = (UdiPArg) utarray_eltptr(info->args,i);
-		//fprintf(stderr,"call search %d %p\n", i, (void *)c);
-		r = parg->control->search(parg->idxstr, parg->arg, callback, c);
-		/*info->functions->search(info->cb);*/
-	}
-	Yap_ClauseListClose(c->cl);
+		r = parg->control->search(parg->idxstr, parg->arg, callback, &tmp);
 
-	if (r >= 0) {
-		if (Yap_ClauseListCount(c->cl) == 0)
+		if (r == -1) /*this arg does not prune search*/
+			continue;
+
+		J1C(count, result, 0, -1);
+
+		if (r == 0)
 		{
-			Yap_ClauseListDestroy(c->cl);
+			if (count > 0) // clear previous result if it exists
+				J1FA(count, result);
+			fprintf(stderr,"Search Failed");
 			return Yap_FAILCODE();
 		}
 
-		if (Yap_ClauseListCount(c->cl) == 1)
+		if (r > 0 && count == 0) // first result_set
 		{
-			return Yap_ClauseListToClause(c->cl);
+			result = tmp;
+			tmp = (Pvoid_t) NULL;
+		}
+		else
+		{/*intersection*/
+			Word_t idx_tmp = 0L;
+
+			idx_r = 0L;
+			J1F(count, result, idx_r);//succeeds one time at least
+			J1F(count, tmp, idx_tmp); //succeeds one time at least
+			while (count)
+			{
+				while (idx_r < idx_tmp)
+				{
+					J1U(count, result, idx_r); //does not belong
+					J1N(count, result, idx_r); //next
+					if (! count) break;        //end result set
+				}
+				if(idx_r == idx_tmp)
+				{
+					J1N(count, result, idx_r); //next
+					if (! count) break;        //end result set
+					J1N(count, tmp, idx_tmp);  //next tmp
+					//if (! count) break;      //end tmp set
+				}
+				else // (idx_r > idx_tmp)
+				{
+					idx_tmp = idx_r; // fast forward
+					J1F(count, tmp, idx_tmp); // first starting in idx_r
+					if (! count) break; //end tmp set
+				}
+			}
+			J1F(count, result, idx_r); // first starting in idx_r
+			//clear up the rest
+			while (idx_r > idx_tmp && count) //result has more setted values
+			{
+				J1U(count, result, idx_r); //does not belong
+				J1N(count, result, idx_r); //next
+			}
+			J1FA(count, tmp);
 		}
 
-		return Yap_ClauseListCode(c->cl);
 	}
-	else
-		Yap_ClauseListDestroy(c->cl);
 
-	return NULL;
+
+	Yap_ClauseListInit(&clauselist);
+	idx_r = 0L;
+	J1F(count, result, idx_r);
+	while (count)
+	{
+		x = (yamop **) utarray_eltptr(info->clauselist, idx_r - 1);
+//		fprintf(stderr,"Clausule %d of %d: %p\n",
+//				idx_r, utarray_len(info->clauselist),
+//				*x);
+		Yap_ClauseListExtend(
+				&clauselist,
+				*x,
+				info->p);
+		J1N(count, result, idx_r);
+	}
+	J1FA(count,result);
+//	fprintf(stderr,"J1 used space %d bytes for %d clausules\n",
+//			count, Yap_ClauseListCount(&clauselist));
+	Yap_ClauseListClose(&clauselist);
+
+	if (Yap_ClauseListCount(&clauselist) == 0)
+	{
+		Yap_ClauseListDestroy(&clauselist);
+//		fprintf(stderr,"Search Not needed\n");
+		return NULL; /*FAIL CODE handled before*/
+	}
+	if (Yap_ClauseListCount(&clauselist) == 1)
+	{
+//		fprintf(stderr,"Returning 1 value\n");
+		return Yap_ClauseListToClause(&clauselist);
+	}
+//	fprintf(stderr,"Returning Multiple values (%d)\n", Yap_ClauseListCount(&clauselist));
+	return Yap_ClauseListCode(&clauselist);
 }
 
 /* index, called from absmi.c */

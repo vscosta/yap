@@ -15,7 +15,7 @@ UT_icd arg_icd = {sizeof(struct udi_p_args), NULL, NULL, NULL };
  * This is a hack, becouse I do no know the real type of clauses
  * Not completely used for now
  */
-UT_icd ptr_icd = {sizeof(void *), NULL, NULL, NULL };
+UT_icd cl_icd = {sizeof(yamop *), NULL, NULL, NULL };
 
 /*
  * All the info we need to enter user indexed code
@@ -38,18 +38,18 @@ typedef struct udi_info *UdiInfo;
 
 int Yap_udi_args_init(Term spec, int arity, UdiInfo blk);
 
-/* temporary */
-struct CallbackM
-{
-  clause_list_t cl;
-  void * pred;
-};
-typedef struct CallbackM * callback_m_t;
-
-static inline int callback(void *key, void *data, void *arg)
-{
-	callback_m_t x;
-	x = (callback_m_t) arg;
-	return Yap_ClauseListExtend(x->cl,data,x->pred);
-}
+///* temporary */
+//struct CallbackM
+//{
+//  clause_list_t cl;
+//  void * pred;
+//};
+//typedef struct CallbackM * callback_m_t;
+//
+//static inline int callback(void *key, void *data, void *arg)
+//{
+//	callback_m_t x;
+//	x = (callback_m_t) arg;
+//	return Yap_ClauseListExtend(x->cl,data,x->pred);
+//}
 
