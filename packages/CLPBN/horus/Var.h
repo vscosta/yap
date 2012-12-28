@@ -59,11 +59,7 @@ class Var
 
     bool isValidState (int);
 
-    bool isValidState (const string&);
-
     void setEvidence (int);
-
-    void setEvidence (const string&);
 
     string label (void) const;
 

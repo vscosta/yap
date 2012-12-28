@@ -36,35 +36,11 @@ Var::isValidState (int stateIndex)
 
 
 
-bool
-Var::isValidState (const string& stateName)
-{
-  States states = Var::getVarInfo (varId_).states;
-  return Util::contains (states, stateName);
-}
-
-
-
 void
-Var::setEvidence (int ev)
+Var::setEvidence (int evidence)
 {
-  assert (ev < (int) range_);
-  evidence_ = ev;
-}
-
-
-
-void
-Var::setEvidence (const string& ev)
-{
-  States states = Var::getVarInfo (varId_).states;
-  for (size_t i = 0; i < states.size(); i++) {
-    if (states[i] == ev) {
-      evidence_ = i;
-      return;
-    }
-  }
-  assert (false);
+  assert (evidence < (int) range_);
+  evidence_ = evidence;
 }
 
 
