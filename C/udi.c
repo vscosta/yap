@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <assert.h>
-#include <Judy.h>
 #include "Yap.h"
 #include "YapInterface.h"
 #include "clause.h"
@@ -193,19 +192,6 @@ Yap_new_udi_clause(PredEntry *p, yamop *cl, Term t)
 	return TRUE;
 }
 
-static inline int callback(void *key, void *data, void *arg)
-{
-	int r;
-	Pvoid_t *array = (Pvoid_t *) arg;
-//	fprintf(stderr,"Found %p %d",data, (int) data);
-	J1S(r, *array, (int) data);
-	if (r == JERR)
-		return FALSE;
-	J1C(r, *array, 0 , -1);
-//	fprintf(stderr," (%d)\n",r);
-	return TRUE;
-}
-
 /* index, called from absmi.c
  *
  * Returns:
@@ -251,6 +237,7 @@ Yap_udi_search(PredEntry *p)
 			return Yap_FAILCODE();
 		}
 	} else {//intersection needed using Judy1
+#ifdef USE_JUDY
 		/*TODO: do more tests to this algorithm*/
 		int i;
 		Pvoid_t tmp = (Pvoid_t) NULL;
@@ -271,7 +258,7 @@ Yap_udi_search(PredEntry *p)
 		 */
 		for (i = 0; i < utarray_len(info->args) ; i++) {
 			parg = (UdiPArg) utarray_eltptr(info->args,i);
-			r = parg->control->search(parg->idxstr, parg->arg, callback, &tmp);
+			r = parg->control->search(parg->idxstr, parg->arg, j1_callback, &tmp);
 			if (r == -1) /*this arg does not prune search*/
 				continue;
 			rc ++;
@@ -354,6 +341,11 @@ Yap_udi_search(PredEntry *p)
 			fprintf(stderr,"J1 used space %d bytes for %d clausules\n",
 					count, Yap_ClauseListCount(&clauselist));
 		Yap_ClauseListClose(&clauselist);
+#else
+		fprintf(stderr,"Without libJudy only one argument indexed is allowed."
+				"Falling back to Yap Indexing\n");
+		return NULL; //NO Judy Available
+#endif
 	}
 
 	if (Yap_ClauseListCount(&clauselist) == 1)

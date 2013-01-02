@@ -254,8 +254,18 @@ AC_ARG_WITH(python,
 	    yap_cv_python=$withval
 	fi,
 	[yap_cv_python=no])
+	
+AC_ARG_WITH(judy,
+	[  --with-judy[=DIR] UDI needs judy library],
+	if test "$withval" = yes; then
+	    yap_cv_judy=yes
+	elif test "$withval" = no; then
+	    yap_cv_judy=no
+	else
+	    yap_cv_judy=$withval
+	fi,
+	[yap_cv_judy=yes])
 
-dnl best test we could do.
 AC_ARG_WITH(minisat,
 	[ --enable-minisat           use minisat interface],
 	if test "$withval" = yes; then
@@ -868,6 +878,10 @@ elif test -e "$srcdir"/packages/python/Makefile.in ; then
 else
     PYTHON_TARGET="dummy"
     ENABLE_PYTHON="@# "
+fi
+
+if test "$yap_cv_judy" != "no"; then
+	AC_CHECK_LIB(Judy, Judy1Set,,[AC_MSG_ERROR([libJudy not found, UDI will only work with one Index at a time])])
 fi
 
 dnl if test "$yap_cv_cudd" != "no"
@@ -1706,6 +1720,9 @@ AC_CHECK_HEADERS(mach-o/dyld.h)
 if test "$yap_cv_gmp" != "no"
 then
   AC_CHECK_HEADERS(gmp.h)
+fi
+if test "$yap_cv_judy" != "no"; then
+  AC_CHECK_HEADERS(Judy.h)
 fi
 if test "$yap_cv_myddas" != "no"
 then
