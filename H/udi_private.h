@@ -11,10 +11,7 @@ struct udi_p_args {
 typedef struct udi_p_args *UdiPArg;
 UT_icd arg_icd = {sizeof(struct udi_p_args), NULL, NULL, NULL };
 
-/* a pointer utarray list
- * This is a hack, becouse I do no know the real type of clauses
- * Not completely used for now
- */
+/* clauselist */
 UT_icd cl_icd = {sizeof(yamop *), NULL, NULL, NULL };
 
 /*
@@ -26,30 +23,38 @@ struct udi_info
   PredEntry *p;         //predicate (need to identify asserts)
   UT_array *clauselist; //clause list used on returns
   UT_array *args;       //indexed args
-  UT_hash_handle hh;
+  UT_hash_handle hh;    //uthash handle
 };
 typedef struct udi_info *UdiInfo;
 
 /* to ease code for a UdiInfo hash table*/
-#define HASH_FIND_UdiInfo(head,find,out)           \
+#define HASH_FIND_UdiInfo(head,find,out)             \
   HASH_FIND(hh,head,find,sizeof(PredEntry *),out)
 #define HASH_ADD_UdiInfo(head,p,add)                 \
   HASH_ADD_KEYPTR(hh,head,p,sizeof(PredEntry *),add)
 
-int Yap_udi_args_init(Term spec, int arity, UdiInfo blk);
+/* used during init */
+static YAP_Int p_new_udi( USES_REGS1 );
+static YAP_Int p_udi_args_init(Term spec, int arity, UdiInfo blk);
 
-///* temporary */
-//struct CallbackM
-//{
-//  clause_list_t cl;
-//  void * pred;
-//};
-//typedef struct CallbackM * callback_m_t;
-//
-//static inline int callback(void *key, void *data, void *arg)
-//{
-//	callback_m_t x;
-//	x = (callback_m_t) arg;
-//	return Yap_ClauseListExtend(x->cl,data,x->pred);
-//}
+/*
+ * Indexing Search and intersection Helpers
+ */
 
+/* single indexing helpers (no intersection needed just create clauselist) */
+#include "clause_list.h"
+struct si_callback_h
+{
+  clause_list_t cl;
+  UT_array *clauselist;
+  void * pred;
+};
+typedef struct si_callback_h * si_callback_h_t;
+
+static inline int si_callback(void *key, void *data, void *arg)
+{
+	si_callback_h_t c = (si_callback_h_t) arg;
+	yamop **cl = (yamop **) utarray_eltptr(c->clauselist, ((YAP_Int) data) - 1);
+	return Yap_ClauseListExtend(c->cl, *cl, c->pred);
+}
+/* Judy1 integer sparse set intersection */

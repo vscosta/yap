@@ -332,8 +332,9 @@ Term            STD_PROTO(Yap_LUInstance,(LogUpdClause *, UInt));
 
 /* udi.c */
 void         STD_PROTO(Yap_udi_init,(void));
-yamop       *STD_PROTO(Yap_udi_search,(PredEntry *));
 int          STD_PROTO(Yap_new_udi_clause,(PredEntry *, yamop *, Term));
+yamop       *STD_PROTO(Yap_udi_search,(PredEntry *));
+void         STD_PROTO(Yap_udi_abolish,(PredEntry *p));
 
 #ifdef DEBUG
 void    STD_PROTO(Yap_bug_location,(yamop *));

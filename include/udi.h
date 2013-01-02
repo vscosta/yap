@@ -52,7 +52,7 @@ typedef int (* Yap_UdiCallback)
 
 /* Called upon search
  *
- * If there is any search to do with this struture should return >= 0
+ * If there is any search to do with this structure should return >= 0
  * corresponding to the values found
  *
  * returns -1 if there is nothing to search with this indexing structure
@@ -62,9 +62,9 @@ typedef int (* Yap_UdiSearch)
 		(void * control,    /* indexing structure opaque handle */
 		 int arg,           /* argument regarding this call */
 		 Yap_UdiCallback f, /* callback on each found value */
-		 void *args);        /* auxiliary data to callback */
+		 void *args);       /* auxiliary data to callback */
 
-/* Called upond abolish of the term
+/* Called upon abolish of the term
  * to allow for a clean destroy of the indexing structures
  */
 typedef int (* Yap_UdiDestroy)
