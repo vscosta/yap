@@ -36,8 +36,8 @@ set_horus_flag(K,V) :- cpp_set_horus_flag(K,V).
 
 :- cpp_set_horus_flag(verbosity, 0).
 
-:- cpp_set_horus_flag(use_logarithms, false).
-%:- cpp_set_horus_flag(use_logarithms, true).
+%:- cpp_set_horus_flag(use_logarithms, false).
+:- cpp_set_horus_flag(use_logarithms, true).
 
 %:- cpp_set_horus_flag(hve_elim_heuristic, sequential).
 %:- cpp_set_horus_flag(hve_elim_heuristic, min_neighbors).
