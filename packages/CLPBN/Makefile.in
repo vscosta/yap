@@ -106,8 +106,8 @@ CLPBN_EXAMPLES= \
 	$(CLPBN_EXDIR)/cg.yap \
 	$(CLPBN_EXDIR)/city.pfl \
 	$(CLPBN_EXDIR)/comp_workshops.pfl \
-	$(CLPBN_EXDIR)/social_domain1.pfl \
-	$(CLPBN_EXDIR)/social_domain2.pfl \
+	$(CLPBN_EXDIR)/social_network1.pfl \
+	$(CLPBN_EXDIR)/social_network2.pfl \
 	$(CLPBN_EXDIR)/sprinkler.pfl \
 	$(CLPBN_EXDIR)/workshop_attrs.pfl
 
