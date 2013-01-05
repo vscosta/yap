@@ -28,6 +28,9 @@ INSTALL=@INSTALL@
 INSTALL_DATA=@INSTALL_DATA@
 INSTALL_PROGRAM=@INSTALL_PROGRAM@
 srcdir=@srcdir@
+PDFLATEX=pdflatex
+
+PFL_MANUAL = $(srcdir)/pfl
 
 CLPBN_TOP= $(srcdir)/clpbn.yap \
 	$(srcdir)/pfl.yap
@@ -126,4 +129,11 @@ install: $(CLBN_TOP) $(CLBN_PROGRAMS) $(CLPBN_PROGRAMS)
 	for h in $(CLPBN_SCHOOL_EXAMPLES); do $(INSTALL_DATA) $$h $(DESTDIR)$(EXDIR)/School; done
 	for h in $(CLPBN_HMMER_EXAMPLES); do $(INSTALL_DATA) $$h $(DESTDIR)$(EXDIR)/HMMer; done
 	for h in $(CLPBN_LEARNING_EXAMPLES); do $(INSTALL_DATA) $$h $(DESTDIR)$(EXDIR)/learning; done
+
+docs: $(MANUAL)
+	$(PDFLATEX) $(PFL_MANUAL)
+	$(PDFLATEX) $(PFL_MANUAL)
+
+install_docs: docs
+	$(INSTALL_DATA) pfl.pdf $(DESTDIR)$(EXDIR)
 

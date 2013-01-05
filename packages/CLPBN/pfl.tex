@@ -1,0 +1,289 @@
+\documentclass{article}
+
+\usepackage{tikz}
+\usepackage{setspace}
+\usepackage{fancyvrb}
+\usetikzlibrary{arrows,shapes,positioning}
+
+\begin{document}
+
+\DefineVerbatimEnvironment{pflcodeve}{Verbatim} {xleftmargin=3.0em,fontsize=\small}
+
+\newenvironment{pflcode}
+  {\VerbatimEnvironment \setstretch{0.8} \begin{pflcodeve}}
+  {\end{pflcodeve} }
+
+\newcommand{\true}      {\mathtt{t}}
+\newcommand{\false}     {\mathtt{f}}
+\newcommand{\tableline} {\noalign{\hrule height 0.8pt}}
+
+\tikzstyle{nodestyle}   = [draw, thick, circle, minimum size=0.9cm]
+\tikzstyle{bnedgestyle} = [-triangle 45,thick]
+
+\setlength{\parskip}{\baselineskip}
+
+\title{The Prolog Factor Language (PFL)}
+\author{}
+\date{}
+
+\maketitle
+
+%------------------------------------------------------------------------------
+%------------------------------------------------------------------------------
+%------------------------------------------------------------------------------
+%------------------------------------------------------------------------------
+\section{Introduction}
+The Prolog Factor Language (PFL) is a extension of the Prolog language that allows a natural representation of this first-order probabilistic models (either directed or undirected). PFL is also capable of solving probabilistic  queries on this models through the implementation of several inference techniques: variable elimination, belief propagation, lifted variable elimination and lifted belief propagation.
+
+
+
+%------------------------------------------------------------------------------
+%------------------------------------------------------------------------------
+%------------------------------------------------------------------------------
+%------------------------------------------------------------------------------
+\section{Language}
+A first-order probabilistic graphical model is described using parametric factors, or just parfactors. The PFL syntax for a parfactor is
+
+$$Type~~F~~;~~Phi~~;~~C.$$
+
+, where
+\begin{itemize}
+\item $Type$ refers the type of network over which the parfactor is defined. It can be \texttt{bayes} for directed networks, or \texttt{markov} for undirected ones.
+
+\item $F$ is a comma-separated sequence of Prolog terms that will define sets of random variables under the constraint $C$. If $Type$ is \texttt{bayes}, the first term defines the node while the others defines its parents.
+
+\item $Phi$ is either a Prolog list of potential values or a Prolog goal that unifies with one. If $Type$ is \texttt{bayes}, this will correspond to the conditional probability table.
+
+\item $C$ is a (possibly empty) list of Prolog goals that will instantiate the logical variables that appear in $F$, that is, the successful substitutions for the goals in $C$ will be the valid values for the logical variables. This allows the constraint to be any relation (set of tuples) over the logical variables.
+\end{itemize}
+
+
+\begin{figure}[t!]
+\begin{center}
+\begin{tikzpicture}[>=latex',line join=bevel,transform shape,scale=0.8]
+
+\node (cloudy)   at (50bp,  122bp) [nodestyle,ellipse,inner sep=0pt,minimum width=2.7cm] {$Cloudy$};
+\node (sprinker) at ( 0bp,  66bp)  [nodestyle,ellipse,inner sep=0pt,minimum width=2.7cm] {$Sprinker$};
+\node (rain)     at (100bp, 66bp)  [nodestyle,ellipse,inner sep=0pt,minimum width=2.7cm] {$Rain$};
+\node (wetgrass) at (50bp,  10bp)  [nodestyle,ellipse,inner sep=0pt,minimum width=2.7cm] {$WetGrass$};
+\draw [bnedgestyle] (cloudy)   -- (sprinker);
+\draw [bnedgestyle] (cloudy)   -- (rain);
+\draw [bnedgestyle] (sprinker) -- (wetgrass);
+\draw [bnedgestyle] (rain)     -- (wetgrass);
+
+\node [above=0.4cm of cloudy,inner sep=0pt] {
+\begin{tabular}[b]{lc}
+  $C$      & $P(C)$ \\ \tableline
+  $\true$  & 0.5 \\
+  $\false$ & 0.5 \\
+\end{tabular}
+};
+
+\node [left=0.4cm of sprinker,inner sep=0pt] {
+\begin{tabular}{lcc}
+  $S$      & $C$      & $P(S|C)$ \\ \tableline
+  $\true$  & $\true$  & 0.1 \\
+  $\true$  & $\false$ & 0.5 \\
+  $\false$ & $\true$  & 0.9 \\
+  $\false$ & $\false$ & 0.5 \\
+\end{tabular}
+};
+
+\node [right=0.4cm of rain,inner sep=0pt] {
+\begin{tabular}{llc}
+  $R$      & $C$      & $P(R|C)$ \\ \tableline
+  $\true$  & $\true$  & 0.8 \\
+  $\true$  & $\false$ & 0.2 \\
+  $\false$ & $\true$  & 0.2 \\
+  $\false$ & $\false$ & 0.8 \\
+\end{tabular}
+};
+
+\node [below=0.4cm of wetgrass,inner sep=0pt] {
+\begin{tabular}{llll}
+  $W$      &  $S$     & $R$      & $P(W|S,R)$ \\ \tableline
+  $\true$  & $\true$  & $\true$  & \hspace{1em} 0.99 \\
+  $\true$  & $\true$  & $\false$ & \hspace{1em} 0.9  \\
+  $\true$  & $\false$ & $\true$  & \hspace{1em} 0.9  \\
+  $\true$  & $\false$ & $\false$ & \hspace{1em} 0.0  \\
+  $\false$ & $\true$  & $\true$  & \hspace{1em} 0.01 \\
+  $\false$ & $\true$  & $\false$ & \hspace{1em} 0.1  \\
+  $\false$ & $\false$ & $\true$  & \hspace{1em} 0.1  \\
+  $\false$ & $\false$ & $\false$ & \hspace{1em} 1.0  \\
+\end{tabular}
+};
+
+\end{tikzpicture}
+\caption{The sprinkler network.}
+\label{fig:sprinkler-bn}
+\end{center}
+\end{figure}
+
+To better explain the language, below we show the PFL representation for network found in Figure~\ref{fig:sprinkler-bn}.
+
+\begin{pflcode}
+:- use_module(library(pfl)).
+
+bayes cloudy ; cloudy_table ; [].
+
+bayes sprinkler, cloudy ; sprinkler_table ; [].
+
+bayes rain, cloudy ; rain_table ; [].
+
+bayes wet_grass, sprinkler, rain ; wet_grass_table ; [].
+
+cloudy_table(
+    [ 0.5,
+      0.5 ]).
+
+sprinkler_table(
+    [ 0.1, 0.5,
+      0.9, 0.5 ]).
+
+rain_table(
+    [ 0.8, 0.2,
+      0.2, 0.8 ]).
+
+wet_grass_table(
+    [ 0.99, 0.9, 0.9, 0.0,
+      0.01, 0.1, 0.1, 1.0 ]).
+\end{pflcode}
+
+Note that this network is fully grounded, as the constraints are all empty. Next we present the PFL representation for a well-known markov logic network - the social network model. The weighted formulas of this model are shown below.
+
+\begin{pflcode}
+1.5 : Smokes(x) => Cancer(x)
+1.1 : Smokes(x) ^ Friends(x,y) => Smokes(y)
+\end{pflcode}
+
+We can represent this model using PFL with the following code.
+
+\begin{pflcode}
+:- use_module(library(pfl)).
+
+person(anna).
+person(bob).
+
+markov smokes(X), cancer(X) ;
+    [4.482, 4.482, 1.0, 4.482] ;
+    [person(X)].
+
+markov friends(X,Y), smokes(X), smokes(Y) ;
+    [3.004, 3.004, 3.004, 3.004, 3.004, 1.0, 1.0, 3.004] ;
+    [person(X), person(Y)].
+\end{pflcode}
+%markov smokes(X) ; [1.0, 4.055]; [person(X)].
+%markov cancer(X) ; [1.0, 9.974]; [person(X)].
+%markov friends(X,Y) ; [1.0, 99.484] ; [person(X), person(Y)].
+
+Notice that we defined the world to be consisted of two persons, \texttt{anne} and \texttt{bob}. We can easily add as many persons as we want by inserting in the program a fact like \texttt{person @ 10.}~. This would create ten persons named \texttt{p1}, \texttt{p2}, \dots, \texttt{p10}.
+
+Unlike other fist-order probabilistic languages, in PFL the logical variables that appear in the terms are not directly typed, and they will be only constrained by the goals that appear in the constraint of the parfactor. This allows the logical variables to be constrained by any relation (set of tuples), and not by pairwise (in)equalities. For instance, the next example defines a ground network with three factors, each over the random variables \texttt{p(a,b)}, \texttt{p(b,d)} and \texttt{p(d,e)}.
+
+\begin{pflcode}
+constraint(a,b).
+constraint(b,d).
+constraint(d,e).
+
+markov p(A,B); some_table; [constraint(A,B)].
+\end{pflcode}
+
+We can easily add static evidence to PFL programs by inserting a fact with the same functor and arguments as the random variable, plus one extra argument with the observed state or value. For instance, suppose that we now that \texttt{anna} and \texttt{bob} are friends. We can add this knowledge to the program with the following fact: \texttt{friends(anna,bob,t).}~.
+
+One last note for the domain of the random variables. By default all terms will generate boolean (\texttt{t}/\texttt{f}) random variables. It is possible to chose a different domain by appending a list of the possible values or states to the term. Next we present a self-explanatory example of how this can be done.
+
+\begin{pflcode}
+bayes professor_ability::[high, medium, low] ; [0.5, 0.4, 0.1].
+\end{pflcode}
+
+More examples can be found in the CLPBN examples directory, which defaults to ``share/doc/Yap/packages/examples/CLPBN'' from the base directory where the YAP Prolog system was installed.
+
+%------------------------------------------------------------------------------
+%------------------------------------------------------------------------------
+%------------------------------------------------------------------------------
+%------------------------------------------------------------------------------
+\section{Querying}
+In this section we demonstrate how to use PFL to solve probabilistic queries. We will use the sprinkler network as an example.
+
+Assuming that the current directory is where the examples are located, first we load the model:
+
+\texttt{\$ yap -l sprinker.pfl}
+
+Let's suppose that we want to estimate the marginal probability for the $WetGrass$ random variable. We can do it calling the following goal:
+
+\texttt{?- wet\_grass(X).}
+
+The output of the goal will show the marginal probability for each $WetGrass$ possible state or value, that is, \texttt{t} and \texttt{f}. Notice that in PFL a random variable is identified by a term with the same functor and arguments plus one extra argument.
+
+Let's now suppose that we want to estimate the probability for the same random variable, but this time we have evidence that it had rained the day before. We can estimate this probability without resorting to static evidence with:
+
+\texttt{?- wet\_grass(X), rain(t).}
+
+PFL also supports calculating joint probability distributions. For instance, we can obtain the joint probability for $Sprinkler$ and $Rain$ with:
+
+\texttt{?- sprinkler(X), rain(Y).}
+
+
+%------------------------------------------------------------------------------
+%------------------------------------------------------------------------------
+%------------------------------------------------------------------------------
+%------------------------------------------------------------------------------
+\section{Inference Options}
+PFL supports both ground and lifted inference methods. The inference algorithm can be chosen by calling \texttt{set\_solver/1}. The following are supported:
+\begin{itemize}
+ \item \texttt{ve},  variable elimination (written in Prolog)
+ \item \texttt{hve}, variable elimination (written in C++)
+ \item \texttt{jt},  junction tree
+ \item \texttt{bdd}, binary decision diagrams
+ \item \texttt{bp},  belief propagation
+ \item \texttt{cbp}, counting belief propagation
+ \item \texttt{gibbs}, gibbs sampling
+ \item \texttt{lve}, generalized counting first-order variable elimination (GC-FOVE)
+ \item \texttt{lkc}, lifted first-order knowledge compilation
+ \item \texttt{lbp}, lifted first-order belief propagation
+\end{itemize}
+
+For instance, if we want to use belief propagation to solve some probabilistic query, we need to call first:
+
+\texttt{?- set\_solver(bp).}
+
+It is possible to tweak some parameters of PFL through \texttt{set\_horus\_flag/2} predicate. The first argument is a key that identifies the parameter that we desire to tweak, while the second is some possible value for this key.
+
+The \texttt{verbosity} key controls the level of debugging information that will be printed. Its possible values are positive integers. The higher the number, the more information that will be shown. For example, to view some basic debugging information we call:
+
+\texttt{?- set\_horus\_flag(verbosity, 1).}
+
+This key defaults to 0 (no debugging information) and only \texttt{hve}, \texttt{bp}, \texttt{cbp}, \texttt{lve}, \texttt{lkc} and \texttt{lbp} solvers have support for this key.
+
+The \texttt{use\_logarithms} key controls whether the calculations performed during inference should be done in a logarithm domain or not. Its values can be \texttt{true} or \texttt{false}. By default is \texttt{true} and only affects \texttt{hve}, \texttt{bp}, \texttt{cbp}, \texttt{lve}, \texttt{lkc} and \texttt{lbp} solvers. The remaining solvers always do their calculations in a logarithm domain.
+
+There are keys specific only to some algorithm. The key \texttt{elim\_heuristic} key allows to chose which elimination heuristic will be used by the \texttt{hve} solver (but not \texttt{ve}). The following are supported:
+\begin{itemize}
+ \item \texttt{sequential}
+ \item \texttt{min\_neighbors}
+ \item \texttt{min\_weight}
+ \item \texttt{min\_fill}
+ \item \texttt{weighted\_min\_fill}
+\end{itemize}
+
+It defaults to \texttt{weighted\_min\_fill}. An explanation of each of these heuristics can be found in Daphne Koller's book \textit{Probabilistic Graphical Models}.
+
+The \texttt{bp\_msg\_schedule}, \texttt{bp\_accuracy} and \texttt{bp\_max\_iter} keys are specific for message passing based algorithms, namely \texttt{bp}, \texttt{cbp} and \texttt{lbp}.
+
+The \texttt{bp\_max\_iter} key establishes a maximum number of iterations. One iteration consists in sending all possible messages. It defaults to 1000.
+
+The \texttt{bp\_accuracy} key indicates when the message passing should cease. Be the residual of one message the difference (according some metric) between the one sent in the current iteration and the one sent in the previous. If the highest residual is lesser than the given value, the message passing is stopped and the probabilities are calculated using the last messages that were sent. This key defaults to 0.0001.
+
+The key \texttt{bp\_msg\_schedule} controls the message sending order. Its possible values are:
+\begin{itemize}
+ \item \texttt{seq\_fixed}, at each iteration, all messages are sent with the same order.
+
+ \item \texttt{seq\_random}, at each iteration, all messages are sent with a random order.
+
+ \item \texttt{parallel}, at each iteration, all messages are calculated using only the values of the previous iteration.
+
+ \item \texttt{max\_residual}, the next message to be sent is the one with maximum residual (as explained in the paper \textit{Residual Belief Propagation: Informed Scheduling for Asynchronous Message Passing}).
+\end{itemize}
+It defaults to \texttt{seq\_fixed}.
+
+\end{document}
