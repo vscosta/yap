@@ -32,14 +32,15 @@ PDFLATEX=pdflatex
 
 PFL_MANUAL = $(srcdir)/pfl
 
-CLPBN_TOP= $(srcdir)/clpbn.yap \
-	$(srcdir)/pfl.yap
-
 CLPBN_SRCDIR = $(srcdir)/clpbn
 
 CLPBN_LEARNING_SRCDIR = $(srcdir)/learning
 
 CLPBN_EXDIR = $(srcdir)/examples
+
+CLPBN_TOP= \
+	$(srcdir)/clpbn.yap \
+	$(srcdir)/pfl.yap
 
 CLPBN_PROGRAMS= \
 	$(CLPBN_SRCDIR)/aggregates.yap \
@@ -77,12 +78,24 @@ CLPBN_LEARNING_PROGRAMS= \
 	$(CLPBN_LEARNING_SRCDIR)/learn_utils.yap \
 	$(CLPBN_LEARNING_SRCDIR)/mle.yap
 
+CLPBN_EXAMPLES= \
+	$(CLPBN_EXDIR)/burglary-alarm.fg \
+	$(CLPBN_EXDIR)/burglary-alarm.pfl \
+	$(CLPBN_EXDIR)/burglary-alarm.uai \
+	$(CLPBN_EXDIR)/cg.yap \
+	$(CLPBN_EXDIR)/city.pfl \
+	$(CLPBN_EXDIR)/comp_workshops.pfl \
+	$(CLPBN_EXDIR)/social_network1.pfl \
+	$(CLPBN_EXDIR)/social_network2.pfl \
+	$(CLPBN_EXDIR)/sprinkler.pfl \
+	$(CLPBN_EXDIR)/workshop_attrs.pfl
+
 CLPBN_SCHOOL_EXAMPLES= \
 	$(CLPBN_EXDIR)/School/README \
 	$(CLPBN_EXDIR)/School/evidence_128.yap \
 	$(CLPBN_EXDIR)/School/parschema.pfl \
 	$(CLPBN_EXDIR)/School/school_128.yap \
-	$(CLPBN_EXDIR)/School/school32.yap \
+	$(CLPBN_EXDIR)/School/school_32.yap \
 	$(CLPBN_EXDIR)/School/school_64.yap \
 	$(CLPBN_EXDIR)/School/tables.yap
 
@@ -102,20 +115,8 @@ CLPBN_LEARNING_EXAMPLES= \
 	$(CLPBN_EXDIR)/learning/sprinkler_params.yap \
 	$(CLPBN_EXDIR)/learning/train.yap
 
-CLPBN_EXAMPLES= \
-	$(CLPBN_EXDIR)/burglary-alarm.fg \
-	$(CLPBN_EXDIR)/burglary-alarm.pfl \
-	$(CLPBN_EXDIR)/burglary-alarm.uai \
-	$(CLPBN_EXDIR)/cg.yap \
-	$(CLPBN_EXDIR)/city.pfl \
-	$(CLPBN_EXDIR)/comp_workshops.pfl \
-	$(CLPBN_EXDIR)/social_network1.pfl \
-	$(CLPBN_EXDIR)/social_network2.pfl \
-	$(CLPBN_EXDIR)/sprinkler.pfl \
-	$(CLPBN_EXDIR)/workshop_attrs.pfl
 
-
-install: $(CLBN_TOP) $(CLBN_PROGRAMS) $(CLPBN_PROGRAMS)
+install: $(CLBN_TOP) $(CLBN_PROGRAMS) $(CLPBN_LEARNING_PROGRAMS) $(CLPBN_SCHOOL_EXAMPLES) $(CLPBN_HMMER_EXAMPLES) $(CLPBN_LEARNING_EXAMPLES)
 	mkdir -p $(DESTDIR)$(SHAREDIR)/clpbn
 	mkdir -p $(DESTDIR)$(SHAREDIR)/clpbn/learning
 	mkdir -p $(DESTDIR)$(EXDIR)
@@ -130,9 +131,12 @@ install: $(CLBN_TOP) $(CLBN_PROGRAMS) $(CLPBN_PROGRAMS)
 	for h in $(CLPBN_HMMER_EXAMPLES); do $(INSTALL_DATA) $$h $(DESTDIR)$(EXDIR)/HMMer; done
 	for h in $(CLPBN_LEARNING_EXAMPLES); do $(INSTALL_DATA) $$h $(DESTDIR)$(EXDIR)/learning; done
 
+
 docs: $(MANUAL)
 	$(PDFLATEX) $(PFL_MANUAL)
 	$(PDFLATEX) $(PFL_MANUAL)
+	rm pfl.aux pfl.log
+
 
 install_docs: docs
 	$(INSTALL_DATA) pfl.pdf $(DESTDIR)$(EXDIR)
