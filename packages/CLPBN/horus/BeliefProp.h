@@ -51,7 +51,7 @@ class BpLink
 
     void updateResidual (void)
     {
-      residual_ = LogAware::getMaxNorm (v1_,v2_);
+      residual_ = LogAware::getMaxNorm (v1_, v2_);
     }
 
     virtual void updateMessage (void)
