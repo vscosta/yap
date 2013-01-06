@@ -466,7 +466,7 @@ static clock_t TimesStartOfTimes, Times_last_time;
 
 /* store user time in this variable */
 static void
-InitTime (int)
+InitTime (int wid)
 {
   HANDLE hProcess = GetCurrentProcess();
   FILETIME CreationTime, ExitTime, KernelTime, UserTime;
@@ -476,6 +476,11 @@ InitTime (int)
     t = clock ();
     Times_last_time = TimesStartOfTimes = t;
   } else {
+#if THREADS
+    REMOTE_ThreadHandle(wid).start_of_timesp = (struct _FILETIME *)malloc(sizeof(FILETIME));
+    REMOTE_ThreadHandle(wid).last_timep = (struct _FILETIME *)malloc(sizeof(FILETIME));
+    REMOTE_ThreadHandle(wid).start_of_times_sysp = (struct _FILETIME *)malloc(sizeof(FILETIME));
+    REMOTE_ThreadHandle(wid).last_time_sysp = (struct _FILETIME *)malloc(sizeof(FILETIME));
     (*REMOTE_ThreadHandle(wid).last_timep).dwLowDateTime = 
       UserTime.dwLowDateTime;
     (*REMOTE_ThreadHandle(wid).last_timep).dwHighDateTime =
@@ -488,10 +493,28 @@ InitTime (int)
       KernelTime.dwLowDateTime;
     (*REMOTE_ThreadHandle(wid).last_time_sysp).dwHighDateTime = 
       KernelTime.dwHighDateTime;
-    (*REMOTE_ThreadHandle(wid).start_of_times_sysp).dwLowDateTime =
+    (*REMOTE_ThreadHandle(wid).start_of_times_sysp).dwLowDateTime =
       KernelTime.dwLowDateTime;
     (*REMOTE_ThreadHandle(wid).start_of_times_sysp).dwHighDateTime = 
       KernelTime.dwHighDateTime;
+#else
+    last_time.dwLowDateTime = 
+      UserTime.dwLowDateTime;
+    last_time.dwHighDateTime =
+      UserTime.dwHighDateTime;
+    StartOfTimes.dwLowDateTime =
+      UserTime.dwLowDateTime;
+    StartOfTimes.dwHighDateTime = 
+      UserTime.dwHighDateTime;
+    last_time_sys.dwLowDateTime =
+      KernelTime.dwLowDateTime;
+    last_time_sys.dwHighDateTime = 
+      KernelTime.dwHighDateTime;
+    StartOfTimes_sys.dwLowDateTime =
+      KernelTime.dwLowDateTime;
+    StartOfTimes_sys.dwHighDateTime = 
+      KernelTime.dwHighDateTime;
+#endif
   }
 }
 
@@ -1475,8 +1498,8 @@ STATIC_PROTO (void my_signal, (int, void (*)(int)));
 static RETSIGTYPE
 HandleMatherr(int sig)
 {
-#if HAVE_FETESTEXCEPT
   CACHE_REGS
+#if HAVE_FETESTEXCEPT
   /* This should work in Linux, but it doesn't seem to. */
   
   int raised = fetestexcept(FE_ALL_EXCEPT);

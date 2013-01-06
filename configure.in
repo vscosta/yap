@@ -863,7 +863,6 @@ elif test -e "$srcdir"/packages/python/Makefile.in ; then
    PYTHONHOME=`$PYTHON -c'import sys; print sys.prefix'`
    PYTHONVERSION=`"$PYTHON" -c "import sys; print sys.version[[:3]]"`
    PYTHON_LIBS="-L $PYTHONHOME/lib -lpython$PYTHONVERSION"
-   LIBS="$LIBS $PYTHON_LIBS"
    PYTHON_INCLUDES="-I $PYTHONHOME/include/python$PYTHONVERSION"
 else
     PYTHON_TARGET="dummy"
@@ -1110,11 +1109,7 @@ elif test -e "$srcdir"/packages/jpl/Makefile.in; then
 	JAVA_HOME="$yap_cv_java"
 	case "$target_os" in
 	    *cygwin*|*mingw*)
-	       if test $threads = yes; then
-	         JAVALIBS="\"$JAVA_HOME\"/lib/jvm.lib -lpthread"
-               else
-	         JAVALIBS="\"$JAVA_HOME\"/lib/jvm.lib"
-               fi
+	       JAVALIBS="\"$JAVA_HOME\"/lib/jvm.lib"
 	       JPLCFLAGS="-I\"$JAVA_HOME\"/include -I\"$JAVA_HOME\"/include/win32"
 	       	  ;;
 	       *darwin*)
@@ -1475,8 +1470,6 @@ dnl Linux has both elf and a.out, in this case we found elf
 	;;
 esac
 
-EXTRA_LIBS_FOR_SWIDLLS="$EXTRA_LIBS_FOR_DLLS"
-
 if test "$dynamic_loading" = "yes"
 then 
   YAPLIB_CFLAGS="$SHLIB_CFLAGS"
@@ -1813,7 +1806,6 @@ AC_SUBST(SHLIB_CXX_LD)
 AC_SUBST(YAPLIB_LD)
 AC_SUBST(YAPLIB_CFLAGS)
 AC_SUBST(EXTRA_LIBS_FOR_DLLS)
-AC_SUBST(EXTRA_LIBS_FOR_SWIDLLS)
 dnl objects in YAP library
 AC_SUBST(YAPLIB)
 AC_SUBST(DYNYAPLIB)
@@ -2255,6 +2247,9 @@ AC_CHECK_TYPES(ssize_t, [], [],
 #include <sys/types.h>
 #include <sys/socket.h>
 ])
+
+EXTRA_LIBS_FOR_SWIDLLS="$EXTRA_LIBS_FOR_DLLS $CLIB_PTHREADS"
+AC_SUBST(EXTRA_LIBS_FOR_SWIDLLS)
 
 dnl tszet and timezone trouble
 

@@ -961,7 +961,6 @@ read_ops(IOSTREAM *stream)  {
 
 static void
 read_module(IOSTREAM *stream) {
-  CACHE_REGS
   qlf_tag_t x;
 
   InitHash();
@@ -1045,7 +1044,6 @@ p_read_program( USES_REGS1 )
 int 
 Yap_Restore(char *s, char *lib_dir)
 {
-  CACHE_REGS
   IOSTREAM *stream  = Yap_OpenRestore(s, lib_dir);
   if (!stream) 
     return -1;

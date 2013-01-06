@@ -111,7 +111,9 @@ UNMARKED_MARK__(CELL* ptr, char *bp USES_REGS)
 static inline void
 MARK__(CELL* ptr USES_REGS)
 {
-  mcell(ptr) = mcell(ptr) | MARK_BIT;
+  Int pos = ptr - (CELL *)LOCAL_GlobalBase;
+  char t = LOCAL_bp[pos];
+  LOCAL_bp[pos] = t | MARK_BIT;
 }
 
 static inline void
