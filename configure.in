@@ -1360,7 +1360,7 @@ dnl Linux has both elf and a.out, in this case we found elf
 	   SHLIB_CXXFLAGS="-shared -fPIC $CXXFLAGS"
 	   INSTALL_DLLS=""
         fi
-        CC="$CC -fstrict-aliasing -freorder-blocks -fsched-interblock -Wall -Wstrict-aliasing=2"
+        CC="$CC -fstrict-aliasing -freorder-blocks -fsched-interblock -Wall"
         DYNYAPLIB=libYap."$SO"
 	SONAMEFLAG=""
         YAPLIB_LD="$CC -dynamiclib -Wl,-install_name,$prefix/lib/libYap.$SO"
