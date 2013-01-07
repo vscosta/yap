@@ -5,7 +5,7 @@
 ********************************************************/
 
 :- module(clpbn_horus,
-		[set_horus_flag/1,
+		[set_horus_flag/2,
 		 cpp_create_lifted_network/3,
 		 cpp_create_ground_network/4,
 		 cpp_set_parfactors_params/3,
