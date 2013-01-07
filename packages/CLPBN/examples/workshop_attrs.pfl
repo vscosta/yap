@@ -1,3 +1,8 @@
+/*
+ Model from the paper "Lifted Probabilistic
+ Inference with Counting Formulas"
+*/
+
 :- use_module(library(pfl)).
 
 :- set_solver(hve).
@@ -11,23 +16,23 @@
 %:- set_solver(lkc).
 %:- set_solver(lbp).
 
-:- multifile people/1.
+:- multifile person/1.
 
-people @ 5.
+person @ 5.
 
-markov attends(P), attr1 ; [0.7, 0.3, 0.3, 0.3] ; [people(P)].
+markov attends(P), attr1 ; [0.7, 0.3, 0.3, 0.3] ; [person(P)].
 
-markov attends(P), attr2 ; [0.7, 0.3, 0.3, 0.3] ; [people(P)].
+markov attends(P), attr2 ; [0.7, 0.3, 0.3, 0.3] ; [person(P)].
 
-markov attends(P), attr3 ; [0.7, 0.3, 0.3, 0.3] ; [people(P)].
+markov attends(P), attr3 ; [0.7, 0.3, 0.3, 0.3] ; [person(P)].
 
-markov attends(P), attr4 ; [0.7, 0.3, 0.3, 0.3] ; [people(P)].
+markov attends(P), attr4 ; [0.7, 0.3, 0.3, 0.3] ; [person(P)].
 
-markov attends(P), attr5 ; [0.7, 0.3, 0.3, 0.3] ; [people(P)].
+markov attends(P), attr5 ; [0.7, 0.3, 0.3, 0.3] ; [person(P)].
 
-markov attends(P), attr6 ; [0.7, 0.3, 0.3, 0.3] ; [people(P)].
+markov attends(P), attr6 ; [0.7, 0.3, 0.3, 0.3] ; [person(P)].
 
-markov attends(P), series ; [0.501, 0.499, 0.499, 0.499] ; [people(P)].
+markov attends(P), series ; [0.501, 0.499, 0.499, 0.499] ; [person(P)].
 
 % ?- series(X).
 
