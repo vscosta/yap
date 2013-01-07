@@ -52,7 +52,7 @@ $$Type~~F~~;~~Phi~~;~~C.$$
 
 \item $F$ is a comma-separated sequence of Prolog terms that will define sets of random variables under the constraint $C$. If $Type$ is \texttt{bayes}, the first term defines the node while the others defines its parents.
 
-\item $Phi$ is either a Prolog list of potential values or a Prolog goal that unifies with one. If $Type$ is \texttt{bayes}, this will correspond to the conditional probability table.
+\item $Phi$ is either a Prolog list of potential values or a Prolog goal that unifies with one. If $Type$ is \texttt{bayes}, this will correspond to the conditional probability table. Domain combinations are implicitly assumed in ascending order, with the first term being the 'most significant' (e.g. $\mathtt{x_0y_0}$, $\mathtt{x_0y_1}$, $\mathtt{x_0y_2}$, $\mathtt{x_1y_0}$, $\mathtt{x_1y_1}$, $\mathtt{x_1y_2}$).
 
 \item $C$ is a (possibly empty) list of Prolog goals that will instantiate the logical variables that appear in $F$, that is, the successful substitutions for the goals in $C$ will be the valid values for the logical variables. This allows the constraint to be any relation (set of tuples) over the logical variables.
 \end{itemize}
