@@ -165,6 +165,7 @@
     case _unify_idb_term:
       return found_idb_clause(pc, startp, endp);
     case _allocate:
+    case _enter_exo:
     case _index_blob:
     case _index_dbref:
     case _index_long:
@@ -215,6 +216,8 @@
       pc = NEXTOP(pc,llll);
       break;
       /* instructions type lp */
+    case _retry_exo:
+    case _try_exo:
     case _user_switch:
       pc = NEXTOP(pc,lp);
       break;
@@ -405,6 +408,7 @@
       pc = NEXTOP(pc,sssllp);
       break;
       /* instructions type x */
+    case _get_atom_exo:
     case _get_list:
     case _put_list:
     case _save_b_x:

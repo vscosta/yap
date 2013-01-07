@@ -159,6 +159,21 @@ typedef union clause_ptr {
   struct static_index *si;
 } ClausePointer;
 
+typedef struct index_t {
+  struct index_t *next, *prev;
+  UInt nels;
+  UInt arity;
+  PredEntry *ap;
+  CELL bmap;
+  int is_key;
+  UInt hsize;
+  CELL **key;
+  CELL *cls;
+  CELL *links;
+  yamop *code;
+} Index_t;
+
+
 typedef struct dbterm_list {
   /* a list of dbterms associated with a clause */
   DBTerm *dbterms;
@@ -227,6 +242,10 @@ void     STD_PROTO(Yap_AddClauseToIndex,(PredEntry *,yamop *,int));
 void     STD_PROTO(Yap_RemoveClauseFromIndex,(PredEntry *,yamop *));
 LogUpdClause  *STD_PROTO(Yap_NthClause,(PredEntry *,Int));
 LogUpdClause  *STD_PROTO(Yap_FollowIndexingCode,(PredEntry *,yamop *, Term *, yamop *,yamop *));
+
+/* exo.c */
+yamop    *Yap_ExoLookup(PredEntry *ap);
+CELL    Yap_NextExo(choiceptr cpt, struct index_t *it);
 
 #if USE_THREADED_CODE
 

@@ -31,11 +31,11 @@ prolog:load_db(Fs) :-
 dbload(Fs, _, G) :-
 	var(Fs),
 	'$do_error'(instantiation_error,G).	
-dbload([], _, _).	
-dbload([F|Fs], M0, G) :-
+dbload([], _, _) :- !.	
+dbload([F|Fs], M0, G) :- !,
 	dbload(F, M0, G),
 	dbload(Fs, M0, G).
-dbload(M:F, _M0, G) :-
+dbload(M:F, _M0, G) :- !,
 	dbload(F, M, G).
 dbload(F, M0, G) :-
 	atom(F), !,
@@ -76,8 +76,11 @@ dbload_count(T0, M0) :-
 get_module(M1:T0,_,T,M) :- !,
 	get_module(T0, M1, T , M).
 get_module(T,M,T,M).
+
 	
-	
+load_facts :-
+	yap_flag(exo_compilation, on), !.
+	load_exofacts.
 load_facts :-
 	retract(dbloading(Na,Arity,M,T,NaAr,_)),
 	nb_getval(NaAr,Size),
@@ -104,13 +107,44 @@ dbload_add_facts(R, M) :-
 dbload_add_fact(T0, M0) :-
 	get_module(T0,M0,T,M),
 	functor(T,Na,Arity),
-	Na \= gene_product,
 	dbloading(Na,Arity,M,_,NaAr,Handle),
 	nb_getval(NaAr,I0),
 	I is I0+1,
 	nb_setval(NaAr,I),
 	dbassert(T,Handle,I0).
-	
+
+load_exofacts :-
+	retract(dbloading(Na,Arity,M,T,NaAr,_)),
+	nb_getval(NaAr,Size),
+	exo_db_get_space(T, M, Size, Handle),
+	assertz(dbloading(Na,Arity,M,T,NaAr,Handle)),
+	nb_setval(NaAr,0),
+	fail.
+load_rxofacts :-
+	dbprocess(F, M),
+	open(F, read, R),
+	exodb_add_facts(R, M),
+	close(R),
+	fail.
+load_facts.
+
+exodb_add_facts(R, M) :-
+	repeat,
+	read(R,T),
+	( T = end_of_file -> !;
+	    exodb_add_fact(T, M),
+	    fail 
+	).
+
+exodb_add_fact(T0, M0) :-
+	get_module(T0,M0,T,M),
+	functor(T,Na,Arity),
+	dbloading(Na,Arity,M,_,NaAr,Handle),
+	nb_getval(NaAr,I0),
+	I is I0+1,
+	nb_setval(NaAr,I),
+	exoassert(T,Handle,I0).
+
 clean_up :-
 	retractall(dbloading(_,_,_,_,_,_)),
 	retractall(dbprocess(_,_)),

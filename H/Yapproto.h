@@ -183,6 +183,9 @@ Int	STD_PROTO(Yap_exec_absmi,(int));
 void	STD_PROTO(Yap_trust_last,(void));
 Term	STD_PROTO(Yap_GetException,(void));
 
+/* exo.c */
+void	STD_PROTO(Yap_InitExoPreds,(void));
+
 /* gprof.c */
 void	STD_PROTO(Yap_InitLowProf,(void));
 #if  LOW_PROF
