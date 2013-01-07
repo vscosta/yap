@@ -32,6 +32,9 @@
 :- reexport(library(clpbn/aggregates),
 		[avg_factors/5]).
 
+:- reexport('clpbn/horus',
+		[set_horus_flag/2]).
+
 :- ( % if clp(bn) has done loading, we're top-level
 	predicate_property(set_pfl_flag(_,_), imported_from(clpbn))
    ->
