@@ -71,7 +71,7 @@ mp/%.o: $(srcdir)/mp/%.c
 	$(CC) -c $(CFLAGS) $< -o $@
 
 @DO_SECOND_LD@prism.@SO@: $(OBJS)
-@DO_SECOND_LD@	@SHLIB_LD@ $(LDFLAGS) -o $@ $(OBJS)  @EXTRA_LIBS_FOR_DLLS@
+@DO_SECOND_LD@	@SHLIB_LD@ $(LDFLAGS) -o $@ $(OBJS)  @EXTRA_LIBS_FOR_DLLS@ @CLIB_PTHREADS@
 
 all: $(TARGETS)
 

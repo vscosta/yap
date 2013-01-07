@@ -3190,7 +3190,7 @@ YAP_Init(YAP_init_args *yap_init)
       /* first, initialise the saved state */
       Term t_goal = MkAtomTerm(AtomInitProlog);
       YAP_RunGoalOnce(t_goal);
-      Yap_InitYaamRegs( 0 );
+      //      Yap_InitYaamRegs( 0 );
       /* reset stacks */
       return YAP_BOOT_FROM_SAVED_CODE;
     } else {
@@ -3314,7 +3314,7 @@ YAP_Reset(void)
     }
   }
   /* reinitialise the engine */
-  Yap_InitYaamRegs( worker_id );
+  //  Yap_InitYaamRegs( worker_id );
   GLOBAL_Initialised = TRUE;
 
   RECOVER_MACHINE_REGS();

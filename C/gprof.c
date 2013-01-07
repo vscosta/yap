@@ -1177,8 +1177,8 @@ static Int profres0( USES_REGS1 ) {
 void
 Yap_InitLowProf(void)
 {
-  CACHE_REGS
 #if LOW_PROF
+  CACHE_REGS
   LOCAL_ProfCalls = 0;
   LOCAL_ProfilerOn = FALSE;
 

@@ -637,6 +637,7 @@ ZLIB_TARGETS
 ZLIBS
 MAILDROP_CFLAGS
 RFC2045CHARSET
+EXTRA_LIBS_FOR_SWIDLLS
 CLIB_CRYPTLIBS
 CLIB_NETLIBS
 CLIB_PLTARGETS
@@ -706,7 +707,6 @@ YAP_EXTRAS
 SONAMEFLAG
 DYNYAPLIB
 YAPLIB
-EXTRA_LIBS_FOR_SWIDLLS
 EXTRA_LIBS_FOR_DLLS
 YAPLIB_CFLAGS
 YAPLIB_LD
@@ -6921,7 +6921,6 @@ test -n "$PYTHON" || PYTHON=""none""
    PYTHONHOME=`$PYTHON -c'import sys; print sys.prefix'`
    PYTHONVERSION=`"$PYTHON" -c "import sys; print sys.version[:3]"`
    PYTHON_LIBS="-L $PYTHONHOME/lib -lpython$PYTHONVERSION"
-   LIBS="$LIBS $PYTHON_LIBS"
    PYTHON_INCLUDES="-I $PYTHONHOME/include/python$PYTHONVERSION"
 else
     PYTHON_TARGET="dummy"
@@ -7747,11 +7746,7 @@ elif test -e "$srcdir"/packages/jpl/Makefile.in; then
 	JAVA_HOME="$yap_cv_java"
 	case "$target_os" in
 	    *cygwin*|*mingw*)
-	       if test $threads = yes; then
-	         JAVALIBS="\"$JAVA_HOME\"/lib/jvm.lib -lpthread"
-               else
-	         JAVALIBS="\"$JAVA_HOME\"/lib/jvm.lib"
-               fi
+	       JAVALIBS="\"$JAVA_HOME\"/lib/jvm.lib"
 	       JPLCFLAGS="-I\"$JAVA_HOME\"/include -I\"$JAVA_HOME\"/include/win32"
 	       	  ;;
 	       *darwin*)
@@ -8513,8 +8508,6 @@ fi
         INSTALL_ENV="LD_LIBRARY_PATH=\$(DESTDIR)\$(LIBDIR):\$(DESTDIR)\$(YAPLIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
 	;;
 esac
-
-EXTRA_LIBS_FOR_SWIDLLS="$EXTRA_LIBS_FOR_DLLS"
 
 if test "$dynamic_loading" = "yes"
 then
@@ -9807,7 +9800,6 @@ CMDEXT=sh
 
 
 
-
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for gcc threaded code" >&5
 $as_echo_n "checking for gcc threaded code... " >&6; }
 if ${yap_cv_threaded_code+:} false; then :
@@ -10907,6 +10899,9 @@ _ACEOF
 
 
 fi
+
+
+EXTRA_LIBS_FOR_SWIDLLS="$EXTRA_LIBS_FOR_DLLS $CLIB_PTHREADS"
 
 
 

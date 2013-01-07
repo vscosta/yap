@@ -765,7 +765,6 @@ save_ops(IOSTREAM *stream, Term mod) {
 
 static size_t
 save_module(IOSTREAM *stream, Term mod) {
-  CACHE_REGS
   PredEntry *ap = Yap_ModulePred(mod);
   InitHash();
   ModuleAdjust(mod);
@@ -803,7 +802,6 @@ save_header(IOSTREAM *stream)
 
 static size_t
 save_program(IOSTREAM *stream) {
-  CACHE_REGS
   ModEntry *me = CurrentModules;
 
   InitHash();
