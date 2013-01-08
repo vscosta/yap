@@ -213,21 +213,23 @@ fill_hash(UInt bmap, UInt bnds[], struct index_t *it)
 }
 
 static struct index_t *
-add_index(struct index_t **ip, UInt bmap, UInt bndsf[], PredEntry *ap)
+add_index(struct index_t **ip, UInt bmap, UInt bndsf[], PredEntry *ap, UInt count)
 {
   UInt ncls = ap->cs.p_code.NOfClauses, j;
-  CELL *base;
+  CELL *base = NULL;
   struct index_t *i;
   size_t sz;
   yamop *ptr;
   
-  if (!(base = (CELL *)Yap_AllocCodeSpace(3*sizeof(CELL)*ncls))) {
-    CACHE_REGS
-    save_machine_regs();
-    LOCAL_Error_Size = 3*ncls*sizeof(CELL);
-    LOCAL_ErrorMessage = "not enough space to index";
-    Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
-    return NULL;
+  if (count) {
+    if (!(base = (CELL *)Yap_AllocCodeSpace(3*sizeof(CELL)*ncls))) {
+      CACHE_REGS
+      save_machine_regs();
+      LOCAL_Error_Size = 3*ncls*sizeof(CELL);
+      LOCAL_ErrorMessage = "not enough space to index";
+      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
+      return NULL;
+    }
   }
   sz =   (CELL)NEXTOP(NEXTOP((yamop*)NULL,lp),lp)+ap->ArityOfPE*(CELL)NEXTOP((yamop *)NULL,x) +(CELL)NEXTOP(NEXTOP((yamop *)NULL,p),l);
   if (!(i = (struct index_t *)Yap_AllocCodeSpace(sizeof(struct index_t)+sz))) {
@@ -238,7 +240,8 @@ add_index(struct index_t **ip, UInt bmap, UInt bndsf[], PredEntry *ap)
     Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
     return NULL;
   }
-  bzero(base, 3*sizeof(CELL)*ncls);
+  if (count)
+    bzero(base, 3*sizeof(CELL)*ncls);
   i->next = *ip;
   i->prev = NULL;
   i->nels = ncls;
@@ -251,14 +254,22 @@ add_index(struct index_t **ip, UInt bmap, UInt bndsf[], PredEntry *ap)
   i->links = (CELL *)(base+2*ncls);
   i->cls = (CELL *)((ADDR)ap->cs.p_code.FirstClause+2*sizeof(struct index_t *)); 
   *ip = i;
-  fill_hash(bmap, bndsf, i);
+  if (count) {
+    fill_hash(bmap, bndsf, i);
+  }
   ptr = (yamop *)(i+1);
   i->code = ptr;
-  ptr->opc = Yap_opcode(_try_exo);
+  if (count)
+    ptr->opc = Yap_opcode(_try_exo);
+  else
+    ptr->opc = Yap_opcode(_try_all_exo);
   ptr->u.lp.l = (yamop *)i;
   ptr->u.lp.p = ap;
   ptr = NEXTOP(ptr, lp);
-  ptr->opc = Yap_opcode(_retry_exo);
+  if (count)
+    ptr->opc = Yap_opcode(_retry_exo);
+  else
+    ptr->opc = Yap_opcode(_retry_all_exo);
   ptr->u.lp.p = ap;
   ptr->u.lp.l = (yamop *)i;
   ptr = NEXTOP(ptr, lp);
@@ -314,17 +325,20 @@ Yap_ExoLookup(PredEntry *ap)
     i = i->next;
   }
   if (!i) {
-    i = add_index(ip, bmap, bnds, ap);
+    i = add_index(ip, bmap, bnds, ap, count);
   }
-  return LOOKUP(i, arity, bnds);
+  if (count)
+    return LOOKUP(i, arity, bnds);
+  else
+    return i->code;
 }
 
 CELL
 Yap_NextExo(choiceptr cptr, struct index_t *it) 
 {
-  CELL offset = ((CELL *)(B+1))[it->arity];
+  CELL offset = EXO_ADDRESS_TO_OFFSET(it,(CELL *)((CELL *)(B+1))[it->arity]);
   CELL next = it->links[offset];
-  ((CELL *)(B+1))[it->arity] = next;
+  ((CELL *)(B+1))[it->arity] = (CELL)EXO_OFFSET_TO_ADDRESS(it, next);
   S = it->cls+it->arity*offset;
   return next;
 }

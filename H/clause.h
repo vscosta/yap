@@ -173,6 +173,22 @@ typedef struct index_t {
   yamop *code;
 } Index_t;
 
+INLINE_ONLY EXTERN inline  UInt EXO_ADDRESS_TO_OFFSET(struct index_t *it, CELL *ptr);
+
+INLINE_ONLY EXTERN inline   UInt
+EXO_ADDRESS_TO_OFFSET(struct index_t *it, CELL* ptr)
+{
+  return ptr-it->links;
+}
+
+INLINE_ONLY EXTERN inline  CELL *EXO_OFFSET_TO_ADDRESS(struct index_t *it, UInt  off);
+
+INLINE_ONLY EXTERN inline   CELL *
+EXO_OFFSET_TO_ADDRESS(struct index_t *it, UInt  off)
+{
+  return it->links+off;
+}
+
 
 typedef struct dbterm_list {
   /* a list of dbterms associated with a clause */

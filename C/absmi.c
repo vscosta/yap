@@ -989,9 +989,44 @@ Yap_absmi(int inp)
       CACHE_Y(YREG);
       { 
 	struct index_t *i = (struct index_t *)(PREG->u.lp.l);
-	S_YREG[-1] = i->links[(CELL)(SREG-i->cls)/i->arity];
+	S_YREG[-1] = (CELL)EXO_OFFSET_TO_ADDRESS(i,i->links[(CELL)(SREG-i->cls)/i->arity]);
       }
       S_YREG--;
+      /* store arguments for procedure */
+      store_at_least_one_arg(PREG->u.lp.p->ArityOfPE);
+      /* store abstract machine registers */
+      store_yaam_regs(NEXTOP(PREG,lp), 0);
+      /* On a try_me, set cut to point at previous choicepoint,
+       * that is, to the B before the cut.
+       */
+      set_cut(S_YREG, B);
+      /* now, install the new YREG =*/
+      B = B_YREG;
+#ifdef YAPOR
+      SCH_set_load(B_YREG);
+#endif	/* YAPOR */
+      PREG = NEXTOP(NEXTOP(PREG, lp),lp);
+      SET_BB(B_YREG);
+      ENDCACHE_Y();
+      GONext();
+      ENDOp();
+
+      /* check if enough space between trail and codespace */
+      /* try_exo    Pred,Label */
+      Op(try_all_exo, lp);
+      /* check if enough space between trail and codespace */
+      check_trail(TR);
+      /* I use YREG =to go through the choicepoint. Usually YREG =is in a
+       * register, but sometimes (X86) not. In this case, have a
+       * new register to point at YREG =*/
+      CACHE_Y(YREG);
+      { 
+	struct index_t *i = (struct index_t *)(PREG->u.lp.l);
+	SREG = i->cls;
+	S_YREG[-2] = (CELL)(SREG+i->arity);
+	S_YREG[-1] = (CELL)(SREG+i->arity*i->nels);
+      }
+      S_YREG-=2;
       /* store arguments for procedure */
       store_at_least_one_arg(PREG->u.lp.p->ArityOfPE);
       /* store abstract machine registers */
@@ -1054,6 +1089,57 @@ Yap_absmi(int inp)
 #endif /* FROZEN_STACKS */
 	    set_cut(S_YREG, B);
 	  }
+      }
+      PREG = NEXTOP(PREG, lp);
+      ENDCACHE_Y();
+      ENDD(D0);
+      GONext();
+      ENDOp();
+
+      /* retry_exo    Pred */
+      Op(retry_all_exo, lp);
+      BEGD(d0);
+      CACHE_Y(B);
+      {
+	UInt arity = ((struct index_t *)PREG->u.lp.l)->arity;
+	CELL *extras = (CELL *)(B+1);
+	SREG = (CELL *)extras[arity];
+	d0 = (SREG+arity != (CELL *)extras[arity+1]);
+	if (d0) {
+	  extras[arity] = (CELL)(SREG+arity);
+	  /* After retry, cut should be pointing at the parent
+	   * choicepoint for the current B */
+	  restore_yaam_regs(PREG);
+	  restore_at_least_one_arg(arity);
+#ifdef FROZEN_STACKS
+	  S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);
+	  set_cut(S_YREG, B->cp_b);
+#else
+	  set_cut(S_YREG, B_YREG->cp_b);
+#endif /* FROZEN_STACKS */
+	  SET_BB(B_YREG);
+	} else {
+#ifdef YAPOR
+	  if (SCH_top_shared_cp(B)) {
+	    SCH_last_alternative(PREG, B_YREG);
+	    restore_at_least_one_arg(arity);
+#ifdef FROZEN_STACKS
+	    S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);
+#endif /* FROZEN_STACKS */
+	    set_cut(S_YREG, B->cp_b);
+	  } else
+#endif	/* YAPOR */
+	    {
+	      pop_yaam_regs();
+	      pop_at_least_one_arg(arity);
+	      /* After trust, cut should be pointing at the new top
+	       * choicepoint */
+#ifdef FROZEN_STACKS
+	      S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);
+#endif /* FROZEN_STACKS */
+	      set_cut(S_YREG, B);
+	    }
+	}
       }
       PREG = NEXTOP(PREG, lp);
       ENDCACHE_Y();
