@@ -204,7 +204,7 @@ setHorusFlag (string key, string value)
       cerr << "for `" << key << "'" << endl;
       returnVal = false;
     }
-  } else if (key == "ground_solver") {
+  } else if (key == "ground_solver" || key == "solver") {
     if (       value == "ve" || value == "hve") {
       Globals::groundSolver = GroundSolverType::VE;
     } else if (value == "bp") {
