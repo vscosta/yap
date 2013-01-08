@@ -11,3 +11,8 @@
 *.dylib
 docs/yap.info*
 .build
+
+.cproject
+.project
+.settings
+autom4te.cache
