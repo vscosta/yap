@@ -43,6 +43,7 @@ SO=@SO@
 #4.1VPATH=@srcdir@:@srcdir@/OPTYap
 CWD=$(PWD)
 
+HCLI = $(srcdir)/hcli
 
 HEADERS = \
 	$(srcdir)/BayesBall.h \
@@ -156,15 +157,16 @@ all: $(SOBJS) hcli
 
 
 hcli: $(HCLI_OBJS)
-	$(CXX) -o hcli $(HCLI_OBJS)
+	$(CXX) -o $(HCLI) $(HCLI_OBJS)
 
 
 install: all
 	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR)
+	$(INSTALL_PROGRAM) $(HCLI) $(DESTDIR)$(BINDIR)
 
 
 clean:
-	rm -f *.o *~ $(OBJS) $(SOBJS) *.BAK hcli
+	rm -f *.o *~ $(OBJS) $(SOBJS) $(HCLI) *.BAK
 
 
 erase_dots:
