@@ -16,6 +16,7 @@
 
 \newcommand{\true}      {\mathtt{t}}
 \newcommand{\false}     {\mathtt{f}}
+\newcommand{\pathsep}   { $\triangleright$ }
 \newcommand{\tableline} {\noalign{\hrule height 0.8pt}}
 
 \tikzstyle{nodestyle}   = [draw, thick, circle, minimum size=0.9cm]
@@ -217,7 +218,7 @@ One last note for the domain of the random variables. By default all terms will 
 bayes professor_ability::[high, medium, low] ; [0.5, 0.4, 0.1].
 \end{pflcode}
 
-More examples can be found in the CLPBN examples directory, which defaults to ``share/doc/Yap/packages/examples/CLPBN'' from the base directory where the YAP Prolog system was installed.
+More probabilistic models defined using PFL can be found in the examples directory, which defaults to \texttt{\$HOME\pathsep share\pathsep doc\pathsep Yap\pathsep packages\pathsep examples\pathsep CLPBN}.
 
 %------------------------------------------------------------------------------
 %------------------------------------------------------------------------------
@@ -226,7 +227,7 @@ More examples can be found in the CLPBN examples directory, which defaults to ``
 \section{Querying}
 In this section we demonstrate how to use PFL to solve probabilistic queries. We will use the sprinkler network as an example.
 
-Assuming that the current directory is where the examples are located, first we load the model:
+Assuming that the current directory is the one where the examples are located, first we load the model as follows.
 
 \texttt{\$ yap -l sprinker.pfl}
 
@@ -236,7 +237,7 @@ Let's suppose that we want to estimate the marginal probability for the $WetGras
 
 The output of the goal will show the marginal probability for each $WetGrass$ possible state or value, that is, \texttt{t} and \texttt{f}. Notice that in PFL a random variable is identified by a term with the same functor and arguments plus one extra argument.
 
-Let's now suppose that we want to estimate the probability for the same random variable, but this time we have evidence that it had rained the day before. We can estimate this probability without resorting to static evidence with:
+Now let's suppose that we want to estimate the probability for the same random variable, but this time we have evidence that it had rained the day before. We can estimate this probability without resorting to static evidence with:
 
 \texttt{?- wet\_grass(X), rain(t).}
 
@@ -310,41 +311,36 @@ It defaults to \texttt{seq\_fixed}.
 The \texttt{export\_libdai} and \texttt{export\_uai} keys can be used to export the current model respectively to \href{http://cs.ru.nl/~jorism/libDAI/doc/fileformats.html}{libDAI}, and \href{http://graphmod.ics.uci.edu/uai08/FileFormat}{UAI08} formats. With the \texttt{export\_graphviz} key it is possible to save the factor graph into a format that can be read by \href{http://www.graphviz.org/}{Graphviz}. The \texttt{print\_fg} key allows to print all factors before perform inference. All these four keys accept \texttt{true} and \texttt{false} as their values and only produce effect in \texttt{hve}, \texttt{bp}, and \texttt{cbp} solvers.
 
 \section{Horus Command Line}
-This package also includes an utility to perform inference over probabilistic graphical models described in other formats, namely the \href{http://cs.ru.nl/~jorism/libDAI/doc/fileformats.html}{libDAI file format}, and the \href{http://graphmod.ics.uci.edu/uai08/FileFormat}{UAI08 file format}
+This package also includes an external interface to YAP for perform inference over probabilistic graphical models described in formats other than PFL. Currently two are support, the \href{http://cs.ru.nl/~jorism/libDAI/doc/fileformats.html}{libDAI file format}, and the \href{http://graphmod.ics.uci.edu/uai08/FileFormat}{UAI08 file format}.
 
-This utility is called \texttt{hcli} and can be found inside binary directory used for the YAP installation. Its usage is:
-
-\begin{verbatim}
-./hcli [<KEY>=<VALUE>]... <FILE> [<VAR>|<VAR>=<EVIDENCE>]...
-\end{verbatim}
-
-Let's assume that the working directory is where \texttt{hcli} is installed. We can perform inference in any supported model by passing the file name where the model is defined as argument. Next, we show the command for loading a model described in an UAI file format.
+This utility is called \texttt{hcli} and its usage is as follows.
 
 \begin{verbatim}
-./hcli $EXAMPLES_DIR$/burglary-alarm.uai
+   $ ./hcli [solver=hve|bp|cbp] [<HORUS_KEY>=<VALUE>]...
+   <FILE> [<VAR>|<VAR>=<EVIDENCE>]...
 \end{verbatim}
 
-With this command, the program will load the model and print the marginal probabilities for all random variables defined in the model. We can view only the marginal probability for some variable with a identifier $X$, if we pass $X$ as an extra argument following the file name. For instance, the following command will show only the marginal probability for the variable with identifier $0$.
+Let's assume that the current directory is the one where the examples are, which defaults to \texttt{\$HOME\pathsep share\pathsep doc\pathsep Yap\pathsep packages\pathsep examples\pathsep CLPBN}. We can perform inference in any supported model by passing the file name where the model is defined as argument. Next, we show how to load a model using the \texttt{hcli} utility.
 
-\begin{verbatim}
-./hcli $EXAMPLES_DIR$/burglary-alarm.uai 0
-\end{verbatim}
+\texttt{\$ ./hcli burglary-alarm.uai}
 
-If we give more than one variable identifier as argument, the program will show the joint probability for all variables given.
+With the above command, the program will load the model and print the marginal probabilities for all defined random variables. We can view only the marginal probability for some variable with a identifier $X$, if we pass $X$ as an extra argument following the file name. For instance, the following command will output only the marginal probability for the variable with identifier $0$.
 
-Evidence can be given as pairs with a variable identifier and its observed state (index), separated by a '=`. For instance, we can introduce knowledge that some variable with identifier $0$ has evidence on its second state as follows.
+\texttt{\$ ./hcli burglary-alarm.uai 0}
 
-\begin{verbatim}
-./hcli $EXAMPLES_DIR$/burglary-alarm.uai 0=1
-\end{verbatim}
+If we give more than one variable identifier as argument, the program will output the joint probability for all variables given.
 
-By default, all probability tasks are resolved with the \texttt{hve} solver. It is possible to choose another solver using the \texttt{ground\_solver} key as follows. Note that only \texttt{hve}, \texttt{bp} and \texttt{cbp} can be used in \texttt{hcli}.
+Evidence can be given as a pair containing a variable identifier and its observed state (index), separated by a '=`. For instance, we can introduce knowledge that some variable with identifier $0$ has evidence on its second state as follows.
 
-\begin{verbatim}
-./hcli ground_solver=bp ../examples/burglary-alarm.uai
-\end{verbatim}
+\texttt{\$ ./hcli burglary-alarm.uai 0=1}
 
-The options that are available with the \texttt{set\_horus\_flag/2} predicate can be used in \texttt{hcli} too. The syntax to use are pairs $Key=Value$ before the model's file name.
+By default, all probability tasks are resolved using the \texttt{hve} solver. It is possible to choose another solver using the \texttt{solver} key as follows.
+
+\texttt{\$ ./hcli solver=bp burglary-alarm.uai}
+
+Notice that only the \texttt{hve}, \texttt{bp} and \texttt{cbp} solvers can be used with \texttt{hcli}.
+
+The options that are available with the \texttt{set\_horus\_flag/2} predicate can be used in \texttt{hcli} too. The syntax to use are pairs \texttt{<Key>=<Value>} before the model's file name.
 
 \section{Further Information}
 Please check the paper \textit{Evaluating Inference Algorithms for the Prolog Factor Language} for further information.
