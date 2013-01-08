@@ -3668,9 +3668,8 @@ Yap_absmi(int inp)
       SREG++;
 
       BEGP(pt0);
-      deref_head(d0, gatom_exo_unk);
-      /* argument is nonvar */
-    gatom_exo_nonvar:
+      if (IsVarTerm(d0))
+	goto gatom_exo_var;
       if (d0 == d1) {
 	PREG = NEXTOP(PREG, x);
 	GONext();
@@ -3679,8 +3678,9 @@ Yap_absmi(int inp)
 	FAIL();
       }
 
-      deref_body(d0, pt0, gatom_exo_unk, gatom_exo_nonvar);
+    gatom_exo_var:
       /* argument is a variable */
+      pt0 = (CELL *)d0;
       PREG = NEXTOP(PREG, x);
       Bind(pt0, d1);
       GONext();
