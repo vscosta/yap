@@ -25,7 +25,12 @@
 \setlength{\parskip}{\baselineskip}
 
 \title{\Huge\textbf{Prolog Factor Language (PFL) Manual}}
-\author{Tiago Gomes, V\'{i}tor Santos Costa}
+
+\author{Tiago Gomes\\\texttt{tiago.avv@gmail.com} \and V\'{i}tor Santos Costa\\\texttt{vsc@fc.up.pt}\\\\
+CRACS \& INESC TEC, Faculty of Sciences, University of Porto
+}
+
+
 \date{}
 
 \maketitle
@@ -36,6 +41,8 @@
 \end{center}
 \newpage
 
+
+
 %------------------------------------------------------------------------------
 %------------------------------------------------------------------------------
 %------------------------------------------------------------------------------
@@ -45,6 +52,12 @@ The Prolog Factor Language (PFL) is a language that extends Prolog for providing
 
 The package also includes implementations for a set of well-known inference algorithms for solving probabilistic queries on these models. Both ground and lifted inference methods are support.
 
+
+
+%------------------------------------------------------------------------------
+%------------------------------------------------------------------------------
+%------------------------------------------------------------------------------
+%------------------------------------------------------------------------------
 \section{Installation}
 PFL is included with the \href{http://www.dcc.fc.up.pt/~vsc/Yap/}{YAP} Prolog system. However, there isn't yet a stable release of YAP that includes PFL. So it is required to install a development version of YAP. To to this, you will need to have installed the Git version control system. The commands to do a default installation of YAP in the user's home in a Unix-based environment are shown next.
 
@@ -57,7 +70,12 @@ PFL is included with the \href{http://www.dcc.fc.up.pt/~vsc/Yap/}{YAP} Prolog sy
  \item \texttt{\$ make depend \& make install}
 \end{enumerate}
 
-In case you want to install YAP somewhere else or with different settings, please consult the YAP documentation. From now on, we will assume that the directory \$HOME/bin (where the binary can be found) is in your \$PATH environment variable.
+In case you want to install YAP somewhere else or with different settings, please consult the YAP documentation. From now on, we will assume that the directory \texttt{\$HOME\pathsep bin} (where the binary can be found) is in your \texttt{\$PATH} environment variable.
+
+\label{examples-directory}
+Once in a while, we will refer to the PFL examples directory. In a default installation, this directory will be located at \texttt{\$HOME\pathsep share\pathsep doc\pathsep Yap\pathsep packages\pathsep examples\pathsep CLPBN}.
+
+
 
 %------------------------------------------------------------------------------
 %------------------------------------------------------------------------------
@@ -141,7 +159,7 @@ $$Type~~F~~;~~Phi~~;~~C.$$
 \end{center}
 \end{figure}
 
-Towards a better understanding of the language, next we show the PFL representation for network found in Figure~\ref{fig:sprinkler-bn}.
+Towards a better understanding of the language, next we show the PFL representation for the network found in Figure~\ref{fig:sprinkler-bn}.
 
 \begin{pflcode}
 :- use_module(library(pfl)).
@@ -218,7 +236,9 @@ One last note for the domain of the random variables. By default all terms will 
 bayes professor_ability::[high, medium, low] ; [0.5, 0.4, 0.1].
 \end{pflcode}
 
-More probabilistic models defined using PFL can be found in the examples directory, which defaults to \texttt{\$HOME\pathsep share\pathsep doc\pathsep Yap\pathsep packages\pathsep examples\pathsep CLPBN}.
+More probabilistic models defined using PFL can be found in the examples directory.
+
+
 
 %------------------------------------------------------------------------------
 %------------------------------------------------------------------------------
@@ -244,6 +264,19 @@ Now let's suppose that we want to estimate the probability for the same random v
 PFL also supports calculating joint probability distributions. For instance, we can obtain the joint probability for $Sprinkler$ and $Rain$ with:
 
 \texttt{?- sprinkler(X), rain(Y).}
+
+
+
+%------------------------------------------------------------------------------
+%------------------------------------------------------------------------------
+%------------------------------------------------------------------------------
+%------------------------------------------------------------------------------
+\section{Parameter Learning}
+PFL is capable to learn the parameters for bayesian networks, through an implementation of the expectation-maximization algorithm.
+
+Inside the \texttt{learning} directory from the examples directory, one can find some examples of how learning works in PFL.
+
+We can define the solver that will be used for the inference part during parameter learning with the \texttt{set\_em\_solver/1} predicate (defaults to \texttt{hve}). At the moment, only the following solvers support parameter learning: \texttt{ve}, \texttt{hve}, \texttt{bdd}, \texttt{bp} and \texttt{cbp}.
 
 
 %------------------------------------------------------------------------------
@@ -310,6 +343,12 @@ It defaults to \texttt{seq\_fixed}.
 
 The \texttt{export\_libdai} and \texttt{export\_uai} keys can be used to export the current model respectively to \href{http://cs.ru.nl/~jorism/libDAI/doc/fileformats.html}{libDAI}, and \href{http://graphmod.ics.uci.edu/uai08/FileFormat}{UAI08} formats. With the \texttt{export\_graphviz} key it is possible to save the factor graph into a format that can be read by \href{http://www.graphviz.org/}{Graphviz}. The \texttt{print\_fg} key allows to print all factors before perform inference. All these four keys accept \texttt{true} and \texttt{false} as their values and only produce effect in \texttt{hve}, \texttt{bp}, and \texttt{cbp} solvers.
 
+
+
+%------------------------------------------------------------------------------
+%------------------------------------------------------------------------------
+%------------------------------------------------------------------------------
+%------------------------------------------------------------------------------
 \section{Horus Command Line}
 This package also includes an external interface to YAP for perform inference over probabilistic graphical models described in formats other than PFL. Currently two are support, the \href{http://cs.ru.nl/~jorism/libDAI/doc/fileformats.html}{libDAI file format}, and the \href{http://graphmod.ics.uci.edu/uai08/FileFormat}{UAI08 file format}.
 
@@ -320,7 +359,7 @@ This utility is called \texttt{hcli} and its usage is as follows.
    <FILE> [<VAR>|<VAR>=<EVIDENCE>]...
 \end{verbatim}
 
-Let's assume that the current directory is the one where the examples are, which defaults to \texttt{\$HOME\pathsep share\pathsep doc\pathsep Yap\pathsep packages\pathsep examples\pathsep CLPBN}. We can perform inference in any supported model by passing the file name where the model is defined as argument. Next, we show how to load a model using the \texttt{hcli} utility.
+Let's assume that the current directory is the one where the examples are located. We can perform inference in any supported model by passing the file name where the model is defined as argument. Next, we show how to load a model using the \texttt{hcli} utility.
 
 \texttt{\$ ./hcli burglary-alarm.uai}
 
@@ -342,7 +381,15 @@ Notice that only the \texttt{hve}, \texttt{bp} and \texttt{cbp} solvers can be u
 
 The options that are available with the \texttt{set\_horus\_flag/2} predicate can be used in \texttt{hcli} too. The syntax to use are pairs \texttt{<Key>=<Value>} before the model's file name.
 
+
+
+%------------------------------------------------------------------------------
+%------------------------------------------------------------------------------
+%------------------------------------------------------------------------------
+%------------------------------------------------------------------------------
 \section{Further Information}
 Please check the paper \textit{Evaluating Inference Algorithms for the Prolog Factor Language} for further information.
+
+Any question don't hesitate to contact us!
 
 \end{document}
