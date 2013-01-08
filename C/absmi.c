@@ -968,8 +968,11 @@ Yap_absmi(int inp)
       {
 	yamop *pt;
 	saveregs();
-	pt = Yap_ExoLookup(PredFromExpandCode(PREG));
+	pt = Yap_ExoLookup(PredFromDefCode(PREG));
 	setregs();
+#ifdef SHADOW_S
+	SREG = S;
+#endif
 	PREG = pt;
       }
       JMPNext();      
@@ -984,7 +987,10 @@ Yap_absmi(int inp)
        * register, but sometimes (X86) not. In this case, have a
        * new register to point at YREG =*/
       CACHE_Y(YREG);
-      S_YREG[-1] = (CELL)SREG;
+      { 
+	struct index_t *i = (struct index_t *)(PREG->u.lp.l);
+	S_YREG[-1] = i->links[(CELL)(SREG-i->cls)/i->arity];
+      }
       S_YREG--;
       /* store arguments for procedure */
       store_at_least_one_arg(PREG->u.lp.p->ArityOfPE);
@@ -999,7 +1005,7 @@ Yap_absmi(int inp)
 #ifdef YAPOR
       SCH_set_load(B_YREG);
 #endif	/* YAPOR */
-      PREG = NEXTOP(PREG, lp);
+      PREG = NEXTOP(NEXTOP(PREG, lp),lp);
       SET_BB(B_YREG);
       ENDCACHE_Y();
       GONext();
@@ -1009,7 +1015,12 @@ Yap_absmi(int inp)
       Op(retry_exo, lp);
       BEGD(d0);
       CACHE_Y(B);
+      saveregs();
       d0 = Yap_NextExo(B_YREG, (struct index_t *)PREG->u.lp.l);
+      setregs();
+#ifdef SHADOW_S
+      SREG = S;
+#endif
       if (d0) {
 	/* After retry, cut should be pointing at the parent
 	 * choicepoint for the current B */
@@ -1026,7 +1037,7 @@ Yap_absmi(int inp)
 #ifdef YAPOR
 	if (SCH_top_shared_cp(B)) {
 	  SCH_last_alternative(PREG, B_YREG);
-	  restore_at_least_one_arg(PREG->u.Otapl.s);
+	  restore_at_least_one_arg(PREG->u.lp.p->ArityOfPE);
 #ifdef FROZEN_STACKS
 	  S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);
 #endif /* FROZEN_STACKS */
@@ -1035,7 +1046,7 @@ Yap_absmi(int inp)
 #endif	/* YAPOR */
 	  {
 	    pop_yaam_regs();
-	    pop_at_least_one_arg(PREG->u.Otapl.s);
+	    pop_at_least_one_arg(PREG->u.lp.p->ArityOfPE);
 	    /* After trust, cut should be pointing at the new top
 	     * choicepoint */
 #ifdef FROZEN_STACKS
@@ -3566,8 +3577,9 @@ Yap_absmi(int inp)
       BEGD(d0);
       BEGD(d1);
       /* fetch arguments */
-      d0 = XREG(PREG->u.xc.x);
-      d1 = *SREG++;
+      d0 = XREG(PREG->u.x.x);
+      d1 = *SREG;
+      SREG++;
 
       BEGP(pt0);
       deref_head(d0, gatom_exo_unk);

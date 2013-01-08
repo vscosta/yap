@@ -40,28 +40,29 @@
 static UInt
 HASH(UInt j, CELL *cl, struct index_t *it)
 {
-  return (cl[j] >> 3) % it->nels + j*(7*it->nels)/11;
+  return ((cl[j] >> 3) + (3*j*it->nels)/2) % (it->nels*2);
 }
 
 /* search for matching elements */
 static int 
-MATCH(CELL *clp,CELL *kvp, UInt j, UInt bnds[])
+MATCH(CELL *clp, CELL *kvp, UInt j, UInt bnds[], struct index_t *it)
 {
+  if ((kvp - it->cls)%it->arity != j)
+    return FALSE;
   do {
-    if ( bnds[j] && *clp == *kvp)
+    if ( bnds[j] && *clp != *kvp)
       return FALSE;
     clp--;
     kvp--;
-    j--;
-  } while (j != 0);
+  } while (j-- != 0);
   return TRUE;
 }
 
 static void
 ADD_TO_TRY_CHAIN(CELL *kvp, CELL *cl, struct index_t *it)
 {
-  UInt new = (kvp-it->cls)/it->arity;
-  UInt old = (cl-it->cls)/it->arity;
+  UInt old = (kvp-it->cls)/it->arity;
+  UInt new = (cl-it->cls)/it->arity;
   UInt *links = it->links;
   UInt tmp = links[old]; /* points to the end of the chain */
 
@@ -77,7 +78,7 @@ ADD_TO_TRY_CHAIN(CELL *kvp, CELL *cl, struct index_t *it)
 static UInt
 NEXT(UInt hash, struct index_t *it, UInt j)
 {
-  return (j+1) % it->nels;
+  return (hash+3) % (it->nels*2);
 }
 
 /* This is the critical routine, it builds the hash table *
@@ -118,24 +119,24 @@ INSERT(CELL *cl, struct index_t *it, UInt arity, UInt base, UInt bnds[])
     /* simple case, new entry */
     it->key[hash] = cl+j;
     return;
-  } else if (MATCH(cl+j, kvp, j, bnds))  {
+  } else if (MATCH(cl+j, kvp, j, bnds, it))  {
     /* collision */
     UInt k;
     CELL *target;
     
-    for (k =j, target = kvp; k < arity; k++,target++ ) {
+    for (k =j+1, target = kvp+1; k < arity; k++,target++ ) {
       if (bnds[k]) {
 	if (*target != cl[k]) {
 	  /* found a new forking point */
-	  INSERT(cl, it, arity, j, bnds);
+	  INSERT(cl, it, arity, k, bnds);
 	  return;
 	}
       }
     }
-    ADD_TO_TRY_CHAIN(kvp-base, cl, it);
+    ADD_TO_TRY_CHAIN(kvp, cl, it);
     return;
   } else {
-    j =  NEXT(hash, it, j);
+    hash =  NEXT(hash, it, j);
     goto next;
   }
 }
@@ -161,23 +162,28 @@ LOOKUP(struct index_t *it, UInt arity, UInt bnds[])
   if (kvp == NULL) {
     /* simple case, no element */
     return FAILCODE;
-  } else if (MATCH(XREGS+(j+1), kvp, j, bnds))  {
+  } else if (MATCH(XREGS+(j+1), kvp, j, bnds, it))  {
     /* found element */
     UInt k;
     CELL *target;
-    
-    for (k =j, target = kvp; k < arity; k++,target++ ) {
+
+    for (k =j+1, target = kvp+1; k < arity; k++ ) {
       if (bnds[k]) {
 	if (*target != XREGS[k+1]) {
+	  j = k;
 	  goto hash;
 	}
       }
+      target++;
     }
     S = target-arity;
-    return it->code;
+    if (it->links[(S-it->cls)/arity])
+      return it->code;
+    else
+      return NEXTOP(NEXTOP(it->code,lp),lp);
   } else {
     /* collision */
-    j =  NEXT(hash, it, j);
+    hash =  NEXT(hash, it, j);
     goto next;
   }
 }
@@ -197,16 +203,17 @@ fill_hash(UInt bmap, UInt bnds[], struct index_t *it)
     if (it->key[i]) {
       UInt offset = (it->key[i]-it->cls)/arity;
       UInt last = it->links[offset];
-
+      if (last) {
       /* the chain used to point straight to the last, and the last back to the origibal first */
-      it->links[offset] = it->links[last];
-      it->links[last] = 0;
+	it->links[offset] = it->links[last];
+	it->links[last] = 0;
+      }
     }
   }
 }
 
 static struct index_t *
-add_index(struct index_t *i0, UInt bmap, UInt bndsf[], PredEntry *ap)
+add_index(struct index_t **ip, UInt bmap, UInt bndsf[], PredEntry *ap)
 {
   UInt ncls = ap->cs.p_code.NOfClauses, j;
   CELL *base;
@@ -232,8 +239,8 @@ add_index(struct index_t *i0, UInt bmap, UInt bndsf[], PredEntry *ap)
     return NULL;
   }
   bzero(base, 3*sizeof(CELL)*ncls);
-  i->next = i0->next;
-  i->prev = i0;
+  i->next = *ip;
+  i->prev = NULL;
   i->nels = ncls;
   i->arity = ap->ArityOfPE;
   i->ap = ap;
@@ -242,9 +249,9 @@ add_index(struct index_t *i0, UInt bmap, UInt bndsf[], PredEntry *ap)
   i->hsize = 2*ncls;
   i->key = (CELL **)base;
   i->links = (CELL *)(base+2*ncls);
-  i->cls = (CELL *)((ADDR)ap->cs.p_code.FirstClause+2*sizeof(struct index_t *));
-  i0->next = i;
-  fill_hash(bmap, base, i);
+  i->cls = (CELL *)((ADDR)ap->cs.p_code.FirstClause+2*sizeof(struct index_t *)); 
+  *ip = i;
+  fill_hash(bmap, bndsf, i);
   ptr = (yamop *)(i+1);
   i->code = ptr;
   ptr->opc = Yap_opcode(_try_exo);
@@ -277,7 +284,8 @@ Yap_ExoLookup(PredEntry *ap)
 {
   UInt arity = ap->ArityOfPE;
   UInt bmap = 0L, bit = 1, count = 0, j;
-  struct index_t *i = *(struct index_t **)(ap->cs.p_code.FirstClause);
+  struct index_t **ip = (struct index_t **)(ap->cs.p_code.FirstClause);
+  struct index_t *i = *ip;
   UInt bnds[MAX_ARITY];
   
   for (j=0; j< arity; j++, bit<<=1) {
@@ -286,6 +294,8 @@ Yap_ExoLookup(PredEntry *ap)
       bmap += bit;
       bnds[j] = TRUE;
       count++;
+    } else {
+      bnds[j] = FALSE;
     }
     XREGS[j+1] = t;
   }
@@ -300,9 +310,11 @@ Yap_ExoLookup(PredEntry *ap)
 	break;
       }
     }
+    ip = &i->next;
+    i = i->next;
   }
   if (!i) {
-    i = add_index(i, bmap, bnds, ap);
+    i = add_index(ip, bmap, bnds, ap);
   }
   return LOOKUP(i, arity, bnds);
 }
@@ -366,10 +378,6 @@ p_exodb_get_space( USES_REGS1 )
   }
 
   required = ncls*sizeof(CELL)+sizeof(MegaClause)+2*sizeof(struct index_t *);
-#ifdef DEBUG
-  total_megaclause += required;
-  nof_megaclauses++;
-#endif
   while (!(mcl = (MegaClause *)Yap_AllocCodeSpace(required))) {
     if (!Yap_growheap(FALSE, required, NULL)) {
       /* just fail, the system will keep on going */
