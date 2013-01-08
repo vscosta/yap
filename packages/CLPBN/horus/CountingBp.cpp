@@ -36,15 +36,15 @@ CountingBp::printSolverFlags (void) const
 {
   stringstream ss;
   ss << "counting bp [" ;
-  ss << "msg_schedule=" ;
+  ss << "bp_msg_schedule=" ;
   switch (WeightedBp::msgSchedule()) {
     case MsgSchedule::SEQ_FIXED:    ss << "seq_fixed";    break;
     case MsgSchedule::SEQ_RANDOM:   ss << "seq_random";   break;
     case MsgSchedule::PARALLEL:     ss << "parallel";     break;
     case MsgSchedule::MAX_RESIDUAL: ss << "max_residual"; break;
   }
-  ss << ",max_iter=" << WeightedBp::maxIterations();
-  ss << ",accuracy=" << WeightedBp::accuracy();
+  ss << ",bp_max_iter=" << WeightedBp::maxIterations();
+  ss << ",bp_accuracy=" << WeightedBp::accuracy();
   ss << ",log_domain=" << Util::toString (Globals::logDomain);
   ss << ",fif=" << Util::toString (CountingBp::fif_);
   ss << "]" ;

@@ -52,15 +52,15 @@ BeliefProp::printSolverFlags (void) const
 {
   stringstream ss;
   ss << "belief propagation [" ;
-  ss << "msg_schedule=" ;
+  ss << "bp_msg_schedule=" ;
   switch (schedule_) {
     case MsgSchedule::SEQ_FIXED:    ss << "seq_fixed";    break;
     case MsgSchedule::SEQ_RANDOM:   ss << "seq_random";   break;
     case MsgSchedule::PARALLEL:     ss << "parallel";     break;
     case MsgSchedule::MAX_RESIDUAL: ss << "max_residual"; break;
   }
-  ss << ",max_iter="   << Util::toString (maxIter_);
-  ss << ",accuracy="   << Util::toString (accuracy_);
+  ss << ",bp_max_iter="   << Util::toString (maxIter_);
+  ss << ",bp_accuracy="   << Util::toString (accuracy_);
   ss << ",log_domain=" << Util::toString (Globals::logDomain);
   ss << "]" ;
   cout << ss.str() << endl;
