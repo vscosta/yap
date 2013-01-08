@@ -23,11 +23,17 @@
 
 \setlength{\parskip}{\baselineskip}
 
-\title{The Prolog Factor Language (PFL)}
-\author{}
+\title{\Huge\textbf{Prolog Factor Language (PFL) Manual}}
+\author{Tiago Gomes, V\'{i}tor Santos Costa}
 \date{}
 
 \maketitle
+\thispagestyle{empty}
+\vspace{5cm}
+\begin{center}
+  \large Last revision: January 8, 2013
+\end{center}
+\newpage
 
 %------------------------------------------------------------------------------
 %------------------------------------------------------------------------------
@@ -35,6 +41,7 @@
 %------------------------------------------------------------------------------
 \section{Introduction}
 The Prolog Factor Language (PFL) is a extension of the Prolog language that allows a natural representation of this first-order probabilistic models (either directed or undirected). PFL is also capable of solving probabilistic  queries on this models through the implementation of several inference techniques: variable elimination, belief propagation, lifted variable elimination and lifted belief propagation.
+
 
 
 
@@ -120,7 +127,7 @@ $$Type~~F~~;~~Phi~~;~~C.$$
 \end{center}
 \end{figure}
 
-To better explain the language, below we show the PFL representation for network found in Figure~\ref{fig:sprinkler-bn}.
+Towards a better understanding of the language, next we show the PFL representation for network found in Figure~\ref{fig:sprinkler-bn}.
 
 \begin{pflcode}
 :- use_module(library(pfl)).
