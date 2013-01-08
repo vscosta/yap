@@ -205,7 +205,7 @@ setHorusFlag (string key, string value)
       returnVal = false;
     }
   } else if (key == "ground_solver" || key == "solver") {
-    if (       value == "ve" || value == "hve") {
+    if (       value == "hve") {
       Globals::groundSolver = GroundSolverType::VE;
     } else if (value == "bp") {
       Globals::groundSolver = GroundSolverType::BP;
@@ -230,7 +230,7 @@ setHorusFlag (string key, string value)
       cerr << "for `" << key << "'" << endl;
       returnVal = false;
     }
-  } else if (key == "ve_elim_heuristic" || key == "hve_elim_heuristic") {
+  } else if (key == "hve_elim_heuristic") {
     if (       value == "sequential") {
       ElimGraph::setElimHeuristic (ElimHeuristic::SEQUENTIAL);
     } else if (value == "min_neighbors") {
