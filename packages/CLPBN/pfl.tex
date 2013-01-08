@@ -43,7 +43,19 @@
 The Prolog Factor Language (PFL) is a extension of the Prolog language that allows a natural representation of this first-order probabilistic models (either directed or undirected). PFL is also capable of solving probabilistic  queries on this models through the implementation of several inference techniques: variable elimination, belief propagation, lifted variable elimination and lifted belief propagation.
 
 
+\section{Installation}
+PFL is included with the \href{http://www.dcc.fc.up.pt/~vsc/Yap/}{YAP} Prolog system. However, there isn't yet a stable release of YAP that includes PFL. So it is required to install a development version of YAP. To to this, you will need to have installed the Git version control system. The commands to do a default installation of YAP in the user's home in a Unix-based environment are shown next.
 
+\begin{enumerate}
+ \setlength\itemindent{-0.01cm}
+ \item \texttt{\$ cd \$HOME}
+ \item \texttt{\$ git clone git://yap.git.sourceforge.net/gitroot/yap/yap-6.3}
+ \item \texttt{\$ cd yap-6.3/}
+ \item \texttt{\$ ./configure --enable-clpbn-bp --prefix=\$HOME}
+ \item \texttt{\$ make depend \& make install}
+\end{enumerate}
+
+In case you want to install YAP somewhere else or with different settings, please consult the YAP documentation. From now on, we will assume that the directory \$HOME/bin (where the binary can be found) is in your \$PATH environment variable.
 
 %------------------------------------------------------------------------------
 %------------------------------------------------------------------------------
