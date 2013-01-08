@@ -1,8 +1,9 @@
 \documentclass{article}
 
-\usepackage{tikz}
+\usepackage{hyperref}
 \usepackage{setspace}
 \usepackage{fancyvrb}
+\usepackage{tikz}
 \usetikzlibrary{arrows,shapes,positioning}
 
 \begin{document}
@@ -285,5 +286,42 @@ The key \texttt{bp\_msg\_schedule} controls the message sending order. Its possi
  \item \texttt{max\_residual}, the next message to be sent is the one with maximum residual (as explained in the paper \textit{Residual Belief Propagation: Informed Scheduling for Asynchronous Message Passing}).
 \end{itemize}
 It defaults to \texttt{seq\_fixed}.
+
+\section{Horus Command Line}
+This package also includes an utility to perform inference over probabilistic graphical models described in other formats, namely the \href{http://cs.ru.nl/~jorism/libDAI/doc/fileformats.html}{libDAI file format}, and the \href{http://graphmod.ics.uci.edu/uai08/FileFormat}{UAI08 file format}
+
+This utility is called \texttt{hcli} and can be found inside binary directory used for the YAP installation. Its usage is:
+
+\begin{verbatim}
+./hcli [<KEY>=<VALUE>]... <FILE> [<VAR>|<VAR>=<EVIDENCE>]...
+\end{verbatim}
+
+Let's assume that the working directory is where \texttt{hcli} is installed. We can perform inference in any supported model by passing the file name where the model is defined as argument. Next, we show the command for loading a model described in an UAI file format.
+
+\begin{verbatim}
+./hcli $EXAMPLES_DIR$/burglary-alarm.uai
+\end{verbatim}
+
+With this command, the program will load the model and print the marginal probabilities for all random variables defined in the model. We can view only the marginal probability for some variable with a identifier $X$, if we pass $X$ as an extra argument following the file name. For instance, the following command will show only the marginal probability for the variable with identifier $0$.
+
+\begin{verbatim}
+./hcli $EXAMPLES_DIR$/burglary-alarm.uai 0
+\end{verbatim}
+
+If we give more than one variable identifier as argument, the program will show the joint probability for all variables given.
+
+Evidence can be given as pairs with a variable identifier and its observed state (index), separated by a '=`. For instance, we can introduce knowledge that some variable with identifier $0$ has evidence on its second state as follows.
+
+\begin{verbatim}
+./hcli $EXAMPLES_DIR$/burglary-alarm.uai 0=1
+\end{verbatim}
+
+By default, all probability tasks are resolved with the \texttt{hve} solver. It is possible to choose another solver using the \texttt{ground\_solver} key as follows. Note that only \texttt{hve}, \texttt{bp} and \texttt{cbp} can be used in \texttt{hcli}.
+
+\begin{verbatim}
+./hcli ground_solver=bp ../examples/burglary-alarm.uai
+\end{verbatim}
+
+The options that are available with the \texttt{set\_horus\_flag/2} predicate can be used in \texttt{hcli} too. The syntax to use are pairs $Key=Value$ before the model's file name.
 
 \end{document}
