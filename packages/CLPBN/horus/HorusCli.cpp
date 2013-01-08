@@ -32,6 +32,23 @@ main (int argc, const char* argv[])
   FactorGraph fg;
   readFactorGraph (fg, argv[idx]);
   VarIds queryIds = readQueryAndEvidence (fg, argc, argv, idx + 1);
+  if (FactorGraph::exportToLibDai()) {
+    fg.exportToLibDai ("model.fg");
+  }
+  if (FactorGraph::exportToUai()) {
+    fg.exportToUai ("model.uai");
+  }
+  if (FactorGraph::exportGraphViz()) {
+    fg.exportToGraphViz ("model.dot");
+  }
+  if (FactorGraph::printFactorGraph()) {
+    fg.print();
+  }
+  if (Globals::verbosity > 0) {
+    cout << "factor graph contains " ;
+    cout << fg.nrVarNodes() << " variables and " ;
+    cout << fg.nrFacNodes() << " factors " << endl;
+  }
   runSolver (fg, queryIds);
   return 0;
 }

@@ -12,6 +12,12 @@
 #include "Util.h"
 
 
+bool FactorGraph::exportLd_  = false;
+bool FactorGraph::exportUai_ = false;
+bool FactorGraph::exportGv_  = false;
+bool FactorGraph::printFg_   = false;
+
+
 FactorGraph::FactorGraph (const FactorGraph& fg)
 {
   const VarNodes& varNodes = fg.varNodes();
@@ -288,41 +294,38 @@ FactorGraph::print (void) const
 
 
 void
-FactorGraph::exportToGraphViz (const char* fileName) const
+FactorGraph::exportToLibDai (const char* fileName) const
 {
   ofstream out (fileName);
   if (!out.is_open()) {
     cerr << "Error: couldn't open file '" << fileName << "'." ;
     return;
   }
-  out << "graph \"" << fileName << "\" {" << endl;
-  for (size_t i = 0; i < varNodes_.size(); i++) {
-    if (varNodes_[i]->hasEvidence()) {
-      out << '"' << varNodes_[i]->label() << '"' ;
-      out << " [style=filled, fillcolor=yellow]" << endl;
-    }
-  }
+  out << facNodes_.size() << endl << endl;
   for (size_t i = 0; i < facNodes_.size(); i++) {
-    out << '"' << facNodes_[i]->getLabel() << '"' ;
-    out << " [label=\"" << facNodes_[i]->getLabel();
-    out << "\"" << ", shape=box]" << endl;
-  }
-  for (size_t i = 0; i < facNodes_.size(); i++) {
-    const VarNodes& myVars = facNodes_[i]->neighbors();
-    for (size_t j = 0; j < myVars.size(); j++) {
-      out << '"' << facNodes_[i]->getLabel() << '"' ;
-      out << " -- " ;
-      out << '"' << myVars[j]->label() << '"' << endl;
+    Factor f (facNodes_[i]->factor());
+    out << f.nrArguments() << endl;
+    out << Util::elementsToString (f.arguments()) << endl;
+    out << Util::elementsToString (f.ranges()) << endl;
+    VarIds args = f.arguments();
+    std::reverse (args.begin(), args.end());
+    f.reorderArguments (args);
+    if (Globals::logDomain) {
+      Util::exp (f.params());
     }
+    out << f.size() << endl;
+    for (size_t j = 0; j < f.size(); j++) {
+      out << j << " " << f[j] << endl;
+    }
+    out << endl;
   }
-  out << "}" << endl;
   out.close();
 }
 
 
 
 void
-FactorGraph::exportToUaiFormat (const char* fileName) const
+FactorGraph::exportToUai (const char* fileName) const
 {
   ofstream out (fileName);
   if (!out.is_open()) {
@@ -366,31 +369,34 @@ FactorGraph::exportToUaiFormat (const char* fileName) const
 
 
 void
-FactorGraph::exportToLibDaiFormat (const char* fileName) const
+FactorGraph::exportToGraphViz (const char* fileName) const
 {
   ofstream out (fileName);
   if (!out.is_open()) {
     cerr << "Error: couldn't open file '" << fileName << "'." ;
     return;
   }
-  out << facNodes_.size() << endl << endl;
-  for (size_t i = 0; i < facNodes_.size(); i++) {
-    Factor f (facNodes_[i]->factor());
-    out << f.nrArguments() << endl;
-    out << Util::elementsToString (f.arguments()) << endl;
-    out << Util::elementsToString (f.ranges()) << endl;
-    VarIds args = f.arguments();
-    std::reverse (args.begin(), args.end());
-    f.reorderArguments (args);
-    if (Globals::logDomain) {
-      Util::exp (f.params());
+  out << "graph \"" << fileName << "\" {" << endl;
+  for (size_t i = 0; i < varNodes_.size(); i++) {
+    if (varNodes_[i]->hasEvidence()) {
+      out << '"' << varNodes_[i]->label() << '"' ;
+      out << " [style=filled, fillcolor=yellow]" << endl;
     }
-    out << f.size() << endl;
-    for (size_t j = 0; j < f.size(); j++) {
-      out << j << " " << f[j] << endl;
-    }
-    out << endl;
   }
+  for (size_t i = 0; i < facNodes_.size(); i++) {
+    out << '"' << facNodes_[i]->getLabel() << '"' ;
+    out << " [label=\"" << facNodes_[i]->getLabel();
+    out << "\"" << ", shape=box]" << endl;
+  }
+  for (size_t i = 0; i < facNodes_.size(); i++) {
+    const VarNodes& myVars = facNodes_[i]->neighbors();
+    for (size_t j = 0; j < myVars.size(); j++) {
+      out << '"' << facNodes_[i]->getLabel() << '"' ;
+      out << " -- " ;
+      out << '"' << myVars[j]->label() << '"' << endl;
+    }
+  }
+  out << "}" << endl;
   out.close();
 }
 

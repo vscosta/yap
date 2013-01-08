@@ -106,11 +106,35 @@ class FactorGraph
 
     void print (void) const;
 
+    void exportToLibDai (const char*) const;
+
+    void exportToUai (const char*) const;
+
     void exportToGraphViz (const char*) const;
 
-    void exportToUaiFormat (const char*) const;
+    static bool exportToLibDai (void) { return exportLd_; }
 
-    void exportToLibDaiFormat (const char*) const;
+    static bool exportToUai (void) { return exportUai_; }
+
+    static bool exportGraphViz (void) { return exportGv_; }
+
+    static bool printFactorGraph (void) { return printFg_; }
+
+    static void enableExportToLibDai (void) { exportLd_ = true; }
+
+    static void disableExportToLibDai (void) { exportLd_ = false; }
+
+    static void enableExportToUai (void) { exportUai_ = true; }
+
+    static void disableExportToUai (void) { exportUai_ = false; }
+
+    static void enableExportToGraphViz (void) { exportGv_ = true; }
+
+    static void disableExportToGraphViz (void) { exportGv_ = false; }
+
+    static void enablePrintFactorGraph (void) { printFg_ = true; }
+
+    static void disablePrintFactorGraph (void) { printFg_ = false; }
 
   private:
     void ignoreLines (std::ifstream&) const;
@@ -131,6 +155,11 @@ class FactorGraph
 
     typedef unordered_map<unsigned, VarNode*> VarMap;
     VarMap varMap_;
+
+    static bool exportLd_;
+    static bool exportUai_;
+    static bool exportGv_;
+    static bool printFg_;
 
     DISALLOW_ASSIGN (FactorGraph);
 };

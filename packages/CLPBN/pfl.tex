@@ -265,7 +265,7 @@ This key defaults to 0 (no debugging information) and only \texttt{hve}, \texttt
 
 The \texttt{use\_logarithms} key controls whether the calculations performed during inference should be done in a logarithm domain or not. Its values can be \texttt{true} or \texttt{false}. By default is \texttt{true} and only affects \texttt{hve}, \texttt{bp}, \texttt{cbp}, \texttt{lve}, \texttt{lkc} and \texttt{lbp} solvers. The remaining solvers always do their calculations in a logarithm domain.
 
-There are keys specific only to some algorithm. The key \texttt{elim\_heuristic} key allows to chose which elimination heuristic will be used by the \texttt{hve} solver (but not \texttt{ve}). The following are supported:
+There are keys specific only to some algorithms. The key \texttt{elim\_heuristic} key allows to chose which elimination heuristic will be used by the \texttt{hve} solver (but not \texttt{ve}). The following are supported:
 \begin{itemize}
  \item \texttt{sequential}
  \item \texttt{min\_neighbors}
@@ -293,6 +293,8 @@ The key \texttt{bp\_msg\_schedule} controls the message sending order. Its possi
  \item \texttt{max\_residual}, the next message to be sent is the one with maximum residual (as explained in the paper \textit{Residual Belief Propagation: Informed Scheduling for Asynchronous Message Passing}).
 \end{itemize}
 It defaults to \texttt{seq\_fixed}.
+
+The \texttt{export\_libdai} and \texttt{export\_uai} keys can be used to export the current model respectively to \href{http://cs.ru.nl/~jorism/libDAI/doc/fileformats.html}{libDAI}, and \href{http://graphmod.ics.uci.edu/uai08/FileFormat}{UAI08} formats. With the \texttt{export\_graphviz} key it is possible to save the factor graph into a format that can be read by \href{http://www.graphviz.org/}{Graphviz}. The \texttt{print\_fg} key allows to print all factors before perform inference. All these four keys accept \texttt{true} and \texttt{false} as their values and only produce effect in \texttt{hve}, \texttt{bp}, and \texttt{cbp} solvers.
 
 \section{Horus Command Line}
 This package also includes an utility to perform inference over probabilistic graphical models described in other formats, namely the \href{http://cs.ru.nl/~jorism/libDAI/doc/fileformats.html}{libDAI file format}, and the \href{http://graphmod.ics.uci.edu/uai08/FileFormat}{UAI08 file format}

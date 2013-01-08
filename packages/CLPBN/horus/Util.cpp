@@ -272,6 +272,47 @@ setHorusFlag (string key, string value)
     ss << value;
     ss >> mi;
     BeliefProp::setMaxIterations (mi);
+  } else if (key == "export_libdai") {
+    if (       value == "true") {
+      FactorGraph::enableExportToLibDai();
+    } else if (value == "false") {
+      FactorGraph::disableExportToLibDai();
+      Globals::logDomain = false;
+    } else {
+      cerr << "warning: invalid value `" << value << "' " ;
+      cerr << "for `" << key << "'" << endl;
+      returnVal = false;
+    }
+  } else if (key == "export_uai") {
+    if (       value == "true") {
+      FactorGraph::enableExportToUai();
+    } else if (value == "false") {
+      FactorGraph::disableExportToUai();
+    } else {
+      cerr << "warning: invalid value `" << value << "' " ;
+      cerr << "for `" << key << "'" << endl;
+      returnVal = false;
+    }
+  } else if (key == "export_graphviz") {
+    if (       value == "true") {
+      FactorGraph::enableExportToGraphViz();
+    } else if (value == "false") {
+      FactorGraph::disableExportToGraphViz();
+    } else {
+      cerr << "warning: invalid value `" << value << "' " ;
+      cerr << "for `" << key << "'" << endl;
+      returnVal = false;
+    }
+  } else if (key == "print_fg") {
+    if (       value == "true") {
+      FactorGraph::enablePrintFactorGraph();
+    } else if (value == "false") {
+      FactorGraph::disablePrintFactorGraph();
+    } else {
+      cerr << "warning: invalid value `" << value << "' " ;
+      cerr << "for `" << key << "'" << endl;
+      returnVal = false;
+    }
   } else {
     cerr << "warning: invalid key `" << key << "'" << endl;
     returnVal = false;

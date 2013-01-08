@@ -108,10 +108,21 @@ createGroundNetwork (void)
     evidenceList = YAP_TailOfTerm (evidenceList);
     nrObservedVars ++;
   }
+  if (FactorGraph::exportToLibDai()) {
+    fg->exportToLibDai ("model.fg");
+  }
+  if (FactorGraph::exportToUai()) {
+    fg->exportToUai ("model.uai");
+  }
+  if (FactorGraph::exportGraphViz()) {
+    fg->exportToGraphViz ("model.dot");
+  }
+  if (FactorGraph::printFactorGraph()) {
+    fg->print();
+  }
   if (Globals::verbosity > 0) {
     cout << "factor graph contains " ;
-    cout << fg->nrVarNodes() << " variables " ;
-    cout << "(" << nrObservedVars << " observed) and " ;
+    cout << fg->nrVarNodes() << " variables and " ;
     cout << fg->nrFacNodes() << " factors " << endl;
   }
   YAP_Int p = (YAP_Int) (fg);
