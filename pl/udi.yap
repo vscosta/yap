@@ -9,7 +9,7 @@
 **************************************************************************
 *									 *
 * File:		udi.yap							 *
-* Last rev:	8/2/88							 *
+* Last rev:	17/12/2012						 *
 * mods:									 *
 * comments:	support user defined indexing				 *
 *									 *
@@ -22,5 +22,4 @@
 ******************/
 
 udi(Pred) :-
-   '$udi_init'(rtree, Pred).
-
+   '$udi_init'(Pred).

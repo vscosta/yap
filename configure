@@ -849,6 +849,7 @@ enable_clpbn_bp
 with_gmp
 with_R
 with_python
+with_judy
 with_minisat
 with_cudd
 enable_myddas
@@ -1531,6 +1532,7 @@ Optional Packages:
  --with-gmp=DIR           use GNU Multiple Precision in DIR
  --with-R=DIR              interface to R language
  --with-python=DIR              interface to R language
+  --with-judy=DIR UDI needs judy library
  --enable-minisat           use minisat interface
  --with-cudd=DIR           use CUDD package in DIR
  --with-java=JAVA_HOME       use Java instalation in JAVA_HOME
@@ -4717,6 +4719,21 @@ fi
 
 
 
+# Check whether --with-judy was given.
+if test "${with_judy+set}" = set; then :
+  withval=$with_judy; if test "$withval" = yes; then
+	    yap_cv_judy=yes
+	elif test "$withval" = no; then
+	    yap_cv_judy=no
+	else
+	    yap_cv_judy=$withval
+	fi
+else
+  yap_cv_judy=yes
+fi
+
+
+
 # Check whether --with-minisat was given.
 if test "${with_minisat+set}" = set; then :
   withval=$with_minisat; if test "$withval" = yes; then
@@ -6908,6 +6925,56 @@ test -n "$PYTHON" || PYTHON=""none""
 else
     PYTHON_TARGET="dummy"
     ENABLE_PYTHON="@# "
+fi
+
+if test "$yap_cv_judy" != "no"; then
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for Judy1Set in -lJudy" >&5
+$as_echo_n "checking for Judy1Set in -lJudy... " >&6; }
+if ${ac_cv_lib_Judy_Judy1Set+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lJudy  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char Judy1Set ();
+int
+main ()
+{
+return Judy1Set ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_Judy_Judy1Set=yes
+else
+  ac_cv_lib_Judy_Judy1Set=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_Judy_Judy1Set" >&5
+$as_echo "$ac_cv_lib_Judy_Judy1Set" >&6; }
+if test "x$ac_cv_lib_Judy_Judy1Set" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBJUDY 1
+_ACEOF
+
+  LIBS="-lJudy $LIBS"
+
+else
+  as_fn_error $? "libJudy not found, UDI will only work with one Index at a time" "$LINENO" 5
+fi
+
 fi
 
 
@@ -9173,6 +9240,20 @@ do :
 if test "x$ac_cv_header_gmp_h" = xyes; then :
   cat >>confdefs.h <<_ACEOF
 #define HAVE_GMP_H 1
+_ACEOF
+
+fi
+
+done
+
+fi
+if test "$yap_cv_judy" != "no"; then
+  for ac_header in Judy.h
+do :
+  ac_fn_c_check_header_mongrel "$LINENO" "Judy.h" "ac_cv_header_Judy_h" "$ac_includes_default"
+if test "x$ac_cv_header_Judy_h" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_JUDY_H 1
 _ACEOF
 
 fi
