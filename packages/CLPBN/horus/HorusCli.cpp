@@ -16,8 +16,8 @@ VarIds readQueryAndEvidence (FactorGraph&, int, const char* [], int);
 
 void runSolver (const FactorGraph&, const VarIds&);
 
-const string USAGE = "usage: ./hcli \
-[<KEY>=<VALUE>]... <FILE> [<VAR>|<VAR>=<EVIDENCE>]..." ;
+const string USAGE = "usage: ./hcli [solver=hve|bp|cbp] \
+[<HORUS_KEY>=<VALUE>]... <FILE> [<VAR>|<VAR>=<EVIDENCE>]... " ;
 
 
 int
