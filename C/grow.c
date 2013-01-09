@@ -1318,7 +1318,7 @@ init_new_table(AtomHashEntry *ntb, UInt nsize)
 {
   UInt i;
 
-  for (i = 0; i < nsize; ++i) {
+  for (i = 0; i < nsize; i++) {
     INIT_RWLOCK(ntb[i].AERWLock);
     ntb[i].Entry = NIL;
   }
@@ -1410,7 +1410,7 @@ growatomtable( USES_REGS1 )
 
 
 int
-Yap_growheap(int fix_code, UInt in_size, void *cip)
+Yap_growheap(int fix_code, size_t in_size, void *cip)
 {
   CACHE_REGS
   int res;
@@ -1441,7 +1441,7 @@ Yap_growheap(int fix_code, UInt in_size, void *cip)
   }
 #if USE_SYSTEM_MALLOC
   P = Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"malloc failed");
-  res = -1;
+  res = FALSE;
 #else
   res=do_growheap(fix_code, in_size, (struct intermediates *)cip, NULL, NULL, NULL PASS_REGS);
 #endif

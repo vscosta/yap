@@ -111,7 +111,7 @@ typedef struct regstore_t
     struct cut_c_str *CUT_C_TOP;
 #endif
 #if defined CUT_C && (defined MYDDAS_ODBC || defined MYDDAS_MYSQL)
-    MYDDAS_GLOBAL MYDDAS_GLOBAL_POINTER;
+    struct myddas_global *MYDDAS_GLOBAL_POINTER;
 #endif
     yamop *P_;			/* 7 prolog machine program counter           */
     CELL  *YENV_;		/* 5 current environment (may differ from ENV)*/

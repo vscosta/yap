@@ -83,9 +83,9 @@ void    STD_PROTO(Yap_init_agc, (void));
 
 /* alloc.c */
 void	STD_PROTO(Yap_FreeCodeSpace,(char *));
-char   *STD_PROTO(Yap_AllocAtomSpace,(unsigned long int));
-char   *STD_PROTO(Yap_AllocCodeSpace,(unsigned long int));
-char   *STD_PROTO(Yap_ReallocCodeSpace,(char *,unsigned long int));
+char   *STD_PROTO(Yap_AllocAtomSpace,(size_t));
+char   *STD_PROTO(Yap_AllocCodeSpace,(size_t));
+char   *STD_PROTO(Yap_ReallocCodeSpace,(char *,size_t));
 ADDR	STD_PROTO(Yap_AllocFromForeignArea,(Int));
 int     STD_PROTO(Yap_ExtendWorkSpace,(Int));
 void	STD_PROTO(Yap_FreeAtomSpace,(char *));
@@ -183,6 +183,9 @@ Int	STD_PROTO(Yap_exec_absmi,(int));
 void	STD_PROTO(Yap_trust_last,(void));
 Term	STD_PROTO(Yap_GetException,(void));
 
+/* exo.c */
+void	STD_PROTO(Yap_InitExoPreds,(void));
+
 /* gprof.c */
 void	STD_PROTO(Yap_InitLowProf,(void));
 #if  LOW_PROF
@@ -206,7 +209,7 @@ void	STD_PROTO(Yap_AllocateDefaultArena, (Int, Int, int));
 Int     STD_PROTO(Yap_total_stack_shift_time,(void));
 void    STD_PROTO(Yap_InitGrowPreds, (void));
 UInt    STD_PROTO(Yap_InsertInGlobal, (CELL *, UInt));
-int     STD_PROTO(Yap_growheap,      (int, UInt, void *));
+int     STD_PROTO(Yap_growheap,      (int, size_t, void *));
 int     STD_PROTO(Yap_growstack,     (long));
 int     STD_PROTO(Yap_growtrail,     (long, int));
 int     STD_PROTO(Yap_growglobal,    (CELL **));

@@ -43,3 +43,6 @@
 [submodule "packages/odbc"]
 	path = packages/odbc
 	url = git://yap.git.sourceforge.net/gitroot/yap/odbc
+[submodule "packages/udi"]
+	path = packages/udi
+	url = https://github.com/davidvaz/yap-udi-indexers.git

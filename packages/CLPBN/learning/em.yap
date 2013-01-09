@@ -134,11 +134,14 @@ setup_em_network(Items, state(AllDists, AllDistInstances, MargVars, SolverState)
 	clpbn_init_solver(MargVars, AllVars, _, SolverState).
 
 run_examples(user:Exs, Keys, Factors, EList) :-
-	Exs = [_:_|_], !,
+	Exs = [[_]|_], !,
+	foldl(add_key, Exs, ,KExs, 1, _),
 	findall(ex(EKs, EFs, EEs), run_example(Exs, EKs, EFs, EEs), VExs),
 	foldl4(join_example, VExs, [], Keys, [], Factors, [], EList, 0, _).
 run_examples(Items, Keys, Factors, EList) :-
 	run_ex(Items, Keys, Factors, EList).
+ 
+add_key(Ex, I:Ex, I, I1) :- I1 is I+1.
 
 join_example( ex(EKs, EFs, EEs), Keys0, Keys, Factors0, Factors, EList0, EList, I0, I) :-
 	I is I0+1,
@@ -188,7 +191,7 @@ em_loop(Its, Likelihood0, State, MaxError, MaxIts, LikelihoodF, FTables) :-
 	;
 	  Its1 is Its+1,
 	  em_loop(Its1, Likelihood, State, MaxError, MaxIts, LikelihoodF, FTables)
-	).
+      ).
 
 ltables([], []).
 ltables([Id-T|Tables], [Key-LTable|FTables]) :-

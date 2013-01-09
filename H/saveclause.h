@@ -236,6 +236,7 @@
     case _Nstop:
     case _allocate:
     case _copy_idb_term:
+    case _enter_exo:
     case _expand_index:
     case _index_blob:
     case _index_dbref:
@@ -302,6 +303,10 @@
       pc = NEXTOP(pc,llll);
       break;
       /* instructions type lp */
+    case _retry_all_exo:
+    case _retry_exo:
+    case _try_all_exo:
+    case _try_exo:
     case _user_switch:
       CHECK(save_PtoOp(stream, pc->u.lp.l));
       CHECK(save_PtoPred(stream, pc->u.lp.p));
@@ -553,6 +558,7 @@
       pc = NEXTOP(pc,sssllp);
       break;
       /* instructions type x */
+    case _get_atom_exo:
     case _get_list:
     case _put_list:
     case _save_b_x:

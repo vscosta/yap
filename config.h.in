@@ -24,6 +24,8 @@
 /* Should we use gmp ? 	*/
 #undef HAVE_LIBGMP
 
+#undef HAVE_LIBJUDY
+
 /* What MPI libraries are there? */
 #define HAVE_LIBMPI 0
 #define HAVE_LIBMPICH 
@@ -67,6 +69,7 @@
 #undef  HAVE_GMP_H
 #undef  HAVE_IEEEFP_H
 #undef  HAVE_IO_H
+#undef  HAVE_JUDY_H
 #undef  HAVE_LIMITS_H
 #undef  HAVE_LOCALE_H
 #undef  HAVE_MACH_O_DYLD_H
@@ -324,6 +327,10 @@
 
 #if HAVE_GMP_H && HAVE_LIBGMP
 #define USE_GMP 1
+#endif
+
+#if HAVE_JUDY_H && HAVE_LIBJUDY
+#define USE_JUDY 1
 #endif
 
 /* Should we use MPI ? */

@@ -139,6 +139,7 @@ file(I,W,C,L,F,H, S) :-
 	output_save_clause(S).
 
 grep_opcode(W, Line) :-
+%format('~s~n', [Line]),
 	split(Line," 	,();",[OP,Name,Type]),
 	Name \= "or_last",
 	check_op(OP),

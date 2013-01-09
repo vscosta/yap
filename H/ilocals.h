@@ -241,4 +241,6 @@ static void InitWorker(int wid) {
   REMOTE_FPreds(wid) = NULL;
 #endif /* LOW_PROF */
   REMOTE_FunctorVar(wid) = FunctorVar;
+
+
 }

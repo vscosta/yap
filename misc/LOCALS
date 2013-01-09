@@ -271,4 +271,7 @@ FILE*				FPreds					=NULL
 
 Functor				FunctorVar				=FunctorVar
 
+// exo indexing
+UInt				ibnds[256]				void
+
 END_WORKER_LOCAL

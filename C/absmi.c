@@ -961,6 +961,193 @@ Yap_absmi(int inp)
       ENDOp();
 
 /*****************************************************************
+*        EXO try - retry instructions                  *
+*****************************************************************/
+      /* try_exo    Pred,Label */
+      BOp(enter_exo, e);
+      {
+	yamop *pt;
+	saveregs();
+	pt = Yap_ExoLookup(PredFromDefCode(PREG));
+	setregs();
+#ifdef SHADOW_S
+	SREG = S;
+#endif
+	PREG = pt;
+      }
+      JMPNext();      
+      ENDBOp();
+
+      /* check if enough space between trail and codespace */
+      /* try_exo    Pred,Label */
+      Op(try_exo, lp);
+      /* check if enough space between trail and codespace */
+      check_trail(TR);
+      /* I use YREG =to go through the choicepoint. Usually YREG =is in a
+       * register, but sometimes (X86) not. In this case, have a
+       * new register to point at YREG =*/
+      CACHE_Y(YREG);
+      { 
+	struct index_t *i = (struct index_t *)(PREG->u.lp.l);
+	S_YREG[-1] = (CELL)EXO_OFFSET_TO_ADDRESS(i,i->links[(CELL)(SREG-i->cls)/i->arity]);
+      }
+      S_YREG--;
+      /* store arguments for procedure */
+      store_at_least_one_arg(PREG->u.lp.p->ArityOfPE);
+      /* store abstract machine registers */
+      store_yaam_regs(NEXTOP(PREG,lp), 0);
+      /* On a try_me, set cut to point at previous choicepoint,
+       * that is, to the B before the cut.
+       */
+      set_cut(S_YREG, B);
+      /* now, install the new YREG =*/
+      B = B_YREG;
+#ifdef YAPOR
+      SCH_set_load(B_YREG);
+#endif	/* YAPOR */
+      PREG = NEXTOP(NEXTOP(PREG, lp),lp);
+      SET_BB(B_YREG);
+      ENDCACHE_Y();
+      GONext();
+      ENDOp();
+
+      /* check if enough space between trail and codespace */
+      /* try_exo    Pred,Label */
+      Op(try_all_exo, lp);
+      /* check if enough space between trail and codespace */
+      check_trail(TR);
+      /* I use YREG =to go through the choicepoint. Usually YREG =is in a
+       * register, but sometimes (X86) not. In this case, have a
+       * new register to point at YREG =*/
+      CACHE_Y(YREG);
+      { 
+	struct index_t *i = (struct index_t *)(PREG->u.lp.l);
+	SREG = i->cls;
+	S_YREG[-2] = (CELL)(SREG+i->arity);
+	S_YREG[-1] = (CELL)(SREG+i->arity*i->nels);
+      }
+      S_YREG-=2;
+      /* store arguments for procedure */
+      store_at_least_one_arg(PREG->u.lp.p->ArityOfPE);
+      /* store abstract machine registers */
+      store_yaam_regs(NEXTOP(PREG,lp), 0);
+      /* On a try_me, set cut to point at previous choicepoint,
+       * that is, to the B before the cut.
+       */
+      set_cut(S_YREG, B);
+      /* now, install the new YREG =*/
+      B = B_YREG;
+#ifdef YAPOR
+      SCH_set_load(B_YREG);
+#endif	/* YAPOR */
+      PREG = NEXTOP(NEXTOP(PREG, lp),lp);
+      SET_BB(B_YREG);
+      ENDCACHE_Y();
+      GONext();
+      ENDOp();
+
+      /* retry_exo    Pred */
+      Op(retry_exo, lp);
+      BEGD(d0);
+      CACHE_Y(B);
+      saveregs();
+      d0 = Yap_NextExo(B_YREG, (struct index_t *)PREG->u.lp.l);
+      setregs();
+#ifdef SHADOW_S
+      SREG = S;
+#endif
+      if (d0) {
+	/* After retry, cut should be pointing at the parent
+	 * choicepoint for the current B */
+	restore_yaam_regs(PREG);
+	restore_at_least_one_arg(PREG->u.lp.p->ArityOfPE);
+#ifdef FROZEN_STACKS
+	S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);
+	set_cut(S_YREG, B->cp_b);
+#else
+	set_cut(S_YREG, B_YREG->cp_b);
+#endif /* FROZEN_STACKS */
+	SET_BB(B_YREG);
+      } else {
+#ifdef YAPOR
+	if (SCH_top_shared_cp(B)) {
+	  SCH_last_alternative(PREG, B_YREG);
+	  restore_at_least_one_arg(PREG->u.lp.p->ArityOfPE);
+#ifdef FROZEN_STACKS
+	  S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);
+#endif /* FROZEN_STACKS */
+	  set_cut(S_YREG, B->cp_b);
+	} else
+#endif	/* YAPOR */
+	  {
+	    pop_yaam_regs();
+	    pop_at_least_one_arg(PREG->u.lp.p->ArityOfPE);
+	    /* After trust, cut should be pointing at the new top
+	     * choicepoint */
+#ifdef FROZEN_STACKS
+	    S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);
+#endif /* FROZEN_STACKS */
+	    set_cut(S_YREG, B);
+	  }
+      }
+      PREG = NEXTOP(PREG, lp);
+      ENDCACHE_Y();
+      ENDD(D0);
+      GONext();
+      ENDOp();
+
+      /* retry_exo    Pred */
+      Op(retry_all_exo, lp);
+      BEGD(d0);
+      CACHE_Y(B);
+      {
+	UInt arity = ((struct index_t *)PREG->u.lp.l)->arity;
+	CELL *extras = (CELL *)(B+1);
+	SREG = (CELL *)extras[arity];
+	d0 = (SREG+arity != (CELL *)extras[arity+1]);
+	if (d0) {
+	  extras[arity] = (CELL)(SREG+arity);
+	  /* After retry, cut should be pointing at the parent
+	   * choicepoint for the current B */
+	  restore_yaam_regs(PREG);
+	  restore_at_least_one_arg(arity);
+#ifdef FROZEN_STACKS
+	  S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);
+	  set_cut(S_YREG, B->cp_b);
+#else
+	  set_cut(S_YREG, B_YREG->cp_b);
+#endif /* FROZEN_STACKS */
+	  SET_BB(B_YREG);
+	} else {
+#ifdef YAPOR
+	  if (SCH_top_shared_cp(B)) {
+	    SCH_last_alternative(PREG, B_YREG);
+	    restore_at_least_one_arg(arity);
+#ifdef FROZEN_STACKS
+	    S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);
+#endif /* FROZEN_STACKS */
+	    set_cut(S_YREG, B->cp_b);
+	  } else
+#endif	/* YAPOR */
+	    {
+	      pop_yaam_regs();
+	      pop_at_least_one_arg(arity);
+	      /* After trust, cut should be pointing at the new top
+	       * choicepoint */
+#ifdef FROZEN_STACKS
+	      S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);
+#endif /* FROZEN_STACKS */
+	      set_cut(S_YREG, B);
+	    }
+	}
+      }
+      PREG = NEXTOP(PREG, lp);
+      ENDCACHE_Y();
+      ENDD(D0);
+      GONext();
+      ENDOp();
+
+/*****************************************************************
 *        Profiled try - retry - trust instructions               *
 *****************************************************************/
 
@@ -3228,7 +3415,7 @@ Yap_absmi(int inp)
      ENDOp();
 
      Op(run_eam, os);
-       if (inp==-9000) { /* usar a indexação para saber quais as alternativas validas */
+       if (inp==-9000) { /* use indexing to find out valid alternatives */
  	  extern CELL *beam_ALTERNATIVES;
           *beam_ALTERNATIVES= (CELL *) PREG->u.os.opcw;
 	  beam_ALTERNATIVES++;
@@ -3275,6 +3462,8 @@ Yap_absmi(int inp)
         GONext();
       ENDOp();
 #endif
+
+
 
 
 /************************************************************************\
@@ -3463,6 +3652,37 @@ Yap_absmi(int inp)
       deref_body(d0, pt0, gatom_unk, gatom_nonvar);
       /* argument is a variable */
       PREG = NEXTOP(PREG, xc);
+      Bind(pt0, d1);
+      GONext();
+      ENDP(pt0);
+      ENDD(d1);
+      ENDD(d0);
+      ENDOp();
+
+      Op(get_atom_exo, x);
+      BEGD(d0);
+      BEGD(d1);
+      /* fetch arguments */
+      d0 = XREG(PREG->u.x.x);
+      d1 = *SREG;
+      SREG++;
+
+      BEGP(pt0);
+      deref_head(d0, gatom_exo_unk);
+      /* argument is nonvar */
+    gatom_exo_nonvar:
+      if (d0 == d1) {
+	PREG = NEXTOP(PREG, x);
+	GONext();
+      }
+      else {
+	FAIL();
+      }
+
+      deref_body(d0, pt0, gatom_exo_unk, gatom_exo_nonvar);
+      /* argument is a variable */
+      pt0 = (CELL *)d0;
+      PREG = NEXTOP(PREG, x);
       Bind(pt0, d1);
       GONext();
       ENDP(pt0);

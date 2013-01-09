@@ -36,14 +36,7 @@ main(Lik) :-
 	findall(X,scan_data(X),L),
 	em(L,0.01,10,_,Lik).
 
-scan_data(I:[wet_grass(W),sprinkler(S),rain(R),cloudy(C)]) :-
-	data(W, S, R, C),
-	new_id(I).
+scan_data([wet_grass(W),sprinkler(S),rain(R),cloudy(C)]) :-
+	data(W, S, R, C).
 
-new_id(I) :-
-	retract(id(I)),
-	I1 is I+1,
-	assert(id(I1)).
-
-id(0).
 

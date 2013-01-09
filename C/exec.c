@@ -1736,7 +1736,7 @@ Yap_InitYaamRegs( int myworker_id )
   Yap_ResetExceptionTerm ( myworker_id );
   Yap_PutValue (AtomBreak, MkIntTerm (0));
   TR = (tr_fr_ptr)REMOTE_TrailBase(myworker_id);
-  H = H0 = ((CELL *) REMOTE_GlobalBase(myworker_id));
+  H = H0 = ((CELL *) REMOTE_GlobalBase(myworker_id))+1; // +1: hack to ensure the gc does not try to mark mistakenly
   LCL0 = ASP = (CELL *) REMOTE_LocalBase(myworker_id);
   CurrentTrailTop = (tr_fr_ptr)(REMOTE_TrailTop(myworker_id)-MinTrailGap);
   /* notice that an initial choice-point and environment
@@ -1767,8 +1767,9 @@ Yap_InitYaamRegs( int myworker_id )
   Yap_StartSlots( PASS_REGS1 );
   REMOTE_GlobalArena(myworker_id) = TermNil;
   h0var = MkVarTerm();
-#ifdef THREADS
+#if defined(YAPOR) || defined(THREADS)
   LOCAL = REMOTE(myworker_id);
+  worker_id = myworker_id;
 #endif /* THREADS */
 #if COROUTINING
   REMOTE_WokenGoals(myworker_id) = Yap_NewTimedVar(TermNil);

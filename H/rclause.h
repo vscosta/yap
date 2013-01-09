@@ -218,6 +218,7 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
     case _Nstop:
     case _allocate:
     case _copy_idb_term:
+    case _enter_exo:
     case _expand_index:
     case _index_blob:
     case _index_dbref:
@@ -285,6 +286,10 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
       pc = NEXTOP(pc,llll);
       break;
       /* instructions type lp */
+    case _retry_all_exo:
+    case _retry_exo:
+    case _try_all_exo:
+    case _try_exo:
     case _user_switch:
       pc->u.lp.l = PtoOpAdjust(pc->u.lp.l);
       pc->u.lp.p = PtoPredAdjust(pc->u.lp.p);
@@ -537,6 +542,7 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
       pc = NEXTOP(pc,sssllp);
       break;
       /* instructions type x */
+    case _get_atom_exo:
     case _get_list:
     case _put_list:
     case _save_b_x:

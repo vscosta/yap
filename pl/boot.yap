@@ -153,6 +153,7 @@ true :- true.
 
 /* main execution loop							*/
 '$read_toplevel'(Goal, Bindings) :-
+	'$pred_exists'(read_history(_,_,_,_,_,_), user),
 	'$swi_current_prolog_flag'(readline, true), !,
 	read_history(h, '!h',
                          [trace, end_of_file],
@@ -217,7 +218,7 @@ true :- true.
 	get_value('$top_level_goal',GA), GA \= [], !,
 	set_value('$top_level_goal',[]),
 	'$run_atom_goal'(GA),
-	halt(0).
+	( '$pred_exists'(halt(_), user) -> halt(0) ; '$halt'(0) ).
 '$enter_top_level' :-
 	'$disable_docreep',
 	'$run_toplevel_hooks',
@@ -228,7 +229,7 @@ true :- true.
 	nb_setval('$debug_run',off),
 	nb_setval('$debug_jump',off),
 	'$command'(Command,Varnames,_Pos,top),
-	halt(0).
+	( '$pred_exists'(halt(_), user) -> halt(0) ; '$halt'(0) ).
 
 
  '$erase_sets' :- 

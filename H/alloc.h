@@ -66,10 +66,10 @@ typedef	struct FREEB {
 
 #if SIZEOF_INT_P==4
 #define YAP_ALIGN		3
-#define YAP_ALIGNMASK		0xfffffffc
+#define YAP_ALIGNMASK		((CELL)(-4))
 #else
 #define YAP_ALIGN		7
-#define YAP_ALIGNMASK		0xfffffff8L
+#define YAP_ALIGNMASK		((CELL)(-8))
 #endif	/* ALIGN_LONGS */
 
 #define AdjustSize(X)	((X+YAP_ALIGN) & YAP_ALIGNMASK)

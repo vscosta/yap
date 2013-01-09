@@ -2050,14 +2050,16 @@ a_try(op_numbers opcode, CELL lab, CELL opr, int nofalts, int hascut, yamop *cod
     yamop *newcp;
     /* emit a special instruction and then a label for backpatching */
     if (pass_no) {
-      CACHE_REGS
       UInt size = (UInt)NEXTOP((yamop *)NULL,OtaLl);
       if ((newcp = (yamop *)Yap_AllocCodeSpace(size)) == NULL) {
 	/* OOOPS, got in trouble, must do a longjmp and recover space */
 	save_machine_regs();
 	siglongjmp(cip->CompilerBotch,2);
       }
-      Yap_inform_profiler_of_clause(newcp, (char *)(newcp)+size, ap, GPROF_INDEX); 
+      {
+        CACHE_REGS
+        Yap_inform_profiler_of_clause(newcp, (char *)(newcp)+size, ap, GPROF_INDEX); 
+      }
       Yap_LUIndexSpace_CP += size;
 #ifdef DEBUG
       Yap_NewCps++;

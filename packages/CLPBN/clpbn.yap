@@ -390,6 +390,9 @@ call_ground_solver(Solver, GVars, _GoalKeys, Keys, Factors, Evidence) :-
 
 
 % do nothing if we don't have query variables to compute.
+write_out(_, GVars, AVars, _) :- 
+	maplist(bound_varl(AVars), GVars), !.
+
 write_out(_, [], _, _) :- !.
 
 write_out(graphs, _, AVars, _) :- !,
@@ -425,6 +428,19 @@ write_out(bnt, GVars, AVars, DiffVars) :- !,
 write_out(Solver, _, _, _) :-
 	format("Error: solver '~w' is unknown.", [Solver]),
 	fail.
+
+bound_varl(AVars, L) :-
+	maplist(bound_var(AVars), L).
+
+bound_var(_AVars,V) :-
+	var(V), !,
+	get_atts(V, [key(K)]),
+	( pfl:evidence(K, Ev) -> true ; get_atts(V, [key(K), evidence(Ev)]) ),
+	pfl:skolem(K,D),
+	once(nth0(Ev,D,V)).
+bound_var(_AVars, _V).
+
+
 
 %
 % convert a PFL network (without constraints)

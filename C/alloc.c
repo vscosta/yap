@@ -126,7 +126,7 @@ long long unsigned int tmalloc;
 
 
 static inline char *
-call_malloc(unsigned long int size)
+call_malloc(size_t size)
 {
   CACHE_REGS
   char *out;
@@ -152,7 +152,7 @@ call_malloc(unsigned long int size)
 }
 
 char *
-Yap_AllocCodeSpace(unsigned long int size)
+Yap_AllocCodeSpace(size_t size)
 {
   size = AdjustSize(size);
   return  call_malloc(size);
@@ -187,7 +187,7 @@ call_realloc(char *p, unsigned long int size)
 }
 
 char *
-Yap_ReallocCodeSpace(char *p, unsigned long int size)
+Yap_ReallocCodeSpace(char *p, size_t size)
 {
   size = AdjustSize(size);
   return  call_realloc(p, size);
@@ -214,7 +214,7 @@ Yap_FreeCodeSpace(char *p)
 }
 
 char *
-Yap_AllocAtomSpace(unsigned long int size)
+Yap_AllocAtomSpace(size_t size)
 {
   size = AdjustSize(size);
   return call_malloc(size);

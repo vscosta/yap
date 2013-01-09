@@ -1020,15 +1020,12 @@ set_prolog_flag(F,V) :-
 set_prolog_flag(F,V) :-
 	var(V), !,
 	'$do_error'(instantiation_error,set_prolog_flag(F,V)).
-set_prolog_flag(F, Val) :-
-	prolog:'$user_defined_flag'(F,_,_,_), !,
-	yap_flag(F, Val).
 set_prolog_flag(F,V) :-
 	\+ atom(F), !,
 	'$do_error'(type_error(atom,F),set_prolog_flag(F,V)).
 set_prolog_flag(F, Val) :-
-	prolog:'$user_defined_flag'(F,_,_,_), !,
-	yap_flag(F, Val).
+	'$swi_current_prolog_flag'(F, _),
+	'$swi_set_prolog_flag'(F, Val).
 set_prolog_flag(F,V) :-
 	'$yap_system_flag'(F), !,
 	yap_flag(F,V).
