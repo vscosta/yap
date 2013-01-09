@@ -24,7 +24,7 @@ source lbp_tests.sh
 source cbp_tests.sh
 cd ..
 
-cd smokers
+cd social_network2
 source hve_tests.sh
 source bp_tests.sh
 source lve_tests.sh

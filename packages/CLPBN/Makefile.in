@@ -135,7 +135,7 @@ install: $(CLBN_TOP) $(CLBN_PROGRAMS) $(CLPBN_LEARNING_PROGRAMS) $(CLPBN_SCHOOL_
 docs: $(MANUAL)
 	$(PDFLATEX) $(PFL_MANUAL)
 	$(PDFLATEX) $(PFL_MANUAL)
-	rm pfl.aux pfl.bbl pfl.blg pfl.log pfl.out
+	rm -f pfl.aux pfl.bbl pfl.blg pfl.log pfl.out
 
 
 install_docs: docs

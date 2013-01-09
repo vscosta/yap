@@ -1,9 +1,9 @@
 #!/bin/bash
 
-source sm.sh
+source sn2.sh
 source ../benchs.sh
 
-SOLVER="lbp"
+SOLVER="cbp"
 
 function run_all_graphs
 {
@@ -26,5 +26,5 @@ function run_all_graphs
 }
 
 prepare_new_run
-run_all_graphs "lbp(shedule=seq_fixed)                " seq_fixed
+run_all_graphs "cbp(bp_msg_shedule=seq_fixed)         " seq_fixed
 
