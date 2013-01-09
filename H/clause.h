@@ -166,7 +166,9 @@ typedef struct index_t {
   PredEntry *ap;
   CELL bmap;
   int is_key;
-  UInt ncols;
+  UInt ncollisions;
+  UInt ntrys;
+  UInt nentries;
   UInt hsize;
   CELL **key;
   CELL *cls;
