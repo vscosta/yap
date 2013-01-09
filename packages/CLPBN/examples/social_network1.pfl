@@ -1,0 +1,44 @@
+/*
+ Model from the paper "Lifted First-Order
+ Belief Propagation"
+*/
+
+:- use_module(library(pfl)).
+
+:- set_solver(hve).
+%:- set_solver(ve).
+%:- set_solver(jt).
+%:- set_solver(bdd).
+%:- set_solver(bp).
+%:- set_solver(cbp).
+%:- set_solver(gibbs).
+%:- set_solver(lve).
+%:- set_solver(lkc).
+%:- set_solver(lbp).
+
+:- multifile person/1.
+
+person @ 5.
+
+person(X,Y) :-
+	person(X),
+	person(Y)
+%	,X \== Y
+	.
+
+markov smokes(X) ; [1.0, 4.0552]; [person(X)].
+
+markov cancer(X) ; [1.0, 9.9742]; [person(X)].
+
+markov friends(X,Y) ; [1.0, 99.48432] ; [person(X,Y)].
+
+markov smokes(X), cancer(X) ;
+	[4.48169, 4.48169, 1.0, 4.48169] ;
+	[person(X)].
+
+markov friends(X,Y), smokes(X), smokes(Y) ;
+	[3.004166, 3.004166, 3.004166, 3.004166, 3.004166, 1.0, 1.0, 3.004166] ;
+	[person(X,Y)].
+
+% ?- friends(p1,p2,X).
+

@@ -41,4 +41,4 @@ write_cpts([CPT|CPTs]) :-
 	matrix_to_list(CPT,L),
 	format('CPT=~w~n',[L]),
 	write_cpts(CPTs).
-	
+

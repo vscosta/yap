@@ -6,13 +6,12 @@
 :- ensure_loaded(library('clpbn/viterbi')).
 
 :- use_module(fasta,
-	      [fa2atoms/3]).
+		[fa2atoms/3]).
 
 :- use_module(library(lists),
-	      [
-	       nth/3,
-	       append/3
-	      ]).
+		[nth/3,
+		 append/3
+		]).
 
 :- [plan7].
 

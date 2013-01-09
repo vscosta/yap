@@ -1,19 +1,15 @@
 
 This is a version of the school database, based on the PRM School example.
 
-There are four main files:
+There are the following main files:
 
-school_128.yap: a school with 128 professors, 256 courses and 4096 students.
-school_64.yap: medium size school
-school_32.yap: small school (CLP(BN))
+school_32.yap:   school with 32 professors, 64 courses and 256 students
+school_64.yap:   school with 64 professors, 128 courses and 1024 students
+school_128.yap:  school with 128 professors, 256 courses and 4096 students
 
-sch32.yap: small school (PFL)
+parschema.pfl:   the PFL schema
 
-parschema.pfl: the PFL schema
-
-schema.yap: the CLP(BN) schema
-
-tables: CPTs
+tables:          CPTs
 
 =============================================================================
 

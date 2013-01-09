@@ -3,16 +3,17 @@
 
 #include <cmath>
 #include <cassert>
-#include <limits>
 
 #include <algorithm>
+#include <limits>
+
 #include <vector>
-#include <set>
 #include <queue>
+#include <set>
 #include <unordered_map>
 
-#include <sstream>
 #include <iostream>
+#include <sstream>
 
 #include "Horus.h"
 
@@ -20,7 +21,7 @@ using namespace std;
 
 
 namespace {
-const double NEG_INF = -numeric_limits<double>::infinity();
+const double NEG_INF = -std::numeric_limits<double>::infinity();
 };
 
 
@@ -42,7 +43,8 @@ template <typename K, typename V> bool contains (
 template <typename T> size_t indexOf (const vector<T>&, const T&);
 
 template <class Operation>
-void apply_n_times (Params& v1, const Params& v2, unsigned repetitions, Operation);
+void apply_n_times (Params& v1, const Params& v2,
+    unsigned repetitions, Operation);
 
 template <typename T> void log (vector<T>&);
 
@@ -245,7 +247,7 @@ Util::logSum (double x, double y)
 inline unsigned
 Util::maxUnsigned (void)
 {
-  return numeric_limits<unsigned>::max();
+  return std::numeric_limits<unsigned>::max();
 }
 
 
@@ -373,8 +375,8 @@ void operator^=(std::vector<T>& v, int iexp)
 
 
 
-template <typename T> 
-std::ostream& operator << (std::ostream& os, const vector<T>& v)
+template <typename T>
+std::ostream& operator<< (std::ostream& os, const vector<T>& v)
 {
   os << "[" ;
   os << Util::elementsToString (v, ", ");

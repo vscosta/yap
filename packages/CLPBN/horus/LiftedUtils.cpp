@@ -1,6 +1,5 @@
 #include <cassert>
 
-#include <algorithm>
 #include <iostream>
 #include <sstream>
 
@@ -61,7 +60,7 @@ ostream& operator<< (ostream &os, const Symbol& s)
 ostream& operator<< (ostream &os, const LogVar& X)
 {
   const string labels[] = {
-      "A", "B", "C", "D", "E", "F", 
+      "A", "B", "C", "D", "E", "F",
       "G", "H", "I", "J", "K", "M"  };
   (X >= 12) ? os << "X_" << X.id_ : os << labels[X];
   return os;

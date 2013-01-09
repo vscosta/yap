@@ -7,7 +7,7 @@
 #include <sstream>
 
 #include "Factor.h"
-#include "Indexer.h"
+#include "Var.h"
 
 
 Factor::Factor (const Factor& g)
@@ -100,11 +100,11 @@ Factor::sumOutAllExceptIndex (size_t idx)
 void
 Factor::multiply (Factor& g)
 {
-  if (args_.size() == 0) {
+  if (args_.empty()) {
     clone (g);
-    return;
+  } else {
+    TFactor<VarId>::multiply (g);
   }
-  TFactor<VarId>::multiply (g);
 }
 
 

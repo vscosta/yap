@@ -10,44 +10,47 @@
 % but some variables are of special type random.
 %
 :- module(clpbn_aleph,
-	  [init_clpbn_cost/0,
-	  random_type/2]).
+		[init_clpbn_cost/0,
+		 random_type/2
+		]).
 
 :- dynamic rt/2, inited/1.
 
 :- use_module(library('clpbn'),
-	[{}/1,
-	 clpbn_flag/2,
-	 clpbn_flag/3,
-         set_clpbn_flag/2]).
+		[{}/1,
+		 clpbn_flag/2,
+		 clpbn_flag/3,
+		 set_clpbn_flag/2
+		]).
 
 :- use_module(library('clpbn/learning/em')).
 
 :- use_module(library('clpbn/matrix_cpt_utils'),
-	[uniform_CPT_as_list/2]).
+		[uniform_CPT_as_list/2]).
 
 :- use_module(library('clpbn/dists'),
-	[reset_all_dists/0,
-	 get_dist_key/2,
-	 get_dist_params/2
-     ]).
+		[reset_all_dists/0,
+		 get_dist_key/2,
+		 get_dist_params/2
+		]).
 
 :- use_module(library('clpbn/table'),
-	[clpbn_tabled_abolish/1,
-	 clpbn_tabled_asserta/1,
-	 clpbn_tabled_asserta/2,
-	 clpbn_tabled_assertz/1,
-	 clpbn_tabled_clause/2,
-	 clpbn_tabled_clause_ref/3,
-	 clpbn_tabled_number_of_clauses/2,
-	 clpbn_is_tabled/1,
-	 clpbn_reset_tables/0,
-	 clpbn_tabled_dynamic/1]).
+		[clpbn_tabled_abolish/1,
+		 clpbn_tabled_asserta/1,
+		 clpbn_tabled_asserta/2,
+		 clpbn_tabled_assertz/1,
+		 clpbn_tabled_clause/2,
+		 clpbn_tabled_clause_ref/3,
+		 clpbn_tabled_number_of_clauses/2,
+		 clpbn_is_tabled/1,
+		 clpbn_reset_tables/0,
+		 clpbn_tabled_dynamic/1
+		]).
 
 %
 % Tell Aleph not to use default solver during saturation
 %
-% all work will be done by EM 
+% all work will be done by EM
 %:- set_clpbn_flag(solver,none).
 
 %
@@ -94,11 +97,11 @@ enable_solver :-
 add_new_clause(_,(H :- _),_,_) :-
 	(
 	  clpbn_is_tabled(user:H)
-	 ->
+	->
 	  update_tabled_theory(H)
-        ;
+	;
 	  update_theory(H)
-        ),
+	),
 	fail.
 % step 2: add clause
 add_new_clause(_,(_ :- true),_,_) :- !.
@@ -113,18 +116,18 @@ add_new_clause(_,(H :- B),_,_) :-
 	get_dist_key(Id, K),
 	get_dist_params(Id, CPTList),
 	(
-	    clpbn_is_tabled(user:H)
+	  clpbn_is_tabled(user:H)
 	->
-	    clpbn_tabled_asserta(user:(H :- IB))
+	  clpbn_tabled_asserta(user:(H :- IB))
 	;
-	    asserta(user:(H :- IB))
+	  asserta(user:(H :- IB))
 	),
 	user:setting(verbosity,V),
-	( V >= 1 -> 
-	    user:p_message('CLP(BN) Theory'),
-	    functor(H,N,Ar), listing(user:N/Ar)
+	( V >= 1 ->
+	  user:p_message('CLP(BN) Theory'),
+	  functor(H,N,Ar), listing(user:N/Ar)
 	;
-	    true
+	  true
 	).
 
 
@@ -135,7 +138,7 @@ update_tabled_theory(H) :-
 	clpbn_tabled_assertz((user:(H:-NB))),
 	fail.
 update_tabled_theory(_).
-	
+
 update_theory(H) :-
 	clause(user:H,B,Ref),
 	add_correct_cpt(B,NB),
@@ -158,29 +161,29 @@ correct_tab(p(Vs,_,Ps),K,p(Vs,TDist,Ps)) :-
 	get_dist_key(Id, K),
 	get_dist_params(Id, TDist).
 
-% user-defined cost function, Aleph knows about this (and only about this). 
+% user-defined cost function, Aleph knows about this (and only about this).
 user:cost((H :- B),Inf,Score) :-
 	domain(H, K, V, D),
 	check_info(Inf),
 	rewrite_body(B, IB, Vs, Ds, ( !, { V = K with p(D, CPTList, Vs) })),
 	uniform_cpt([D|Ds], CPTList),
 	(
-	    clpbn_is_tabled(user:H)
+	  clpbn_is_tabled(user:H)
 	->
-	    clpbn_reset_tables,
-	    clpbn_tabled_asserta(user:(H :- IB), R)
+	  clpbn_reset_tables,
+	  clpbn_tabled_asserta(user:(H :- IB), R)
 	;
-	    asserta(user:(H :- IB), R)
+	  asserta(user:(H :- IB), R)
 	),
 	(
-	    cpt_score(Score0)
+	  cpt_score(Score0)
 	->
-	    erase(R),
-	    Score is -Score0
-        ;
-	    % illegal clause, just get out of here.
-	    erase(R),
-	    fail
+	  erase(R),
+	  Score is -Score0
+	;
+	  % illegal clause, just get out of here.
+	  erase(R),
+	  fail
 	).
 user:cost(H,_Inf,Score) :- !,
 	init_clpbn_cost(H, Score0),
@@ -196,38 +199,38 @@ init_clpbn_cost(H, Score) :-
 	functor(H,N,A),
 	% get rid of Aleph crap
 	(
-	    clpbn_is_tabled(user:H)
+	  clpbn_is_tabled(user:H)
 	->
-	     clpbn_tabled_abolish(user:N/A),
- 	     clpbn_tabled_dynamic(user:N/A)
+	  clpbn_tabled_abolish(user:N/A),
+	  clpbn_tabled_dynamic(user:N/A)
 	;
-	     abolish(user:N/A),
-	     % make it easy to add and remove clauses.
- 	     dynamic(user:N/A)
+	  abolish(user:N/A),
+	  % make it easy to add and remove clauses.
+	  dynamic(user:N/A)
 	),
 	domain(H, K, V, D),
 	uniform_cpt([D], CPTList),
 	% This will be the default cause, called when the other rules fail.
 	(
-	    clpbn_is_tabled(user:H)
+	  clpbn_is_tabled(user:H)
 	->
-	     clpbn_tabled_assertz(user:(H :- !, { V = K with p(D, CPTList) }))
+	  clpbn_tabled_assertz(user:(H :- !, { V = K with p(D, CPTList) }))
 	 ;
-	     assert(user:(H :- !, { V = K with p(D, CPTList) }))
-	 ),
+	  assert(user:(H :- !, { V = K with p(D, CPTList) }))
+	),
 	cpt_score(Score),
 	assert(inited(Score)).
 
-% receives H, and generates a key K, a random variable RV, and a domain  D.
+% receives H, and generates a key K, a random variable RV, and a domain D.
 domain(H, K, RV, D) :-
 	functor(H,Name,Arity),
 	functor(Pred,Name,Arity),
 	(
-	    recorded(aleph,modeh(_,Pred),_)
-	-> 
-	    true
+	  recorded(aleph,modeh(_,Pred),_)
+	->
+	  true
 	;
-	    user:'$aleph_global'(modeh,modeh(_,Pred))
+	  user:'$aleph_global'(modeh,modeh(_,Pred))
 	),
 	arg(Arity,Pred,+RType),
 	rt(RType,D), !,
@@ -240,11 +243,11 @@ domain(H, K, V, D) :-
 key_from_head(H,K,V) :-
 	H =.. [Name|Args],
 	(
-	    clpbn_is_tabled(user:H)
+	  clpbn_is_tabled(user:H)
 	->
-	    clpbn_tabled_number_of_clauses(user:H,NClauses)
+	  clpbn_tabled_number_of_clauses(user:H,NClauses)
 	;
-	    predicate_property(user:H,number_of_clauses(NClauses))
+	  predicate_property(user:H,number_of_clauses(NClauses))
 	),
 	atomic_concat(Name,NClauses,NName),
 	append(H0L,[V],Args),
@@ -258,7 +261,7 @@ rewrite_body((A,B), (user:NA,NB), [V|Vs], [D|Ds], Tail) :-
 	rewrite_body(B, NB, Vs, Ds, Tail).
 rewrite_body((A,B), (user:A,NB), Vs, Ds, Tail) :- !,
 	rewrite_body(B,NB, Vs, Ds, Tail).
-rewrite_body(A,(user:NA,Tail), [V], [D], Tail) :- 
+rewrite_body(A,(user:NA,Tail), [V], [D], Tail) :-
 	rewrite_goal(A, V, D, NA), !.
 rewrite_body(A, (user:A,Tail), [], [], Tail).
 
@@ -267,11 +270,11 @@ rewrite_goal(A,V,D,NA) :-
 	functor(A,Name,Arity),
 	functor(Pred,Name,Arity),
 	(
-	    recorded(aleph,modeb(_,Pred),_)
-	-> 
-	    true
+	  recorded(aleph,modeb(_,Pred),_)
+	->
+	  true
 	;
-	    user:'$aleph_global'(modeb,modeb(_,Pred))
+	  user:'$aleph_global'(modeb,modeb(_,Pred))
 	),
 	arg(Arity,Pred,-RType),
 	rt(RType,D), !,
@@ -288,7 +291,7 @@ replace_last_var([A|Args],V,[A|NArgs]) :-
 % This is the key
 %
 cpt_score(Lik) :-
-	findall(user:Ex, user:example(_,pos,Ex),  Exs),
+	findall(user:Ex, user:example(_,pos,Ex), Exs),
 	clpbn_flag(solver, Solver),
 	clpbn_flag(em_solver, EMSolver),
 	set_clpbn_flag(solver, EMSolver),

@@ -5,25 +5,29 @@
 % This assumes we have a single big example.
 %
 
-:- module(clpbn_mle, [learn_parameters/2,
-		      learn_parameters/3,
-		      parameters_from_evidence/3]).
+:- module(clpbn_mle,
+		[learn_parameters/2,
+		 learn_parameters/3,
+		 parameters_from_evidence/3
+		]).
 
 :- use_module(library('clpbn')).
-	      
+
 :- use_module(library('clpbn/learning/learn_utils'),
-	      [run_all/1,
-	       clpbn_vars/2,
-	       normalise_counts/2,
-	       soften_table/2,
-	       normalise_counts/2]).
+		[run_all/1,
+		 clpbn_vars/2,
+		 normalise_counts/2,
+		 soften_table/2,
+		 normalise_counts/2
+		]).
 
 :- use_module(library('clpbn/dists'),
-	      [empty_dist/2,
-	       dist_new_table/2]).
+		[empty_dist/2,
+		 dist_new_table/2
+		]).
 
 :- use_module(library(matrix),
-	      [matrix_inc/2]).
+		[matrix_inc/2]).
 
 
 learn_parameters(Items, Tables) :-
@@ -53,7 +57,7 @@ mk_sample(AllVars, SortedSample) :-
 	msort(Sample, SortedSample).
 
 %
-% assumes we have full data, meaning evidence for every variable 
+% assumes we have full data, meaning evidence for every variable
 %
 add2sample([],  []).
 add2sample([V|Vs],[val(Id,[Ev|EParents])|Vals]) :-

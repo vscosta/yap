@@ -1,54 +1,58 @@
 %
-% This module defines PFL, the prolog factor language.
+% This module defines PFL, the Prolog Factor Language.
 %
 %
 
-:- module(pfl, [
-		op(550,yfx,@),
-		op(550,yfx,::),
-		op(1150,fx,bayes),
-		op(1150,fx,markov),
-		factor/6,
-		skolem/2,
-		defined_in_factor/2,
-		get_pfl_cpt/5, % given id and keys,  return new keys and cpt
-		get_pfl_parameters/2, % given id return par factor parameter
-		new_pfl_parameters/2, % given id  set new parameters
-		get_first_pvariable/2, % given id get firt pvar (useful in bayesian)
-		get_factor_pvariable/2, % given id get any pvar
-		add_ground_factor/5    %add a new bayesian variable (for now)
+:- module(pfl,
+		[op(550,yfx,@),
+		 op(550,yfx,::),
+		 op(1150,fx,bayes),
+		 op(1150,fx,markov),
+		 factor/6,
+		 skolem/2,
+		 defined_in_factor/2,
+		 get_pfl_cpt/5, % given id and keys,  return new keys and cpt
+		 get_pfl_parameters/2, % given id return par factor parameter
+		 new_pfl_parameters/2, % given id  set new parameters
+		 get_first_pvariable/2, % given id get firt pvar (useful in bayesian)
+		 get_factor_pvariable/2, % given id get any pvar
+		 add_ground_factor/5    %add a new bayesian variable (for now)
 		]).
 
 :- reexport(library(clpbn),
-	[clpbn_flag/2 as pfl_flag,
-	 set_clpbn_flag/2 as set_pfl_flag,
-	 conditional_probability/3,
-	 pfl_init_solver/6,
-	 pfl_run_solver/4]).
-
-:- reexport(library(clpbn/horus),
-	[set_solver/1]).
+		[clpbn_flag/2 as pfl_flag,
+		 set_clpbn_flag/2 as set_pfl_flag,
+		 set_solver/1,
+		 set_em_solver/1,
+		 conditional_probability/3,
+		 pfl_init_solver/5,
+		 pfl_run_solver/3
+		]).
 
 :- reexport(library(clpbn/aggregates),
-	[avg_factors/5]).
+		[avg_factors/5]).
 
+:- reexport('clpbn/horus',
+		[set_horus_flag/2]).
 
 :- ( % if clp(bn) has done loading, we're top-level
 	predicate_property(set_pfl_flag(_,_), imported_from(clpbn))
-    ->
+   ->
 	% we're using factor language
 	% set appropriate flag
 	set_pfl_flag(use_factors,on)
-    ;
+   ;
 	% we're within clp(bn), no need to do anything
 	true
-    ).
+   ).
 
+:- use_module(library(atts)).
 
 :- use_module(library(lists),
-	[nth0/3,
-	 append/3,
-	 member/2]).
+		[nth0/3,
+		 append/3,
+		 member/2
+		]).
 
 :- dynamic factor/6, skolem_in/2, skolem/2, preprocess/3, evidence/2, id/1.
 
@@ -131,19 +135,19 @@ process_args(Arg1, Id, I0, I ) -->
 process_arg(Sk::D, Id, _I) -->
 	!,
 	{
-         new_skolem(Sk,D),
-	 assert(skolem_in(Sk, Id))
-        },
+	  new_skolem(Sk,D),
+	  assert(skolem_in(Sk, Id))
+	},
 	[Sk].
 process_arg(Sk, Id, _I) -->
 	!,
 	{
-	 % if :: been used before for this skolem
-	 % just keep on using it,
-         % otherwise, assume it is t,f
-         ( \+ \+ skolem(Sk,_D) -> true ; new_skolem(Sk,[t,f]) ),	
-	 assert(skolem_in(Sk, Id))
-        },
+	  % if :: been used before for this skolem
+	  % just keep on using it,
+	  % otherwise, assume it is t,f
+	  ( \+ \+ skolem(Sk,_D) -> true ; new_skolem(Sk,[t,f]) ),
+	  assert(skolem_in(Sk, Id))
+	},
 	[Sk].
 
 new_skolem(Sk,D) :-
@@ -163,11 +167,10 @@ interface_predicate(Sk) :-
 	assert(preprocess(ESk, Sk, Var)),
 	% transform from PFL to CLP(BN) call
 	assert_static((user:ESk :-
-	     evidence(Sk,Ev) -> Ev = Var;
-	     var(Var) -> insert_atts(Var,Sk) ;
-	     add_evidence(Sk,Var)
-	  )
-	).
+	  evidence(Sk,Ev) -> Ev = Var;
+	  var(Var) -> insert_atts(Var,Sk) ;
+	  add_evidence(Sk,Var)
+	)).
 
 insert_atts(Var,Sk) :-
 	clpbn:put_atts(Var,[key(Sk)]).
@@ -178,13 +181,13 @@ add_evidence(Sk,Var) :-
 	clpbn:put_atts(_V,[key(Sk),evidence(E)]).
 
 
-%% get_pfl_cpt(Id, Keys, Ev, NewKeys, Out) :- 
+%% get_pfl_cpt(Id, Keys, Ev, NewKeys, Out) :-
 %% 	factor(_Type,Id,[Key|_],_FV,avg,_Constraints), !,
 %% 	Keys = [Key|Parents],
 %% 	writeln(Key:Parents),
 %% 	avg_factors(Key, Parents, 0.0, Ev, NewKeys, Out).
 get_pfl_cpt(Id, Keys, _, Keys, Out) :-
-        get_pfl_parameters(Id,Out).
+	get_pfl_parameters(Id,Out).
 
 get_pfl_parameters(Id,Out) :-
 	factor(_Type,Id,_FList,_FV,Phi,_Constraints),
@@ -206,7 +209,7 @@ get_sizes(Key.FList, Sz.DSizes) :-
 	skolem(Key, Domain),
 	length(Domain, Sz),
 	get_sizes(FList, DSizes).
-	
+
 % only makes sense for bayesian networks
 get_first_pvariable(Id,Var) :-
 	factor(_Type, Id,Var._FList,_FV,_Phi,_Constraints).

@@ -5,7 +5,6 @@
 
 #include "GroundSolver.h"
 #include "FactorGraph.h"
-#include "Util.h"
 #include "Horus.h"
 
 class VarCluster;
@@ -76,6 +75,8 @@ class VarCluster
   private:
     VarNodes  members_;
     VarNode*  repr_;
+
+    DISALLOW_COPY_AND_ASSIGN (VarCluster);
 };
 
 
@@ -88,17 +89,19 @@ class FacCluster
     const FacNode* first (void) const { return members_.front(); }
 
     const FacNodes& members (void) const { return members_; }
-   
+
     FacNode* representative (void) const { return repr_; }
 
     void setRepresentative (FacNode* fn) { repr_ = fn; }
 
     VarClusters& varClusters (void) { return varClusters_; }
- 
+
   private:
     FacNodes     members_;
     FacNode*     repr_;
     VarClusters  varClusters_;
+
+    DISALLOW_COPY_AND_ASSIGN (FacCluster);
 };
 
 
@@ -112,9 +115,9 @@ class CountingBp : public GroundSolver
     void printSolverFlags (void) const;
 
     Params solveQuery (VarIds);
-   
-    static bool checkForIdenticalFactors;
- 
+
+    static void setFindIdenticalFactorsFlag (bool fif) { fif_ = fif; }
+
   private:
     Color getNewColor (void)
     {
@@ -167,7 +170,6 @@ class CountingBp : public GroundSolver
     unsigned getWeight (const FacCluster*,
         const VarCluster*, size_t index) const;
 
-
     Color               freeColor_;
     Colors              varColors_;
     Colors              facColors_;
@@ -176,6 +178,10 @@ class CountingBp : public GroundSolver
     VarClusterMap       varClusterMap_;
     const FactorGraph*  compressedFg_;
     WeightedBp*         solver_;
+
+    static bool fif_;
+
+    DISALLOW_COPY_AND_ASSIGN (CountingBp);
 };
 
 #endif // HORUS_COUNTINGBP_H

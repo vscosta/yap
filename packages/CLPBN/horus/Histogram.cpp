@@ -59,10 +59,10 @@ HistogramSet::reset (void)
 
 
 
-vector<Histogram> 
+vector<Histogram>
 HistogramSet::getHistograms (unsigned N, unsigned R)
 {
-  HistogramSet hs (N, R);  
+  HistogramSet hs (N, R);
   unsigned H = hs.nrHistograms();
   vector<Histogram> histograms;
   histograms.reserve (H);
@@ -135,7 +135,7 @@ HistogramSet::maxCount (size_t idx) const
   }
   return size_ - sum;
 }
-  
+
 
 
 void

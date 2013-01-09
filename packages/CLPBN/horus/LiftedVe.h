@@ -9,7 +9,7 @@ class LiftedOperator
 {
   public:
     virtual ~LiftedOperator (void) { }
-  
+
     virtual double getLogCost (void) = 0;
 
     virtual void apply (void) = 0;
@@ -23,6 +23,9 @@ class LiftedOperator
 
     static vector<ParfactorList::iterator> getParfactorsWithGroup (
         ParfactorList&, PrvGroup group);
+
+  private:
+    DISALLOW_ASSIGN (LiftedOperator);
 };
 
 
@@ -48,6 +51,8 @@ class ProductOperator : public LiftedOperator
     ParfactorList::iterator  g1_;
     ParfactorList::iterator  g2_;
     ParfactorList&           pfList_;
+
+    DISALLOW_COPY_AND_ASSIGN (ProductOperator);
 };
 
 
@@ -55,7 +60,7 @@ class ProductOperator : public LiftedOperator
 class SumOutOperator : public LiftedOperator
 {
   public:
-    SumOutOperator (PrvGroup group, ParfactorList& pfList) 
+    SumOutOperator (PrvGroup group, ParfactorList& pfList)
         : group_(group), pfList_(pfList) { }
 
     double getLogCost (void);
@@ -74,6 +79,8 @@ class SumOutOperator : public LiftedOperator
 
     PrvGroup        group_;
     ParfactorList&  pfList_;
+
+    DISALLOW_COPY_AND_ASSIGN (SumOutOperator);
 };
 
 
@@ -101,6 +108,8 @@ class CountingOperator : public LiftedOperator
     ParfactorList::iterator  pfIter_;
     LogVar                   X_;
     ParfactorList&           pfList_;
+
+    DISALLOW_COPY_AND_ASSIGN (CountingOperator);
 };
 
 
@@ -123,11 +132,13 @@ class GroundOperator : public LiftedOperator
     string toString (void);
 
   private:
-     vector<pair<PrvGroup, unsigned>> getAffectedFormulas (void);
+    vector<pair<PrvGroup, unsigned>> getAffectedFormulas (void);
 
     PrvGroup        group_;
     unsigned        lvIndex_;
     ParfactorList&  pfList_;
+
+    DISALLOW_COPY_AND_ASSIGN (GroundOperator);
 };
 
 
@@ -149,6 +160,8 @@ class LiftedVe : public LiftedSolver
 
     ParfactorList  pfList_;
     double         largestCost_;
+
+    DISALLOW_COPY_AND_ASSIGN (LiftedVe);
 };
 
 #endif // HORUS_LIFTEDVE_H

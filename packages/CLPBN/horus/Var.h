@@ -3,8 +3,6 @@
 
 #include <cassert>
 
-#include <iostream>
-
 #include "Util.h"
 #include "Horus.h"
 
@@ -14,7 +12,8 @@ using namespace std;
 
 struct VarInfo
 {
-  VarInfo (string l, const States& sts) : label(l), states(sts) { }
+  VarInfo (string l, const States& sts)
+      : label(l), states(sts) { }
   string label;
   States states;
 };
@@ -55,17 +54,12 @@ class Var
 
     bool operator!= (const Var& var) const
     {
-      assert (!(varId_ == var.varId() && range_ != var.range()));
-      return varId_ != var.varId();
+      return !(*this == var);
     }
 
     bool isValidState (int);
 
-    bool isValidState (const string&);
-
     void setEvidence (int);
-
-    void setEvidence (const string&);
 
     string label (void) const;
 
@@ -86,7 +80,7 @@ class Var
 
     static bool varsHaveInfo (void)
     {
-      return varsInfo_.size() != 0;
+      return varsInfo_.empty() == false;
     }
 
     static void clearVarsInfo (void)

@@ -1,7 +1,7 @@
 #include "LiftedBp.h"
+#include "LiftedOperations.h"
 #include "WeightedBp.h"
 #include "FactorGraph.h"
-#include "LiftedOperations.h"
 
 
 LiftedBp::LiftedBp (const ParfactorList& parfactorList)
@@ -62,16 +62,15 @@ LiftedBp::printSolverFlags (void) const
 {
   stringstream ss;
   ss << "lifted bp [" ;
-  ss << "schedule=" ;
-  typedef BpOptions::Schedule Sch;
-  switch (BpOptions::schedule) {
-    case Sch::SEQ_FIXED:    ss << "seq_fixed";    break;
-    case Sch::SEQ_RANDOM:   ss << "seq_random";   break;
-    case Sch::PARALLEL:     ss << "parallel";     break;
-    case Sch::MAX_RESIDUAL: ss << "max_residual"; break;
+  ss << "bp_msg_schedule=" ;
+  switch (WeightedBp::msgSchedule()) {
+    case MsgSchedule::SEQ_FIXED:    ss << "seq_fixed";    break;
+    case MsgSchedule::SEQ_RANDOM:   ss << "seq_random";   break;
+    case MsgSchedule::PARALLEL:     ss << "parallel";     break;
+    case MsgSchedule::MAX_RESIDUAL: ss << "max_residual"; break;
   }
-  ss << ",max_iter=" << BpOptions::maxIter;
-  ss << ",accuracy=" << BpOptions::accuracy;
+  ss << ",bp_max_iter=" << WeightedBp::maxIterations();
+  ss << ",bp_accuracy=" << WeightedBp::accuracy();
   ss << ",log_domain=" << Util::toString (Globals::logDomain);
   ss << "]" ;
   cout << ss.str() << endl;
@@ -182,10 +181,10 @@ LiftedBp::rangeOfGround (const Ground& gr)
     }
     ++ it;
   }
-  return std::numeric_limits<unsigned>::max();
+  return Util::maxUnsigned();
 }
 
-	
+
 
 Params
 LiftedBp::getJointByConditioning (

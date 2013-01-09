@@ -1,11 +1,13 @@
 
-:- module(topsort, [topsort/2]).
+:- module(topsort,
+		[topsort/2]).
 
 :- use_module(library(dgraphs),
-	      [dgraph_new/1,
-	       dgraph_add_edges/3,
-	       dgraph_add_vertices/3,
-	       dgraph_top_sort/2]).
+		[dgraph_new/1,
+		 dgraph_add_edges/3,
+		 dgraph_add_vertices/3,
+		 dgraph_top_sort/2
+		]).
 
 /* simple implementation of a topological sorting algorithm */
 /* graph is as Node-[Parents] */
@@ -30,5 +32,4 @@ mkedge_list([V-Parents|More]) -->
 add_edges([], _V) --> [].
 add_edges([P|Parents], V) --> [P-V],
 	add_edges(Parents, V).
-
 

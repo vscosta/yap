@@ -23,7 +23,7 @@ main :-
 generate_people(S, N, Counting) :-
     Counting > N, !.
 generate_people(S, N, Counting) :-
-    format(S, 'people(p~w).~n', [Counting]),
+    format(S, 'person(p~w).~n', [Counting]),
     Counting1 is Counting + 1,
     generate_people(S, N, Counting1).
 
@@ -31,9 +31,9 @@ generate_people(S, N, Counting) :-
 generate_attrs(S, N, Counting) :-
     Counting > N, !.
 generate_attrs(S, N, Counting) :-
-    %format(S, 'people(p~w).~n', [Counting]),
+    %format(S, 'person(p~w).~n', [Counting]),
     format(S, 'markov attends(P)::[t,f], attr~w::[t,f]', [Counting]),
-    format(S, '; [0.7, 0.3, 0.3, 0.3] ; [people(P)].~n',[]),
+    format(S, '; [0.7, 0.3, 0.3, 0.3] ; [person(P)].~n',[]),
     Counting1 is Counting + 1,
     generate_attrs(S, N, Counting1).
 

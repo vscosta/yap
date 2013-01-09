@@ -1,6 +1,6 @@
 #!/bin/bash
 
-NETWORK="'../../examples/comp_workshops'"
+NETWORK="'../../examples/comp_workshops.pfl'"
 SHORTNAME="cw"
 QUERY="series(X)"
 

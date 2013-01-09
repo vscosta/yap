@@ -4,8 +4,9 @@ total_professors(64).
 total_courses(128).
 
 total_students(1024).
-
 */
+
+:- use_module(library(pfl)).
 
 :- source.
 
@@ -15,9 +16,7 @@ total_students(1024).
 
 :- yap_flag(write_strings,on).
 
-:- use_module(library(clpbn)).
-
-:- [-schema].
+:- ensure_loaded('parschema.pfl').
 
 professor(p0).
 professor(p1).

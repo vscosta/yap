@@ -40,7 +40,7 @@ ProbFormula::indexOf (LogVar X) const
 bool
 ProbFormula::isAtom (void) const
 {
-  return logVars_.size() == 0;
+  return logVars_.empty();
 }
 
 
@@ -61,7 +61,7 @@ ProbFormula::countedLogVar (void) const
 }
 
 
-    
+
 void
 ProbFormula::setCountedLogVar (LogVar lv)
 {
@@ -92,9 +92,10 @@ ProbFormula::rename (LogVar oldName, LogVar newName)
 }
 
 
+
 bool operator== (const ProbFormula& f1, const ProbFormula& f2)
-{ 
-  return f1.group_   == f2.group_ && 
+{
+  return f1.group_   == f2.group_ &&
          f1.logVars_ == f2.logVars_;
 }
 
@@ -124,7 +125,7 @@ PrvGroup
 ProbFormula::getNewGroup (void)
 {
   freeGroup_ ++;
-  assert (freeGroup_ != numeric_limits<PrvGroup>::max());
+  assert (freeGroup_ != std::numeric_limits<PrvGroup>::max());
   return freeGroup_;
 }
 

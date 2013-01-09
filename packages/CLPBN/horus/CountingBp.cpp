@@ -2,7 +2,7 @@
 #include "WeightedBp.h"
 
 
-bool CountingBp::checkForIdenticalFactors = true;
+bool CountingBp::fif_ = true;
 
 
 CountingBp::CountingBp (const FactorGraph& fg)
@@ -36,19 +36,17 @@ CountingBp::printSolverFlags (void) const
 {
   stringstream ss;
   ss << "counting bp [" ;
-  ss << "schedule=" ;
-  typedef BpOptions::Schedule Sch;
-  switch (BpOptions::schedule) {
-    case Sch::SEQ_FIXED:    ss << "seq_fixed";    break;
-    case Sch::SEQ_RANDOM:   ss << "seq_random";   break;
-    case Sch::PARALLEL:     ss << "parallel";     break;
-    case Sch::MAX_RESIDUAL: ss << "max_residual"; break;
+  ss << "bp_msg_schedule=" ;
+  switch (WeightedBp::msgSchedule()) {
+    case MsgSchedule::SEQ_FIXED:    ss << "seq_fixed";    break;
+    case MsgSchedule::SEQ_RANDOM:   ss << "seq_random";   break;
+    case MsgSchedule::PARALLEL:     ss << "parallel";     break;
+    case MsgSchedule::MAX_RESIDUAL: ss << "max_residual"; break;
   }
-  ss << ",max_iter=" << BpOptions::maxIter;
-  ss << ",accuracy=" << BpOptions::accuracy;
+  ss << ",bp_max_iter=" << WeightedBp::maxIterations();
+  ss << ",bp_accuracy=" << WeightedBp::accuracy();
   ss << ",log_domain=" << Util::toString (Globals::logDomain);
-  ss << ",chkif=" << 
-      Util::toString (CountingBp::checkForIdenticalFactors);
+  ss << ",fif=" << Util::toString (CountingBp::fif_);
   ss << "]" ;
   cout << ss.str() << endl;
 }
@@ -82,7 +80,7 @@ CountingBp::solveQuery (VarIds queryVids)
         reprArgs.push_back (getRepresentative (queryVids[i]));
       }
       FacNode* reprFac = getRepresentative (facNodes[idx]);
-      assert (reprFac != 0);
+      assert (reprFac);
       res = solver_->getFactorJoint (reprFac, reprArgs);
     }
   }
@@ -95,8 +93,7 @@ void
 CountingBp::findIdenticalFactors()
 {
   const FacNodes& facNodes = fg.facNodes();
-  if (checkForIdenticalFactors == false ||
-      facNodes.size() == 1) {
+  if (fif_ == false || facNodes.size() == 1) {
     return;
   }
   for (size_t i = 0; i < facNodes.size(); i++) {
@@ -139,7 +136,7 @@ CountingBp::setInitialColors (void)
     VarColorMap::iterator it = colorMap.find (range);
     if (it == colorMap.end()) {
       it = colorMap.insert (make_pair (
-          range, Colors (range + 1, -1))).first; 
+          range, Colors (range + 1, -1))).first;
     }
     unsigned idx = varNodes[i]->hasEvidence()
                  ? varNodes[i]->getEvidence()

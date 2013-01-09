@@ -3,21 +3,29 @@
 
 #include <set>
 #include <vector>
+
 #include <sstream>
 
 #include "GroundSolver.h"
-#include "Factor.h"
 #include "FactorGraph.h"
-#include "Util.h"
+
 
 using namespace std;
+
+
+enum MsgSchedule {
+  SEQ_FIXED,
+  SEQ_RANDOM,
+  PARALLEL,
+  MAX_RESIDUAL
+};
 
 
 class BpLink
 {
   public:
     BpLink (FacNode* fn, VarNode* vn)
-    { 
+    {
       fac_ = fn;
       var_ = vn;
       v1_.resize (vn->range(), LogAware::log (1.0 / vn->range()));
@@ -43,10 +51,10 @@ class BpLink
 
     void updateResidual (void)
     {
-      residual_ = LogAware::getMaxNorm (v1_,v2_);
+      residual_ = LogAware::getMaxNorm (v1_, v2_);
     }
 
-    virtual void updateMessage (void) 
+    virtual void updateMessage (void)
     {
       swap (currMsg_, nextMsg_);
     }
@@ -59,7 +67,7 @@ class BpLink
       ss << var_->label();
       return ss.str();
     }
- 
+
   protected:
     FacNode*  fac_;
     VarNode*  var_;
@@ -68,6 +76,9 @@ class BpLink
     Params*   currMsg_;
     Params*   nextMsg_;
     double    residual_;
+
+  private:
+    DISALLOW_COPY_AND_ASSIGN (BpLink);
 };
 
 typedef vector<BpLink*> BpLinks;
@@ -76,10 +87,12 @@ typedef vector<BpLink*> BpLinks;
 class SPNodeInfo
 {
   public:
+    SPNodeInfo (void) { }
     void addBpLink (BpLink* link) { links_.push_back (link); }
     const BpLinks& getLinks (void) { return links_; }
   private:
     BpLinks links_;
+    DISALLOW_COPY_AND_ASSIGN (SPNodeInfo);
 };
 
 
@@ -97,22 +110,20 @@ class BeliefProp : public GroundSolver
     virtual Params getPosterioriOf (VarId);
 
     virtual Params getJointDistributionOf (const VarIds&);
- 
-  protected:
-    void runSolver (void);
 
-    virtual void createLinks (void);
-
-    virtual void maxResidualSchedule (void);
-
-    virtual void calcFactorToVarMsg (BpLink*);
-
-    virtual Params getVarToFactorMsg (const BpLink*) const;
-
-    virtual Params getJointByConditioning (const VarIds&) const;
-
-  public:
     Params getFactorJoint (FacNode* fn, const VarIds&);
+
+    static double accuracy (void) { return accuracy_; }
+
+    static void setAccuracy (double acc) { accuracy_ = acc; }
+
+    static unsigned maxIterations (void) { return maxIter_; }
+
+    static void setMaxIterations (unsigned mi) { maxIter_ = mi; }
+
+    static MsgSchedule msgSchedule (void) { return schedule_; }
+
+    static void setMsgSchedule (MsgSchedule sch) { schedule_ = sch; }
 
   protected:
     SPNodeInfo* ninf (const VarNode* var) const
@@ -164,6 +175,18 @@ class BeliefProp : public GroundSolver
       }
     };
 
+    void runSolver (void);
+
+    virtual void createLinks (void);
+
+    virtual void maxResidualSchedule (void);
+
+    virtual void calcFactorToVarMsg (BpLink*);
+
+    virtual Params getVarToFactorMsg (const BpLink*) const;
+
+    virtual Params getJointByConditioning (const VarIds&) const;
+
     BpLinks              links_;
     unsigned             nIters_;
     vector<SPNodeInfo*>  varsI_;
@@ -176,12 +199,18 @@ class BeliefProp : public GroundSolver
     typedef unordered_map<BpLink*, SortedOrder::iterator> BpLinkMap;
     BpLinkMap linkMap_;
 
+    static double       accuracy_;
+    static unsigned     maxIter_;
+    static MsgSchedule  schedule_;
+
   private:
     void initializeSolver (void);
 
     bool converged (void);
 
     virtual void printLinkInformation (void) const;
+
+    DISALLOW_COPY_AND_ASSIGN (BeliefProp);
 };
 
 #endif // HORUS_BELIEFPROP_H

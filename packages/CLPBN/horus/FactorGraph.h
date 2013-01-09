@@ -9,14 +9,13 @@
 
 using namespace std;
 
-
 class FacNode;
 
 class VarNode : public Var
 {
   public:
-    VarNode (VarId varId, unsigned nrStates, 
-        int evidence = Constants::NO_EVIDENCE) 
+    VarNode (VarId varId, unsigned nrStates,
+        int evidence = Constants::NO_EVIDENCE)
         : Var (varId, nrStates, evidence) { }
 
     VarNode (const Var* v) : Var (v) { }
@@ -26,9 +25,9 @@ class VarNode : public Var
     const FacNodes& neighbors (void) const { return neighs_; }
 
   private:
-    DISALLOW_COPY_AND_ASSIGN (VarNode);
-
     FacNodes neighs_;
+
+    DISALLOW_COPY_AND_ASSIGN (VarNode);
 };
 
 
@@ -53,11 +52,11 @@ class FacNode
     string getLabel (void) { return factor_.getLabel(); }
 
   private:
-    DISALLOW_COPY_AND_ASSIGN (FacNode);
-
     VarNodes  neighs_;
     Factor    factor_;
     size_t    index_;
+
+    DISALLOW_COPY_AND_ASSIGN (FacNode);
 };
 
 
@@ -76,8 +75,8 @@ class FactorGraph
     const FacNodes& facNodes (void) const { return facNodes_; }
 
     void setFactorsAsBayesian (void) { bayesFactors_ = true; }
- 
-    bool bayesianFactors (void) const { return bayesFactors_ ; }
+
+    bool bayesianFactors (void) const { return bayesFactors_; }
 
     size_t nrVarNodes (void) const { return varNodes_.size(); }
 
@@ -107,15 +106,37 @@ class FactorGraph
 
     void print (void) const;
 
+    void exportToLibDai (const char*) const;
+
+    void exportToUai (const char*) const;
+
     void exportToGraphViz (const char*) const;
 
-    void exportToUaiFormat (const char*) const;
+    static bool exportToLibDai (void) { return exportLd_; }
 
-    void exportToLibDaiFormat (const char*) const;
-                      
+    static bool exportToUai (void) { return exportUai_; }
+
+    static bool exportGraphViz (void) { return exportGv_; }
+
+    static bool printFactorGraph (void) { return printFg_; }
+
+    static void enableExportToLibDai (void) { exportLd_ = true; }
+
+    static void disableExportToLibDai (void) { exportLd_ = false; }
+
+    static void enableExportToUai (void) { exportUai_ = true; }
+
+    static void disableExportToUai (void) { exportUai_ = false; }
+
+    static void enableExportToGraphViz (void) { exportGv_ = true; }
+
+    static void disableExportToGraphViz (void) { exportGv_ = false; }
+
+    static void enablePrintFactorGraph (void) { printFg_ = true; }
+
+    static void disablePrintFactorGraph (void) { printFg_ = false; }
+
   private:
-    // DISALLOW_COPY_AND_ASSIGN (FactorGraph);
-
     void ignoreLines (std::ifstream&) const;
 
     bool containsCycle (void) const;
@@ -129,18 +150,25 @@ class FactorGraph
     VarNodes  varNodes_;
     FacNodes  facNodes_;
 
-    BayesBallGraph   structure_;
-    bool      bayesFactors_;
+    BayesBallGraph  structure_;
+    bool            bayesFactors_;
 
     typedef unordered_map<unsigned, VarNode*> VarMap;
     VarMap varMap_;
+
+    static bool exportLd_;
+    static bool exportUai_;
+    static bool exportGv_;
+    static bool printFg_;
+
+    DISALLOW_ASSIGN (FactorGraph);
 };
 
 
 
 struct sortByVarId
-{ 
-  bool operator()(VarNode* vn1, VarNode* vn2) { 
+{
+  bool operator()(VarNode* vn1, VarNode* vn2) {
     return vn1->varId() < vn2->varId();
   }
 };

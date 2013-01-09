@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source sm.sh
+source sn2ev.sh
 source ../benchs.sh
 
 SOLVER="cbp"
@@ -30,5 +30,5 @@ function run_all_graphs
 }
 
 prepare_new_run
-run_all_graphs "cbp(shedule=seq_fixed)                " seq_fixed
+run_all_graphs "cbp(bp_msg_shedule=seq_fixed)         " seq_fixed
 

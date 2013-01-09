@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source sm.sh
+source sn2.sh
 source ../benchs.sh
 
 SOLVER="lve"

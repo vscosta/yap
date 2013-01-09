@@ -55,7 +55,7 @@ professor_popularity(P,A) :- pop(P,A).
 course_difficulty(P,A) :- diff(P,A).
 
 student_intelligence(P,A) :- int(P,A).
-	
+
 course_rating(C,X) :- rat(C,X).
 
 registration_grade(R,A) :-

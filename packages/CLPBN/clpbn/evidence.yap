@@ -4,36 +4,34 @@
 %
 
 :- module(clpbn_evidence,
-	  [
-	   store_evidence/1,
-	   incorporate_evidence/2,
-	   check_stored_evidence/2,
-	   add_stored_evidence/2,
-	   put_evidence/2
-	  ]).
+		[store_evidence/1,
+		 incorporate_evidence/2,
+		 check_stored_evidence/2,
+		 add_stored_evidence/2,
+		 put_evidence/2
+		]).
 
-:- use_module(library(clpbn), [
-	{}/1,
-	clpbn_flag/3,
-	set_clpbn_flag/2
-    ]).
+:- use_module(library(clpbn),
+		[{}/1,
+		 clpbn_flag/3,
+		 set_clpbn_flag/2
+		]).
 
-:- use_module(library('clpbn/dists'), [
-	get_dist/4
-    ]).
+:- use_module(library('clpbn/dists'),
+		[get_dist/4]).
 
-:- use_module(library(rbtrees), [
-	rb_new/1,
-	rb_lookup/3,
-	rb_insert/4
-    ]).
+:- use_module(library(rbtrees),
+		[rb_new/1,
+		 rb_lookup/3,
+		 rb_insert/4
+		]).
 
 :- meta_predicate store_evidence(:).
 
 :- dynamic node/3, edge/2, evidence/2.
 
 %
-% new evidence storage algorithm. The idea is that instead of 
+% new evidence storage algorithm. The idea is that instead of
 % redoing all the evidence every time we query the network, we shall
 % keep a precompiled version around.
 %
@@ -53,9 +51,9 @@ compute_evidence(_,PreviousSolver) :-
 	set_clpbn_flag(solver, PreviousSolver).
 
 get_clpbn_vars(G, Vars) :-
-%	attributes:all_attvars(Vars0),	
+%	attributes:all_attvars(Vars0),
 	once(G),
-	attributes:all_attvars(Vars).	
+	attributes:all_attvars(Vars).
 
 evidence_error(Ball,PreviousSolver) :-
 	set_clpbn_flag(solver,PreviousSolver),
@@ -63,7 +61,7 @@ evidence_error(Ball,PreviousSolver) :-
 
 store_graph([]).
 store_graph([V|Vars]) :-
-	clpbn:get_atts(V,[key(K),dist(Id,Vs)]),        
+	clpbn:get_atts(V,[key(K),dist(Id,Vs)]),
 	\+ node(K, Id, _), !,
 	translate_vars(Vs,TVs),
 	assert(node(K,Id,TVs)),
@@ -85,7 +83,6 @@ add_links([K0|TVs],K) :-
 add_links([K0|TVs],K) :-
 	assert(edge(K,K0)),
 	add_links(TVs,K).
-
 
 incorporate_evidence(Vs,AllVs) :-
 	rb_new(Cache0),

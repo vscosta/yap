@@ -2,9 +2,7 @@
 #define HORUS_BAYESBALLGRAPH_H
 
 #include <vector>
-#include <queue>
-#include <list>
-#include <map>
+#include <unordered_map>
 
 #include "Var.h"
 #include "Horus.h"
@@ -14,7 +12,7 @@ using namespace std;
 class BBNode : public Var
 {
   public:
-    BBNode (Var* v) : Var (v) , visited_(false),
+    BBNode (Var* v) : Var (v), visited_(false),
         markedOnTop_(false), markedOnBottom_(false) { }
 
     const vector<BBNode*>& childs (void) const { return childs_;  }
@@ -30,15 +28,15 @@ class BBNode : public Var
     void addChild (BBNode* c) { childs_.push_back (c); }
 
     bool isVisited (void) const { return visited_; }
- 
+
     void setAsVisited (void) { visited_ = true; }
 
     bool isMarkedOnTop (void) const { return markedOnTop_; }
- 
+
     void markOnTop (void) { markedOnTop_ = true; }
 
     bool isMarkedOnBottom (void) const { return markedOnBottom_; }
- 
+
     void markOnBottom (void) { markedOnBottom_ = true; }
 
     void clear (void) { visited_ = markedOnTop_ = markedOnBottom_ = false; }
@@ -63,7 +61,7 @@ class BayesBallGraph
     void addEdge (VarId vid1, VarId vid2);
 
     const BBNode* getNode (VarId vid) const;
- 
+
     BBNode* getNode (VarId vid);
 
     bool empty (void) const { return nodes_.empty(); }
