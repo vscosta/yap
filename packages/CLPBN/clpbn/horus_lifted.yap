@@ -44,7 +44,7 @@ call_horus_lifted_solver(QueryVars, AllVars, Output) :-
 init_horus_lifted_solver(_, AllVars, _, state(Network, DistIds)) :-
 	get_parfactors(Parfactors),
 	get_observed_keys(AllVars, ObservedKeys),
-	%writeln(network:(parfactors=Parfactors, evidence=ObservedKeys)), nl,
+	% writeln(network:(parfactors=Parfactors, evidence=ObservedKeys)), nl,
 	cpp_create_lifted_network(Parfactors, ObservedKeys, Network),
 	maplist(get_dist_id, Parfactors, DistIds0),
 	sort(DistIds0, DistIds).
@@ -74,7 +74,7 @@ is_factor(pf(Id, Ks, Rs, Phi, Tuples)) :-
 	maplist(get_range, Ks, Rs),
 	Table \= avg,
 	gen_table(Table, Phi),
-	all_tuples(Constraints, Vs, Tuples).
+	all_tuples(Constraints, Vs, Tuples). 
 
 
 get_range(K, Range) :-
@@ -87,7 +87,8 @@ gen_table(Table, Phi) :-
 
 
 all_tuples(Constraints, Tuple, Tuples) :-
-	setof(Tuple, Constraints^run(Constraints), Tuples).
+	findall(Tuple, run(Constraints), Tuples0),
+	sort(Tuples0, Tuples).
 
 
 run([]).
