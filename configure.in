@@ -880,7 +880,7 @@ else
 fi
 
 if test "$yap_cv_judy" != "no"; then
-	AC_CHECK_LIB(Judy, Judy1Set,,[AC_MSG_ERROR([libJudy not found, UDI will only work with one Index at a time])])
+	AC_CHECK_LIB(Judy, Judy1Set,,[AC_MSG_RESULT([libJudy not found, UDI will only work with one Index at a time])])
 fi
 
 dnl if test "$yap_cv_cudd" != "no"

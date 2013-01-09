@@ -6972,7 +6972,8 @@ _ACEOF
   LIBS="-lJudy $LIBS"
 
 else
-  as_fn_error $? "libJudy not found, UDI will only work with one Index at a time" "$LINENO" 5
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: libJudy not found, UDI will only work with one Index at a time" >&5
+$as_echo "libJudy not found, UDI will only work with one Index at a time" >&6; }
 fi
 
 fi
