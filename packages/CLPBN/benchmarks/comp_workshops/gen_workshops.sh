@@ -29,7 +29,7 @@ gen(S, NP, NW, Count) :-
 gen_workshops(_, _, NW, Count) :-
     Count > NW, !.
 gen_workshops(S, P, NW, Count) :-
-    format(S, 'c(p~w,w~w).~n', [P,Count]),
+    format(S, 'reg(p~w,w~w).~n', [P,Count]),
     Count1 is Count + 1,
     gen_workshops(S, P, NW, Count1).
 

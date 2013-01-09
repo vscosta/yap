@@ -1,9 +1,9 @@
 #!/bin/bash
 
-source sm.sh
+source sn2ev.sh
 source ../benchs.sh
 
-SOLVER="hve"
+SOLVER="bp"
 
 function run_all_graphs
 {
@@ -30,8 +30,5 @@ function run_all_graphs
 }
 
 prepare_new_run
-run_all_graphs "hve(elim_heuristic=min_neighbors)     " min_neighbors
-#run_all_graphs "hve(elim_heuristic=min_weight)        " min_weight
-#run_all_graphs "hve(elim_heuristic=min_fill)          " min_fill
-#run_all_graphs "hve(elim_heuristic=weighted_min_fill) " weighted_min_fill
+run_all_graphs "bp(bp_msg_shedule=seq_fixed)          " seq_fixed
 

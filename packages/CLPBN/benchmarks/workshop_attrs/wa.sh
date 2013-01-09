@@ -1,6 +1,6 @@
 #!/bin/bash
 
-NETWORK="'../../examples/workshop_attrs'"
+NETWORK="'../../examples/workshop_attrs.pfl'"
 SHORTNAME="wa"
 QUERY="series(X)"
 

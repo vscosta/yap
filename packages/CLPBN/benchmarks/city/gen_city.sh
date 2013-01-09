@@ -19,7 +19,7 @@ main :-
 generate_people(S, N, Counting) :-
     Counting > N, !.
 generate_people(S, N, Counting) :-
-    format(S, 'people(p~w, nyc).~n', [Counting]),
+    format(S, 'person(p~w, nyc).~n', [Counting]),
     Counting1 is Counting + 1,
     generate_people(S, N, Counting1).
 

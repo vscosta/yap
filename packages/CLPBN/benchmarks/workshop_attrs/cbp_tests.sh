@@ -32,5 +32,5 @@ function run_all_graphs
 }
 
 prepare_new_run
-run_all_graphs "cbp(shedule=seq_fixed)                " seq_fixed
+run_all_graphs "cbp(bp_msg_shedule=seq_fixed)         " seq_fixed
 

@@ -33,5 +33,5 @@ function run_all_graphs
 }
 
 prepare_new_run
-run_all_graphs "hve(elim_heuristic=min_neighbors)     " min_neighbors
+run_all_graphs "hve(hve_elim_heuristic=min_neighbors) " min_neighbors
 
