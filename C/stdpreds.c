@@ -4028,7 +4028,7 @@ p_access_yap_flags( USES_REGS1 )
     return(FALSE);		
   }
   flag = IntOfTerm(tflag);
-  if (flag < 0 || flag > NUMBER_OF_YAP_FLAGS) {
+  if (flag < 0 || flag >= NUMBER_OF_YAP_FLAGS) {
     return(FALSE);
   }
 #ifdef TABLING

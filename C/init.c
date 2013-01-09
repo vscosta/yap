@@ -1318,7 +1318,7 @@ Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts, UInt max_table_s
   Yap_InitTime( 0 );
   /* InitAbsmi must be done before InitCodes */
   /* This must be done before initialising predicates */
-  for (i = 0; i <= NUMBER_OF_YAP_FLAGS; i++) {
+  for (i = 0; i < NUMBER_OF_YAP_FLAGS; i++) {
     yap_flags[i] = 0;
   }
 #ifdef MPW
