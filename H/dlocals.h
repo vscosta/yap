@@ -430,3 +430,6 @@
 #define LOCAL_FunctorVar LOCAL->FunctorVar_
 #define REMOTE_FunctorVar(wid) REMOTE(wid)->FunctorVar_
 
+#define LOCAL_ibnds LOCAL->ibnds_
+#define REMOTE_ibnds(wid) REMOTE(wid)->ibnds_
+

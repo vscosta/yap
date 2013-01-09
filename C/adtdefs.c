@@ -264,8 +264,8 @@ LookupWideAtom(wchar_t *atom)
   wae->NextOfPE = NIL;
   wae->KindOfPE = WideAtomProperty;
   wae->SizeOfAtom = sz;
-  if (ae->StrOfAE != (char *)atom)
-    wcscpy((wchar_t *)(ae->StrOfAE), atom);
+  if (ae->WStrOfAE != atom)
+    wcscpy(ae->WStrOfAE, atom);
   NOfAtoms++;
   ae->NextOfAE = a;
   WideHashChain[hash].Entry = na;

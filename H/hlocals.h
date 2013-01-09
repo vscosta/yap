@@ -241,4 +241,6 @@ typedef struct worker_local {
   FILE*  FPreds_;
 #endif /* LOW_PROF */
   Functor  FunctorVar_;
+
+  UInt  ibnds_[256];
 } w_local;

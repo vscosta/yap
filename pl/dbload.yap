@@ -52,7 +52,7 @@ do_dbload(F0, M0, G) :-
 
 check_dbload_stream(R, M0) :-
 	repeat,
-	read(R,T),
+	catch(read(R,T), _, fail),
 	( T = end_of_file -> !;
 	    dbload_count(T, M0),
 	    fail 
@@ -79,7 +79,7 @@ get_module(T,M,T,M).
 
 	
 load_facts :-
-	yap_flag(exo_compilation, on), !.
+	!, % yap_flag(exo_compilation, on), !.
 	load_exofacts.
 load_facts :-
 	retract(dbloading(Na,Arity,M,T,NaAr,_)),
@@ -98,7 +98,7 @@ load_facts.
 
 dbload_add_facts(R, M) :-
 	repeat,
-	read(R,T),
+	catch(read(R,T), _, fail),
 	( T = end_of_file -> !;
 	    dbload_add_fact(T, M),
 	    fail 
@@ -120,17 +120,17 @@ load_exofacts :-
 	assertz(dbloading(Na,Arity,M,T,NaAr,Handle)),
 	nb_setval(NaAr,0),
 	fail.
-load_rxofacts :-
+load_exofacts :-
 	dbprocess(F, M),
 	open(F, read, R),
 	exodb_add_facts(R, M),
 	close(R),
 	fail.
-load_facts.
+load_exofacts.
 
 exodb_add_facts(R, M) :-
 	repeat,
-	read(R,T),
+	catch(read(R,T), _, fail),
 	( T = end_of_file -> !;
 	    exodb_add_fact(T, M),
 	    fail 

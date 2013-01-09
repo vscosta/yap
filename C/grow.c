@@ -1318,7 +1318,7 @@ init_new_table(AtomHashEntry *ntb, UInt nsize)
 {
   UInt i;
 
-  for (i = 0; i < nsize; ++i) {
+  for (i = 0; i < nsize; i++) {
     INIT_RWLOCK(ntb[i].AERWLock);
     ntb[i].Entry = NIL;
   }
