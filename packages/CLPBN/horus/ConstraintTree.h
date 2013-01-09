@@ -23,7 +23,6 @@ typedef vector<ConstraintTree*> ConstraintTrees;
 class CTNode
 {
   public:
-
     struct CompareSymbol
     {
       bool operator() (const CTNode* n1, const CTNode* n2) const
@@ -33,11 +32,9 @@ class CTNode
     };
 
   private:
-
     typedef TinySet<CTNode*, CompareSymbol> CTChilds_;
 
   public:
-
     CTNode (const CTNode& n, const CTChilds_& chs = CTChilds_()) 
         : symbol_(n.symbol()), childs_(chs), level_(n.level()) { }
 
@@ -52,12 +49,10 @@ class CTNode
 
     void setSymbol (const Symbol s) { symbol_ = s; }
 
-  public:
-
     CTChilds_& childs (void) { return childs_; }
 
     const CTChilds_& childs (void) const { return childs_; }
- 
+
     size_t nrChilds (void) const { return childs_.size(); }
 
     bool isRoot (void) const { return level_ == 0; }
@@ -89,9 +84,11 @@ class CTNode
   private:
     void updateChildLevels (CTNode*, unsigned);
 
-    Symbol    symbol_;
-    CTChilds_ childs_;
-    unsigned  level_;
+    Symbol     symbol_;
+    CTChilds_  childs_;
+    unsigned   level_;
+
+    DISALLOW_ASSIGN (CTNode);
 };
 
 ostream& operator<< (ostream &out, const CTNode&);
@@ -108,7 +105,7 @@ class ConstraintTree
     ConstraintTree (const LogVars&);
 
     ConstraintTree (const LogVars&, const Tuples&);
-    
+
     ConstraintTree (vector<vector<string>> names);
 
     ConstraintTree (const ConstraintTree&);
@@ -121,7 +118,7 @@ class ConstraintTree
    ~ConstraintTree (void);
 
     CTNode* root (void) const { return root_; }
-    
+
     bool empty (void) const { return root_->childs().empty(); }
 
     const LogVars& logVars (void) const
@@ -135,17 +132,17 @@ class ConstraintTree
       assert (LogVarSet (logVars_) == logVarSet_);
       return logVarSet_;
     }
-   
+
     size_t nrLogVars (void) const
     {
       return logVars_.size();
       assert (LogVarSet (logVars_) == logVarSet_);
     }
-  
+
     void addTuple (const Tuple&);
-  
+
     bool containsTuple (const Tuple&);
-  
+
     void moveToTop (const LogVars&);
 
     void moveToBottom (const LogVars&);
@@ -159,7 +156,7 @@ class ConstraintTree
     void applySubstitution (const Substitution&);
 
     void project (const LogVarSet&);
-    
+
     ConstraintTree projectedCopy (const LogVarSet&);
 
     void remove (const LogVarSet&);
@@ -200,10 +197,10 @@ class ConstraintTree
 
     ConstraintTrees ground (LogVar);
 
-    void copyLogVar (LogVar,LogVar);
-    
+    void cloneLogVar (LogVar, LogVar);
+
     ConstraintTree& operator= (const ConstraintTree& ct);
-   
+
   private:
     unsigned countTuples (const CTNode*) const;
 

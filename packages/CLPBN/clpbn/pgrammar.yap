@@ -2,30 +2,29 @@
 
 :- style_check(all).
 
-:- module(clpbn_pgrammar,[grammar_to_atts/1,
-			  grammar_prob/2,
-			  grammar_mle/2,
-			  init_pcg_solver/4,
-			  run_pcg_solver/3,
-			  pcg_init_graph/0]).
+:- module(clpbn_pgrammar,
+		[grammar_to_atts/1,
+		 grammar_prob/2,
+		 grammar_mle/2,
+		 init_pcg_solver/4,
+		 run_pcg_solver/3,
+		 pcg_init_graph/0
+		]).
 
 :- load_files([library(clpbn)],
-	      [ if(not_loaded),
-		silent(true)
-	      ]).
+		[if(not_loaded), silent(true)]).
 
 :- use_module([library(lists)],
-	      [ sum_list/2
-	      ]).
+		[sum_list/2]).
 
 :- use_module([library(matrix)],
-	      [ matrix_new/3,
-		matrix_add/3,
-		matrix_get/3,
-		matrix_op/4,
-		matrix_op_to_all/4,
-		matrix_set_all/2
-	      ]).
+		[matrix_new/3,
+		 matrix_add/3,
+		 matrix_get/3,
+		 matrix_op/4,
+		 matrix_op_to_all/4,
+		 matrix_set_all/2
+		]).
 
 :- op(600, xfy,'::').
 
@@ -71,9 +70,9 @@ grammar_mle(S,_,P) :-
 	nb_getval(best,p(P,S)), P > 0.0.
 
 user:term_expansion((P::H --> B), Goal) :-
-        functor(H,A0,_),
-        % a-->b to a(p(K,P,C,[Cs])) --> b(Cs)
-        convert_to_internal(H, B, IH, IB, Id),
+	functor(H,A0,_),
+	% a-->b to a(p(K,P,C,[Cs])) --> b(Cs)
+	convert_to_internal(H, B, IH, IB, Id),
 	expand_term((IH --> IB),(NH :- NB)),
 	prolog_load_context(module, Mod),
 	functor(NH,N,A),
@@ -99,8 +98,8 @@ add_to_predicate(M:EH1,M:EH,M:H0,NH,NB,Key,Choice,P,Id,(EH1:-NB)) :-
 	% now ensure_tabled works.
 	ensure_tabled(M,H0,EH),
 	assert_static(M:(EH :-
-			clpbn_pgrammar:p_rule(M,EH,Key,Choice),
-			 M:EH1)),
+		clpbn_pgrammar:p_rule(M,EH,Key,Choice),
+		M:EH1)),
 	Choice = 1,
 	new_id(Key,P,Choice,Id),
 	assert_static(M:ptab(EH,Choice,P)),
@@ -140,18 +139,18 @@ convert_body_to_internal({A}, {A}) --> !.
 convert_body_to_internal(B, IB) -->
 	[V],
 	{
-	 B =.. [Na|Args],
-	 build_internal(Na,NaInternal),
-	 IB =.. [NaInternal,V|Args]
+	  B =.. [Na|Args],
+	  build_internal(Na,NaInternal),
+	  IB =.. [NaInternal,V|Args]
 	}.
 
 new_id(Key,P,Choice,Id) :-
 	(
-	 predicate_property(id(_,_,_,_),number_of_clauses(Id))
+	  predicate_property(id(_,_,_,_),number_of_clauses(Id))
 	->
-	 true
+	  true
 	;
-	 Id = 0
+	  Id = 0
 	),
 	assert(id(Id,Key,P,Choice)).
 
@@ -177,7 +176,7 @@ get_internal(S, InternalS, Arg) :-
 
 extract_probability(p(Id,Goals), P) :-
 	id(Id,_,P0,_),
-	LogP0 is log(P0),	
+	LogP0 is log(P0),
 	extract_logprobability(Goals, LogP0, LogP),
 	P is exp(LogP).
 
@@ -211,11 +210,11 @@ path_choices(InternalS, Proof) :-
 
 new_id(Id) :-
 	(nb_getval(grammar_id,Id) ->
-	 I1 is Id+1,
-	 nb_setval(grammar_id,I1)
+	  I1 is Id+1,
+	  nb_setval(grammar_id,I1)
 	;
-	 nb_setval(grammar_id,1),
-	 Id = 0
+	  nb_setval(grammar_id,1),
+	  Id = 0
 	).
 
 find_dom(K, Vs, Ps) :-

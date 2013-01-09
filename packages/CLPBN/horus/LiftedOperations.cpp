@@ -35,9 +35,9 @@ LiftedOperations::shatterAgainstQuery (
       }
     }
     if (found == false) {
-      cerr << "error: could not find a parfactor with ground " ;
-      cerr << "`" << query[i] << "'" << endl;
-      exit (0);	
+      cerr << "Error: could not find a parfactor with ground " ;
+      cerr << "`" << query[i] << "'." << endl;
+      exit (EXIT_FAILURE);
     }
     pfList.add (newPfs);
   }
@@ -60,12 +60,12 @@ LiftedOperations::runWeakBayesBall (
     const Grounds& query)
 {
   queue<PrvGroup> todo; // groups to process
-  set<PrvGroup> done;   // processed or in queue 
+  set<PrvGroup> done;   // processed or in queue
   for (size_t i = 0; i < query.size(); i++) {
     ParfactorList::iterator it = pfList.begin();
     while (it != pfList.end()) {
       PrvGroup group = (*it)->findGroup (query[i]);
-      if (group != numeric_limits<PrvGroup>::max()) {
+      if (group != std::numeric_limits<PrvGroup>::max()) {
         todo.push (group);
         done.insert (group);
         break;
@@ -128,7 +128,7 @@ LiftedOperations::absorveEvidence (
       it = pfList.remove (it);
       Parfactors absorvedPfs = absorve (obsFormulas[i], pf);
       if (absorvedPfs.empty() == false) {
-        if (absorvedPfs.size() == 1 && absorvedPfs[0] == 0) {
+        if (absorvedPfs.size() == 1 && !absorvedPfs[0]) {
           // just remove pf;
         } else {
           Util::addToVector (newPfs, absorvedPfs);
@@ -225,7 +225,7 @@ LiftedOperations::absorve (
           absorvedPfs.push_back (0);
         }
         break;
-      } 
+      }
 
       g->constr()->moveToTop (formulas[i].logVars());
       std::pair<ConstraintTree*, ConstraintTree*> res;

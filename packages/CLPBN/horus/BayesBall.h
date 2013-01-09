@@ -4,7 +4,6 @@
 #include <vector>
 #include <queue>
 #include <list>
-#include <map>
 
 #include "FactorGraph.h"
 #include "BayesBallGraph.h"
@@ -15,8 +14,8 @@ using namespace std;
 
 struct ScheduleInfo
 {
-  ScheduleInfo (BBNode* n, bool vfp, bool vfc) : 
-      node(n), visitedFromParent(vfp), visitedFromChild(vfc) { }
+  ScheduleInfo (BBNode* n, bool vfp, bool vfc)
+      : node(n), visitedFromParent(vfp), visitedFromChild(vfc) { }
 
   BBNode*  node;
   bool     visitedFromParent;
@@ -30,7 +29,7 @@ typedef queue<ScheduleInfo, list<ScheduleInfo>> Scheduling;
 class BayesBall
 {
   public:
-    BayesBall (FactorGraph& fg) 
+    BayesBall (FactorGraph& fg)
         : fg_(fg) , dag_(fg.getStructure())
     {
       dag_.clear();
@@ -63,7 +62,7 @@ inline void
 BayesBall::scheduleParents (const BBNode* n, Scheduling& sch) const
 {
   const vector<BBNode*>& ps = n->parents();
-  for (vector<BBNode*>::const_iterator it = ps.begin(); 
+  for (vector<BBNode*>::const_iterator it = ps.begin();
       it != ps.end(); ++it) {
     sch.push (ScheduleInfo (*it, false, true));
   }

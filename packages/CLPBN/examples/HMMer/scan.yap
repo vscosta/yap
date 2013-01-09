@@ -14,7 +14,7 @@ stop(S,W,Info) :-
 	gen_program(W, Info).
 stop(_,_,_) :-
 	format(user_error,"Bad HMM~n", []).
-   
+
 parse_model(S,Info) :-
 	get_line(S, Line, Info),
 %	format('~s~n',[Line]),
@@ -45,7 +45,7 @@ match_field(hmmer(_,_,_,Alph,_,_,_,_),_) --> "ALPH", !, % aminos or bases
 match_field(_,_) --> "RF", !, scanner_skip.
 match_field(_,_) --> "CS", !, scanner_skip.
 match_field(hmmer(_,_,_,_,_,_,_,MAP),_) --> "MAP", !,
-        scanner_skip_blanks,
+	scanner_skip_blanks,
 	to_lower(Codes),
 	{ map_code(Codes,MAP) }.
 match_field(_,_) --> "COM", !, scanner_skip.
@@ -76,11 +76,11 @@ match_field(_,_) --> "EVD", !,
 match_field(Info,S) --> "HMM", !, 
 	scanner_skip,
 	{
-	 get_line(S,_,Info),
-	 Info = hmmer(_,_,NOfStates,Alph,_,_,model(BD,NBD,Transitions),MAP),
-	 nof_symbols(Alph,N),
-	 scan_model(S,NOfStates,N,BD,NBD,Transitions,MAP,Info),
-	 throw(done(Info))
+	  get_line(S,_,Info),
+	  Info = hmmer(_,_,NOfStates,Alph,_,_,model(BD,NBD,Transitions),MAP),
+	  nof_symbols(Alph,N),
+	  scan_model(S,NOfStates,N,BD,NBD,Transitions,MAP,Info),
+	  throw(done(Info))
 	}.
 
 scan_model(S,NOfStates,N,BD,NBD,Transitions,MAP,Info) :-
@@ -95,7 +95,7 @@ scan_states(NOfStates, N, Stream, MAP, [t(E,I,S)|Transitions], Info) :-
 	scan_states(NOfStates1, N, Stream, NMAP, Transitions, Info).
 
 scan_state(Stream, E,I,MAP,s(MM,MI,MD,IM,II,DM,DD,BM,ME), N, NMAP, Info) :-
-        get_line(Stream, ELine, Info),
+	get_line(Stream, ELine, Info),
 	get_line(Stream, ILine, Info),
 	get_line(Stream, SLine, Info),
 %	format('~s~n~s~n~s~n',[ELine,ILine,SLine]),
@@ -265,7 +265,7 @@ gen_model(W, model(BD,NBD,States),PsCPT) :-
 	format(W, '~n%Reaching first D.~n',[]),
 	format(W, 'b_d_cpt(~w,~w,~w).~n',[BD,NBD,BDCPT]),
 	gen_states(W, States,1,PsCPT).
-	
+
 gen_states(_, [],_,_).
 gen_states(W, [State|States],StateNo,PsCPT) :-
 	gen_state(W, State,StateNo,PsCPT),
@@ -326,5 +326,4 @@ max_index([H|L],I0,Max0,MaxIndex0,Max,MaxIndex) :-
 max_index([_|L],I0,Max0,MaxIndex0,Max,MaxIndex) :-
 	I is I0+1,
 	max_index(L,I,Max0,MaxIndex0,Max,MaxIndex).
-
 

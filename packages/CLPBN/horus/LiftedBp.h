@@ -28,7 +28,7 @@ class LiftedBp : public LiftedSolver
     void createFactorGraph (void);
 
     vector<vector<unsigned>> getWeights (void) const;
- 
+
     unsigned rangeOfGround (const Ground&);
 
     Params getJointByConditioning (const ParfactorList&, const Grounds&);
@@ -36,6 +36,8 @@ class LiftedBp : public LiftedSolver
     ParfactorList  pfList_;
     WeightedBp*    solver_;
     FactorGraph*   fg_;
+
+    DISALLOW_COPY_AND_ASSIGN (LiftedBp);
 
 };
 

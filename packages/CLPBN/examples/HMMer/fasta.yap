@@ -5,7 +5,10 @@
 % support for a single sequence.
 %
 
-:- module(fasta, [fa2atoms/2,fa2atoms/3]).
+:- module(fasta,
+		[fa2atoms/2,
+		 fa2atoms/3
+		]).
 
 fa2atoms(F, L) :-
 	fa2atoms(F, L, []).
@@ -25,8 +28,8 @@ read_chars(10,S) --> !,
 read_chars(C,S) -->
 	[AC],
 	{
-	 cvt_c(C,AC),
-	 get0(S,MC)
+	  cvt_c(C,AC),
+	  get0(S,MC)
 	},
 	read_chars(MC, S).
 
@@ -44,4 +47,3 @@ skip_header(_,S) :-
 	skip_header(C,S).
 
 
-	

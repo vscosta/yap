@@ -1,8 +1,9 @@
 #ifndef HORUS_TINYSET_H
 #define HORUS_TINYSET_H
 
-#include <vector>
 #include <algorithm>
+
+#include <vector>
 
 using namespace std;
 
@@ -21,7 +22,7 @@ class TinySet
     TinySet (const Compare& cmp = Compare())
         : vec_(), cmp_(cmp) { }
 
-    TinySet (const T& t, const Compare& cmp = Compare()) 
+    TinySet (const T& t, const Compare& cmp = Compare())
         : vec_(1, t), cmp_(cmp) { }
 
     TinySet (const vector<T>& elements, const Compare& cmp = Compare())
@@ -153,12 +154,12 @@ class TinySet
     {
       return vec_[i];
     }
-    
+
     T& operator[] (typename vector<T>::size_type i)
     {
       return vec_[i];
     }
-  
+
     T front (void) const
     {
       return vec_.front();
@@ -186,7 +187,7 @@ class TinySet
 
     bool empty (void) const
     {
-      return size() == 0;
+      return vec_.empty();
     }
 
     typename vector<T>::size_type size (void) const
@@ -219,13 +220,13 @@ class TinySet
       return ! (s1.vec_ == s2.vec_);
     }
 
-    friend std::ostream& operator << (std::ostream& out, const TinySet& s)
+    friend std::ostream& operator<< (std::ostream& out, const TinySet& s)
     {
       out << "{" ;
       typename vector<T>::size_type i;
       for (i = 0; i < s.size(); i++) {
         out << ((i != 0) ? "," : "") << s.vec_[i];
-      } 
+      }
       out << "}" ;
       return out;
     }

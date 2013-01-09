@@ -1,5 +1,7 @@
 #include <cassert>
 
+#include <queue>
+
 #include "ParfactorList.h"
 
 
@@ -9,7 +11,7 @@ ParfactorList::ParfactorList (const ParfactorList& pfList)
   while (it != pfList.end()) {
     addShattered (new Parfactor (**it));
     ++ it;
-  } 
+  }
 }
 
 
@@ -74,7 +76,7 @@ ParfactorList::insertShattered (
 
 
 list<Parfactor*>::iterator
-ParfactorList::remove (list<Parfactor*>::iterator it) 
+ParfactorList::remove (list<Parfactor*>::iterator it)
 {
   return pfList_.erase (it);
 }
@@ -221,7 +223,7 @@ ParfactorList::isShattered (
 }
 
 
-	
+
 void
 ParfactorList::addToShatteredList (Parfactor* g)
 {
@@ -334,9 +336,9 @@ ParfactorList::shatterAgainstMySelf (
   ProbFormula& f1 = g->argument (fIdx1);
   ProbFormula& f2 = g->argument (fIdx2);
   if (f1.isAtom()) {
-    cerr << "error: a ground occurs twice in a parfactor" << endl;
+    cerr << "Error: a ground occurs twice in the same parfactor." << endl;
     cerr << endl;
-    abort();
+    exit (EXIT_FAILURE);
   }
   assert (g->constr()->empty() == false);
   ConstraintTree ctCopy (*g->constr());
@@ -412,13 +414,13 @@ ParfactorList::shatter (Parfactor* g1, Parfactor* g2)
 {
   ProbFormulas& formulas1 = g1->arguments();
   ProbFormulas& formulas2 = g2->arguments();
-  assert (g1 != 0 && g2 != 0 && g1 != g2);
+  assert (g1 && g2 && g1 != g2);
   for (size_t i = 0; i < formulas1.size(); i++) {
     for (size_t j = 0; j < formulas2.size(); j++) {
       if (formulas1[i].sameSkeletonAs (formulas2[j])) {
         std::pair<Parfactors, Parfactors> res;
         res = shatter (i, g1, j, g2);
-        if (res.first.empty()  == false || 
+        if (res.first.empty()  == false ||
             res.second.empty() == false) {
           return res;
         }
@@ -470,7 +472,7 @@ ParfactorList::shatter (
   ConstraintTree* exclCt1 = split1.second;
 
   if (commCt1->empty()) {
-    // disjoint 
+    // disjoint
     delete commCt1;
     delete exclCt1;
     return { };
@@ -481,7 +483,7 @@ ParfactorList::shatter (
   ConstraintTree* commCt2 = split2.first;
   ConstraintTree* exclCt2 = split2.second;
 
-  assert (commCt1->tupleSet (f1.logVars()) == 
+  assert (commCt1->tupleSet (f1.logVars()) ==
           commCt2->tupleSet (f2.logVars()));
 
    // stringstream ss1; ss1 << "" << count << "_A.dot" ;
@@ -549,11 +551,11 @@ ParfactorList::shatter (
       Parfactor* newPf = new Parfactor (g, cts[i]);
       if (cts[i]->nrLogVars() == g->constr()->nrLogVars() + 1) {
         newPf->expand (f.countedLogVar(), X_new1, X_new2);
-        assert (g->constr()->getConditionalCount (f.countedLogVar()) == 
+        assert (g->constr()->getConditionalCount (f.countedLogVar()) ==
             cts[i]->getConditionalCount (X_new1) +
             cts[i]->getConditionalCount (X_new2));
       } else {
-        assert (g->constr()->getConditionalCount (f.countedLogVar()) == 
+        assert (g->constr()->getConditionalCount (f.countedLogVar()) ==
             cts[i]->getConditionalCount (f.countedLogVar()));
       }
       newPf->setNewGroups();

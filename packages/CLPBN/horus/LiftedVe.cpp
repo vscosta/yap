@@ -1,4 +1,5 @@
 #include <algorithm>
+
 #include <set>
 
 #include "LiftedVe.h"
@@ -133,7 +134,7 @@ ProductOperator::toString (void)
   stringstream ss;
   ss << "just multiplicate " ;
   ss << (*g1_)->getAllGroups();
-  ss << " x " ; 
+  ss << " x " ;
   ss << (*g2_)->getAllGroups();
   ss << " [cost=" << std::exp (getLogCost()) << "]" << endl;
   return ss.str();
@@ -155,7 +156,7 @@ ProductOperator::validOp (Parfactor* g1, Parfactor* g2)
       }
       size_t idx1 = g1->indexOfGroup (intersect[i]);
       size_t idx2 = g2->indexOfGroup (intersect[i]);
-      if (g1->range (idx1) != g2->range (idx2)) { 
+      if (g1->range (idx1) != g2->range (idx2)) {
         return false;
       }
     }
@@ -710,10 +711,10 @@ LiftedVe::getBestOperation (const Grounds& query)
   validOps = LiftedOperator::getValidOps (pfList_, query);
   for (size_t i = 0; i < validOps.size(); i++) {
     double cost = validOps[i]->getLogCost();
-    if ((bestOp == 0) || (cost < bestCost)) {
+    if (!bestOp || cost < bestCost) {
       bestOp   = validOps[i];
       bestCost = cost;
-    } 
+    }
   }
   if (bestCost > largestCost_) {
     largestCost_ = bestCost;

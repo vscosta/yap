@@ -120,6 +120,8 @@ class Indexer
     const Ranges&   ranges_;
     size_t          size_;
     vector<size_t>  offsets_;
+
+    DISALLOW_COPY_AND_ASSIGN (Indexer);
 };
 
 
@@ -167,7 +169,7 @@ class MapIndexer
         }
       }
     }
-    
+
    template <typename T>
    MapIndexer (
         const vector<T>& allArgs,
@@ -239,6 +241,8 @@ class MapIndexer
     const Ranges&   ranges_;
     bool            valid_;
     vector<size_t>  offsets_;
+
+    DISALLOW_COPY_AND_ASSIGN (MapIndexer);
 };
 
 

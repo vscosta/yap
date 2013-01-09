@@ -1,3 +1,8 @@
+/*
+ Model from the paper "Lifted Probabilistic
+ Inference with Counting Formulas"
+*/
+
 :- use_module(library(pfl)).
 
 :- set_solver(hve).
@@ -10,31 +15,31 @@
 %:- set_solver(lkc).
 %:- set_solver(lbp).
 
-:- multifile c/2.
+:- multifile reg/2.
 
-c(p1,w1).
-c(p1,w2).
-c(p1,w3).
-c(p2,w1).
-c(p2,w2).
-c(p2,w3).
-c(p3,w1).
-c(p3,w2).
-c(p3,w3).
-c(p4,w1).
-c(p4,w2).
-c(p4,w3).
-c(p5,w1).
-c(p5,w2).
-c(p5,w3).
+reg(p1,w1).
+reg(p1,w2).
+reg(p1,w3).
+reg(p2,w1).
+reg(p2,w2).
+reg(p2,w3).
+reg(p3,w1).
+reg(p3,w2).
+reg(p3,w3).
+reg(p4,w1).
+reg(p4,w2).
+reg(p4,w3).
+reg(p5,w1).
+reg(p5,w2).
+reg(p5,w3).
 
 markov attends(P), hot(W) ;
-    [0.2, 0.8, 0.8, 0.8] ;
-    [c(P,W)].
+	[0.2, 0.8, 0.8, 0.8] ;
+	[reg(P,W)].
 
 markov attends(P), series ;
-    [0.501, 0.499, 0.499, 0.499] ;
-    [c(P,_)].
+	[0.501, 0.499, 0.499, 0.499] ;
+	[reg(P,_)].
 
-?- series(X).
+% ?- series(X).
 

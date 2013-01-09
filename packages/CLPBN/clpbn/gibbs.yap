@@ -8,51 +8,54 @@
 %
 
 :- module(clpbn_gibbs,
-	  [gibbs/3,
-	   check_if_gibbs_done/1,
-	   init_gibbs_solver/4,
-	   run_gibbs_solver/3]).
+		[gibbs/3,
+		 check_if_gibbs_done/1,
+		 init_gibbs_solver/4,
+		 run_gibbs_solver/3
+		]).
 
 :- use_module(library(rbtrees),
-	      [rb_new/1,
-	       rb_insert/4,
-	       rb_lookup/3]).
+		[rb_new/1,
+		 rb_insert/4,
+		 rb_lookup/3
+		]).
 
 :- use_module(library(lists),
-	      [member/2,
-	       append/3,
-	       delete/3,
-	       max_list/2,
-	       sum_list/2]).
+		[member/2,
+		 append/3,
+		 delete/3,
+		 max_list/2,
+		 sum_list/2
+		]).
 
 :- use_module(library(ordsets),
-	      [ord_subtract/3]).
+		[ord_subtract/3]).
 
-:- use_module(library('clpbn/matrix_cpt_utils'), [
-	project_from_CPT/3,
-	reorder_CPT/5,
-	multiply_possibly_deterministic_factors/3,
-	column_from_possibly_deterministic_CPT/3,
-	normalise_possibly_deterministic_CPT/2,
-	list_from_CPT/2]).
+:- use_module(library('clpbn/matrix_cpt_utils'),
+		[project_from_CPT/3,
+		 reorder_CPT/5,
+		 multiply_possibly_deterministic_factors/3,
+		 column_from_possibly_deterministic_CPT/3,
+		 normalise_possibly_deterministic_CPT/2,
+		 list_from_CPT/2
+		]).
 
-:- use_module(library('clpbn/utils'), [
-	check_for_hidden_vars/3]).
+:- use_module(library('clpbn/utils'),
+		[check_for_hidden_vars/3]).
 
-:- use_module(library('clpbn/dists'), [
-	get_possibly_deterministic_dist_matrix/5,
-	get_dist_domain_size/2]).
+:- use_module(library('clpbn/dists'),
+		[get_possibly_deterministic_dist_matrix/5,
+		 get_dist_domain_size/2
+		]).
 
-:- use_module(library('clpbn/topsort'), [
-	topsort/2]).
+:- use_module(library('clpbn/topsort'),
+		[topsort/2]).
 
-:- use_module(library('clpbn/display'), [
-	clpbn_bind_vals/3]).
+:- use_module(library('clpbn/display'),
+		[clpbn_bind_vals/3]).
 
 :- use_module(library('clpbn/connected'),
-	      [
-	       influences/3
-	      ]).
+		[influences/3]).
 
 :- dynamic gibbs_params/3.
 
@@ -134,7 +137,7 @@ graph_representation([V|Vs], Graph, I0, Keys, [I-IParents|TGraph]) :-
 	graph_representation(Vs, Graph, I, Keys, TGraph).
 
 write_pars([]).
-write_pars([V|Parents]) :- 
+write_pars([V|Parents]) :-
 	clpbn:get_atts(V, [key(K),dist(I,_)]),write(K:I),nl,
 	write_pars(Parents).
 
@@ -146,7 +149,7 @@ get_sizes([V|Parents], [Sz|Szs]) :-
 
 parent_indices([], _, []).
 parent_indices([V|Parents], Keys, [I|IParents]) :-
-	rb_lookup(V, I, Keys),	
+	rb_lookup(V, I, Keys),
 	parent_indices(Parents, Keys, IParents).
 
 
@@ -171,7 +174,7 @@ propagate2parents([V|NewParents], Table, Variables, Graph, Keys) :-
 	propagate2parents(NewParents,Table, Variables, Graph, Keys).
 
 add2graph(V, Vals, Table, IParents, Graph, Keys) :-
-	rb_lookup(V, Index, Keys),	
+	rb_lookup(V, Index, Keys),
 	(var(Vals) -> true ; length(Vals,Sz)),
 	arg(Index, Graph, var(V,Index,_,Vals,Sz,VarSlot,_,_,_)),
 	member(tabular(Table,Index,IParents), VarSlot), !.
@@ -236,7 +239,7 @@ mult_list([Sz|Sizes],Mult0,Mult) :-
 	MultI is Sz*Mult0,
 	mult_list(Sizes,MultI,Mult).
 
-% compile node as set of facts, faster execution 
+% compile node as set of facts, faster execution
 compile_var(TotSize,I,_Vals,Sz,CPTs,Parents,_Sizes,Graph) :-
 	TotSize < 1024*64, TotSize > 0, !,
 	multiply_all(I,Parents,CPTs,Sz,Graph).
@@ -246,11 +249,11 @@ compile_var(_,_,_,_,_,_,_,_).
 multiply_all(I,Parents,CPTs,Sz,Graph) :-
 	markov_blanket_instance(Parents,Graph,Values),
 	(
-	    multiply_all(CPTs,Graph,Probs)
+	  multiply_all(CPTs,Graph,Probs)
 	->
-	    store_mblanket(I,Values,Probs)
+	  store_mblanket(I,Values,Probs)
 	;
-	    throw(error(domain_error(bayesian_domain),gibbs_cpt(I,Parents,Values,Sz)))
+	  throw(error(domain_error(bayesian_domain),gibbs_cpt(I,Parents,Values,Sz)))
 	),
 	fail.
 multiply_all(I,_,_,_,_) :-
@@ -280,7 +283,7 @@ fetch_parents([], _, []).
 fetch_parents([P|Parents], Graph, [Val|Vals]) :-
 	arg(P,Graph,var(_,_,Val,_,_,_,_,_,_)),
 	fetch_parents(Parents, Graph, Vals).
-	
+
 multiply_more([],_,Probs0,LProbs) :-
 	normalise_possibly_deterministic_CPT(Probs0, Probs),
 	list_from_CPT(Probs, LProbs0),
@@ -296,7 +299,7 @@ accumulate_up_list([P|LProbs], P0, [P1|L]) :-
 	P1 is P0+P,
 	accumulate_up_list(LProbs, P1, L).
 
-	
+
 store_mblanket(I,Values,Probs) :-
 	recordz(mblanket,m(I,Values,Probs),_).
 
@@ -364,8 +367,8 @@ generate_est_mults([], [], _, [], 1).
 generate_est_mults([V|Vs], [I|Is], Graph, [M0|Mults], M) :-
 	arg(V,Graph,var(_,I,_,_,Sz,_,_,_,_)),
 	generate_est_mults(Vs, Is, Graph, Mults, M0),
-	M is M0*Sz.	
-	
+	M is M0*Sz.
+
 gen_e0(0,[]) :- !.
 gen_e0(Sz,[0|E0L]) :-
 	Sz1 is Sz-1,
@@ -455,7 +458,7 @@ get_estimate_pos([I|Is], Sample, [M|Mult], V0, V) :-
 	get_estimate_pos(Is, Sample, Mult, VI, V).
 
 update_estimate_for_var(V0,[X|T],[X1|NT]) :-
-	( V0 == 0 ->
+	(V0 == 0 ->
 	  X1 is X+1,
 	  NT = T
 	;
@@ -496,7 +499,7 @@ do_probs([E|Es],Sum,[P|Ps]) :-
 
 show_sorted([], _) :- nl.
 show_sorted([I|VarOrder], Graph) :-
-	arg(I,Graph,var(V,I,_,_,_,_,_,_,_)),		
+	arg(I,Graph,var(V,I,_,_,_,_,_,_,_)),
 	clpbn:get_atts(V,[key(K)]),
 	format('~w ',[K]),
 	show_sorted(VarOrder, Graph).
@@ -528,7 +531,7 @@ add_up_mes(Counts,[me(_,_,Cs)|Chains], Add) :-
 	sum_lists(Counts, Cs, NCounts),
 	add_up_mes(NCounts, Chains, Add).
 
-sum_lists([],[],[]).	
+sum_lists([],[],[]).
 sum_lists([Count|Counts], [C|Cs], [NC|NCounts]) :-
 	NC is Count+C,
 	sum_lists(Counts, Cs, NCounts).
@@ -541,6 +544,4 @@ divide_list([],  _, []).
 divide_list([C|Add], Sum, [P|Dist]) :-
 	P is C/Sum,
 	divide_list(Add, Sum, Dist).
-
-
 

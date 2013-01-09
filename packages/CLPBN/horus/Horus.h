@@ -1,31 +1,34 @@
 #ifndef HORUS_HORUS_H
 #define HORUS_HORUS_H
 
-#include <limits>
-
-#include <vector>
-
 #define DISALLOW_COPY_AND_ASSIGN(TypeName) \
   TypeName(const TypeName&);               \
   void operator=(const TypeName&)
 
-using namespace std;
+#define DISALLOW_COPY(TypeName)   \
+  TypeName(const TypeName&)
+
+#define DISALLOW_ASSIGN(TypeName) \
+  void operator=(const TypeName&)
+
+#include <vector>
+#include <string>
 
 class Var;
 class Factor;
 class VarNode;
 class FacNode;
 
-typedef vector<double>      Params;
-typedef unsigned            VarId;
-typedef vector<VarId>       VarIds;
-typedef vector<Var*>        Vars;
-typedef vector<VarNode*>    VarNodes;
-typedef vector<FacNode*>    FacNodes;
-typedef vector<Factor*>     Factors;
-typedef vector<string>      States;
-typedef vector<unsigned>    Ranges;
-typedef unsigned long long  ullong;
+typedef std::vector<double>      Params;
+typedef unsigned                 VarId;
+typedef std::vector<VarId>       VarIds;
+typedef std::vector<Var*>        Vars;
+typedef std::vector<VarNode*>    VarNodes;
+typedef std::vector<FacNode*>    FacNodes;
+typedef std::vector<Factor*>     Factors;
+typedef std::vector<std::string> States;
+typedef std::vector<unsigned>    Ranges;
+typedef unsigned long long       ullong;
 
 
 enum LiftedSolverType
@@ -68,20 +71,6 @@ const int NO_EVIDENCE = -1;
 const unsigned PRECISION = 6;
 
 };
-
-
-namespace BpOptions
-{
-  enum Schedule {
-    SEQ_FIXED,
-    SEQ_RANDOM,
-    PARALLEL,
-    MAX_RESIDUAL
-  };
-  extern Schedule  schedule;
-  extern double    accuracy;
-  extern unsigned  maxIter;
-}
 
 #endif // HORUS_HORUS_H
 

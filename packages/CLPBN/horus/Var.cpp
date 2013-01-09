@@ -1,9 +1,6 @@
-#include <algorithm>
 #include <sstream>
 
 #include "Var.h"
-
-using namespace std;
 
 
 unordered_map<VarId, VarInfo> Var::varsInfo_;
@@ -14,7 +11,7 @@ Var::Var (const Var* v)
   varId_    = v->varId();
   range_    = v->range();
   evidence_ = v->getEvidence();
-  index_    = std::numeric_limits<unsigned>::max();
+  index_    = Util::maxUnsigned();
 }
 
 
@@ -26,7 +23,7 @@ Var::Var (VarId varId, unsigned range, int evidence)
   varId_    = varId;
   range_    = range;
   evidence_ = evidence;
-  index_    = std::numeric_limits<unsigned>::max();
+  index_    = Util::maxUnsigned();
 }
 
 
@@ -39,35 +36,11 @@ Var::isValidState (int stateIndex)
 
 
 
-bool
-Var::isValidState (const string& stateName)
-{
-  States states = Var::getVarInfo (varId_).states;
-  return Util::contains (states, stateName);
-}
-
-
-
 void
-Var::setEvidence (int ev) 
+Var::setEvidence (int evidence)
 {
-  assert (ev < (int) range_);
-  evidence_ = ev;
-}
-
-
-
-void
-Var::setEvidence (const string& ev) 
-{ 
-  States states = Var::getVarInfo (varId_).states;
-  for (size_t i = 0; i < states.size(); i++) {
-    if (states[i] == ev) {
-      evidence_ = i;
-      return;
-    }
-  }
-  assert (false);
+  assert (evidence < (int) range_);
+  evidence_ = evidence;
 }
 
 

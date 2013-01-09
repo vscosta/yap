@@ -1,4 +1,6 @@
-:- module(clpbn_gviz, [clpbn2gviz/4]).
+
+:- module(clpbn_gviz,
+		[clpbn2gviz/4]).
 
 clpbn2gviz(Stream, Name, Network, Output) :-
 	format(Stream, 'digraph ~w {
@@ -48,7 +50,7 @@ output_parents1(Stream,[V|L]) :-
 	put_code(Stream, 0' ), %'
 	output_parents1(Stream,L).
 
-output_v(V,Stream) :- 
+output_v(V,Stream) :-
 	clpbn:get_atts(V,[key(Key)]),
 	output_key(Stream,Key).
 

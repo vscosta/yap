@@ -1,9 +1,11 @@
-:- module(clpbn_utils, [
-	clpbn_not_var_member/2,
-	clpbn_var_member/2,
-	check_for_hidden_vars/3,
-	sort_vars_by_key/3,
-	sort_vars_by_key_and_parents/3]).
+
+:- module(clpbn_utils,
+		[clpbn_not_var_member/2,
+		 clpbn_var_member/2,
+		 check_for_hidden_vars/3,
+		 sort_vars_by_key/3,
+		 sort_vars_by_key_and_parents/3
+		]).
 
 %
 % It may happen that variables from a previous query may still be around.
@@ -52,21 +54,19 @@ get_keys([_|AVars], KeysVars) :-  % may be non-CLPBN vars.
 merge_same_key([], [], _, []).
 merge_same_key([K1-V1,K2-V2|Vs], SortedAVars, Ks, UnifiableVars) :-
 	K1 == K2, !,
-	(clpbn:get_atts(V1, [evidence(E)])
-        ->
-	    clpbn:put_atts(V2, [evidence(E)])
+	(clpbn:get_atts(V1, [evidence(E)]) ->
+	  clpbn:put_atts(V2, [evidence(E)])
 	;
-	    clpbn:get_atts(V2, [evidence(E)])
-	->
+	  clpbn:get_atts(V2, [evidence(E)]) ->
 	    clpbn:put_atts(V1, [evidence(E)])
-	;
-	     true
+	  ;
+	    true
 	),
 %	V1 = V2,
 	attributes:fast_unify_attributed(V1,V2),
 	merge_same_key([K1-V1|Vs], SortedAVars, Ks, UnifiableVars).
 merge_same_key([K1-V1,K2-V2|Vs], [V1|SortedAVars], Ks, [K1|UnifiableVars]) :-
-	(in_keys(K1, Ks) ; \+ \+ K1 == K2), !, 
+	(in_keys(K1, Ks) ; \+ \+ K1 == K2), !,
 	add_to_keys(K1, Ks, NKs),
 	merge_same_key([K2-V2|Vs], SortedAVars, NKs, UnifiableVars).
 merge_same_key([K-V|Vs], [V|SortedAVars], Ks, UnifiableVars) :-
@@ -74,9 +74,9 @@ merge_same_key([K-V|Vs], [V|SortedAVars], Ks, UnifiableVars) :-
 	merge_same_key(Vs, SortedAVars, NKs, UnifiableVars).
 
 in_keys(K1,[K|_]) :- \+ \+ K1 = K, !.
-in_keys(K1,[_|Ks]) :- 
+in_keys(K1,[_|Ks]) :-
 	in_keys(K1,Ks).
-	
+
 add_to_keys(K1, Ks, Ks) :- ground(K1), !.
 add_to_keys(K1, Ks, [K1|Ks]).
 
@@ -102,7 +102,7 @@ add_parents(Parents,V,Id,KeyVarsF,KeyVars0) :-
 
 all_vars([]).
 all_vars([P|Parents]) :-
-	var(P), 
+	var(P),
 	all_vars(Parents).
 
 
@@ -112,5 +112,4 @@ transform_parents([P|Parents0],[P|NParents],KeyVarsF,KeyVars0) :-
 	transform_parents(Parents0,NParents,KeyVarsF,KeyVars0).
 transform_parents([P|Parents0],[V|NParents],[P-V|KeyVarsF],KeyVars0) :-
 	transform_parents(Parents0,NParents,KeyVarsF,KeyVars0).
-
 

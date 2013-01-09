@@ -1,45 +1,51 @@
-:- module(bnt, [do_bnt/3,
-		create_bnt_graph/2,
-		check_if_bnt_done/1]).
+:- module(bnt,
+		[do_bnt/3,
+		 create_bnt_graph/2,
+		 check_if_bnt_done/1
+		]).
 
-:- use_module(library('clpbn/display'), [
-	clpbn_bind_vals/3]).
+:- use_module(library('clpbn/display'),
+		[clpbn_bind_vals/3]).
 
-:- use_module(library('clpbn/dists'), [
-				       get_dist_domain_size/2,
-				       get_dist_domain/2,
-				       get_dist_params/2
-				      ]).
+:- use_module(library('clpbn/dists'),
+		[get_dist_domain_size/2,
+		 get_dist_domain/2,
+		 get_dist_params/2
+		]).
 
-:- use_module(library('clpbn/discrete_utils'), [
-	reorder_CPT/5]).
+:- use_module(library('clpbn/discrete_utils'),
+		[reorder_CPT/5]).
 
-:- use_module(library(matlab), [start_matlab/1,
-				close_matlab/0,
-				matlab_on/0,
-				matlab_eval_string/1,
-				matlab_eval_string/2,
-				matlab_matrix/4,
-				matlab_vector/2,
-				matlab_sequence/3,
-				matlab_initialized_cells/4,
-				matlab_get_variable/2,
-				matlab_call/2
-			      ]).
+:- use_module(library(matlab),
+		[start_matlab/1,
+		 close_matlab/0,
+		 matlab_on/0,
+		 matlab_eval_string/1,
+		 matlab_eval_string/2,
+		 matlab_matrix/4,
+		 matlab_vector/2,
+		 matlab_sequence/3,
+		 matlab_initialized_cells/4,
+		 matlab_get_variable/2,
+		 matlab_call/2
+		]).
 
-:- use_module(library(dgraphs), [dgraph_new/1,
-				dgraph_add_vertices/3,
-				dgraph_add_edges/3,
-				dgraph_top_sort/2,
-				dgraph_vertices/2,
-				dgraph_edges/2
-			      ]).
+:- use_module(library(dgraphs),
+		[dgraph_new/1,
+		 dgraph_add_vertices/3,
+		 dgraph_add_edges/3,
+		 dgraph_top_sort/2,
+		 dgraph_vertices/2,
+		 dgraph_edges/2
+		]).
 
-:- use_module(library(lists), [append/3,
-	member/2,nth/3]).
+:- use_module(library(lists),
+		[append/3,
+		 member/2,nth/3
+		]).
 
-:- use_module(library(ordsets), [
-	ord_insert/3]).
+:- use_module(library(ordsets),
+		[ord_insert/3]).
 
 :- yap_flag(write_strings,on).
 
@@ -95,7 +101,7 @@ do_bnt(QueryVars, AllVars, AllDiffs)  :-
 	add_evidence(SortedVertices, Size, NumberedVertices),
 	marginalize(QueryVars, SortedVertices, NumberedVertices, Ps),
 	clpbn_bind_vals(QueryVars, Ps, AllDiffs).
-	
+
 create_bnt_graph(AllVars, Representatives) :-
 	create_bnt_graph(AllVars, Representatives, _, _, _).
 
@@ -148,7 +154,7 @@ extract_kvars([V|AllVars],[N-i(V,Parents)|KVars]) :-
 	extract_kvars(AllVars,KVars).
 
 split_tied_vars([],[],[]).
-split_tied_vars([N-i(V,Par)|More],[N-g(Vs,Ns,Es)|TVars],[N|LNs]) :-	
+split_tied_vars([N-i(V,Par)|More],[N-g(Vs,Ns,Es)|TVars],[N|LNs]) :-
 	get_pars(Par,N,V,NPs,[],Es0,Es),
 	get_tied(More,N,Vs,[V],Ns,NPs,Es,Es0,SVars),
 	split_tied_vars(SVars,TVars,LNs).
@@ -200,7 +206,7 @@ extract_graph(AllVars, Graph) :-
 	dgraph_add_vertices(Graph0, AllVars, Graph1),
 	get_edges(AllVars,Edges),
 	dgraph_add_edges(Graph1, Edges, Graph).
-	
+
 get_edges([],[]).
 get_edges([V|AllVars],Edges) :-
 	clpbn:get_atts(V, [dist(_,Parents)]),
@@ -218,13 +224,13 @@ number_graph([V|SortedGraph], [I|Is], I0, IF) :-
 %	clpbn:get_atts(V,[key(K)]),
 %	write(I:K),nl,
 	number_graph(SortedGraph, Is, I, IF).
-	
+
 init_bnet(propositional, SortedGraph, NumberedGraph, Size, []) :-
 	build_dag(SortedGraph, Size),
 	init_discrete_nodes(SortedGraph, Size),
 	bnet <-- mk_bnet(dag, node_sizes, \discrete, discrete_nodes),
 	dump_cpts(SortedGraph, NumberedGraph).
-	
+
 init_bnet(tied, SortedGraph, NumberedGraph, Size, Representatives) :-
 	build_dag(SortedGraph, Size),
 	init_discrete_nodes(SortedGraph, Size),
@@ -314,7 +320,7 @@ get_sizes_and_ids([V|Parents],[Id-V|Ids]) :-
 extract_vars([], L, L).
 extract_vars([_-V|NIds], NParents, Vs) :-
 	extract_vars(NIds, [V|NParents], Vs).
-	
+
 mkcpt(BayesNet, I, Tab) :-
 	(BayesNet.'CPD'({I})) <-- tabular_CPD(BayesNet,I,Tab).
 
@@ -330,7 +336,7 @@ create_class_vector([], [], [],[]).
 create_class_vector([V|Graph], [I|Is],  [Id|Classes], [Id-v(V,I,Parents)|Sets]) :-
 	clpbn:get_atts(V, [dist(Id,Parents)]),
 	create_class_vector(Graph, Is,Classes,Sets).
-	
+
 representatives([],[]).
 representatives([Class-Rep|Reps1],[Class-Rep|Reps]) :-
 	nonrepresentatives(Reps1, Class, Reps2),
@@ -376,7 +382,7 @@ add_evidence(Graph, Size, Is) :-
 	mk_evidence(Graph, Is, LN),
 	matlab_initialized_cells( 1, Size, LN, evidence),
 	[engine_ev, loglik] <-- enter_evidence(engine, evidence).
-	
+
 mk_evidence([], [], []).
 mk_evidence([V|L], [I|Is], [ar(1,I,EvVal1)|LN]) :-
 	clpbn:get_atts(V, [evidence(EvVal)]), !,
@@ -384,7 +390,7 @@ mk_evidence([V|L], [I|Is], [ar(1,I,EvVal1)|LN]) :-
 	mk_evidence(L, Is, LN).
 mk_evidence([_|L], [_|Is], LN) :-
 	mk_evidence(L, Is, LN).
-	
+
 evidence_val(Ev,Val,[Ev|_],Val) :- !.
 evidence_val(Ev,I0,[_|Domain],Val) :-
 	I1 is I0+1,
@@ -403,7 +409,7 @@ marginalize([Vs], SortedVars, NumberedVars,Ps) :-
 	length(SortedVars,L),
 	cycle_values(Den, Ev, Vs, L, Vals, Ps).
 
-cycle_values(_D, _Ev, _Vs, _Size, [], []).	
+cycle_values(_D, _Ev, _Vs, _Size, [], []).
 
 cycle_values(Den,Ev,Vs,Size,[H|T],[HP|TP]):-
 	mk_evidence_query(Vs, H, EvQuery),
@@ -421,5 +427,4 @@ mk_evidence_query([V|L], [H|T], [ar(1,Pos,El)|LN]) :-
 	get_dist_domain(Id,D),
 	nth(El,D,H),
 	mk_evidence_query(L, T, LN).
-	
 

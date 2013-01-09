@@ -1,0 +1,395 @@
+\documentclass{article}
+
+\usepackage{hyperref}
+\usepackage{setspace}
+\usepackage{fancyvrb}
+\usepackage{tikz}
+\usetikzlibrary{arrows,shapes,positioning}
+
+\begin{document}
+
+\DefineVerbatimEnvironment{pflcodeve}{Verbatim} {xleftmargin=3.0em,fontsize=\small}
+
+\newenvironment{pflcode}
+  {\VerbatimEnvironment \setstretch{0.8} \begin{pflcodeve}}
+  {\end{pflcodeve} }
+
+\newcommand{\true}      {\mathtt{t}}
+\newcommand{\false}     {\mathtt{f}}
+\newcommand{\pathsep}   { $\triangleright$ }
+\newcommand{\tableline} {\noalign{\hrule height 0.8pt}}
+
+\tikzstyle{nodestyle}   = [draw, thick, circle, minimum size=0.9cm]
+\tikzstyle{bnedgestyle} = [-triangle 45,thick]
+
+\setlength{\parskip}{\baselineskip}
+
+\title{\Huge\textbf{Prolog Factor Language (PFL) Manual}}
+
+\author{Tiago Gomes\\\texttt{tiago.avv@gmail.com} \and V\'{i}tor Santos Costa\\\texttt{vsc@fc.up.pt}\\\\
+CRACS \& INESC TEC, Faculty of Sciences, University of Porto
+}
+
+
+\date{}
+
+\maketitle
+\thispagestyle{empty}
+\vspace{5cm}
+\begin{center}
+  \large Last revision: January 8, 2013
+\end{center}
+\newpage
+
+
+
+%------------------------------------------------------------------------------
+%------------------------------------------------------------------------------
+%------------------------------------------------------------------------------
+%------------------------------------------------------------------------------
+\section{Introduction}
+The Prolog Factor Language (PFL) is a language that extends Prolog for providing a syntax to describe first-order probabilistic graphical models. These models can be either directed (bayesian networks) or undirected (markov networks). This language replaces the old one known as CLP($\mathcal{BN}$).
+
+The package also includes implementations for a set of well-known inference algorithms for solving probabilistic queries on these models. Both ground and lifted inference methods are support.
+
+
+
+%------------------------------------------------------------------------------
+%------------------------------------------------------------------------------
+%------------------------------------------------------------------------------
+%------------------------------------------------------------------------------
+\section{Installation}
+PFL is included with the \href{http://www.dcc.fc.up.pt/~vsc/Yap/}{YAP} Prolog system. However, there isn't yet a stable release of YAP that includes PFL. So it is required to install a development version of YAP. To to this, you will need to have installed the Git version control system. The commands to do a default installation of YAP in the user's home in a Unix-based environment are shown next.
+
+\begin{enumerate}
+ \setlength\itemindent{-0.01cm}
+ \item \texttt{\$ cd \$HOME}
+ \item \texttt{\$ git clone git://yap.git.sourceforge.net/gitroot/yap/yap-6.3}
+ \item \texttt{\$ cd yap-6.3/}
+ \item \texttt{\$ ./configure --enable-clpbn-bp --prefix=\$HOME}
+ \item \texttt{\$ make depend \& make install}
+\end{enumerate}
+
+In case you want to install YAP somewhere else or with different settings, please consult the YAP documentation. From now on, we will assume that the directory \texttt{\$HOME\pathsep bin} (where the binary can be found) is in your \texttt{\$PATH} environment variable.
+
+\label{examples-directory}
+Once in a while, we will refer to the PFL examples directory. In a default installation, this directory will be located at \texttt{\$HOME\pathsep share\pathsep doc\pathsep Yap\pathsep packages\pathsep examples\pathsep CLPBN}.
+
+
+
+%------------------------------------------------------------------------------
+%------------------------------------------------------------------------------
+%------------------------------------------------------------------------------
+%------------------------------------------------------------------------------
+\section{Language}
+A first-order probabilistic graphical model is described using parametric factors, or just parfactors. The PFL syntax for a parfactor is
+
+$$Type~~F~~;~~Phi~~;~~C.$$
+
+, where
+\begin{itemize}
+\item $Type$ refers the type of network over which the parfactor is defined. It can be \texttt{bayes} for directed networks, or \texttt{markov} for undirected ones.
+
+\item $F$ is a comma-separated sequence of Prolog terms that will define sets of random variables under the constraint $C$. If $Type$ is \texttt{bayes}, the first term defines the node while the others defines its parents.
+
+\item $Phi$ is either a Prolog list of potential values or a Prolog goal that unifies with one. If $Type$ is \texttt{bayes}, this will correspond to the conditional probability table. Domain combinations are implicitly assumed in ascending order, with the first term being the 'most significant' (e.g. $\mathtt{x_0y_0}$, $\mathtt{x_0y_1}$, $\mathtt{x_0y_2}$, $\mathtt{x_1y_0}$, $\mathtt{x_1y_1}$, $\mathtt{x_1y_2}$).
+
+\item $C$ is a (possibly empty) list of Prolog goals that will instantiate the logical variables that appear in $F$, that is, the successful substitutions for the goals in $C$ will be the valid values for the logical variables. This allows the constraint to be any relation (set of tuples) over the logical variables.
+\end{itemize}
+
+
+\begin{figure}[t!]
+\begin{center}
+\begin{tikzpicture}[>=latex',line join=bevel,transform shape,scale=0.8]
+
+\node (cloudy)   at (50bp,  122bp) [nodestyle,ellipse,inner sep=0pt,minimum width=2.7cm] {$Cloudy$};
+\node (sprinker) at ( 0bp,  66bp)  [nodestyle,ellipse,inner sep=0pt,minimum width=2.7cm] {$Sprinker$};
+\node (rain)     at (100bp, 66bp)  [nodestyle,ellipse,inner sep=0pt,minimum width=2.7cm] {$Rain$};
+\node (wetgrass) at (50bp,  10bp)  [nodestyle,ellipse,inner sep=0pt,minimum width=2.7cm] {$WetGrass$};
+\draw [bnedgestyle] (cloudy)   -- (sprinker);
+\draw [bnedgestyle] (cloudy)   -- (rain);
+\draw [bnedgestyle] (sprinker) -- (wetgrass);
+\draw [bnedgestyle] (rain)     -- (wetgrass);
+
+\node [above=0.4cm of cloudy,inner sep=0pt] {
+\begin{tabular}[b]{lc}
+  $C$      & $P(C)$ \\ \tableline
+  $\true$  & 0.5 \\
+  $\false$ & 0.5 \\
+\end{tabular}
+};
+
+\node [left=0.4cm of sprinker,inner sep=0pt] {
+\begin{tabular}{lcc}
+  $S$      & $C$      & $P(S|C)$ \\ \tableline
+  $\true$  & $\true$  & 0.1 \\
+  $\true$  & $\false$ & 0.5 \\
+  $\false$ & $\true$  & 0.9 \\
+  $\false$ & $\false$ & 0.5 \\
+\end{tabular}
+};
+
+\node [right=0.4cm of rain,inner sep=0pt] {
+\begin{tabular}{llc}
+  $R$      & $C$      & $P(R|C)$ \\ \tableline
+  $\true$  & $\true$  & 0.8 \\
+  $\true$  & $\false$ & 0.2 \\
+  $\false$ & $\true$  & 0.2 \\
+  $\false$ & $\false$ & 0.8 \\
+\end{tabular}
+};
+
+\node [below=0.4cm of wetgrass,inner sep=0pt] {
+\begin{tabular}{llll}
+  $W$      &  $S$     & $R$      & $P(W|S,R)$ \\ \tableline
+  $\true$  & $\true$  & $\true$  & \hspace{1em} 0.99 \\
+  $\true$  & $\true$  & $\false$ & \hspace{1em} 0.9  \\
+  $\true$  & $\false$ & $\true$  & \hspace{1em} 0.9  \\
+  $\true$  & $\false$ & $\false$ & \hspace{1em} 0.0  \\
+  $\false$ & $\true$  & $\true$  & \hspace{1em} 0.01 \\
+  $\false$ & $\true$  & $\false$ & \hspace{1em} 0.1  \\
+  $\false$ & $\false$ & $\true$  & \hspace{1em} 0.1  \\
+  $\false$ & $\false$ & $\false$ & \hspace{1em} 1.0  \\
+\end{tabular}
+};
+
+\end{tikzpicture}
+\caption{The sprinkler network.}
+\label{fig:sprinkler-bn}
+\end{center}
+\end{figure}
+
+Towards a better understanding of the language, next we show the PFL representation for the network found in Figure~\ref{fig:sprinkler-bn}.
+
+\begin{pflcode}
+:- use_module(library(pfl)).
+
+bayes cloudy ; cloudy_table ; [].
+
+bayes sprinkler, cloudy ; sprinkler_table ; [].
+
+bayes rain, cloudy ; rain_table ; [].
+
+bayes wet_grass, sprinkler, rain ; wet_grass_table ; [].
+
+cloudy_table(
+    [ 0.5,
+      0.5 ]).
+
+sprinkler_table(
+    [ 0.1, 0.5,
+      0.9, 0.5 ]).
+
+rain_table(
+    [ 0.8, 0.2,
+      0.2, 0.8 ]).
+
+wet_grass_table(
+    [ 0.99, 0.9, 0.9, 0.0,
+      0.01, 0.1, 0.1, 1.0 ]).
+\end{pflcode}
+
+Note that this network is fully grounded, as the constraints are all empty. Next we present the PFL representation for a well-known markov logic network - the social network model. The weighted formulas of this model are shown below.
+
+\begin{pflcode}
+1.5 : Smokes(x) => Cancer(x)
+1.1 : Smokes(x) ^ Friends(x,y) => Smokes(y)
+\end{pflcode}
+
+We can represent this model using PFL with the following code.
+
+\begin{pflcode}
+:- use_module(library(pfl)).
+
+person(anna).
+person(bob).
+
+markov smokes(X), cancer(X) ;
+    [4.482, 4.482, 1.0, 4.482] ;
+    [person(X)].
+
+markov friends(X,Y), smokes(X), smokes(Y) ;
+    [3.004, 3.004, 3.004, 3.004, 3.004, 1.0, 1.0, 3.004] ;
+    [person(X), person(Y)].
+\end{pflcode}
+%markov smokes(X) ; [1.0, 4.055]; [person(X)].
+%markov cancer(X) ; [1.0, 9.974]; [person(X)].
+%markov friends(X,Y) ; [1.0, 99.484] ; [person(X), person(Y)].
+
+Notice that we defined the world to be consisted of two persons, \texttt{anne} and \texttt{bob}. We can easily add as many persons as we want by inserting in the program a fact like \texttt{person @ 10.}~. This would create ten persons named \texttt{p1}, \texttt{p2}, \dots, \texttt{p10}.
+
+Unlike other fist-order probabilistic languages, in PFL the logical variables that appear in the terms are not directly typed, and they will be only constrained by the goals that appear in the constraint of the parfactor. This allows the logical variables to be constrained by any relation (set of tuples), and not by pairwise (in)equalities. For instance, the next example defines a ground network with three factors, each over the random variables \texttt{p(a,b)}, \texttt{p(b,d)} and \texttt{p(d,e)}.
+
+\begin{pflcode}
+constraint(a,b).
+constraint(b,d).
+constraint(d,e).
+
+markov p(A,B); some_table; [constraint(A,B)].
+\end{pflcode}
+
+We can easily add static evidence to PFL programs by inserting a fact with the same functor and arguments as the random variable, plus one extra argument with the observed state or value. For instance, suppose that we now that \texttt{anna} and \texttt{bob} are friends. We can add this knowledge to the program with the following fact: \texttt{friends(anna,bob,t).}~.
+
+One last note for the domain of the random variables. By default all terms will generate boolean (\texttt{t}/\texttt{f}) random variables. It is possible to chose a different domain by appending a list of the possible values or states to the term. Next we present a self-explanatory example of how this can be done.
+
+\begin{pflcode}
+bayes professor_ability::[high, medium, low] ; [0.5, 0.4, 0.1].
+\end{pflcode}
+
+More probabilistic models defined using PFL can be found in the examples directory.
+
+
+
+%------------------------------------------------------------------------------
+%------------------------------------------------------------------------------
+%------------------------------------------------------------------------------
+%------------------------------------------------------------------------------
+\section{Querying}
+In this section we demonstrate how to use PFL to solve probabilistic queries. We will use the sprinkler network as an example.
+
+Assuming that the current directory is the one where the examples are located, first we load the model as follows.
+
+\texttt{\$ yap -l sprinker.pfl}
+
+Let's suppose that we want to estimate the marginal probability for the $WetGrass$ random variable. We can do it calling the following goal:
+
+\texttt{?- wet\_grass(X).}
+
+The output of the goal will show the marginal probability for each $WetGrass$ possible state or value, that is, \texttt{t} and \texttt{f}. Notice that in PFL a random variable is identified by a term with the same functor and arguments plus one extra argument.
+
+Now let's suppose that we want to estimate the probability for the same random variable, but this time we have evidence that it had rained the day before. We can estimate this probability without resorting to static evidence with:
+
+\texttt{?- wet\_grass(X), rain(t).}
+
+PFL also supports calculating joint probability distributions. For instance, we can obtain the joint probability for $Sprinkler$ and $Rain$ with:
+
+\texttt{?- sprinkler(X), rain(Y).}
+
+
+
+%------------------------------------------------------------------------------
+%------------------------------------------------------------------------------
+%------------------------------------------------------------------------------
+%------------------------------------------------------------------------------
+\section{Parameter Learning}
+PFL is capable to learn the parameters for bayesian networks, through an implementation of the expectation-maximization algorithm.
+
+Inside the \texttt{learning} directory from the examples directory, one can find some examples of how learning works in PFL.
+
+We can define the solver that will be used for the inference part during parameter learning with the \texttt{set\_em\_solver/1} predicate (defaults to \texttt{hve}). At the moment, only the following solvers support parameter learning: \texttt{ve}, \texttt{hve}, \texttt{bdd}, \texttt{bp} and \texttt{cbp}.
+
+
+%------------------------------------------------------------------------------
+%------------------------------------------------------------------------------
+%------------------------------------------------------------------------------
+%------------------------------------------------------------------------------
+\section{Inference Options}
+PFL supports both ground and lifted inference methods. The inference algorithm can be chosen by calling \texttt{set\_solver/1}. The following are supported:
+\begin{itemize}
+ \item \texttt{ve},  variable elimination (written in Prolog)
+ \item \texttt{hve}, variable elimination (written in C++)
+ \item \texttt{jt},  junction tree
+ \item \texttt{bdd}, binary decision diagrams
+ \item \texttt{bp},  belief propagation
+ \item \texttt{cbp}, counting belief propagation
+ \item \texttt{gibbs}, gibbs sampling
+ \item \texttt{lve}, generalized counting first-order variable elimination (GC-FOVE)
+ \item \texttt{lkc}, lifted first-order knowledge compilation
+ \item \texttt{lbp}, lifted first-order belief propagation
+\end{itemize}
+
+For instance, if we want to use belief propagation to solve some probabilistic query, we need to call first:
+
+\texttt{?- set\_solver(bp).}
+
+It is possible to tweak some parameters of PFL through \texttt{set\_horus\_flag/2} predicate. The first argument is a key that identifies the parameter that we desire to tweak, while the second is some possible value for this key.
+
+The \texttt{verbosity} key controls the level of debugging information that will be printed. Its possible values are positive integers. The higher the number, the more information that will be shown. For example, to view some basic debugging information we call:
+
+\texttt{?- set\_horus\_flag(verbosity, 1).}
+
+This key defaults to 0 (no debugging information) and only \texttt{hve}, \texttt{bp}, \texttt{cbp}, \texttt{lve}, \texttt{lkc} and \texttt{lbp} solvers have support for this key.
+
+The \texttt{use\_logarithms} key controls whether the calculations performed during inference should be done in a logarithm domain or not. Its values can be \texttt{true} or \texttt{false}. By default is \texttt{true} and only affects \texttt{hve}, \texttt{bp}, \texttt{cbp}, \texttt{lve}, \texttt{lkc} and \texttt{lbp} solvers. The remaining solvers always do their calculations in a logarithm domain.
+
+There are keys specific only to some algorithms. The key \texttt{elim\_heuristic} key allows to chose which elimination heuristic will be used by the \texttt{hve} solver (but not \texttt{ve}). The following are supported:
+\begin{itemize}
+ \item \texttt{sequential}
+ \item \texttt{min\_neighbors}
+ \item \texttt{min\_weight}
+ \item \texttt{min\_fill}
+ \item \texttt{weighted\_min\_fill}
+\end{itemize}
+
+It defaults to \texttt{weighted\_min\_fill}. An explanation of each of these heuristics can be found in Daphne Koller's book \textit{Probabilistic Graphical Models}.
+
+The \texttt{bp\_msg\_schedule}, \texttt{bp\_accuracy} and \texttt{bp\_max\_iter} keys are specific for message passing based algorithms, namely \texttt{bp}, \texttt{cbp} and \texttt{lbp}.
+
+The \texttt{bp\_max\_iter} key establishes a maximum number of iterations. One iteration consists in sending all possible messages. It defaults to 1000.
+
+The \texttt{bp\_accuracy} key indicates when the message passing should cease. Be the residual of one message the difference (according some metric) between the one sent in the current iteration and the one sent in the previous. If the highest residual is lesser than the given value, the message passing is stopped and the probabilities are calculated using the last messages that were sent. This key defaults to 0.0001.
+
+The key \texttt{bp\_msg\_schedule} controls the message sending order. Its possible values are:
+\begin{itemize}
+ \item \texttt{seq\_fixed}, at each iteration, all messages are sent with the same order.
+
+ \item \texttt{seq\_random}, at each iteration, all messages are sent with a random order.
+
+ \item \texttt{parallel}, at each iteration, all messages are calculated using only the values of the previous iteration.
+
+ \item \texttt{max\_residual}, the next message to be sent is the one with maximum residual (as explained in the paper \textit{Residual Belief Propagation: Informed Scheduling for Asynchronous Message Passing}).
+\end{itemize}
+It defaults to \texttt{seq\_fixed}.
+
+The \texttt{export\_libdai} and \texttt{export\_uai} keys can be used to export the current model respectively to \href{http://cs.ru.nl/~jorism/libDAI/doc/fileformats.html}{libDAI}, and \href{http://graphmod.ics.uci.edu/uai08/FileFormat}{UAI08} formats. With the \texttt{export\_graphviz} key it is possible to save the factor graph into a format that can be read by \href{http://www.graphviz.org/}{Graphviz}. The \texttt{print\_fg} key allows to print all factors before perform inference. All these four keys accept \texttt{true} and \texttt{false} as their values and only produce effect in \texttt{hve}, \texttt{bp}, and \texttt{cbp} solvers.
+
+
+
+%------------------------------------------------------------------------------
+%------------------------------------------------------------------------------
+%------------------------------------------------------------------------------
+%------------------------------------------------------------------------------
+\section{Horus Command Line}
+This package also includes an external interface to YAP for perform inference over probabilistic graphical models described in formats other than PFL. Currently two are support, the \href{http://cs.ru.nl/~jorism/libDAI/doc/fileformats.html}{libDAI file format}, and the \href{http://graphmod.ics.uci.edu/uai08/FileFormat}{UAI08 file format}.
+
+This utility is called \texttt{hcli} and its usage is as follows.
+
+\begin{verbatim}
+   $ ./hcli [solver=hve|bp|cbp] [<HORUS_KEY>=<VALUE>]...
+   <FILE> [<VAR>|<VAR>=<EVIDENCE>]...
+\end{verbatim}
+
+Let's assume that the current directory is the one where the examples are located. We can perform inference in any supported model by passing the file name where the model is defined as argument. Next, we show how to load a model using the \texttt{hcli} utility.
+
+\texttt{\$ ./hcli burglary-alarm.uai}
+
+With the above command, the program will load the model and print the marginal probabilities for all defined random variables. We can view only the marginal probability for some variable with a identifier $X$, if we pass $X$ as an extra argument following the file name. For instance, the following command will output only the marginal probability for the variable with identifier $0$.
+
+\texttt{\$ ./hcli burglary-alarm.uai 0}
+
+If we give more than one variable identifier as argument, the program will output the joint probability for all variables given.
+
+Evidence can be given as a pair containing a variable identifier and its observed state (index), separated by a '=`. For instance, we can introduce knowledge that some variable with identifier $0$ has evidence on its second state as follows.
+
+\texttt{\$ ./hcli burglary-alarm.uai 0=1}
+
+By default, all probability tasks are resolved using the \texttt{hve} solver. It is possible to choose another solver using the \texttt{solver} key as follows.
+
+\texttt{\$ ./hcli solver=bp burglary-alarm.uai}
+
+Notice that only the \texttt{hve}, \texttt{bp} and \texttt{cbp} solvers can be used with \texttt{hcli}.
+
+The options that are available with the \texttt{set\_horus\_flag/2} predicate can be used in \texttt{hcli} too. The syntax to use are pairs \texttt{<Key>=<Value>} before the model's file name.
+
+
+
+%------------------------------------------------------------------------------
+%------------------------------------------------------------------------------
+%------------------------------------------------------------------------------
+%------------------------------------------------------------------------------
+\section{Further Information}
+Please check the paper \textit{Evaluating Inference Algorithms for the Prolog Factor Language} for further information.
+
+Any question don't hesitate to contact us!
+
+\end{document}

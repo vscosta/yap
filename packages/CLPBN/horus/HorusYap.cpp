@@ -57,7 +57,7 @@ createLiftedNetwork (void)
   }
 
   ParfactorList* pfList = new ParfactorList (parfactors);
-  
+
   if (Globals::verbosity > 2) {
     Util::printHeader ("SHATTERED PARFACTORS");
     pfList->print();
@@ -91,7 +91,7 @@ createGroundNetwork (void)
     // read the ranges
     Ranges ranges = readUnsignedList (YAP_ArgOfTerm (2, factor));
     // read the parameters
-    Params params = readParameters (YAP_ArgOfTerm (3, factor)); 
+    Params params = readParameters (YAP_ArgOfTerm (3, factor));
     // read dist id
     unsigned distId = (unsigned) YAP_IntOfTerm (YAP_ArgOfTerm (4, factor));
     fg->addFactor (Factor (varIds, ranges, params, distId));
@@ -108,10 +108,21 @@ createGroundNetwork (void)
     evidenceList = YAP_TailOfTerm (evidenceList);
     nrObservedVars ++;
   }
+  if (FactorGraph::exportToLibDai()) {
+    fg->exportToLibDai ("model.fg");
+  }
+  if (FactorGraph::exportToUai()) {
+    fg->exportToUai ("model.uai");
+  }
+  if (FactorGraph::exportGraphViz()) {
+    fg->exportToGraphViz ("model.dot");
+  }
+  if (FactorGraph::printFactorGraph()) {
+    fg->print();
+  }
   if (Globals::verbosity > 0) {
     cout << "factor graph contains " ;
-    cout << fg->nrVarNodes() << " variables " ;
-    cout << "(" << nrObservedVars << " observed) and " ;
+    cout << fg->nrVarNodes() << " variables and " ;
     cout << fg->nrFacNodes() << " factors " << endl;
   }
   YAP_Int p = (YAP_Int) (fg);
@@ -126,19 +137,19 @@ runLiftedSolver (void)
   LiftedNetwork* network = (LiftedNetwork*) YAP_IntOfTerm (YAP_ARG1);
   ParfactorList pfListCopy (*network->first);
   LiftedOperations::absorveEvidence (pfListCopy, *network->second);
-  
+
   LiftedSolver* solver = 0;
   switch (Globals::liftedSolver) {
     case LiftedSolverType::LVE:  solver = new LiftedVe (pfListCopy); break;
     case LiftedSolverType::LBP:  solver = new LiftedBp (pfListCopy); break;
     case LiftedSolverType::LKC:  solver = new LiftedKc (pfListCopy); break;
   }
-  
+
   if (Globals::verbosity > 0) {
     solver->printSolverFlags();
     cout << endl;
   }
-  
+
   YAP_Term taskList = YAP_ARG2;
   vector<Params> results;
   while (taskList != YAP_TermNil()) {
@@ -181,7 +192,7 @@ int
 runGroundSolver (void)
 {
   FactorGraph* fg = (FactorGraph*) YAP_IntOfTerm (YAP_ARG1);
-  
+
   vector<VarIds> tasks;
   YAP_Term taskList = YAP_ARG2;
   while (taskList != YAP_TermNil()) {
@@ -200,7 +211,7 @@ runGroundSolver (void)
   }
 
   GroundSolver* solver = 0;
-  CountingBp::checkForIdenticalFactors = false;
+  CountingBp::setFindIdenticalFactorsFlag (false);
   switch (Globals::groundSolver) {
     case GroundSolverType::VE:  solver = new VarElim    (*mfg); break;
     case GroundSolverType::BP:  solver = new BeliefProp (*mfg); break;
@@ -233,19 +244,21 @@ setParfactorsParams (void)
 {
   LiftedNetwork* network = (LiftedNetwork*) YAP_IntOfTerm (YAP_ARG1);
   ParfactorList* pfList = network->first;
-  YAP_Term distList = YAP_ARG2;
+  YAP_Term distIdsList = YAP_ARG2;
+  YAP_Term paramsList  = YAP_ARG3;
   unordered_map<unsigned, Params> paramsMap;
-  while (distList != YAP_TermNil()) {
-    YAP_Term dist   = YAP_HeadOfTerm (distList);
-    unsigned distId = (unsigned) YAP_IntOfTerm (YAP_ArgOfTerm (1, dist));
+  while (distIdsList != YAP_TermNil()) {
+    unsigned distId = (unsigned) YAP_IntOfTerm (
+        YAP_HeadOfTerm (distIdsList));
     assert (Util::contains (paramsMap, distId) == false);
-    paramsMap[distId] = readParameters (YAP_ArgOfTerm (2, dist));
-    distList = YAP_TailOfTerm (distList);
+    paramsMap[distId] = readParameters (YAP_HeadOfTerm (paramsList));
+    distIdsList = YAP_TailOfTerm (distIdsList);
+    paramsList  = YAP_TailOfTerm (paramsList);
   }
   ParfactorList::iterator it = pfList->begin();
   while (it != pfList->end()) {
     assert (Util::contains (paramsMap, (*it)->distId()));
-    // (*it)->setParams (paramsMap[(*it)->distId()]); 
+    (*it)->setParams (paramsMap[(*it)->distId()]);
     ++ it;
   }
   return TRUE;
@@ -256,16 +269,17 @@ setParfactorsParams (void)
 int
 setFactorsParams (void)
 {
-  return TRUE; // TODO
   FactorGraph* fg = (FactorGraph*) YAP_IntOfTerm (YAP_ARG1);
-  YAP_Term distList = YAP_ARG2;
+  YAP_Term distIdsList = YAP_ARG2;
+  YAP_Term paramsList  = YAP_ARG3;
   unordered_map<unsigned, Params> paramsMap;
-  while (distList != YAP_TermNil()) {
-    YAP_Term dist   = YAP_HeadOfTerm (distList);
-    unsigned distId = (unsigned) YAP_IntOfTerm (YAP_ArgOfTerm (1, dist));
+  while (distIdsList != YAP_TermNil()) {
+    unsigned distId = (unsigned) YAP_IntOfTerm (
+        YAP_HeadOfTerm (distIdsList));
     assert (Util::contains (paramsMap, distId) == false);
-    paramsMap[distId] = readParameters (YAP_ArgOfTerm (2, dist));
-    distList = YAP_TailOfTerm (distList);
+    paramsMap[distId] = readParameters (YAP_HeadOfTerm (paramsList));
+    distIdsList = YAP_TailOfTerm (distIdsList);
+    paramsList  = YAP_TailOfTerm (paramsList);
   }
   const FacNodes& facNodes = fg->facNodes();
   for (size_t i = 0; i < facNodes.size(); i++) {
@@ -317,11 +331,11 @@ setHorusFlag (void)
     stringstream ss;
     ss << (int) YAP_IntOfTerm (YAP_ARG2);
     ss >> value;
-  } else if (key == "accuracy") {
+  } else if (key == "bp_accuracy") {
     stringstream ss;
     ss << (float) YAP_FloatOfTerm (YAP_ARG2);
     ss >> value;
-  } else if (key == "max_iter") {
+  } else if (key == "bp_max_iter") {
     stringstream ss;
     ss << (int) YAP_IntOfTerm (YAP_ARG2);
     ss >> value;
@@ -404,7 +418,7 @@ readParfactor (YAP_Term pfTerm)
   }
 
   // read the parameters
-  const Params& params = readParameters (YAP_ArgOfTerm (4, pfTerm)); 
+  const Params& params = readParameters (YAP_ArgOfTerm (4, pfTerm));
 
   // read the constraint
   Tuples tuples;
@@ -420,8 +434,8 @@ readParfactor (YAP_Term pfTerm)
       for (unsigned i = 1; i <= arity; i++) {
         YAP_Term ti = YAP_ArgOfTerm (i, term);
         if (YAP_IsAtomTerm (ti) == false) {
-          cerr << "error: constraint has free variables" << endl;
-          abort();
+          cerr << "Error: the constraint contains free variables." << endl;
+          exit (EXIT_FAILURE);
         }
         string name ((char*) YAP_AtomName (YAP_AtomOfTerm (ti)));
         tuple[i - 1] = LiftedUtils::getSymbol (name);
@@ -475,7 +489,7 @@ readLiftedEvidence (
       obsFormulas.push_back (ObservedFormula (functor, evidence, args));
     }
     observedList = YAP_TailOfTerm (observedList);
-  } 
+  }
 }
 
 
@@ -534,15 +548,34 @@ fillAnswersPrologList (vector<Params>& results)
 extern "C" void
 init_predicates (void)
 {
-  YAP_UserCPredicate ("cpp_create_lifted_network",  createLiftedNetwork, 3);
-  YAP_UserCPredicate ("cpp_create_ground_network",  createGroundNetwork, 4);
-  YAP_UserCPredicate ("cpp_run_lifted_solver",      runLiftedSolver,     3);
-  YAP_UserCPredicate ("cpp_run_ground_solver",      runGroundSolver,     3);
-  YAP_UserCPredicate ("cpp_set_parfactors_params",  setParfactorsParams, 2);
-  YAP_UserCPredicate ("cpp_cpp_set_factors_params", setFactorsParams,    2);
-  YAP_UserCPredicate ("cpp_set_vars_information",   setVarsInformation,  2);
-  YAP_UserCPredicate ("cpp_set_horus_flag",         setHorusFlag,        2);
-  YAP_UserCPredicate ("cpp_free_lifted_network",    freeLiftedNetwork,   1);
-  YAP_UserCPredicate ("cpp_free_ground_network",    freeGroundNetwork,   1);
+  YAP_UserCPredicate ("cpp_create_lifted_network",
+      createLiftedNetwork, 3);
+
+  YAP_UserCPredicate ("cpp_create_ground_network",
+      createGroundNetwork, 4);
+
+  YAP_UserCPredicate ("cpp_run_lifted_solver",
+      runLiftedSolver, 3);
+
+  YAP_UserCPredicate ("cpp_run_ground_solver",
+      runGroundSolver, 3);
+
+  YAP_UserCPredicate ("cpp_set_parfactors_params",
+      setParfactorsParams, 3);
+
+  YAP_UserCPredicate ("cpp_set_factors_params",
+      setFactorsParams, 3);
+
+  YAP_UserCPredicate ("cpp_set_vars_information",
+      setVarsInformation, 2);
+
+  YAP_UserCPredicate ("cpp_set_horus_flag",
+      setHorusFlag, 2);
+
+  YAP_UserCPredicate ("cpp_free_lifted_network",
+      freeLiftedNetwork, 1);
+
+  YAP_UserCPredicate ("cpp_free_ground_network",
+     freeGroundNetwork, 1);
 }
 

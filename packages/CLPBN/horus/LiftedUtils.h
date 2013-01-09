@@ -1,11 +1,10 @@
 #ifndef HORUS_LIFTEDUTILS_H
 #define HORUS_LIFTEDUTILS_H
 
-#include <limits>
 #include <string>
+
 #include <vector>
 #include <unordered_map>
-
 
 #include "TinySet.h"
 #include "Util.h"
@@ -51,7 +50,7 @@ class LogVar
     }
 
     bool valid (void) const
-    { 
+    {
       return id_ != Util::maxUnsigned();
     }
 
@@ -107,7 +106,7 @@ class Ground
 
     size_t arity (void) const { return args_.size(); }
 
-    bool isAtom (void) const { return args_.size() == 0; }
+    bool isAtom (void) const { return args_.empty(); }
 
     friend ostream& operator<< (ostream &os, const Ground& gr);
 
@@ -145,11 +144,11 @@ class Substitution
       return X;
     }
 
-    bool containsReplacementFor (LogVar X) const 
+    bool containsReplacementFor (LogVar X) const
     {
       return Util::contains (subs_, X);
     }
- 
+
     size_t nrReplacements (void) const { return subs_.size(); }
 
     LogVars getDiscardedLogVars (void) const;
@@ -160,7 +159,6 @@ class Substitution
     unordered_map<LogVar, LogVar> subs_;
 
 };
-
 
 #endif // HORUS_LIFTEDUTILS_H
 

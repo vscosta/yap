@@ -3,11 +3,10 @@
 #include "Indexer.h"
 
 
-
 bool
 Literal::isGround (ConstraintTree constr, LogVarSet ipgLogVars) const
 {
-  if (logVars_.size() == 0) {
+  if (logVars_.empty()) {
     return true;
   }
   LogVarSet lvs (logVars_);
@@ -108,7 +107,7 @@ Clause::containsPositiveLiteral (
 }
 
 
-    
+
 bool
 Clause::containsNegativeLiteral (
     LiteralId lid,
@@ -195,7 +194,7 @@ Clause::isPositiveCountedLogVar (LogVar X) const
   assert (constr_.logVarSet().contains (X));
   return posCountedLvs_.contains (X);
 }
-  
+
 
 
 bool
@@ -235,7 +234,7 @@ Clause::ipgCandidates (void) const
   LogVarSet allLvs = constr_.logVarSet();
   allLvs -= ipgLvs_;
   allLvs -= posCountedLvs_;
-  allLvs -= negCountedLvs_;  
+  allLvs -= negCountedLvs_;
   for (size_t i = 0; i < allLvs.size(); i++) {
     bool valid = true;
     for (size_t j = 0; j < literals_.size(); j++) {
@@ -262,7 +261,7 @@ Clause::logVarTypes (size_t litIdx) const
     if (posCountedLvs_.contains (lvs[i])) {
       types.push_back (LogVarType::POS_LV);
     } else if (negCountedLvs_.contains (lvs[i])) {
-      types.push_back (LogVarType::NEG_LV);    
+      types.push_back (LogVarType::NEG_LV);
     } else {
       types.push_back (LogVarType::FULL_LV);
     }
@@ -327,6 +326,16 @@ Clause::printClauses (const Clauses& clauses)
 
 
 
+void
+Clause::deleteClauses (Clauses& clauses)
+{
+  for (size_t i = 0; i < clauses.size(); i++) {
+    delete clauses[i];
+  }
+}
+
+
+
 std::ostream&
 operator<< (ostream &os, const Clause& clause)
 {
@@ -381,7 +390,7 @@ LiftedWCNF::LiftedWCNF (const ParfactorList& pfList)
 {
   addIndicatorClauses (pfList);
   addParameterClauses (pfList);
-  
+
   /*
   // INCLUSION-EXCLUSION TEST
   clauses_.clear();
@@ -427,7 +436,7 @@ LiftedWCNF::LiftedWCNF (const ParfactorList& pfList)
   c2->addLiteralComplemented (Literal (1, {1,0}));
   clauses_.push_back(c2);
   */
-  
+
   if (Globals::verbosity > 1) {
     cout << "FORMULA INDICATORS:" << endl;
     printFormulaIndicators();
@@ -445,7 +454,7 @@ LiftedWCNF::LiftedWCNF (const ParfactorList& pfList)
 
 LiftedWCNF::~LiftedWCNF (void)
 {
-
+  Clause::deleteClauses (clauses_);
 }
 
 
@@ -569,7 +578,7 @@ LiftedWCNF::addParameterClauses (const ParfactorList& pfList)
       // ¬θxi|u1,...,un v λu2           -> tempClause
       double posWeight = (**it)[indexer];
       addWeight (paramVarLid, posWeight, LogAware::one());
-      
+
       Clause* clause1 = new Clause (*(*it)->constr());
 
       for (unsigned i = 0; i < groups.size(); i++) {
@@ -583,7 +592,7 @@ LiftedWCNF::addParameterClauses (const ParfactorList& pfList)
         tempClause->addLiteralComplemented (Literal (
             paramVarLid, (*it)->constr()->logVars()));
         tempClause->addLiteral (Literal (lid, (*it)->argument(i).logVars()));
-        clauses_.push_back (tempClause);        
+        clauses_.push_back (tempClause);
       }
       clause1->addLiteral (Literal (paramVarLid, (*it)->constr()->logVars()));
       clauses_.push_back (clause1);
@@ -631,7 +640,7 @@ LiftedWCNF::printWeights (void) const
   unordered_map<LiteralId, std::pair<double,double>>::const_iterator it;
   it = weights_.begin();
   while (it != weights_.end()) {
-    cout << "λ" << it->first << " weights: " ;     
+    cout << "λ" << it->first << " weights: " ;
     cout << it->second.first << " " << it->second.second;
     cout << endl;
     ++ it;

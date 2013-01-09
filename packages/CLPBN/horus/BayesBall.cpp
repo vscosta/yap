@@ -1,12 +1,6 @@
-#include <cstdlib>
 #include <cassert>
 
-#include <iostream>
-#include <fstream>
-#include <sstream>
-
 #include "BayesBall.h"
-#include "Util.h"
 
 
 FactorGraph*

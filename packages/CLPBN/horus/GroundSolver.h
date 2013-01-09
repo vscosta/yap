@@ -4,7 +4,6 @@
 #include <iomanip>
 
 #include "FactorGraph.h"
-#include "Var.h"
 #include "Horus.h"
 
 
@@ -25,11 +24,13 @@ class GroundSolver
 
     void printAllPosterioris (void);
 
-    Params getJointByConditioning (GroundSolverType,
-        FactorGraph, const VarIds& jointVarIds) const;
-   
+    static Params getJointByConditioning (GroundSolverType,
+        FactorGraph, const VarIds& jointVarIds);
+
   protected:
     const FactorGraph& fg;
+
+    DISALLOW_COPY_AND_ASSIGN (GroundSolver);
 };
 
 #endif // HORUS_GROUNDSOLVER_H

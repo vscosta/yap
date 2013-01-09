@@ -3,13 +3,14 @@
 % Just output a graph with all the variables.
 %
 
-:- module(clpbn2graph, [clpbn2graph/1]).
+:- module(clpbn2graph,
+		[clpbn2graph/1]).
 
-:- use_module(library('clpbn/utils'), [
-	check_for_hidden_vars/3]).
+:- use_module(library('clpbn/utils'),
+		[check_for_hidden_vars/3]).
 
-:- use_module(library('clpbn/dists'), [
-	get_dist/4]).
+:- use_module(library('clpbn/dists'),
+		[get_dist/4]).
 
 :- attribute node/0.
 
@@ -36,8 +37,4 @@ translate_vars([],[]).
 translate_vars([V|Vs],[K|Ks]) :-
 	clpbn:get_atts(V, [key(K)]),
 	translate_vars(Vs,Ks).
-
-
-
-
 

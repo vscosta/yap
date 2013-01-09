@@ -1,42 +1,45 @@
-				%
+%
 % generate explicit CPTs
 %
-:- module(clpbn_aggregates, [
-        check_for_agg_vars/2,
-	cpt_average/6,
-	cpt_average/7,
-	cpt_max/6,
-	cpt_min/6,
-        avg_factors/5
-	]).
+:- module(clpbn_aggregates,
+		[check_for_agg_vars/2,
+		 cpt_average/6,
+		 cpt_average/7,
+		 cpt_max/6,
+		 cpt_min/6,
+		 avg_factors/5
+		]).
 
-:- use_module(library(clpbn), [{}/1]).
+:- use_module(library(clpbn),
+		[{}/1]).
 
 :- use_module(library(lists),
-	[last/2,
-	sumlist/2,
-	sum_list/3,
-	max_list/2,
-	min_list/2,
-	nth0/3
-    ]).
+		[last/2,
+		 sumlist/2,
+		 sum_list/3,
+		 max_list/2,
+		 min_list/2,
+		 nth0/3
+		]).
 
 :- use_module(library(matrix),
-	[matrix_new/3,
-	matrix_to_list/2,
-	matrix_set/3]).
+		[matrix_new/3,
+		 matrix_to_list/2,
+		 matrix_set/3
+		]).
 
 :- use_module(library(clpbn/dists),
-	      [
-	       add_dist/6,
-	       get_dist_domain_size/2]).
+		[add_dist/6,
+		 get_dist_domain_size/2
+		]).
 
 :- use_module(library(clpbn/matrix_cpt_utils),
-	[normalise_CPT_on_lines/3]).
+		[normalise_CPT_on_lines/3]).
 
 :- use_module(library(pfl),
-	[skolem/2,
-	 add_ground_factor/5]).
+		[skolem/2,
+		 add_ground_factor/5
+		]).
 
 :- use_module(library(bhash)).
 
@@ -60,9 +63,9 @@ simplify_dist(_, _, _, _, Vs0, Vs0).
 
 %
 avg_factors(Key, Parents, _Smoothing, NewParents, Id) :-
-    % we keep ev as a list
-    skolem(Key, Domain),
-    avg_table(Parents, Parents, Domain, Key, 0, 1.0, NewParents, [], _ExtraSkolems, Id).
+	% we keep ev as a list
+	skolem(Key, Domain),
+	avg_table(Parents, Parents, Domain, Key, 0, 1.0, NewParents, [], _ExtraSkolems, Id).
 
 % there are 4 cases:
 % no evidence on top node
@@ -70,17 +73,17 @@ avg_factors(Key, Parents, _Smoothing, NewParents, Id) :-
 % evidence on top node *entailed* by values of parents (so there is no real connection)
 % evidence incompatible with parents
 query_evidence(Key, EvHash, MAT0, MAT, NewParents0, NewParents, Vs, IVs, NewVs) :-
-    b_hash_lookup(Key, Ev, EvHash), !,
-    normalise_CPT_on_lines(MAT0, MAT1, L1),
-    check_consistency(L1, Ev, MAT0, MAT1, L1, MAT, NewParents0, NewParents, Vs, IVs, NewVs).
+	b_hash_lookup(Key, Ev, EvHash), !,
+	normalise_CPT_on_lines(MAT0, MAT1, L1),
+	check_consistency(L1, Ev, MAT0, MAT1, L1, MAT, NewParents0, NewParents, Vs, IVs, NewVs).
 query_evidence(_, _, MAT, MAT, NewParents, NewParents, _, Vs, Vs).
 
 hash_ev(K=V, Es0, Es) :-
-    b_hash_insert(Es0, K, V, Es).
+	b_hash_insert(Es0, K, V, Es).
 
 find_ev(Ev, Key, RemKeys, RemKeys, Ev0, EvF) :-
-    b_hash_lookup(Key, V, Ev), !,
-    EvF is Ev0+V.
+	b_hash_lookup(Key, V, Ev), !,
+	EvF is Ev0+V.
 find_ev(_Evs, Key, RemKeys, [Key|RemKeys], Ev, Ev).
 
 
@@ -93,11 +96,11 @@ find_ev(_Evs, Key, RemKeys, [Key|RemKeys], Ev, Ev).
 % +final CPT
 % - New Parents
 % + - list of new keys
-% 
+%
 avg_table(Vars, OVars, Domain, Key, TotEvidence, Softness, Vars, Vs, Vs, Id) :-
 	length(Domain, SDomain),
 	int_power(Vars, SDomain, 1, TabSize),
-	TabSize =< 256, 
+	TabSize =< 256,
 	/* case gmp is not there !! */
 	TabSize > 0, !,
 	average_cpt(Vars, OVars, Domain, TotEvidence,  Softness, CPT),
@@ -115,7 +118,7 @@ avg_table(Vars, OVars, Domain, Key, TotEvidence, Softness, [V1,V2], Vs, [V1,V2|N
 	average_cpt([V1,V2], OVars, Domain, TotEvidence, Softness, CPT),
 	matrix_to_list(CPT, Mat),
 	add_ground_factor(bayes, Domain, [Key,V1,V2], Mat, Id).
-	
+
 intermediate_table(1,_,[V],V, _, _, I, I, Vs, Vs) :- !.
 intermediate_table(2, Op, [V1,V2], V, Key, Softness, I0, If, Vs, Vs) :- !,
 	If is I0+1,
@@ -167,7 +170,7 @@ cpt_min([_|Vars], Key, Els0, CPT, Vs, NewVs) :-
 build_avg_table(Vars, OVars, Domain, _, TotEvidence, Softness, CPT, Vars, Vs, Vs) :-
 	length(Domain, SDomain),
 	int_power(Vars, SDomain, 1, TabSize),
-	TabSize =< 256, 
+	TabSize =< 256,
 	/* case gmp is not there !! */
 	TabSize > 0, !,
 	average_cpt(Vars, OVars, Domain, TotEvidence,  Softness, CPT).
@@ -181,11 +184,11 @@ build_avg_table(Vars, OVars, Domain, Key, TotEvidence, Softness, CPT, [V1,V2], V
 	build_intermediate_table(LL1, sum(Min,Max), L1, V1, Key,  1.0, 0, I1, Vs, Vs1),
 	build_intermediate_table(LL2, sum(Min,Max), L2, V2, Key, 1.0, I1, _, Vs1, NewVs),
 	average_cpt([V1,V2], OVars, Domain, TotEvidence, Softness, CPT).
-	
+
 build_max_table(Vars, Domain, Softness, p(Domain, CPT, Vars), Vs, Vs) :-
 	length(Domain, SDomain),
 	int_power(Vars, SDomain, 1, TabSize),
-	TabSize =< 16, 
+	TabSize =< 16,
 	/* case gmp is not there !! */
 	TabSize > 0, !,
 	max_cpt(Vars, Domain, Softness, CPT).
@@ -197,11 +200,11 @@ build_max_table(Vars, Domain, Softness, p(Domain, CPT, [V1,V2]), Vs, [V1,V2|NewV
 	build_intermediate_table(LL1, max(Domain,CPT), L1, V1, Key, 1.0,  0, I1, Vs, Vs1),
 	build_intermediate_table(LL2, max(Domain,CPT), L2, V2, Key, 1.0, I1, _, Vs1, NewVs),
 	max_cpt([V1,V2], Domain, Softness, CPT).
-	
+
 build_min_table(Vars, Domain, Softness, p(Domain, CPT, Vars), Vs, Vs) :-
 	length(Domain, SDomain),
 	int_power(Vars, SDomain, 1, TabSize),
-	TabSize =< 16, 
+	TabSize =< 16,
 	/* case gmp is not there !! */
 	TabSize > 0, !,
 	min_cpt(Vars, Domain, Softness, CPT).
@@ -213,7 +216,7 @@ build_min_table(Vars, Domain, Softness, p(Domain, CPT, [V1,V2]), Vs, [V1,V2|NewV
 	build_intermediate_table(LL1, min(Domain,CPT), L1, V1, Key, 1.0,  0, I1, Vs, Vs1),
 	build_intermediate_table(LL2, min(Domain,CPT), L2, V2, Key, 1.0, I1, _, Vs1, NewVs),
 	min_cpt([V1,V2], Domain, Softness, CPT).
-	
+
 int_power([], _, TabSize, TabSize).
 int_power([_|L], X, I0, TabSize) :-
 	I is I0*X,
@@ -270,19 +273,21 @@ include_qevidence(_, MAT, MAT, NewParents, NewParents, _, Vs, Vs).
 check_consistency(L1, Ev, MAT0, MAT1, L1, MAT, NewParents0, NewParents, Vs, IVs, NewVs) :-
 	sumlist(L1, Tot),
 	nth0(Ev, L1, Val),
-	(Val == Tot ->
-	    MAT1 = MAT,
-	    NewParents = [],
-	    Vs = NewVs
+	(
+	  Val == Tot
+	->
+	  MAT1 = MAT,
+	  NewParents = [],
+	  Vs = NewVs
 	;
-	 Val == 0.0 ->
+	  Val == 0.0 ->
 	    throw(error(domain_error(incompatible_evidence),evidence(Ev)))
-	;
+	  ;
 	    MAT0 = MAT,
 	    NewParents = NewParents0,
 	    IVs = NewVs
 	).
-	
+
 
 %
 % generate actual table, instead of trusting the solver
@@ -299,7 +304,7 @@ get_ds_lengths([],[]).
 get_ds_lengths([V|Vs],[Sz|Lengs]) :-
 	get_vdist_size(V, Sz),
 	get_ds_lengths(Vs,Lengs).
-	
+
 fill_in_average(Lengs, N, Base, MCPT) :-
 	generate(Lengs, Case),
 	average(Case, N, Base, Val),
@@ -369,10 +374,10 @@ fill_in_min(_,_).
 
 
 get_vdist_size(V, Sz) :-
-        var(V), !,
+	var(V), !,
 	clpbn:get_atts(V, [dist(Dist,_)]),
 	get_dist_domain_size(Dist, Sz).
 get_vdist_size(V, Sz) :-
-	skolem(V, Dom), 
+	skolem(V, Dom),
 	length(Dom, Sz).
 

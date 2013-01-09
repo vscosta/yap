@@ -2,7 +2,6 @@
 #define HORUS_PARFACTORLIST_H
 
 #include <list>
-#include <queue>
 
 #include "Parfactor.h"
 #include "ProbFormula.h"
@@ -10,6 +9,8 @@
 
 using namespace std;
 
+
+class Parfactor;
 
 class ParfactorList
 {
@@ -56,11 +57,10 @@ class ParfactorList
     bool isAllShattered (void) const;
 
     void print (void) const;
-    
+
     ParfactorList& operator= (const ParfactorList& pfList);
 
   private:
-    
     bool isShattered (const Parfactor*) const;
 
     bool isShattered (const Parfactor*, const Parfactor*) const;
@@ -73,7 +73,7 @@ class ParfactorList
 
     Parfactors shatterAgainstMySelf (
         Parfactor* g, size_t fIdx1, size_t fIdx2);
-    
+
     std::pair<Parfactors, Parfactors> shatter (
         Parfactor*, Parfactor*);
 

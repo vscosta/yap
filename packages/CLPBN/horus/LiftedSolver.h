@@ -21,6 +21,9 @@ class LiftedSolver
 
   protected:
     const ParfactorList& parfactorList;
+
+  private:
+    DISALLOW_COPY_AND_ASSIGN (LiftedSolver);
 };
 
 #endif // HORUS_LIFTEDSOLVER_H

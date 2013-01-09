@@ -1,11 +1,13 @@
 
 %:- style_check(all).
 
-:- module(viterbi, [viterbi/4]).
+:- module(viterbi,
+		[viterbi/4]).
 
 :- use_module(library(lists),
-	      [nth/3,
-	       member/2]).
+		[nth/3,
+		 member/2
+		]).
 
 :- use_module(library(assoc)).
 
@@ -17,8 +19,8 @@
 
 :- ensure_loaded(library('clpbn/hmm')).
 
-:- use_module(library('clpbn/dists'), [
-	get_dist_params/2]).
+:- use_module(library('clpbn/dists'),
+		[get_dist_params/2]).
 
 :- meta_predicate viterbi(:,:,+,-).
 
@@ -75,21 +77,21 @@ fetch_edges([V|Parents], Key0, EdgesF, Edges0, [Slice-AKey|PKeys]) :-
 	clpbn:get_atts(V,[key(Key)]),
 	abstract_key(Key, AKey, Slice),
 	(
-	 Slice < 3
+	  Slice < 3
 	->
-	 EdgesF = [Key0-AKey|EdgesI]
+	  EdgesF = [Key0-AKey|EdgesI]
 	;
-	 EdgesF = EdgesI
+	  EdgesF = EdgesI
 	),
 	fetch_edges(Parents, Key0, EdgesI, Edges0, PKeys).
 fetch_edges([Key|Parents], Key0, EdgesF, Edges0, [Slice-AKey|PKeys]) :-
 	abstract_key(Key, AKey, Slice),
 	(
-	 Slice < 3
+	  Slice < 3
 	->
-	 EdgesF = [Key0-AKey|EdgesI]
+	  EdgesF = [Key0-AKey|EdgesI]
 	;
-	 EdgesF = EdgesI
+	  EdgesF = EdgesI
 	),
 	fetch_edges(Parents, Key0, EdgesI, Edges0, PKeys).
 fetch_edges([], _, Edges, Edges, []).
@@ -122,20 +124,20 @@ compile_keys([], _, []).
 % add a random symbol to the end.
 compile_emission([],_) --> !, [].
 compile_emission(EmissionTerm,IKey) --> [emit(IKey,EmissionTerm)].
-	
+
 compile_propagation([],[],_,_) --> [].
 compile_propagation([0-PKey|Ps], [Prob|Probs], IKey, KeyMap) -->
-	 [prop_same(IKey,Parent,Prob)],
-	 { get_assoc(PKey,KeyMap,nodeinfo(Parent,_,_,_)) },
-	 compile_propagation(Ps, Probs, IKey, KeyMap).
+	[prop_same(IKey,Parent,Prob)],
+	{ get_assoc(PKey,KeyMap,nodeinfo(Parent,_,_,_)) },
+	compile_propagation(Ps, Probs, IKey, KeyMap).
 compile_propagation([2-PKey|Ps], [Prob|Probs], IKey, KeyMap) -->
-	 [prop_same(IKey,Parent,Prob)],
-	 { get_assoc(PKey,KeyMap,nodeinfo(Parent,_,_,_)) },
-	 compile_propagation(Ps, Probs, IKey, KeyMap).
+	[prop_same(IKey,Parent,Prob)],
+	{ get_assoc(PKey,KeyMap,nodeinfo(Parent,_,_,_)) },
+	compile_propagation(Ps, Probs, IKey, KeyMap).
 compile_propagation([3-PKey|Ps], [Prob|Probs], IKey, KeyMap) -->
-	 [prop_next(IKey,Parent,Prob)],
-	 { get_assoc(PKey,KeyMap,nodeinfo(Parent,_,_,_)) },
-	 compile_propagation(Ps, Probs, IKey, KeyMap).
+	[prop_next(IKey,Parent,Prob)],
+	{ get_assoc(PKey,KeyMap,nodeinfo(Parent,_,_,_)) },
+	compile_propagation(Ps, Probs, IKey, KeyMap).
 
 get_id(_:S, Map, SI) :- !,
 	get_id(S, Map, SI).
@@ -148,9 +150,9 @@ get_id(S, Map, SI) :-
 compile_trace(Trace, Emissions) :-
 	user:hmm_domain(Domain),
 	(atom(Domain) ->
-	 hmm:cvt_vals(Domain, Vals)
+	  hmm:cvt_vals(Domain, Vals)
 	;
-	 Vals = Domain
+	  Vals = Domain
 	),
 	compile_trace(Trace, Vals, Emissions).
 
@@ -192,22 +194,22 @@ run_inst(prop_same(I,P,Prob), _, SP, Current, _, Trace) :-
 	NP is PI+Prob,
 	matrix_get(Current, [P], P0),
 	(NP > P0 ->
-	 matrix_set(Current, [P], NP),
-	 matrix_set(Trace, [SP,P], I)
+	  matrix_set(Current, [P], NP),
+	  matrix_set(Trace, [SP,P], I)
 	;
-	 true
+	  true
 	).
 run_inst(prop_next(I,P,Prob), _, SP, Current, Next, Trace) :-
 	matrix_get(Current, [I], PI),
 	NP is PI+Prob,
 	matrix_get(Next, [P], P0),
 	(NP > P0 ->
-	 matrix_set(Next, [P], NP),
-	 SP1 is SP+1,
-	 IN is -I,
-	 matrix_set(Trace, [SP1,P], IN)
+	  matrix_set(Next, [P], NP),
+	  SP1 is SP+1,
+	  IN is -I,
+	  matrix_set(Trace, [SP1,P], IN)
 	;
-	 true
+	  true
 	).
 
 backtrace(Dump, EI, Map, L, Trace) :-
@@ -219,11 +221,11 @@ backtrace(Dump, EI, Map, L, Trace) :-
 trace(0,0,_,_,Trace,Trace) :- !.
 trace(L1,Next,Dump,Map,Trace0,Trace) :-
 	(Next < 0 ->
-	 NL is L1-1,
-	 P is -Next
+	  NL is L1-1,
+	  P is -Next
 	;
-	 NL = L1,
-	 P = Next
+	  NL = L1,
+	  P = Next
 	),
 	once(member(P-AKey,Map)),
 	AKey=..[N|Args],
@@ -231,5 +233,3 @@ trace(L1,Next,Dump,Map,Trace0,Trace) :-
 	matrix_get(Dump,[NL,P],New),
 	trace(NL,New,Dump,Map,[Key|Trace0],Trace).
 
-
-	

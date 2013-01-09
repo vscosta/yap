@@ -3,7 +3,6 @@
 
 #include <vector>
 
-#include "Var.h"
 #include "Indexer.h"
 #include "Util.h"
 
@@ -34,7 +33,7 @@ class TFactor
     void setDistId (unsigned id) { distId_ = id; }
 
     void normalize (void) { LogAware::normalize (params_); }
-  
+
     void randomize (void)
     {
       for (size_t i = 0; i < params_.size(); ++i) {
@@ -143,7 +142,7 @@ class TFactor
       assert (idx != args_.size());
       assert (obsIdx < ranges_[idx]);
       Params newps;
-      newps.reserve (params_.size() / ranges_[idx]); 
+      newps.reserve (params_.size() / ranges_[idx]);
       Indexer indexer (ranges_);
       for (unsigned i = 0; i < obsIdx; ++i) {
         indexer.incrementDimension (idx);
@@ -207,7 +206,7 @@ class TFactor
     Ranges     ranges_;
     Params     params_;
     unsigned   distId_;
-  
+
   private:
     void extend (unsigned range_prod)
     {
@@ -285,9 +284,10 @@ class Factor : public TFactor<VarId>
     void sumOutLastVariable (void);
 
     void sumOutArgs (const vector<bool>& mask);
-   
+
     void clone (const Factor& f);
 
+    DISALLOW_ASSIGN (Factor);
 };
 
 #endif // HORUS_FACTOR_H

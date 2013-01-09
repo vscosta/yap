@@ -2,8 +2,8 @@
 #include <cassert>
 
 #include <iostream>
-#include <fstream>
 #include <sstream>
+#include <fstream>
 
 #include "BayesBallGraph.h"
 #include "Util.h"
@@ -79,9 +79,8 @@ BayesBallGraph::exportToGraphViz (const char* fileName)
 {
   ofstream out (fileName);
   if (!out.is_open()) {
-    cerr << "error: cannot open file to write at " ;
-    cerr << "BayesBallGraph::exportToDotFile()" << endl;
-    abort();
+    cerr << "Error: couldn't open file '" << fileName << "'." ;
+    return;
   }
   out << "digraph {" << endl;
   out << "ranksep=1" << endl;

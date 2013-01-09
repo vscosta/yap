@@ -4,12 +4,11 @@
 
 :- use_module(library(clpbn/learning/em)).
 
-%:- set_pfl_flag(em_solver,gibbs).
-%:- set_pfl_flag(em_solver,jt).
-%:- set_pfl_flag(em_solver,hve).
-%:- set_pfl_flag(em_solver,bp).
-%:- set_pfl_flag(em_solver,ve).
-:- set_pfl_flag(em_solver,bdd).
+:- set_em_solver(ve).
+%:- set_em_solver(hve).
+%:- set_em_solver(bdd).
+%:- set_em_solver(bp).
+%:- set_em_solver(cbp).
 
 :- dynamic id/1.
 

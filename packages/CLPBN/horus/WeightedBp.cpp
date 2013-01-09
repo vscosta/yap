@@ -18,7 +18,7 @@ WeightedBp::getPosterioriOf (VarId vid)
     runSolver();
   }
   VarNode* var = fg.getVarNode (vid);
-  assert (var != 0);
+  assert (var);
   Params probs;
   if (var->hasEvidence()) {
     probs.resize (var->range(), LogAware::noEvidence());
@@ -107,7 +107,7 @@ WeightedBp::maxResidualSchedule (void)
     if (Globals::verbosity >= 1) {
       cout << "updating " << (*sortedOrder_.begin())->toString() << endl;
     }
-    if (link->residual() < BpOptions::accuracy) {
+    if (link->residual() < accuracy_) {
       return;
     }
     link->updateMessage();
@@ -132,7 +132,7 @@ WeightedBp::maxResidualSchedule (void)
       }
     }
     // in counting bp, the message that a variable X sends to
-    // to a factor F depends on the message that F sent to the X 
+    // to a factor F depends on the message that F sent to the X
     const BpLinks& links = ninf(link->facNode())->getLinks();
     for (size_t i = 0; i < links.size(); i++) {
       if (links[i]->varNode() != link->varNode()) {
@@ -258,7 +258,7 @@ WeightedBp::getVarToFactorMsg (const BpLink* _link) const
       if ( ! (l->facNode() == dst && l->index() == link->index())) {
         msg *= l->powMessage();
         if (Constants::SHOW_BP_CALCS) {
-          cout << " x " << l->nextMessage() << "^" << link->weight(); 
+          cout << " x " << l->nextMessage() << "^" << link->weight();
         }
       }
     }

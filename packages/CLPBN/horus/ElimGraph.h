@@ -7,10 +7,9 @@
 #include "TinySet.h"
 #include "Horus.h"
 
-
 using namespace std;
 
-enum ElimHeuristic 
+enum ElimHeuristic
 {
   SEQUENTIAL,
   MIN_NEIGHBORS,
@@ -49,7 +48,7 @@ class ElimGraph
     ElimGraph (const Factors&);
 
    ~ElimGraph (void);
-   
+
     VarIds getEliminatingOrder (const VarIds&);
 
     void print (void) const;
@@ -59,10 +58,11 @@ class ElimGraph
 
     static VarIds getEliminationOrder (const Factors&, VarIds);
 
-    static ElimHeuristic elimHeuristic;
+    static ElimHeuristic elimHeuristic (void) { return elimHeuristic_; }
+
+    static void setElimHeuristic (ElimHeuristic eh) { elimHeuristic_ = eh; }
 
   private:
-
     void addEdge (EgNode* n1, EgNode* n2)
     {
       assert (n1 != n2);
@@ -133,6 +133,10 @@ class ElimGraph
     vector<EgNode*>                nodes_;
     TinySet<EgNode*>               unmarked_;
     unordered_map<VarId, EgNode*>  varMap_;
+
+    static ElimHeuristic elimHeuristic_;
+
+    DISALLOW_COPY_AND_ASSIGN (ElimGraph);
 };
 
 #endif // HORUS_ELIMGRAPH_H
