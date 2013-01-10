@@ -352,13 +352,13 @@ It is possible to choose the solver that will be used for the inference part dur
 %------------------------------------------------------------------------------
 %------------------------------------------------------------------------------
 %------------------------------------------------------------------------------
-\section{Horus Command Line}
+\section{External Interface}
 This package also includes an external command for perform inference over probabilistic graphical models described in formats other than PFL. Currently two are support, the \href{http://cs.ru.nl/~jorism/libDAI/doc/fileformats.html}{libDAI file format}, and the \href{http://graphmod.ics.uci.edu/uai08/FileFormat}{UAI08 file format}.
 
 This utility is called \texttt{hcli} and its usage is as follows.
 
 \begin{verbatim}
-   $ ./hcli [solver=hve|bp|cbp] [<HORUS_KEY>=<VALUE>]...
+   $ ./hcli [solver=hve|bp|cbp] [<KEY>=<VALUE>]...
    <FILE> [<VAR>|<VAR>=<EVIDENCE>]...
 \end{verbatim}
 
