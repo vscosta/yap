@@ -968,7 +968,7 @@ Yap_absmi(int inp)
       {
 	yamop *pt;
 	saveregs();
-	pt = Yap_ExoLookup(PredFromDefCode(PREG));
+	pt = Yap_ExoLookup(PredFromDefCode(PREG) PASS_REGS);
 	setregs();
 #ifdef SHADOW_S
 	SREG = S;
@@ -1050,12 +1050,13 @@ Yap_absmi(int inp)
       Op(retry_exo, lp);
       BEGD(d0);
       CACHE_Y(B);
-      saveregs();
-      d0 = Yap_NextExo(B_YREG, (struct index_t *)PREG->u.lp.l);
-      setregs();
-#ifdef SHADOW_S
-      SREG = S;
-#endif
+      {
+	struct index_t *it = (struct index_t *)(PREG->u.lp.l);
+	CELL offset = EXO_ADDRESS_TO_OFFSET(it,(CELL *)((CELL *)(B+1))[it->arity]);
+	d0 = it->links[offset];
+	((CELL *)(B+1))[it->arity] = (CELL)EXO_OFFSET_TO_ADDRESS(it, d0);
+	SREG = it->cls+it->arity*offset;
+      }
       if (d0) {
 	/* After retry, cut should be pointing at the parent
 	 * choicepoint for the current B */

@@ -263,7 +263,7 @@ LogUpdClause  *STD_PROTO(Yap_NthClause,(PredEntry *,Int));
 LogUpdClause  *STD_PROTO(Yap_FollowIndexingCode,(PredEntry *,yamop *, Term *, yamop *,yamop *));
 
 /* exo.c */
-yamop    *Yap_ExoLookup(PredEntry *ap);
+yamop    *Yap_ExoLookup(PredEntry *ap USES_REGS);
 CELL    Yap_NextExo(choiceptr cpt, struct index_t *it);
 
 #if USE_THREADED_CODE
