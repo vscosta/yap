@@ -168,44 +168,44 @@ clpbn_flag(Flag, Option) :-
 set_clpbn_flag(Flag,Option) :-
 	clpbn_flag(Flag, _, Option).
 
-clpbn_flag(solver,Before,After) :-
+clpbn_flag(solver,Before,After) :- !,
 	retract(solver(Before)),
 	assert(solver(After)).
 
-clpbn_flag(em_solver,Before,After) :-
+clpbn_flag(em_solver,Before,After) :- !,
 	retract(em_solver(Before)),
 	assert(em_solver(After)).
 
-clpbn_flag(bnt_solver,Before,After) :-
+clpbn_flag(bnt_solver,Before,After) :- !,
 	retract(bnt:bnt_solver(Before)),
 	assert(bnt:bnt_solver(After)).
 
-clpbn_flag(bnt_path,Before,After) :-
+clpbn_flag(bnt_path,Before,After) :- !,
 	retract(bnt:bnt_path(Before)),
 	assert(bnt:bnt_path(After)).
 
-clpbn_flag(bnt_model,Before,After) :-
+clpbn_flag(bnt_model,Before,After) :- !,
 	retract(bnt:bnt_model(Before)),
 	assert(bnt:bnt_model(After)).
 
-clpbn_flag(suppress_attribute_display,Before,After) :-
+clpbn_flag(suppress_attribute_display,Before,After) :- !,
 	retract(suppress_attribute_display(Before)),
 	assert(suppress_attribute_display(After)).
 
-clpbn_flag(parameter_softening,Before,After) :-
+clpbn_flag(parameter_softening,Before,After) :- !,
 	retract(parameter_softening(Before)),
 	assert(parameter_softening(After)).
 
-clpbn_flag(use_factors,Before,After) :-
+clpbn_flag(use_factors,Before,After) :- !,
 	retract(use_parfactors(Before)),
 	assert(use_parfactors(After)).
 
-clpbn_flag(output,Before,After) :-
+clpbn_flag(output,Before,After) :- !,
 	retract(output(Before)),
 	assert(output(After)).
 
-clpbn_flag(HorusOption,_Before,After) :-
-	set_horus_flag(HorusOption,After).
+clpbn_flag(HorusOption, _Before, After) :-
+	set_horus_flag(HorusOption, After).
 
 set_solver(Solver) :-
 	set_clpbn_flag(solver,Solver).
