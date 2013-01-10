@@ -69,6 +69,9 @@
 		 run_pcg_solver/3
 		]).
 
+:- use_module('clpbn/horus',
+		[set_horus_flag/2]).
+
 :- use_module('clpbn/horus_ground',
 		[call_horus_ground_solver/6,
 		 check_if_horus_ground_solver_done/1,
@@ -200,6 +203,9 @@ clpbn_flag(use_factors,Before,After) :-
 clpbn_flag(output,Before,After) :-
 	retract(output(Before)),
 	assert(output(After)).
+
+clpbn_flag(HorusKey,_Before,After) :-
+	set_horus_flag(HorusKey,After).
 
 set_solver(Solver) :-
 	set_clpbn_flag(solver,Solver).
