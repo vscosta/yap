@@ -355,14 +355,14 @@ It is possible to choose the solver that will be used for the inference part dur
 \section{External Interface}
 This package also includes an external command for perform inference over probabilistic graphical models described in formats other than PFL. Currently two are support, the \href{http://cs.ru.nl/~jorism/libDAI/doc/fileformats.html}{libDAI file format}, and the \href{http://graphmod.ics.uci.edu/uai08/FileFormat}{UAI08 file format}.
 
-This utility is called \texttt{hcli} and its usage is as follows.
+This command's name is \texttt{hcli} and its usage is as follows.
 
 \begin{verbatim}
    $ ./hcli [solver=hve|bp|cbp] [<KEY>=<VALUE>]...
    <FILE> [<VAR>|<VAR>=<EVIDENCE>]...
 \end{verbatim}
 
-Let's assume that the current directory is the one where the examples are located. We can perform inference in any supported model by passing the file name where the model is defined as argument. Next, we show how to load a model using the \texttt{hcli} utility.
+Let's assume that the current directory is the one where the examples are located. We can perform inference in any supported model by passing the file name where the model is defined as argument. Next, we show how to load a model with \texttt{hcli}.
 
 \texttt{\$ ./hcli burglary-alarm.uai}
 
