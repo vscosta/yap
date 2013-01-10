@@ -8,7 +8,7 @@
 
 :- ['../../examples/School/parschema.pfl'].
 
-:- set_em_solver(ve).
+%:- set_em_solver(ve).
 %:- set_em_solver(hve).
 %:- set_em_solver(bdd).
 %:- set_em_solver(bp).

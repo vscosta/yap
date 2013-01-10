@@ -4,7 +4,7 @@
 
 :- use_module(library(clpbn/learning/em)).
 
-:- set_em_solver(ve).
+%:- set_em_solver(ve).
 %:- set_em_solver(hve).
 %:- set_em_solver(bdd).
 %:- set_em_solver(bp).
