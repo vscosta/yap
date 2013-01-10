@@ -361,7 +361,7 @@ call_ground_solver(ve, GVars, GoalKeys, Keys, Factors, Evidence) :- !,
 	call_ve_ground_solver(GVars, GoalKeys, Keys, Factors, Evidence, _Answ).
 
 call_ground_solver(hve, GVars, GoalKeys, Keys, Factors, Evidence) :- !,
-	clpbn_horus:set_horus_flag(ground_solver, ve),
+	clpbn_horus:set_horus_flag(ground_solver, hve),
 	call_horus_ground_solver(GVars, GoalKeys, Keys, Factors, Evidence, _Answ).
 
 call_ground_solver(bdd, GVars, GoalKeys, Keys, Factors, Evidence) :- !,
@@ -699,7 +699,7 @@ pfl_init_solver(QueryKeys, AllKeys, Factors, Evidence, State, ve) :- !,
 	init_ve_ground_solver(QueryKeys, AllKeys, Factors, Evidence, State).
 
 pfl_init_solver(QueryKeys, AllKeys, Factors, Evidence, State, hve) :- !,
-	clpbn_horus:set_horus_flag(ground_solver, ve),
+	clpbn_horus:set_horus_flag(ground_solver, hve),
 	init_horus_ground_solver(QueryKeys, AllKeys, Factors, Evidence, State).
 
 pfl_init_solver(QueryKeys, AllKeys, Factors, Evidence, State, bdd) :- !,
