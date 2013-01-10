@@ -188,10 +188,10 @@ getStateLines (const Vars& vars)
 
 
 
-bool invalidValue (string key, string value)
+bool invalidValue (string option, string value)
 {
   cerr << "Warning: invalid value `" << value << "' " ;
-  cerr << "for `" << key << "'" ;
+  cerr << "for `" << option << "'." ;
   cerr << endl;
   return false;
 }
@@ -199,32 +199,32 @@ bool invalidValue (string key, string value)
 
 
 bool
-setHorusFlag (string key, string value)
+setHorusFlag (string option, string value)
 {
   bool returnVal = true;
-  if (key == "lifted_solver") {
+  if (option == "lifted_solver") {
     if      (value == "lve")  Globals::liftedSolver = LiftedSolverType::LVE;
     else if (value == "lbp")  Globals::liftedSolver = LiftedSolverType::LBP;
     else if (value == "lkc")  Globals::liftedSolver = LiftedSolverType::LKC;
-    else                      returnVal = invalidValue (key, value);
+    else                      returnVal = invalidValue (option, value);
 
-  } else if (key == "ground_solver" || key == "solver") {
+  } else if (option == "ground_solver" || option == "solver") {
     if      (value == "hve")  Globals::groundSolver = GroundSolverType::VE;
     else if (value == "bp")   Globals::groundSolver = GroundSolverType::BP;
     else if (value == "cbp")  Globals::groundSolver = GroundSolverType::CBP;
-    else                      returnVal = invalidValue (key, value);
+    else                      returnVal = invalidValue (option, value);
 
-  } else if (key == "verbosity") {
+  } else if (option == "verbosity") {
     stringstream ss;
     ss << value;
     ss >> Globals::verbosity;
 
-  } else if (key == "use_logarithms") {
+  } else if (option == "use_logarithms") {
     if      (value == "true")  Globals::logDomain = true;
     else if (value == "false") Globals::logDomain = false;
-    else                       returnVal = invalidValue (key, value);
+    else                       returnVal = invalidValue (option, value);
 
-  } else if (key == "hve_elim_heuristic") {
+  } else if (option == "hve_elim_heuristic") {
     if      (value == "sequential")
       ElimGraph::setElimHeuristic (ElimHeuristic::SEQUENTIAL);
     else if (value == "min_neighbors")
@@ -236,9 +236,9 @@ setHorusFlag (string key, string value)
     else if (value == "weighted_min_fill")
       ElimGraph::setElimHeuristic (ElimHeuristic::WEIGHTED_MIN_FILL);
     else
-      returnVal = invalidValue (key, value);
+      returnVal = invalidValue (option, value);
 
-  } else if (key == "bp_msg_schedule") {
+  } else if (option == "bp_msg_schedule") {
     if      (value == "seq_fixed")
       BeliefProp::setMsgSchedule (MsgSchedule::SEQ_FIXED);
     else if (value == "seq_random")
@@ -248,44 +248,44 @@ setHorusFlag (string key, string value)
     else if (value == "max_residual")
       BeliefProp::setMsgSchedule (MsgSchedule::MAX_RESIDUAL);
     else
-      returnVal = invalidValue (key, value);
+      returnVal = invalidValue (option, value);
 
-  } else if (key == "bp_accuracy") {
+  } else if (option == "bp_accuracy") {
     stringstream ss;
     double acc;
     ss << value;
     ss >> acc;
     BeliefProp::setAccuracy (acc);
 
-  } else if (key == "bp_max_iter") {
+  } else if (option == "bp_max_iter") {
     stringstream ss;
     unsigned mi;
     ss << value;
     ss >> mi;
     BeliefProp::setMaxIterations (mi);
 
-  } else if (key == "export_libdai") {
+  } else if (option == "export_libdai") {
     if      (value == "true")  FactorGraph::enableExportToLibDai();
     else if (value == "false") FactorGraph::disableExportToLibDai();
-    else                       returnVal = invalidValue (key, value);
+    else                       returnVal = invalidValue (option, value);
 
-  } else if (key == "export_uai") {
+  } else if (option == "export_uai") {
     if      (value == "true")  FactorGraph::enableExportToUai();
     else if (value == "false") FactorGraph::disableExportToUai();
-    else                       returnVal = invalidValue (key, value);
+    else                       returnVal = invalidValue (option, value);
 
-  } else if (key == "export_graphviz") {
+  } else if (option == "export_graphviz") {
     if      (value == "true")  FactorGraph::enableExportToGraphViz();
     else if (value == "false") FactorGraph::disableExportToGraphViz();
-    else                       returnVal = invalidValue (key, value);
+    else                       returnVal = invalidValue (option, value);
 
-  } else if (key == "print_fg") {
+  } else if (option == "print_fg") {
     if      (value == "true")  FactorGraph::enablePrintFactorGraph();
     else if (value == "false") FactorGraph::disablePrintFactorGraph();
-    else                       returnVal = invalidValue (key, value);
+    else                       returnVal = invalidValue (option, value);
 
   } else {
-    cerr << "Warning: invalid key `" << key << "'" << endl;
+    cerr << "Warning: invalid option `" << option << "'" << endl;
     returnVal = false;
   }
   return returnVal;

@@ -204,8 +204,8 @@ clpbn_flag(output,Before,After) :-
 	retract(output(Before)),
 	assert(output(After)).
 
-clpbn_flag(HorusKey,_Before,After) :-
-	set_horus_flag(HorusKey,After).
+clpbn_flag(HorusOption,_Before,After) :-
+	set_horus_flag(HorusOption,After).
 
 set_solver(Solver) :-
 	set_clpbn_flag(solver,Solver).

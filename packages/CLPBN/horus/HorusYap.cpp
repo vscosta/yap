@@ -325,24 +325,24 @@ setVarsInformation (void)
 int
 setHorusFlag (void)
 {
-  string key ((char*) YAP_AtomName (YAP_AtomOfTerm (YAP_ARG1)));
+  string option ((char*) YAP_AtomName (YAP_AtomOfTerm (YAP_ARG1)));
   string value;
-  if (key == "verbosity") {
+  if (option == "verbosity") {
     stringstream ss;
     ss << (int) YAP_IntOfTerm (YAP_ARG2);
     ss >> value;
-  } else if (key == "bp_accuracy") {
+  } else if (option == "bp_accuracy") {
     stringstream ss;
     ss << (float) YAP_FloatOfTerm (YAP_ARG2);
     ss >> value;
-  } else if (key == "bp_max_iter") {
+  } else if (option == "bp_max_iter") {
     stringstream ss;
     ss << (int) YAP_IntOfTerm (YAP_ARG2);
     ss >> value;
   } else {
     value = ((char*) YAP_AtomName (YAP_AtomOfTerm (YAP_ARG2)));
   }
-  return Util::setHorusFlag (key, value);
+  return Util::setHorusFlag (option, value);
 }
 
 
