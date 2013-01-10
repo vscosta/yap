@@ -1,7 +1,7 @@
 :- ensure_loaded(library(pfl)).
 
-:- set_solver(hve).
 %:- set_solver(ve).
+%:- set_solver(hve).
 %:- set_solver(jt).
 %:- set_solver(bdd).
 %:- set_solver(bp).
