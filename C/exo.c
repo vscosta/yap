@@ -421,7 +421,7 @@ p_exodb_get_space( USES_REGS1 )
   Yap_ClauseSpace += required;
   /* cool, it's our turn to do the conversion */
   mcl->ClFlags = MegaMask|ExoMask;
-  mcl->ClSize = required-sizeof(MegaClause);
+  mcl->ClSize = required;
   mcl->ClPred = ap;
   mcl->ClItemSize = arity*sizeof(CELL);
   mcl->ClNext = NULL;

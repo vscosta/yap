@@ -588,10 +588,21 @@ RestoreMegaClause(MegaClause *cl USES_REGS)
   }
   max = (yamop *)((CODEADDR)cl+cl->ClSize);
 
-  for (ptr = cl->ClCode; ptr < max; ) {
-    nextptr = (yamop *)((char *)ptr + cl->ClItemSize);
-    restore_opcodes(ptr, nextptr PASS_REGS);
-    ptr = nextptr;
+  if (cl->ClFlags & ExoMask) {
+    CELL *base = (CELL *)((ADDR)cl->ClCode+2*sizeof(struct index_t *));
+    CELL *end = (CELL*)max, *ptr;
+
+    for (ptr = base; ptr < end; ptr++) {
+      Term t = *ptr;
+      if (IsAtomTerm(t)) *ptr = AtomTermAdjust(t);
+      /* don't handle other complex terms just yet, ints are ok  */
+    }
+  } else {
+    for (ptr = cl->ClCode; ptr < max; ) {
+      nextptr = (yamop *)((char *)ptr + cl->ClItemSize);
+      restore_opcodes(ptr, nextptr PASS_REGS);
+      ptr = nextptr;
+    }
   }
 }
 
