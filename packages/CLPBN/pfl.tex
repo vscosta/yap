@@ -14,10 +14,11 @@
   {\VerbatimEnvironment \setstretch{0.8} \begin{pflcodeve}}
   {\end{pflcodeve} }
 
-\newcommand{\true}      {\mathtt{t}}
-\newcommand{\false}     {\mathtt{f}}
-\newcommand{\pathsep}   { $\triangleright$ }
-\newcommand{\tableline} {\noalign{\hrule height 0.8pt}}
+\newcommand{\true}             {\mathtt{t}}
+\newcommand{\false}            {\mathtt{f}}
+\newcommand{\pathsep}          { $\triangleright$ }
+\newcommand{\tableline}        {\noalign{\hrule height 0.8pt}}
+\newcommand{\optionsection}[1] {\subsection*{\texttt{#1}}}
 
 \tikzstyle{nodestyle}   = [draw, thick, circle, minimum size=0.9cm]
 \tikzstyle{bnedgestyle} = [-triangle 45,thick]
@@ -294,32 +295,59 @@ For instance, if we want to use belief propagation to solve some probabilistic q
 
 It is possible to tweak some parameters of PFL through \texttt{set\_pfl\_flag/2} predicate. The first argument is a option name that identifies the parameter that we want to tweak. The second argument is some possible value for this option.
 
-The \texttt{verbosity} option controls the level of debugging information that will be printed. Its possible values are positive integers. The higher the number, the more information that will be shown. For instance, we can view some basic debugging information by calling the following goal.
+\optionsection{verbosity}
+This option controls the level of debugging information that will be shown.
+
+\begin{itemize}
+  \item Values: a positive integer (default is 0 - no debugging). The higher the number, the more information that will be shown.
+  \item Affects: \texttt{hve}, \texttt{bp}, \texttt{cbp}, \texttt{lve}, \texttt{lkc} and \texttt{lbp}.
+\end{itemize}
+
+For instance, we can view some basic debugging information by calling the following goal.
 
 \texttt{?- set\_pfl\_flag(verbosity, 1).}
 
-This option defaults to 0 (no debugging) and only \texttt{hve}, \texttt{bp}, \texttt{cbp}, \texttt{lve}, \texttt{lkc} and \texttt{lbp} solvers have support for this option.
 
-The \texttt{use\_logarithms} option controls whether the calculations performed during inference should be done in a logarithm domain or not. Its values can be \texttt{true} (default) or \texttt{false}. This option only affects \texttt{hve}, \texttt{bp}, \texttt{cbp}, \texttt{lve}, \texttt{lkc} and \texttt{lbp} solvers. The remaining solvers always perform their calculations in a logarithm domain.
-
-There are options specific to some algorithms. The \texttt{hve\_elim\_heuristic} option allows to choose which elimination heuristic will be used by the \texttt{hve} solver (but not \texttt{ve}). The following are supported:
+\optionsection{use\_logarithms}
+This option controls whether the calculations performed during inference should be done in a logarithm domain or not.
 \begin{itemize}
- \item \texttt{sequential}
- \item \texttt{min\_neighbors}
- \item \texttt{min\_weight}
- \item \texttt{min\_fill}
- \item \texttt{weighted\_min\_fill} (default)
+  \item Values: \texttt{true} (default) or \texttt{false}.
+  \item Affects: \texttt{hve}, \texttt{bp}, \texttt{cbp}, \texttt{lve}, \texttt{lkc} and \texttt{lbp}.
+\end{itemize}
+
+
+\optionsection{hve\_elim\_heuristic}
+This option allows to choose which elimination heuristic will be used by the \texttt{hve}.
+\begin{itemize}
+  \item Values: \texttt{sequential}, \texttt{min\_neighbors}, \texttt{min\_weight}, \texttt{min\_fill} and\\ \texttt{weighted\_min\_fill} (default).
+  \item Affects: \texttt{hve}.
 \end{itemize}
 
 An explanation for each of these heuristics can be found in Daphne Koller's book \textit{Probabilistic Graphical Models}.
 
-The \texttt{bp\_msg\_schedule}, \texttt{bp\_accuracy} and \texttt{bp\_max\_iter} options are specific for message passing based algorithms, namely \texttt{bp}, \texttt{cbp} and \texttt{lbp}.
 
-The \texttt{bp\_max\_iter} option establishes a maximum number of iterations. One iteration consists in sending all possible messages. It defaults to \texttt{1000}.
+\optionsection{bp\_max\_iter}
+This option establishes a maximum number of iterations. One iteration consists in sending all possible messages.
 
-The \texttt{bp\_accuracy} option allows to control when the message passing should cease. Be the residual of one message the difference (according some metric) between the one sent in the current iteration and the one sent in the previous. If the highest residual is lesser than the given value, the message passing is stopped and the probabilities are calculated using the last messages that were sent. This option defaults to \texttt{0.0001}.
+\begin{itemize}
+  \item Values: a positive integer (default is \texttt{1000}).
+  \item Affects: \texttt{bp}, \texttt{cbp} and \texttt{lbp}.
+\end{itemize}
 
-The option \texttt{bp\_msg\_schedule} allows to control the message sending order. Its possible values are:
+
+\optionsection{bp\_accuracy}
+This option allows to control when the message passing should cease. Be the residual of one message the difference (according some metric) between the one sent in the current iteration and the one sent in the previous. If the highest residual is lesser than the given value, the message passing is stopped and the probabilities are calculated using the last messages that were sent.
+
+\begin{itemize}
+  \item Values: a float-point number (default is \texttt{0.0001}).
+  \item Affects: \texttt{bp}, \texttt{cbp} and \texttt{lbp}.
+\end{itemize}
+
+
+\optionsection{bp\_msg\_schedule}
+This option allows to control the message sending order.
+\begin{itemize}
+  \item Values:
 \begin{itemize}
  \item \texttt{seq\_fixed} (default), at each iteration, all messages are sent with the same order.
 
@@ -329,8 +357,39 @@ The option \texttt{bp\_msg\_schedule} allows to control the message sending orde
 
  \item \texttt{max\_residual}, the next message to be sent is the one with maximum residual (as explained in the paper \textit{Residual Belief Propagation: Informed Scheduling for Asynchronous Message Passing}).
 \end{itemize}
+  \item Affects: \texttt{bp}, \texttt{cbp} and \texttt{lbp}.
+\end{itemize}
 
-The \texttt{export\_libdai} and \texttt{export\_uai} options allow us to export the current model respectively to \href{http://cs.ru.nl/~jorism/libDAI/doc/fileformats.html}{libDAI}, and \href{http://graphmod.ics.uci.edu/uai08/FileFormat}{UAI08} formats. With the \texttt{export\_graphviz} option it is possible to export the factor graph structure into a format that can be parsed by \href{http://www.graphviz.org/}{Graphviz}. The \texttt{print\_fg} option allows to print a textual representation of the factor graph. All these four options accept \texttt{true} and \texttt{false} as their values and only have effect in \texttt{hve}, \texttt{bp}, and \texttt{cbp} solvers.
+
+\optionsection{export\_libdai}
+This option allows exporting the current model to the \href{http://cs.ru.nl/~jorism/libDAI/doc/fileformats.html}{libDAI} file format.
+\begin{itemize}
+  \item Values: \texttt{true} or \texttt{false} (default).
+  \item Affects: \texttt{hve}, \texttt{bp}, and \texttt{cbp}.
+\end{itemize}
+
+
+\optionsection{export\_uai}
+This option allows exporting the current model to the \href{http://graphmod.ics.uci.edu/uai08/FileFormat}{UAI08} file format.
+\begin{itemize}
+  \item Values: \texttt{true} or \texttt{false} (default).
+  \item Affects: \texttt{hve}, \texttt{bp}, and \texttt{cbp}.
+\end{itemize}
+
+
+\optionsection{export\_graphviz}
+This option allows exporting the factor graph's structure into a format that can be parsed by \href{http://www.graphviz.org/}{Graphviz}.
+\begin{itemize}
+  \item Values: \texttt{true} or \texttt{false} (default).
+  \item Affects: \texttt{hve}, \texttt{bp}, and \texttt{cbp}.
+\end{itemize}
+
+\optionsection{print\_fg}
+This option allows to print a textual representation of the factor graph.
+\begin{itemize}
+  \item Values: \texttt{true} or \texttt{false} (default).
+  \item Affects: \texttt{hve}, \texttt{bp}, and \texttt{cbp}.
+\end{itemize}
 
 
 
