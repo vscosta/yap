@@ -2307,6 +2307,10 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose 
 	mark_ref_in_use((DBRef)rtp->u.OtILl.block PASS_REGS);
 	nargs = rtp->u.OtILl.d->ClPred->ArityOfPE+1;
 	break;
+      case _retry_exo:
+      case _retry_all_exo:
+	nargs = rtp->u.lp.p->ArityOfPE;
+	break;
 #ifdef DEBUG
       case _retry_me:
       case _trust_me:
@@ -3222,6 +3226,10 @@ sweep_choicepoints(choiceptr gc_B USES_REGS)
       break;
     case _retry4:
       sweep_b(gc_B, 4 PASS_REGS);
+      break;
+    case _retry_exo:
+    case _retry_all_exo:
+      sweep_b(gc_B, rtp->u.lp.p->ArityOfPE PASS_REGS);
       break;
     case _retry_c:
     case _retry_userc:

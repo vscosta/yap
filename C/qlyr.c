@@ -849,6 +849,7 @@ read_clauses(IOSTREAM *stream, PredEntry *pp, UInt nclauses, UInt flags) {
   } else if (pp->PredFlags & MegaClausePredFlag) {
     CACHE_REGS
     char *base = (void *)read_uint(stream);
+    UInt mask = read_uint(stream);
     UInt size = read_uint(stream);
     MegaClause *cl = (MegaClause *)Yap_AlwaysAllocCodeSpace(size);
 
@@ -857,12 +858,20 @@ read_clauses(IOSTREAM *stream, PredEntry *pp, UInt nclauses, UInt flags) {
     }
     LOCAL_HDiff = (char *)cl-base;
     read_bytes(stream, cl, size);
+    cl->ClFlags = mask;
     pp->cs.p_code.FirstClause =
       pp->cs.p_code.LastClause =
       cl->ClCode;
     pp->PredFlags |= MegaClausePredFlag;
     /* enter index mode */
-    pp->OpcodeOfPred = INDEX_OPCODE;
+    if (mask & ExoMask) { 
+      struct index_t **icl = (struct index_t **)(cl->ClCode); 
+      pp->OpcodeOfPred = Yap_opcode(_enter_exo);
+      icl[0] = NULL;
+      icl[1] = NULL;
+    } else {
+      pp->OpcodeOfPred = INDEX_OPCODE;
+    }
     pp->CodeOfPred = pp->cs.p_code.TrueCodeOfPred = (yamop *)(&(pp->OpcodeOfPred)); 
     /* This must be set for restoremegaclause */
     pp->cs.p_code.NOfClauses = nclauses;

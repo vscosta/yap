@@ -196,6 +196,8 @@
 #define AtomExist Yap_heap_regs->AtomExist_
   Atom AtomExistenceError_;
 #define AtomExistenceError Yap_heap_regs->AtomExistenceError_
+  Atom AtomExoClause_;
+#define AtomExoClause Yap_heap_regs->AtomExoClause_
   Atom AtomExpectedNumber_;
 #define AtomExpectedNumber Yap_heap_regs->AtomExpectedNumber_
   Atom AtomExtendFileSearchPath_;
@@ -746,6 +748,8 @@
 #define FunctorExecuteWithin Yap_heap_regs->FunctorExecuteWithin_
   Functor FunctorExistenceError_;
 #define FunctorExistenceError Yap_heap_regs->FunctorExistenceError_
+  Functor FunctorExoClause_;
+#define FunctorExoClause Yap_heap_regs->FunctorExoClause_
   Functor FunctorFunctor_;
 #define FunctorFunctor Yap_heap_regs->FunctorFunctor_
   Functor FunctorGAtom_;

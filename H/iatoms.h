@@ -99,6 +99,7 @@
   AtomExecuteWoMod = Yap_FullLookupAtom("$execute_wo_mod");
   AtomExist = Yap_LookupAtom("exist");
   AtomExistenceError = Yap_LookupAtom("existence_error");
+  AtomExoClause = Yap_FullLookupAtom("$exo_clause");
   AtomExpectedNumber = Yap_LookupAtom("expected_number_syntax");
   AtomExtendFileSearchPath = Yap_FullLookupAtom("$extend_file_search_path");
   AtomFB = Yap_LookupAtom("fb");
@@ -374,6 +375,7 @@
   FunctorExecuteInMod = Yap_MkFunctor(AtomExecuteInMod,2);
   FunctorExecuteWithin = Yap_MkFunctor(AtomExecuteWithin,1);
   FunctorExistenceError = Yap_MkFunctor(AtomExistenceError,2);
+  FunctorExoClause = Yap_MkFunctor(AtomExoClause,2);
   FunctorFunctor = Yap_MkFunctor(AtomFunctor,3);
   FunctorGAtom = Yap_MkFunctor(AtomAtom,1);
   FunctorGAtomic = Yap_MkFunctor(AtomAtomic,1);

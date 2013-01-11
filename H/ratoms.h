@@ -99,6 +99,7 @@
   AtomExecuteWoMod = AtomAdjust(AtomExecuteWoMod);
   AtomExist = AtomAdjust(AtomExist);
   AtomExistenceError = AtomAdjust(AtomExistenceError);
+  AtomExoClause = AtomAdjust(AtomExoClause);
   AtomExpectedNumber = AtomAdjust(AtomExpectedNumber);
   AtomExtendFileSearchPath = AtomAdjust(AtomExtendFileSearchPath);
   AtomFB = AtomAdjust(AtomFB);
@@ -374,6 +375,7 @@
   FunctorExecuteInMod = FuncAdjust(FunctorExecuteInMod);
   FunctorExecuteWithin = FuncAdjust(FunctorExecuteWithin);
   FunctorExistenceError = FuncAdjust(FunctorExistenceError);
+  FunctorExoClause = FuncAdjust(FunctorExoClause);
   FunctorFunctor = FuncAdjust(FunctorFunctor);
   FunctorGAtom = FuncAdjust(FunctorGAtom);
   FunctorGAtomic = FuncAdjust(FunctorGAtomic);

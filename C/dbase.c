@@ -4501,6 +4501,10 @@ p_erase_clause( USES_REGS1 )
 	Yap_EraseMegaClause(Yap_MegaClauseFromTerm(t1), Yap_MegaClausePredicateFromTerm(t1));
 	return TRUE;
       }
+      if (FunctorOfTerm(t1) == FunctorExoClause) {
+	Yap_Error(TYPE_ERROR_DBREF, t1, "erase exo clause");
+	return FALSE;
+      }
     }
     Yap_Error(TYPE_ERROR_DBREF, t1, "erase");
     return FALSE;
@@ -4687,6 +4691,9 @@ p_instance( USES_REGS1 )
       }
       if (FunctorOfTerm(t1) == FunctorMegaClause) {
 	return mega_instance(Yap_MegaClauseFromTerm(t1), Yap_MegaClausePredicateFromTerm(t1) PASS_REGS);
+      }
+      if (FunctorOfTerm(t1) == FunctorExoClause) {
+	return Yap_unify(ARG2,ArgOfTerm(2,t1));
       }
     }
     return FALSE;

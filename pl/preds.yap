@@ -281,12 +281,19 @@ clause(V,Q,R) :-
 	( T = (H :- B) -> P = H, Q = B ; P=T, Q = true).
 '$clause'(V,M,Q,R) :- var(V), !, 
 	'$do_error'(instantiation_error,clause(M:V,Q,R)).
-'$clause'(C,M,Q,R) :- number(C), !,
+'$clause'(C,M,Q,R) :- 
+	number(C), !,
 	'$do_error'(type_error(callable,C),clause(M:C,Q,R)).
-'$clause'(R,M,Q,R) :- db_reference(R), !,
-	'$do_error'(type_error(callable,R),clause(M:R,Q,R)).
+'$clause'(C,M,Q,R) :-
+	db_reference(C), !,
+	'$do_error'(type_error(callable,C),clause(M:R,Q,R)).
 '$clause'(M:P,_,Q,R) :- !,
 	'$clause'(P,M,Q,R).
+'$clause'(P,M,Q,R) :-
+	'$is_exo'(P, M), !,
+	Q = true,
+	R = '$exo_clause'(M,P),
+	'$execute0'(P, M).
 '$clause'(P,M,Q,R) :-
 	'$is_source'(P, M), !,
 	'$static_clause'(P,M,Q,R).

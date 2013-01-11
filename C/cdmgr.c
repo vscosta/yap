@@ -544,6 +544,9 @@ PredForChoicePt(yamop *p_code) {
     case _retry_me:
     case _trust_me:
       return p_code->u.Otapl.p;
+    case _retry_exo:
+    case _retry_all_exo:
+      return p_code->u.lp.p;
     case _try_logical:
     case _retry_logical:
     case _trust_logical:
@@ -891,7 +894,7 @@ Yap_BuildMegaClause(PredEntry *ap)
   ap->cs.p_code.FirstClause =
     ap->cs.p_code.LastClause =
     mcl->ClCode;
-  ap->PredFlags |= MegaClausePredFlag;
+  ap->PredFlags |= MegaClausePredFlag|SourcePredFlag;
   Yap_inform_profiler_of_clause(mcl, (char *)mcl+required, ap, GPROF_MEGA);
 }
 
@@ -2999,6 +3002,27 @@ p_is_source( USES_REGS1 )
     return FALSE;
   PELOCK(28,pe);
   out = (pe->PredFlags & SourcePredFlag);
+  UNLOCKPE(46,pe);
+  return(out);
+}
+
+static Int 
+p_is_exo( USES_REGS1 )
+{				/* '$is_dynamic'(+P)	 */
+  PredEntry      *pe;
+  Int             out;
+  MegaClause *mcl;
+
+  pe = get_pred(Deref(ARG1),  Deref(ARG2), "$is_exo");
+  if (EndOfPAEntr(pe))
+    return FALSE;
+  PELOCK(28,pe);
+  out = (pe->PredFlags & MegaClausePredFlag);
+  if (out) {
+    mcl =
+      ClauseCodeToMegaClause(pe->cs.p_code.FirstClause);
+    out = mcl->ClFlags & ExoMask;
+  }
   UNLOCKPE(46,pe);
   return(out);
 }
@@ -5769,6 +5793,12 @@ p_choicepoint_info( USES_REGS1 )
       pe = ipc->u.Otapl.p;
       t = BuildActivePred(pe, cptr->cp_args);
       break;
+    case _retry_exo:
+    case _retry_all_exo:
+      ncl = NULL;
+      pe = ipc->u.lp.p;
+      t = BuildActivePred(pe, cptr->cp_args);
+      break;      
     case _Nstop:
       { 
 	Atom at = AtomLive;
@@ -5978,7 +6008,7 @@ p_dbload_get_space( USES_REGS1 )
   ap->cs.p_code.FirstClause =
     ap->cs.p_code.LastClause =
     mcl->ClCode;
-  ap->PredFlags |= MegaClausePredFlag;
+  ap->PredFlags |= (MegaClausePredFlag|SourcePredFlag);
   ap->cs.p_code.NOfClauses = ncls;
   if (ap->PredFlags & (SpiedPredFlag|CountPredFlag|ProfiledPredFlag)) {
     ap->OpcodeOfPred = Yap_opcode(_spy_pred);
@@ -6037,6 +6067,7 @@ Yap_InitCdMgr(void)
   Yap_InitCPred("$is_expand_goal_or_meta_predicate", 2, p_is_expandgoalormetapredicate, TestPredFlag | SafePredFlag);
   Yap_InitCPred("$is_log_updatable", 2, p_is_log_updatable, TestPredFlag | SafePredFlag);
   Yap_InitCPred("$is_source", 2, p_is_source, TestPredFlag | SafePredFlag);
+  Yap_InitCPred("$is_exo", 2, p_is_exo, TestPredFlag | SafePredFlag);
   Yap_InitCPred("$owner_file", 3, p_owner_file, SafePredFlag);
   Yap_InitCPred("$mk_d", 2, p_mk_d, SafePredFlag);
   Yap_InitCPred("$pred_exists", 2, p_pred_exists, TestPredFlag | SafePredFlag);

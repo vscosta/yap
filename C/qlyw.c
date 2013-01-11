@@ -649,6 +649,7 @@ save_clauses(IOSTREAM *stream, PredEntry *pp) {
     UInt size = cl->ClSize;
 
     CHECK(save_uint(stream, (UInt)cl));
+    CHECK(save_uint(stream, (UInt)(cl->ClFlags)));
     CHECK(save_uint(stream, size));
     CHECK(save_bytes(stream, cl, size));
   } else if (pp->PredFlags & DynamicPredFlag) {
