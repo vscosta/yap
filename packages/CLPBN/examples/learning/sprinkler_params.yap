@@ -10,8 +10,6 @@
 %:- set_em_solver(bp).
 %:- set_em_solver(cbp).
 
-:- dynamic id/1.
-
 data(t,t,t,t).
 data(_,t,_,t).
 data(t,t,f,f).
@@ -26,17 +24,11 @@ data(t,t,_,f).
 data(t,f,f,t).
 data(t,f,t,t).
 
-timed_main :-
-	statistics(runtime, _),
-	main(Lik),
-	statistics(runtime, [T,_]),
-	format('Took ~d msec and Lik ~3f~n',[T,Lik]).
+main :-
+	findall(X, scan_data(X), L),
+	em(L, 0.01, 10, CPTs, Lik),
+	writeln(Lik:CPTs).
 
-main(Lik) :-
-	findall(X,scan_data(X),L),
-	em(L,0.01,10,_,Lik).
-
-scan_data([wet_grass(W),sprinkler(S),rain(R),cloudy(C)]) :-
-	data(W, S, R, C).
-
+scan_data([cloudy(C),sprinkler(S),rain(R),wet_grass(W)]) :-
+	data(C, S, R, W).
 

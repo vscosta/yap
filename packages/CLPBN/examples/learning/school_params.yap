@@ -2,11 +2,11 @@
 
 /* We do not consider aggregates yet.      */
 
-:- use_module(library(clpbn/learning/em)).
-
 :- [pos:train].
 
 :- ['../../examples/School/school_32'].
+
+:- use_module(library(clpbn/learning/em)).
 
 %:- set_em_solver(ve).
 %:- set_em_solver(hve).
@@ -16,14 +16,14 @@
 
 timed_main :-
 	statistics(runtime, _),
-	findall(X,goal(X),L),
-	em(L,0.01,10,_,Lik),
+	findall(X, goal(X), L),
+	em(L, 0.01, 10, _, Lik),
 	statistics(runtime, [T,_]),
 	format('Took ~d msec and Lik ~3f~n',[T,Lik]).
 
 main :-
 	findall(X,goal(X),L),
-	em(L,0.001,10,CPTs,Lik),
+	em(L, 0.01, 10, CPTs, Lik),
 	writeln(Lik:CPTs).
 
 %
