@@ -420,7 +420,7 @@ p_exodb_get_space( USES_REGS1 )
   }
   Yap_ClauseSpace += required;
   /* cool, it's our turn to do the conversion */
-  mcl->ClFlags = MegaMask;
+  mcl->ClFlags = MegaMask|ExoMask;
   mcl->ClSize = required-sizeof(MegaClause);
   mcl->ClPred = ap;
   mcl->ClItemSize = arity*sizeof(CELL);
@@ -430,7 +430,7 @@ p_exodb_get_space( USES_REGS1 )
   ap->cs.p_code.FirstClause =
     ap->cs.p_code.LastClause =
     mcl->ClCode;
-  ap->PredFlags |= MegaClausePredFlag;
+  ap->PredFlags |= MegaClausePredFlag|SourcePredFlag;
   ap->cs.p_code.NOfClauses = ncls;
   if (ap->PredFlags & (SpiedPredFlag|CountPredFlag|ProfiledPredFlag)) {
     ap->OpcodeOfPred = Yap_opcode(_spy_pred);
