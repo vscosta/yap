@@ -103,14 +103,14 @@ $$Type~~F~~;~~Phi~~;~~C.$$
 \begin{center}
 \begin{tikzpicture}[>=latex',line join=bevel,transform shape,scale=0.8]
 
-\node (cloudy)   at (50bp,  122bp) [nodestyle,ellipse,inner sep=0pt,minimum width=2.7cm] {$Cloudy$};
-\node (sprinker) at ( 0bp,  66bp)  [nodestyle,ellipse,inner sep=0pt,minimum width=2.7cm] {$Sprinker$};
-\node (rain)     at (100bp, 66bp)  [nodestyle,ellipse,inner sep=0pt,minimum width=2.7cm] {$Rain$};
-\node (wetgrass) at (50bp,  10bp)  [nodestyle,ellipse,inner sep=0pt,minimum width=2.7cm] {$WetGrass$};
-\draw [bnedgestyle] (cloudy)   -- (sprinker);
-\draw [bnedgestyle] (cloudy)   -- (rain);
-\draw [bnedgestyle] (sprinker) -- (wetgrass);
-\draw [bnedgestyle] (rain)     -- (wetgrass);
+\node (cloudy)    at (50bp,  122bp) [nodestyle,ellipse,inner sep=0pt,minimum width=2.7cm] {$Cloudy$};
+\node (sprinkler) at ( 0bp,  66bp)  [nodestyle,ellipse,inner sep=0pt,minimum width=2.7cm] {$Sprinkler$};
+\node (rain)      at (100bp, 66bp)  [nodestyle,ellipse,inner sep=0pt,minimum width=2.7cm] {$Rain$};
+\node (wetgrass)  at (50bp,  10bp)  [nodestyle,ellipse,inner sep=0pt,minimum width=2.7cm] {$WetGrass$};
+\draw [bnedgestyle] (cloudy)    -- (sprinkler);
+\draw [bnedgestyle] (cloudy)    -- (rain);
+\draw [bnedgestyle] (sprinkler) -- (wetgrass);
+\draw [bnedgestyle] (rain)      -- (wetgrass);
 
 \node [above=0.4cm of cloudy,inner sep=0pt] {
 \begin{tabular}[b]{lc}
@@ -120,7 +120,7 @@ $$Type~~F~~;~~Phi~~;~~C.$$
 \end{tabular}
 };
 
-\node [left=0.4cm of sprinker,inner sep=0pt] {
+\node [left=0.4cm of sprinkler,inner sep=0pt] {
 \begin{tabular}{lcc}
   $S$      & $C$      & $P(S|C)$ \\ \tableline
   $\true$  & $\true$  & 0.1 \\
@@ -252,7 +252,7 @@ In this section we demonstrate how to use PFL to solve probabilistic queries. We
 
 Assuming that the current directory is the one where the examples are located, first we load the model with the following command.
 
-\texttt{\$ yap -l sprinker.pfl}
+\texttt{\$ yap -l sprinkler.pfl}
 
 Let's suppose that we want to estimate the marginal probability for the $WetGrass$ random variable. To do so, we call the following goal.
 
