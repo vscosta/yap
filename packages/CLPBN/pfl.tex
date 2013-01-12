@@ -400,10 +400,50 @@ This option allows to print a textual representation of the factor graph.
 \section{Parameter Learning}
 PFL is capable to learn the parameters for bayesian networks, through an implementation of the expectation-maximization algorithm.
 
-Inside the \texttt{learning} directory from the examples directory, one can find some examples of how learning works in PFL.
+Next we show an example of parameter learning for the sprinkler network.
+
+\begin{pflcode}
+:- [sprinkler.pfl].
+
+:- use_module(library(clpbn/learning/em)).
+
+data(t, t, t, t).
+data(_, t, _, t).
+data(t, t, f, f).
+data(t, t, f, t).
+data(t, _, _, t).
+data(t, f, t, t).
+data(t, t, f, t).
+data(t, _, f, f).
+data(t, t, f, f).
+data(f, f, t, t).
+
+main :-
+    findall(X, scan_data(X), L),
+    em(L, 0.01, 10, CPTs, LogLik),
+    writeln(LogLik:CPTs).
+
+scan_data([cloudy(C), sprinkler(S), rain(R), wet_grass(W)]) :-
+    data(C, S, R, W).
+\end{pflcode}
+
+Parameter learning is done by calling the \texttt{em/5} predicate. Its arguments are the following.
+
+\texttt{em(+Data, +MaxError, +MaxIters, -CPTs, -LogLik)}
+
+Where,
+\begin{itemize}
+ \item \texttt{Data} is a list of samples for the distribution that we want to estimate. Each sample is a list of either observed random variables or unobserved random variables (denoted when its state value is not instantiated).
+ \item \texttt{MaxError} is the maximum error allowed before stopping the EM loop.
+ \item \texttt{MaxIters} is the maximum number of iterations for the EM loop.
+ \item \texttt{CPTs} is a list with the estimated conditional probability tables.
+ \item \texttt{LogLik} is the log-likelihood.
+\end{itemize}
+
 
 It is possible to choose the solver that will be used for the inference part during parameter learning with the \texttt{set\_em\_solver/1} predicate (defaults to \texttt{hve}). At the moment, only the following solvers support parameter learning: \texttt{ve}, \texttt{hve}, \texttt{bdd}, \texttt{bp} and \texttt{cbp}.
 
+Inside the \texttt{learning} directory from the examples directory, one can find more examples of parameter learning.
 
 
 
