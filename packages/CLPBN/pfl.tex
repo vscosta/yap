@@ -38,7 +38,7 @@ CRACS \& INESC TEC, Faculty of Sciences, University of Porto
 \thispagestyle{empty}
 \vspace{5cm}
 \begin{center}
-  \large Last revision: January 8, 2013
+  \large Last revision: January 11, 2013
 \end{center}
 \newpage
 
@@ -190,7 +190,7 @@ wet_grass_table(
       0.01, 0.1, 0.1, 1.0 ]).
 \end{pflcode}
 
-We started by loading the PFL library, then we have defined one factor for each node, and finally we have specified the probabilities for each conditional probability table.
+In the example, we started by loading the PFL library, then we have defined one factor for each node, and finally we have specified the probabilities for each conditional probability table.
 
 Notice that this network is fully grounded, as all constraints are empty. Next we present the PFL representation for a well-known markov logic network - the social network model. For convenience, the two main weighted formulas of this model are shown below.
 
@@ -293,7 +293,7 @@ For instance, if we want to use belief propagation to solve some probabilistic q
 
 \texttt{?- set\_solver(bp).}
 
-It is possible to tweak some parameters of PFL through \texttt{set\_pfl\_flag/2} predicate. The first argument is a option name that identifies the parameter that we want to tweak. The second argument is some possible value for this option.
+It is possible to tweak some parameters of PFL through \texttt{set\_pfl\_flag/2} predicate. The first argument is a option name that identifies the parameter that we want to tweak. The second argument is some possible value for this option. Next we explain the available options in detail.
 
 \optionsection{verbosity}
 This option controls the level of debugging information that will be shown.
