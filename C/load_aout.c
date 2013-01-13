@@ -54,8 +54,8 @@ this code is no being maintained anymore
  *   YAP_FindExecutable(argv[0]) should be called on yap initialization to
  *   locate the executable of Yap
 */
-void
-Yap_FindExecutable(char *name)
+char *
+Yap_FindExecutable(void)
 {
   register char  *cp, *cp2;
   struct stat     stbuf;
@@ -94,7 +94,7 @@ Yap_FindExecutable(char *name)
   strcpy(LOCAL_FileNameBuf, GLOBAL_argv[0]);
   Yap_TrueFileName(LOCAL_FileNameBuf, GLOBAL_Executable, TRUE);
   if (oktox(GLOBAL_Executable))
-    return;
+    return GLOBAL_Executable;
   else
     Yap_Error(SYSTEM_ERROR,MkAtomTerm(Yap_LookupAtom(GLOBAL_Executable)),
 	  "cannot find file being executed");

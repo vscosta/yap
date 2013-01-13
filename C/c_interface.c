@@ -333,6 +333,7 @@
 #include "Yap.h"
 #include "clause.h"
 #include "yapio.h"
+#include "Foreign.h"
 #include "attvar.h"
 #include "SWI-Stream.h"
 #if HAVE_STDARG_H
@@ -3261,8 +3262,14 @@ YAP_FastInit(char saved_state[])
   init_args.DelayedReleaseLoad = 3;
   init_args.PrologShouldHandleInterrupts = FALSE;
   init_args.ExecutionMode = INTERPRETED;
-  init_args.Argc = 0;
-  init_args.Argv = NULL;
+  init_args.Argc = 1;
+  {
+    size_t l1 = 2*sizeof(char *);
+    if (!(init_args.Argv = (char **)malloc(l1)))
+      return YAP_BOOT_ERROR;
+    init_args.Argv[0] = Yap_FindExecutable ();
+    init_args.Argv[1] = NULL;
+  }
   init_args.ErrorNo = 0;
   init_args.ErrorCause = NULL;
   init_args.QuietMode = FALSE;

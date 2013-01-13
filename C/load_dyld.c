@@ -65,6 +65,18 @@ mydlerror(void)
 void
 Yap_FindExecutable(char *name)
 {
+  char path[1024];
+  uint32_t size = sizeof(path);
+  if (_NSGetExecutablePath(path, &size) == 0) {
+    char *rc = malloc(size+1);
+    strncpy(rc, path, size);
+    return rc;
+  } else {
+    char *rc = malloc(size+1);
+    if (_NSGetExecutablePath(rc, &size) == 0)
+      return "yap";
+    return rc;
+  }
 }
 
 

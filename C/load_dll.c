@@ -30,6 +30,7 @@
 void
 Yap_FindExecutable(char *name)
 {
+  return NULL;
 }
 
 void *
