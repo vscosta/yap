@@ -52,8 +52,14 @@ HASH(UInt hash0, UInt j, CELL *cl, struct index_t *it)
   Term t = cl[j];
   UInt sz = it->hsize;
   if (IsIntTerm(t))
-    return (IntOfTerm(t) * 17* (hash0+1)*(j+1) ) % sz;
-  return (((UInt)AtomOfTerm(t) >> 5)* 17*(hash0+1)*(j+1) ) % sz;
+    return (17*(IntOfTerm(t) + (hash0+1)*j ) ) % sz;
+  return (17*(((UInt)AtomOfTerm(t)>>5) + (hash0+1)*j ) ) % sz;
+}
+
+static UInt
+NEXT(UInt hash, Term t, UInt j, struct index_t *it)
+{
+  return (hash+(j+1)*997) % (it->hsize);
 }
 
 /* search for matching elements */
@@ -69,12 +75,6 @@ MATCH(CELL *clp, CELL *kvp, UInt j, struct index_t *it, UInt bnds[])
     kvp--;
   } while (j-- != 0);
   return TRUE;
-}
-
-static UInt
-NEXT(UInt hash, Term t, UInt j, struct index_t *it)
-{
-  return (hash+(t>>4)+j+1) % (it->hsize);
 }
 
 static void
@@ -265,7 +265,7 @@ add_index(struct index_t **ip, UInt bmap, PredEntry *ap, UInt count, UInt bnds[]
     bzero(base, 3*sizeof(CELL)*ncls);
   }
   i->key = (CELL **)base;
-  i->links = (CELL *)(base+2*ncls);
+  i->links = (CELL *)(base+i->hsize);
   i->ncollisions = i->nentries = i->ntrys = 0;
   i->cls = (CELL *)((ADDR)ap->cs.p_code.FirstClause+2*sizeof(struct index_t *)); 
   *ip = i;
@@ -274,7 +274,7 @@ add_index(struct index_t **ip, UInt bmap, PredEntry *ap, UInt count, UInt bnds[]
     printf("entries=%ld collisions=%ld trys=%ld\n", i->nentries, i->ncollisions, i->ntrys);
     if (!i->ntrys) {
       i->is_key = TRUE;
-      if (base != realloc(base, 2*sizeof(CELL)*ncls))
+      if (base != realloc(base, i->hsize*sizeof(CELL)))
 	return FALSE;
     }
   }
