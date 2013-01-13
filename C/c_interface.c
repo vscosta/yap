@@ -438,8 +438,8 @@ X_API PredEntry *STD_PROTO(YAP_AtomToPred,(Atom));
 X_API PredEntry *STD_PROTO(YAP_FunctorToPredInModule,(Functor, Term));
 X_API PredEntry *STD_PROTO(YAP_AtomToPredInModule,(Atom, Term));
 X_API Int     STD_PROTO(YAP_CallProlog,(Term));
-X_API void   *STD_PROTO(YAP_AllocSpaceFromYap,(unsigned int));
-X_API void   *STD_PROTO(YAP_ReallocSpaceFromYap,(void*,unsigned int));
+X_API void   *STD_PROTO(YAP_AllocSpaceFromYap,(size_t));
+X_API void   *STD_PROTO(YAP_ReallocSpaceFromYap,(void*,size_t));
 X_API void    STD_PROTO(YAP_FreeSpaceFromYap,(void *));
 X_API int     STD_PROTO(YAP_StringToBuffer, (Term, char *, unsigned int));
 X_API Term    STD_PROTO(YAP_ReadBuffer, (char *,Term *));
@@ -1909,7 +1909,7 @@ YAP_CallProlog(Term t)
 }
 
 X_API void *
-YAP_ReallocSpaceFromYap(void *ptr,unsigned int size) {
+YAP_ReallocSpaceFromYap(void *ptr,size_t size) {
   CACHE_REGS
   void *new_ptr;
   BACKUP_MACHINE_REGS();
@@ -1923,7 +1923,7 @@ YAP_ReallocSpaceFromYap(void *ptr,unsigned int size) {
   return new_ptr;
 }
 X_API void *
-YAP_AllocSpaceFromYap(unsigned int size)
+YAP_AllocSpaceFromYap(size_t size)
 {
   CACHE_REGS 
     void *ptr;
@@ -2836,7 +2836,7 @@ YAP_CompileClause(Term t)
 {
   CACHE_REGS
   yamop *codeaddr;
-  int mod = CurrentModule;
+  Term mod = CurrentModule;
   Term tn = TermNil;
 
   BACKUP_MACHINE_REGS();

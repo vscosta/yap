@@ -263,10 +263,10 @@ extern X_API void PROTO(YAP_cut_up,(void));
 #define YAP_cut_fail() do { YAP_cut_up(); return FALSE; } while(0)
 
 /*  void *AllocSpaceFromYAP_(int) */
-extern X_API void *PROTO(YAP_AllocSpaceFromYap,(unsigned int));
+extern X_API void *PROTO(YAP_AllocSpaceFromYap,(size_t));
 
 /*  void *ReallocSpaceFromYAP_(void*,int) */
-extern X_API void *PROTO(YAP_ReallocSpaceFromYap,(void*,unsigned int));
+extern X_API void *PROTO(YAP_ReallocSpaceFromYap,(void*,size_t));
 
 /*  void FreeSpaceFromYAP_(void *) */
 extern X_API void PROTO(YAP_FreeSpaceFromYap,(void *));
