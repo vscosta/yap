@@ -544,6 +544,9 @@ PredForChoicePt(yamop *p_code) {
     case _retry_me:
     case _trust_me:
       return p_code->u.Otapl.p;
+    case _retry_exo:
+    case _retry_all_exo:
+      return p_code->u.lp.p;
     case _try_logical:
     case _retry_logical:
     case _trust_logical:
@@ -891,7 +894,7 @@ Yap_BuildMegaClause(PredEntry *ap)
   ap->cs.p_code.FirstClause =
     ap->cs.p_code.LastClause =
     mcl->ClCode;
-  ap->PredFlags |= MegaClausePredFlag;
+  ap->PredFlags |= MegaClausePredFlag|SourcePredFlag;
   Yap_inform_profiler_of_clause(mcl, (char *)mcl+required, ap, GPROF_MEGA);
 }
 
@@ -904,9 +907,13 @@ split_megaclause(PredEntry *ap)
   yamop *ptr;
   UInt ncls = ap->cs.p_code.NOfClauses, i;
 
-  RemoveIndexation(ap);
   mcl =
     ClauseCodeToMegaClause(ap->cs.p_code.FirstClause);
+  if (mcl->ClFlags & ExoMask) {
+    Yap_Error(PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE,TermNil,"while deleting clause from exo predicate %s/%d\n",RepAtom(NameOfFunctor(ap->FunctorOfPred))->StrOfAE,ap->ArityOfPE);
+    return;
+  }
+  RemoveIndexation(ap);
   for (i = 0, ptr = mcl->ClCode; i < ncls; i++) {
     StaticClause *new = (StaticClause *)Yap_AllocCodeSpace(sizeof(StaticClause)+mcl->ClItemSize+(UInt)NEXTOP((yamop *)NULL,p));
     if (new == NULL) {
@@ -2707,7 +2714,7 @@ p_purge_clauses( USES_REGS1 )
   Term            t = Deref(ARG1);
   Term            mod = Deref(ARG2);
   MegaClause      *before = DeadMegaClauses;
-
+  
   Yap_PutValue(AtomAbol, MkAtomTerm(AtomNil));
   if (IsVarTerm(t))
     return FALSE;
@@ -2999,6 +3006,27 @@ p_is_source( USES_REGS1 )
     return FALSE;
   PELOCK(28,pe);
   out = (pe->PredFlags & SourcePredFlag);
+  UNLOCKPE(46,pe);
+  return(out);
+}
+
+static Int 
+p_is_exo( USES_REGS1 )
+{				/* '$is_dynamic'(+P)	 */
+  PredEntry      *pe;
+  Int             out;
+  MegaClause *mcl;
+
+  pe = get_pred(Deref(ARG1),  Deref(ARG2), "$is_exo");
+  if (EndOfPAEntr(pe))
+    return FALSE;
+  PELOCK(28,pe);
+  out = (pe->PredFlags & MegaClausePredFlag);
+  if (out) {
+    mcl =
+      ClauseCodeToMegaClause(pe->cs.p_code.FirstClause);
+    out = mcl->ClFlags & ExoMask;
+  }
   UNLOCKPE(46,pe);
   return(out);
 }
@@ -5228,6 +5256,15 @@ p_nth_clause( USES_REGS1 )
     UNLOCK(pe->PELock);
     return Yap_unify(MkDBRefTerm((DBRef)cl), ARG4);
   } else if (pe->PredFlags & MegaClausePredFlag) {
+    MegaClause *mcl = ClauseCodeToMegaClause(pe->cs.p_code.FirstClause);
+    if (mcl->ClFlags & ExoMask) {
+      Term tf[2];
+      tf[0] = pe->ModuleOfPred;
+      tf[1] = Yap_MkApplTerm(pe->FunctorOfPred, pe->ArityOfPE, (CELL *)((char *)mcl->ClCode+(ncls-1)*mcl->ClItemSize));
+      UNLOCK(pe->PELock);
+      return Yap_unify(Yap_MkApplTerm(FunctorExoClause, 2, tf), ARG4);
+    }
+    /* fast access to nth element, all have same size */
     UNLOCK(pe->PELock);
     return Yap_unify(Yap_MkMegaRefTerm(pe,(yamop *)cl), ARG4);
   } else {
@@ -5769,6 +5806,12 @@ p_choicepoint_info( USES_REGS1 )
       pe = ipc->u.Otapl.p;
       t = BuildActivePred(pe, cptr->cp_args);
       break;
+    case _retry_exo:
+    case _retry_all_exo:
+      ncl = NULL;
+      pe = ipc->u.lp.p;
+      t = BuildActivePred(pe, cptr->cp_args);
+      break;      
     case _Nstop:
       { 
 	Atom at = AtomLive;
@@ -5978,7 +6021,7 @@ p_dbload_get_space( USES_REGS1 )
   ap->cs.p_code.FirstClause =
     ap->cs.p_code.LastClause =
     mcl->ClCode;
-  ap->PredFlags |= MegaClausePredFlag;
+  ap->PredFlags |= (MegaClausePredFlag|SourcePredFlag);
   ap->cs.p_code.NOfClauses = ncls;
   if (ap->PredFlags & (SpiedPredFlag|CountPredFlag|ProfiledPredFlag)) {
     ap->OpcodeOfPred = Yap_opcode(_spy_pred);
@@ -6037,6 +6080,7 @@ Yap_InitCdMgr(void)
   Yap_InitCPred("$is_expand_goal_or_meta_predicate", 2, p_is_expandgoalormetapredicate, TestPredFlag | SafePredFlag);
   Yap_InitCPred("$is_log_updatable", 2, p_is_log_updatable, TestPredFlag | SafePredFlag);
   Yap_InitCPred("$is_source", 2, p_is_source, TestPredFlag | SafePredFlag);
+  Yap_InitCPred("$is_exo", 2, p_is_exo, TestPredFlag | SafePredFlag);
   Yap_InitCPred("$owner_file", 3, p_owner_file, SafePredFlag);
   Yap_InitCPred("$mk_d", 2, p_mk_d, SafePredFlag);
   Yap_InitCPred("$pred_exists", 2, p_pred_exists, TestPredFlag | SafePredFlag);

@@ -104,6 +104,7 @@ A	ExecuteWithin		F	"$execute_within"
 A	ExecuteWoMod		F	"$execute_wo_mod"
 A	Exist			N	"exist"
 A	ExistenceError		N	"existence_error"
+A	ExoClause		F	"$exo_clause"
 A	ExpectedNumber		N	"expected_number_syntax"
 A	ExtendFileSearchPath	F	"$extend_file_search_path"
 A	FB			N	"fb"
@@ -379,6 +380,7 @@ F	Execute2InMod		ExecuteWoMod	2
 F	ExecuteInMod		ExecuteInMod	2
 F	ExecuteWithin		ExecuteWithin	1
 F	ExistenceError		ExistenceError	2
+F	ExoClause		ExoClause	2
 F	Functor			Functor		3
 F	GAtom			Atom		1
 F	GAtomic			Atomic		1

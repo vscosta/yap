@@ -26,15 +26,15 @@ this code is no being maintained anymore
  *   YAP_FindExecutable(argv[0]) should be called on yap initialization to
  *   locate the executable of Yap
 */
-void
-Yap_FindExecutable(char *name)
+char *
+Yap_FindExecutable(void)
 {
   /* use dld_find_executable */
   char *res;
   if(name != NULL && (res=dld_find_executable(name))) {
-    strcpy(GLOBAL_Executable,res);
+    return GLOBAL_Executable;
   } else {
-    strcpy(GLOBAL_Executable,"./yap");
+    return "yap";
   }
 }
 

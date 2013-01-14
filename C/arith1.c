@@ -689,7 +689,7 @@ eval1(Int fi, Term t) {
       return Yap_ArithError(TYPE_ERROR_INTEGER, t, "random(%f)", FloatOfTerm(t));
     case big_int_e:
 #ifdef USE_GMP
-      return Yap_ArithError(TYPE_ERROR_INTEGER, t, "random(%f)", FloatOfTerm(t));
+      return Yap_gmp_mul_float_big(Yap_random(), t);
 #endif
     default:
       RERROR();

@@ -26,9 +26,10 @@
  *   FindExecutable(argv[0]) should be called on yap initialization to
  *   locate the executable of Yap
 */
-void
-Yap_FindExecutable(char *name)
+char *
+Yap_FindExecutable(void)
 {
+  return NULL;
 }
 
 

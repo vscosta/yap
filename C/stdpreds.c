@@ -4007,8 +4007,11 @@ p_argv( USES_REGS1 )
 static Int 
 p_executable( USES_REGS1 )
 {
-  
-  Yap_TrueFileName (GLOBAL_argv[0], LOCAL_FileNameBuf, FALSE);
+  if (GLOBAL_argv && GLOBAL_argv[0])
+    Yap_TrueFileName (GLOBAL_argv[0], LOCAL_FileNameBuf, FALSE);
+  else
+    strncpy(LOCAL_FileNameBuf,Yap_FindExecutable (), YAP_FILENAME_MAX) ;
+
   return Yap_unify(MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf)),ARG1);
 }
 

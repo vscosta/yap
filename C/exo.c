@@ -52,29 +52,29 @@ HASH(UInt hash0, UInt j, CELL *cl, struct index_t *it)
   Term t = cl[j];
   UInt sz = it->hsize;
   if (IsIntTerm(t))
-    return (IntOfTerm(t) * 17* (hash0+1)*(j+1) ) % sz;
-  return (((UInt)AtomOfTerm(t) >> 5)* 17*(hash0+1)*(j+1) ) % sz;
-}
-
-/* search for matching elements */
-static int 
-MATCH(CELL *clp, CELL *kvp, UInt j, struct index_t *it)
-{
-  if ((kvp - it->cls)%it->arity != j)
-    return FALSE;
-  do {
-    if ( LOCAL_ibnds[j] && *clp != *kvp)
-      return FALSE;
-    clp--;
-    kvp--;
-  } while (j-- != 0);
-  return TRUE;
+    return (17*(IntOfTerm(t) + (hash0+1)*j ) ) % sz;
+  return (17*(((UInt)AtomOfTerm(t)>>5) + (hash0+1)*j ) ) % sz;
 }
 
 static UInt
 NEXT(UInt hash, Term t, UInt j, struct index_t *it)
 {
-  return (hash+(t>>4)+j+1) % (it->hsize);
+  return (hash+(j+1)*997) % (it->hsize);
+}
+
+/* search for matching elements */
+static int 
+MATCH(CELL *clp, CELL *kvp, UInt j, struct index_t *it, UInt bnds[])
+{
+  if ((kvp - it->cls)%it->arity != j)
+    return FALSE;
+  do {
+    if ( bnds[j] && *clp != *kvp)
+      return FALSE;
+    clp--;
+    kvp--;
+  } while (j-- != 0);
+  return TRUE;
 }
 
 static void
@@ -112,14 +112,14 @@ ADD_TO_TRY_CHAIN(CELL *kvp, CELL *cl, struct index_t *it)
  * else
  */
 static void
-INSERT(CELL *cl, struct index_t *it, UInt arity, UInt base, UInt hash0)
+INSERT(CELL *cl, struct index_t *it, UInt arity, UInt base, UInt hash0, UInt bnds[])
 {
   UInt j = base;
   CELL *kvp;
   UInt hash;
 
   /* skip over argument */
-  while (!LOCAL_ibnds[j]) {
+  while (!bnds[j]) {
     j++;
   }
   /* j is the firs bound element */
@@ -134,16 +134,16 @@ INSERT(CELL *cl, struct index_t *it, UInt arity, UInt base, UInt hash0)
     it->nentries++;
     it->key[hash] = cl+j;
     return;
-  } else if (MATCH(cl+j, kvp, j, it))  {
+  } else if (MATCH(cl+j, kvp, j, it, bnds))  {
     /* collision */
     UInt k;
     CELL *target;
     
     for (k =j+1, target = kvp+1; k < arity; k++,target++ ) {
-      if (LOCAL_ibnds[k]) {
+      if (bnds[k]) {
 	if (*target != cl[k]) {
 	  /* found a new forking point */
-	  INSERT(cl, it, arity, k, hash0);
+	  INSERT(cl, it, arity, k, hash0, bnds);
 	  return;
 	}
       }
@@ -160,8 +160,9 @@ INSERT(CELL *cl, struct index_t *it, UInt arity, UInt base, UInt hash0)
 }
 
 static yamop *
-LOOKUP(struct index_t *it, UInt arity, UInt j)
+LOOKUP(struct index_t *it, UInt arity, UInt j, UInt bnds[])
 {
+  CACHE_REGS
   CELL *kvp;
   UInt hash, hash0 = 0;
 
@@ -175,13 +176,13 @@ LOOKUP(struct index_t *it, UInt arity, UInt j)
   if (kvp == NULL) {
     /* simple case, no element */
     return FAILCODE;
-  } else if (MATCH(XREGS+(j+1), kvp, j, it))  {
+  } else if (MATCH(XREGS+(j+1), kvp, j, it, bnds))  {
     /* found element */
     UInt k;
     CELL *target;
 
     for (k =j+1, target = kvp+1; k < arity; k++ ) {
-      if (LOCAL_ibnds[k]) {
+      if (bnds[k]) {
 	if (*target != XREGS[k+1]) {
 	  j = k;
 	  goto hash;
@@ -202,14 +203,14 @@ LOOKUP(struct index_t *it, UInt arity, UInt j)
 }
 
 static void
-fill_hash(UInt bmap, struct index_t *it)
+fill_hash(UInt bmap, struct index_t *it, UInt bnds[])
 {
   UInt i;
   UInt arity = it->arity;
   CELL *cl = it->cls;
 
   for (i=0; i < it->nels; i++) {
-    INSERT(cl, it, arity, 0, 0);
+    INSERT(cl, it, arity, 0, 0, bnds);
     cl += arity;
   }
   for (i=0; i < it->hsize; i++) {
@@ -226,7 +227,7 @@ fill_hash(UInt bmap, struct index_t *it)
 }
 
 static struct index_t *
-add_index(struct index_t **ip, UInt bmap, PredEntry *ap, UInt count)
+add_index(struct index_t **ip, UInt bmap, PredEntry *ap, UInt count, UInt bnds[])
 {
   UInt ncls = ap->cs.p_code.NOfClauses, j;
   CELL *base = NULL;
@@ -264,16 +265,16 @@ add_index(struct index_t **ip, UInt bmap, PredEntry *ap, UInt count)
     bzero(base, 3*sizeof(CELL)*ncls);
   }
   i->key = (CELL **)base;
-  i->links = (CELL *)(base+2*ncls);
+  i->links = (CELL *)(base+i->hsize);
   i->ncollisions = i->nentries = i->ntrys = 0;
   i->cls = (CELL *)((ADDR)ap->cs.p_code.FirstClause+2*sizeof(struct index_t *)); 
   *ip = i;
   if (count) {
-    fill_hash(bmap, i);
+    fill_hash(bmap, i, bnds);
     printf("entries=%ld collisions=%ld trys=%ld\n", i->nentries, i->ncollisions, i->ntrys);
     if (!i->ntrys) {
       i->is_key = TRUE;
-      if (base != realloc(base, 2*sizeof(CELL)*ncls))
+      if (base != realloc(base, i->hsize*sizeof(CELL)))
 	return FALSE;
     }
   }
@@ -311,7 +312,7 @@ add_index(struct index_t **ip, UInt bmap, PredEntry *ap, UInt count)
 }
 
 yamop  *
-Yap_ExoLookup(PredEntry *ap) 
+Yap_ExoLookup(PredEntry *ap USES_REGS) 
 {
   UInt arity = ap->ArityOfPE;
   UInt bmap = 0L, bit = 1, count = 0, j, j0 = 0;
@@ -345,10 +346,10 @@ Yap_ExoLookup(PredEntry *ap)
     i = i->next;
   }
   if (!i) {
-    i = add_index(ip, bmap, ap, count);
+    i = add_index(ip, bmap, ap, count, LOCAL_ibnds);
   }
   if (count)
-    return LOOKUP(i, arity, j0);
+    return LOOKUP(i, arity, j0, LOCAL_ibnds);
   else
     return i->code;
 }
@@ -356,6 +357,7 @@ Yap_ExoLookup(PredEntry *ap)
 CELL
 Yap_NextExo(choiceptr cptr, struct index_t *it) 
 {
+  CACHE_REGS
   CELL offset = EXO_ADDRESS_TO_OFFSET(it,(CELL *)((CELL *)(B+1))[it->arity]);
   CELL next = it->links[offset];
   ((CELL *)(B+1))[it->arity] = (CELL)EXO_OFFSET_TO_ADDRESS(it, next);
@@ -420,8 +422,8 @@ p_exodb_get_space( USES_REGS1 )
   }
   Yap_ClauseSpace += required;
   /* cool, it's our turn to do the conversion */
-  mcl->ClFlags = MegaMask;
-  mcl->ClSize = required-sizeof(MegaClause);
+  mcl->ClFlags = MegaMask|ExoMask;
+  mcl->ClSize = required;
   mcl->ClPred = ap;
   mcl->ClItemSize = arity*sizeof(CELL);
   mcl->ClNext = NULL;
@@ -430,7 +432,7 @@ p_exodb_get_space( USES_REGS1 )
   ap->cs.p_code.FirstClause =
     ap->cs.p_code.LastClause =
     mcl->ClCode;
-  ap->PredFlags |= MegaClausePredFlag;
+  ap->PredFlags |= MegaClausePredFlag|SourcePredFlag;
   ap->cs.p_code.NOfClauses = ncls;
   if (ap->PredFlags & (SpiedPredFlag|CountPredFlag|ProfiledPredFlag)) {
     ap->OpcodeOfPred = Yap_opcode(_spy_pred);

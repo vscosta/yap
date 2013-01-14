@@ -24,6 +24,10 @@
 #include <dlfcn.h>
 #include <string.h>
 #include <stdio.h>
+#if defined(__APPLE__)
+#include <mach-o/dyld.h> 
+#endif 
+ 
 
 typedef void (*prismf)(void);
 
@@ -57,9 +61,29 @@ Yap_CallFunctionByName(const char *thing_string)
  *   YAP_FindExecutable(argv[0]) should be called on yap initialization to
  *   locate the executable of Yap
 */
-void
-Yap_FindExecutable(char *name)
+char *
+Yap_FindExecutable(void)
 {
+  if (GLOBAL_argv && GLOBAL_argv[0])
+    return GLOBAL_argv[0];
+#if HAVE_GETEXECNAME
+  return getxecname();
+#elif __APPLE__
+  char path[1024];
+  uint32_t size = sizeof(path);
+  if (!_NSGetExecutablePath(path, &size)) {
+    size_t sz = strlen(path);
+    char *rc = malloc(sz+1);
+    strncpy(rc, path, sz);
+    return rc;
+  } else {
+    char *rc = malloc(size+1);
+    if (_NSGetExecutablePath(rc, &size) == 0)
+      return "yap";
+    return rc;
+  }
+#endif
+  return "yap";
 }
 
 void *
@@ -200,7 +224,7 @@ Yap_ShutdownLoadForeign(void)
       if (dlclose(objs->handle) != 0)
       	return; /* ERROR */
       objs = objs->next;
-      Yap_FreeCodeSpace(old);
+      Yap_FreeCodeSpace((ADDR)old);
     }
     libs = f_code->libs;
     while (libs != NULL) {
@@ -208,7 +232,7 @@ Yap_ShutdownLoadForeign(void)
       if (dlclose(libs->handle) != 0)
 	return; /* ERROR */
       libs = libs->next;
-      Yap_FreeCodeSpace(old);
+      Yap_FreeCodeSpace((ADDR)old);
     }
     f_code = f_code->next;
     Yap_FreeCodeSpace((ADDR)of_code);
