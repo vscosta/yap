@@ -143,6 +143,7 @@ INSERT(CELL *cl, struct index_t *it, UInt arity, UInt base, UInt hash0, UInt bnd
       if (bnds[k]) {
 	if (*target != cl[k]) {
 	  /* found a new forking point */
+	  //    printf("j=%ld hash0=%ld cl[j]=%lx\n", j, hash0, cl[j]);
 	  INSERT(cl, it, arity, k, hash0, bnds);
 	  return;
 	}
