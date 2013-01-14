@@ -74,6 +74,7 @@
   AtomDefault = AtomAdjust(AtomDefault);
   AtomDevNull = AtomAdjust(AtomDevNull);
   AtomDiff = AtomAdjust(AtomDiff);
+  AtomDollar = AtomAdjust(AtomDollar);
   AtomDoLogUpdClause = AtomAdjust(AtomDoLogUpdClause);
   AtomDoLogUpdClause0 = AtomAdjust(AtomDoLogUpdClause0);
   AtomDoLogUpdClauseErase = AtomAdjust(AtomDoLogUpdClauseErase);
@@ -127,6 +128,7 @@
   AtomGlobalSp = AtomAdjust(AtomGlobalSp);
   AtomGlobalTrie = AtomAdjust(AtomGlobalTrie);
   AtomGoalExpansion = AtomAdjust(AtomGoalExpansion);
+  AtomHat = AtomAdjust(AtomHat);
   AtomHERE = AtomAdjust(AtomHERE);
   AtomHandleThrow = AtomAdjust(AtomHandleThrow);
   AtomHeap = AtomAdjust(AtomHeap);
@@ -390,6 +392,7 @@
   FunctorGoalExpansion2 = FuncAdjust(FunctorGoalExpansion2);
   FunctorGoalExpansion = FuncAdjust(FunctorGoalExpansion);
   FunctorHandleThrow = FuncAdjust(FunctorHandleThrow);
+  FunctorHat = FuncAdjust(FunctorHat);
   FunctorId = FuncAdjust(FunctorId);
   FunctorIs = FuncAdjust(FunctorIs);
   FunctorLastExecuteWithin = FuncAdjust(FunctorLastExecuteWithin);
