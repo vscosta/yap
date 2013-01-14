@@ -907,9 +907,13 @@ split_megaclause(PredEntry *ap)
   yamop *ptr;
   UInt ncls = ap->cs.p_code.NOfClauses, i;
 
-  RemoveIndexation(ap);
   mcl =
     ClauseCodeToMegaClause(ap->cs.p_code.FirstClause);
+  if (mcl->ClFlags & ExoMask) {
+    Yap_Error(PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE,TermNil,"while deleting clause from exo predicate %s/%d\n",RepAtom(NameOfFunctor(ap->FunctorOfPred))->StrOfAE,ap->ArityOfPE);
+    return;
+  }
+  RemoveIndexation(ap);
   for (i = 0, ptr = mcl->ClCode; i < ncls; i++) {
     StaticClause *new = (StaticClause *)Yap_AllocCodeSpace(sizeof(StaticClause)+mcl->ClItemSize+(UInt)NEXTOP((yamop *)NULL,p));
     if (new == NULL) {
@@ -2710,7 +2714,7 @@ p_purge_clauses( USES_REGS1 )
   Term            t = Deref(ARG1);
   Term            mod = Deref(ARG2);
   MegaClause      *before = DeadMegaClauses;
-
+  
   Yap_PutValue(AtomAbol, MkAtomTerm(AtomNil));
   if (IsVarTerm(t))
     return FALSE;
@@ -5252,6 +5256,15 @@ p_nth_clause( USES_REGS1 )
     UNLOCK(pe->PELock);
     return Yap_unify(MkDBRefTerm((DBRef)cl), ARG4);
   } else if (pe->PredFlags & MegaClausePredFlag) {
+    MegaClause *mcl = ClauseCodeToMegaClause(pe->cs.p_code.FirstClause);
+    if (mcl->ClFlags & ExoMask) {
+      Term tf[2];
+      tf[0] = pe->ModuleOfPred;
+      tf[1] = Yap_MkApplTerm(pe->FunctorOfPred, pe->ArityOfPE, (CELL *)((char *)mcl->ClCode+(ncls-1)*mcl->ClItemSize));
+      UNLOCK(pe->PELock);
+      return Yap_unify(Yap_MkApplTerm(FunctorExoClause, 2, tf), ARG4);
+    }
+    /* fast access to nth element, all have same size */
     UNLOCK(pe->PELock);
     return Yap_unify(Yap_MkMegaRefTerm(pe,(yamop *)cl), ARG4);
   } else {
