@@ -150,16 +150,16 @@ process_arg(Sk, Id, _I) -->
 	},
 	[Sk].
 
-new_skolem(Sk,D) :-
+new_skolem(Sk, D) :-
 	copy_term(Sk, Sk1),
 	skolem(Sk1, D1),
-	functor(Sk1,N,A),
-	functor(Sk ,N,A),
+	functor(Sk1, N, A),
+	functor(Sk , N, A),
 	!,
 	( D1 = D -> true ; throw(pfl(permission_error(redefining_domain(Sk),D:D1)))).
-new_skolem(Sk,D) :-
-	functor(Sk ,N,A),
-	functor(NSk ,N,A),
+new_skolem(Sk, D) :-
+	functor(Sk, N, A),
+	functor(NSk, N, A),
 	interface_predicate(NSk),
 	assert(skolem(NSk, D)).
 

@@ -4,7 +4,7 @@
 
 :- use_module(library(clpbn/learning/em)).
 
-:- set_em_solver(ve).
+%:- set_em_solver(ve).
 %:- set_em_solver(hve).
 %:- set_em_solver(bdd).
 %:- set_em_solver(bp).
@@ -29,25 +29,19 @@ abi_table([0.3, 0.3, 0.4]).
 pop_table([0.3, 0.3, 0.4, 0.3, 0.3, 0.4, 0.3, 0.3, 0.4]).
 
 goal_list([
-/*
 	abi(p0,h),
 	abi(p1,m),
 	abi(p2,m),
 	abi(p3,m),
-*/
 	abi(p4,l),
 	pop(p5,h),
 	abi(p5,_),
 	abi(p6,_),
-	pop(p7,_)]).
+	pop(p7,_)
+]).
 
-timed_main :-
-	statistics(runtime, _),
-	main(Lik),
-	statistics(runtime, [T,_]),
-	format('Took ~d msec and Lik ~3f~n',[T,Lik]).
-
-main(Lik) :-
+main :-
 	goal_list(L),
-	em(L,0.01,10,_,Lik).
+	em(L, 0.01, 10, CPTs, Lik),
+	writeln(Lik:CPTs).
 

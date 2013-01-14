@@ -14,10 +14,11 @@
   {\VerbatimEnvironment \setstretch{0.8} \begin{pflcodeve}}
   {\end{pflcodeve} }
 
-\newcommand{\true}      {\mathtt{t}}
-\newcommand{\false}     {\mathtt{f}}
-\newcommand{\pathsep}   { $\triangleright$ }
-\newcommand{\tableline} {\noalign{\hrule height 0.8pt}}
+\newcommand{\true}             {\mathtt{t}}
+\newcommand{\false}            {\mathtt{f}}
+\newcommand{\pathsep}          { $\triangleright$ }
+\newcommand{\tableline}        {\noalign{\hrule height 0.8pt}}
+\newcommand{\optionsection}[1] {\subsection*{\texttt{#1}}}
 
 \tikzstyle{nodestyle}   = [draw, thick, circle, minimum size=0.9cm]
 \tikzstyle{bnedgestyle} = [-triangle 45,thick]
@@ -37,7 +38,7 @@ CRACS \& INESC TEC, Faculty of Sciences, University of Porto
 \thispagestyle{empty}
 \vspace{5cm}
 \begin{center}
-  \large Last revision: January 8, 2013
+  \large Last revision: January 11, 2013
 \end{center}
 \newpage
 
@@ -102,14 +103,14 @@ $$Type~~F~~;~~Phi~~;~~C.$$
 \begin{center}
 \begin{tikzpicture}[>=latex',line join=bevel,transform shape,scale=0.8]
 
-\node (cloudy)   at (50bp,  122bp) [nodestyle,ellipse,inner sep=0pt,minimum width=2.7cm] {$Cloudy$};
-\node (sprinker) at ( 0bp,  66bp)  [nodestyle,ellipse,inner sep=0pt,minimum width=2.7cm] {$Sprinker$};
-\node (rain)     at (100bp, 66bp)  [nodestyle,ellipse,inner sep=0pt,minimum width=2.7cm] {$Rain$};
-\node (wetgrass) at (50bp,  10bp)  [nodestyle,ellipse,inner sep=0pt,minimum width=2.7cm] {$WetGrass$};
-\draw [bnedgestyle] (cloudy)   -- (sprinker);
-\draw [bnedgestyle] (cloudy)   -- (rain);
-\draw [bnedgestyle] (sprinker) -- (wetgrass);
-\draw [bnedgestyle] (rain)     -- (wetgrass);
+\node (cloudy)    at (50bp,  122bp) [nodestyle,ellipse,inner sep=0pt,minimum width=2.7cm] {$Cloudy$};
+\node (sprinkler) at ( 0bp,  66bp)  [nodestyle,ellipse,inner sep=0pt,minimum width=2.7cm] {$Sprinkler$};
+\node (rain)      at (100bp, 66bp)  [nodestyle,ellipse,inner sep=0pt,minimum width=2.7cm] {$Rain$};
+\node (wetgrass)  at (50bp,  10bp)  [nodestyle,ellipse,inner sep=0pt,minimum width=2.7cm] {$WetGrass$};
+\draw [bnedgestyle] (cloudy)    -- (sprinkler);
+\draw [bnedgestyle] (cloudy)    -- (rain);
+\draw [bnedgestyle] (sprinkler) -- (wetgrass);
+\draw [bnedgestyle] (rain)      -- (wetgrass);
 
 \node [above=0.4cm of cloudy,inner sep=0pt] {
 \begin{tabular}[b]{lc}
@@ -119,7 +120,7 @@ $$Type~~F~~;~~Phi~~;~~C.$$
 \end{tabular}
 };
 
-\node [left=0.4cm of sprinker,inner sep=0pt] {
+\node [left=0.4cm of sprinkler,inner sep=0pt] {
 \begin{tabular}{lcc}
   $S$      & $C$      & $P(S|C)$ \\ \tableline
   $\true$  & $\true$  & 0.1 \\
@@ -189,7 +190,7 @@ wet_grass_table(
       0.01, 0.1, 0.1, 1.0 ]).
 \end{pflcode}
 
-We started by loading the PFL library, then we have defined one factor for each node, and finally we have specified the probabilities for each conditional probability table.
+In the example, we started by loading the PFL library, then we have defined one factor for each node, and finally we have specified the probabilities for each conditional probability table.
 
 Notice that this network is fully grounded, as all constraints are empty. Next we present the PFL representation for a well-known markov logic network - the social network model. For convenience, the two main weighted formulas of this model are shown below.
 
@@ -251,7 +252,7 @@ In this section we demonstrate how to use PFL to solve probabilistic queries. We
 
 Assuming that the current directory is the one where the examples are located, first we load the model with the following command.
 
-\texttt{\$ yap -l sprinker.pfl}
+\texttt{\$ yap -l sprinkler.pfl}
 
 Let's suppose that we want to estimate the marginal probability for the $WetGrass$ random variable. To do so, we call the following goal.
 
@@ -292,34 +293,61 @@ For instance, if we want to use belief propagation to solve some probabilistic q
 
 \texttt{?- set\_solver(bp).}
 
-It is possible to tweak some parameters of PFL through \texttt{set\_horus\_flag/2} predicate. The first argument is a key that identifies the parameter that we want to tweak. The second argument is some possible value for this key.
+It is possible to tweak some parameters of PFL through \texttt{set\_pfl\_flag/2} predicate. The first argument is a option name that identifies the parameter that we want to tweak. The second argument is some possible value for this option. Next we explain the available options in detail.
 
-The \texttt{verbosity} key controls the level of debugging information that will be printed. Its possible values are positive integers. The higher the number, the more information that will be shown. For instance, we can view some basic debugging information by calling the following goal.
+\optionsection{verbosity}
+This option controls the level of debugging information that will be shown.
 
-\texttt{?- set\_horus\_flag(verbosity, 1).}
-
-This key defaults to 0 (no debugging) and only \texttt{hve}, \texttt{bp}, \texttt{cbp}, \texttt{lve}, \texttt{lkc} and \texttt{lbp} solvers have support for this key.
-
-The \texttt{use\_logarithms} key controls whether the calculations performed during inference should be done in a logarithm domain or not. Its values can be \texttt{true} (default) or \texttt{false}. This key only affects \texttt{hve}, \texttt{bp}, \texttt{cbp}, \texttt{lve}, \texttt{lkc} and \texttt{lbp} solvers. The remaining solvers always perform their calculations in a logarithm domain.
-
-There are keys specific to some algorithms. The \texttt{hve\_elim\_heuristic} key allows to choose which elimination heuristic will be used by the \texttt{hve} solver (but not \texttt{ve}). The following are supported:
 \begin{itemize}
- \item \texttt{sequential}
- \item \texttt{min\_neighbors}
- \item \texttt{min\_weight}
- \item \texttt{min\_fill}
- \item \texttt{weighted\_min\_fill} (default)
+  \item Values: a positive integer (default is 0 - no debugging). The higher the number, the more information that will be shown.
+  \item Affects: \texttt{hve}, \texttt{bp}, \texttt{cbp}, \texttt{lve}, \texttt{lkc} and \texttt{lbp}.
+\end{itemize}
+
+For instance, we can view some basic debugging information by calling the following goal.
+
+\texttt{?- set\_pfl\_flag(verbosity, 1).}
+
+
+\optionsection{use\_logarithms}
+This option controls whether the calculations performed during inference should be done in a logarithm domain or not.
+\begin{itemize}
+  \item Values: \texttt{true} (default) or \texttt{false}.
+  \item Affects: \texttt{hve}, \texttt{bp}, \texttt{cbp}, \texttt{lve}, \texttt{lkc} and \texttt{lbp}.
+\end{itemize}
+
+
+\optionsection{hve\_elim\_heuristic}
+This option allows to choose which elimination heuristic will be used by the \texttt{hve}.
+\begin{itemize}
+  \item Values: \texttt{sequential}, \texttt{min\_neighbors}, \texttt{min\_weight}, \texttt{min\_fill} and\\ \texttt{weighted\_min\_fill} (default).
+  \item Affects: \texttt{hve}.
 \end{itemize}
 
 An explanation for each of these heuristics can be found in Daphne Koller's book \textit{Probabilistic Graphical Models}.
 
-The \texttt{bp\_msg\_schedule}, \texttt{bp\_accuracy} and \texttt{bp\_max\_iter} keys are specific for message passing based algorithms, namely \texttt{bp}, \texttt{cbp} and \texttt{lbp}.
 
-The \texttt{bp\_max\_iter} key establishes a maximum number of iterations. One iteration consists in sending all possible messages. It defaults to \texttt{1000}.
+\optionsection{bp\_max\_iter}
+This option establishes a maximum number of iterations. One iteration consists in sending all possible messages.
 
-The \texttt{bp\_accuracy} key allows to control when the message passing should cease. Be the residual of one message the difference (according some metric) between the one sent in the current iteration and the one sent in the previous. If the highest residual is lesser than the given value, the message passing is stopped and the probabilities are calculated using the last messages that were sent. This key defaults to \texttt{0.0001}.
+\begin{itemize}
+  \item Values: a positive integer (default is \texttt{1000}).
+  \item Affects: \texttt{bp}, \texttt{cbp} and \texttt{lbp}.
+\end{itemize}
 
-The key \texttt{bp\_msg\_schedule} allows to control the message sending order. Its possible values are:
+
+\optionsection{bp\_accuracy}
+This option allows to control when the message passing should cease. Be the residual of one message the difference (according some metric) between the one sent in the current iteration and the one sent in the previous. If the highest residual is lesser than the given value, the message passing is stopped and the probabilities are calculated using the last messages that were sent.
+
+\begin{itemize}
+  \item Values: a float-point number (default is \texttt{0.0001}).
+  \item Affects: \texttt{bp}, \texttt{cbp} and \texttt{lbp}.
+\end{itemize}
+
+
+\optionsection{bp\_msg\_schedule}
+This option allows to control the message sending order.
+\begin{itemize}
+  \item Values:
 \begin{itemize}
  \item \texttt{seq\_fixed} (default), at each iteration, all messages are sent with the same order.
 
@@ -329,8 +357,39 @@ The key \texttt{bp\_msg\_schedule} allows to control the message sending order. 
 
  \item \texttt{max\_residual}, the next message to be sent is the one with maximum residual (as explained in the paper \textit{Residual Belief Propagation: Informed Scheduling for Asynchronous Message Passing}).
 \end{itemize}
+  \item Affects: \texttt{bp}, \texttt{cbp} and \texttt{lbp}.
+\end{itemize}
 
-The \texttt{export\_libdai} and \texttt{export\_uai} keys can be used to export the current model respectively to \href{http://cs.ru.nl/~jorism/libDAI/doc/fileformats.html}{libDAI}, and \href{http://graphmod.ics.uci.edu/uai08/FileFormat}{UAI08} formats. With the \texttt{export\_graphviz} key it is possible to export the factor graph structure into a format that can be parsed by \href{http://www.graphviz.org/}{Graphviz}. The \texttt{print\_fg} key allows to print a textual representation of the factor graph. All these four keys accept \texttt{true} and \texttt{false} as their values and only have effect in \texttt{hve}, \texttt{bp}, and \texttt{cbp} solvers.
+
+\optionsection{export\_libdai}
+This option allows exporting the current model to the \href{http://cs.ru.nl/~jorism/libDAI/doc/fileformats.html}{libDAI} file format.
+\begin{itemize}
+  \item Values: \texttt{true} or \texttt{false} (default).
+  \item Affects: \texttt{hve}, \texttt{bp}, and \texttt{cbp}.
+\end{itemize}
+
+
+\optionsection{export\_uai}
+This option allows exporting the current model to the \href{http://graphmod.ics.uci.edu/uai08/FileFormat}{UAI08} file format.
+\begin{itemize}
+  \item Values: \texttt{true} or \texttt{false} (default).
+  \item Affects: \texttt{hve}, \texttt{bp}, and \texttt{cbp}.
+\end{itemize}
+
+
+\optionsection{export\_graphviz}
+This option allows exporting the factor graph's structure into a format that can be parsed by \href{http://www.graphviz.org/}{Graphviz}.
+\begin{itemize}
+  \item Values: \texttt{true} or \texttt{false} (default).
+  \item Affects: \texttt{hve}, \texttt{bp}, and \texttt{cbp}.
+\end{itemize}
+
+\optionsection{print\_fg}
+This option allows to print a textual representation of the factor graph.
+\begin{itemize}
+  \item Values: \texttt{true} or \texttt{false} (default).
+  \item Affects: \texttt{hve}, \texttt{bp}, and \texttt{cbp}.
+\end{itemize}
 
 
 
@@ -341,10 +400,50 @@ The \texttt{export\_libdai} and \texttt{export\_uai} keys can be used to export 
 \section{Parameter Learning}
 PFL is capable to learn the parameters for bayesian networks, through an implementation of the expectation-maximization algorithm.
 
-Inside the \texttt{learning} directory from the examples directory, one can find some examples of how learning works in PFL.
+Next we show an example of parameter learning for the sprinkler network.
+
+\begin{pflcode}
+:- [sprinkler.pfl].
+
+:- use_module(library(clpbn/learning/em)).
+
+data(t, t, t, t).
+data(_, t, _, t).
+data(t, t, f, f).
+data(t, t, f, t).
+data(t, _, _, t).
+data(t, f, t, t).
+data(t, t, f, t).
+data(t, _, f, f).
+data(t, t, f, f).
+data(f, f, t, t).
+
+main :-
+    findall(X, scan_data(X), L),
+    em(L, 0.01, 10, CPTs, LogLik),
+    writeln(LogLik:CPTs).
+
+scan_data([cloudy(C), sprinkler(S), rain(R), wet_grass(W)]) :-
+    data(C, S, R, W).
+\end{pflcode}
+
+Parameter learning is done by calling the \texttt{em/5} predicate. Its arguments are the following.
+
+\texttt{em(+Data, +MaxError, +MaxIters, -CPTs, -LogLik)}
+
+Where,
+\begin{itemize}
+ \item \texttt{Data} is a list of samples for the distribution that we want to estimate. Each sample is a list of either observed random variables or unobserved random variables (denoted when its state value is not instantiated).
+ \item \texttt{MaxError} is the maximum error allowed before stopping the EM loop.
+ \item \texttt{MaxIters} is the maximum number of iterations for the EM loop.
+ \item \texttt{CPTs} is a list with the estimated conditional probability tables.
+ \item \texttt{LogLik} is the log-likelihood.
+\end{itemize}
+
 
 It is possible to choose the solver that will be used for the inference part during parameter learning with the \texttt{set\_em\_solver/1} predicate (defaults to \texttt{hve}). At the moment, only the following solvers support parameter learning: \texttt{ve}, \texttt{hve}, \texttt{bdd}, \texttt{bp} and \texttt{cbp}.
 
+Inside the \texttt{learning} directory from the examples directory, one can find more examples of parameter learning.
 
 
 
@@ -352,17 +451,17 @@ It is possible to choose the solver that will be used for the inference part dur
 %------------------------------------------------------------------------------
 %------------------------------------------------------------------------------
 %------------------------------------------------------------------------------
-\section{Horus Command Line}
+\section{External Interface}
 This package also includes an external command for perform inference over probabilistic graphical models described in formats other than PFL. Currently two are support, the \href{http://cs.ru.nl/~jorism/libDAI/doc/fileformats.html}{libDAI file format}, and the \href{http://graphmod.ics.uci.edu/uai08/FileFormat}{UAI08 file format}.
 
-This utility is called \texttt{hcli} and its usage is as follows.
+This command's name is \texttt{hcli} and its usage is as follows.
 
 \begin{verbatim}
-   $ ./hcli [solver=hve|bp|cbp] [<HORUS_KEY>=<VALUE>]...
+   $ ./hcli [solver=hve|bp|cbp] [<OPTION>=<VALUE>]...
    <FILE> [<VAR>|<VAR>=<EVIDENCE>]...
 \end{verbatim}
 
-Let's assume that the current directory is the one where the examples are located. We can perform inference in any supported model by passing the file name where the model is defined as argument. Next, we show how to load a model using the \texttt{hcli} utility.
+Let's assume that the current directory is the one where the examples are located. We can perform inference in any supported model by passing the file name where the model is defined as argument. Next, we show how to load a model with \texttt{hcli}.
 
 \texttt{\$ ./hcli burglary-alarm.uai}
 
@@ -376,13 +475,13 @@ Evidence can be given as a pair containing a variable identifier and its observe
 
 \texttt{\$ ./hcli burglary-alarm.uai 0=1}
 
-By default, all probability tasks are resolved using the \texttt{hve} solver. It is possible to choose another solver using the \texttt{solver} key as follows.
+By default, all probability tasks are resolved using the \texttt{hve} solver. It is possible to choose another solver using the \texttt{solver} option as follows.
 
 \texttt{\$ ./hcli solver=bp burglary-alarm.uai}
 
 Notice that only the \texttt{hve}, \texttt{bp} and \texttt{cbp} solvers can be used with \texttt{hcli}.
 
-The options that are available with the \texttt{set\_horus\_flag/2} predicate can be used in \texttt{hcli} too. The syntax is a pair \texttt{<Key>=<Value>} before the model's file name.
+The options that are available with the \texttt{set\_pfl\_flag/2} predicate can be used in \texttt{hcli} too. The syntax is a pair \texttt{<Option>=<Value>} before the model's file name.
 
 
 

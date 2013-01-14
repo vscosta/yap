@@ -81,7 +81,7 @@ string parametersToString (const Params&, unsigned = Constants::PRECISION);
 
 vector<string> getStateLines (const Vars&);
 
-bool setHorusFlag (string key, string value);
+bool setHorusFlag (string option, string value);
 
 void printHeader (string, std::ostream& os = std::cout);
 
