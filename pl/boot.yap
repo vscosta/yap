@@ -1042,6 +1042,20 @@ bootstrap(F) :-
         true
        ).
 
+'$loop'(Stream,exo) :-
+	prompt1('|     '), prompt(_,'| '),
+	'$current_module'(OldModule),
+	repeat,
+		'$system_catch'(dbload_from_stream(Stream, OldModule, exo), '$db_load', Error,
+			 user:'$LoopError'(Error, Status)),
+	!.
+'$loop'(Stream,db) :-
+	prompt1('|     '), prompt(_,'| '),
+	'$current_module'(OldModule),
+	repeat,
+		'$system_catch'(dbload_from_stream(Stream, OldModule, db), '$db_load', Error,
+			 user:'$LoopError'(Error, Status)),
+	!.
 '$loop'(Stream,Status) :-
 	(
 	 Status = top

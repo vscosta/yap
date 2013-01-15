@@ -20,6 +20,41 @@
 
 :- dynamic dbloading/6, dbprocess/2.
 
+dbload_from_stream(R, M0, Type) :-
+	read(R,T),
+	( T = end_of_file -> !, close_dbload(R, Type);
+	    dbload_count(T, M0),
+	    fail 
+	).
+
+close_dbload(R, exo) :-
+	retract(dbloading(Na,Arity,M,T,NaAr,_)),
+	nb_getval(NaAr,Size),
+	exo_db_get_space(T, M, Size, Handle),
+	assertz(dbloading(Na,Arity,M,T,NaAr,Handle)),
+	nb_setval(NaAr,0),
+	fail.
+close_dbload(R, exo) :-
+	seek(R, 0, bof, _),
+	exodb_add_facts(R, M),
+	fail.
+close_dbload(R, mega) :-
+	retract(dbloading(Na,Arity,M,T,NaAr,_)),
+	nb_getval(NaAr,Size),
+	dbload_get_space(T, M, Size, Handle),
+	assertz(dbloading(Na,Arity,M,T,NaAr,Handle)),
+	nb_setval(NaAr,0),
+	fail.
+close_dbload(R, mega) :-
+	seek(R, 0, bof, _),
+	dbload_add_facts(R, M),
+	fail.
+close_dbload(_, _) :- 
+	retractall(dbloading(_Na,_Arity,_M,_T,_NaAr,_Handle)),
+	fail.
+close_dbload(_, _).
+
+
 prolog:load_db(Fs) :-
         '$current_module'(M0),	
 	prolog_flag(agc_margin,Old,0),
@@ -49,6 +84,7 @@ do_dbload(F0, M0, G) :-
 	open(F, read, R),
 	check_dbload_stream(R, M0),
 	close(R).
+
 
 check_dbload_stream(R, M0) :-
 	repeat,

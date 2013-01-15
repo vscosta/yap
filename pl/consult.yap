@@ -26,7 +26,7 @@
 % qcompile(true,false)
 % silent(true,false)  => implemented
 % stream(Stream)  => implemented
-% consult(consult,reconsult) => implemented
+% consult(consult,reconsult,exo,db) => implemented
 % compilation_mode(compact,source,assert_all) => implemented
 %
 load_files(Files,Opts) :-
@@ -114,6 +114,8 @@ load_files(Files,Opts) :-
 '$process_lf_opt'(compilation_mode(compact),_,_,_,_,_,_,_,_,_,compact,_,_,_).
 '$process_lf_opt'(compilation_mode(assert_all),_,_,_,_,_,_,_,_,_,assert_all,_,_,_).
 '$process_lf_opt'(consult(reconsult),_,_,_,_,_,_,_,_,_,_,reconsult,_,_).
+'$process_lf_opt'(consult(exo),_,_,_,_,_,_,_,_,_,_,exo,_,_).
+'$process_lf_opt'(consult(db),_,_,_,_,_,_,_,_,_,_,db,_,_).
 '$process_lf_opt'(consult(consult),_,_,_,_,_,_,_,_,_,_,consult,_,_).
 '$process_lf_opt'(stream(Stream),_,_,_,_,_,_,Stream,_,_,_,_,Files,Call) :-
 /*	( is_stream(Stream) -> true ;  '$do_error'(domain_error(stream,Stream),Call) ), */
@@ -203,6 +205,12 @@ consult(Fs) :-
 
 reconsult(Fs) :-
 	'$load_files'(Fs, [], reconsult(Fs)).
+
+exo_files(Fs) :-
+	'$load_files'(Fs, [consult(exo), if(not_loaded)], exo_files(Fs)).
+
+db_files(Fs) :-
+	'$load_files'(Fs, [consult(db), if(not_loaded)], exo_files(Fs)).
 
 use_module(F) :-
 	'$load_files'(F, [if(not_loaded)], use_module(F)).
