@@ -103,11 +103,9 @@ bagof(Template, Generator, Bag) :-
 	'$bagof'(Template, Generator, Bag).
 
 '$bagof'(Template, Generator, Bag) :-
-	'$variables_in_term'(Template, [], TemplateV),
-	'$excess_vars'(Generator, StrippedGenerator, TemplateV, [], FreeVars),
-	( FreeVars \== [] ->
-		'$variables_in_term'(FreeVars, [], LFreeVars),
-		Key =.. ['$'|LFreeVars],
+	'$free_variables_in_term'(Template^Generator, StrippedGenerator, Key),
+	%format('TemplateV=~w v=~w ~w~n',[TemplateV,Key, StrippedGenerator]),
+	( Key \== '$' ->
 		'$findall_with_common_vars'(Key-Template, StrippedGenerator, Bags0),
 		'$keysort'(Bags0, Bags),
 		'$pick'(Bags, Key, Bag)
@@ -139,66 +137,6 @@ bagof(Template, Generator, Bag) :-
 '$decide'(_, Bag, Key, Key, Bag).
 '$decide'(Bags, _, _, Key, Bag) :-
 	'$pick'(Bags, Key, Bag).
-
-%
-% Detect free variables in the source term
-%
-'$excess_vars'(V, V, X, L0, L) :-
-	var(V),
-	!,
-	(   '$doesnt_include'(X, V) -> L = [V|L0]
-	;   L = L0
-	).
-'$excess_vars'(A, A, _, L, L) :-
-	ground(A),  !.
-'$excess_vars'(X^P, NP, Y, L0, L) :- !,
-	'$variables_in_term'(X+Y, [], NY),
-	'$excess_vars'(P, NP, NY, L0, L).
-'$excess_vars'(setof(X,P,S), setof(X,P,S), Y, L0, L) :- !,
-	'$variables_in_term'(X+Y, [], NY),
-	'$excess_vars'((P,S), _, NY, L0, L).
-'$excess_vars'(bagof(X,P,S), bagof(X,P,S), Y, L0, L) :- !,
-	'$variables_in_term'(X+Y, [], NY),
-	'$excess_vars'((P,S), _,  NY, L0, L).
-'$excess_vars'(findall(X,P,S), findall(X,P,S), Y, L0, L) :- !,
-	'$excess_vars'(S, _, Y, L0, L).
-'$excess_vars'(findall(X,P,S0,S), findall(X,P,S0,S), Y, L0, L) :- !,
-	'$excess_vars'(S, _, Y, L0, L).
-'$excess_vars'(\+G, \+G, _, L0, LF) :- !,
-	L0 = LF.
-'$excess_vars'((G1,G2), (NG1, NG2), Y, L0, LF) :- !,
-        '$excess_vars'(G1, NG1, Y, L0, L1),
-        '$excess_vars'(G2, NG2, Y, L1, LF).
-'$excess_vars'((G1;G2), (NG1; NG2), Y, L0, LF) :- !,
-        '$excess_vars'(G1, NG1, Y, L0, L1),
-        '$excess_vars'(G2, NG2, Y, L1, LF).
-'$excess_vars'((G1->G2), (NG1-> NG2), Y, L0, LF) :- !,
-        '$excess_vars'(G1, NG1, Y, L0, L1),
-        '$excess_vars'(G2, NG2, Y, L1, LF).
-'$excess_vars'((G1*->G2), (NG1 *-> NG2), Y, L0, LF) :- !,
-        '$excess_vars'(G1, NG1, Y, L0, L1),
-        '$excess_vars'(G2, NG2, Y, L1, LF).
-'$excess_vars'(if(G1,G2,G3), if(NG1, NG2, NG3), Y, L0, LF) :- !,
-        '$excess_vars'(G1, NG1, Y, L0, L1),
-        '$excess_vars'(G2, NG2, Y, L1, L2),
-        '$excess_vars'(G3, NG3, Y, L2, LF).
-'$excess_vars'(_:G1, M:NG, Y, L0, LF) :- nonvar(G1), G1 = M:G, !,
-	'$excess_vars'(G, NG, Y, L0, LF).
-'$excess_vars'(M:G, M:NG, Y, L0, LF) :- !,
-	'$excess_vars'(G, NG, Y, L0, LF).
-'$excess_vars'(T, T, X, L0, L) :-
-	T =.. [_|LArgs],
-	'$recurse_for_excess_vars'(LArgs, X, L0, L).
-
-'$recurse_for_excess_vars'([], _, L, L).
-'$recurse_for_excess_vars'([T1|LArgs], X, L0, L) :-
-	'$excess_vars'(T1, _, X, L0, L1),
-	'$recurse_for_excess_vars'(LArgs, X, L1, L).
-
-'$doesnt_include'([], _).
-'$doesnt_include'([Y|L], X) :-
-	Y \== X,
-	'$doesnt_include'(L, X).
 
 % as an alternative to setof you can use the predicate all(Term,Goal,Solutions)
 % But this version of all does not allow for repeated answers
