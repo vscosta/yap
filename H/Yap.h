@@ -121,6 +121,14 @@
 #define DUMMY_FILLER_FOR_ABS_TYPE int dummy;
 #endif /* HAVE_GCC */
 
+#ifdef HAVE___BUILTIN_EXPECT
+#define likely(x)       __builtin_expect((x), 1)
+#define unlikely(x)     __builtin_expect((x), 0)
+#else
+#define likely(x)       (x)
+#define unlikely(x)     (x)
+#endif
+
 #ifdef THREADS
 #if USE_PTHREAD_LOCKING
 #ifndef _XOPEN_SOURCE

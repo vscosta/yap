@@ -2784,6 +2784,11 @@ PL_query(int query)
   }
 }  
 
+X_API void
+PL_cleanup_fork(void)
+{
+}  
+
 
 X_API void (*PL_signal(int sig, void (*func)(int)))(int)
 {

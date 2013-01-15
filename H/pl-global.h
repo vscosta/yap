@@ -163,6 +163,7 @@ typedef struct PL_local_data {
   { IOSTREAM *streams[6];		/* handles for standard streams */
     struct input_context *input_stack;	/* maintain input stream info */
     struct output_context *output_stack; /* maintain output stream info */
+    st_check stream_type_check;		/* Check bin/text streams? */
   } IO;
 
   struct
@@ -252,35 +253,6 @@ typedef struct PL_local_data {
 extern PL_local_data_t lds;
 
 #define exception_term		(LD->exception.term)
-
-// THIS HAS TO BE ABSTRACTED
-
-#define GLOBAL_LD (LOCAL_PL_local_data_p)
-
-#if !defined(O_PLMT) && !defined(YAPOR)
-#define LOCAL_LD (GLOBAL_LD)
-#define LD (GLOBAL_LD)
-#define ARG1_LD   void
-#define ARG_LD
-#define GET_LD
-#define PRED_LD
-#define PASS_LD
-#define PASS_LD1 
-
-#else
-
-#define LOCAL_LD (__PL_ld)
-#define LD	  LOCAL_LD
-
-#define GET_LD	  CACHE_REGS PL_local_data_t *__PL_ld = GLOBAL_LD;
-#define ARG1_LD   PL_local_data_t *__PL_ld
-
-#define ARG_LD    , ARG1_LD
-#define PASS_LD1  LD
-#define PASS_LD   , LD
-#define PRED_LD   GET_LD
-
-#endif
 
 #define Suser_input             (LD->IO.streams[0])
 #define Suser_output            (LD->IO.streams[1])

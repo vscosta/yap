@@ -163,6 +163,7 @@ typedef struct io_stream
   unsigned		references : 4;	/* Reference-count */
   int			io_errno;	/* Save errno value */
   void *		exception;	/* pending exception (record_t) */
+  void *		context;	/* getStreamContext() */
   intptr_t		reserved[2];	/* reserved for extension */
 } IOSTREAM;
 

@@ -1005,9 +1005,12 @@ InitLogDBErasedMarker(void)
 static void 
 InitSWIAtoms(void)
 {
+  extern atom_t ATOM_;
+
   int i=0, j=0;
 #include "iswiatoms.h"
   Yap_InitSWIHash();
+  ATOM_ = PL_new_atom("");
 }
 
 static void 
