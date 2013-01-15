@@ -699,48 +699,48 @@ pfl_init_solver(QueryKeys, AllKeys, Factors, Evidence, State) :-
 	;
 	  format("Error: solver '~w' is unknown.", [Solver]), fail
 	),
-	pfl_init_solver(QueryKeys, AllKeys, Factors, Evidence, State, Solver).
+	pfl_init_solver(Solver, QueryKeys, AllKeys, Factors, Evidence, State).
 
-pfl_init_solver(QueryKeys, AllKeys, Factors, Evidence, State, ve) :- !,
+pfl_init_solver(ve, QueryKeys, AllKeys, Factors, Evidence, State) :- !,
 	init_ve_ground_solver(QueryKeys, AllKeys, Factors, Evidence, State).
 
-pfl_init_solver(QueryKeys, AllKeys, Factors, Evidence, State, hve) :- !,
+pfl_init_solver(hve, QueryKeys, AllKeys, Factors, Evidence, State) :- !,
 	clpbn_horus:set_horus_flag(ground_solver, hve),
 	init_horus_ground_solver(QueryKeys, AllKeys, Factors, Evidence, State).
 
-pfl_init_solver(QueryKeys, AllKeys, Factors, Evidence, State, bdd) :- !,
+pfl_init_solver(bdd, QueryKeys, AllKeys, Factors, Evidence, State) :- !,
 	init_bdd_ground_solver(QueryKeys, AllKeys, Factors, Evidence, State).
 
-pfl_init_solver(QueryKeys, AllKeys, Factors, Evidence, State, bp) :- !,
+pfl_init_solver(bp, QueryKeys, AllKeys, Factors, Evidence, State) :- !,
 	clpbn_horus:set_horus_flag(ground_solver, bp),
 	init_horus_ground_solver(QueryKeys, AllKeys, Factors, Evidence, State).
 
-pfl_init_solver(QueryKeys, AllKeys, Factors, Evidence, State, cbp) :- !,
+pfl_init_solver(cbp, QueryKeys, AllKeys, Factors, Evidence, State) :- !,
 	clpbn_horus:set_horus_flag(ground_solver, cbp),
 	init_horus_ground_solver(QueryKeys, AllKeys, Factors, Evidence, State).
 
-pfl_init_solver(_, _, _, _, _, Solver) :-
+pfl_init_solver(Solver, _, _, _, _, _) :-
 	format("Error: solver '~w' can't be used for learning.", [Solver]),
 	fail.
 
 
 pfl_run_solver(LVs, LPs, State) :-
 	em_solver(Solver),
-	pfl_run_solver(LVs, LPs, State, Solver).
+	pfl_run_solver(Solver, LVs, LPs, State).
 
-pfl_run_solver(LVs, LPs, State, ve) :- !,
+pfl_run_solver(ve, LVs, LPs, State) :- !,
 	run_ve_ground_solver(LVs, LPs, State).
 
-pfl_run_solver(LVs, LPs, State, hve) :- !,
+pfl_run_solver(hve, LVs, LPs, State) :- !,
 	run_horus_ground_solver(LVs, LPs, State).
 
-pfl_run_solver(LVs, LPs, State, bdd) :- !,
+pfl_run_solver(bdd, LVs, LPs, State) :- !,
 	run_bdd_ground_solver(LVs, LPs, State).
 
-pfl_run_solver(LVs, LPs, State, bp) :- !,
+pfl_run_solver(bp, LVs, LPs, State) :- !,
 	run_horus_ground_solver(LVs, LPs, State).
 
-pfl_run_solver(LVs, LPs, State, cbp) :- !,
+pfl_run_solver(cbp, LVs, LPs, State) :- !,
 	run_horus_ground_solver(LVs, LPs, State).
 
 pfl_end_solver(State) :-
