@@ -173,7 +173,11 @@ rehashHTable(Table ht, Symbol map)
 { Symbol *newentries, *oldentries;
   int     newbuckets, oldbuckets;
   int     i;
+#ifdef O_PLMT
   int     safe_copy = (ht->mutex != NULL);
+#else
+  int     safe_copy = TRUE;
+#endif
 
   newbuckets = ht->buckets*2;
   newentries = allocHTableEntries(newbuckets);

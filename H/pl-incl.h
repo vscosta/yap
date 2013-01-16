@@ -937,6 +937,8 @@ COMMON(word)		pl_get_prolog_flag(term_t key, term_t value);
 COMMON(word)		pl_prolog_flag5(term_t key, term_t value, word scope, word access, word type, control_t h);
 COMMON(foreign_t)	pl_prolog_flag(term_t name, term_t value, control_t h);
 
+COMMON(struct tm *)	PL_localtime_r(const time_t *t, struct tm *r);
+
 /* inlines that need ARG_LD */
 static inline intptr_t
 skip_list(Word l, Word *tailp ARG_LD) {

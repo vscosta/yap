@@ -1273,7 +1273,9 @@ cleanupPrologFlags(void)
   { Table t = GD->prolog_flag.table;
 
     GD->prolog_flag.table = NULL;
+#ifdef O_PLMT
     t->free_symbol = freeSymbolPrologFlagTable;
+#endif
     destroyHTable(t);
   }
 }
