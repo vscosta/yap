@@ -127,7 +127,10 @@ typedef unsigned long uintptr_t;
 #include <inttypes.h>			/* more portable than stdint.h */
 #endif
 
+#ifndef PL_HAVE_TERM_T
+#define PL_HAVE_TERM_T
 typedef	uintptr_t    term_t;
+#endif
 typedef	void *module_t;
 typedef	void *record_t;
 typedef uintptr_t	atom_t;
@@ -219,6 +222,15 @@ typedef void *PL_engine_t;
 #define PL_PARTIAL_LIST	 (41)		/* a partial list */
 #define PL_CYCLIC_TERM	 (42)		/* a cyclic list/term */
 #define PL_NOT_A_LIST	 (43)		/* Object is not a list */
+
+/* Or'ed flags for PL_set_prolog_flag() */
+/* MUST fit in a short int! */
+#define FF_READONLY      0x1000         /* Read-only prolog flag */
+#define FF_KEEP          0x2000         /* keep prolog flag if already se
+t */
+#define FF_NOCREATE      0x4000         /* Fail if flag is non-existent */
+#define FF_MASK          0xf000
+
 
 #define CVT_ATOM	0x0001
 #define CVT_STRING	0x0002
@@ -331,9 +343,6 @@ UNICODE file functions.
 #define PL_DIFF_LIST	0x20000		/* PL_unify_chars() */
 
 #ifdef SIO_MAGIC			/* defined from <SWI-Stream.h> */
-
-#define FF_NOCREATE	 0x4000		/* Fail if flag is non-existent */
-#define FF_MASK		 0xf000
 
 		 /*******************************
 		 *	  STREAM SUPPORT	*
@@ -583,6 +592,7 @@ extern X_API int PL_erase_external(char *);
 extern X_API int PL_action(int,...);
 extern X_API void PL_on_halt(void (*)(int, void *), void *);
 extern X_API void *PL_malloc(size_t);
+extern X_API void *PL_malloc_uncollectable(size_t s);
 extern X_API void *PL_realloc(void*,size_t);
 extern X_API void PL_free(void *);
 extern X_API int  PL_eval_expression_to_int64_ex(term_t t, int64_t *val);
