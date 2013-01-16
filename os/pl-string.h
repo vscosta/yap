@@ -19,7 +19,7 @@
 
     You should have received a copy of the GNU Lesser General Public
     License along with this library; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #ifndef PL_STRING_H_INCLUDED
@@ -27,7 +27,7 @@
 
 COMMON(char *) 		store_string(const char *s);
 COMMON(void) 		remove_string(char *s);
-COMMON(char) 		digitName(int n, int smll);
+COMMON(char) 		digitName(int n, int small);
 COMMON(int) 		digitValue(int b, int c);
 COMMON(bool) 		strprefix(const char *string, const char *prefix);
 COMMON(bool) 		strpostfix(const char *string, const char *postfix);

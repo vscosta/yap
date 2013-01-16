@@ -476,13 +476,10 @@ int raiseStackOverflow(int overflow)
 		 *	    FEATURES		*
 		 *******************************/
 
-int
 PL_set_prolog_flag(const char *name, int type, ...)
 { va_list args;
   int rval = TRUE;
   int flags = (type & FF_MASK);
-
-  initPrologFlagTable();
 
   va_start(args, type);
   switch(type & ~FF_MASK)
@@ -494,10 +491,8 @@ PL_set_prolog_flag(const char *name, int type, ...)
     }
     case PL_ATOM:
     { const char *v = va_arg(args, const char *);
-#ifndef __YAP_PROLOG__
-      if ( !GD->initialised )
-	initAtoms();
-#endif
+      // VSC if ( !GD->initialised )
+      // VSC  initAtoms();
       setPrologFlag(name, FT_ATOM|flags, v);
       break;
     }
@@ -509,11 +504,10 @@ PL_set_prolog_flag(const char *name, int type, ...)
     default:
       rval = FALSE;
   }
-
   va_end(args);
+
   return rval;
 }
-
 
 
 int
@@ -759,6 +753,12 @@ PL_get_list_nchars(term_t l, size_t *length, char **s, unsigned int flags)
   }
 
   fail;
+}
+
+void *
+PL_malloc_uncollectable(size_t sz)
+{
+  return malloc(sz);
 }
 
 int

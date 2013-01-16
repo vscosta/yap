@@ -468,9 +468,6 @@ typedef struct
 #define FT_FROM_VALUE   0x0f            /* Determine type from value */
 #define FT_MASK         0x0f            /* mask to get type */
 
-#define FF_READONLY	0x10		/* feature is read-only */
-#define FF_KEEP		0x20		/* keep value it already set */
-
 #define PLFLAG_CHARESCAPE           0x000001 /* handle \ in atoms */
 #define PLFLAG_GC                   0x000002 /* do GC */
 #define PLFLAG_TRACE_GC             0x000004 /* verbose gc */
@@ -540,6 +537,7 @@ typedef enum
 
 #define SYSTEM_MODE         (LD->prolog_flag.access_level == ACCESS_LEVEL_SYSTEM)
 
+#define PL_malloc_atomic malloc
 
 /* vsc: global variables */
 #include "pl-global.h"
@@ -701,6 +699,7 @@ extern void PL_get_number(term_t l, number *n);
 extern int PL_unify_atomic(term_t t, PL_atomic_t a);
 extern int _PL_unify_atomic(term_t t, PL_atomic_t a);
 extern int _PL_unify_string(term_t t, word w);
+
 
 #define _PL_get_arg(X,Y,Z) PL_get_arg(X,Y,Z)
 
@@ -911,7 +910,7 @@ COMMON(Buffer)		codes_or_chars_to_buffer(term_t l, unsigned int flags,
 COMMON(bool)		systemMode(bool accept);
 
 
-COMMON(void)		initPrologFlagTable(void);
+COMMON(void)		cleanupPrologFlags(void);
 COMMON(void)		initPrologFlags(void);
 COMMON(int)		raiseStackOverflow(int overflow);
 

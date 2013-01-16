@@ -19,7 +19,7 @@
 
     You should have received a copy of the GNU Lesser General Public
     License along with this library; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -53,9 +53,9 @@ typedef struct
   struct rubber rub[MAXRUBBER];
 } format_state;
 
-#define BUFSIZE 	1024
-#define DEFAULT 	(-1)
-#define SHIFT   	{ argc--; argv++; }
+#define BUFSIZE		1024
+#define DEFAULT		(-1)
+#define SHIFT		{ argc--; argv++; }
 #define NEED_ARG	{ if ( argc <= 0 ) \
 			  { FMT_ERROR("not enough arguments"); \
 			  } \
@@ -189,7 +189,8 @@ outtext(format_state *state, PL_chars_t *txt)
 #define format_predicates (GD->format.predicates)
 
 static int	update_column(int, Char);
-static bool	do_format(IOSTREAM *fd, PL_chars_t *fmt, int ac, term_t av);
+static bool	do_format(IOSTREAM *fd, PL_chars_t *fmt,
+			  int ac, term_t av, Module m);
 static void	distribute_rubber(struct rubber *, int, int);
 static int	emit_rubber(format_state *state);
 
@@ -272,7 +273,7 @@ pl_current_format_predicate(term_t chr, term_t descr, control_t h)
 
 
 static word
-format_impl(IOSTREAM *out, term_t format, term_t Args)
+format_impl(IOSTREAM *out, term_t format, term_t Args, Module m)
 { GET_LD
   term_t argv;
   int argc = 0;
@@ -307,7 +308,7 @@ format_impl(IOSTREAM *out, term_t format, term_t Args)
       break;
   }
 
-  rval = do_format(out, &fmt, argc, argv);
+  rval = do_format(out, &fmt, argc, argv, m);
   PL_free_text(&fmt);
   if ( !endCritical )
     return FALSE;
@@ -318,31 +319,20 @@ format_impl(IOSTREAM *out, term_t format, term_t Args)
 
 word
 pl_format3(term_t out, term_t format, term_t args)
-{ redir_context ctx;
+{ GET_LD
+  redir_context ctx;
   word rc;
-#if __YAP_PROLOG__
-  /*
-    YAP allows the last argument to format to be of the form
-    module:[]
-  */
-  YAP_Term mod;
-#endif    
+  Module m = NULL;
+  term_t list = PL_new_term_ref();
 
-  if ( (rc=setupOutputRedirect(out, &ctx, FALSE)) ) {
-#if __YAP_PROLOG__
-    /* module processing */
-    {
-      args = Yap_fetch_module_for_format(args, &mod);
-    }
-#endif    
-    { if ( (rc = format_impl(ctx.stream, format, args)) )
-	rc = closeOutputRedirect(&ctx);
-      else
+  if ( !PL_strip_module(args, &m, list) )
+    return FALSE;
+
+  if ( (rc=setupOutputRedirect(out, &ctx, FALSE)) )
+  { if ( (rc = format_impl(ctx.stream, format, list, m)) )
+      rc = closeOutputRedirect(&ctx);
+    else
       discardOutputRedirect(&ctx);
-    }
-#if __YAP_PROLOG__
-    YAP_SetCurrentModule(mod);
-#endif    
   }
 
   return rc;
@@ -374,7 +364,7 @@ get_chr_from_text(const PL_chars_t *t, int index)
 		********************************/
 
 static bool
-do_format(IOSTREAM *fd, PL_chars_t *fmt, int argc, term_t argv)
+do_format(IOSTREAM *fd, PL_chars_t *fmt, int argc, term_t argv, Module m)
 { GET_LD
   format_state state;			/* complete state */
   int tab_stop = 0;			/* padded tab stop */
@@ -443,7 +433,7 @@ do_format(IOSTREAM *fd, PL_chars_t *fmt, int argc, term_t argv)
 	    char buf[BUFSIZE];
 	    char *str = buf;
 	    size_t bufsize = BUFSIZE;
-	    unsigned int i;
+	    int i;
 
 	    PL_predicate_info(proc, NULL, &arity, NULL);
 	    av = PL_new_term_refs(arity);
@@ -481,7 +471,9 @@ do_format(IOSTREAM *fd, PL_chars_t *fmt, int argc, term_t argv)
 		  if ( !PL_get_text(argv, &txt, CVT_ATOMIC) )
 		    FMT_ARG("a", argv);
 		  SHIFT;
-		  outtext(&state, &txt);
+		  rc = outtext(&state, &txt);
+                  if ( !rc )
+		    goto out;
 		  here++;
 		  break;
 		}
@@ -494,7 +486,9 @@ do_format(IOSTREAM *fd, PL_chars_t *fmt, int argc, term_t argv)
 
 		    SHIFT;
 		    while(times-- > 0)
-		    { outchr(&state, chr);
+		    { rc = outchr(&state, chr);
+		      if ( !rc )
+		        goto out;
 		    }
 		  } else
 		    FMT_ARG("c", argv);
@@ -508,7 +502,7 @@ do_format(IOSTREAM *fd, PL_chars_t *fmt, int argc, term_t argv)
 	      case 'G':			/* shortest of 'f' and 'E' */
 		{ number n;
 		  union {
-		    tmp_buffer b;
+		  tmp_buffer b;
 		    buffer b1;
 		  } u;
 
@@ -525,8 +519,10 @@ do_format(IOSTREAM *fd, PL_chars_t *fmt, int argc, term_t argv)
 		  initBuffer(&u.b);
 		  formatFloat(c, arg, &n, &u.b1);
 		  clearNumber(&n);
-		  outstring0(&state, baseBuffer(&u.b, char));
+		  rc = outstring0(&state, baseBuffer(&u.b, char));
 		  discardBuffer(&u.b);
+                  if ( !rc )
+		    goto out;
 		  here++;
 		  break;
 		}
@@ -564,8 +560,10 @@ do_format(IOSTREAM *fd, PL_chars_t *fmt, int argc, term_t argv)
 		    formatNumber(FALSE, 0, arg, c == 'r', &i, (Buffer)&b);
 		  }
 		  clearNumber(&i);
-		  outstring0(&state, baseBuffer(&b, char));
+		  rc = outstring0(&state, baseBuffer(&b, char));
 		  discardBuffer(&b);
+		  if ( !rc )
+		    goto out;
 		  here++;
 		  break;
 		}
@@ -576,8 +574,10 @@ do_format(IOSTREAM *fd, PL_chars_t *fmt, int argc, term_t argv)
 		  if ( !PL_get_text(argv, &txt, CVT_LIST|CVT_STRING) &&
 		       !PL_get_text(argv, &txt, CVT_ATOM) ) /* SICStus compat */
 		    FMT_ARG("s", argv);
-		  outtext(&state, &txt);
+		  rc = outtext(&state, &txt);
 		  SHIFT;
+		  if ( !rc )
+		    goto out;
 		  here++;
 		  break;
 		}
@@ -610,8 +610,10 @@ do_format(IOSTREAM *fd, PL_chars_t *fmt, int argc, term_t argv)
 
 		    str = buf;
 		    tellString(&str, &bufsize, ENC_UTF8);
-		    (*f)(argv);
+		    rc = (*f)(argv);
 		    toldString();
+		    if ( !rc )
+		      goto out;
 		    oututf8(&state, str, bufsize);
 		    if ( str != buf )
 		      free(str);
@@ -632,8 +634,10 @@ do_format(IOSTREAM *fd, PL_chars_t *fmt, int argc, term_t argv)
 
 		      str = buf;
 		      tellString(&str, &bufsize, ENC_UTF8);
-		      (*f)(argv);
+		      rc = (*f)(argv);
 		      toldString();
+		      if ( !rc )
+		        goto out;
 		      oututf8(&state, str, bufsize);
 		      if ( str != buf )
 			free(str);
@@ -704,7 +708,7 @@ do_format(IOSTREAM *fd, PL_chars_t *fmt, int argc, term_t argv)
 		  { FMT_ERROR("not enough arguments");
 		  }
 		  tellString(&str, &bufsize, ENC_UTF8);
-		  rval = callProlog(NULL, argv, PL_Q_CATCH_EXCEPTION, &ex);
+		  rval = callProlog(m, argv, PL_Q_CATCH_EXCEPTION, &ex);
 		  toldString();
 		  oututf8(&state, str, bufsize);
 		  if ( str != buf )
@@ -724,7 +728,9 @@ do_format(IOSTREAM *fd, PL_chars_t *fmt, int argc, term_t argv)
 		  break;
 	        }
 	      case '~':			/* ~ */
-		{ outchr(&state, '~');
+		{ rc = outchr(&state, '~');
+		  if ( !rc )
+		    goto out;
 		  here++;
 		  break;
 		}
@@ -735,7 +741,10 @@ do_format(IOSTREAM *fd, PL_chars_t *fmt, int argc, term_t argv)
 		  if ( c == 'N' && state.column == 0 )
 		    arg--;
 		  while( arg-- > 0 )
-		    outchr(&state, '\n');
+                  { rc = outchr(&state, '\n');
+		    if ( !rc )
+		      goto out;
+                  }
 		  here++;
 		  break;
 		}
@@ -790,7 +799,9 @@ do_format(IOSTREAM *fd, PL_chars_t *fmt, int argc, term_t argv)
 	  break;			/* the '~' switch */
 	}
       default:
-	{ outchr(&state, c);
+	{ rc = outchr(&state, c);
+	  if ( !rc )
+	    goto out;
 	  here++;
 	  break;
 	}
@@ -1032,7 +1043,8 @@ formatFloat(int how, int arg, Number f, Buffer out)
       while(written >= size)
       { size = written+1;
 
-	growBuffer(out, size);		/* reserve for -.e<null> */
+	if ( !growBuffer(out, size) )	/* reserve for -.e<null> */
+	  outOfCore();
 	written = gmp_snprintf(baseBuffer(out, char), size, tmp, mpf);
       }
       mpf_clear(mpf);
@@ -1053,7 +1065,8 @@ formatFloat(int how, int arg, Number f, Buffer out)
       while(written >= size)
       { size = written+1;
 
-	growBuffer(out, size);
+	if ( !growBuffer(out, size) )
+	  outOfCore();
 	written = snprintf(baseBuffer(out, char), size, tmp, f->value.f);
       }
       out->top = out->base + written;
