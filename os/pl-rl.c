@@ -19,7 +19,7 @@
 
     You should have received a copy of the GNU Lesser General Public
     License along with this library; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -40,7 +40,7 @@ SWI-Prolog.h and SWI-Stream.h
 #include "SWI-Stream.h"
 #include "SWI-Prolog.h"
 
-#if defined(__WINDOWS__) && !defined(__YAP_PROLOG__)
+#ifdef __WINDOWS__
 #ifdef WIN64
 #include "config/win64.h"
 #else
@@ -102,7 +102,6 @@ extern void add_history(char *);	/* should be in readline.h */
 extern int rl_begin_undo_group(void);	/* delete when conflict arrises! */
 extern int rl_end_undo_group(void);
 extern Function *rl_event_hook;
-
 #ifndef HAVE_RL_FILENAME_COMPLETION_FUNCTION
 #define rl_filename_completion_function filename_completion_function
 extern char *filename_completion_function(const char *, int);
@@ -368,7 +367,6 @@ input_on_fd(int fd)
   return select(fd+1, &rfds, NULL, NULL, &tv) != 0;
 }
 
-
 static int
 event_hook(void)
 { if ( Sinput->position )
@@ -487,9 +485,8 @@ Sread_readline(void *handle, char *buf, size_t size)
 	  rl_prep_terminal(FALSE);
 	  rl_readline_state = state;
 	  rl_done = 0;
-	} else {
+	} else
 	  line = pl_readline(prompt);
-	}
 	in_readline--;
 
 	if ( my_prompt )
@@ -515,31 +512,26 @@ Sread_readline(void *handle, char *buf, size_t size)
     }
   }
 
-#ifdef HAVE_CLOCK
-  PL_clock_wait_ticks(clock() - oldclock);
-#endif
-
   return rval;
 }
 
 
 static int
 prolog_complete(int ignore, int key)
-{ 
-  if ( rl_point > 0 && rl_line_buffer[rl_point-1] != ' ' )
-    { rl_begin_undo_group();
-      rl_complete(ignore, key);
-      if ( rl_point > 0 && rl_line_buffer[rl_point-1] == ' ' )
-	{
+{ if ( rl_point > 0 && rl_line_buffer[rl_point-1] != ' ' )
+  { rl_begin_undo_group();
+    rl_complete(ignore, key);
+    if ( rl_point > 0 && rl_line_buffer[rl_point-1] == ' ' )
+    {
 #ifdef HAVE_RL_INSERT_CLOSE		/* actually version >= 1.2 */
-	  rl_delete_text(rl_point-1, rl_point);
-	  rl_point -= 1;
+      rl_delete_text(rl_point-1, rl_point);
+      rl_point -= 1;
 #else
-	  rl_delete(-1, key);
+      rl_delete(-1, key);
 #endif
-	}
-      rl_end_undo_group();
-    } else
+    }
+    rl_end_undo_group();
+  } else
     rl_complete(ignore, key);
 
   return 0;
@@ -551,7 +543,12 @@ atom_generator(const char *prefix, int state)
 { char *s = PL_atom_generator(prefix, state);
 
   if ( s )
-    return strcpy(PL_malloc(1 + strlen(s)), s);
+  { char *copy = malloc(1 + strlen(s));
+
+    if ( copy )				/* else pretend no completion */
+      strcpy(copy, s);
+    s = copy;
+  }
 
   return s;
 }
@@ -574,20 +571,26 @@ prolog_completion(const char *text, int start, int end)
 
 #undef read				/* UXNT redefinition */
 
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+For some obscure reasons,  notably  libreadline   6  can  show  very bad
+interactive behaviour. There is a timeout set   to  100000 (0.1 sec). It
+isn't particularly clear what this timeout is doing. I _think_ it should
+be synchronized PL_dispatch_hook(),  and  set  to   0  if  this  hook is
+non-null.
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
 install_t
 PL_install_readline(void)
 { GET_LD
-  bool old;
+  access_level_t alevel;
 
 #ifndef __WINDOWS__
   if ( !truePrologFlag(PLFLAG_TTY_CONTROL) || !isatty(0) )
     return;
 #endif
 
-  old = systemMode(TRUE);
-#if HAVE_DECL_RL_CATCH_SIGNALS
+  alevel = setAccessLevel(ACCESS_LEVEL_SYSTEM);
   rl_catch_signals = 0;
-#endif
   rl_readline_name = "Prolog";
   rl_attempted_completion_function = prolog_completion;
 #ifdef __WINDOWS__
@@ -599,6 +602,9 @@ PL_install_readline(void)
 #if HAVE_RL_INSERT_CLOSE
   rl_add_defun("insert-close", rl_insert_close, ')');
 #endif
+#if HAVE_RL_SET_KEYBOARD_INPUT_TIMEOUT	/* see (*) */
+  rl_set_keyboard_input_timeout(20000);
+#endif
 
   GD->os.rl_functions = *Sinput->functions;	/* structure copy */
   GD->os.rl_functions.read = Sread_readline;	/* read through readline */
@@ -607,14 +613,17 @@ PL_install_readline(void)
   Soutput->functions = &GD->os.rl_functions;
   Serror->functions  = &GD->os.rl_functions;
 
-  PL_register_foreign("rl_read_init_file", 1, pl_rl_read_init_file, 0);
-  PL_register_foreign("rl_add_history",    1, pl_rl_add_history, PL_FA_NOTRACE);
-  PL_register_foreign("rl_write_history",  1, pl_rl_write_history, 0);
-  PL_register_foreign("rl_read_history",   1, pl_rl_read_history, 0);
+#define PRED(name, arity, func, attr) \
+	PL_register_foreign_in_module("system", name, arity, func, attr)
+
+  PRED("rl_read_init_file", 1, pl_rl_read_init_file, 0);
+  PRED("rl_add_history",    1, pl_rl_add_history,    PL_FA_NOTRACE);
+  PRED("rl_write_history",  1, pl_rl_write_history,  0);
+  PRED("rl_read_history",   1, pl_rl_read_history,   0);
   PL_set_prolog_flag("readline",    PL_BOOL, TRUE);
   PL_set_prolog_flag("tty_control", PL_BOOL, TRUE);
   PL_license("gpl", "GNU Readline library");
-  systemMode(old);
+  setAccessLevel(alevel);
 }
 
 #else /*HAVE_LIBREADLINE*/

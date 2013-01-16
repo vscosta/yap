@@ -1154,6 +1154,7 @@ protocol(const char *str, size_t n)
 		 *	  TEMPORARY I/O		*
 		 *******************************/
 
+
 int
 push_input_context(atom_t type)
 { GET_LD
@@ -1953,7 +1954,7 @@ error:
   return FALSE;
 }
 
-#if defined(__WINDOWS__) && !defined(__MINGW32__)	/* defined in pl-nt.c */
+#ifdef _MSC_VER					/* defined in pl-nt.c */
 extern int ftruncate(int fileno, int64_t length);
 #define HAVE_FTRUNCATE
 #endif
@@ -3586,8 +3587,10 @@ static int
 stream_file_name_propery(IOSTREAM *s, term_t prop ARG_LD)
 { atom_t name;
 
-  if ( (name = getStreamContext(s)->filename) )
-  { return PL_unify_atom(prop, name);
+  for(; s; s=s->downstream)
+  { if ( (name = getStreamContext(s)->filename) )
+    { return PL_unify_atom(prop, name);
+    }
   }
 
   return FALSE;
@@ -3617,13 +3620,17 @@ stream_mode_property(IOSTREAM *s, term_t prop ARG_LD)
 
 static int
 stream_input_prop(IOSTREAM *s ARG_LD)
-{ return (s->flags & SIO_INPUT) ? TRUE : FALSE;
+{ IGNORE_LD
+
+  return (s->flags & SIO_INPUT) ? TRUE : FALSE;
 }
 
 
 static int
 stream_output_prop(IOSTREAM *s ARG_LD)
-{ return (s->flags & SIO_OUTPUT) ? TRUE : FALSE;
+{ IGNORE_LD
+
+  return (s->flags & SIO_OUTPUT) ? TRUE : FALSE;
 }
 
 
@@ -3664,7 +3671,9 @@ stream_alias_prop(IOSTREAM *s, term_t prop ARG_LD)
 
 static int
 stream_position_prop(IOSTREAM *s, term_t prop ARG_LD)
-{ if ( s->position )
+{ IGNORE_LD
+
+  if ( s->position )
   { return PL_unify_term(prop,
 			 PL_FUNCTOR, FUNCTOR_stream_position4,
 			   PL_INT64, s->position->charno,
@@ -3680,8 +3689,7 @@ stream_position_prop(IOSTREAM *s, term_t prop ARG_LD)
 static int
 stream_end_of_stream_prop(IOSTREAM *s, term_t prop ARG_LD)
 { if ( s->flags & SIO_INPUT )
-  { GET_LD
-    atom_t val;
+  { atom_t val;
 
     if ( s->flags & SIO_FEOF2 )
       val = ATOM_past;
@@ -3730,7 +3738,7 @@ stream_reposition_prop(IOSTREAM *s, term_t prop ARG_LD)
     int fd = Sfileno(s);
     struct stat buf;
 
-    if ( fstat(fd, &buf) == 0 && S_ISREG(buf.st_mode) )
+    if ( fd != -1 && fstat(fd, &buf) == 0 && S_ISREG(buf.st_mode) )
       val = ATOM_true;
     else
       val = ATOM_false;
@@ -3746,7 +3754,9 @@ stream_reposition_prop(IOSTREAM *s, term_t prop ARG_LD)
 
 static int
 stream_close_on_abort_prop(IOSTREAM *s, term_t prop ARG_LD)
-{ return PL_unify_bool_ex(prop, !(s->flags & SIO_NOCLOSE));
+{ IGNORE_LD
+
+  return PL_unify_bool_ex(prop, !(s->flags & SIO_NOCLOSE));
 }
 
 
@@ -3769,7 +3779,9 @@ stream_file_no_prop(IOSTREAM *s, term_t prop ARG_LD)
 
 static int
 stream_tty_prop(IOSTREAM *s, term_t prop ARG_LD)
-{ if ( (s->flags & SIO_ISATTY) )
+{ IGNORE_LD
+
+  if ( (s->flags & SIO_ISATTY) )
     return PL_unify_bool_ex(prop, TRUE);
 
   return FALSE;
@@ -3778,7 +3790,9 @@ stream_tty_prop(IOSTREAM *s, term_t prop ARG_LD)
 
 static int
 stream_bom_prop(IOSTREAM *s, term_t prop ARG_LD)
-{ if ( (s->flags & SIO_BOM) )
+{ IGNORE_LD
+
+  if ( (s->flags & SIO_BOM) )
     return PL_unify_bool_ex(prop, TRUE);
 
   return FALSE;
@@ -3876,6 +3890,7 @@ stream_close_on_exec_prop(IOSTREAM *s, term_t prop ARG_LD)
 #else
    int fd_flags;
 #endif
+   IGNORE_LD
 
    if ( (fd = Sfileno(s)) < 0)
      return FALSE;
@@ -3915,7 +3930,7 @@ static const sprop sprop_list [] =
   { FUNCTOR_end_of_stream1, stream_end_of_stream_prop },
   { FUNCTOR_eof_action1,    stream_eof_action_prop },
   { FUNCTOR_reposition1,    stream_reposition_prop },
-  { FUNCTOR_type1,    	    stream_type_prop },
+  { FUNCTOR_type1,	    stream_type_prop },
   { FUNCTOR_file_no1,	    stream_file_no_prop },
   { FUNCTOR_buffer1,	    stream_buffer_prop },
   { FUNCTOR_buffer_size1,   stream_buffer_size_prop },
@@ -3974,7 +3989,7 @@ PRED_IMPL("stream_property", 2, stream_property,
 			    ATOM_stream_property, property);
 	}
 
-	pe = allocHeap(sizeof(*pe));
+	pe = allocForeignState(sizeof(*pe));
 
 	pe->e = newTableEnum(streamContext);
 	pe->s = NULL;
@@ -3992,7 +4007,7 @@ PRED_IMPL("stream_property", 2, stream_property,
       { functor_t f;
 
 	if ( PL_is_variable(property) )	/* generate properties */
-	{ pe = allocHeap(sizeof(*pe));
+	{ pe = allocForeignState(sizeof(*pe));
 
 	  pe->e = NULL;
 	  pe->s = s;
@@ -4050,7 +4065,7 @@ PRED_IMPL("stream_property", 2, stream_property,
       { if ( pe->e )
 	  freeTableEnum(pe->e);
 
-	freeHeap(pe, sizeof(*pe));
+	freeForeignState(pe, sizeof(*pe));
       }
       return TRUE;
     }
@@ -4066,7 +4081,7 @@ PRED_IMPL("stream_property", 2, stream_property,
     if ( pe->e )
       freeTableEnum(pe->e);
 
-    freeHeap(pe, sizeof(*pe));
+    freeForeignState(pe, sizeof(*pe));
     return FALSE;
   }
 
@@ -4140,7 +4155,7 @@ PRED_IMPL("stream_property", 2, stream_property,
     { if ( pe->e )
 	freeTableEnum(pe->e);
 
-      freeHeap(pe, sizeof(*pe));
+      freeForeignState(pe, sizeof(*pe));
       return FALSE;
     }
   }
@@ -4385,7 +4400,8 @@ PRED_IMPL("current_output", 1, current_output, PL_FA_ISO)
 
 static
 PRED_IMPL("byte_count", 2, byte_count, 0)
-{ IOSTREAM *s;
+{ PRED_LD
+  IOSTREAM *s;
 
   if ( getStreamWithPosition(A1, &s) )
   { int64_t n = s->position->byteno;
@@ -4400,7 +4416,8 @@ PRED_IMPL("byte_count", 2, byte_count, 0)
 
 static
 PRED_IMPL("character_count", 2, character_count, 0)
-{ IOSTREAM *s;
+{ PRED_LD
+  IOSTREAM *s;
 
   if ( getStreamWithPosition(A1, &s) )
   { int64_t n = s->position->charno;
@@ -4501,7 +4518,7 @@ peek(term_t stream, term_t chr, int how ARG_LD)
 
   if ( !getInputStream(stream, how == PL_BYTE ? S_BINARY : S_TEXT, &s) )
     return FALSE;
-  if ( true(s, SIO_NBUF) || (s->bufsize && s->bufsize < MB_LEN_MAX) )
+  if ( true(s, SIO_NBUF) || (s->bufsize && s->bufsize < PL_MB_LEN_MAX) )
   { releaseStream(s);
     return PL_error(NULL, 0, "stream is unbuffered", ERR_PERMISSION,
 		    ATOM_peek, ATOM_stream, stream);
@@ -4588,20 +4605,23 @@ ssize_t
 Sread_user(void *handle, char *buf, size_t size)
 { GET_LD
   wrappedIO *wio = handle;
+  ssize_t rc;
 
   if ( LD->prompt.next && ttymode != TTY_RAW )
     PL_write_prompt(TRUE);
   else
     Sflush(Suser_output);
 
-  size = (*wio->wrapped_functions->read)(wio->wrapped_handle, buf, size);
-  if ( size == 0 )			/* end-of-file */
+  rc = (*wio->wrapped_functions->read)(wio->wrapped_handle, buf, size);
+  if ( rc == 0 )			/* end-of-file */
   { Sclearerr(Suser_input);
     LD->prompt.next = TRUE;
-  } else if ( size > 0 && buf[size-1] == '\n' )
+  } else if ( rc == 1 && buf[0] == 04 )
+  { rc = 0;				/* Map ^D to end-of-file */
+  } else if ( rc > 0 && buf[rc-1] == '\n' )
     LD->prompt.next = TRUE;
 
-  return size;
+  return rc;
 }
 
 
@@ -4649,9 +4669,9 @@ PRED_IMPL("set_prolog_IO", 3, set_prolog_IO, 0)
   IOSTREAM *in = NULL, *out = NULL, *error = NULL;
   int rval = FALSE;
   int wrapin = FALSE;
+  int i;
 
-  if ( !term_stream_handle(A1, &in, SH_ERRORS|SH_ALIAS|SH_UNLOCKED PASS_LD) ||
-       !term_stream_handle(A2, &out, SH_ERRORS|SH_ALIAS PASS_LD) )
+  if ( !term_stream_handle(A1, &in, SH_ERRORS|SH_ALIAS|SH_UNLOCKED PASS_LD) )
     goto out;
 
   wrapin = (LD->IO.streams[0] != in);
@@ -4659,6 +4679,9 @@ PRED_IMPL("set_prolog_IO", 3, set_prolog_IO, 0)
   { if ( !(in = getStream(in)) )	/* lock it */
       goto out;
   }
+
+  if ( !term_stream_handle(A2, &out, SH_ERRORS|SH_ALIAS PASS_LD) )
+    goto out;
 
   if ( PL_compare(A2, A3) == 0 )	/* == */
   { error = getStream(Snew(out->handle, out->flags, out->functions));
@@ -4686,6 +4709,11 @@ PRED_IMPL("set_prolog_IO", 3, set_prolog_IO, 0)
     LD->prompt.next = TRUE;
   }
 
+  for(i=0; i<3; i++)
+  { LD->IO.streams[i]->position = &LD->IO.streams[0]->posbuf;
+    LD->IO.streams[i]->flags |= SIO_RECORDPOS;
+  }
+
   UNLOCK();
   rval = TRUE;
 
@@ -4710,7 +4738,7 @@ PRED_IMPL("$size_stream", 2, size_stream, 0)
   if ( !PL_get_stream_handle(A1, &s) )
     return FALSE;
 
-  rval = PL_unify_integer(A2, Ssize(s));
+  rval = PL_unify_int64(A2, Ssize(s));
   PL_release_stream(s);
 
   return rval;
@@ -4855,15 +4883,12 @@ BeginPredDefs(file)
   PRED_DEF("is_stream", 1, is_stream, 0)
   PRED_DEF("set_stream", 2, set_stream, 0)
   PRED_DEF("with_output_to", 2, with_output_to, PL_FA_TRANSPARENT)
-//vsc
   PRED_DEF("set_prolog_IO", 3, set_prolog_IO, 0)
   PRED_DEF("protocol", 1, protocol, 0)
   PRED_DEF("protocola", 1, protocola, 0)
   PRED_DEF("noprotocol", 0, noprotocol, 0)
   PRED_DEF("protocolling", 1, protocolling, 0)
-//vsc
   PRED_DEF("prompt1", 1, prompt1, 0)
-//vsc
   PRED_DEF("seek", 4, seek, 0)
   PRED_DEF("wait_for_input", 3, wait_for_input, 0)
   PRED_DEF("get_single_char", 1, get_single_char, 0)
@@ -4875,11 +4900,10 @@ BeginPredDefs(file)
   PRED_DEF("set_end_of_stream", 1, set_end_of_stream, 0)
 
 					/* SWI internal */
-  PRED_DEF("$push_input_context", 0, push_input_context, 0)
+  PRED_DEF("$push_input_context", 1, push_input_context, 0)
   PRED_DEF("$pop_input_context", 0, pop_input_context, 0)
   PRED_DEF("$input_context", 1, input_context, 0)
   PRED_DEF("$size_stream", 2, size_stream, 0)
-//vsc
 EndPredDefs
 
 #if __YAP_PROLOG__

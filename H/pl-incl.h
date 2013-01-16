@@ -240,6 +240,7 @@ users foreign language code.
 #define PRED_LD
 #define PASS_LD
 #define PASS_LD1 
+#define IGNORE_LD
 
 #else
 
@@ -253,6 +254,7 @@ users foreign language code.
 #define PASS_LD1  LD
 #define PASS_LD   , LD
 #define PRED_LD   GET_LD
+#define IGNORE_LD (void)__PL_ld;
 
 #endif
 
@@ -531,6 +533,14 @@ typedef struct redir_context
 
 #include "pl-file.h"
 
+typedef enum
+{ ACCESS_LEVEL_USER = 0,        /* Default user view */
+  ACCESS_LEVEL_SYSTEM           /* Allow low-level access */
+} access_level_t;
+
+#define SYSTEM_MODE         (LD->prolog_flag.access_level == ACCESS_LEVEL_SYSTEM)
+
+
 /* vsc: global variables */
 #include "pl-global.h"
 
@@ -682,6 +692,7 @@ typedef double			real;
 
 #endif
 
+#define PL_unify_time(A,B) PL_unify_int64(A,B)
 extern int PL_unify_char(term_t chr, int c, int how);
 extern int PL_get_char(term_t chr, int *c, int eof);
 extern void PL_cleanup_fork(void);
@@ -797,6 +808,7 @@ COMMON(int)		unicode_separator(pl_wchar_t c);
 COMMON(word) 		pl_raw_read(term_t term);
 COMMON(word) 		pl_raw_read2(term_t stream, term_t term);
 
+COMMON(access_level_t)	setAccessLevel(access_level_t new_level);
 
 /**** stuff from pl-error.c ****/
 extern void		outOfCore(void);
@@ -838,7 +850,7 @@ extern size_t getenv3(const char *name, char *buf, size_t len);
 extern int Setenv(char *name, char *value);
 extern int Unsetenv(char *name);
 extern int System(char *cmd);
-extern bool expandVars(const char *pattern, char *expanded, int maxlen);
+extern char *expandVars(const char *pattern, char *expanded, int maxlen);
 
 /**** SWI stuff (emulated in pl-yap.c) ****/
 extern int writeAtomToStream(IOSTREAM *so, atom_t at);

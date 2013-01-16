@@ -82,6 +82,15 @@ typedef struct {
   } cmdline;
 
   struct
+  { char *      CWDdir;
+    size_t      CWDlen;
+    char *      executable;             /* Running executable */
+#ifdef __WINDOWS__
+    char *      module;                 /* argv[0] module passed */
+#endif
+  } paths;
+
+  struct
   { ExtensionCell _ext_head;		/* head of registered extensions */
     ExtensionCell _ext_tail;		/* tail of this chain */
 
@@ -193,6 +202,7 @@ typedef struct PL_local_data {
     pl_features_t mask;                 /* Masked access to booleans */
     int           write_attributes;     /* how to write attvars? */
     occurs_check_t occurs_check;        /* Unify and occurs check */
+    access_level_t access_level;        /* Current access level */
   } prolog_flag;
 
   void *        glob_info;              /* pl-glob.c */

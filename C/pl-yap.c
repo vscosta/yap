@@ -1213,6 +1213,16 @@ nameOfWideAtom(atom_t atom)
   return RepAtom(a)->WStrOfAE;
 }
 
+access_level_t
+setAccessLevel(access_level_t accept)
+{ GET_LD
+  bool old;
+
+  old = LD->prolog_flag.access_level;
+  LD->prolog_flag.access_level = accept;
+  return old;
+}
+
 
 #if THREADS
 

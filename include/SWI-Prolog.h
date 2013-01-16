@@ -622,7 +622,7 @@ extern char *PL_prompt_string(int fd);
 PL_EXPORT(int)          PL_get_file_name(term_t n, char **name, int flags);
 PL_EXPORT(int)          PL_get_file_nameW(term_t n, wchar_t **name, int flags);
 PL_EXPORT(void)         PL_changed_cwd(void); /* foreign code changed CWD */
-PL_EXPORT(const char *) PL_cwd(void);
+PL_EXPORT(char *)	PL_cwd(char *buf, size_t buflen);
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 NOTE: the functions in this section are   not  documented, as as yet not
@@ -787,8 +787,6 @@ PL_EXPORT(int)		PL_get_mpq(term_t t, mpq_t mpz);
 PL_EXPORT(int)		PL_unify_mpq(term_t t, mpq_t mpz);
 
 #endif
-
-extern X_API  const char *PL_cwd(void);
 
 void swi_install(void);
 
