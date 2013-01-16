@@ -240,6 +240,7 @@ users foreign language code.
 #define PRED_LD
 #define PASS_LD
 #define PASS_LD1 
+#define IGNORE_LD
 
 #else
 
@@ -253,6 +254,7 @@ users foreign language code.
 #define PASS_LD1  LD
 #define PASS_LD   , LD
 #define PRED_LD   GET_LD
+#define IGNORE_LD (void)__PL_ld;
 
 #endif
 
@@ -466,9 +468,6 @@ typedef struct
 #define FT_FROM_VALUE   0x0f            /* Determine type from value */
 #define FT_MASK         0x0f            /* mask to get type */
 
-#define FF_READONLY	0x10		/* feature is read-only */
-#define FF_KEEP		0x20		/* keep value it already set */
-
 #define PLFLAG_CHARESCAPE           0x000001 /* handle \ in atoms */
 #define PLFLAG_GC                   0x000002 /* do GC */
 #define PLFLAG_TRACE_GC             0x000004 /* verbose gc */
@@ -530,6 +529,15 @@ typedef struct redir_context
 } redir_context;
 
 #include "pl-file.h"
+
+typedef enum
+{ ACCESS_LEVEL_USER = 0,        /* Default user view */
+  ACCESS_LEVEL_SYSTEM           /* Allow low-level access */
+} access_level_t;
+
+#define SYSTEM_MODE         (LD->prolog_flag.access_level == ACCESS_LEVEL_SYSTEM)
+
+#define PL_malloc_atomic malloc
 
 /* vsc: global variables */
 #include "pl-global.h"
@@ -682,6 +690,7 @@ typedef double			real;
 
 #endif
 
+#define PL_unify_time(A,B) PL_unify_int64(A,B)
 extern int PL_unify_char(term_t chr, int c, int how);
 extern int PL_get_char(term_t chr, int *c, int eof);
 extern void PL_cleanup_fork(void);
@@ -690,6 +699,7 @@ extern void PL_get_number(term_t l, number *n);
 extern int PL_unify_atomic(term_t t, PL_atomic_t a);
 extern int _PL_unify_atomic(term_t t, PL_atomic_t a);
 extern int _PL_unify_string(term_t t, word w);
+
 
 #define _PL_get_arg(X,Y,Z) PL_get_arg(X,Y,Z)
 
@@ -797,6 +807,7 @@ COMMON(int)		unicode_separator(pl_wchar_t c);
 COMMON(word) 		pl_raw_read(term_t term);
 COMMON(word) 		pl_raw_read2(term_t stream, term_t term);
 
+COMMON(access_level_t)	setAccessLevel(access_level_t new_level);
 
 /**** stuff from pl-error.c ****/
 extern void		outOfCore(void);
@@ -838,7 +849,7 @@ extern size_t getenv3(const char *name, char *buf, size_t len);
 extern int Setenv(char *name, char *value);
 extern int Unsetenv(char *name);
 extern int System(char *cmd);
-extern bool expandVars(const char *pattern, char *expanded, int maxlen);
+extern char *expandVars(const char *pattern, char *expanded, int maxlen);
 
 /**** SWI stuff (emulated in pl-yap.c) ****/
 extern int writeAtomToStream(IOSTREAM *so, atom_t at);
@@ -899,7 +910,7 @@ COMMON(Buffer)		codes_or_chars_to_buffer(term_t l, unsigned int flags,
 COMMON(bool)		systemMode(bool accept);
 
 
-COMMON(void)		initPrologFlagTable(void);
+COMMON(void)		cleanupPrologFlags(void);
 COMMON(void)		initPrologFlags(void);
 COMMON(int)		raiseStackOverflow(int overflow);
 

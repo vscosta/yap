@@ -3,9 +3,10 @@
     Part of SWI-Prolog
 
     Author:        Jan Wielemaker
-    E-mail:        jan@swi.psy.uva.nl
+    E-mail:        J.Wielemaker@cs.vu.nl
     WWW:           http://www.swi-prolog.org
-    Copyright (C): 1985-2002, University of Amsterdam
+    Copyright (C): 1985-2011, University of Amsterdam
+			      VU University Amsterdam
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -19,7 +20,7 @@
 
     You should have received a copy of the GNU Lesser General Public
     License along with this library; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "pl-incl.h"
@@ -29,9 +30,9 @@
 #include <unistd.h>
 #endif
 
-#ifdef __WATCOMC__
-#include <direct.h>
-#else /*__WATCOMC__*/
+#ifdef O_XOS
+# include "windows/dirent.h"
+#else
 #if HAVE_DIRENT_H
 # include <dirent.h>
 #else
@@ -46,7 +47,7 @@
 #  include <ndir.h>
 # endif
 #endif
-#endif /*__WATCOMC__*/
+#endif /*O_XOS*/
 
 #ifdef HAVE_SYS_STAT_H
 #include <sys/stat.h>
@@ -326,8 +327,8 @@ PRED_IMPL("wildcard_match", 2, wildcard_match, 0)
 { char *p, *s;
   compiled_pattern buf;
 
-  if ( !PL_get_chars_ex(A1, &p, CVT_ALL) ||
-       !PL_get_chars_ex(A2,  &s, CVT_ALL) )
+  if ( !PL_get_chars(A1, &p, CVT_ALL|CVT_EXCEPTION) ||
+       !PL_get_chars(A2,  &s, CVT_ALL|CVT_EXCEPTION) )
     fail;
 
   if ( compilePattern(p, &buf) )
@@ -423,6 +424,7 @@ expand(const char *pattern, GlobInfo info)
   compiled_pattern cbuf;
   char prefix[MAXPATHLEN];		/* before first pattern */
   char patbuf[MAXPATHLEN];		/* pattern buffer */
+  size_t prefix_len;
   int end, dot;
 
   initBuffer(&info->files);
@@ -441,20 +443,25 @@ expand(const char *pattern, GlobInfo info)
       switch( (c=*s++) )
       { case EOS:
 	  if ( s > pat )		/* something left and expanded */
-	  { un_escape(prefix, pat, s);
+	  { size_t prefix_len;
+
+	    un_escape(prefix, pat, s);
+	    prefix_len = strlen(prefix);
 
 	    end = info->end;
 	    for( ; info->start < end; info->start++ )
 	    { char path[MAXPATHLEN];
-	      size_t plen;
+	      const char *entry = expand_entry(info, info->start);
+	      size_t plen = strlen(entry);
 
-	      strcpy(path, expand_entry(info, info->start));
-	      plen = strlen(path);
-	      if ( prefix[0] && plen > 0 && path[plen-1] != '/' )
-		path[plen++] = '/';
-	      strcpy(&path[plen], prefix);
-	      if ( end == 1 || AccessFile(path, ACCESS_EXIST) )
-		add_path(path, info);
+	      if ( plen+prefix_len+2 <= MAXPATHLEN )
+	      { strcpy(path, entry);
+		if ( prefix[0] && plen > 0 && path[plen-1] != '/' )
+		  path[plen++] = '/';
+		strcpy(&path[plen], prefix);
+		if ( end == 1 || AccessFile(path, ACCESS_EXIST) )
+		  add_path(path, info);
+	      }
 	    }
 	  }
 	  succeed;
@@ -489,8 +496,9 @@ expand(const char *pattern, GlobInfo info)
 */
     un_escape(prefix, pat, head);
     un_escape(patbuf, head, tail);
+    prefix_len = strlen(prefix);
 
-    if ( !compilePattern(patbuf, &cbuf) )		/* syntax error */
+    if ( !compilePattern(patbuf, &cbuf) )	/* syntax error */
       fail;
     dot = (patbuf[0] == '.');			/* do dots as well */
 
@@ -502,6 +510,10 @@ expand(const char *pattern, GlobInfo info)
       char path[MAXPATHLEN];
       char tmp[MAXPATHLEN];
       const char *current = expand_entry(info, info->start);
+      size_t clen = strlen(current);
+
+      if ( clen+prefix_len+1 > sizeof(path) )
+	continue;
 
       strcpy(path, current);
       strcat(path, prefix);
@@ -521,12 +533,11 @@ expand(const char *pattern, GlobInfo info)
 	       matchPattern(e->d_name, &cbuf) )
 	  { char newp[MAXPATHLEN];
 
-	    strcpy(newp, path);
-	    strcpy(&newp[plen], e->d_name);
-/*	    if ( !tail[0] || ExistsDirectory(newp) )
-	    Saves memory, but involves one more file-access
-*/
+	    if ( plen+strlen(e->d_name)+1 < sizeof(newp) )
+	    { strcpy(newp, path);
+	      strcpy(&newp[plen], e->d_name);
 	      add_path(newp, info);
+	    }
 	  }
 	}
 	closedir(d);
@@ -579,11 +590,11 @@ PRED_IMPL("expand_file_name", 2, expand_file_name, 0)
   term_t head = PL_new_term_ref();
   int i;
 
-  if ( !PL_get_chars_ex(A1, &s, CVT_ALL|REP_FN) )
+  if ( !PL_get_chars(A1, &s, CVT_ALL|REP_FN|CVT_EXCEPTION) )
     fail;
   if ( strlen(s) > sizeof(spec)-1 )
-    return PL_error(NULL, 0, "File name too intptr_t",
-		    ERR_DOMAIN, ATOM_pattern, A1);
+    return PL_error(NULL, 0, NULL, ERR_REPRESENTATION,
+		    ATOM_max_path_length);
 
   if ( !expandVars(s, spec, sizeof(spec)) )
     fail;

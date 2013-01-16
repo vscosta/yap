@@ -471,7 +471,7 @@ init_tout(PL_chars_t *t, size_t len)
       { t->text.t = t->buf;
 	t->storage = PL_CHARS_LOCAL;
       } else
-      { t->text.t = PL_malloc(len+1);
+      { t->text.t = PL_malloc(len);
 	t->storage = PL_CHARS_MALLOC;
       }
       succeed;
@@ -480,7 +480,7 @@ init_tout(PL_chars_t *t, size_t len)
       { t->text.w = (pl_wchar_t*)t->buf;
 	t->storage = PL_CHARS_LOCAL;
       } else
-	{ t->text.w = PL_malloc((len+1)*sizeof(pl_wchar_t));
+      { t->text.w = PL_malloc(len*sizeof(pl_wchar_t));
 	t->storage = PL_CHARS_MALLOC;
       }
       succeed;
