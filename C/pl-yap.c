@@ -178,6 +178,23 @@ Yap_SetDefaultEncoding(IOENC new_encoding)
 }
 
 int
+PL_qualify(term_t raw, term_t qualified)
+{ GET_LD
+  Module m = NULL;
+  term_t mname;
+
+  if ( !(mname = PL_new_term_ref()) ||
+       !PL_strip_module(raw, &m, qualified) )
+    return FALSE;
+  
+  /* modules are terms in YAP */
+  Yap_PutInSlot(mname, (Term)m);
+
+  return PL_cons_functor(qualified, FUNCTOR_colon2, mname, qualified);
+}
+
+
+int
 valueExpression(term_t t, Number r ARG_LD)
 {
   YAP_Term t0 = Yap_Eval(YAP_GetFromSlot(t));
@@ -476,6 +493,7 @@ int raiseStackOverflow(int overflow)
 		 *	    FEATURES		*
 		 *******************************/
 
+int
 PL_set_prolog_flag(const char *name, int type, ...)
 { va_list args;
   int rval = TRUE;

@@ -538,6 +538,7 @@ extern X_API  int PL_is_string(term_t);
 extern X_API  int PL_is_variable(term_t);
 extern X_API  int PL_term_type(term_t);
 extern X_API  int PL_is_inf(term_t);
+extern X_API  int PL_is_acyclic(term_t t);
 /* end PL_is_* functions =============================*/
 extern X_API void PL_halt(int);
 extern X_API  int  PL_initialise(int, char **);

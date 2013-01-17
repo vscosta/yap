@@ -1738,6 +1738,12 @@ X_API int PL_is_ground(term_t t)
   return Yap_IsGroundTerm(Yap_GetFromSlot(t PASS_REGS));
 }
 
+X_API int PL_is_acyclic(term_t t)
+{
+  CACHE_REGS
+  return Yap_IsAcyclicTerm(Yap_GetFromSlot(t PASS_REGS));
+}
+
 X_API int PL_is_callable(term_t t)
 {
   CACHE_REGS

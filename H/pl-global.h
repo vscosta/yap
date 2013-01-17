@@ -247,6 +247,10 @@ typedef struct PL_local_data {
     int		_current_buffer_id;
   } fli;
 
+  struct
+  { fid_t	numbervars_frame;	/* Numbervars choice-point */
+  } var_names;
+
 #ifdef O_GMP
   struct
   { 

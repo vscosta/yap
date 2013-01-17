@@ -370,6 +370,7 @@ typedef struct
 { functor_t functor;			/* Functor to use ($VAR/1) */
   av_action on_attvar;			/* How to handle attvars */
   int	    singletons;			/* Write singletons as $VAR('_') */
+  int       numbered_check;             /* Check for already numbered */
 } nv_options;
 
 
@@ -571,6 +572,21 @@ it mean anything?
 #define succeed			return TRUE
 #define fail			return FALSE
 #define TRY(goal)		if ((goal) == FALSE) fail
+
+/* Flags on module.  Most of these flags are copied to the read context
+   in pl-read.c.
+*/
+
+#define M_SYSTEM                (0x0001) /* system module */
+#define M_CHARESCAPE            (0x0002) /* module */
+#define DBLQ_CHARS              (0x0004) /* "ab" --> ['a', 'b'] */
+#define DBLQ_ATOM               (0x0008) /* "ab" --> 'ab' */
+#define DBLQ_STRING             (0x0010) /* "ab" --> "ab" */
+#define DBLQ_MASK               (DBLQ_CHARS|DBLQ_ATOM|DBLQ_STRING)
+#define UNKNOWN_FAIL            (0x0020) /* module */
+#define UNKNOWN_WARNING         (0x0040) /* module */
+#define UNKNOWN_ERROR           (0x0080) /* module */
+#define UNKNOWN_MASK            (UNKNOWN_ERROR|UNKNOWN_WARNING|UNKNOWN_FAIL)
 
 
 extern int fileerrors;
@@ -914,6 +930,8 @@ COMMON(void)		cleanupPrologFlags(void);
 COMMON(void)		initPrologFlags(void);
 COMMON(int)		raiseStackOverflow(int overflow);
 
+COMMON(int)		PL_qualify(term_t raw, term_t qualified);
+
 static inline word
 setBoolean(int *flag, term_t old, term_t new)
 { if ( !PL_unify_bool_ex(old, *flag) ||
@@ -922,6 +940,21 @@ setBoolean(int *flag, term_t old, term_t new)
 
   succeed;
 }
+
+#define BEGIN_NUMBERVARS(save) \
+	{ fid_t _savedf; \
+	  if ( save ) \
+	  { _savedf = LD->var_names.numbervars_frame; \
+	    LD->var_names.numbervars_frame = PL_open_foreign_frame(); \
+	  }
+#define END_NUMBERVARS(save) \
+          if ( save ) \
+	  { PL_discard_foreign_frame(LD->var_names.numbervars_frame); \
+	    LD->var_names.numbervars_frame = _savedf; \
+	  } \
+	}
+
+
 
 
 COMMON(int) 		PL_get_atom__LD(term_t t1, atom_t *a ARG_LD);

@@ -150,9 +150,6 @@ atomLength(Atom atom)
 #define predicateHasClauses(A) (YAP_NumberOfClausesForPredicate((YAP_PredEntryPtr)A) != 0)
 #define lookupModule(A) Yap_Module(MkAtomTerm(YAP_AtomFromSWIAtom(A)))
 
-#define  BEGIN_NUMBERVARS(X)
-#define  END_NUMBERVARS(X)
-
 #define charEscapeWriteOption(A) FALSE  // VSC: to implement
 #define wordToTermRef(A) YAP_InitSlot(*(A))
 #define isTaggedInt(A) IsIntegerTerm(A)

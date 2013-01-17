@@ -168,6 +168,28 @@ format_float(double f, char *buf)
   return buf;
 }
 
+static int
+bind_varnames(term_t varnames ARG_LD)
+{
+  CACHE_REGS
+  Term t = Yap_GetFromSlot(varnames PASS_REGS);
+  while(!IsVarTerm(t) && IsPairTerm(t)) {
+    Term tl = HeadOfTerm(t);
+    Functor f;
+    Term tv, t2, t1;
+
+    if (!IsApplTerm(tl)) return FALSE;
+    if ((f = FunctorOfTerm(tl)) != FunctorEq)
+      return FALSE;
+    t1 = ArgOfTerm(1, tl);
+    t2 = ArgOfTerm(2, tl);
+    tv = Yap_MkApplTerm(LOCAL_FunctorVar, 1, &t1);
+    if (!Yap_unify(t2, tv))
+      return FALSE;
+    t = TailOfTerm(t);
+  }
+  return TRUE;
+}
 
 char *
 varName(term_t t, char *name)
@@ -196,6 +218,8 @@ writeTopTerm(term_t t, int prec, write_options *options)
   if (flags & PL_WRT_QUOTED)
     yap_flag |= Quote_illegal_f;
   if (options->flags & PL_WRT_NUMBERVARS)
+    yap_flag |=  Handle_vars_f;
+  if (options->flags & PL_WRT_VARNAMES)
     yap_flag |=  Handle_vars_f;
   if (options->flags & PL_WRT_IGNOREOPS)
     yap_flag |= Ignore_ops_f;
@@ -435,10 +459,13 @@ pl_write_term3(term_t stream, term_t term, term_t opts)
   }
 
   options.module = lookupModule(mname);
-  /* vsc
   if ( charescape == TRUE ||
-       (charescape == -1 && true(options.module, M_CHARESCAPE)) )
-    options.flags |= PL_WRT_CHARESCAPES;
+       (charescape == -1 
+#ifndef __YAP_PROLOG__
+&& true(options.module, M_CHARESCAPE)
+#endif
+	) )
+    options.flags |= PL_WRT_CHARESCAPES;
   if ( gportray )
   { options.portray_goal = gportray;
     if ( !put_write_options(opts, &options) ||
@@ -446,7 +473,6 @@ pl_write_term3(term_t stream, term_t term, term_t opts)
       return FALSE;
     portray = TRUE;
   }
-  */
   if ( numbervars == -1 )
     numbervars = (portray ? TRUE : FALSE);
 
@@ -460,14 +486,12 @@ pl_write_term3(term_t stream, term_t term, term_t opts)
   local_varnames = (varnames && false(&options, PL_WRT_NUMBERVARS));
 
   BEGIN_NUMBERVARS(local_varnames);
-  /* vsc
   if ( varnames )
       { if ( (rc=bind_varnames(varnames PASS_LD)) )
       options.flags |= PL_WRT_VARNAMES;
     else
       goto out;
   }
-  */
   if ( !(rc=getTextOutputStream(stream, &s)) )
     goto out;
 
@@ -522,9 +546,12 @@ do_write2(term_t stream, term_t term, int flags)
     options.flags     = flags;
     options.out	      = s;
     options.module    = MODULE_user;
-    /* vsc    if ( options.module && true(options.module, M_CHARESCAPE) )
+    if ( options.module 
+#ifndef __YAP_PROLOG__
+	 && true(options.module, M_CHARESCAPE) 
+#endif
+	 )
       options.flags |= PL_WRT_CHARESCAPES;
-    */
     if ( truePrologFlag(PLFLAG_BACKQUOTED_STRING) )
       options.flags |= PL_WRT_BACKQUOTED_STRING;
 
@@ -566,8 +593,8 @@ pl_write_canonical2(term_t stream, term_t term)
 
   options.functor = FUNCTOR_isovar1;
   options.on_attvar = AV_SKIP;
-  // VSC options.singletons = PL_is_acyclic(term);
-  //options.numbered_check = FALSE;
+  options.singletons = PL_is_acyclic(term);
+  options.numbered_check = FALSE;
 
   rc = ( numberVars(term, &options, 0 PASS_LD) >= 0 &&
 	 do_write2(stream, term,
