@@ -188,7 +188,7 @@ PL_qualify(term_t raw, term_t qualified)
     return FALSE;
   
   /* modules are terms in YAP */
-  Yap_PutInSlot(mname, (Term)m);
+  Yap_PutInSlot(mname, (Term)m PASS_REGS);
 
   return PL_cons_functor(qualified, FUNCTOR_colon2, mname, qualified);
 }
@@ -509,8 +509,10 @@ PL_set_prolog_flag(const char *name, int type, ...)
     }
     case PL_ATOM:
     { const char *v = va_arg(args, const char *);
-      // VSC if ( !GD->initialised )
-      // VSC  initAtoms();
+#ifndef __YAP_PROLOG__
+      if ( !GD->initialised )
+        initAtoms();
+#endif
       setPrologFlag(name, FT_ATOM|flags, v);
       break;
     }
