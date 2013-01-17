@@ -8038,7 +8038,6 @@ fi
 
 fi
 
-
 INSTALL_DLLS="#"
 EXTRA_OBJS=""
 SHLIB_LD="#"
@@ -8387,6 +8386,7 @@ fi
         fi
 	LDFLAGS="$LDFLAGS -L\$(abs_top_builddir) -Wl,-R,\$(LIBDIR)"
         DYNYAPLIB=libYap."$SO"
+        YAPLIB_LD=$SHLIB_LD
         SONAMEFLAG="-Wl,--soname=$DYNYAPLIB"
         EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -Wl,-R,\$(YAPLIBDIR)"
         PRE_INSTALL_ENV="LD_LIBRARY_PATH=\$(abs_top_builddir)"
