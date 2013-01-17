@@ -1194,8 +1194,12 @@ throw(_Ball) :-
 	!,
 	'$jump_env_and_store_ball'(Ball).
 throw(Ball) :-
+	( var(Ball) -> 
+	    '$do_error'(instantiation_error,throw(Ball))
+	;
 	% get current jump point
-	'$jump_env_and_store_ball'(Ball).
+	    '$jump_env_and_store_ball'(Ball)
+	).
 
 
 % just create a choice-point
