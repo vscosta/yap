@@ -433,3 +433,6 @@
 #define LOCAL_ibnds LOCAL->ibnds_
 #define REMOTE_ibnds(wid) REMOTE(wid)->ibnds_
 
+#define LOCAL_search_atoms LOCAL->search_atoms_
+#define REMOTE_search_atoms(wid) REMOTE(wid)->search_atoms_
+

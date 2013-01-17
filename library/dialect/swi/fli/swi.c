@@ -2807,10 +2807,105 @@ X_API void PL_on_halt(void (*f)(int, void *), void *closure)
   Yap_HaltRegisterHook((HaltHookFunc)f,closure);
 }
 
-X_API char *PL_atom_generator(const char *prefix, int state)
+#define is_signalled() unlikely(LD && LD->signal.pending != 0)
+
+#ifdef O_PLMT
+#include <pthread.h>
+static pthread_key_t atomgen_key;
+#endif
+
+typedef struct scan_atoms {
+  Int pos;
+  Atom atom;
+} scan_atoms_t;
+
+static inline int
+str_prefix(const char *p0, char *s)
 {
+  char *p = (char *)p0;
+  while (*p && *p == *s) { p++; s++; }
+  return p[0] == '\0';
+}
+
+static int
+atom_generator(const char *prefix, char **hit, int state)
+{
+  struct scan_atoms *index;
+  Atom            catom;
+  Int            i;
+
+#ifdef O_PLMT
+  if ( !atomgen_key ) {
+    pthread_key_create(&atomgen_key, NULL);
+    state = FALSE;
+  }
+#endif
+
+  if ( !state )
+    { index = (struct scan_atoms *)malloc(sizeof(struct scan_atoms));
+      i = 0;
+      catom = NIL;
+  } else
+  {
+#ifdef O_PLMT
+    index = (struct scan_atoms *)pthread_getspecific(atomgen_key);
+#else
+    index = LOCAL_search_atoms;
+#endif
+    catom = index->atom;
+    i = index->pos;
+  }
+
+  while (catom != NIL || i < AtomHashTableSize) {
+    //    if ( is_signalled() )		/* Notably allow windows version */
+      //      PL_handle_signals();		/* to break out on ^C */
+    AtomEntry *ap;
+
+    if (catom == NIL) {
+      /* move away from current hash table line */
+      READ_LOCK(HashChain[i].AERWLock);
+      catom = HashChain[i].Entry;
+      READ_UNLOCK(HashChain[i].AERWLock);
+      i++;
+    } else {
+      ap = RepAtom(catom);
+      READ_LOCK(ap->ARWLock);
+      if ( str_prefix(prefix, ap->StrOfAE) ) {
+	index->pos = i;
+	index->atom = ap->NextOfAE;
+#ifdef O_PLMT
+	pthread_setspecific(atomgen_key,index);
+#else
+	LOCAL_search_atoms = index;
+#endif
+	*hit = ap->StrOfAE;
+	READ_UNLOCK(ap->ARWLock);
+	return TRUE;
+      }
+      catom = ap->NextOfAE;
+      READ_UNLOCK(ap->ARWLock);
+    }
+  }
+#ifdef O_PLMT
+  pthread_setspecific(atomgen_key,NULL);
+#else
+  LOCAL_search_atoms = NULL;
+#endif
+  free(index);
+  return FALSE;
+}
+
+
+char *
+PL_atom_generator(const char *prefix, int state)
+{
+  char * hit = NULL;
+  if (atom_generator(prefix, &hit, state)) {
+    return hit;
+  }
   return NULL;
 }
+
 
 X_API pl_wchar_t *PL_atom_generator_w(const pl_wchar_t *pref, pl_wchar_t *buffer, size_t buflen, int state)
 {
