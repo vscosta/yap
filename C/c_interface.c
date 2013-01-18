@@ -1663,6 +1663,10 @@ YAP_Execute(PredEntry *pe, CPredicate exec_code)
 {
   CACHE_REGS
   Int ret;
+  //  Term omod = CurrentModule;
+  //if (pe->PredFlags & CArgsPredFlag) {
+  //  CurrentModule = pe->ModuleOfPred;
+  //}
   if (pe->PredFlags & SWIEnvPredFlag) {
     CPredicateV codev = (CPredicateV)exec_code;
     struct foreign_context ctx;
@@ -1683,6 +1687,7 @@ YAP_Execute(PredEntry *pe, CPredicate exec_code)
     ret = (exec_code)( PASS_REGS1 );
   }
   PP = NULL;
+  //CurrentModule = omod;
   if (!ret) {
     Term t;
 
@@ -2429,6 +2434,8 @@ YAP_RunGoal(Term t)
     Yap_StartSlots( PASS_REGS1 );
   } else {
     ENV = B->cp_env;
+    ENV = (CELL *)ENV[E_E];
+    CP = old_CP;
     B = B->cp_b;
     LOCAL_AllowRestart = FALSE;
   }
@@ -2567,7 +2574,6 @@ YAP_RestartGoal(void)
     if (out == FALSE) {
       /* cleanup */
       Yap_trust_last();
-      Yap_CloseSlots( PASS_REGS1 );
       LOCAL_AllowRestart = FALSE;
     }
   } else { 
