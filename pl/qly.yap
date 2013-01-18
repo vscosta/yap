@@ -137,6 +137,7 @@ save_program(File, _Goal) :-
 	X \= language,
 	X \= readline,
 	X \= timezone,
+	X \= tty_control,
 	X \= user_input,
 	X \= user_output,
 	X \= user_error,
