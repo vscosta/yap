@@ -98,4 +98,5 @@
 #endif
 
 
+#define GLOBAL_RestoreFile Yap_global->RestoreFile_
 

@@ -118,6 +118,8 @@ char				pwd[YAP_FILENAME_MAX]			void
 //udi.c
 //struct udi_control_block 	RtreeCmd				void	
 
+char*			 	RestoreFile				void	
+
 
 
 END_GLOBAL_DATA
