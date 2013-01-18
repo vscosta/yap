@@ -419,7 +419,7 @@ true :- true.
 	 (
 	     get_value('$syntaxcheckflag',on)
           ->
-	     '$check_term'(Source, V, Pos, BodyMod)
+	     '$check_term'(Source, G, V, Pos, BodyMod)
 	 ;
 	     true 
 	 ),
@@ -488,8 +488,8 @@ true :- true.
 	 '$yes_no'(G,(?-)).
 '$query'(G,V) :-
 	 (
-	   '$exit_system_mode',
 	  yap_hacks:current_choice_point(CP),
+	   '$exit_system_mode',
 	  '$execute'(G),
 	  yap_hacks:current_choice_point(NCP),
 	  ( '$enter_system_mode' ; '$exit_system_mode', fail),

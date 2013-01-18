@@ -126,24 +126,24 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 '$init_style_check'(_).
 
 % style checker proper..
-'$check_term'(T,VL,P,_) :-
+'$check_term'(T, _, VL,P,_) :-
 	get_value('$syntaxchecksinglevar',on),
 	'$singletons_in_clause'(T, VL, Sv),
 	Sv = [_|_],
 	'$sv_warning'(Sv,T),
          fail.
-'$check_term'(T,_,P,M) :-
+'$check_term'(_, T, _,P,M) :-
 	get_value('$syntaxcheckdiscontiguous',on),
 	'$xtract_head'(T,M,NM,_,F,A),
 	% should always fail
 	'$handle_discontiguous'(F,A,NM),
 	fail.
-'$check_term'(T,_,P,M) :-
+'$check_term'(_, T,_,P,M) :-
 	get_value('$syntaxcheckmultiple',on),
 	'$xtract_head'(T,M,NM,_,F,A),
 	'$handle_multiple'(F,A,NM), 
 	fail.
-'$check_term'(T,_,_,M) :-
+'$check_term'(_, T,_,_,M) :-
 	once(( 
 	    get_value('$syntaxcheckdiscontiguous',on)
 	;
@@ -159,7 +159,7 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 	),
 	recorda('$predicate_defs','$predicate_defs'(F,A,NM,File),_),
 	fail.
-'$check_term'(_,_,_,_).
+'$check_term'(_,_,_,_,_).
 
 %
 % output a list of singleton variables...
