@@ -7446,7 +7446,7 @@ Yap_absmi(int inp)
       saveregs();
       save_machine_regs();
       SREG = (CELL *) YAP_ExecuteFirst(PREG->u.OtapFs.p, (CPredicate)(PREG->u.OtapFs.f));
-      EX = 0L;
+      EX = NULL;
       restore_machine_regs();
       setregs();
       LOCAL_PrologMode = UserMode;
@@ -7489,7 +7489,7 @@ Yap_absmi(int inp)
       saveregs();
       save_machine_regs();
       SREG = (CELL *) YAP_ExecuteNext(PREG->u.OtapFs.p, (CPredicate)(PREG->u.OtapFs.f));
-      EX = 0L;
+      EX = NULL;
       restore_machine_regs();
       setregs();
       LOCAL_PrologMode = UserMode;
