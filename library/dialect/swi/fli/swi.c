@@ -2202,6 +2202,7 @@ PL_open_foreign_frame(void)
   new->open = FALSE;
   new->cp = CP;
   new->p = P;
+  new->flags = 0;
   new->b = (CELL)(LCL0-(CELL*)B);
   new->slots = CurSlot;
   LOCAL_execution = new;
@@ -2232,6 +2233,8 @@ PL_close_foreign_frame(fid_t f)
   CurSlot = env->slots;
   B = (choiceptr)(LCL0-env->b);
   ASP = (CELL *)(LCL0-CurSlot);
+  EX = NULL;
+  LOCAL_BallTerm = EX;
   LOCAL_execution = env->old;
   free(env);
 }
@@ -2280,6 +2283,8 @@ PL_discard_foreign_frame(fid_t f)
   LOCAL_execution = env->old;
   ASP = LCL0-CurSlot;
   B = B->cp_b;
+  EX = NULL;
+  LOCAL_BallTerm = EX;
   free(env);
 }
 
@@ -2291,9 +2296,22 @@ X_API qid_t PL_open_query(module_t ctx, int flags, predicate_t p, term_t t0)
   Term t[2], m;
 
   /* ignore flags  and module for now */
-  PL_open_foreign_frame();
+  if (!LOCAL_execution) {
+    open_query *new = (open_query *)malloc(sizeof(open_query));
+    if (!new) return 0;
+    new->old = LOCAL_execution;
+    new->g = TermNil;
+    new->open = FALSE;
+    new->cp = CP;
+    new->p = P;
+    new->b = (CELL)(LCL0-(CELL*)B);
+    new->slots = CurSlot;
+    new->flags = 0;
+    LOCAL_execution = new;
+  }
   LOCAL_execution->open=1;
   LOCAL_execution->state=0;
+  LOCAL_execution->flags = flags;
   PredicateInfo((PredEntry *)p, &yname, &arity, &m);
   t[0] = SWIModuleToModule(ctx);
   if (arity == 0) {
@@ -2352,9 +2370,15 @@ X_API void PL_cut_query(qid_t qi)
 
 X_API void PL_close_query(qid_t qi)
 {
+  CACHE_REGS
+  EX = NULL;
+  if (EX && !(qi->flags & (PL_Q_CATCH_EXCEPTION|PL_Q_PASS_EXCEPTION))) {
+    EX = NULL;
+  }
   /* need to implement backtracking here */
-  if (qi->open != 1 || qi->state == 0)
+  if (qi->open != 1 || qi->state == 0) {
     return;
+  }
   YAP_PruneGoal();
   YAP_RestartGoal();
   qi->open = 0;
