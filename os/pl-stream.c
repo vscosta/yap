@@ -33,7 +33,6 @@
 #endif
 #endif
 #include <winsock2.h>
-#include "windows/mswchar.h"
 #define CRLF_MAPPING 1
 #else
 #include <config.h>
@@ -3527,7 +3526,7 @@ SinitStreams(void)
 
 
 IOSTREAM *
-S__getiob()
+S__getiob(void)
 { return S__iob;
 }
 
