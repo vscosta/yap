@@ -19,7 +19,7 @@
 
     You should have received a copy of the GNU Lesser General Public
     License along with this library; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "pl-incl.h"
@@ -28,9 +28,6 @@
 #include "pl-codelist.h"
 #include <errno.h>
 #include <stdio.h>
-#ifdef __WINDOWS__
-#include "pl-mswchar.h"			/* Terrible hack */
-#endif
 #if HAVE_LIMITS_H
 #include <limits.h>			/* solaris compatibility */
 #endif
@@ -121,12 +118,52 @@ PL_from_stack_text(PL_chars_t *text)
 }
 
 
+#define INT64_DIGITS 20
+
+static char *
+ui64toa(uint64_t val, char *out)
+{ char tmpBuf[INT64_DIGITS + 1];
+  char *ptrOrg = tmpBuf + INT64_DIGITS;
+  char *ptr = ptrOrg;
+  size_t nbDigs;
+
+  do
+  { int rem = val % 10;
+
+    *--ptr = rem + '0';
+    val /= 10;
+  } while ( val );
+
+  nbDigs = ptrOrg - ptr;
+  memcpy(out, ptr, nbDigs);
+  out += nbDigs;
+  *out = '\0';
+
+  return out;				/* points to the END */
+};
+
+
+static char *
+i64toa(int64_t val, char *out)
+{ if ( val < 0 )
+  { *out++ = '-';
+    val = -val;
+  }
+
+  return ui64toa((uint64_t)val, out);
+}
+
+
 int
 PL_get_text__LD(term_t l, PL_chars_t *text, int flags ARG_LD)
 { word w = valHandle(l);
 
   if ( (flags & CVT_ATOM) && isAtom(w) )
+#if __YAP_PROLOG__
     { if ( !get_atom_text(atomFromTerm(w), text) )
+#else
+    { if ( !get_atom_text(w, text) )
+#endif
       goto maybe_write;
   } else if ( (flags & CVT_STRING) && isString(w) )
   { if ( !get_string_text(w, text PASS_LD) )
@@ -138,17 +175,20 @@ PL_get_text__LD(term_t l, PL_chars_t *text, int flags ARG_LD)
     PL_get_number(l, &n);
     switch(n.type)
     { case V_INTEGER:
-	sprintf(text->buf, INT64_FORMAT, n.value.i);
+      { char *ep = i64toa(n.value.i, text->buf);
+
         text->text.t    = text->buf;
-	text->length    = strlen(text->text.t);
+	text->length    = ep-text->text.t;
 	text->storage   = PL_CHARS_LOCAL;
 	break;
+      }
 #ifdef O_GMP
       case V_MPZ:
       { size_t sz = mpz_sizeinbase(n.value.mpz, 10) + 2;
 	Buffer b  = findBuffer(BUF_RING);
 
-	growBuffer(b, sz);
+	if ( !growBuffer(b, sz) )
+	  outOfCore();
 	mpz_get_str(b->base, 10, n.value.mpz);
 	b->top = b->base + strlen(b->base);
 	text->text.t  = baseBuffer(b, char);
@@ -196,7 +236,7 @@ PL_get_text__LD(term_t l, PL_chars_t *text, int flags ARG_LD)
 	{ case CVT_partial:
 	    return PL_error(NULL, 0, NULL, ERR_INSTANTIATION);
 	  case CVT_nolist:
-	    return PL_error(NULL, 0, NULL, ERR_TYPE, ATOM_list, l);
+	    goto error;
 	  case CVT_nocode:
 	  case CVT_nochar:
 	  { term_t culprit = PL_new_term_ref();
@@ -295,7 +335,9 @@ error:
   if ( (flags & CVT_EXCEPTION) )
   { atom_t expected;
 
-    if ( flags & CVT_LIST )
+    if ( (flags & CVT_LIST) && !(flags&(CVT_ATOM|CVT_NUMBER)) )
+      expected = ATOM_list;		/* List and/or string object */
+    else if ( flags & CVT_LIST )
       expected = ATOM_text;
     else if ( flags & CVT_NUMBER )
       expected = ATOM_atomic;
@@ -353,7 +395,7 @@ PL_unify_text(term_t term, term_t tail, PL_chars_t *text, int type)
     { word w = textToString(text);
 
       if ( w )
-	return _PL_unify_string(term, w);
+	return _PL_unify_atomic(term, w);
       else
 	return FALSE;
     }
@@ -473,6 +515,7 @@ PL_unify_text(term_t term, term_t tail, PL_chars_t *text, int type)
 	    return FALSE;
 	  }
 	}
+
 	return CLOSE_SEQ_STRING(p, p0, tail, term, l );
       }
     }
@@ -496,6 +539,18 @@ PL_unify_text_range(term_t term, PL_chars_t *text,
 
     if ( offset > text->length || offset + len > text->length )
       return FALSE;
+
+    if ( len == 1 && type == PL_ATOM )
+    { GET_LD
+      int c;
+
+      if ( text->encoding == ENC_ISO_LATIN_1 )
+	c = text->text.t[offset]&0xff;
+      else
+	c = text->text.w[offset];
+
+      return PL_unify_atom(term, codeToAtom(c));
+    }
 
     sub.length = len;
     sub.storage = PL_CHARS_HEAP;
@@ -659,7 +714,7 @@ represented.
 
 static int
 wctobuffer(wchar_t c, mbstate_t *mbs, Buffer buf)
-{ char b[MB_LEN_MAX];
+{ char b[PL_MB_LEN_MAX];
   size_t n;
 
   if ( (n=wcrtomb(b, c, mbs)) != (size_t)-1 )
