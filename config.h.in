@@ -52,6 +52,7 @@
 #undef  HAVE_ARPA_INET_H
 #undef  HAVE_CTYPE_H
 #undef  HAVE_CRYPT_H
+#undef  HAVE_CRTDBG_H
 #undef  HAVE_CUDD_H
 #undef  HAVE_CUDDINT_H
 #undef  HAVE_CUDD_CUDD_H
@@ -87,6 +88,7 @@
 #undef  HAVE_READLINE_HISTORY_H
 #undef  HAVE_REGEX_H
 #undef  HAVE_RINTERFACE_H
+#undef  HAVE_SHLOBJ_H
 #undef  HAVE_SIGINFO_H
 #undef  HAVE_SIGNAL_H
 #undef  HAVE_STDARG_H
@@ -117,6 +119,8 @@
 #undef  HAVE_WCTYPE_H
 #undef  HAVE_WINSOCK_H
 #undef  HAVE_WINSOCK2_H
+#undef  HAVE_WINSOCK2_H
+#undef  HAVE_LIBLOADERAPI_H
 
 #if __MINGW32__
 #define __WINDOWS__ 1
@@ -184,6 +188,7 @@
 #undef  HAVE_FINITE
 #undef  HAVE_FPCLASS
 #undef  HAVE_FTIME
+#undef  HAVE_FTRUNCATE
 #undef  HAVE_GETCWD
 #undef  HAVE_GETENV
 #undef  HAVE_GETEXECNAME

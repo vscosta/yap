@@ -19,7 +19,7 @@
 
     You should have received a copy of the GNU Lesser General Public
     License along with this library; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #ifdef __MINGW32__
@@ -27,8 +27,8 @@
 #endif
 
 #ifdef __WINDOWS__
-#define _WIN32_WINNT 0x0400
-#if (_MSC_VER >= 1300) || defined(__MINGW32__)
+#define WINVER 0x0501
+#if (_MSC_VER >= 1300) || __MINGW32__
 #include <winsock2.h>			/* Needed on VC8 */
 #include <windows.h>
 #else
@@ -36,16 +36,28 @@
 #include <winsock2.h>
 #endif
 
+#ifdef __MINGW32__
+#ifndef _WIN32_IE
+#define _WIN32_IE 0x0400
+#endif
+/* FIXME: these are copied from SWI-Prolog.h. */
+#define PL_MSG_EXCEPTION_RAISED -1
+#define PL_MSG_IGNORED 0
+#define PL_MSG_HANDLED 1
+#endif
+
 #include "pl-incl.h"
-#include "pl-utf8.h"
-//#include <crtdbg.h>
+#include "os/pl-utf8.h"
 #include <process.h>
-#include "pl-ctype.h"
+#include "os/pl-ctype.h"
 #include <stdio.h>
 #include <stdarg.h>
-#include "SWI-Stream.h"
+#include "os/SWI-Stream.h"
 #include <process.h>
 #include <winbase.h>
+#ifdef HAVE_CRTDBG_H
+#include <crtdbg.h>
+#endif
 
 
 		 /*******************************
@@ -135,8 +147,8 @@ PlMessage(const char *fm, ...)
 		 *	WinAPI ERROR CODES	*
 		 *******************************/
 
-char *
-WinError()
+const char *
+WinError(void)
 { int id = GetLastError();
   char *msg;
   static WORD lang;
@@ -232,22 +244,20 @@ Pause(double t)
 		 *	  SET FILE SIZE		*
 		 *******************************/
 
+#ifndef HAVE_FTRUNCATE
+
 int
 ftruncate(int fileno, int64_t length)
-{ int e;
+{ errno_t e;
 
-#if HAVE__CHSIZE_S
-  /* not always available in mingw */
   if ( (e=_chsize_s(fileno, length)) == 0 )
     return 0;
-#else
-  if ( (e=_chsize(fileno, (long)length)) == 0 )
-    return 0;
-#endif
 
   errno = e;
   return -1;
 }
+
+#endif
 
 
 		 /*******************************
@@ -273,13 +283,14 @@ CpuTime(cputime_kind which)
       case CPU_SYSTEM:
 	p = &kerneltime;
         break;
+      default:
+	assert(0);
+        return 0.0;
     }
     t = (double)p->dwHighDateTime * (4294967296.0 * ntick nano);
     t += (double)p->dwLowDateTime  * (ntick nano);
   } else				/* '95, Windows 3.1/win32s */
-  { extern intptr_t clock_wait_ticks;
-
-    t = (double) (clock() - clock_wait_ticks) / (double) CLOCKS_PER_SEC;
+  { t = 0.0;
   }
 
   return t;
@@ -287,7 +298,7 @@ CpuTime(cputime_kind which)
 
 
 static int
-CpuCount()
+CpuCount(void)
 { SYSTEM_INFO si;
 
   GetSystemInfo(&si);
@@ -297,7 +308,7 @@ CpuCount()
 
 
 void
-setOSPrologFlags()
+setOSPrologFlags(void)
 { PL_set_prolog_flag("cpu_count", PL_INTEGER, CpuCount());
 }
 
@@ -310,7 +321,7 @@ findExecutable(const char *module, char *exe)
 
   if ( module )
   { if ( !(hmod = GetModuleHandle(module)) )
-    { hmod = GetModuleHandle("libpl.dll");
+    { hmod = GetModuleHandle("libswipl.dll");
       DEBUG(0,
 	    Sdprintf("Warning: could not find module from \"%s\"\n"
 		     "Warning: Trying %s to find home\n",
@@ -340,7 +351,7 @@ findExecutable(const char *module, char *exe)
 
 typedef struct
 { const char *name;
-  int         id;
+  UINT        id;
 } showtype;
 
 static int
@@ -348,12 +359,12 @@ get_showCmd(term_t show, UINT *cmd)
 { char *s;
   showtype *st;
   static showtype types[] =
-  { { "hide", 		 SW_HIDE },
-    { "maximize", 	 SW_MAXIMIZE },
-    { "minimize", 	 SW_MINIMIZE },
-    { "restore", 	 SW_RESTORE },
-    { "show", 		 SW_SHOW },
-    { "showdefault", 	 SW_SHOWDEFAULT },
+  { { "hide",		 SW_HIDE },
+    { "maximize",	 SW_MAXIMIZE },
+    { "minimize",	 SW_MINIMIZE },
+    { "restore",	 SW_RESTORE },
+    { "show",		 SW_SHOW },
+    { "showdefault",	 SW_SHOWDEFAULT },
     { "showmaximized",   SW_SHOWMAXIMIZED },
     { "showminimized",   SW_SHOWMINIMIZED },
     { "showminnoactive", SW_SHOWMINNOACTIVE },
@@ -361,8 +372,8 @@ get_showCmd(term_t show, UINT *cmd)
     { "shownoactive",    SW_SHOWNOACTIVATE },
     { "shownormal",      SW_SHOWNORMAL },
 					/* compatibility */
-    { "normal", 	 SW_SHOWNORMAL },
-    { "iconic", 	 SW_MINIMIZE },
+    { "normal",		 SW_SHOWNORMAL },
+    { "iconic",		 SW_MINIMIZE },
     { NULL, 0 },
   };
 
@@ -422,8 +433,9 @@ win_exec(size_t len, const wchar_t *cmd, UINT show)
   } else
   { term_t tmp = PL_new_term_ref();
 
-    PL_unify_wchars(tmp, PL_ATOM, len, cmd);
-    return PL_error(NULL, 0, WinError(), ERR_SHELL_FAILED, tmp);
+    return ( PL_unify_wchars(tmp, PL_ATOM, len, cmd) &&
+	     PL_error(NULL, 0, WinError(), ERR_SHELL_FAILED, tmp)
+	   );
   }
 }
 
@@ -524,7 +536,7 @@ static const shell_error se_errors[] =
   { SE_ERR_DDETIMEOUT,	    "DDE request timed out" },
   { SE_ERR_DLLNOTFOUND,	    "DLL not found" },
   { SE_ERR_FNF,		    "File not found (FNF)" },
-  { SE_ERR_NOASSOC, 	    "No association" },
+  { SE_ERR_NOASSOC,	    "No association" },
   { SE_ERR_OOM,		    "Not enough memory" },
   { SE_ERR_PNF,		    "Path not found (PNF)" },
   { SE_ERR_SHARE,	    "Sharing violation" },
@@ -550,7 +562,7 @@ win_shell(term_t op, term_t file, term_t how)
   { const shell_error *se;
 
     for(se = se_errors; se->message; se++)
-    { if ( se->eno == (int)instance )
+      { if ( se->eno == (int)(intptr_t)instance )
 	return PL_error(NULL, 0, se->message, ERR_SHELL_FAILED, file);
     }
     PL_error(NULL, 0, NULL, ERR_SHELL_FAILED, file);
@@ -621,22 +633,113 @@ need. They are used  by  pl-load.c,   which  defines  the  actual Prolog
 interface.
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-static char *dlmsg;
+#ifdef HAVE_LIBLOADERAPI_H
+#include <LibLoaderAPI.h>
+#else
+#ifndef LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR
+#define LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR 0x00000100
+#endif
+#ifndef LOAD_LIBRARY_SEARCH_DEFAULT_DIRS
+#define LOAD_LIBRARY_SEARCH_DEFAULT_DIRS 0x00001000
+#endif
+typedef void * DLL_DIRECTORY_COOKIE;
+#endif
+
+static const char *dlmsg;
+static DLL_DIRECTORY_COOKIE WINAPI (*f_AddDllDirectoryW)(wchar_t* dir);
+static BOOL WINAPI (*f_RemoveDllDirectory)(DLL_DIRECTORY_COOKIE);
+
+static DWORD
+load_library_search_flags(void)
+{ static int done = FALSE;
+  static DWORD flags = 0;
+
+  if ( !done )
+  { HMODULE kernel = GetModuleHandle(TEXT("kernel32.dll"));
+
+    if ( (f_AddDllDirectoryW   = (void*)GetProcAddress(kernel, "AddDllDirectory")) &&
+	 (f_RemoveDllDirectory = (void*)GetProcAddress(kernel, "RemoveDllDirectory")) )
+    { flags = ( LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR|
+		LOAD_LIBRARY_SEARCH_DEFAULT_DIRS );
+    }
+    done = TRUE;
+  }
+
+  return flags;
+}
+
+
+static
+PRED_IMPL("win_add_dll_directory", 2, win_add_dll_directory, 0)
+{ PRED_LD
+  char *dirs;
+
+  if ( PL_get_file_name(A1, &dirs, REP_UTF8) )
+  { size_t len = utf8_strlen(dirs, strlen(dirs));
+    wchar_t *dirw = alloca((len+10)*sizeof(wchar_t));
+    DLL_DIRECTORY_COOKIE cookie;
+
+    if ( _xos_os_filenameW(dirs, dirw, len+10) == NULL )
+      return PL_representation_error("file_name");
+    if ( load_library_search_flags() )
+    { if ( (cookie = (*f_AddDllDirectoryW)(dirw)) )
+	return PL_unify_int64(A2, (int64_t)cookie);
+      return PL_error(NULL, 0, WinError(), ERR_SYSCALL, "AddDllDirectory()");
+    } else
+      return FALSE;
+  } else
+    return FALSE;
+}
+
+
+static
+PRED_IMPL("win_remove_dll_directory", 1, win_remove_dll_directory, 0)
+{ int64_t icookie;
+
+  if ( PL_get_int64_ex(A1, &icookie) )
+  { if ( f_RemoveDllDirectory )
+    { if ( (*f_RemoveDllDirectory)((DLL_DIRECTORY_COOKIE)icookie) )
+	return TRUE;
+
+      return PL_error(NULL, 0, WinError(), ERR_SYSCALL, "RemoveDllDirectory()");
+    } else
+      return FALSE;
+  } else
+    return FALSE;
+}
+
+
+static int
+is_windows_abs_path(const wchar_t *path)
+{ if ( path[1] == ':' && path[0] < 0x80 && iswalpha(path[0]) )
+    return TRUE;			/* drive */
+  if ( path[0] == '\\' && path[1] == '\\' )
+    return TRUE;			/* UNC */
+
+  return FALSE;
+}
 
 void *
-dlopen(const char *file, int flags)	/* file is in UTF-8 */
+dlopen(const char *file, int flags)	/* file is in UTF-8, POSIX path */
 { HINSTANCE h;
+  DWORD llflags = 0;
   size_t len = utf8_strlen(file, strlen(file));
-  wchar_t *wfile = alloca((len+1)*sizeof(wchar_t));
+  wchar_t *wfile = alloca((len+10)*sizeof(wchar_t));
 
   if ( !wfile )
   { dlmsg = "No memory";
     return NULL;
   }
 
-  utf8towcs(wfile, file);
+  if ( _xos_os_filenameW(file, wfile, len+10) == NULL )
+  { dlmsg = "Name too long";
+    return NULL;
+  }
 
-  if ( (h = LoadLibraryW(wfile)) )
+  if ( is_windows_abs_path(wfile) )
+    llflags |= load_library_search_flags();
+
+  if ( (h = LoadLibraryExW(wfile, NULL, llflags)) )
   { dlmsg = "No Error";
     return (void *)h;
   }
@@ -647,7 +750,7 @@ dlopen(const char *file, int flags)	/* file is in UTF-8 */
 
 
 const char *
-dlerror()
+dlerror(void)
 { return dlmsg;
 }
 
@@ -677,10 +780,58 @@ dlclose(void *handle)
 
 
 		 /*******************************
+		 *	 SNPRINTF MADNESS	*
+		 *******************************/
+
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+MS-Windows _snprintf() may look like C99 snprintf(), but is is not quite
+the same: on overflow, the buffer is   *not* 0-terminated and the return
+is negative (unspecified how negative).  The   code  below  works around
+this, returning count on overflow. This is still not the same as the C99
+version that returns the  number  of   characters  that  would have been
+written, but it seems to be enough for our purposes.
+
+See http://www.di-mgt.com.au/cprog.html#snprintf
+
+The above came from the provided link, but it is even worse (copied from
+VS2005 docs):
+
+  - If len < count, then len characters are stored in buffer, a
+  null-terminator is appended, and len is returned.
+
+  - If len = count, then len characters are stored in buffer, no
+  null-terminator is appended, and len is returned.
+
+  - If len > count, then count characters are stored in buffer, no
+  null-terminator is appended, and a negative value is returned.
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+int
+ms_snprintf(char *buffer, size_t count, const char *fmt, ...)
+{ va_list ap;
+  int ret;
+
+  va_start(ap, fmt);
+  ret = _vsnprintf(buffer, count-1, fmt, ap);
+  va_end(ap);
+
+  if ( ret < 0 || ret == count )
+  { ret = (int)count;
+    buffer[count-1] = '\0';
+  }
+
+  return ret;
+}
+
+
+
+		 /*******************************
 		 *	      FOLDERS		*
 		 *******************************/
 
-#include <Shlobj.h>
+#ifdef HAVE_SHLOBJ_H
+#include <shlobj.h>
+#endif
 
 typedef struct folderid
 { int csidl;
@@ -727,7 +878,7 @@ static int
 unify_csidl_path(term_t t, int csidl)
 { wchar_t buf[MAX_PATH];
 
-  if ( SHGetFolderPathW(0, csidl, NULL, FALSE, buf) )
+  if ( SHGetSpecialFolderPathW(0, buf, csidl, FALSE) )
   { wchar_t *p;
 
     for(p=buf; *p; p++)
@@ -935,7 +1086,7 @@ setStacksFromKey(HKEY key)
 
 
 void
-getDefaultsFromRegistry()
+getDefaultsFromRegistry(void)
 { HKEY key;
 
   if ( (key = reg_open_key(L"HKEY_LOCAL_MACHINE/Software/SWI/Prolog", FALSE)) )
@@ -948,44 +1099,6 @@ getDefaultsFromRegistry()
   }
 }
 
-static
-PRED_IMPL("win_open_file_name", 3, win_open_file_name, 0)
-{ GET_LD
-    OPENFILENAMEW ofn;
-    wchar_t szFileName[MAX_PATH];
-    void *x;
-    HWND hwnd;
-    wchar_t *yap_cwd;
-
-    if(!PL_get_pointer(A1, &x))
-      return FALSE;
-    if(!PL_get_wchars(A2, NULL, &yap_cwd, CVT_ATOM|CVT_EXCEPTION))
-      return FALSE;
-    hwnd = (HWND)x;
-    ZeroMemory(&ofn, sizeof(ofn));
-
-    ofn.lStructSize = sizeof(ofn); // SEE NOTE BELOW
-    ofn.hwndOwner = hwnd;
-    ofn.lpstrFilter = L"Prolog Files (*.pl;*.yap)\0*.pl;*.yap\0All Files (*.*)\0*.*\0";
-    ofn.lpstrFile = szFileName;
-    ofn.lpstrInitialDir = yap_cwd;
-    ofn.nMaxFile = MAX_PATH;
-    ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST 
-      //| OFN_HIDEREADONLY
-      //|OFN_ALLOWMULTISELECT
-      ;
-    ofn.lpstrDefExt = "pl";
-
-    if(GetOpenFileNameW(&ofn))
-    {
-        // Do something usefull with the filename stored in szFileName 
-	return PL_unify_wchars(A3, PL_ATOM,
-			       MAX_PATH-1, szFileName);
-    }
-    return TRUE;
-}
-
-
 		 /*******************************
 		 *      PUBLISH PREDICATES	*
 		 *******************************/
@@ -993,9 +1106,10 @@ PRED_IMPL("win_open_file_name", 3, win_open_file_name, 0)
 BeginPredDefs(win)
   PRED_DEF("win_shell", 2, win_shell2, 0)
   PRED_DEF("win_shell", 3, win_shell3, 0)
-  PRED_DEF("win_open_file_name", 3, win_open_file_name, 0)
   PRED_DEF("win_registry_get_value", 3, win_registry_get_value, 0)
   PRED_DEF("win_folder", 2, win_folder, PL_FA_NONDETERMINISTIC)
+  PRED_DEF("win_add_dll_directory", 2, win_add_dll_directory, 0)
+  PRED_DEF("win_remove_dll_directory", 1, win_remove_dll_directory, 0)
 EndPredDefs
 
 #endif /*__WINDOWS__*/
