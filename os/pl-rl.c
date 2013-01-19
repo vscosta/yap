@@ -41,10 +41,12 @@ SWI-Prolog.h and SWI-Stream.h
 #include "SWI-Prolog.h"
 
 #ifdef __WINDOWS__
+#ifndef __YAP_PROLOG__
 #ifdef WIN64
 #include "config/win64.h"
 #else
 #include "config/win32.h"
+#endif
 #endif
 #else
 #include <config.h>

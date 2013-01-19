@@ -378,6 +378,12 @@ PL_EXPORT(void)		Ssetbuffer(IOSTREAM *s, char *buf, size_t size);
 PL_EXPORT(int64_t)	Stell64(IOSTREAM *s);
 PL_EXPORT(int)		Sseek64(IOSTREAM *s, int64_t pos, int whence);
 
+#ifdef __WINDOWS__
+#if defined(_WINSOCKAPI_) || defined(NEEDS_SWINSOCK)
+PL_EXPORT(SOCKET)	Swinsock(IOSTREAM *s);
+#endif
+#endif
+
 PL_EXPORT(int)		ScheckBOM(IOSTREAM *s);
 PL_EXPORT(int)		SwriteBOM(IOSTREAM *s);
 PL_EXPORT(ssize_t)	Sread_user(void *handle, char *buf, size_t size);
