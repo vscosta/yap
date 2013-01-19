@@ -2510,11 +2510,13 @@ YAP_RunGoalOnce(Term t)
   Term out;
   yamop *old_CP = CP;
   Int oldPrologMode = LOCAL_PrologMode;
+  Int oldSlot = CurSlot;
 
   BACKUP_MACHINE_REGS();
   LOCAL_PrologMode = UserMode;
   out = Yap_RunTopGoal(t);
   LOCAL_PrologMode = oldPrologMode;
+  CurSlot = oldSlot;
   if (!(oldPrologMode & UserCCallMode)) {
     /* called from top-level */
     LOCAL_AllowRestart = FALSE;
@@ -2545,10 +2547,9 @@ YAP_RunGoalOnce(Term t)
     B = cut_pt;
   }
   ASP = B->cp_env;
-  Yap_PopSlots( PASS_REGS1 );
   ENV = (CELL *)ASP[E_E];
   B = (choiceptr)ASP[E_CB];
-#ifdef  DEPTH_LIMIT
+#ifdef  DEPTH_LIMITxs
   DEPTH = ASP[E_DEPTH];
 #endif
   P = (yamop *)ASP[E_CP];

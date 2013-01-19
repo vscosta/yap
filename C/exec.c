@@ -1198,6 +1198,7 @@ static int
 execute_pred(PredEntry *ppe, CELL *pt USES_REGS)
 {
   yamop *saved_p, *saved_cp;
+  Int saved_slot = CurSlot;
   yamop        *CodeAdr;
   Int             out;
 
@@ -1214,6 +1215,7 @@ execute_pred(PredEntry *ppe, CELL *pt USES_REGS)
     UNLOCK(ppe->PELock);
     out = do_goal(CodeAdr, ppe->ArityOfPE, pt, FALSE PASS_REGS);
   }
+  CurSlot = saved_slot;
 
   if (out == 1) {
     choiceptr cut_B;
@@ -1252,13 +1254,12 @@ execute_pred(PredEntry *ppe, CELL *pt USES_REGS)
     DEPTH= ENV[E_DEPTH];
 #endif
     ENV  = (CELL *)(ENV[E_E]);
-    Yap_StartSlots( PASS_REGS1 );
     /* we have failed, and usually we would backtrack to this B,
        trouble is, we may also have a delayed cut to do */
     if (B != NULL)
       HB   = B->cp_h;
     YENV = ENV;
-    return(TRUE);
+    return TRUE;
   } else if (out == 0) {
     P    = saved_p;
     CP   = saved_cp;
