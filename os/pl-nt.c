@@ -47,12 +47,24 @@
 #endif
 
 #include "pl-incl.h"
+#ifdef __YAP_PROLOG__
+#include "pl-utf8.h"
+#else
 #include "os/pl-utf8.h"
+#endif
 #include <process.h>
+#ifdef __YAP_PROLOG__
+#include "pl-ctype.h"
+#else
 #include "os/pl-ctype.h"
+#endif
 #include <stdio.h>
 #include <stdarg.h>
+#ifdef __YAP_PROLOG__
+#include "SWI-Stream.h"
+#else
 #include "os/SWI-Stream.h"
+#endif
 #include <process.h>
 #include <winbase.h>
 #ifdef HAVE_CRTDBG_H
@@ -1108,8 +1120,10 @@ BeginPredDefs(win)
   PRED_DEF("win_shell", 3, win_shell3, 0)
   PRED_DEF("win_registry_get_value", 3, win_registry_get_value, 0)
   PRED_DEF("win_folder", 2, win_folder, PL_FA_NONDETERMINISTIC)
+#ifdef EMULATE_DLOPEN
   PRED_DEF("win_add_dll_directory", 2, win_add_dll_directory, 0)
   PRED_DEF("win_remove_dll_directory", 1, win_remove_dll_directory, 0)
+#endif
 EndPredDefs
 
 #endif /*__WINDOWS__*/
