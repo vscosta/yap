@@ -18,6 +18,11 @@
 static char     SccsId[] = "%W% %G%";
 #endif /* SCCS */
 
+#include <math.h>
+#ifndef INFINITY
+#define INFINITY (1.0/0.0)
+#endif
+
 #include "Yap.h"
 
 #ifdef DEPTH_LIMIT
@@ -29,7 +34,10 @@ STD_PROTO(static Int p_set_depth_limit, ( USES_REGS1 ));
 
 static Int p_get_depth_limit( USES_REGS1 )
 {
-  return(Yap_unify_constant(ARG1, MkIntTerm(IntOfTerm(DEPTH/2))));
+  Int d = IntOfTerm(DEPTH);
+  if (d % 2 == 1) 
+    return(Yap_unify(ARG1, MkFloatTerm(INFINITY)));
+  return(Yap_unify_constant(ARG1, MkIntTerm(d/2)));
 }
 
 static Int p_set_depth_limit( USES_REGS1 )
@@ -40,8 +48,12 @@ static Int p_set_depth_limit( USES_REGS1 )
     Yap_Error(INSTANTIATION_ERROR, d, "set-depth_limit");
     return(FALSE);
   } else if (!IsIntegerTerm(d)) {
-    Yap_Error(TYPE_ERROR_INTEGER, d, "set-depth_limit");
-    return(FALSE);
+    if (IsFloatTerm(d) && isinf(FloatOfTerm(d))) {
+      d = RESET_DEPTH();
+    } else {
+      Yap_Error(TYPE_ERROR_INTEGER, d, "set-depth_limit");
+      return(FALSE);
+    }
   }
   d = MkIntTerm(IntegerOfTerm(d)*2);
 
@@ -59,6 +71,10 @@ static Int p_set_depth_limit_for_next_call( USES_REGS1 )
     Yap_Error(INSTANTIATION_ERROR, d, "set-depth_limit");
     return(FALSE);
   } else if (!IsIntegerTerm(d)) {
+    if (IsFloatTerm(d) && isinf(FloatOfTerm(d))) {
+      DEPTH = RESET_DEPTH();
+      return TRUE;
+    }
     Yap_Error(TYPE_ERROR_INTEGER, d, "set-depth_limit");
     return(FALSE);
   }
