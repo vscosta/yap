@@ -36,6 +36,10 @@
 #define O_PLMT 1
 #endif
 
+#if HAVE_ERRNO_H
+#include <errno.h>
+#endif
+
 #include "Yap.h"
 #include "YapHeap.h"
 

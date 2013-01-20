@@ -301,6 +301,8 @@ int
 _PL_unify_atomic(term_t t, PL_atomic_t a)
 {
   GET_LD
+    if (IsApplTerm(a) || IsAtomTerm(a))
+  return Yap_unify(Yap_GetFromSlot(t PASS_REGS), a);
   return PL_unify_atom(t, a);
 }
 
