@@ -884,6 +884,13 @@ InitStdPreds(void)
 {
   Yap_InitCPreds();
   Yap_InitBackCPreds();
+  BACKUP_MACHINE_REGS();
+  Yap_InitYaamRegs( 0 );
+
+#if HAVE_MPE
+  Yap_InitMPE ();
+#endif
+  initIO();
 }
 
 static void
@@ -1334,6 +1341,29 @@ Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts, UInt max_table_s
   InitDebug();
   InitVersion();
   Yap_InitSysPath();
+#if THREADS
+  /* make sure we use the correct value of regcache */
+  regcache =  ((REGSTORE *)pthread_getspecific(Yap_yaamregs_key));
+#endif
+#if USE_SYSTEM_MALLOC
+  if (Trail < MinTrailSpace)
+    Trail = MinTrailSpace;
+  if (Stack < MinStackSpace)
+    Stack = MinStackSpace;
+  if (!(LOCAL_GlobalBase = (ADDR)malloc((Trail+Stack)*1024))) {
+    Yap_Error(RESOURCE_ERROR_MEMORY, 0, "could not allocate stack space for main thread");
+    Yap_exit(1);
+  }
+#if THREADS
+  /* don't forget this is a thread */
+  LOCAL_ThreadHandle.stack_address =  LOCAL_GlobalBase;
+  LOCAL_ThreadHandle.ssize =  Trail+Stack;
+#endif
+#endif
+  GLOBAL_AllowGlobalExpansion = TRUE;
+  GLOBAL_AllowLocalExpansion = TRUE;
+  GLOBAL_AllowTrailExpansion = TRUE;
+  Yap_InitExStacks (0, Trail, Stack);
   InitStdPreds();
   /* make sure tmp area is available */
   {

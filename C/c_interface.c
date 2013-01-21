@@ -3050,42 +3050,11 @@ YAP_Init(YAP_init_args *yap_init)
 	      yap_init->SchedulerLoop,
 	      yap_init->DelayedReleaseLoad
 	      );
-#if THREADS
-  /* make sure we use the correct value of regcache */
-  regcache =  ((REGSTORE *)pthread_getspecific(Yap_yaamregs_key));
-#endif
-#if USE_SYSTEM_MALLOC
-  if (Trail < MinTrailSpace)
-    Trail = MinTrailSpace;
-  if (Stack < MinStackSpace)
-    Stack = MinStackSpace;
-  if (!(LOCAL_GlobalBase = (ADDR)malloc((Trail+Stack)*1024))) {
-    yap_init->ErrorNo = RESOURCE_ERROR_MEMORY;
-    yap_init->ErrorCause = "could not allocate stack space for main thread";
-    return YAP_BOOT_ERROR;
-  }
-#if THREADS
-  /* don't forget this is a thread */
-  LOCAL_ThreadHandle.stack_address =  LOCAL_GlobalBase;
-  LOCAL_ThreadHandle.ssize =  Trail+Stack;
-#endif
-#endif
-  GLOBAL_AllowGlobalExpansion = TRUE;
-  GLOBAL_AllowLocalExpansion = TRUE;
-  GLOBAL_AllowTrailExpansion = TRUE;
-  Yap_InitExStacks (0, Trail, Stack);
   if (yap_init->QuietMode) {
     yap_flags[QUIET_MODE_FLAG] = TRUE;
   }
 
-  { BACKUP_MACHINE_REGS();
-    Yap_InitYaamRegs( 0 );
-
-#if HAVE_MPE
-    Yap_InitMPE ();
-#endif
-    
-    if (yap_init->YapPrologRCFile != NULL) {
+  { if (yap_init->YapPrologRCFile != NULL) {
       /*
 	This must be done before restore, otherwise
 	restore will print out messages ....
