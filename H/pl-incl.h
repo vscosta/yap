@@ -43,6 +43,9 @@
 #include "Yap.h"
 #include "YapHeap.h"
 
+#define PLVERSION YAP_VERSION
+#define PLNAME "yap"
+
 /* try not to pollute the SWI space */
 #ifdef P
 #undef P
@@ -892,6 +895,10 @@ COMMON(char)		digitName(int n, int sm);
 
 /**** stuff from pl-utf8.c ****/
 size_t utf8_strlen(const char *s, size_t len);
+
+/**** stuff from pl-version.c ****/
+COMMON(void) 		setGITVersion(void);
+
 
 /**** stuff from pl-write.c ****/
 COMMON(char *) 		varName(term_t var, char *buf);

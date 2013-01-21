@@ -75,9 +75,7 @@ too much.
 static void setArgvPrologFlag(void);
 #endif
 static void setTZPrologFlag(void);
-#ifndef __YAP_PROLOG__
 static void setVersionPrologFlag(void);
-#endif
 static atom_t lookupAtomFlag(atom_t key);
 static void initPrologFlagTable(void);
 
@@ -1204,8 +1202,8 @@ initPrologFlags(void)
   setTZPrologFlag();
 #ifndef __YAP_PROLOG__
   setOSPrologFlags();
-  setVersionPrologFlag();
 #endif /* YAP_PROLOG */
+  setVersionPrologFlag();
 }
 
 
@@ -1241,8 +1239,6 @@ setTZPrologFlag(void)
   setPrologFlag("timezone", FT_INTEGER|FF_READONLY, timezone);
 }
 
-#ifndef __YAP_PROLOG__
-
 static void
 setVersionPrologFlag(void)
 { GET_LD
@@ -1265,7 +1261,6 @@ setVersionPrologFlag(void)
 
   setGITVersion();
 }
-#endif /* YAP_PROLOG */
 
 void
 cleanupPrologFlags(void)

@@ -95,6 +95,8 @@ COMMON(bool) 		ChDir(const char *path);
 COMMON(int) 		DeleteTemporaryFile(atom_t name);
 COMMON(int) 		IsAbsolutePath(const char *spec);
 
+COMMON(bool) 		sysError(const char *fm, ...);
+
 /* TBD */
 
 extern word globalString(size_t size, char *s);
