@@ -223,6 +223,7 @@ IOLIB_SOURCES=$(srcdir)/os/pl-buffer.c $(srcdir)/os/pl-ctype.c \
 	$(srcdir)/os/pl-table.c \
 	$(srcdir)/os/pl-tai.c  \
 	$(srcdir)/os/pl-text.c \
+	$(srcdir)/os/pl-version.c \
 	$(srcdir)/os/pl-write.c \
 	$(srcdir)/C/pl-yap.c @ENABLE_WINCONSOLE@$(srcdir)/os/windows/uxnt.c
 
@@ -349,7 +350,7 @@ IOLIB_OBJECTS=pl-buffer.o pl-codelist.o pl-ctype.o pl-dtoa.o pl-error.o  \
 	pl-rl.o \
 	pl-stream.o pl-string.o pl-table.o \
 	pl-tai.o pl-text.o pl-utf8.o \
-	pl-write.o \
+	pl-version.o pl-write.o \
 	pl-yap.o @ENABLE_WINCONSOLE@ uxnt.o
 
 ENGINE_OBJECTS = \
@@ -647,6 +648,9 @@ pl-text.o: $(srcdir)/os/pl-text.c config.h
 
 pl-utf8.o: $(srcdir)/os/pl-utf8.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/os @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/os/pl-utf8.c -o $@
+
+pl-version.o: $(srcdir)/os/pl-version.c config.h
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/os @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/os/pl-version.c -o $@
 
 pl-write.o: $(srcdir)/os/pl-write.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/os @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/os/pl-write.c -o $@
