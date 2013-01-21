@@ -1245,6 +1245,58 @@ setAccessLevel(access_level_t accept)
   return old;
 }
 
+static bool
+vsysError(const char *fm, va_list args)
+{ GET_LD
+  static int active = 0;
+
+  switch ( active++ )
+  { case 1:
+      PL_halt(3);
+    case 2:
+      abort();
+  }
+
+#ifdef O_PLMT
+  Sfprintf(Serror, "[PROLOG SYSTEM ERROR:  Thread %d\n\t",
+	   PL_thread_self());
+#else
+  Sfprintf(Serror, "[PROLOG SYSTEM ERROR:\n\t");
+#endif
+  Svfprintf(Serror, fm, args);
+
+#if defined(O_DEBUGGER)
+  Sfprintf(Serror, "\n\nPROLOG STACK:\n");
+  PL_backtrace(10, 0);
+  Sfprintf(Serror, "]\n");
+#endif /*O_DEBUGGER*/
+
+#ifdef HAVE_GETPID
+  Sfprintf(Serror, "\n[pid=%d] Action? ", getpid());
+#else
+  Sfprintf(Serror, "\nAction? ");
+#endif
+  Sflush(Soutput);
+  ResetTty();
+
+  PL_halt(3);
+
+  return FALSE;					/* not reached */
+}
+
+
+bool
+sysError(const char *fm, ...)
+{ va_list args;
+
+  va_start(args, fm);
+  vsysError(fm, args);
+  va_end(args);
+
+  PL_fail;
+}
+
+
 
 #if THREADS
 
