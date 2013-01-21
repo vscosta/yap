@@ -4361,10 +4361,6 @@ Yap_InitBackCPreds(void)
 #if defined CUT_C && (defined MYDDAS_ODBC || defined MYDDAS_MYSQL)
   Yap_InitBackMYDDAS_SharedPreds();
 #endif
-  {
-    extern void initIO(void);
-    initIO();
-  }
 }
 
 typedef void (*Proc)(void);
