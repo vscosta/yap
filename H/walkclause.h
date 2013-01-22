@@ -350,6 +350,8 @@
     case _deallocate:
     case _enter_profiling:
     case _retry_profiled:
+    case _retry_udi:
+    case _try_udi:
       pc = NEXTOP(pc,p);
       break;
       /* instructions type plxxs */

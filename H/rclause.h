@@ -447,6 +447,8 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
     case _lock_lu:
     case _procceed:
     case _retry_profiled:
+    case _retry_udi:
+    case _try_udi:
       pc->u.p.p = PtoPredAdjust(pc->u.p.p);
       pc = NEXTOP(pc,p);
       break;

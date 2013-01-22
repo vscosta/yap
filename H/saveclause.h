@@ -464,6 +464,8 @@
     case _lock_lu:
     case _procceed:
     case _retry_profiled:
+    case _retry_udi:
+    case _try_udi:
       CHECK(save_PtoPred(stream, pc->u.p.p));
       pc = NEXTOP(pc,p);
       break;
