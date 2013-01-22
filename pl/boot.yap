@@ -1043,18 +1043,22 @@ bootstrap(F) :-
        ).
 
 '$loop'(Stream,exo) :-
+	prolog_flag(agc_margin,Old,0),	
 	prompt1('|     '), prompt(_,'| '),
 	'$current_module'(OldModule),
 	repeat,
 		'$system_catch'(dbload_from_stream(Stream, OldModule, exo), '$db_load', Error,
 			 user:'$LoopError'(Error, Status)),
+	prolog_flag(agc_margin,_,Old),
 	!.
 '$loop'(Stream,db) :-
+	prolog_flag(agc_margin,Old,0),	
 	prompt1('|     '), prompt(_,'| '),
 	'$current_module'(OldModule),
 	repeat,
 		'$system_catch'(dbload_from_stream(Stream, OldModule, db), '$db_load', Error,
 			 user:'$LoopError'(Error, Status)),
+	prolog_flag(agc_margin,_,Old),
 	!.
 '$loop'(Stream,Status) :-
 	(
