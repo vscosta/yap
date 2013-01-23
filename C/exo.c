@@ -230,6 +230,7 @@ fill_hash(UInt bmap, struct index_t *it, UInt bnds[])
 static struct index_t *
 add_index(struct index_t **ip, UInt bmap, PredEntry *ap, UInt count, UInt bnds[])
 {
+  CACHE_REGS
   UInt ncls = ap->cs.p_code.NOfClauses, j;
   CELL *base = NULL;
   struct index_t *i;
@@ -265,6 +266,7 @@ add_index(struct index_t **ip, UInt bmap, PredEntry *ap, UInt count, UInt bnds[]
     }
     bzero(base, 3*sizeof(CELL)*ncls);
   }
+  i->size = sizeof(CELL)*(ncls+i->hsize)+sz+sizeof(struct index_t);
   i->key = (CELL **)base;
   i->links = (CELL *)(base+i->hsize);
   i->ncollisions = i->nentries = i->ntrys = 0;
@@ -309,6 +311,7 @@ add_index(struct index_t **ip, UInt bmap, PredEntry *ap, UInt count, UInt bnds[]
   ptr = NEXTOP(ptr, p);
   ptr->opc = Yap_opcode(_Ystop);
   ptr->u.l.l = i->code;
+  Yap_inform_profiler_of_clause((char *)(i->code), (char *)NEXTOP(ptr,l), ap, GPROF_INDEX); 
   return i;
 }
 
