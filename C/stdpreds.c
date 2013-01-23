@@ -3886,12 +3886,12 @@ p_statistics_atom_info( USES_REGS1 )
     while (catom != NIL) {
       Atom ncatom;
       count++;
-      spaceused += sizeof(AtomEntry)+strlen(RepAtom(catom)->StrOfAE);
+      spaceused += sizeof(AtomEntry)+strlen(RepAtom(catom)->StrOfAE)+1;
       ncatom = RepAtom(catom)->NextOfAE;
       if (ncatom != NIL) {
 	READ_LOCK(RepAtom(ncatom)->ARWLock);
       }
-      READ_UNLOCK(RepAtom(ncatom)->ARWLock);
+      READ_UNLOCK(RepAtom(catom)->ARWLock);
       catom = ncatom;
     }
   }
@@ -3907,12 +3907,12 @@ p_statistics_atom_info( USES_REGS1 )
     while (catom != NIL) {
       Atom ncatom;
       count++;
-      spaceused += sizeof(AtomEntry)+wcslen((wchar_t *)( RepAtom(catom)->StrOfAE));
+      spaceused += sizeof(AtomEntry)+sizeof(wchar_t)*(wcslen((wchar_t *)( RepAtom(catom)->StrOfAE)+1));
       ncatom = RepAtom(catom)->NextOfAE;
       if (ncatom != NIL) {
 	READ_LOCK(RepAtom(ncatom)->ARWLock);
       }
-      READ_UNLOCK(RepAtom(ncatom)->ARWLock);
+      READ_UNLOCK(RepAtom(catom)->ARWLock);
       catom = ncatom;
     }
   }
