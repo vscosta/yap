@@ -953,8 +953,7 @@ LiftedCircuit::getAllPossibleTypes (unsigned nrLogVars) const
   vector<LogVarTypes> res;
   if (nrLogVars == 0) {
     // do nothing
-  }
-  if (nrLogVars == 1) {
+  } else if (nrLogVars == 1) {
     res.push_back ({ LogVarType::POS_LV });
     res.push_back ({ LogVarType::NEG_LV });
   } else {
