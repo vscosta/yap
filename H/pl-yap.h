@@ -95,13 +95,14 @@ COMMON(bool) 		ChDir(const char *path);
 COMMON(int) 		DeleteTemporaryFile(atom_t name);
 COMMON(int) 		IsAbsolutePath(const char *spec);
 
+COMMON(bool) 		sysError(const char *fm, ...);
+
 /* TBD */
 
 extern word globalString(size_t size, char *s);
 extern word globalWString(size_t size, wchar_t *s);
 
 #define allocHeap(n)		allocHeap__LD(n PASS_LD)
-#define freeHeap(p, n)		freeHeap__LD(p, n PASS_LD)
 
 #define valHandle(r) valHandle__LD(r PASS_LD)
 
@@ -150,6 +151,7 @@ atomLength(Atom atom)
 #define _PL_predicate(A,B,C,D) PL_predicate(A,B,C)
 #define predicateHasClauses(A) (YAP_NumberOfClausesForPredicate((YAP_PredEntryPtr)A) != 0)
 #define lookupModule(A) Yap_Module(MkAtomTerm(YAP_AtomFromSWIAtom(A)))
+
 #define charEscapeWriteOption(A) FALSE  // VSC: to implement
 #define wordToTermRef(A) YAP_InitSlot(*(A))
 #define isTaggedInt(A) IsIntegerTerm(A)
@@ -178,8 +180,6 @@ charCode(Term w)
     }
   return -1;
 }
-
-#define getInputStream(t, s)	getInputStream__LD(t, s PASS_LD)
 
 #define PL_get_atom(t, a)	PL_get_atom__LD(t, a PASS_LD)
 #define PL_get_atom_ex(t, a)	PL_get_atom_ex__LD(t, a PASS_LD)
@@ -227,5 +227,8 @@ unblockSignal(int sig)
 }
 #endif
 
+#define suspendTrace(x)
+
+atom_t ATOM_;
 
 #endif /* PL_YAP_H */

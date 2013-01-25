@@ -65,6 +65,10 @@ typedef intptr_t ssize_t;		/* signed version of size_t */
 extern "C" {
 #endif
 
+#ifndef PL_HAVE_TERM_T
+#define PL_HAVE_TERM_T
+typedef	uintptr_t    term_t;
+#endif
 		 /*******************************
 		 *	    CONSTANTS		*
 		 *******************************/
@@ -163,6 +167,7 @@ typedef struct io_stream
   unsigned		references : 4;	/* Reference-count */
   int			io_errno;	/* Save errno value */
   void *		exception;	/* pending exception (record_t) */
+  void *		context;	/* getStreamContext() */
   intptr_t		reserved[2];	/* reserved for extension */
 } IOSTREAM;
 
@@ -334,14 +339,10 @@ PL_EXPORT(int)		Sfpasteof(IOSTREAM *s);
 PL_EXPORT(int)		Sferror(IOSTREAM *s);
 PL_EXPORT(void)		Sclearerr(IOSTREAM *s);
 PL_EXPORT(void)		Sseterr(IOSTREAM *s, int which, const char *message);
-#ifdef _FLI_H_INCLUDED
 PL_EXPORT(void)		Sset_exception(IOSTREAM *s, term_t ex);
-#else
-PL_EXPORT(void)		Sset_exception(IOSTREAM *s, intptr_t ex);
-#endif
 PL_EXPORT(int)		Ssetenc(IOSTREAM *s, IOENC new_enc, IOENC *old_enc);
 PL_EXPORT(int)		Sflush(IOSTREAM *s);
-PL_EXPORT(long)		Ssize(IOSTREAM *s);
+PL_EXPORT(int64_t)		Ssize(IOSTREAM *s);
 PL_EXPORT(int)		Sseek(IOSTREAM *s, long pos, int whence);
 PL_EXPORT(long)		Stell(IOSTREAM *s);
 PL_EXPORT(int)		Sclose(IOSTREAM *s);
@@ -376,6 +377,12 @@ PL_EXPORT(void)		Ssetbuffer(IOSTREAM *s, char *buf, size_t size);
 
 PL_EXPORT(int64_t)	Stell64(IOSTREAM *s);
 PL_EXPORT(int)		Sseek64(IOSTREAM *s, int64_t pos, int whence);
+
+#ifdef __WINDOWS__
+#if defined(_WINSOCKAPI_) || defined(NEEDS_SWINSOCK)
+PL_EXPORT(SOCKET)	Swinsock(IOSTREAM *s);
+#endif
+#endif
 
 PL_EXPORT(int)		ScheckBOM(IOSTREAM *s);
 PL_EXPORT(int)		SwriteBOM(IOSTREAM *s);

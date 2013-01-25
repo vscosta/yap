@@ -943,7 +943,7 @@ pl_raw_read2(term_t from, term_t term)
   int chr;
   PL_chars_t txt;
 
-  if ( !getInputStream(from, &in) )
+  if ( !getTextInputStream(from, &in) )
     fail;
 
   init_read_data(&rd, in PASS_LD);

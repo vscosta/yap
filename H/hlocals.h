@@ -243,4 +243,6 @@ typedef struct worker_local {
   Functor  FunctorVar_;
 
   UInt  ibnds_[256];
+
+  struct scan_atoms*  search_atoms_;
 } w_local;

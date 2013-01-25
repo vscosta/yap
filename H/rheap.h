@@ -1042,6 +1042,7 @@ RestoreYapRecords__( USES_REGS1 )
     ptr->prev_rec = DBRecordAdjust(ptr->prev_rec);
     ptr->dbrecord = DBTermAdjust(ptr->dbrecord);
     RestoreDBTerm(ptr->dbrecord, FALSE PASS_REGS);
+    ptr = ptr->next_rec;
   }
 }
 

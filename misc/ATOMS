@@ -79,6 +79,7 @@ A	Dec10			N	"dec10"
 A	Default			N	"default"
 A	DevNull			N	"/dev/null"
 A	Diff			N	"\\="
+A	Dollar			F	"$"
 A	DoLogUpdClause		F	"$do_log_upd_clause"
 A	DoLogUpdClause0		F	"$do_log_upd_clause0"
 A	DoLogUpdClauseErase	F	"$do_log_upd_clause_erase"
@@ -132,6 +133,7 @@ A	GetworkSeq		F	"$getwork_seq"
 A	GlobalSp		N	"global_sp"
 A	GlobalTrie		N	"global_trie"
 A	GoalExpansion		N	"goal_expansion"
+A	Hat			N	"^"
 A	HERE			N	"\n   <====HERE====>  \n"
 A	HandleThrow		F	"$handle_throw"
 A	Heap			N	"heap"
@@ -395,6 +397,7 @@ F	GeneratePredInfo	GeneratePredInfo	4
 F	GoalExpansion2		GoalExpansion	2
 F	GoalExpansion		GoalExpansion	3
 F	HandleThrow		HandleThrow	3
+F	Hat			Hat		2
 F	Id			Id		1
 F	Is			Is		2
 F	LastExecuteWithin	LastExecuteWithin	1

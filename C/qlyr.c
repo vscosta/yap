@@ -48,6 +48,20 @@ typedef enum {
 } qlfr_err_t;
 
 static char *
+qlyr_error[] = { "out of temporary space",
+		"out of temporary space",
+		"out of code space",
+		"unknown atom in saved space",
+		"unknown functor in saved space",
+		"unknown predicate in saved space",
+		"unknown YAAM opcode in saved space",
+		"unknown data-base reference in saved space",
+		"corrupted atom in saved space",
+		"formatting mismatch in saved space",
+		"foreign predicate has different definition in saved space",
+		"bad read" };
+
+static char *
 Yap_AlwaysAllocCodeSpace(UInt size)
 {
   char *out;
@@ -62,7 +76,7 @@ Yap_AlwaysAllocCodeSpace(UInt size)
 static void
 QLYR_ERROR(qlfr_err_t my_err)
 {
-  fprintf(stderr,"Error %d\n", my_err);
+  Yap_Error(SAVED_STATE_ERROR,TermNil,"error %s in saved state %s",GLOBAL_RestoreFile, qlyr_error[my_err]); 
   exit(1);
 }
 
@@ -1056,8 +1070,10 @@ Yap_Restore(char *s, char *lib_dir)
   IOSTREAM *stream  = Yap_OpenRestore(s, lib_dir);
   if (!stream) 
     return -1;
+  GLOBAL_RestoreFile = s;
   read_module(stream);
   Sclose( stream );
+  GLOBAL_RestoreFile = NULL;
   return DO_ONLY_CODE;
 }
 

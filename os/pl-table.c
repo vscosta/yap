@@ -1,11 +1,10 @@
-/*  $Id$
-
-    Part of SWI-Prolog
+/*  Part of SWI-Prolog
 
     Author:        Jan Wielemaker
-    E-mail:        jan@swi.psy.uva.nl
+    E-mail:        J.Wielemaker@vu.nl
     WWW:           http://www.swi-prolog.org
-    Copyright (C): 1985-2002, University of Amsterdam
+    Copyright (C): 1985-2012, University of Amsterdam
+			      VU University Amsterdam
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -19,7 +18,7 @@
 
     You should have received a copy of the GNU Lesser General Public
     License along with this library; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 /*#define O_DEBUG 1*/
@@ -41,35 +40,35 @@ create, advance over and destroy enumerator   objects. These objects are
 used to enumerate the symbols of these   tables,  used primarily for the
 pl_current_* predicates.
 
-The  enumerators  cause  two  things:  (1)    as  intptr_t  enumerators  are
+The enumerators cause  two  things:  (1)   as  long  as  enumerators are
 associated, the table will not  be  rehashed   and  (2)  if  symbols are
 deleted  that  are  referenced  by  an  enumerator,  the  enumerator  is
-automatically advanced to the next free symbol.  This, in general, makes
+automatically advanced to the next free  symbol. This, in general, makes
 the enumeration of hash-tables safe.
 
-TODO: abort should delete  any  pending   enumerators.  This  should  be
-thread-local, as thread_exit/1 should do the same.
+TBD: Resizing hash-tables causes major  headaches for concurrent access.
+We can avoid this by using a dynamic array for the list of hash-entries.
+Ongoing work in  the  RDF  store   shows  hash-tables  that  can  handle
+concurrent lock-free access.
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-static void
-allocHTableEntries(Table ht)
-{ GET_LD
-  int n;
+static Symbol *
+allocHTableEntries(int buckets)
+{ size_t bytes = buckets * sizeof(Symbol);
   Symbol *p;
 
-  ht->entries = allocHeap(ht->buckets * sizeof(Symbol));
+  p = allocHeapOrHalt(bytes);
+  memset(p, 0, bytes);
 
-  for(n=0, p = &ht->entries[0]; n < ht->buckets; n++, p++)
-    *p = NULL;
+  return p;
 }
 
 
 Table
 newHTable(int buckets)
-{ GET_LD
-  Table ht;
+{ Table ht;
 
-  ht		  = allocHeap(sizeof(struct table));
+  ht		  = allocHeapOrHalt(sizeof(struct table));
   ht->buckets	  = (buckets & ~TABLE_MASK);
   ht->size	  = 0;
   ht->enumerators = NULL;
@@ -79,25 +78,24 @@ newHTable(int buckets)
   if ( (buckets & TABLE_UNLOCKED) )
     ht->mutex = NULL;
   else
-  { ht->mutex     = allocHeap(sizeof(simpleMutex));
+  { ht->mutex     = allocHeapOrHalt(sizeof(simpleMutex));
     simpleMutexInit(ht->mutex);
   }
 #endif
 
-  allocHTableEntries(ht);
+  ht->entries = allocHTableEntries(ht->buckets);
   return ht;
 }
 
 
 void
 destroyHTable(Table ht)
-{ GET_LD
-
+{
 #ifdef O_PLMT
   if ( ht->mutex )
   { simpleMutexDelete(ht->mutex);
     freeHeap(ht->mutex, sizeof(*ht->mutex));
-	ht->mutex = NULL;
+    ht->mutex = NULL;
   }
 #endif
 
@@ -107,19 +105,19 @@ destroyHTable(Table ht)
 }
 
 
-#if O_DEBUG || O_HASHSTAT
-#define HASHSTAT(c) c
+#if O_DEBUG
 static int lookups;
 static int cmps;
 
 void
 exitTables(int status, void *arg)
-{ Sdprintf("hashstat: Anonymous tables: %d lookups using %d compares\n",
+{ (void)status;
+  (void)arg;
+
+  Sdprintf("hashstat: Anonymous tables: %d lookups using %d compares\n",
 	   lookups, cmps);
 }
-#else
-#define HASHSTAT(c)
-#endif /*O_DEBUG*/
+#endif
 
 
 void
@@ -129,7 +127,7 @@ initTables(void)
   if ( !done )
   { done = TRUE;
 
-    HASHSTAT(PL_on_halt(exitTables, NULL));
+    DEBUG(MSG_HASH_STAT, PL_on_halt(exitTables, NULL));
   }
 }
 
@@ -138,9 +136,9 @@ Symbol
 lookupHTable(Table ht, void *name)
 { Symbol s = ht->entries[pointerHashValue(name, ht->buckets)];
 
-  HASHSTAT(lookups++);
+  DEBUG(MSG_HASH_STAT, lookups++);
   for( ; s; s = s->next)
-  { HASHSTAT(cmps++);
+  { DEBUG(MSG_HASH_STAT, cmps++);
     if ( s->name == name )
       return s;
   }
@@ -170,41 +168,79 @@ checkHTable(Table ht)
 /* MT: Locked by calling addHTable()
 */
 
-static void
-rehashHTable(Table ht)
-{ GET_LD
-  Symbol *oldtab;
-  int    oldbucks;
-  int    i;
+static Symbol
+rehashHTable(Table ht, Symbol map)
+{ Symbol *newentries, *oldentries;
+  int     newbuckets, oldbuckets;
+  int     i;
+#ifdef O_PLMT
+  int     safe_copy = (ht->mutex != NULL);
+#else
+  int     safe_copy = TRUE;
+#endif
 
-  oldtab   = ht->entries;
-  oldbucks = ht->buckets;
-  ht->buckets *= 2;
-  allocHTableEntries(ht);
+  newbuckets = ht->buckets*2;
+  newentries = allocHTableEntries(newbuckets);
 
-  DEBUG(1, Sdprintf("Rehashing table %p to %d entries\n", ht, ht->buckets));
+  DEBUG(MSG_HASH_STAT,
+	Sdprintf("Rehashing table %p to %d entries\n", ht, ht->buckets));
 
-  for(i=0; i<oldbucks; i++)
+  for(i=0; i<ht->buckets; i++)
   { Symbol s, n;
 
-    for(s=oldtab[i]; s; s = n)
-    { int v = (int)pointerHashValue(s->name, ht->buckets);
+    if ( safe_copy )
+    { for(s=ht->entries[i]; s; s = n)
+      { int v = (int)pointerHashValue(s->name, newbuckets);
+	Symbol s2 = allocHeapOrHalt(sizeof(*s2));
 
-      n = s->next;
-      s->next = ht->entries[v];
-      ht->entries[v] = s;
+	n = s->next;
+	if ( s == map )
+	  map = s2;
+	*s2 = *s;
+	s2->next = newentries[v];
+	newentries[v] = s2;
+      }
+    } else
+    { for(s=ht->entries[i]; s; s = n)
+      { int v = (int)pointerHashValue(s->name, newbuckets);
+
+	n = s->next;
+	s->next = newentries[v];
+	newentries[v] = s;
+      }
     }
   }
 
-  freeHeap(oldtab, oldbucks * sizeof(Symbol));
-  DEBUG(0, checkHTable(ht));
+  oldentries  = ht->entries;
+  oldbuckets  = ht->buckets;
+  ht->entries = newentries;
+  ht->buckets = newbuckets;
+
+  if ( safe_copy )
+  {					/* Here we should be waiting until */
+					/* active lookup are finished */
+    for(i=0; i<oldbuckets; i++)
+    { Symbol s, n;
+
+      for(s=oldentries[i]; s; s = n)
+      { n = s->next;
+
+	s->next = NULL;			/* that causes old readers to stop */
+	freeHeap(s, sizeof(*s));
+      }
+    }
+  }
+
+  freeHeap(oldentries, oldbuckets * sizeof(Symbol));
+  DEBUG(CHK_SECURE, checkHTable(ht));
+
+  return map;
 }
 
 
 Symbol
 addHTable(Table ht, void *name, void *value)
-{ GET_LD
-  Symbol s;
+{ Symbol s;
   int v;
 
   LOCK_TABLE(ht);
@@ -213,7 +249,7 @@ addHTable(Table ht, void *name, void *value)
   { UNLOCK_TABLE(ht);
     return NULL;
   }
-  s = allocHeap(sizeof(struct symbol));
+  s = allocHeapOrHalt(sizeof(struct symbol));
   s->name  = name;
   s->value = value;
   s->next  = ht->entries[v];
@@ -223,7 +259,7 @@ addHTable(Table ht, void *name, void *value)
 		    ht, name, value, ht->size));
 
   if ( ht->buckets * 2 < ht->size && !ht->enumerators )
-    rehashHTable(ht);
+    s = rehashHTable(ht, s);
   UNLOCK_TABLE(ht);
 
   DEBUG(1, checkHTable(ht));
@@ -237,8 +273,7 @@ Note: s must be in the table!
 
 void
 deleteSymbolHTable(Table ht, Symbol s)
-{ GET_LD
-  int v;
+{ int v;
   Symbol *h;
   TableEnum e;
 
@@ -255,6 +290,9 @@ deleteSymbolHTable(Table ht, Symbol s)
   { if ( *h == s )
     { *h = (*h)->next;
 
+      s->next = NULL;				/* force crash */
+      s->name = NULL;
+      s->value = NULL;
       freeHeap(s, sizeof(struct symbol));
       ht->size--;
 
@@ -268,8 +306,7 @@ deleteSymbolHTable(Table ht, Symbol s)
 
 void
 clearHTable(Table ht)
-{ GET_LD
-  int n;
+{ int n;
   TableEnum e;
 
   LOCK_TABLE(ht);
@@ -309,24 +346,23 @@ Table copyHTable(Table org)
 
 Table
 copyHTable(Table org)
-{ GET_LD
-  Table ht;
+{ Table ht;
   int n;
 
-  ht = allocHeap(sizeof(struct table));
+  ht = allocHeapOrHalt(sizeof(struct table));
   LOCK_TABLE(org);
   *ht = *org;				/* copy all attributes */
 #ifdef O_PLMT
   ht->mutex = NULL;
 #endif
-  allocHTableEntries(ht);
+  ht->entries = allocHTableEntries(ht->buckets);
 
   for(n=0; n < ht->buckets; n++)
   { Symbol s, *q;
 
     q = &ht->entries[n];
     for(s = org->entries[n]; s; s = s->next)
-    { Symbol s2 = allocHeap(sizeof(*s2));
+    { Symbol s2 = allocHeapOrHalt(sizeof(*s2));
 
       *q = s2;
       q = &s2->next;
@@ -340,7 +376,7 @@ copyHTable(Table org)
   }
 #ifdef O_PLMT
   if ( org->mutex )
-  { ht->mutex = allocHeap(sizeof(simpleMutex));
+  { ht->mutex = allocHeapOrHalt(sizeof(simpleMutex));
     simpleMutexInit(ht->mutex);
   }
 #endif
@@ -356,8 +392,7 @@ copyHTable(Table org)
 
 TableEnum
 newTableEnum(Table ht)
-{ GET_LD
-  TableEnum e = allocHeap(sizeof(struct table_enum));
+{ TableEnum e = allocHeapOrHalt(sizeof(struct table_enum));
   Symbol n;
 
   LOCK_TABLE(ht);
@@ -378,8 +413,7 @@ newTableEnum(Table ht)
 
 void
 freeTableEnum(TableEnum e)
-{ GET_LD
-  TableEnum *ep;
+{ TableEnum *ep;
   Table ht;
 
   if ( !e )

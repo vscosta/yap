@@ -5,7 +5,7 @@
     Author:        Jan Wielemaker
     E-mail:        wielemak@science.uva.nl
     WWW:           http://www.swi-prolog.org
-    Copyright (C): 1985-2005, University of Amsterdam
+    Copyright (C): 1985-2007, University of Amsterdam
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -19,21 +19,18 @@
 
     You should have received a copy of the GNU Lesser General Public
     License along with this library; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include <wchar.h>
-
-/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-See pl-mswchar.cpp for  the  motivation  for   this  nonsense.  Used  in
-pl-fli.c and pl-text.c.
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-
-#if defined(__WINDOWS__) && !defined(__MINGW32__)
-
-#define wcrtomb(s, wc, ps)	ms_wcrtomb(s, wc, ps)
-#define mbrtowc(pwc, s, n, ps)	ms_mbrtowc(pwc, s, n, ps)
-
-extern size_t ms_wcrtomb(char *s, wchar_t wc, mbstate_t *ps);
-extern size_t ms_mbrtowc(wchar_t *pwc, const char *s, size_t n, mbstate_t *ps);
+#include "pl-incl.h"
+#ifdef USE_GIT_VERSION_H
+#include <version.h>
 #endif
+
+void
+setGITVersion(void)
+{
+#ifdef GIT_VERSION
+  PL_set_prolog_flag("version_git", PL_ATOM|FF_READONLY, GIT_VERSION);
+#endif
+}

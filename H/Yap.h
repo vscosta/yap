@@ -88,7 +88,7 @@
 #undef  USE_THREADED_CODE
 #endif /* USE_THREADED_CODE */
 #define inline __inline
-#define YAP_VERSION "YAP-6.3.2"
+#define YAP_VERSION "YAP-6.3.4"
 #define BIN_DIR "c:\\Yap\\bin"
 #define LIB_DIR "c:\\Yap\\lib\\Yap"
 #define SHARE_DIR "c:\\Yap\\share\\Yap"
@@ -120,6 +120,14 @@
 #define MIN_ARRAY 1
 #define DUMMY_FILLER_FOR_ABS_TYPE int dummy;
 #endif /* HAVE_GCC */
+
+#ifdef HAVE___BUILTIN_EXPECT
+#define likely(x)       __builtin_expect((x), 1)
+#define unlikely(x)     __builtin_expect((x), 0)
+#else
+#define likely(x)       (x)
+#define unlikely(x)     (x)
+#endif
 
 #ifdef THREADS
 #if USE_PTHREAD_LOCKING
@@ -403,6 +411,7 @@ typedef enum
   RESOURCE_ERROR_MEMORY,
   RESOURCE_ERROR_STACK,
   RETRY_COUNTER_UNDERFLOW,
+  SAVED_STATE_ERROR,
   SYNTAX_ERROR,
   SYSTEM_ERROR,
   TYPE_ERROR_ARRAY,

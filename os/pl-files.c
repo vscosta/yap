@@ -3,9 +3,10 @@
     Part of SWI-Prolog
 
     Author:        Jan Wielemaker
-    E-mail:        J.Wielemaker@uva.nl
+    E-mail:        J.Wielemaker@cs.vu.nl
     WWW:           http://www.swi-prolog.org
-    Copyright (C): 1985-2008, University of Amsterdam
+    Copyright (C): 1985-2011, University of Amsterdam
+			      VU University Amsterdam
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -19,7 +20,7 @@
 
     You should have received a copy of the GNU Lesser General Public
     License along with this library; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "pl-incl.h"
@@ -44,26 +45,89 @@
 General file operations and binding to Prolog
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
+#ifdef __WINDOWS__
+static void
+set_posix_error(int win_error)
+{ int error = 0;
+
+  switch(win_error)
+  { case ERROR_ACCESS_DENIED:	  error = EACCES; break;
+    case ERROR_FILE_NOT_FOUND:    error = ENOENT; break;
+    case ERROR_SHARING_VIOLATION: error = EAGAIN; break;
+    case ERROR_ALREADY_EXISTS:    error = EEXIST; break;
+  }
+
+  errno = error;
+}
+#endif /*__WINDOWS__*/
+
+
 		 /*******************************
 		 *	      OS STUFF		*
 		 *******************************/
 
-/** time_t LastModifiedFile(const char *file)
+/** int LastModifiedFile(const char *file, double *t)
 
 Return the last modification time of file  as a POSIX timestamp. Returns
 (time_t)-1 on failure.
+
+Contains a 64-bit value representing the number of 100-nanosecond
+intervals since January 1, 1601 (UTC).
 */
 
+int
+LastModifiedFile(const char *name, double *tp)
+{
+#ifdef __WINDOWS__
+  HANDLE hFile;
+  wchar_t wfile[MAXPATHLEN];
 
-time_t
-LastModifiedFile(const char *file)
-{ char tmp[MAXPATHLEN];
+#define nano * 0.000000001
+#define ntick 100.0
+#define SEC_TO_UNIX_EPOCH 11644473600.0
+
+  if ( !_xos_os_filenameW(name, wfile, MAXPATHLEN) )
+    return FALSE;
+
+  if ( (hFile=CreateFileW(wfile,
+			  0,
+			  FILE_SHARE_DELETE|FILE_SHARE_READ|FILE_SHARE_WRITE,
+			  NULL,
+			  OPEN_EXISTING,
+			  FILE_FLAG_BACKUP_SEMANTICS,
+			  NULL)) != INVALID_HANDLE_VALUE )
+  { FILETIME wt;
+    int rc;
+
+    rc = GetFileTime(hFile, NULL, NULL, &wt);
+    CloseHandle(hFile);
+
+    if ( rc )
+    { double t;
+
+      t  = (double)wt.dwHighDateTime * (4294967296.0 * ntick nano);
+      t += (double)wt.dwLowDateTime  * (ntick nano);
+      t -= SEC_TO_UNIX_EPOCH;
+
+      *tp = t;
+
+      return TRUE;
+    }
+  }
+
+  set_posix_error(GetLastError());
+
+  return FALSE;
+#else
+  char tmp[MAXPATHLEN];
   statstruct buf;
 
-  if ( statfunc(OsPath(file, tmp), &buf) < 0 )
-    return (time_t)-1;
+  if ( statfunc(OsPath(name, tmp), &buf) < 0 )
+    return FALSE;
 
-  return buf.st_mtime;
+  *tp = (double)buf.st_mtime;
+  return TRUE;
+#endif
 }
 
 
@@ -349,13 +413,7 @@ MarkExecutable(const char *name)
 
 int
 unifyTime(term_t t, time_t time)
-{ 
-#if __YAP_PROLOG__
-  /* maintain compatibility with old Prolog systems, and avoid losing precision unnecessarily */
-  return PL_unify_int64(t, (int64_t)time);
-#else
-  return PL_unify_float(t, (double)time);
-#endif
+{ return PL_unify_time(t, time);
 }
 
 
@@ -433,9 +491,12 @@ get_file_name(term_t n, char **namep, char *tmp, int flags)
     return PL_error(NULL, 0, "file name contains a 0-code",
 		    ERR_DOMAIN, ATOM_file_name, n);
   }
+  if ( len+1 >= MAXPATHLEN )
+    return PL_error(NULL, 0, NULL, ERR_REPRESENTATION,
+		    ATOM_max_path_length);
 
   if ( truePrologFlag(PLFLAG_FILEVARS) )
-  { if ( !(name = ExpandOneFile(name, tmp)) )
+  { if ( !(name = expandVars(name, tmp, MAXPATHLEN)) )
       return FALSE;
   }
 
@@ -529,13 +590,13 @@ PRED_IMPL("time_file", 2, time_file, 0)
 { char *fn;
 
   if ( PL_get_file_name(A1, &fn, 0) )
-  { time_t time;
+  { double time;
 
-    if ( (time = LastModifiedFile(fn)) == (time_t)-1 )
-      return PL_error(NULL, 0, NULL, ERR_FILE_OPERATION,
-		      ATOM_time, ATOM_file, A1);
+    if ( LastModifiedFile(fn, &time) )
+      return PL_unify_float(A2, time);
 
-    return unifyTime(A2, time);
+    return PL_error(NULL, 0, NULL, ERR_FILE_OPERATION,
+		    ATOM_time, ATOM_file, A1);
   }
 
   return FALSE;
@@ -544,7 +605,8 @@ PRED_IMPL("time_file", 2, time_file, 0)
 
 static
 PRED_IMPL("size_file", 2, size_file, 0)
-{ char *n;
+{ PRED_LD
+  char *n;
 
   if ( PL_get_file_name(A1, &n, 0) )
   { int64_t size;
@@ -680,7 +742,7 @@ static
 PRED_IMPL("file_base_name", 2, file_base_name, 0)
 { char *n;
 
-  if ( !PL_get_chars_ex(A1, &n, CVT_ALL|REP_FN) )
+  if ( !PL_get_chars(A1, &n, CVT_ALL|REP_FN|CVT_EXCEPTION) )
     return FALSE;
 
   return PL_unify_chars(A2, PL_ATOM|REP_FN, -1, BaseName(n));
@@ -692,7 +754,7 @@ PRED_IMPL("file_directory_name", 2, file_directory_name, 0)
 { char *n;
   char tmp[MAXPATHLEN];
 
-  if ( !PL_get_chars_ex(A1, &n, CVT_ALL|REP_FN) )
+  if ( !PL_get_chars(A1, &n, CVT_ALL|REP_FN|CVT_EXCEPTION) )
     return FALSE;
 
   return PL_unify_chars(A2, PL_ATOM|REP_FN, -1, DirName(n, tmp));
@@ -868,12 +930,13 @@ PRED_IMPL("$absolute_file_name", 2, absolute_file_name, 0)
 static
 PRED_IMPL("working_directory", 2, working_directory, 0)
 { PRED_LD
+  char buf[MAXPATHLEN];
   const char *wd;
 
   term_t old = A1;
   term_t new = A2;
 
-  if ( !(wd = PL_cwd()) )
+  if ( !(wd = PL_cwd(buf, sizeof(buf))) )
     return FALSE;
 
   if ( PL_unify_chars(old, PL_ATOM|REP_FN, -1, wd) )
@@ -966,8 +1029,8 @@ PRED_IMPL("file_name_extension", 3, file_name_extension, 0)
     PL_fail;
   }
 
-  if ( PL_get_chars_ex(base, &b, CVT_ALL|BUF_RING|REP_FN) &&
-       PL_get_chars_ex(ext, &e, CVT_ALL|REP_FN) )
+  if ( PL_get_chars(base, &b, CVT_ALL|BUF_RING|REP_FN|CVT_EXCEPTION) &&
+       PL_get_chars(ext, &e, CVT_ALL|REP_FN|CVT_EXCEPTION) )
   { char *s;
 
     if ( e[0] == '.' )		/* +Base, +Extension, -full */
@@ -989,20 +1052,19 @@ PRED_IMPL("file_name_extension", 3, file_name_extension, 0)
 
 static
 PRED_IMPL("prolog_to_os_filename", 2, prolog_to_os_filename, 0)
-{
+{ PRED_LD
 
   term_t pl = A1;
   term_t os = A2;
 
 #ifdef O_XOS
-  PRED_LD
   wchar_t *wn;
 
   if ( !PL_is_variable(pl) )
   { char *n;
     wchar_t buf[MAXPATHLEN];
 
-    if ( PL_get_chars_ex(pl, &n, CVT_ALL|REP_UTF8) )
+    if ( PL_get_chars(pl, &n, CVT_ALL|REP_UTF8|CVT_EXCEPTION) )
     { if ( !_xos_os_filenameW(n, buf, MAXPATHLEN) )
 	return name_too_long();
 

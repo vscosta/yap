@@ -219,10 +219,10 @@ Yap_GetCharForSIGINT(void)
 {
   int ch;
   /* ask for a new line */
-  fprintf(stderr, "Action (h for help): ");
-  ch = getc(stdin);
+  Sfprintf(Serror, "\nAction (h for help): ");
+  ch = Sgetchar();
   /* first process up to end of line */
-  while ((fgetc(stdin)) != '\n');
+  while ((Sfgetc(Sinput)) != '\n');
   newline = TRUE;
   return ch;
 }

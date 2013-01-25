@@ -19,7 +19,7 @@
 
     You should have received a copy of the GNU Lesser General Public
     License along with this library; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "utf8.h"
@@ -31,7 +31,7 @@ UTF-8 Decoding, based on http://www.cl.cam.ac.uk/~mgk25/unicode.html
 #define CONT(i)   ISUTF8_CB(in[1])
 #define VAL(i, s) ((in[i]&0x3f) << s)
 
-char *
+static char *
 _xos_utf8_get_char(const char *in, int *chr)
 { 					/* 2-byte, 0x80-0x7ff */
   if ( (in[0]&0xe0) == 0xc0 && CONT(1) )
@@ -60,12 +60,12 @@ _xos_utf8_get_char(const char *in, int *chr)
   }
 
   *chr = *in;
-  
+
   return (char *)in+1;
 }
 
 
-char *
+static char *
 _xos_utf8_put_char(char *out, int chr)
 { if ( chr < 0x80 )
   { *out++ = chr;

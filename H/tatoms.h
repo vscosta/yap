@@ -146,6 +146,8 @@
 #define AtomDevNull Yap_heap_regs->AtomDevNull_
   Atom AtomDiff_;
 #define AtomDiff Yap_heap_regs->AtomDiff_
+  Atom AtomDollar_;
+#define AtomDollar Yap_heap_regs->AtomDollar_
   Atom AtomDoLogUpdClause_;
 #define AtomDoLogUpdClause Yap_heap_regs->AtomDoLogUpdClause_
   Atom AtomDoLogUpdClause0_;
@@ -252,6 +254,8 @@
 #define AtomGlobalTrie Yap_heap_regs->AtomGlobalTrie_
   Atom AtomGoalExpansion_;
 #define AtomGoalExpansion Yap_heap_regs->AtomGoalExpansion_
+  Atom AtomHat_;
+#define AtomHat Yap_heap_regs->AtomHat_
   Atom AtomHERE_;
 #define AtomHERE Yap_heap_regs->AtomHERE_
   Atom AtomHandleThrow_;
@@ -778,6 +782,8 @@
 #define FunctorGoalExpansion Yap_heap_regs->FunctorGoalExpansion_
   Functor FunctorHandleThrow_;
 #define FunctorHandleThrow Yap_heap_regs->FunctorHandleThrow_
+  Functor FunctorHat_;
+#define FunctorHat Yap_heap_regs->FunctorHat_
   Functor FunctorId_;
 #define FunctorId Yap_heap_regs->FunctorId_
   Functor FunctorIs_;

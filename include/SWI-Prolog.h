@@ -127,7 +127,10 @@ typedef unsigned long uintptr_t;
 #include <inttypes.h>			/* more portable than stdint.h */
 #endif
 
+#ifndef PL_HAVE_TERM_T
+#define PL_HAVE_TERM_T
 typedef	uintptr_t    term_t;
+#endif
 typedef	void *module_t;
 typedef	void *record_t;
 typedef uintptr_t	atom_t;
@@ -219,6 +222,15 @@ typedef void *PL_engine_t;
 #define PL_PARTIAL_LIST	 (41)		/* a partial list */
 #define PL_CYCLIC_TERM	 (42)		/* a cyclic list/term */
 #define PL_NOT_A_LIST	 (43)		/* Object is not a list */
+
+/* Or'ed flags for PL_set_prolog_flag() */
+/* MUST fit in a short int! */
+#define FF_READONLY      0x1000         /* Read-only prolog flag */
+#define FF_KEEP          0x2000         /* keep prolog flag if already se
+t */
+#define FF_NOCREATE      0x4000         /* Fail if flag is non-existent */
+#define FF_MASK          0xf000
+
 
 #define CVT_ATOM	0x0001
 #define CVT_STRING	0x0002
@@ -332,9 +344,6 @@ UNICODE file functions.
 
 #ifdef SIO_MAGIC			/* defined from <SWI-Stream.h> */
 
-#define FF_NOCREATE	 0x4000		/* Fail if flag is non-existent */
-#define FF_MASK		 0xf000
-
 		 /*******************************
 		 *	  STREAM SUPPORT	*
 		 *******************************/
@@ -373,6 +382,10 @@ PL_EXPORT(IOSTREAM *)*_PL_streams(void);	/* base of streams */
 	 PL_WRT_ATTVAR_WRITE | \
 	 PL_WRT_ATTVAR_PORTRAY)
 #define PL_WRT_BLOB_PORTRAY	0x400	/* Use portray to emit non-text blobs */
+#define PL_WRT_NO_CYCLES        0x800   /* Never emit @(Template,Subst) */
+#define PL_WRT_LIST            0x1000   /* Write [...], even with ignoreops */
+#define PL_WRT_NEWLINE         0x2000   /* Add a newline */
+#define PL_WRT_VARNAMES        0x4000   /* Internal: variable_names(List)  */
 
 PL_EXPORT(int) PL_write_term(IOSTREAM *s,
 			     term_t term,
@@ -525,6 +538,7 @@ extern X_API  int PL_is_string(term_t);
 extern X_API  int PL_is_variable(term_t);
 extern X_API  int PL_term_type(term_t);
 extern X_API  int PL_is_inf(term_t);
+extern X_API  int PL_is_acyclic(term_t t);
 /* end PL_is_* functions =============================*/
 extern X_API void PL_halt(int);
 extern X_API  int  PL_initialise(int, char **);
@@ -579,6 +593,7 @@ extern X_API int PL_erase_external(char *);
 extern X_API int PL_action(int,...);
 extern X_API void PL_on_halt(void (*)(int, void *), void *);
 extern X_API void *PL_malloc(size_t);
+extern X_API void *PL_malloc_uncollectable(size_t s);
 extern X_API void *PL_realloc(void*,size_t);
 extern X_API void PL_free(void *);
 extern X_API int  PL_eval_expression_to_int64_ex(term_t t, int64_t *val);
@@ -618,7 +633,7 @@ extern char *PL_prompt_string(int fd);
 PL_EXPORT(int)          PL_get_file_name(term_t n, char **name, int flags);
 PL_EXPORT(int)          PL_get_file_nameW(term_t n, wchar_t **name, int flags);
 PL_EXPORT(void)         PL_changed_cwd(void); /* foreign code changed CWD */
-PL_EXPORT(const char *) PL_cwd(void);
+PL_EXPORT(char *)	PL_cwd(char *buf, size_t buflen);
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 NOTE: the functions in this section are   not  documented, as as yet not
@@ -783,8 +798,6 @@ PL_EXPORT(int)		PL_get_mpq(term_t t, mpq_t mpz);
 PL_EXPORT(int)		PL_unify_mpq(term_t t, mpq_t mpz);
 
 #endif
-
-extern X_API  const char *PL_cwd(void);
 
 void swi_install(void);
 

@@ -1,11 +1,10 @@
-/*  $Id$
-
-    Part of SWI-Prolog
+/*  Part of SWI-Prolog
 
     Author:        Jan Wielemaker
-    E-mail:        wielemak@science.uva.nl
+    E-mail:        J.Wielemaker@vu.nl
     WWW:           http://www.swi-prolog.org
-    Copyright (C): 1985-2007, University of Amsterdam
+    Copyright (C): 1985-2013, University of Amsterdam
+			      VU University Amsterdam
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -19,7 +18,7 @@
 
     You should have received a copy of the GNU Lesser General Public
     License along with this library; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 /*  Modified (M) 1993 Dave Sherratt  */
@@ -29,6 +28,17 @@
 #if OS2 && EMX
 #include <os2.h>                /* this has to appear before pl-incl.h */
 #endif
+
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Solaris has asctime_r() with 3 arguments. Using _POSIX_PTHREAD_SEMANTICS
+is supposed to give the POSIX standard one.
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+#if defined(__sun__) || defined(__sun)
+#define _POSIX_PTHREAD_SEMANTICS 1
+#endif
+
+#define __MINGW_USE_VC2005_COMPAT		/* Get Windows time_t as 64-bit */
 
 #include "pl-incl.h"
 #include "pl-ctype.h"
@@ -96,26 +106,10 @@ static double initial_time;
 static void	initExpand(void);
 static void	cleanupExpand(void);
 static void	initEnviron(void);
-static char *	Which(const char *program, char *fullname);
 
 #ifndef DEFAULT_PATH
 #define DEFAULT_PATH "/bin:/usr/bin"
 #endif
-
-		 /*******************************
-		 *	       GLOBALS		*
-		 *******************************/
-#ifdef HAVE_CLOCK
-long clock_wait_ticks;
-#endif
-
-/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-This module is a contraction of functions that used to be all  over  the
-place.   together  with  pl-os.h  (included  by  pl-incl.h) this file
-should define a basic  layer  around  the  OS,  on  which  the  rest  of
-SWI-Prolog  is  based.
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-
 
 		/********************************
 		*         INITIALISATION        *
@@ -144,20 +138,6 @@ initOs(void)
   setPrologFlagMask(PLFLAG_FILE_CASE);
   setPrologFlagMask(PLFLAG_FILE_CASE_PRESERVING);
 #endif
-
-#ifdef HAVE_CLOCK
-  clock_wait_ticks = 0L;
-#endif
-
-#if OS2
-  { DATETIME i;
-    DosGetDateTime((PDATETIME)&i);
-    initial_time = (i.hours * 3600.0)
-                   + (i.minutes * 60.0)
-		   + i.seconds
-		   + (i.hundredths / 100.0);
-  }
-#endif /* OS2 */
 
   DEBUG(1, Sdprintf("OS:done\n"));
 
@@ -239,11 +219,26 @@ static char errmsg[64];
 #endif /*_SC_CLK_TCK*/
 #endif /*HAVE_TIMES*/
 
+#ifdef HAVE_CLOCK_GETTIME
+#define timespec_to_double(ts) \
+	((double)(ts).tv_sec + (double)(ts).tv_nsec/(double)1000000000.0)
+#endif
 
 double
 CpuTime(cputime_kind which)
 {
-#ifdef HAVE_TIMES
+#if defined(HAVE_CLOCK_GETTIME) && defined(CLOCK_PROCESS_CPUTIME_ID)
+#define CPU_TIME_DONE
+  struct timespec ts;
+  (void)which;
+
+  if ( clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &ts) == 0 )
+    return timespec_to_double(ts);
+  return 0.0;
+#endif
+
+#if !defined(CPU_TIME_DONE) && defined(HAVE_TIMES)
+#define CPU_TIME_DONE
   struct tms t;
   double used;
   static int MTOK_got_hz = FALSE;
@@ -268,38 +263,16 @@ CpuTime(cputime_kind which)
     used = 0.0;				/* happens when running under GDB */
 
   return used;
-#else
+#endif
 
-#if OS2 && EMX
-  DATETIME i;
-
-  DosGetDateTime((PDATETIME)&i);
-  return (((i.hours * 3600)
-                 + (i.minutes * 60)
-		 + i.seconds
-	         + (i.hundredths / 100.0)) - initial_time);
-#else
-
-#ifdef HAVE_CLOCK
-  return (double) (clock() - clock_wait_ticks) / (double) CLOCKS_PER_SEC;
-#else
+#if !defined(CPU_TIME_DONE)
+  (void)which;
 
   return 0.0;
-
-#endif
-#endif
 #endif
 }
 
 #endif /*__WINDOWS__*/
-
-void
-PL_clock_wait_ticks(long waited)
-{
-#ifdef HAVE_CLOCK
-  clock_wait_ticks += waited;
-#endif
-}
 
 
 double
@@ -310,7 +283,7 @@ WallTime(void)
   struct timespec tp;
 
   clock_gettime(CLOCK_REALTIME, &tp);
-  stime = (double)tp.tv_sec + (double)tp.tv_nsec/1000000000.0;
+  stime = timespec_to_double(tp);
 #else
 #ifdef HAVE_GETTIMEOFDAY
   struct timeval tp;
@@ -389,7 +362,7 @@ CpuCount()
 #include <sys/sysctl.h>
 
 int
-CpuCount()
+CpuCount(void)
 { int     count ;
   size_t  size=sizeof(count) ;
 
@@ -415,7 +388,7 @@ setOSPrologFlags(void)
 { int cpu_count = CpuCount();
 
   if ( cpu_count > 0 )
-    PL_set_prolog_flag("cpu_count", PL_INTEGER|FF_READONLY, cpu_count);
+    PL_set_prolog_flag("cpu_count", PL_INTEGER, cpu_count);
 }
 #endif
 
@@ -436,8 +409,7 @@ UsedMemory(void)
   }
 #endif
 
-  return (GD->statistics.heap +
-	  usedStack(global) +
+  return (usedStack(global) +
 	  usedStack(local) +
 	  usedStack(trail));
 }
@@ -448,8 +420,7 @@ FreeMemory(void)
 {
 #if defined(HAVE_GETRLIMIT) && defined(RLIMIT_DATA)
   uintptr_t used = UsedMemory();
-
- struct rlimit limit;
+  struct rlimit limit;
 
   if ( getrlimit(RLIMIT_DATA, &limit) == 0 )
     return limit.rlim_cur - used;
@@ -470,7 +441,7 @@ FreeMemory(void)
     some systems (__WINDOWS__) the seed of rand() is thread-local, while on
     others it is global.  We appear to have the choice between
 
-    	# srand()/rand()
+	# srand()/rand()
 	Differ in MT handling, often bad distribution
 
 	# srandom()/random()
@@ -522,16 +493,14 @@ _PL_Random(void)
   }
 
 #ifdef HAVE_RANDOM
-#if SIZEOF_VOIDP == 4
   { uint64_t l = random();
 
-    l ^= (uint64_t)random()<<32;
+    l ^= (uint64_t)random()<<15;
+    l ^= (uint64_t)random()<<30;
+    l ^= (uint64_t)random()<<45;
 
     return l;
   }
-#else
-  return random();
-#endif
 #else
   { uint64_t l = rand();			/* 0<n<2^15-1 */
 
@@ -845,19 +814,16 @@ struct canonical_dir
 forwards char   *canoniseDir(char *);
 #endif /*O_CANONISE_DIRS*/
 
-#define CWDdir	(LD->os._CWDdir)	/* current directory */
-#define CWDlen	(LD->os._CWDlen)	/* strlen(CWDdir) */
-
 static void
 initExpand(void)
-{ GET_LD
+{
 #ifdef O_CANONISE_DIRS
   char *dir;
   char *cpaths;
 #endif
 
-  CWDdir = NULL;
-  CWDlen = 0;
+  GD->paths.CWDdir = NULL;
+  GD->paths.CWDlen = 0;
 
 #ifdef O_CANONISE_DIRS
 { char envbuf[MAXPATHLEN];
@@ -898,7 +864,15 @@ cleanupExpand(void)
   canonical_dirlist = NULL;
   for( ; dn; dn = next )
   { next = dn->next;
-    free(dn);
+    if ( dn->canonical && dn->canonical != dn->name )
+      remove_string(dn->canonical);
+    remove_string(dn->name);
+    PL_free(dn);
+  }
+  if ( GD->paths.CWDdir )
+  { remove_string(GD->paths.CWDdir);
+    GD->paths.CWDdir = NULL;
+    GD->paths.CWDlen = 0;
   }
 }
 
@@ -925,7 +899,7 @@ registerParentDirs(const char *path)
     }
 
     if ( statfunc(OsPath(dirname, tmp), &buf) == 0 )
-    { CanonicalDir dn   = malloc(sizeof(*dn));
+    { CanonicalDir dn   = PL_malloc(sizeof(*dn));
 
       dn->name		= store_string(dirname);
       dn->inode		= buf.st_ino;
@@ -980,7 +954,7 @@ verify_entry(CanonicalDir d)
     remove_string(d->name);
     if ( d->canonical != d->name )
       remove_string(d->canonical);
-    free(d);
+    PL_free(d);
   }
 
   return FALSE;
@@ -1008,12 +982,12 @@ canoniseDir(char *path)
   }
 
 					/* we need to use malloc() here */
-					/* because allocHeap() only ensures */
+					/* because allocHeapOrHalt() only ensures */
 					/* alignment for `word', and inode_t */
 					/* is sometimes bigger! */
 
   if ( statfunc(OsPath(path, tmp), &buf) == 0 )
-  { CanonicalDir dn = malloc(sizeof(*dn));
+  { CanonicalDir dn = PL_malloc(sizeof(*dn));
     char dirname[MAXPATHLEN];
     char *e = path + strlen(path);
 
@@ -1082,8 +1056,7 @@ cleanupExpand(void)
 char *
 canoniseFileName(char *path)
 { char *out = path, *in = path, *start = path;
-  char *osave[100];
-  int  osavep = 0;
+  tmp_buffer saveb;
 
 #ifdef O_HASDRIVES			/* C: */
   if ( in[1] == ':' && isLetter(in[0]) )
@@ -1092,8 +1065,8 @@ canoniseFileName(char *path)
     out = start = in;
   }
 #ifdef __MINGW32__ /* /c/ in MINGW is the same as c: */
-  if ( in[0] == '/' && isLetter(in[1]) &&
-       in[2] == '/' )
+  else if ( in[0] == '/' && isLetter(in[1]) &&
+	    in[2] == '/' )
   {
     out[0] = in[1];
     out[1] = ':';
@@ -1101,13 +1074,13 @@ canoniseFileName(char *path)
     out = start = in;
   }
 #endif
-
 #endif
+
 #ifdef O_HASSHARES			/* //host/ */
   if ( in[0] == '/' && in[1] == '/' && isAlpha(in[2]) )
   { char *s;
 
-    for(s = in+3; *s && (isAlpha(*s) || *s == '.'); s++)
+    for(s = in+3; *s && (isAlpha(*s) || *s == '-' || *s == '.'); s++)
       ;
     if ( *s == '/' )
     { in = out = s+1;
@@ -1122,7 +1095,8 @@ canoniseFileName(char *path)
     in += 2;
   if ( in[0] == '/' )
     *out++ = '/';
-  osave[osavep++] = out;
+  initBuffer(&saveb);
+  addBuffer(&saveb, out, char*);
 
   while(*in)
   { if (*in == '/')
@@ -1138,15 +1112,15 @@ canoniseFileName(char *path)
 	  }
 	  if ( in[2] == EOS )		/* delete trailing /. */
 	  { *out = EOS;
-	    return path;
+	    goto out;
 	  }
 	  if ( in[2] == '.' && (in[3] == '/' || in[3] == EOS) )
-	  { if ( osavep > 0 )		/* delete /foo/../ */
-	    { out = osave[--osavep];
+	  { if ( !isEmptyBuffer(&saveb) )		/* delete /foo/../ */
+	    { out = popBuffer(&saveb, char*);
 	      in += 3;
 	      if ( in[0] == EOS && out > start+1 )
 	      { out[-1] = EOS;		/* delete trailing / */
-		return path;
+		goto out;
 	      }
 	      goto again;
 	    } else if (	start[0] == '/' && out == start+1 )
@@ -1160,11 +1134,14 @@ canoniseFileName(char *path)
 	in++;
       if ( out > path && out[-1] != '/' )
 	*out++ = '/';
-      osave[osavep++] = out;
+      addBuffer(&saveb, out, char*);
     } else
       *out++ = *in++;
   }
   *out++ = *in++;
+
+out:
+  discardBuffer(&saveb);
 
   return path;
 }
@@ -1201,15 +1178,18 @@ canonisePath(char *path)
 #ifdef O_CANONISE_DIRS
 { char *e;
   char dirname[MAXPATHLEN];
+  size_t plen = strlen(path);
 
-  e = path + strlen(path) - 1;
-  for( ; *e != '/' && e > path; e-- )
-    ;
-  strncpy(dirname, path, e-path);
-  dirname[e-path] = EOS;
-  canoniseDir(dirname);
-  strcat(dirname, e);
-  strcpy(path, dirname);
+  if ( plen > 0 )
+  { e = path + plen - 1;
+    for( ; *e != '/' && e > path; e-- )
+      ;
+    strncpy(dirname, path, e-path);
+    dirname[e-path] = EOS;
+    canoniseDir(dirname);
+    strcat(dirname, e);
+    strcpy(path, dirname);
+  }
 }
 #endif
 
@@ -1238,11 +1218,12 @@ takeWord(const char **string, char *wrd, int maxlen)
 }
 
 
-bool
+char *
 expandVars(const char *pattern, char *expanded, int maxlen)
 { GET_LD
   int size = 0;
   char wordbuf[MAXPATHLEN];
+  char *rc = expanded;
 
   if ( *pattern == '~' )
   { char *user;
@@ -1305,7 +1286,9 @@ expandVars(const char *pattern, char *expanded, int maxlen)
 #endif
     size += (l = (int) strlen(value));
     if ( size+1 >= maxlen )
-      return PL_error(NULL, 0, NULL, ERR_REPRESENTATION, ATOM_max_path_length);
+    { PL_error(NULL, 0, NULL, ERR_REPRESENTATION, ATOM_max_path_length);
+      return NULL;
+    }
     strcpy(expanded, value);
     expanded += l;
     UNLOCK();
@@ -1345,8 +1328,9 @@ expandVars(const char *pattern, char *expanded, int maxlen)
 	  size += (l = (int)strlen(value));
 	  if ( size+1 >= maxlen )
 	  { UNLOCK();
-	    return PL_error(NULL, 0, NULL, ERR_REPRESENTATION,
-			    ATOM_max_path_length);
+	    PL_error(NULL, 0, NULL, ERR_REPRESENTATION,
+		     ATOM_max_path_length);
+	    return NULL;
 	  }
 	  strcpy(expanded, value);
 	  UNLOCK();
@@ -1359,8 +1343,10 @@ expandVars(const char *pattern, char *expanded, int maxlen)
       def:
 	size++;
 	if ( size+1 >= maxlen )
-	  return PL_error(NULL, 0, NULL, ERR_REPRESENTATION,
-			  ATOM_max_path_length);
+	{ PL_error(NULL, 0, NULL, ERR_REPRESENTATION,
+		   ATOM_max_path_length);
+	  return NULL;
+	}
 	*expanded++ = c;
 
 	continue;
@@ -1369,61 +1355,14 @@ expandVars(const char *pattern, char *expanded, int maxlen)
   }
 
   if ( ++size >= maxlen )
-    return PL_error(NULL, 0, NULL, ERR_REPRESENTATION,
-		    ATOM_max_path_length);
+  { PL_error(NULL, 0, NULL, ERR_REPRESENTATION,
+	     ATOM_max_path_length);
+    return NULL;
+  }
+
   *expanded = EOS;
 
-  succeed;
-}
-
-
-static int
-ExpandFile(const char *pattern, char **vector)
-{ char expanded[MAXPATHLEN];
-  int matches = 0;
-
-  if ( !expandVars(pattern, expanded, sizeof(expanded)) )
-    return -1;
-
-  vector[matches++] = store_string(expanded);
-
-  return matches;
-}
-
-
-char *
-ExpandOneFile(const char *spec, char *file)
-{ GET_LD
-  char *vector[256];
-  int size;
-
-  switch( (size=ExpandFile(spec, vector)) )
-  { case -1:
-      return NULL;
-    case 0:
-    { term_t tmp = PL_new_term_ref();
-
-      PL_put_atom_chars(tmp, spec);
-      PL_error(NULL, 0, "no match", ERR_EXISTENCE, ATOM_file, tmp);
-
-      return NULL;
-    }
-    case 1:
-      strcpy(file, vector[0]);
-      remove_string(vector[0]);
-      return file;
-    default:
-    { term_t tmp = PL_new_term_ref();
-      int n;
-
-      for(n=0; n<size; n++)
-	remove_string(vector[n]);
-      PL_put_atom_chars(tmp, spec);
-      PL_error(NULL, 0, "ambiguous", ERR_EXISTENCE, ATOM_file, tmp);
-
-      return NULL;
-    }
-  }
+  return rc;
 }
 
 
@@ -1507,7 +1446,7 @@ AbsoluteFile(const char *spec, char *path)
   if ( !file )
      return (char *) NULL;
   if ( truePrologFlag(PLFLAG_FILEVARS) )
-  { if ( !(file = ExpandOneFile(buf, tmp)) )
+  { if ( !(file = expandVars(buf, tmp, sizeof(tmp))) )
       return (char *) NULL;
   }
 
@@ -1530,17 +1469,17 @@ AbsoluteFile(const char *spec, char *path)
   }
 #endif /*O_HASDRIVES*/
 
-  if ( !PL_cwd() )
+  if ( !PL_cwd(path, MAXPATHLEN) )
     return NULL;
 
-  if ( (CWDlen + strlen(file) + 1) >= MAXPATHLEN )
+  if ( (GD->paths.CWDlen + strlen(file) + 1) >= MAXPATHLEN )
   { PL_error(NULL, 0, NULL, ERR_REPRESENTATION, ATOM_max_path_length);
     return (char *) NULL;
   }
 
-  strcpy(path, CWDdir);
+  strcpy(path, GD->paths.CWDdir);
   if ( file[0] != EOS )
-    strcpy(&path[CWDlen], file);
+    strcpy(&path[GD->paths.CWDlen], file);
   if ( strchr(file, '.') || strchr(file, '/') )
     return canonisePath(path);
   else
@@ -1550,20 +1489,20 @@ AbsoluteFile(const char *spec, char *path)
 
 void
 PL_changed_cwd(void)
-{ GET_LD
-
-  if ( CWDdir )
-    remove_string(CWDdir);
-  CWDdir = NULL;
-  CWDlen = 0;
+{ LOCK();
+  if ( GD->paths.CWDdir )
+    remove_string(GD->paths.CWDdir);
+  GD->paths.CWDdir = NULL;
+  GD->paths.CWDlen = 0;
+  UNLOCK();
 }
 
 
-const char *
-PL_cwd(void)
+static char *
+cwd_unlocked(char *cwd, size_t cwdlen)
 { GET_LD
 
-  if ( CWDlen == 0 )
+  if ( GD->paths.CWDlen == 0 )
   { char buf[MAXPATHLEN];
     char *rval;
 
@@ -1593,16 +1532,34 @@ to be implemented directly.  What about other Unixes?
     }
 
     canonisePath(buf);
-    CWDlen = strlen(buf);
-    buf[CWDlen++] = '/';
-    buf[CWDlen] = EOS;
+    GD->paths.CWDlen = strlen(buf);
+    buf[GD->paths.CWDlen++] = '/';
+    buf[GD->paths.CWDlen] = EOS;
 
-    if ( CWDdir )
-      remove_string(CWDdir);
-    CWDdir = store_string(buf);
+    if ( GD->paths.CWDdir )
+      remove_string(GD->paths.CWDdir);
+    GD->paths.CWDdir = store_string(buf);
   }
 
-  return (const char *)CWDdir;
+  if ( GD->paths.CWDlen < cwdlen )
+  { memcpy(cwd, GD->paths.CWDdir, GD->paths.CWDlen+1);
+    return cwd;
+  } else
+  { PL_error(NULL, 0, NULL, ERR_REPRESENTATION, ATOM_max_path_length);
+    return NULL;
+  }
+}
+
+
+char *
+PL_cwd(char *cwd, size_t cwdlen)
+{ char *rc;
+
+  LOCK();
+  rc = cwd_unlocked(cwd, cwdlen);
+  UNLOCK();
+
+  return rc;
 }
 
 
@@ -1652,14 +1609,13 @@ DirName(const char *f, char *dir)
 
 bool
 ChDir(const char *path)
-{ GET_LD
-  char ospath[MAXPATHLEN];
+{ char ospath[MAXPATHLEN];
   char tmp[MAXPATHLEN];
 
   OsPath(path, ospath);
 
   if ( path[0] == EOS || streq(path, ".") ||
-       (CWDdir && streq(path, CWDdir)) )
+       (GD->paths.CWDdir && streq(path, GD->paths.CWDdir)) )
     succeed;
 
   AbsoluteFile(path, tmp);
@@ -1672,10 +1628,12 @@ ChDir(const char *path)
     { tmp[len++] = '/';
       tmp[len] = EOS;
     }
-    CWDlen = len;
-    if ( CWDdir )
-      remove_string(CWDdir);
-    CWDdir = store_string(tmp);
+    LOCK();					/* Lock with PL_changed_cwd() */
+    GD->paths.CWDlen = len;			/* and PL_cwd() */
+    if ( GD->paths.CWDdir )
+      remove_string(GD->paths.CWDdir);
+    GD->paths.CWDdir = store_string(tmp);
+    UNLOCK();
 
     succeed;
   }
@@ -1689,7 +1647,7 @@ ChDir(const char *path)
 		*********************************/
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    struct tm *LocalTime(time_t time, struct tm *r)
+    struct tm *PL_localtime_r(time_t time, struct tm *r)
 
     Convert time in Unix internal form (seconds since Jan 1 1970) into a
     structure providing easier access to the time.
@@ -1713,16 +1671,51 @@ ChDir(const char *path)
     time_t Time()
 
     Return time in seconds after Jan 1 1970 (Unix' time notion).
+
+Note: MinGW has localtime_r(),  but  it  is   not  locked  and  thus not
+thread-safe. MinGW does not have localtime_s(), but   we  test for it in
+configure.
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 struct tm *
-LocalTime(long *t, struct tm *r)
+PL_localtime_r(const time_t *t, struct tm *r)
 {
-#if defined(_REENTRANT) && defined(HAVE_LOCALTIME_R)
+#ifdef HAVE_LOCALTIME_R
   return localtime_r(t, r);
 #else
-  *r = *localtime((const time_t *) t);
+#ifdef HAVE_LOCALTIME_S
+  return localtime_s(r, t) == EINVAL ? NULL : t;
+#else
+  struct tm *rc;
+
+  LOCK();
+  if ( (rc = localtime(t)) )
+    *r = *rc;
+  else
+    r = NULL;
+  UNLOCK();
+
   return r;
+#endif
+#endif
+}
+
+char *
+PL_asctime_r(const struct tm *tm, char *buf)
+{
+#ifdef HAVE_ASCTIME_R
+  return asctime_r(tm, buf);
+#else
+  char *rc;
+
+  LOCK();
+  if ( (rc = asctime(tm)) )
+    strcpy(buf, rc);
+  else
+    buf = NULL;
+  UNLOCK();
+
+  return buf;
 #endif
 }
 
@@ -1857,7 +1850,7 @@ PushTty(IOSTREAM *s, ttybuf *buf, int mode)
   if ( !truePrologFlag(PLFLAG_TTY_CONTROL) )
     succeed;
 
-  buf->state = allocHeap(sizeof(tty_state));
+  buf->state = allocHeapOrHalt(sizeof(tty_state));
 
 #ifdef HAVE_TCSETATTR
   if ( tcgetattr(fd, &TTY_STATE(buf)) )	/* save the old one */
@@ -1915,9 +1908,7 @@ PushTty(IOSTREAM *s, ttybuf *buf, int mode)
 
 bool
 PopTty(IOSTREAM *s, ttybuf *buf, int do_free)
-{ GET_LD
-
-  ttymode = buf->mode;
+{ ttymode = buf->mode;
 
   if ( buf->state )
   { int fd = Sfileno(s);
@@ -1963,7 +1954,7 @@ PushTty(IOSTREAM *s, ttybuf *buf, int mode)
   if ( !truePrologFlag(PLFLAG_TTY_CONTROL) )
     succeed;
 
-  buf->state = allocHeap(sizeof(tty_state));
+  buf->state = allocHeapOrHalt(sizeof(tty_state));
 
   if ( ioctl(fd, TIOCGETP, &TTY_STATE(buf)) )  /* save the old one */
     fail;
@@ -2178,7 +2169,7 @@ growEnviron(char **e, int amount)
     for(e1=e, filled=0; *e1; e1++, filled++)
       ;
     size = ROUND(filled+10+amount, 32);
-    env = (char **)malloc(size * sizeof(char *));
+    env = (char **)PL_malloc(size * sizeof(char *));
     for ( e1=e, e2=env; *e1; *e2++ = *e1++ )
       ;
     *e2 = (char *) NULL;
@@ -2192,7 +2183,7 @@ growEnviron(char **e, int amount)
   { char **env, **e1, **e2;
 
     size += 32;
-    env = (char **)realloc(e, size * sizeof(char *));
+    env = (char **)PL_realloc(e, size * sizeof(char *));
     for ( e1=e, e2=env; *e1; *e2++ = *e1++ )
       ;
     *e2 = (char *) NULL;
@@ -2224,9 +2215,9 @@ matchName(const char *e, const char *name)
 
 static void
 setEntry(char **e, char *name, char *value)
-{ int l = (int)strlen(name);
+{ size_t l = strlen(name);
 
-  *e = (char *) malloc(l + strlen(value) + 2);
+  *e = PL_malloc_atomic(l + strlen(value) + 2);
   strcpy(*e, name);
   e[0][l++] = '=';
   strcpy(&e[0][l], value);
@@ -2292,7 +2283,7 @@ Unsetenv(char *name)
     an alternative.
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#if defined(__unix__)
+#ifdef __unix__
 #define SPECIFIC_SYSTEM 1
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2465,30 +2456,15 @@ char *command;
 
 #endif
 
-/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-[candidate]
-
-exec(+Cmd, [+In, +Out, +Error], -Pid)
-
-The streams may be one of standard   stream,  std, null stream, null, or
-pipe(S), where S is a pipe stream
-
-Detach if none is std!
-
-TBD: Sort out status. The above is SICStus 3. YAP uses `Status' for last
-argument (strange). SICStus 4 appears to drop this altogether.
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-
-
-
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    char *Symbols(char *buf)
+    char *findExecutable(char *buf)
 
     Return the path name of the executable of SWI-Prolog.
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 #ifndef __WINDOWS__			/* Win32 version in pl-nt.c */
+static char *	Which(const char *program, char *fullname);
 
 char *
 findExecutable(const char *av0, char *buffer)
@@ -2500,7 +2476,7 @@ findExecutable(const char *av0, char *buffer)
     return NULL;
   file = Which(buf, tmp);
 
-#if __unix__ 		/* argv[0] can be an #! script! */
+#if __unix__				/* argv[0] can be an #! script! */
   if ( file )
   { int n, fd;
     char buf[MAXPATHLEN];
@@ -2532,14 +2508,8 @@ findExecutable(const char *av0, char *buffer)
 
   return strcpy(buffer, file ? file : buf);
 }
-#endif /*__WINDOWS__*/
 
-
-#if defined(OS2) || defined(__DOS__) || defined(__WINDOWS__)
-#define EXEC_EXTENSIONS { ".exe", ".com", ".bat", ".cmd", NULL }
-#define PATHSEP ';'
-#else
-/* not Windows, must be a Linux-like thingy */
+#ifdef __unix__
 static char *
 okToExec(const char *s)
 { statstruct stbuff;
@@ -2552,6 +2522,11 @@ okToExec(const char *s)
     return (char *) NULL;
 }
 #define PATHSEP	':'
+#endif /* __unix__ */
+
+#if defined(OS2) || defined(__DOS__) || defined(__WINDOWS__)
+#define EXEC_EXTENSIONS { ".exe", ".com", ".bat", ".cmd", NULL }
+#define PATHSEP ';'
 #endif
 
 #ifdef EXEC_EXTENSIONS
@@ -2636,6 +2611,7 @@ Which(const char *program, char *fullname)
   return NULL;
 }
 
+#endif /*__WINDOWS__*/
 
 /** int Pause(double time)
 

@@ -1663,6 +1663,10 @@ YAP_Execute(PredEntry *pe, CPredicate exec_code)
 {
   CACHE_REGS
   Int ret;
+  //  Term omod = CurrentModule;
+  //if (pe->PredFlags & CArgsPredFlag) {
+  //  CurrentModule = pe->ModuleOfPred;
+  //}
   if (pe->PredFlags & SWIEnvPredFlag) {
     CPredicateV codev = (CPredicateV)exec_code;
     struct foreign_context ctx;
@@ -1683,6 +1687,7 @@ YAP_Execute(PredEntry *pe, CPredicate exec_code)
     ret = (exec_code)( PASS_REGS1 );
   }
   PP = NULL;
+  //CurrentModule = omod;
   if (!ret) {
     Term t;
 
@@ -2429,6 +2434,8 @@ YAP_RunGoal(Term t)
     Yap_StartSlots( PASS_REGS1 );
   } else {
     ENV = B->cp_env;
+    ENV = (CELL *)ENV[E_E];
+    CP = old_CP;
     B = B->cp_b;
     LOCAL_AllowRestart = FALSE;
   }
@@ -2503,11 +2510,13 @@ YAP_RunGoalOnce(Term t)
   Term out;
   yamop *old_CP = CP;
   Int oldPrologMode = LOCAL_PrologMode;
+  Int oldSlot = CurSlot;
 
   BACKUP_MACHINE_REGS();
   LOCAL_PrologMode = UserMode;
   out = Yap_RunTopGoal(t);
   LOCAL_PrologMode = oldPrologMode;
+  CurSlot = oldSlot;
   if (!(oldPrologMode & UserCCallMode)) {
     /* called from top-level */
     LOCAL_AllowRestart = FALSE;
@@ -2538,10 +2547,9 @@ YAP_RunGoalOnce(Term t)
     B = cut_pt;
   }
   ASP = B->cp_env;
-  Yap_PopSlots( PASS_REGS1 );
   ENV = (CELL *)ASP[E_E];
   B = (choiceptr)ASP[E_CB];
-#ifdef  DEPTH_LIMIT
+#ifdef  DEPTH_LIMITxs
   DEPTH = ASP[E_DEPTH];
 #endif
   P = (yamop *)ASP[E_CP];
@@ -2567,7 +2575,6 @@ YAP_RestartGoal(void)
     if (out == FALSE) {
       /* cleanup */
       Yap_trust_last();
-      Yap_CloseSlots( PASS_REGS1 );
       LOCAL_AllowRestart = FALSE;
     }
   } else { 
@@ -3043,42 +3050,11 @@ YAP_Init(YAP_init_args *yap_init)
 	      yap_init->SchedulerLoop,
 	      yap_init->DelayedReleaseLoad
 	      );
-#if THREADS
-  /* make sure we use the correct value of regcache */
-  regcache =  ((REGSTORE *)pthread_getspecific(Yap_yaamregs_key));
-#endif
-#if USE_SYSTEM_MALLOC
-  if (Trail < MinTrailSpace)
-    Trail = MinTrailSpace;
-  if (Stack < MinStackSpace)
-    Stack = MinStackSpace;
-  if (!(LOCAL_GlobalBase = (ADDR)malloc((Trail+Stack)*1024))) {
-    yap_init->ErrorNo = RESOURCE_ERROR_MEMORY;
-    yap_init->ErrorCause = "could not allocate stack space for main thread";
-    return YAP_BOOT_ERROR;
-  }
-#if THREADS
-  /* don't forget this is a thread */
-  LOCAL_ThreadHandle.stack_address =  LOCAL_GlobalBase;
-  LOCAL_ThreadHandle.ssize =  Trail+Stack;
-#endif
-#endif
-  GLOBAL_AllowGlobalExpansion = TRUE;
-  GLOBAL_AllowLocalExpansion = TRUE;
-  GLOBAL_AllowTrailExpansion = TRUE;
-  Yap_InitExStacks (0, Trail, Stack);
   if (yap_init->QuietMode) {
     yap_flags[QUIET_MODE_FLAG] = TRUE;
   }
 
-  { BACKUP_MACHINE_REGS();
-    Yap_InitYaamRegs( 0 );
-
-#if HAVE_MPE
-    Yap_InitMPE ();
-#endif
-    
-    if (yap_init->YapPrologRCFile != NULL) {
+  { if (yap_init->YapPrologRCFile != NULL) {
       /*
 	This must be done before restore, otherwise
 	restore will print out messages ....

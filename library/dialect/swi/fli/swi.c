@@ -1738,6 +1738,12 @@ X_API int PL_is_ground(term_t t)
   return Yap_IsGroundTerm(Yap_GetFromSlot(t PASS_REGS));
 }
 
+X_API int PL_is_acyclic(term_t t)
+{
+  CACHE_REGS
+  return Yap_IsAcyclicTerm(Yap_GetFromSlot(t PASS_REGS));
+}
+
 X_API int PL_is_callable(term_t t)
 {
   CACHE_REGS
@@ -2196,6 +2202,7 @@ PL_open_foreign_frame(void)
   new->open = FALSE;
   new->cp = CP;
   new->p = P;
+  new->flags = 0;
   new->b = (CELL)(LCL0-(CELL*)B);
   new->slots = CurSlot;
   LOCAL_execution = new;
@@ -2226,6 +2233,8 @@ PL_close_foreign_frame(fid_t f)
   CurSlot = env->slots;
   B = (choiceptr)(LCL0-env->b);
   ASP = (CELL *)(LCL0-CurSlot);
+  EX = NULL;
+  LOCAL_BallTerm = EX;
   LOCAL_execution = env->old;
   free(env);
 }
@@ -2274,6 +2283,8 @@ PL_discard_foreign_frame(fid_t f)
   LOCAL_execution = env->old;
   ASP = LCL0-CurSlot;
   B = B->cp_b;
+  EX = NULL;
+  LOCAL_BallTerm = EX;
   free(env);
 }
 
@@ -2285,9 +2296,22 @@ X_API qid_t PL_open_query(module_t ctx, int flags, predicate_t p, term_t t0)
   Term t[2], m;
 
   /* ignore flags  and module for now */
-  PL_open_foreign_frame();
+  if (!LOCAL_execution) {
+    open_query *new = (open_query *)malloc(sizeof(open_query));
+    if (!new) return 0;
+    new->old = LOCAL_execution;
+    new->g = TermNil;
+    new->open = FALSE;
+    new->cp = CP;
+    new->p = P;
+    new->b = (CELL)(LCL0-(CELL*)B);
+    new->slots = CurSlot;
+    new->flags = 0;
+    LOCAL_execution = new;
+  }
   LOCAL_execution->open=1;
   LOCAL_execution->state=0;
+  LOCAL_execution->flags = flags;
   PredicateInfo((PredEntry *)p, &yname, &arity, &m);
   t[0] = SWIModuleToModule(ctx);
   if (arity == 0) {
@@ -2346,9 +2370,15 @@ X_API void PL_cut_query(qid_t qi)
 
 X_API void PL_close_query(qid_t qi)
 {
+  CACHE_REGS
+  EX = NULL;
+  if (EX && !(qi->flags & (PL_Q_CATCH_EXCEPTION|PL_Q_PASS_EXCEPTION))) {
+    EX = NULL;
+  }
   /* need to implement backtracking here */
-  if (qi->open != 1 || qi->state == 0)
+  if (qi->open != 1 || qi->state == 0) {
     return;
+  }
   YAP_PruneGoal();
   YAP_RestartGoal();
   qi->open = 0;
@@ -2784,6 +2814,11 @@ PL_query(int query)
   }
 }  
 
+X_API void
+PL_cleanup_fork(void)
+{
+}  
+
 
 X_API void (*PL_signal(int sig, void (*func)(int)))(int)
 {
@@ -2796,10 +2831,105 @@ X_API void PL_on_halt(void (*f)(int, void *), void *closure)
   Yap_HaltRegisterHook((HaltHookFunc)f,closure);
 }
 
-X_API char *PL_atom_generator(const char *prefix, int state)
+#define is_signalled() unlikely(LD && LD->signal.pending != 0)
+
+#ifdef O_PLMT
+#include <pthread.h>
+static pthread_key_t atomgen_key;
+#endif
+
+typedef struct scan_atoms {
+  Int pos;
+  Atom atom;
+} scan_atoms_t;
+
+static inline int
+str_prefix(const char *p0, char *s)
 {
+  char *p = (char *)p0;
+  while (*p && *p == *s) { p++; s++; }
+  return p[0] == '\0';
+}
+
+static int
+atom_generator(const char *prefix, char **hit, int state)
+{
+  struct scan_atoms *index;
+  Atom            catom;
+  Int            i;
+
+#ifdef O_PLMT
+  if ( !atomgen_key ) {
+    pthread_key_create(&atomgen_key, NULL);
+    state = FALSE;
+  }
+#endif
+
+  if ( !state )
+    { index = (struct scan_atoms *)malloc(sizeof(struct scan_atoms));
+      i = 0;
+      catom = NIL;
+  } else
+  {
+#ifdef O_PLMT
+    index = (struct scan_atoms *)pthread_getspecific(atomgen_key);
+#else
+    index = LOCAL_search_atoms;
+#endif
+    catom = index->atom;
+    i = index->pos;
+  }
+
+  while (catom != NIL || i < AtomHashTableSize) {
+    //    if ( is_signalled() )		/* Notably allow windows version */
+      //      PL_handle_signals();		/* to break out on ^C */
+    AtomEntry *ap;
+
+    if (catom == NIL) {
+      /* move away from current hash table line */
+      READ_LOCK(HashChain[i].AERWLock);
+      catom = HashChain[i].Entry;
+      READ_UNLOCK(HashChain[i].AERWLock);
+      i++;
+    } else {
+      ap = RepAtom(catom);
+      READ_LOCK(ap->ARWLock);
+      if ( str_prefix(prefix, ap->StrOfAE) ) {
+	index->pos = i;
+	index->atom = ap->NextOfAE;
+#ifdef O_PLMT
+	pthread_setspecific(atomgen_key,index);
+#else
+	LOCAL_search_atoms = index;
+#endif
+	*hit = ap->StrOfAE;
+	READ_UNLOCK(ap->ARWLock);
+	return TRUE;
+      }
+      catom = ap->NextOfAE;
+      READ_UNLOCK(ap->ARWLock);
+    }
+  }
+#ifdef O_PLMT
+  pthread_setspecific(atomgen_key,NULL);
+#else
+  LOCAL_search_atoms = NULL;
+#endif
+  free(index);
+  return FALSE;
+}
+
+
+char *
+PL_atom_generator(const char *prefix, int state)
+{
+  char * hit = NULL;
+  if (atom_generator(prefix, &hit, state)) {
+    return hit;
+  }
   return NULL;
 }
+
 
 X_API pl_wchar_t *PL_atom_generator_w(const pl_wchar_t *pref, pl_wchar_t *buffer, size_t buflen, int state)
 {

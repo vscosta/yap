@@ -5416,14 +5416,42 @@ Yap_dump_code_area_for_profiler(void) {
 #endif /* LOW_PROF */
 
 static UInt
-index_ssz(StaticIndex *x)
+tree_index_ssz(StaticIndex *x)
 {
   UInt sz = x->ClSize;
   x = x->ChildIndex;
   while (x != NULL) {
-    sz += index_ssz(x);
+    sz +=  tree_index_ssz(x);
     x = x->SiblingIndex;
   }
+  return sz;
+}
+
+static UInt
+index_ssz(StaticIndex *x, PredEntry *pe)
+{
+  UInt sz = 0;
+  yamop *ep = ExpandClausesFirst;
+  if (pe->PredFlags & MegaClausePredFlag) {
+    MegaClause *mcl = ClauseCodeToMegaClause(pe->cs.p_code.FirstClause);
+    if (mcl->ClFlags & ExoMask) {
+      struct index_t *i = ((struct index_t **)(pe->cs.p_code.FirstClause))[0];
+      sz = 0;
+
+      while (i) {
+	sz = i->size+sz;
+      }
+      return sz;
+    }
+  }
+  /* expand clause blocks */
+  while (ep) {
+    if (ep->u.sssllp.p == pe)
+      sz += (UInt)NEXTOP((yamop *)NULL,sssllp)+ep->u.sssllp.s1*sizeof(yamop *);
+    ep = ep->u.sssllp.snext;
+  }
+  /* main indexing tree */
+  sz += tree_index_ssz(x);
   return sz;
 }
 
@@ -5431,12 +5459,12 @@ static Int
 static_statistics(PredEntry *pe)
 {
   CACHE_REGS
-  UInt sz = 0, cls = 0, isz = 0;
+  UInt sz = sizeof(PredEntry), cls = 0, isz = 0;
   StaticClause *cl = ClauseCodeToStaticClause(pe->cs.p_code.FirstClause);
 
   if (pe->cs.p_code.NOfClauses > 1 &&
       pe->cs.p_code.TrueCodeOfPred != pe->cs.p_code.FirstClause) {
-    isz = index_ssz(ClauseCodeToStaticIndex(pe->cs.p_code.TrueCodeOfPred));
+    isz = index_ssz(ClauseCodeToStaticIndex(pe->cs.p_code.TrueCodeOfPred), pe);
   }
   if (pe->PredFlags & MegaClausePredFlag) {
     MegaClause *mcl = ClauseCodeToMegaClause(pe->cs.p_code.FirstClause);

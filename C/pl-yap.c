@@ -178,6 +178,23 @@ Yap_SetDefaultEncoding(IOENC new_encoding)
 }
 
 int
+PL_qualify(term_t raw, term_t qualified)
+{ GET_LD
+  Module m = NULL;
+  term_t mname;
+
+  if ( !(mname = PL_new_term_ref()) ||
+       !PL_strip_module(raw, &m, qualified) )
+    return FALSE;
+  
+  /* modules are terms in YAP */
+  Yap_PutInSlot(mname, (Term)m PASS_REGS);
+
+  return PL_cons_functor(qualified, FUNCTOR_colon2, mname, qualified);
+}
+
+
+int
 valueExpression(term_t t, Number r ARG_LD)
 {
   YAP_Term t0 = Yap_Eval(YAP_GetFromSlot(t));
@@ -284,6 +301,8 @@ int
 _PL_unify_atomic(term_t t, PL_atomic_t a)
 {
   GET_LD
+    if (IsApplTerm(a) || IsAtomTerm(a))
+  return Yap_unify(Yap_GetFromSlot(t PASS_REGS), a);
   return PL_unify_atom(t, a);
 }
 
@@ -482,8 +501,6 @@ PL_set_prolog_flag(const char *name, int type, ...)
   int rval = TRUE;
   int flags = (type & FF_MASK);
 
-  initPrologFlagTable();
-
   va_start(args, type);
   switch(type & ~FF_MASK)
   { case PL_BOOL:
@@ -496,7 +513,7 @@ PL_set_prolog_flag(const char *name, int type, ...)
     { const char *v = va_arg(args, const char *);
 #ifndef __YAP_PROLOG__
       if ( !GD->initialised )
-	initAtoms();
+        initAtoms();
 #endif
       setPrologFlag(name, FT_ATOM|flags, v);
       break;
@@ -509,11 +526,10 @@ PL_set_prolog_flag(const char *name, int type, ...)
     default:
       rval = FALSE;
   }
-
   va_end(args);
+
   return rval;
 }
-
 
 
 int
@@ -759,6 +775,12 @@ PL_get_list_nchars(term_t l, size_t *length, char **s, unsigned int flags)
   }
 
   fail;
+}
+
+void *
+PL_malloc_uncollectable(size_t sz)
+{
+  return malloc(sz);
 }
 
 int
@@ -1212,6 +1234,68 @@ nameOfWideAtom(atom_t atom)
   Atom a = (Atom)atomValue(atom);
   return RepAtom(a)->WStrOfAE;
 }
+
+access_level_t
+setAccessLevel(access_level_t accept)
+{ GET_LD
+  bool old;
+
+  old = LD->prolog_flag.access_level;
+  LD->prolog_flag.access_level = accept;
+  return old;
+}
+
+static bool
+vsysError(const char *fm, va_list args)
+{ GET_LD
+  static int active = 0;
+
+  switch ( active++ )
+  { case 1:
+      PL_halt(3);
+    case 2:
+      abort();
+  }
+
+#ifdef O_PLMT
+  Sfprintf(Serror, "[PROLOG SYSTEM ERROR:  Thread %d\n\t",
+	   PL_thread_self());
+#else
+  Sfprintf(Serror, "[PROLOG SYSTEM ERROR:\n\t");
+#endif
+  Svfprintf(Serror, fm, args);
+
+#if defined(O_DEBUGGER)
+  Sfprintf(Serror, "\n\nPROLOG STACK:\n");
+  PL_backtrace(10, 0);
+  Sfprintf(Serror, "]\n");
+#endif /*O_DEBUGGER*/
+
+#ifdef HAVE_GETPID
+  Sfprintf(Serror, "\n[pid=%d] Action? ", getpid());
+#else
+  Sfprintf(Serror, "\nAction? ");
+#endif
+  Sflush(Soutput);
+  ResetTty();
+
+  PL_halt(3);
+
+  return FALSE;					/* not reached */
+}
+
+
+bool
+sysError(const char *fm, ...)
+{ va_list args;
+
+  va_start(args, fm);
+  vsysError(fm, args);
+  va_end(args);
+
+  PL_fail;
+}
+
 
 
 #if THREADS

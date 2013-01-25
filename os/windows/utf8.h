@@ -19,7 +19,7 @@
 
     You should have received a copy of the GNU Lesser General Public
     License along with this library; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 
@@ -52,7 +52,7 @@
 	((chr) < 0x80 ? out[0]=(char)(chr), out+1 \
 		      : _xos_utf8_put_char(out, (chr)))
 
-extern char *_xos_utf8_get_char(const char *in, int *chr);
-extern char *_xos_utf8_put_char(char *out, int chr);
+static char *_xos_utf8_get_char(const char *in, int *chr);
+static char *_xos_utf8_put_char(char *out, int chr);
 
 #endif /*UTF8_H_INCLUDED*/

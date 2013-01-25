@@ -1,11 +1,10 @@
-/*  $Id$
-
-    Part of SWI-Prolog
+/*  Part of SWI-Prolog
 
     Author:        Jan Wielemaker
-    E-mail:        J.Wielemaker@uva.nl
+    E-mail:        J.Wielemaker@vu.nl
     WWW:           http://www.swi-prolog.org
-    Copyright (C): 1985-2009, University of Amsterdam
+    Copyright (C): 1985-2012, University of Amsterdam
+			      VU University Amsterdam
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -19,21 +18,24 @@
 
     You should have received a copy of the GNU Lesser General Public
     License along with this library; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#if defined(__WINDOWS__)||defined(__WIN32)
-#include <windows/uxnt.h>
-#ifndef _YAP_NOT_INSTALLED_
-#ifdef WIN64
-#define MD "config/win64.h"
+#if defined(__WINDOWS__)|| defined(__WIN32)
+#include "windows/uxnt.h"
+#ifdef _YAP_NOT_INSTALLED_
+#include <config.h>
 #else
-#define MD "config/win32.h"
+#ifdef WIN64
+#include "config/win64.h"
+#else
+#include "config/win32.h"
 #endif
 #endif
 #include <winsock2.h>
-#include "windows/mswchar.h"
 #define CRLF_MAPPING 1
+#else
+#include <config.h>
 #endif
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -48,12 +50,6 @@ recursive locks. If a stream handle  might   be  known to another thread
 locking is required.
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#ifdef MD
-#include MD
-#else
-#include <config.h>
-#endif
-
 #if _FILE_OFFSET_BITS == 64 || defined(_LARGE_FILES)
 #define O_LARGEFILES 1		/* use for conditional code in Prolog */
 #else
@@ -62,8 +58,9 @@ locking is required.
 
 #define PL_KERNEL 1
 #include <wchar.h>
-typedef wchar_t pl_wchar_t;
+#define NEEDS_SWINSOCK
 #include "SWI-Stream.h"
+#include "SWI-Prolog.h"
 #include "pl-utf8.h"
 #include <sys/types.h>
 #ifdef HAVE_SYS_TIME_H
@@ -104,7 +101,7 @@ typedef wchar_t pl_wchar_t;
 #endif
 
 #define ROUND(p, n) ((((p) + (n) - 1) & ~((n) - 1)))
-#define UNDO_SIZE ROUND(MB_LEN_MAX, sizeof(wchar_t))
+#define UNDO_SIZE ROUND(PL_MB_LEN_MAX, sizeof(wchar_t))
 
 #ifndef FALSE
 #define FALSE 0
@@ -127,7 +124,7 @@ static int	S__seterror(IOSTREAM *s);
 #ifdef O_PLMT
 #define SLOCK(s)    if ( s->mutex ) recursiveMutexLock(s->mutex)
 #define SUNLOCK(s)  if ( s->mutex ) recursiveMutexUnlock(s->mutex)
-static inline int
+inline int
 STRYLOCK(IOSTREAM *s)
 { if ( s->mutex &&
        recursiveMutexTryLock(s->mutex) == EBUSY )
@@ -141,13 +138,9 @@ STRYLOCK(IOSTREAM *s)
 #define STRYLOCK(s) (TRUE)
 #endif
 
-typedef void *record_t;
-typedef void *Module;
-typedef intptr_t term_t;
-typedef intptr_t atom_t;
 #include "pl-error.h"
 
-extern int 			fatalError(const char *fm, ...);
+extern int			fatalError(const char *fm, ...);
 extern int			PL_handle_signals(void);
 extern IOENC			initEncoding(void);
 extern int			reportStreamError(IOSTREAM *s);
@@ -369,6 +362,69 @@ Sunlock(IOSTREAM *s)
 
 
 		 /*******************************
+		 *		TIMEOUT		*
+		 *******************************/
+
+#ifdef HAVE_SELECT
+
+#ifndef __WINDOWS__
+typedef int SOCKET;
+#define INVALID_SOCKET -1
+#define Swinsock(s) Sfileno(s)
+#define NFDS(n) (n+1)
+#else
+#define NFDS(n) (0)			/* 1st arg of select is ignored */
+#endif
+
+
+static int
+S__wait(IOSTREAM *s)
+{ SOCKET fd = Swinsock(s);
+  fd_set wait;
+  struct timeval time;
+  int rc;
+
+  if ( fd == INVALID_SOCKET )
+  { errno = EPERM;			/* no permission to select */
+    s->flags |= SIO_FERR;
+    return -1;
+  }
+
+  time.tv_sec  = s->timeout / 1000;
+  time.tv_usec = (s->timeout % 1000) * 1000;
+  FD_ZERO(&wait);
+  FD_SET(fd, &wait);
+
+  for(;;)
+  { if ( (s->flags & SIO_INPUT) )
+      rc = select(NFDS(fd), &wait, NULL, NULL, &time);
+    else
+      rc = select(NFDS(fd), NULL, &wait, NULL, &time);
+
+    if ( rc < 0 && errno == EINTR )
+    { if ( PL_handle_signals() < 0 )
+      { errno = EPLEXCEPTION;
+	return -1;
+      }
+
+      continue;
+    }
+
+    break;
+  }
+
+  if ( rc == 0 )
+  { s->flags |= (SIO_TIMEOUT|SIO_FERR);
+    return -1;
+  }
+
+  return 0;				/* ok, data available */
+}
+
+#endif /*HAVE_SELECT*/
+
+
+		 /*******************************
 		 *	     FLUSH/FILL		*
 		 *******************************/
 
@@ -385,7 +441,18 @@ S__flushbuf(IOSTREAM *s)
 
   while ( from < to )
   { size_t size = (size_t)(to - from);
-    ssize_t n = (*s->functions->write)(s->handle, from, size);
+    ssize_t n;
+
+#ifdef HAVE_SELECT
+    s->flags &= ~SIO_TIMEOUT;
+
+    if ( s->timeout >= 0 )
+    { if ( (rc=S__wait(s)) < 0 )
+	goto partial;
+    }
+#endif
+
+    n = (*s->functions->write)(s->handle, from, size);
 
     if ( n > 0 )			/* wrote some */
     { from += n;
@@ -398,6 +465,9 @@ S__flushbuf(IOSTREAM *s)
     }
   }
 
+#ifdef HAVE_SELECT
+partial:
+#endif
   if ( to == from )			/* full flush */
   { rc = s->bufp - s->buffer;
     s->bufp = s->buffer;
@@ -442,52 +512,6 @@ S__flushbufc(int c, IOSTREAM *s)
 }
 
 
-static int
-Swait_for_data(IOSTREAM *s)
-{ int fd = Sfileno(s);
-  fd_set wait;
-  struct timeval time;
-  int rc;
-
-  if ( fd < 0 )
-  { errno = EPERM;			/* no permission to select */
-    s->flags |= SIO_FERR;
-    return -1;
-  }
-
-  time.tv_sec  = s->timeout / 1000;
-  time.tv_usec = (s->timeout % 1000) * 1000;
-  FD_ZERO(&wait);
-#ifdef __WINDOWS__
-  FD_SET((SOCKET)fd, &wait);
-#else
-  FD_SET(fd, &wait);
-#endif
-
-  for(;;)
-  { rc = select(fd+1, &wait, NULL, NULL, &time);
-
-    if ( rc < 0 && errno == EINTR )
-    { if ( PL_handle_signals() < 0 )
-      { errno = EPLEXCEPTION;
-	return -1;
-      }
-
-      continue;
-    }
-
-    break;
-  }
-
-  if ( rc == 0 )
-  { s->flags |= (SIO_TIMEOUT|SIO_FERR);
-    return -1;
-  }
-
-  return 0;				/* ok, data available */
-}
-
-
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 S__fillbuf() fills the read-buffer, returning the first character of it.
 It also realises the SWI-Prolog timeout facility.
@@ -497,8 +521,11 @@ int
 S__fillbuf(IOSTREAM *s)
 { int c;
 
-  if ( s->flags & (SIO_FEOF|SIO_FERR) )
-  { s->flags |= SIO_FEOF2;		/* reading past eof */
+  if ( s->flags & (SIO_FEOF|SIO_FERR) )	/* reading past eof */
+  { if ( s->flags & SIO_FEOF2ERR )
+      s->flags |= (SIO_FEOF2|SIO_FERR);
+    else
+      s->flags |= SIO_FEOF2;
     return -1;
   }
 
@@ -508,7 +535,7 @@ S__fillbuf(IOSTREAM *s)
   if ( s->timeout >= 0 && !s->downstream )
   { int rc;
 
-    if ( (rc=Swait_for_data(s)) < 0 )
+    if ( (rc=S__wait(s)) < 0 )
       return rc;
   }
 #endif
@@ -517,7 +544,8 @@ S__fillbuf(IOSTREAM *s)
   { char chr;
     ssize_t n;
 
-    if ( (n=(*s->functions->read)(s->handle, &chr, 1)) == 1 )
+    n = (*s->functions->read)(s->handle, &chr, 1);
+    if ( n == 1 )
     { c = char_to_int(chr);
       return c;
     } else if ( n == 0 )
@@ -548,7 +576,8 @@ S__fillbuf(IOSTREAM *s)
       len = s->bufsize;
     }
 
-    if ( (n=(*s->functions->read)(s->handle, s->limitp, len)) > 0 )
+    n = (*s->functions->read)(s->handle, s->limitp, len);
+    if ( n > 0 )
     { s->limitp += n;
       c = char_to_int(*s->bufp++);
       return c;
@@ -777,7 +806,7 @@ put_code(int c, IOSTREAM *s)
       }
       goto simple;
     case ENC_ANSI:
-    { char b[MB_LEN_MAX];
+    { char b[PL_MB_LEN_MAX];
       size_t n;
 
       if ( !s->mbstate )
@@ -863,7 +892,10 @@ Sputcode(int c, IOSTREAM *s)
   if ( s->tee && s->tee->magic == SIO_MAGIC )
     Sputcode(c, s->tee);
 
-  if ( c == '\n' && (s->flags&SIO_TEXT) && s->newline == SIO_NL_DOS )
+  if ( c == '\n' &&
+       (s->flags&SIO_TEXT) &&
+       s->newline == SIO_NL_DOS &&
+       s->lastc != '\r' )
   { if ( put_code('\r', s) < 0 )
       return -1;
   }
@@ -886,7 +918,7 @@ Scanrepresent(int c, IOSTREAM *s)
       return -1;
     case ENC_ANSI:
     { mbstate_t state;
-      char b[MB_LEN_MAX];
+      char b[PL_MB_LEN_MAX];
 
       memset(&state, 0, sizeof(state));
       if ( wcrtomb(b, (wchar_t)c, &state) != (size_t)-1 )
@@ -1072,14 +1104,15 @@ returns \n, but it returns the same for a single \n.
 
 Often, we could keep track of bufp and reset this, but we must deal with
 the case where we fetch a new buffer. In this case, we must copy the few
-remaining bytes to the `unbuffer' area.
+remaining bytes to the `unbuffer' area. If SIO_USERBUF is set, we do not
+have this spare buffer space. This  is   used  for reading from strings,
+which cannot fetch a new buffer anyway.
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 int
 Speekcode(IOSTREAM *s)
 { int c;
   char *start;
-  IOPOS *psave = s->position;
   size_t safe = (size_t)-1;
 
   if ( !s->buffer )
@@ -1094,15 +1127,19 @@ Speekcode(IOSTREAM *s)
   if ( (s->flags & SIO_FEOF) )
     return -1;
 
-  if ( s->bufp + UNDO_SIZE > s->limitp )
+  if ( s->bufp + UNDO_SIZE > s->limitp && !(s->flags&SIO_USERBUF) )
   { safe = s->limitp - s->bufp;
     memcpy(s->buffer-safe, s->bufp, safe);
   }
 
   start = s->bufp;
-  s->position = NULL;
-  c = Sgetcode(s);
-  s->position = psave;
+  if ( s->position )
+  { IOPOS psave = *s->position;
+    c = Sgetcode(s);
+    *s->position = psave;
+  } else
+  { c = Sgetcode(s);
+  }
   if ( Sferror(s) )
     return -1;
 
@@ -1110,7 +1147,7 @@ Speekcode(IOSTREAM *s)
 
   if ( s->bufp > start )
   { s->bufp = start;
-  } else
+  } else if ( c != -1 )
   { assert(safe != (size_t)-1);
     s->bufp = s->buffer-safe;
   }
@@ -1341,10 +1378,6 @@ Sfeof(IOSTREAM *s)
     return -1;
   }
 
-  if ( s->downstream != NULL &&
-       Sfeof(s->downstream))
-    return TRUE;
-
   if ( S__fillbuf(s) == -1 )
     return TRUE;
 
@@ -1440,6 +1473,11 @@ Ssetenc(IOSTREAM *s, IOENC enc, IOENC *old)
   }
 
   s->encoding = enc;
+  if ( enc == ENC_OCTET )
+    s->flags &= ~SIO_TEXT;
+  else
+    s->flags |= SIO_TEXT;
+
   return 0;
 }
 
@@ -1490,23 +1528,23 @@ Sunit_size(IOSTREAM *s)
 Return the size of the underlying data object.  Should be optimized;
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-long
+int64_t
 Ssize(IOSTREAM *s)
 { if ( s->functions->control )
-  { long size;
+  { int64_t size;
 
     if ( (*s->functions->control)(s->handle, SIO_GETSIZE, (void *)&size) == 0 )
       return size;
   }
   if ( s->functions->seek )
-  { long here = Stell(s);
-    long end;
+  { int64_t here = Stell64(s);
+    int64_t end;
 
-    if ( Sseek(s, 0, SIO_SEEK_END) == 0 )
-      end = Stell(s);
+    if ( Sseek64(s, 0, SIO_SEEK_END) == 0 )
+      end = Stell64(s);
     else
       end = -1;
-    Sseek(s, here, SIO_SEEK_SET);
+    Sseek64(s, here, SIO_SEEK_SET);
 
     return end;
   }
@@ -1667,13 +1705,13 @@ unallocStream(IOSTREAM *s)
 #ifdef O_PLMT
   if ( s->mutex )
   { recursiveMutexDelete(s->mutex);
-    free(s->mutex);
+    PL_free(s->mutex);
     s->mutex = NULL;
   }
 #endif
 
   if ( !(s->flags & SIO_STATIC) )
-    free(s);
+    PL_free(s);
 }
 
 
@@ -1711,7 +1749,7 @@ Sclose(IOSTREAM *s)
 #ifdef __WINDOWS__
   if ( (s->flags & SIO_ADVLOCK) )
   { OVERLAPPED ov;
-    HANDLE h = (HANDLE)_get_osfhandle((int)s->handle);
+    HANDLE h = (HANDLE)_get_osfhandle((int)((uintptr_t)s->handle));
 
     memset(&ov, 0, sizeof(ov));
     UnlockFileEx(h, 0, 0, 0xffffffff, &ov);
@@ -1732,9 +1770,9 @@ Sclose(IOSTREAM *s)
   if ( rval < 0 )
     reportStreamError(s);
   run_close_hooks(s);			/* deletes Prolog registration */
+  s->magic = SIO_CMAGIC;
   SUNLOCK(s);
 
-  s->magic = SIO_CMAGIC;
   if ( s->message )
     free(s->message);
   if ( s->references == 0 )
@@ -1845,11 +1883,23 @@ Svprintf(const char *fm, va_list args)
 }
 
 
-#define NEXTCHR(s, c)	if ( utf8 ) \
-			{ (s) = utf8_get_char((s), &(c)); \
-			} else \
-			{ c = *(s)++; c &= 0xff; \
-			}
+#define NEXTCHR(s, c)				\
+	switch (enc)				\
+	{ case ENC_ANSI:			\
+	    c = *(s)++; c &= 0xff;		\
+	    break;				\
+	  case ENC_UTF8:			\
+	    (s) = utf8_get_char((s), &(c));	\
+	    break;				\
+	  case ENC_WCHAR:			\
+	  { wchar_t *_w = (wchar_t*)(s);	\
+	    c = *_w++;				\
+	    (s) = (char*)_w;			\
+	    break;				\
+	  }					\
+	  default:				\
+	    break;				\
+	}
 
 #define OUTCHR(s, c)	do { printed++; \
 			     if ( Sputcode((c), (s)) < 0 ) goto error; \
@@ -1911,7 +1961,7 @@ Svfprintf(IOSTREAM *s, const char *fm, va_list args)
 	char fbuf[100], *fs = fbuf, *fe = fbuf;
 	int islong = 0;
 	int pad = ' ';
-	int utf8 = FALSE;
+	IOENC enc = ENC_ANSI;
 
 	for(;;)
 	{ switch(*fm)
@@ -1952,13 +2002,19 @@ Svfprintf(IOSTREAM *s, const char *fm, va_list args)
 	{ islong++;			/* 1: %ld */
 	  fm++;
 	}
-	if ( *fm == 'l' )
-	{ islong++;			/* 2: %lld */
-	  fm++;
-	}
-	if ( *fm == 'U' )		/* %Us: UTF-8 string */
-	{ utf8 = TRUE;
-	  fm++;
+	switch ( *fm )
+	{ case 'l':
+	    islong++;			/* 2: %lld */
+	    fm++;
+	    break;
+	  case 'U':			/* %Us: UTF-8 string */
+	    enc = ENC_UTF8;
+	    fm++;
+	    break;
+	  case 'W':			/* %Ws: wide string */
+	    enc = ENC_WCHAR;
+	    fm++;
+	    break;
 	}
 
 	switch(*fm)
@@ -1983,41 +2039,53 @@ Svfprintf(IOSTREAM *s, const char *fm, va_list args)
 	  case 'u':
 	  case 'x':
 	  case 'X':
-	  { intptr_t v = 0;			/* make compiler silent */
-	    int64_t vl = 0;
+	  { int      vi = 0;
+	    long     vl = 0;			/* make compiler silent */
+	    int64_t vll = 0;
 	    char fmbuf[8], *fp=fmbuf;
 
 	    switch( islong )
 	    { case 0:
-		v = va_arg(args, int);
+		vi = va_arg(args, int);
 	        break;
 	      case 1:
-		v = va_arg(args, long);
+		vl = va_arg(args, long);
 	        break;
 	      case 2:
-	        vl = va_arg(args, int64_t);
+	        vll = va_arg(args, int64_t);
 		break;
+	      default:
+		assert(0);
 	    }
 
 	    *fp++ = '%';
 	    if ( modified )
 	      *fp++ = '#';
-	    *fp++ = 'l';
-	    if ( islong < 2 )
-	    { *fp++ = *fm;
-	      *fp   = '\0';
-	      SNPRINTF3(fmbuf, v);
-	    } else
-	    {
+	    switch( islong )
+	    { case 0:
+		*fp++ = *fm;
+	        *fp   = '\0';
+		SNPRINTF3(fmbuf, vi);
+		break;
+	      case 1:
+		*fp++ = 'l';
+	        *fp++ = *fm;
+		*fp   = '\0';
+		SNPRINTF3(fmbuf, vl);
+		break;
+	      case 2:
 #ifdef __WINDOWS__
-	      strcat(fp-1, "I64");	/* Synchronise with INT64_FORMAT! */
-	      fp += strlen(fp);
+	        *fp++ = 'I';		/* Synchronise with INT64_FORMAT! */
+	        *fp++ = '6';
+		*fp++ = '4';
 #else
-	      *fp++ = 'l';
+	        *fp++ = 'l';
+	        *fp++ = 'l';
 #endif
-	      *fp++ = *fm;
-	      *fp   = '\0';
-	      SNPRINTF3(fmbuf, vl);
+	        *fp++ = *fm;
+	        *fp   = '\0';
+	        SNPRINTF3(fmbuf, vll);
+		break;
 	    }
 
 	    break;
@@ -2075,12 +2143,25 @@ Svfprintf(IOSTREAM *s, const char *fm, va_list args)
 	  { size_t w;
 
 	    if ( fs == fbuf )
-	      w = fe - fs;
-	    else
-	      w = strlen(fs);
-
-	    if ( utf8 )
-	      w = utf8_strlen(fs, w);
+	    { w = fe - fs;
+	    } else
+	    { switch(enc)
+	      { case ENC_ANSI:
+		  w = strlen(fs);
+		  break;
+		case ENC_UTF8:
+		  w = strlen(fs);
+		  w = utf8_strlen(fs, w);
+		  break;
+		case ENC_WCHAR:
+		  w = wcslen((wchar_t*)fs);
+		  break;
+		default:
+		  assert(0);
+		  w = 0;		/* make compiler happy */
+		  break;
+	      }
+	    }
 
 	    if ( (ssize_t)w < arg1 )
 	    { w = arg1 - w;
@@ -2609,7 +2690,7 @@ Scontrol_file(void *handle, int action, void *arg)
 
   switch(action)
   { case SIO_GETSIZE:
-    { intptr_t *rval = arg;
+    { int64_t *rval = arg;
       struct stat buf;
 
       if ( fstat(fd, &buf) == 0 )
@@ -2621,6 +2702,11 @@ Scontrol_file(void *handle, int action, void *arg)
     case SIO_SETENCODING:
     case SIO_FLUSHOUTPUT:
       return 0;
+    case SIO_GETFILENO:
+    { int *p = arg;
+      *p = fd;
+      return 0;
+    }
     default:
       return -1;
   }
@@ -2662,13 +2748,20 @@ provide  the  socket-id  through   Sfileno,    this   code   crashes  on
 tcp_open_socket(). As ttys and its detection is   of no value on Windows
 anyway, we skip this. Second, Windows doesn't have fork(), so FD_CLOEXEC
 is of no value.
+
+For now, we use PL_malloc_uncollectable(). In   the  end, this is really
+one of the object-types we want to leave to GC.
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+#ifndef FD_CLOEXEC			/* This is not defined in MacOS */
+#define FD_CLOEXEC 1
+#endif
 
 IOSTREAM *
 Snew(void *handle, int flags, IOFUNCTIONS *functions)
 { IOSTREAM *s;
 
-  if ( !(s = malloc(sizeof(IOSTREAM))) )
+  if ( !(s = PL_malloc_uncollectable(sizeof(IOSTREAM))) )
   { errno = ENOMEM;
     return NULL;
   }
@@ -2680,7 +2773,11 @@ Snew(void *handle, int flags, IOFUNCTIONS *functions)
   s->functions     = functions;
   s->timeout       = -1;		/* infinite */
   s->posbuf.lineno = 1;
-  s->encoding      = ENC_ISO_LATIN_1;
+  if ( (flags&SIO_TEXT) )
+  { s->encoding    = initEncoding();
+  } else
+  { s->encoding	   = ENC_OCTET;
+  }
 #if CRLF_MAPPING
   s->newline       = SIO_NL_DOS;
 #endif
@@ -2688,8 +2785,8 @@ Snew(void *handle, int flags, IOFUNCTIONS *functions)
     s->position = &s->posbuf;
 #ifdef O_PLMT
   if ( !(flags & SIO_NOMUTEX) )
-  { if ( !(s->mutex = malloc(sizeof(recursiveMutex))) )
-    { free(s);
+  { if ( !(s->mutex = PL_malloc(sizeof(recursiveMutex))) )
+    { PL_free(s);
       return NULL;
     }
     recursiveMutexInit(s->mutex);
@@ -2701,7 +2798,7 @@ Snew(void *handle, int flags, IOFUNCTIONS *functions)
   if ( (fd = Sfileno(s)) >= 0 )
   { if ( isatty(fd) )
       s->flags |= SIO_ISATTY;
-#if defined(F_SETFD) && defined(FD_CLOEXEC)
+#ifdef F_SETFD
     fcntl(fd, F_SETFD, FD_CLOEXEC);
 #endif
   }
@@ -2804,13 +2901,23 @@ Sopen_file(const char *path, const char *how)
     struct flock buf;
 
     memset(&buf, 0, sizeof(buf));
-    buf.l_type = (lock == lread ? F_RDLCK : F_WRLCK);
+    buf.l_whence = SEEK_SET;
+    buf.l_type   = (lock == lread ? F_RDLCK : F_WRLCK);
 
-    if ( fcntl(fd, wait ? F_SETLKW : F_SETLK, &buf) < 0 )
-    { int save = errno;
-      close(fd);
-      errno = save;
-      return NULL;
+    while( fcntl(fd, wait ? F_SETLKW : F_SETLK, &buf) != 0 )
+    { if ( errno == EINTR )
+      { if ( PL_handle_signals() < 0 )
+	{ close(fd);
+	  return NULL;
+	}
+	continue;
+      } else
+      { int save = errno;
+
+	close(fd);
+	errno = save;
+	return NULL;
+      }
     }
 #else					/* we don't have locking */
 #if __WINDOWS__
@@ -2891,12 +2998,10 @@ Sfileno(IOSTREAM *s)
   if ( s->flags & SIO_FILE )
   { intptr_t h = (intptr_t)s->handle;
     n = (int)h;
-  } else if ( s->flags & SIO_PIPE )
-  { n = fileno((FILE *)s->handle);
   } else if ( s->functions->control &&
 	      (*s->functions->control)(s->handle,
 				       SIO_GETFILENO,
-				       (void *)&n)  == 0 )
+				       (void *)&n) == 0 )
   { ;
   } else
   { errno = EINVAL;
@@ -2907,6 +3012,30 @@ Sfileno(IOSTREAM *s)
 }
 
 
+#ifdef __WINDOWS__
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+On  Windows,  type  SOCKET  is   an    unsigned   int   and  all  values
+[0..INVALID_SOCKET) are valid. It is  also   not  allowed  to run normal
+file-functions on it or the application will crash. There seems to be no
+way out except for introducing an extra function at this level :-(
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+SOCKET
+Swinsock(IOSTREAM *s)
+{ SOCKET n = INVALID_SOCKET;
+
+  if ( s->functions->control &&
+       (*s->functions->control)(s->handle,
+				SIO_GETWINSOCK,
+				(void *)&n) == 0 )
+  { return n;
+  }
+
+  errno = EINVAL;
+  return INVALID_SOCKET;
+}
+#endif
+
 		 /*******************************
 		 *	       PIPES		*
 		 *******************************/
@@ -2915,13 +3044,9 @@ Sfileno(IOSTREAM *s)
 #ifdef __WINDOWS__
 #include "windows/popen.c"
 
-#ifdef popen
 #undef popen
-#endif
-#define popen(cmd, how) pt_popen(cmd, how)
-#ifdef pclose
 #undef pclose
-#endif
+#define popen(cmd, how) pt_popen(cmd, how)
 #define pclose(fd)	pt_pclose(fd)
 #endif
 
@@ -2958,11 +3083,31 @@ Sclose_pipe(void *handle)
 }
 
 
+static int
+Scontrol_pipe(void *handle, int action, void *arg)
+{ FILE *fp = handle;
+
+  switch(action)
+  { case SIO_GETFILENO:
+    { int *ap = arg;
+      *ap = fileno(fp);
+      return 0;
+    }
+    case SIO_FLUSHOUTPUT:
+    case SIO_SETENCODING:
+      return 0;
+    default:
+      return -1;
+  }
+}
+
+
 IOFUNCTIONS Spipefunctions =
 { Sread_pipe,
   Swrite_pipe,
   (Sseek_function)0,
-  Sclose_pipe
+  Sclose_pipe,
+  Scontrol_pipe
 };
 
 
@@ -2983,9 +3128,9 @@ Sopen_pipe(const char *command, const char *type)
   { int flags;
 
     if ( *type == 'r' )
-      flags = SIO_PIPE|SIO_INPUT|SIO_FBUF;
+      flags = SIO_INPUT|SIO_FBUF;
     else
-      flags = SIO_PIPE|SIO_OUTPUT|SIO_FBUF;
+      flags = SIO_OUTPUT|SIO_FBUF;
 
     return Snew((void *)fd, flags, &Spipefunctions);
   }
@@ -3229,12 +3374,20 @@ Sopenmem(char **buffer, size_t *sizep, const char *mode)
 
 static ssize_t
 Sread_string(void *handle, char *buf, size_t size)
-{ return 0;				/* signal EOF */
+{ (void)handle;
+  (void)buf;
+  (void)size;
+
+  return 0;				/* signal EOF */
 }
 
 static ssize_t
 Swrite_string(void *handle, char *buf, size_t size)
-{ errno = ENOSPC;			/* signal error */
+{ (void)handle;
+  (void)buf;
+  (void)size;
+
+  errno = ENOSPC;			/* signal error */
   return -1;
 }
 
@@ -3267,7 +3420,7 @@ Sopen_string(IOSTREAM *s, char *buf, size_t size, const char *mode)
 { int flags = SIO_FBUF|SIO_USERBUF;
 
   if ( !s )
-  { if ( !(s = malloc(sizeof(IOSTREAM))) )
+  { if ( !(s = PL_malloc_uncollectable(sizeof(IOSTREAM))) ) /* TBD: Use GC */
     { errno = ENOMEM;
       return NULL;
     }
@@ -3310,7 +3463,7 @@ Sopen_string(IOSTREAM *s, char *buf, size_t size, const char *mode)
 
 #define STDIO(n, f) { NULL, NULL, NULL, NULL, \
 		      EOF, SIO_MAGIC, 0, f, {0, 0, 0}, NULL, \
-		      ((void *)(n)), &Sttyfunctions, \
+		      (void *)(n), &Sttyfunctions, \
 		      0, NULL, \
 		      (void (*)(void *))0, NULL, \
 		      -1, \
@@ -3321,7 +3474,7 @@ Sopen_string(IOSTREAM *s, char *buf, size_t size, const char *mode)
 #define SIO_STDIO (SIO_FILE|SIO_STATIC|SIO_NOCLOSE|SIO_ISATTY|SIO_TEXT)
 #define STDIO_STREAMS \
   STDIO(0, SIO_STDIO|SIO_LBUF|SIO_INPUT|SIO_NOFEOF),	/* Sinput */ \
-  STDIO(1, SIO_STDIO|SIO_LBUF|SIO_OUTPUT|SIO_REPPL), 	/* Soutput */ \
+  STDIO(1, SIO_STDIO|SIO_LBUF|SIO_OUTPUT|SIO_REPPL),	/* Soutput */ \
   STDIO(2, SIO_STDIO|SIO_NBUF|SIO_OUTPUT|SIO_REPPL)	/* Serror */
 
 
@@ -3335,31 +3488,33 @@ static const IOSTREAM S__iob0[] =
 };
 
 
-/* vsc: Scleanup should reset init done */
-static int done;
+static int S__initialised = FALSE;
 
 void
 SinitStreams(void)
-{
-
-  if ( !done++ )
+{ if ( !S__initialised )
   { int i;
-    IOENC enc = initEncoding();
+    IOENC enc;
+
+    S__initialised = TRUE;
+    enc = initEncoding();
 
     for(i=0; i<=2; i++)
-    { if ( !isatty(i) )
-      { S__iob[i].flags &= ~SIO_ISATTY;
-	S__iob[i].functions = &Sfilefunctions; /* Check for pipe? */
+    { IOSTREAM *s = &S__iob[i];
+
+      if ( !isatty(i) )
+      { s->flags &= ~SIO_ISATTY;
+	s->functions = &Sfilefunctions; /* Check for pipe? */
       }
-      if ( S__iob[i].encoding == ENC_ISO_LATIN_1 )
-	S__iob[i].encoding = enc;
+      if ( s->encoding == ENC_ISO_LATIN_1 )
+	s->encoding = enc;
 #ifdef O_PLMT
-      S__iob[i].mutex = malloc(sizeof(recursiveMutex));
-      recursiveMutexInit(S__iob[i].mutex);
+      s->mutex = PL_malloc(sizeof(recursiveMutex));
+      recursiveMutexInit(s->mutex);
 #endif
 #if CRLF_MAPPING
       _setmode(i, O_BINARY);
-      S__iob[i].newline = SIO_NL_DOS;
+      s->newline = SIO_NL_DOS;
 #endif
     }
 
@@ -3371,7 +3526,7 @@ SinitStreams(void)
 
 
 IOSTREAM *
-S__getiob()
+S__getiob(void)
 { return S__iob;
 }
 
@@ -3461,11 +3616,12 @@ Scleanup(void)
 
       S__iob[i].mutex = NULL;
       recursiveMutexDelete(m);
-      free(m);
+      PL_free(m);
     }
 #endif
 
     *s = S__iob0[i];			/* re-initialise */
   }
-  done = 0;
+
+  S__initialised = FALSE;
 }

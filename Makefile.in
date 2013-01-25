@@ -101,7 +101,7 @@ SONAMEFLAG=@SONAMEFLAG@
 #4.1VPATH=@srcdir@:@srcdir@/OPTYap
 CWD=$(PWD)
 #
-VERSION=6.3.2
+VERSION=6.3.4
 MYDDAS_VERSION=MYDDAS-0.9.1
 #
 
@@ -135,14 +135,13 @@ IOLIB_HEADERS=$(srcdir)/os/pl-buffer.h \
 	$(srcdir)/os/dtoa.c  \
 	$(srcdir)/H/pl-incl.h \
 	$(srcdir)/H/pl-global.h \
-	$(srcdir)/os/pl-mswchar.h \
 	$(srcdir)/os/pl-option.h  \
 	$(srcdir)/os/pl-os.h \
 	$(srcdir)/os/pl-privitf.h \
 	$(srcdir)/os/pl-table.h \
 	$(srcdir)/os/pl-text.h \
 	$(srcdir)/os/pl-utf8.h \
-	$(srcdir)/H/pl-yap.h @ENABLE_WINCONSOLE@ $(srcdir)/os/windows/dirent.h $(srcdir)/os/windows/utf8.h $(srcdir)/os/windows/utf8.c $(srcdir)/os/windows/uxnt.h  $(srcdir)/os/windows/mswchar.h  $(srcdir)/os/windows/popen.c 
+	$(srcdir)/H/pl-yap.h @ENABLE_WINCONSOLE@ $(srcdir)/os/windows/dirent.h $(srcdir)/os/windows/utf8.h $(srcdir)/os/windows/utf8.c $(srcdir)/os/windows/uxnt.h  $(srcdir)/os/windows/popen.c 
 
 HEADERS = \
 	$(srcdir)/H/Atoms.h \
@@ -224,6 +223,7 @@ IOLIB_SOURCES=$(srcdir)/os/pl-buffer.c $(srcdir)/os/pl-ctype.c \
 	$(srcdir)/os/pl-table.c \
 	$(srcdir)/os/pl-tai.c  \
 	$(srcdir)/os/pl-text.c \
+	$(srcdir)/os/pl-version.c \
 	$(srcdir)/os/pl-write.c \
 	$(srcdir)/C/pl-yap.c @ENABLE_WINCONSOLE@$(srcdir)/os/windows/uxnt.c
 
@@ -350,7 +350,7 @@ IOLIB_OBJECTS=pl-buffer.o pl-codelist.o pl-ctype.o pl-dtoa.o pl-error.o  \
 	pl-rl.o \
 	pl-stream.o pl-string.o pl-table.o \
 	pl-tai.o pl-text.o pl-utf8.o \
-	pl-write.o \
+	pl-version.o pl-write.o \
 	pl-yap.o @ENABLE_WINCONSOLE@ uxnt.o
 
 ENGINE_OBJECTS = \
@@ -649,6 +649,9 @@ pl-text.o: $(srcdir)/os/pl-text.c config.h
 pl-utf8.o: $(srcdir)/os/pl-utf8.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/os @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/os/pl-utf8.c -o $@
 
+pl-version.o: $(srcdir)/os/pl-version.c config.h
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/os @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/os/pl-version.c -o $@
+
 pl-write.o: $(srcdir)/os/pl-write.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/os @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/os/pl-write.c -o $@
 
@@ -698,6 +701,7 @@ all: startup.yss
 	@INSTALL_DLLS@ (cd library/system; $(MAKE))
 	@INSTALL_DLLS@ (cd library/tries; $(MAKE))
 	@ENABLE_CLIB@ @INSTALL_DLLS@ (cd packages/clib; $(MAKE))
+	@ENABLE_CHR@ @INSTALL_DLLS@ (cd packages/chr; $(MAKE))
 	@ENABLE_HTTP@ @INSTALL_DLLS@ (cd packages/http; $(MAKE))
 	@ENABLE_PLDOC@  @INSTALL_DLLS@ (cd packages/pldoc; $(MAKE))
 	@ENABLE_PLUNIT@ @INSTALL_DLLS@ (cd packages/plunit; $(MAKE))
@@ -921,6 +925,7 @@ clean: clean_docs
 	@ENABLE_REAL@ (cd packages/real; $(MAKE) clean)
 	@ENABLE_MINISAT@ (cd packages/swi-minisat2; $(MAKE) clean)
 	@ENABLE_CLPBN_BP@ (cd packages/CLPBN/horus; $(MAKE) clean)
+	@ENABLE_CHR@ @INSTALL_DLLS@ (cd packages/chr; $(MAKE) clean)
 	@ENABLE_ZLIB@ @INSTALL_DLLS@ (cd packages/zlib; $(MAKE) clean)
 	@ENABLE_PRISM@ (cd packages/prism/src/c; $(MAKE) clean)
 	@ENABLE_PRISM@ (cd packages/prism/src/prolog; $(MAKE) clean)

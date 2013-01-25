@@ -3749,7 +3749,7 @@ index_sz(LogUpdIndex *x)
 static Int
 lu_statistics(PredEntry *pe USES_REGS)
 {
-  UInt sz = 0, cls = 0, isz = 0;
+  UInt sz = sizeof(PredEntry), cls = 0, isz = 0;
   
   /* count number of clauses and size */
   LogUpdClause *x;
@@ -3765,10 +3765,16 @@ lu_statistics(PredEntry *pe USES_REGS)
       x = x->ClNext;
     }
   }
+  isz = 0;
   if (pe->PredFlags & IndexedPredFlag) {
-    isz = index_sz(ClauseCodeToLogUpdIndex(pe->cs.p_code.TrueCodeOfPred));
-  } else {
-    isz = 0;
+    /* expand clause blocks */
+    yamop *ep = ExpandClausesFirst;
+    while (ep) {
+      if (ep->u.sssllp.p == pe)
+	isz += (UInt)NEXTOP((yamop *)NULL,sssllp)+ep->u.sssllp.s1*sizeof(yamop *);
+      ep = ep->u.sssllp.snext;
+    }
+    isz += index_sz(ClauseCodeToLogUpdIndex(pe->cs.p_code.TrueCodeOfPred));
   }
   return
     Yap_unify(ARG2,MkIntegerTerm(cls)) &&

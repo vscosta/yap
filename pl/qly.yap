@@ -135,7 +135,9 @@ save_program(File, _Goal) :-
 '$x_yap_flag'(X, V) :-
 	yap_flag(X, V),
 	X \= language,
+	X \= readline,
 	X \= timezone,
+	X \= tty_control,
 	X \= user_input,
 	X \= user_output,
 	X \= user_error,

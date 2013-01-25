@@ -1167,7 +1167,6 @@ else
   AC_SYS_RESTARTABLE_SYSCALLS
 fi
 
-
 dnl defaults
 INSTALL_DLLS="#"
 EXTRA_OBJS=""
@@ -1400,6 +1399,7 @@ dnl Linux has both elf and a.out, in this case we found elf
         fi
 	LDFLAGS="$LDFLAGS -L\$(abs_top_builddir) -Wl,-R,\$(LIBDIR)"
         DYNYAPLIB=libYap."$SO"
+        YAPLIB_LD=$SHLIB_LD
         SONAMEFLAG="-Wl,--soname=$DYNYAPLIB"
         EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -Wl,-R,\$(YAPLIBDIR)"
         PRE_INSTALL_ENV="LD_LIBRARY_PATH=\$(abs_top_builddir)"
@@ -1694,12 +1694,12 @@ AC_SUBST(PRE_INSTALL_ENV)
 dnl Checks for header files.
 AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
-AC_CHECK_HEADERS(arpa/inet.h alloca.h crypt.h)
+AC_CHECK_HEADERS(arpa/inet.h alloca.h crtdbg.h crypt.h)
 AC_CHECK_HEADERS(ctype.h direct.h dirent.h dlfcn.h)
 AC_CHECK_HEADERS(errno.h execinfo.h fcntl.h fenv.h)
 AC_CHECK_HEADERS(float.h fpu_control.h ieeefp.h io.h limits.h)
 AC_CHECK_HEADERS(locale.h malloc.h math.h memory.h)
-AC_CHECK_HEADERS(netdb.h netinet/in.h netinet/tcp.h pwd.h regex.h)
+AC_CHECK_HEADERS(netdb.h netinet/in.h netinet/tcp.h pwd.h regex.h shlobj.h)
 AC_CHECK_HEADERS(siginfo.h signal.h stdarg.h stdint.h string.h stropts.h)
 AC_CHECK_HEADERS(sys/conf.h sys/dir.h sys/file.h)
 AC_CHECK_HEADERS(sys/mman.h sys/ndir.h sys/param.h)
@@ -1709,7 +1709,7 @@ AC_CHECK_HEADERS(sys/time.h sys/times.h sys/types.h)
 AC_CHECK_HEADERS(sys/ucontext.h sys/un.h sys/wait.h)
 AC_CHECK_HEADERS(time.h unistd.h utime.h wctype.h winsock.h winsock2.h)
 AC_CHECK_HEADERS(zlib.h zutil.h)
-AC_CHECK_HEADERS(mach-o/dyld.h)
+AC_CHECK_HEADERS(mach-o/dyld.h LibLoaderAPI.h)
 if test "$yap_cv_gmp" != "no"
 then
   AC_CHECK_HEADERS(gmp.h)
@@ -2068,7 +2068,7 @@ AC_CHECK_FUNCS(_NSGetEnviron _chsize_s access acosh)
 AC_CHECK_FUNCS(alloca asinh atanh chdir clock clock_gettime)
 AC_CHECK_FUNCS(ctime dlopen dup2)
 AC_CHECK_FUNCS(erf feclearexcept)
-AC_CHECK_FUNCS(fesettrapenable fgetpos finite fpclass ftime getcwd getenv)
+AC_CHECK_FUNCS(fesettrapenable fgetpos finite fpclass ftime ftruncate getcwd getenv)
 AC_CHECK_FUNCS(getexecname)
 AC_CHECK_FUNCS(gethostbyname gethostent gethostid gethostname)
 AC_CHECK_FUNCS(gethrtime getpagesize)

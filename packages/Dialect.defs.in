@@ -37,7 +37,7 @@ LIBDIR=@libdir@
 YAPLIBDIR=@libdir@/Yap
 SHAREDIR=$(ROOTDIR)/share/Yap
 abs_top_builddir=@abs_top_builddir@
-PL=@INSTALL_ENV@ $(DESTDIR)$(BINDIR)/yap $(DESTDIR)$(YAPLIBDIR)/startup.yss
+PL=@PRE_INSTALL_ENV@ $(abs_top_builddir)/yap $(abs_top_builddir)/startup.yss
 
 CC=@CC@
 LD=@SHLIB_LD@

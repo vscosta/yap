@@ -36,8 +36,15 @@
 #define O_PLMT 1
 #endif
 
+#if HAVE_ERRNO_H
+#include <errno.h>
+#endif
+
 #include "Yap.h"
 #include "YapHeap.h"
+
+#define PLVERSION YAP_VERSION
+#define PLNAME "yap"
 
 /* try not to pollute the SWI space */
 #ifdef P
@@ -227,6 +234,37 @@ users foreign language code.
 #define WM_SIGNALLED (WM_USER+4201)     /* how to select a good number!? */
 #endif
 
+// THIS HAS TO BE ABSTRACTED
+
+#define GLOBAL_LD (LOCAL_PL_local_data_p)
+
+#if !defined(O_PLMT) && !defined(YAPOR)
+#define LOCAL_LD (GLOBAL_LD)
+#define LD (GLOBAL_LD)
+#define ARG1_LD   void
+#define ARG_LD
+#define GET_LD
+#define PRED_LD
+#define PASS_LD
+#define PASS_LD1 
+#define IGNORE_LD
+
+#else
+
+#define LOCAL_LD (__PL_ld)
+#define LD	  LOCAL_LD
+
+#define GET_LD	  CACHE_REGS struct PL_local_data *__PL_ld = GLOBAL_LD;
+#define ARG1_LD   struct PL_local_data *__PL_ld
+
+#define ARG_LD    , ARG1_LD
+#define PASS_LD1  LD
+#define PASS_LD   , LD
+#define PRED_LD   GET_LD
+#define IGNORE_LD (void)__PL_ld;
+
+#endif
+
 		/********************************
 		*       UTILITIES               *
 		*********************************/
@@ -339,6 +377,7 @@ typedef struct
 { functor_t functor;			/* Functor to use ($VAR/1) */
   av_action on_attvar;			/* How to handle attvars */
   int	    singletons;			/* Write singletons as $VAR('_') */
+  int       numbered_check;             /* Check for already numbered */
 } nv_options;
 
 
@@ -437,9 +476,6 @@ typedef struct
 #define FT_FROM_VALUE   0x0f            /* Determine type from value */
 #define FT_MASK         0x0f            /* mask to get type */
 
-#define FF_READONLY	0x10		/* feature is read-only */
-#define FF_KEEP		0x20		/* keep value it already set */
-
 #define PLFLAG_CHARESCAPE           0x000001 /* handle \ in atoms */
 #define PLFLAG_GC                   0x000002 /* do GC */
 #define PLFLAG_TRACE_GC             0x000004 /* verbose gc */
@@ -481,6 +517,36 @@ typedef struct exception_frame		/* PL_throw exception environments */
   jmp_buf	exception_jmp_env;	/* longjmp environment */
 } exception_frame;
 
+		 /*******************************
+		 *	    STREAM I/O		*
+		 *******************************/
+
+#define REDIR_MAGIC 0x23a9bef3
+
+typedef struct redir_context
+{ int		magic;			/* REDIR_MAGIC */
+  IOSTREAM     *stream;			/* temporary output */
+  int		is_stream;		/* redirect to stream */
+  int		redirected;		/* output is redirected */
+  term_t	term;			/* redirect target */
+  int		out_format;		/* output type */
+  int		out_arity;		/* 2 for difference-list versions */
+  size_t	size;			/* size of I/O buffer */
+  char	       *data;			/* data written */
+  char		buffer[1024];		/* fast temporary buffer */
+} redir_context;
+
+#include "pl-file.h"
+
+typedef enum
+{ ACCESS_LEVEL_USER = 0,        /* Default user view */
+  ACCESS_LEVEL_SYSTEM           /* Allow low-level access */
+} access_level_t;
+
+#define SYSTEM_MODE         (LD->prolog_flag.access_level == ACCESS_LEVEL_SYSTEM)
+
+#define PL_malloc_atomic malloc
+
 /* vsc: global variables */
 #include "pl-global.h"
 
@@ -513,6 +579,21 @@ it mean anything?
 #define succeed			return TRUE
 #define fail			return FALSE
 #define TRY(goal)		if ((goal) == FALSE) fail
+
+/* Flags on module.  Most of these flags are copied to the read context
+   in pl-read.c.
+*/
+
+#define M_SYSTEM                (0x0001) /* system module */
+#define M_CHARESCAPE            (0x0002) /* module */
+#define DBLQ_CHARS              (0x0004) /* "ab" --> ['a', 'b'] */
+#define DBLQ_ATOM               (0x0008) /* "ab" --> 'ab' */
+#define DBLQ_STRING             (0x0010) /* "ab" --> "ab" */
+#define DBLQ_MASK               (DBLQ_CHARS|DBLQ_ATOM|DBLQ_STRING)
+#define UNKNOWN_FAIL            (0x0020) /* module */
+#define UNKNOWN_WARNING         (0x0040) /* module */
+#define UNKNOWN_ERROR           (0x0080) /* module */
+#define UNKNOWN_MASK            (UNKNOWN_ERROR|UNKNOWN_WARNING|UNKNOWN_FAIL)
 
 
 extern int fileerrors;
@@ -557,25 +638,6 @@ typedef struct wakeup_state
   int		flags;
 } wakeup_state;
 
-
-		 /*******************************
-		 *	    STREAM I/O		*
-		 *******************************/
-
-#define REDIR_MAGIC 0x23a9bef3
-
-typedef struct redir_context
-{ int		magic;			/* REDIR_MAGIC */
-  IOSTREAM     *stream;			/* temporary output */
-  int		is_stream;		/* redirect to stream */
-  int		redirected;		/* output is redirected */
-  term_t	term;			/* redirect target */
-  int		out_format;		/* output type */
-  int		out_arity;		/* 2 for difference-list versions */
-  size_t	size;			/* size of I/O buffer */
-  char	       *data;			/* data written */
-  char		buffer[1024];		/* fast temporary buffer */
-} redir_context;
 
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -651,6 +713,7 @@ typedef double			real;
 
 #endif
 
+#define PL_unify_time(A,B) PL_unify_int64(A,B)
 extern int PL_unify_char(term_t chr, int c, int how);
 extern int PL_get_char(term_t chr, int *c, int eof);
 extern void PL_cleanup_fork(void);
@@ -659,6 +722,7 @@ extern void PL_get_number(term_t l, number *n);
 extern int PL_unify_atomic(term_t t, PL_atomic_t a);
 extern int _PL_unify_atomic(term_t t, PL_atomic_t a);
 extern int _PL_unify_string(term_t t, word w);
+
 
 #define _PL_get_arg(X,Y,Z) PL_get_arg(X,Y,Z)
 
@@ -740,7 +804,19 @@ PL_EXPORT(int) 		PL_release_stream(IOSTREAM *s);
 COMMON(atom_t) 		fileNameStream(IOSTREAM *s);
 COMMON(int) 		streamStatus(IOSTREAM *s);
 
-COMMON(int) 		getOutputStream(term_t t, IOSTREAM **s);
+#define getOutputStream(t, k, s)	getOutputStream__LD(t, k, s PASS_LD)
+#define getTextOutputStream(t, s)       getTextOutputStream__LD(t, s PASS_LD)
+#define getBinaryOutputStream(t, s)     getBinaryOutputStream__LD(t, s PASS_LD)
+
+#define getInputStream(t, k, s)	       getInputStream__LD(t, k, s PASS_LD)
+#define getTextInputStream(t, s)       getTextInputStream__LD(t, s PASS_LD)
+#define getBinaryInputStream(t, s)     getBinaryInputStream__LD(t, s PASS_LD)
+
+COMMON(int) 		getTextOutputStream__LD(term_t t, IOSTREAM **s ARG_LD);
+COMMON(int) 		getBinaryOutputStream__LD(term_t t, IOSTREAM **s ARG_LD);
+COMMON(int) 		getTextInputStream__LD(term_t t, IOSTREAM **s ARG_LD);
+COMMON(int) 		getBinaryInputStream__LD(term_t t, IOSTREAM **s ARG_LD);
+
 COMMON(void) 		pushOutputContext(void);
 COMMON(void) 		popOutputContext(void);
 COMMON(int) 		getSingleChar(IOSTREAM *s, int signals);
@@ -754,6 +830,7 @@ COMMON(int)		unicode_separator(pl_wchar_t c);
 COMMON(word) 		pl_raw_read(term_t term);
 COMMON(word) 		pl_raw_read2(term_t stream, term_t term);
 
+COMMON(access_level_t)	setAccessLevel(access_level_t new_level);
 
 /**** stuff from pl-error.c ****/
 extern void		outOfCore(void);
@@ -795,7 +872,7 @@ extern size_t getenv3(const char *name, char *buf, size_t len);
 extern int Setenv(char *name, char *value);
 extern int Unsetenv(char *name);
 extern int System(char *cmd);
-extern bool expandVars(const char *pattern, char *expanded, int maxlen);
+extern char *expandVars(const char *pattern, char *expanded, int maxlen);
 
 /**** SWI stuff (emulated in pl-yap.c) ****/
 extern int writeAtomToStream(IOSTREAM *so, atom_t at);
@@ -818,6 +895,10 @@ COMMON(char)		digitName(int n, int sm);
 
 /**** stuff from pl-utf8.c ****/
 size_t utf8_strlen(const char *s, size_t len);
+
+/**** stuff from pl-version.c ****/
+COMMON(void) 		setGITVersion(void);
+
 
 /**** stuff from pl-write.c ****/
 COMMON(char *) 		varName(term_t var, char *buf);
@@ -856,9 +937,11 @@ COMMON(Buffer)		codes_or_chars_to_buffer(term_t l, unsigned int flags,
 COMMON(bool)		systemMode(bool accept);
 
 
-COMMON(void)		initPrologFlagTable(void);
+COMMON(void)		cleanupPrologFlags(void);
 COMMON(void)		initPrologFlags(void);
 COMMON(int)		raiseStackOverflow(int overflow);
+
+COMMON(int)		PL_qualify(term_t raw, term_t qualified);
 
 static inline word
 setBoolean(int *flag, term_t old, term_t new)
@@ -869,7 +952,21 @@ setBoolean(int *flag, term_t old, term_t new)
   succeed;
 }
 
-COMMON(int) 		getInputStream__LD(term_t t, IOSTREAM **s ARG_LD);
+#define BEGIN_NUMBERVARS(save) \
+	{ fid_t _savedf; \
+	  if ( save ) \
+	  { _savedf = LD->var_names.numbervars_frame; \
+	    LD->var_names.numbervars_frame = PL_open_foreign_frame(); \
+	  }
+#define END_NUMBERVARS(save) \
+          if ( save ) \
+	  { PL_discard_foreign_frame(LD->var_names.numbervars_frame); \
+	    LD->var_names.numbervars_frame = _savedf; \
+	  } \
+	}
+
+
+
 
 COMMON(int) 		PL_get_atom__LD(term_t t1, atom_t *a ARG_LD);
 COMMON(int) 		PL_get_atom_ex__LD(term_t t, atom_t *a ARG_LD);
@@ -883,6 +980,8 @@ COMMON(int) 		PL_unify_integer__LD(term_t t1, intptr_t i ARG_LD);
 COMMON(word)		pl_get_prolog_flag(term_t key, term_t value);
 COMMON(word)		pl_prolog_flag5(term_t key, term_t value, word scope, word access, word type, control_t h);
 COMMON(foreign_t)	pl_prolog_flag(term_t name, term_t value, control_t h);
+
+COMMON(struct tm *)	PL_localtime_r(const time_t *t, struct tm *r);
 
 /* inlines that need ARG_LD */
 static inline intptr_t
@@ -901,7 +1000,14 @@ static inline void *allocHeap__LD(size_t n ARG_LD)
   return YAP_AllocSpaceFromYap(n);
 }
 
-static inline void freeHeap__LD(void *mem, size_t n ARG_LD)
+static inline void *allocHeapOrHalt(size_t n)
+{
+  void *ptr = YAP_AllocSpaceFromYap(n);
+  if (!ptr) Yap_exit(1);
+  return ptr;
+}
+
+static inline void freeHeap(void *mem, size_t n)
 {
   YAP_FreeSpaceFromYap(mem);
 }

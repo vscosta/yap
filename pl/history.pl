@@ -30,7 +30,7 @@
 */
 
 :- module('$history',
-	  [ % read_history/6,
+	  [ %read_history/6,
 	    '$clean_history'/0,
 	    '$save_history'/1
 	  ]).
@@ -148,7 +148,7 @@ save_history_line(Line) :-
 	       [ Line, [partial(true)],
 		 '.', [partial(true)]
 	       ]),
-	catch(user:rl_add_history(CompleteLine), _, fail), !.
+	       catch(system:rl_add_history(CompleteLine), _, fail), !.
 save_history_line(_).
 
 save_event(Dont, Event) :-

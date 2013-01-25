@@ -1441,6 +1441,17 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
       serious = TRUE;
     }
     break;
+  case SAVED_STATE_ERROR:
+    {
+      int i;
+
+      i = strlen(tmpbuf);
+      nt[0] = MkAtomTerm(AtomSystemError);
+      psize -= i;
+      fun = FunctorError;
+      serious = TRUE;
+    }
+    break;
   case SYSTEM_ERROR:
     {
       int i;

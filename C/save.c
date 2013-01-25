@@ -685,8 +685,8 @@ check_header(CELL *info, CELL *ATrail, CELL *AStack, CELL *AHeap USES_REGS)
   if (strcmp(pp, msg) != 0) {
     LOCAL_ErrorMessage = LOCAL_ErrorSay;
     strncpy(LOCAL_ErrorMessage, "saved state ", MAX_ERROR_MSG_SIZE);
-    strncat(LOCAL_ErrorMessage, LOCAL_FileNameBuf, MAX_ERROR_MSG_SIZE);
-    strncat(LOCAL_ErrorMessage, " failed to match version ID", MAX_ERROR_MSG_SIZE);
+    strncat(LOCAL_ErrorMessage, LOCAL_FileNameBuf, MAX_ERROR_MSG_SIZE-1);
+    strncat(LOCAL_ErrorMessage, " failed to match version ID", MAX_ERROR_MSG_SIZE-1);
     LOCAL_Error_TYPE = CONSISTENCY_ERROR;
     return FAIL_RESTORE;
   }

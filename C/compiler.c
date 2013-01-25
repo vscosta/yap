@@ -2109,14 +2109,14 @@ c_head(Term t, compiler_struct *cglobs)
   if (IsAtomTerm(t)) {
     Yap_emit(name_op, (CELL) AtomOfTerm(t), Zero, &cglobs->cint);
 #ifdef BEAM
-   if (EAM) {
-     Yap_emit(run_op,Zero,(UInt) cglobs->cint.CurrentPred,&cglobs->cint);
-   }
+    if (EAM) {
+      Yap_emit(run_op,Zero,(UInt) cglobs->cint.CurrentPred,&cglobs->cint);
+    }
 #endif
+    Yap_emit(ensure_space_op, Zero , Zero, &cglobs->cint);
+    cglobs->space_op = cglobs->cint.cpc;
     return;
   }
-  Yap_emit(ensure_space_op, Zero , Zero, &cglobs->cint);
-  cglobs->space_op = cglobs->cint.cpc;
   f = FunctorOfTerm(t);
   Yap_emit(name_op, (CELL) NameOfFunctor(f), ArityOfFunctor(f), &cglobs->cint);
 #ifdef BEAM
@@ -2124,8 +2124,10 @@ c_head(Term t, compiler_struct *cglobs)
      Yap_emit(run_op,Zero,(UInt) cglobs->cint.CurrentPred,&cglobs->cint);
    }
 #endif
-   if (Yap_ExecutionMode == MIXED_MODE_USER)
+  if (Yap_ExecutionMode == MIXED_MODE_USER)
      Yap_emit(native_op, 0, 0, &cglobs->cint);
+  Yap_emit(ensure_space_op, Zero , Zero, &cglobs->cint);
+  cglobs->space_op = cglobs->cint.cpc;
   c_args(t, 0, cglobs);
 }
 
@@ -3537,6 +3539,10 @@ Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod, volatile Term src)
     }
     if (LOCAL_ErrorMessage)
       return (0);
+    /* make sure we give enough space for the  fact */
+    if (cglobs.space_op)
+      cglobs.space_op->rnd1 = cglobs.space_used;
+
 #ifdef DEBUG
     if (GLOBAL_Option['g' - 96])
       Yap_ShowCode(&cglobs.cint);

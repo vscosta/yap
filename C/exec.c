@@ -33,6 +33,7 @@ STATIC_PROTO(Int  EnterCreepMode, (Term, Term CACHE_TYPE));
 STATIC_PROTO(Int  p_save_cp, ( USES_REGS1 ));
 STATIC_PROTO(Int  p_execute, ( USES_REGS1 ));
 STATIC_PROTO(Int  p_execute0, ( USES_REGS1 ));
+static int execute_pred(PredEntry *ppe, CELL *pt USES_REGS);
 
 static Term
 cp_as_integer(choiceptr cp USES_REGS)
@@ -666,7 +667,7 @@ p_do_goal_expansion( USES_REGS1 )
   if ( (pe = RepPredProp(Yap_GetPredPropByFunc(FunctorGoalExpansion2, cmod) ) ) &&
        pe->OpcodeOfPred != FAIL_OPCODE &&
        pe->OpcodeOfPred != UNDEF_OPCODE &&
-       CallPredicate(pe, B, pe->CodeOfPred PASS_REGS) ) {
+       execute_pred(pe, NULL PASS_REGS) ) {
     out = TRUE;
     ARG3 = ARG2;
     goto complete;
@@ -675,7 +676,7 @@ p_do_goal_expansion( USES_REGS1 )
   if ( (pe = RepPredProp(Yap_GetPredPropByFunc(FunctorGoalExpansion2, SYSTEM_MODULE ) ) ) &&
        pe->OpcodeOfPred != FAIL_OPCODE &&
        pe->OpcodeOfPred != UNDEF_OPCODE &&
-       CallPredicate(pe, B, pe->CodeOfPred PASS_REGS) ) {
+       execute_pred(pe, NULL PASS_REGS) ) {
     out = TRUE;
     ARG3 = ARG2;
     goto complete;
@@ -686,7 +687,7 @@ p_do_goal_expansion( USES_REGS1 )
   if ( (pe = RepPredProp(Yap_GetPredPropByFunc(FunctorGoalExpansion, USER_MODULE ) ) ) &&
        pe->OpcodeOfPred != FAIL_OPCODE &&
        pe->OpcodeOfPred != UNDEF_OPCODE &&
-       CallPredicate(pe, B, pe->CodeOfPred PASS_REGS) ) {
+       execute_pred(pe, NULL PASS_REGS) ) {
     out = TRUE;
     goto complete;
   }
@@ -696,7 +697,7 @@ p_do_goal_expansion( USES_REGS1 )
        (pe = RepPredProp(Yap_GetPredPropByFunc(FunctorGoalExpansion2, USER_MODULE ) ) ) &&
        pe->OpcodeOfPred != FAIL_OPCODE &&
        pe->OpcodeOfPred != UNDEF_OPCODE &&
-       CallPredicate(pe, B, pe->CodeOfPred PASS_REGS) ) {
+       execute_pred(pe, NULL PASS_REGS) ) {
     ARG3 = ARG2;
     out = TRUE;
   }
@@ -728,7 +729,7 @@ p_do_term_expansion( USES_REGS1 )
   if ( (pe = RepPredProp(Yap_GetPredPropByFunc(FunctorTermExpansion, cmod) ) ) &&
        pe->OpcodeOfPred != FAIL_OPCODE &&
        pe->OpcodeOfPred != UNDEF_OPCODE &&
-       CallPredicate(pe, B, pe->CodeOfPred PASS_REGS) ) {
+       execute_pred(pe, NULL PASS_REGS) ) {
     out = TRUE;
     goto complete;
   }
@@ -736,7 +737,7 @@ p_do_term_expansion( USES_REGS1 )
   if ( (pe = RepPredProp(Yap_GetPredPropByFunc(FunctorTermExpansion, SYSTEM_MODULE ) ) ) &&
        pe->OpcodeOfPred != FAIL_OPCODE &&
        pe->OpcodeOfPred != UNDEF_OPCODE &&
-       CallPredicate(pe, B, pe->CodeOfPred PASS_REGS) ) {
+       execute_pred(pe, NULL PASS_REGS) ) {
     out = TRUE;
     goto complete;
   }
@@ -745,7 +746,7 @@ p_do_term_expansion( USES_REGS1 )
        (pe = RepPredProp(Yap_GetPredPropByFunc(FunctorTermExpansion, USER_MODULE ) ) ) &&
        pe->OpcodeOfPred != FAIL_OPCODE &&
        pe->OpcodeOfPred != UNDEF_OPCODE &&
-       CallPredicate(pe, B, pe->CodeOfPred PASS_REGS) ) {
+       execute_pred(pe, NULL PASS_REGS) ) {
     out = TRUE;
   }
  complete:
@@ -1142,7 +1143,7 @@ init_stack(int arity, CELL *pt, int top, choiceptr saved_b USES_REGS)
   /* and now create a pseudo choicepoint for much the same reasons */
   /* CP = YESCODE; */
   /* keep a place where you can inform you had an exception */
-  { 
+  if (pt) { 
     int i;
     for (i = 0; i < arity; i++) {
       XREGS[i+1] = *pt++;
@@ -1167,7 +1168,7 @@ init_stack(int arity, CELL *pt, int top, choiceptr saved_b USES_REGS)
 }
 
 static Int
-do_goal(Term t, yamop *CodeAdr, int arity, CELL *pt, int top USES_REGS)
+do_goal(yamop *CodeAdr, int arity, CELL *pt, int top USES_REGS)
 {
   choiceptr saved_b = B;
   Int out;
@@ -1193,59 +1194,28 @@ Yap_exec_absmi(int top)
 }
 
 
-Int
-Yap_execute_goal(Term t, int nargs, Term mod)
+static int
+execute_pred(PredEntry *ppe, CELL *pt USES_REGS)
 {
-  CACHE_REGS
-  Int             out;
-  yamop        *CodeAdr;
   yamop *saved_p, *saved_cp;
-  Prop pe;
-  PredEntry *ppe;
-  CELL *pt;
-  /* preserve the current restart environment */
-  /* visualc*/
-  /* just keep the difference because of possible garbage collections */
-
+  Int saved_slot = CurSlot;
+  yamop        *CodeAdr;
+  Int             out;
 
   saved_p = P;
   saved_cp = CP;
   
-  if (IsAtomTerm(t)) {
-    Atom a = AtomOfTerm(t);
-    pt = NULL;
-    pe = PredPropByAtom(a, mod);
-  } else if (IsApplTerm(t)) {
-    Functor f = FunctorOfTerm(t);
-
-    if (IsBlobFunctor(f)) {
-      Yap_Error(TYPE_ERROR_CALLABLE,t,"call/1");
-      return(FALSE);
-    }
-    /* I cannot use the standard macro here because
-       otherwise I would dereference the argument and
-       might skip a svar */
-    pt = RepAppl(t)+1;
-    pe = PredPropByFunc(f, mod);
-  } else {
-    Yap_Error(TYPE_ERROR_CALLABLE,t,"call/1");
-    return(FALSE);
-  }
-  ppe = RepPredProp(pe);
-  if (pe == NIL) {
-    return CallMetaCall(t, mod PASS_REGS);
-  }
-  PELOCK(81,RepPredProp(pe));
-  if (IsAtomTerm(t)) {
+  PELOCK(81,ppe);
+  if (ppe->ArityOfPE == 0) {
     CodeAdr = ppe->CodeOfPred;
     UNLOCK(ppe->PELock);
-    out = do_goal(t, CodeAdr, 0, pt, FALSE PASS_REGS);
+    out = do_goal(CodeAdr, 0, pt, FALSE PASS_REGS);
   } else {
-    Functor f = FunctorOfTerm(t);
     CodeAdr = ppe->CodeOfPred;
     UNLOCK(ppe->PELock);
-    out = do_goal(t, CodeAdr, ArityOfFunctor(f), pt, FALSE PASS_REGS);
+    out = do_goal(CodeAdr, ppe->ArityOfPE, pt, FALSE PASS_REGS);
   }
+  CurSlot = saved_slot;
 
   if (out == 1) {
     choiceptr cut_B;
@@ -1284,15 +1254,13 @@ Yap_execute_goal(Term t, int nargs, Term mod)
     DEPTH= ENV[E_DEPTH];
 #endif
     ENV  = (CELL *)(ENV[E_E]);
-    Yap_StartSlots( PASS_REGS1 );
     /* we have failed, and usually we would backtrack to this B,
        trouble is, we may also have a delayed cut to do */
     if (B != NULL)
       HB   = B->cp_h;
     YENV = ENV;
-    return(TRUE);
+    return TRUE;
   } else if (out == 0) {
-    ASP  = B->cp_env;
     P    = saved_p;
     CP   = saved_cp;
     H    = B->cp_h;
@@ -1313,6 +1281,47 @@ Yap_execute_goal(Term t, int nargs, Term mod)
     return(FALSE);
   }
 }
+
+Int
+Yap_execute_goal(Term t, int nargs, Term mod)
+{
+  CACHE_REGS
+  Prop pe;
+  PredEntry *ppe;
+  CELL *pt;
+  /* preserve the current restart environment */
+  /* visualc*/
+  /* just keep the difference because of possible garbage collections */
+
+
+  if (IsAtomTerm(t)) {
+    Atom a = AtomOfTerm(t);
+    pt = NULL;
+    pe = PredPropByAtom(a, mod);
+  } else if (IsApplTerm(t)) {
+    Functor f = FunctorOfTerm(t);
+
+    if (IsBlobFunctor(f)) {
+      Yap_Error(TYPE_ERROR_CALLABLE,t,"call/1");
+      return(FALSE);
+    }
+    /* I cannot use the standard macro here because
+       otherwise I would dereference the argument and
+       might skip a svar */
+    pt = RepAppl(t)+1;
+    pe = PredPropByFunc(f, mod);
+  } else {
+    Yap_Error(TYPE_ERROR_CALLABLE,t,"call/1");
+    return(FALSE);
+  }
+  ppe = RepPredProp(pe);
+  if (pe == NIL) {
+    return CallMetaCall(t, mod PASS_REGS);
+  }
+  return execute_pred(ppe, pt PASS_REGS);
+
+}
+
 
 void
 Yap_trust_last(void)
@@ -1399,7 +1408,7 @@ Yap_RunTopGoal(Term t)
 	  "unable to boot because of too little Trail space");
   }
 #endif
-  goal_out = do_goal(t, CodeAdr, arity, pt, TRUE PASS_REGS);
+  goal_out = do_goal(CodeAdr, arity, pt, TRUE PASS_REGS);
   return goal_out;
 }
 

@@ -74,6 +74,7 @@
   AtomDefault = Yap_LookupAtom("default");
   AtomDevNull = Yap_LookupAtom("/dev/null");
   AtomDiff = Yap_LookupAtom("\\=");
+  AtomDollar = Yap_FullLookupAtom("$");
   AtomDoLogUpdClause = Yap_FullLookupAtom("$do_log_upd_clause");
   AtomDoLogUpdClause0 = Yap_FullLookupAtom("$do_log_upd_clause0");
   AtomDoLogUpdClauseErase = Yap_FullLookupAtom("$do_log_upd_clause_erase");
@@ -127,6 +128,7 @@
   AtomGlobalSp = Yap_LookupAtom("global_sp");
   AtomGlobalTrie = Yap_LookupAtom("global_trie");
   AtomGoalExpansion = Yap_LookupAtom("goal_expansion");
+  AtomHat = Yap_LookupAtom("^");
   AtomHERE = Yap_LookupAtom("\n   <====HERE====>  \n");
   AtomHandleThrow = Yap_FullLookupAtom("$handle_throw");
   AtomHeap = Yap_LookupAtom("heap");
@@ -390,6 +392,7 @@
   FunctorGoalExpansion2 = Yap_MkFunctor(AtomGoalExpansion,2);
   FunctorGoalExpansion = Yap_MkFunctor(AtomGoalExpansion,3);
   FunctorHandleThrow = Yap_MkFunctor(AtomHandleThrow,3);
+  FunctorHat = Yap_MkFunctor(AtomHat,2);
   FunctorId = Yap_MkFunctor(AtomId,1);
   FunctorIs = Yap_MkFunctor(AtomIs,2);
   FunctorLastExecuteWithin = Yap_MkFunctor(AtomLastExecuteWithin,1);

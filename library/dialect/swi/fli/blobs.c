@@ -20,6 +20,10 @@
 
 #include <string.h>
 
+/* for freeBSD9.1 */
+#define _WITH_DPRINTF
+#include <stdio.h>
+
 #include	<SWI-Prolog.h>
 
 #include "swi.h"

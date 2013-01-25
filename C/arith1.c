@@ -523,8 +523,7 @@ eval1(Int fi, Term t) {
 #endif
 #if HAVE_ISINF
       if (isinf(dbl)) {
-	return Yap_ArithError(EVALUATION_ERROR_INT_OVERFLOW, MkFloatTerm(dbl), "integer\
-(%f)",dbl);
+	return Yap_ArithError(EVALUATION_ERROR_INT_OVERFLOW, MkFloatTerm(dbl), "integer (%f)",dbl);
       }
 #endif
       if (dbl < 0.0)

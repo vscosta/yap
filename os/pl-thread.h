@@ -46,26 +46,43 @@ extern void             freeSimpleMutex(counting_mutex *m);
 
 extern counting_mutex _PL_mutexes[];	/* Prolog mutexes */
 
-#define L_MISC		0
-#define L_ALLOC		1
-#define L_ATOM		2
-#define L_FLAG	        3
-#define L_FUNCTOR	4
-#define L_RECORD	5
-#define L_THREAD	6
-#define L_PREDICATE	7
-#define L_MODULE	8
-#define L_TABLE		9
-#define L_BREAK	       10
-#define L_FILE	       11
-#define L_PLFLAG       12
-#define L_OP	       13
-#define L_INIT	       14
-#define L_TERM	       15
-#define L_GC	       16
-#define L_AGC	       17
-#define L_FOREIGN      18
-#define L_OS	       19
+#define L_MISC          0
+#define L_ALLOC         1
+#define L_ATOM          2
+#define L_FLAG          3
+#define L_FUNCTOR       4
+#define L_RECORD        5
+#define L_THREAD        6
+#define L_PREDICATE     7
+#define L_MODULE        8
+#define L_TABLE         9
+#define L_BREAK        10
+#define L_FILE         11
+#define L_SEETELL      12
+#define L_PLFLAG       13
+#define L_OP           14
+#define L_INIT         15
+#define L_TERM         16
+#define L_GC           17
+#define L_AGC          18
+#define L_STOPTHEWORLD 19
+#define L_FOREIGN      20
+#define L_OS           21
+#ifdef __WINDOWS__
+#define L_DDE          22
+#define L_CSTACK       23
+#endif
+
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+The IF_MT(id, g) macro  is  used  to   bypass  mutexes  if  threading  is
+disabled. We cannot do this for the L_THREAD mutex however as we need to
+control when threads can be created.
+
+We  assume  id  ==  L_THREAD  is  optimized  away  if  id  is  known  at
+compile-time
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+#define IF_MT(id, g) if ( id == L_THREAD || GD->thread.enabled ) g
 
 #ifdef O_CONTENTION_STATISTICS
 #define countingMutexLock(cm) \

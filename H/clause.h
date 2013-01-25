@@ -173,6 +173,7 @@ typedef struct index_t {
   CELL **key;
   CELL *cls;
   CELL *links;
+  size_t size;
   yamop *code;
 } Index_t;
 

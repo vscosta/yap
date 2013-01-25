@@ -419,7 +419,7 @@ true :- true.
 	 (
 	     get_value('$syntaxcheckflag',on)
           ->
-	     '$check_term'(Source, V, Pos, BodyMod)
+	     '$check_term'(Source, G, V, Pos, BodyMod)
 	 ;
 	     true 
 	 ),
@@ -488,8 +488,8 @@ true :- true.
 	 '$yes_no'(G,(?-)).
 '$query'(G,V) :-
 	 (
-	   '$exit_system_mode',
 	  yap_hacks:current_choice_point(CP),
+	   '$exit_system_mode',
 	  '$execute'(G),
 	  yap_hacks:current_choice_point(NCP),
 	  ( '$enter_system_mode' ; '$exit_system_mode', fail),
@@ -1042,6 +1042,24 @@ bootstrap(F) :-
         true
        ).
 
+'$loop'(Stream,exo) :-
+	prolog_flag(agc_margin,Old,0),	
+	prompt1('|     '), prompt(_,'| '),
+	'$current_module'(OldModule),
+	repeat,
+		'$system_catch'(dbload_from_stream(Stream, OldModule, exo), '$db_load', Error,
+			 user:'$LoopError'(Error, Status)),
+	prolog_flag(agc_margin,_,Old),
+	!.
+'$loop'(Stream,db) :-
+	prolog_flag(agc_margin,Old,0),	
+	prompt1('|     '), prompt(_,'| '),
+	'$current_module'(OldModule),
+	repeat,
+		'$system_catch'(dbload_from_stream(Stream, OldModule, db), '$db_load', Error,
+			 user:'$LoopError'(Error, Status)),
+	prolog_flag(agc_margin,_,Old),
+	!.
 '$loop'(Stream,Status) :-
 	(
 	 Status = top
@@ -1180,8 +1198,12 @@ throw(_Ball) :-
 	!,
 	'$jump_env_and_store_ball'(Ball).
 throw(Ball) :-
+	( var(Ball) -> 
+	    '$do_error'(instantiation_error,throw(Ball))
+	;
 	% get current jump point
-	'$jump_env_and_store_ball'(Ball).
+	    '$jump_env_and_store_ball'(Ball)
+	).
 
 
 % just create a choice-point

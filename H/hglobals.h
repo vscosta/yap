@@ -98,4 +98,5 @@ typedef struct global_data {
 #endif
 
 
+  char*  RestoreFile_;
 } w_shared;

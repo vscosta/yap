@@ -274,4 +274,7 @@ Functor				FunctorVar				=FunctorVar
 // exo indexing
 UInt				ibnds[256]				void
 
+// atom completion
+struct scan_atoms*		search_atoms				void
+
 END_WORKER_LOCAL

@@ -8,7 +8,7 @@
 @c @setchapternewpage odd
 @c %**end of header
 
-@set VERSION 6.3.2
+@set VERSION 6.3.3
 @set EDITION 4.2.9
 @set UPDATED Oct 2010
 
@@ -1686,6 +1686,13 @@ supported encodings.
     is @code{compact} clauses are compiled and no source code is stored;
     if it is @code{source} clauses are compiled and source code is stored;
     if it is @code{assert_all} clauses are asserted into the data-base.
+
+@item comnsult(+@var{Mode})
+    This extension controls the type of file to load. If @var{Mode}
+    is @code{consult}, clauses are added to the data-base,
+    is @code{reconsult}, clauses are recompiled,
+    is @code{db}, these are facts that need to be added to the data-base,
+    is @code{exo}, these are facts with atoms and integers that need a very compact representation.
 @end table
 
 @item ensure_loaded(@var{+F}) [ISO]
@@ -1708,7 +1715,14 @@ if they have not been loaded before, does nothing otherwise.
 @syindex load_db/1
 @cnindex load_db/1
 @noindent
-Load a database of facts with equal structure. Useful when wanting to
+Load a database of facts with equal structure.
+
+@item exo_files(@var{+Files})
+@findex exo_files/1
+@syindex exo_files/1
+@cnindex exo_files/1
+@noindent
+Load compactly a database of facts with equal structure. Useful when wanting to
 read in a very compact way database tables.
 
 @item make
