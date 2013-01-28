@@ -328,27 +328,6 @@ yap_flag(version,X) :-
 yap_flag(version,X) :-
 	'$do_error'(permission_error(modify,flag,version),yap_flag(version,X)).
 
-yap_flag(version_data,X) :-
-	var(X), !,
-	'$get_version_codes'(Major,Minor,Patch),
-	X = yap(Major, Minor, Patch, 0).
-yap_flag(version_data,X) :-
-	'$do_error'(permission_error(modify,flag,version),yap_flag(version_data,X)).
-
-'$get_version_codes'(Major,Minor,Patch) :-
-	get_value('$version_name',X),
-	atom_codes(X,[_,_,_,_|VersionTag]), %'
-	'$fetch_num_code'(VersionTag,0,Major,L1),
-	'$fetch_num_code'(L1,0,Minor,L2),
-	'$fetch_num_code'(L2,0,Patch,_).
-
-'$fetch_num_code'([],Code,Code,[]).
-'$fetch_num_code'([C|Cs],Code0,CodeF,L) :-
-        C >= 0'0, C =< 0'9, !,
-	CodeI is Code0*10+(C-0'0), %'
-	'$fetch_num_code'(Cs,CodeI,CodeF,L).
-'$fetch_num_code'([_|Cs],Code,Code,Cs).
-
 yap_flag(max_integer,X) :-
 	var(X), !,
 	'$access_yap_flags'(0, 1),
@@ -911,7 +890,6 @@ yap_flag(dialect,yap).
 '$yap_system_flag'(verbose_load).
 '$yap_system_flag'(verbose_auto_load).
 '$yap_system_flag'(version).
-'$yap_system_flag'(version_data).
 '$yap_system_flag'(windows).
 '$yap_system_flag'(write_strings).
 
