@@ -950,26 +950,27 @@ LiftedCircuit::createSmoothNode (
 vector<LogVarTypes>
 LiftedCircuit::getAllPossibleTypes (unsigned nrLogVars) const
 {
-  if (nrLogVars == 0) {
-    return {};
-  }
-  if (nrLogVars == 1) {
-    return {{LogVarType::POS_LV},{LogVarType::NEG_LV}};
-  }
   vector<LogVarTypes> res;
-  Ranges ranges (nrLogVars, 2);
-  Indexer indexer (ranges);
-  while (indexer.valid()) {
-    LogVarTypes types;
-    for (size_t i = 0; i < nrLogVars; i++) {
-      if (indexer[i] == 0) {
-        types.push_back (LogVarType::POS_LV);
-      } else {
-        types.push_back (LogVarType::NEG_LV);
+  if (nrLogVars == 0) {
+    // do nothing
+  } else if (nrLogVars == 1) {
+    res.push_back ({ LogVarType::POS_LV });
+    res.push_back ({ LogVarType::NEG_LV });
+  } else {
+    Ranges ranges (nrLogVars, 2);
+    Indexer indexer (ranges);
+    while (indexer.valid()) {
+      LogVarTypes types;
+      for (size_t i = 0; i < nrLogVars; i++) {
+        if (indexer[i] == 0) {
+          types.push_back (LogVarType::POS_LV);
+        } else {
+          types.push_back (LogVarType::NEG_LV);
+        }
       }
+      res.push_back (types);
+      ++ indexer;
     }
-    res.push_back (types);
-    ++ indexer;
   }
   return res;
 }
