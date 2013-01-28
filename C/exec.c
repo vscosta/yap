@@ -1039,12 +1039,18 @@ p_execute_depth_limit( USES_REGS1 ) {
   Term d = Deref(ARG2);
   if (IsVarTerm(d)) {
     Yap_Error(INSTANTIATION_ERROR,d,"depth_bound_call/2");    
-  } else if (!IsIntTerm(d)) {
-    Yap_Error(TYPE_ERROR_INTEGER, d, "depth_bound_call/2");
-    return(FALSE);
+    return FALSE;
+  } else if (!IsIntegerTerm(d)) {
+    if (IsFloatTerm(d) && isinf(FloatOfTerm(d))) {
+      DEPTH = RESET_DEPTH();
+    } else {
+      Yap_Error(TYPE_ERROR_INTEGER, d, "depth_bound_call/2");
+      return FALSE;
+    }
+  } else {
+    DEPTH = MkIntTerm(IntegerOfTerm(d)*2);
   }
-  DEPTH = MkIntTerm(IntOfTerm(d)*2);
-  return(p_execute( PASS_REGS1 ));
+  return p_execute( PASS_REGS1 );
 }
 #endif
 
