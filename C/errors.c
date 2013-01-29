@@ -444,7 +444,7 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
       tmpbuf[0] = '\0';
     }
     va_end (ap);
-    fprintf(stderr,"%% ERROR WITHIN ERROR: %s\n", tmpbuf);
+    fprintf(stderr,"%% ERROR WITHIN ERROR %d: %s\n", tmpbuf, LOCAL_CurrentError);
     exit(1);
   }
   /* must do this here */
@@ -485,6 +485,7 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
   if (type == PURE_ABORT || LOCAL_PrologMode & BootMode) {
     where = TermNil;
     LOCAL_PrologMode &= ~AbortMode;
+    LOCAL_CurrentError = type;
     LOCAL_PrologMode |= InErrorMode;
     /* make sure failure will be seen at next port */
     if (LOCAL_PrologMode & AsyncIntMode)
@@ -499,6 +500,7 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
     }
     /* Exit Abort Mode, if we were there */
     LOCAL_PrologMode &= ~AbortMode;
+    LOCAL_CurrentError = type;
     LOCAL_PrologMode |= InErrorMode;
     if (!(where = Yap_CopyTerm(where))) {
       where = TermNil;

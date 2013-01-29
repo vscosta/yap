@@ -186,6 +186,9 @@ Term	STD_PROTO(Yap_GetException,(void));
 /* exo.c */
 void	STD_PROTO(Yap_InitExoPreds,(void));
 
+/* foreign.c */
+char   *STD_PROTO(Yap_FindExecutable,(void));
+
 /* gprof.c */
 void	STD_PROTO(Yap_InitLowProf,(void));
 #if  LOW_PROF

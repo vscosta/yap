@@ -176,6 +176,7 @@ typedef struct worker_local {
   struct db_globs*  s_dbg_;
 
   yap_error_number  matherror_;
+  yap_error_number  CurrentError_;
 
   int  heap_overflows_;
   Int  total_heap_overflow_time_;

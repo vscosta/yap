@@ -4010,7 +4010,7 @@ p_executable( USES_REGS1 )
   if (GLOBAL_argv && GLOBAL_argv[0])
     Yap_TrueFileName (GLOBAL_argv[0], LOCAL_FileNameBuf, FALSE);
   else
-    strncpy(LOCAL_FileNameBuf,Yap_FindExecutable (), YAP_FILENAME_MAX) ;
+    strncpy(LOCAL_FileNameBuf, Yap_FindExecutable(), YAP_FILENAME_MAX-1) ;
 
   return Yap_unify(MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf)),ARG1);
 }
@@ -4034,23 +4034,25 @@ p_access_yap_flags( USES_REGS1 )
   if (flag < 0 || flag >= NUMBER_OF_YAP_FLAGS) {
     return(FALSE);
   }
-#ifdef TABLING
   if (flag == TABLING_MODE_FLAG) {
+#ifdef TABLING
     tout = TermNil;
     if (IsMode_LocalTrie(yap_flags[flag]))
       tout = MkPairTerm(MkAtomTerm(AtomLocalTrie), tout);
-    else if (IsMode_GlobalTrie(yap_flags[flag]))
+    else // if (IsMode_GlobalTrie(yap_flags[flag]))
       tout = MkPairTerm(MkAtomTerm(AtomGlobalTrie), tout);
-    if (IsMode_ExecAnswers(yap_flags[flag]))
-      tout = MkPairTerm(MkAtomTerm(AtomExecAnswers), tout);
-    else if (IsMode_LoadAnswers(yap_flags[flag]))
+    if (IsMode_LoadAnswers(yap_flags[flag]))
       tout = MkPairTerm(MkAtomTerm(AtomLoadAnswers), tout);
-    if (IsMode_Batched(yap_flags[flag]))
-      tout = MkPairTerm(MkAtomTerm(AtomBatched), tout);
-    else if (IsMode_Local(yap_flags[flag]))
+    else // if (IsMode_ExecAnswers(yap_flags[flag]))
+      tout = MkPairTerm(MkAtomTerm(AtomExecAnswers), tout);
+    if (IsMode_Local(yap_flags[flag]))
       tout = MkPairTerm(MkAtomTerm(AtomLocal), tout);
-  } else
+    else // if (IsMode_Batched(yap_flags[flag]))
+      tout = MkPairTerm(MkAtomTerm(AtomBatched), tout);
+#else
+    tout = MkAtomTerm(AtomFalse);
 #endif /* TABLING */
+  } else
   tout = MkIntegerTerm(yap_flags[flag]);
   return(Yap_unify(ARG2, tout));
 }

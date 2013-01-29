@@ -310,6 +310,8 @@
 
 #define LOCAL_matherror LOCAL->matherror_
 #define REMOTE_matherror(wid) REMOTE(wid)->matherror_
+#define LOCAL_CurrentError LOCAL->CurrentError_
+#define REMOTE_CurrentError(wid) REMOTE(wid)->CurrentError_
 
 #define LOCAL_heap_overflows LOCAL->heap_overflows_
 #define REMOTE_heap_overflows(wid) REMOTE(wid)->heap_overflows_

@@ -105,7 +105,6 @@ typedef void (*YapInitProc)(void);
 #define STD_PROTO(F,A)  F A
 #endif
 
-char   *STD_PROTO(Yap_FindExecutable,(void));
 void   *STD_PROTO(Yap_LoadForeignFile,(char *, int));
 int     STD_PROTO(Yap_CallForeignFile,(void *, char *));
 int     STD_PROTO(Yap_CloseForeignFile,(void *));
