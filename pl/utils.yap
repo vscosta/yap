@@ -449,6 +449,17 @@ atomic_concat(X,Y,At) :-
 	name(X, Xs),
 	name(Y, Ys).
 
+
+%
+% small compatibility hack
+%
+sub_string(String, Bef, Size, After, SubStr) :-
+	catch(string_to_atom(String, A), _, true),
+	catch(string_to_atom(SubStr, SubA), _, true),
+	sub_atom(A, Bef, Size, After, SubA),
+	catch(string_to_atom(String, A), _, true),
+	catch(string_to_atom(SubStr, SubA), _, true).	
+
 sub_atom(At, Bef, Size, After, SubAt) :-
 	% extract something from an atom
 	atom(At), integer(Bef), integer(Size), !,
