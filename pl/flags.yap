@@ -503,18 +503,14 @@ yap_flag(debug,X) :-
 
 yap_flag(discontiguous_warnings,X) :-
 	var(X), !,
-	('$syntax_check_mode'(on,_), '$syntax_check_discontiguous'(on,_) ->
-	    X = on
-	;
-	    X = off
-	).
+	'$syntax_check_discontiguous'(on,_).
 yap_flag(discontiguous_warnings,X) :-
 	'$transl_to_on_off'(_,X), !,
-	(X = on -> 
-	    '$syntax_check_mode'(_,on),
-	    '$syntax_check_discontiguous'(_,on)
+	(X == on -> 
+	    style_check(discontiguous)
 	;
-	    '$syntax_check_discontiguous'(_,off)).
+	    style_check(-discontiguous)
+	).
 yap_flag(discontiguous_warnings,X) :-
 	'$do_error'(domain_error(flag_value,discontiguous_warnings+X),yap_flag(discontiguous_warnings,X)).
 
@@ -527,18 +523,14 @@ yap_flag(occurs_check,X) :-
 
 yap_flag(redefine_warnings,X) :-
 	var(X), !,
-	('$syntax_check_mode'(on,_), '$syntax_check_multiple'(on,_) ->
-	    X = on
-	;
-	    X = off
-	).
+	'$syntax_check_multiple'(X,X).
 yap_flag(redefine_warnings,X) :-
 	'$transl_to_on_off'(_,X), !,
-	(X = on -> 
-	    '$syntax_check_mode'(_,on),
-	    '$syntax_check_multiple'(_,on)
+	(X == on -> 
+	    style_check(multiple)
 	;
-	    '$syntax_check_multiple'(_,off)).
+	    style_check(-multiple)
+	).
 yap_flag(redefine_warnings,X) :-
 	'$do_error'(domain_error(flag_value,redefine_warnings+X),yap_flag(redefine_warnings,X)).
 
@@ -559,18 +551,14 @@ yap_flag(open_expands_filename,Expand) :-
 
 yap_flag(single_var_warnings,X) :-
 	var(X), !,
-	('$syntax_check_mode'(on,_), '$syntax_check_single_var'(on,_) ->
-	    X = on
-	;
-	    X = off
-	).
+	'$syntax_check_single_var'(X,X).
 yap_flag(single_var_warnings,X) :-
 	'$transl_to_on_off'(_,X), !,
-	(X = on -> 
-	    '$syntax_check_mode'(_,on),
-	    '$syntax_check_single_var'(_,on)
+	(X == on ->
+	     style_check(single_var)
 	;
-	    '$syntax_check_single_var'(_,off)).
+	     style_check(-single_var)
+	).
 yap_flag(single_var_warnings,X) :-
 	'$do_error'(domain_error(flag_value,single_var_warnings+X),yap_flag(single_var_warnings,X)).
 

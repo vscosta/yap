@@ -177,7 +177,7 @@ yap_hacks:cut_by(CP) :- '$$cut_by'(CP).
 
 :- set_value('$user_module',user), '$protect'.
 
-:- style_check([]).
+:- style_check([-discontiguous,-multiple,-single_var]).
 
 %
 % moved this to init_gc in gc.c to separate the alpha
