@@ -192,7 +192,7 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 	'$ground_vars'(V2L).
 
 '$sv_list'([],[]).
-'$sv_list'([_|V].T,L) :- nonvar(V), !,
+'$sv_list'([(_=V)|T],L) :- nonvar(V), !,
 	'$sv_list'(T,L).
 '$sv_list'([(X=_)|T], L) :-
 	atom_concat('_',_,X), !,

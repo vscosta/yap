@@ -423,8 +423,9 @@ object_name(unsigned_byte, 'unsigned byte').
 object_name(unsigned_char, 'unsigned char').
 object_name(variable, 'unbound variable').
 
-svs([H]) --> !, H.
-svs([H|L]) -->
+svs([A]) --> !, { atom_codes(A, H) }, H.
+svs([A|L]) -->
+	{ atom_codes(A, H) },
 	H,
 	", ",
 	svs(L).
