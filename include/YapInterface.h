@@ -274,6 +274,8 @@ extern X_API void PROTO(YAP_FreeSpaceFromYap,(void *));
 /*  int YAP_RunGoal(YAP_Term) */
 extern X_API YAP_Int PROTO(YAP_RunGoal,(YAP_Term));
 
+extern X_API YAP_Int PROTO(YAP_RunPredicate,(YAP_PredEntryPtr, YAP_Term *));
+
 /*  int YAP_RunGoalOnce(YAP_Term) */
 extern X_API YAP_Int PROTO(YAP_RunGoalOnce,(YAP_Term));
 
@@ -288,7 +290,7 @@ extern X_API YAP_Bool PROTO(YAP_ContinueGoal,(void));
 
 
 /*  void YAP_PruneGoal(void) */
-extern X_API void PROTO(YAP_PruneGoal,(void));
+extern X_API void PROTO(YAP_PruneGoal,(YAP_dogoalinfo *));
 
 /*  int YAP_FunctorToPred(struct pred_entry *, YAP_Term *) */
 extern X_API YAP_PredEntryPtr PROTO(YAP_FunctorToPred,(YAP_Functor));

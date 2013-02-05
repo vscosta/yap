@@ -1126,8 +1126,8 @@ exec_absmi(int top USES_REGS)
 }
 
 
-static  void
-init_stack(int arity, CELL *pt, int top, choiceptr saved_b USES_REGS)
+void
+Yap_PrepGoal(UInt arity, CELL *pt, choiceptr saved_b USES_REGS)
 {
   /* create an initial pseudo environment so that when garbage
      collection is going up in the environment chain it doesn't get
@@ -1168,8 +1168,6 @@ init_stack(int arity, CELL *pt, int top, choiceptr saved_b USES_REGS)
 #endif /* DEPTH_LIMIT */
   YENV = ASP = (CELL *)B;
   HB = H;
-  /* start with some slots so that we can use them */
-  Yap_StartSlots( PASS_REGS1 );
   CP = YESCODE;
 }
 
@@ -1179,7 +1177,7 @@ do_goal(yamop *CodeAdr, int arity, CELL *pt, int top USES_REGS)
   choiceptr saved_b = B;
   Int out;
 
-  init_stack(arity, pt, top, saved_b PASS_REGS);
+  Yap_PrepGoal(arity, pt, saved_b PASS_REGS);
   P = (yamop *) CodeAdr;
   S = CellPtr (RepPredProp (PredPropByFunc (Yap_MkFunctor(AtomCall, 1),0)));	/* A1 mishaps */
 
@@ -1774,8 +1772,7 @@ Yap_InitYaamRegs( int myworker_id )
   LOCK(REMOTE_SignalLock(myworker_id));
   CreepFlag = CalculateStackGap();
   UNLOCK(REMOTE_SignalLock(myworker_id));
-  EX = NULL;
-  init_stack(0, NULL, TRUE, NULL PASS_REGS);
+  Yap_PrepGoal(0, NULL, NULL PASS_REGS);
   /* the first real choice-point will also have AP=FAIL */ 
   /* always have an empty slots for people to use */
   CurSlot = 0;

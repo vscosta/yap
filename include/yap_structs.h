@@ -229,7 +229,7 @@ typedef struct YAP_pred_entry *YAP_PredEntryPtr;
 /* this should be opaque to the user */ 
 typedef struct {
   unsigned long  b;
-  struct yami *p;
+  struct yami *p, *cp;
 } YAP_dogoalinfo;
 
 typedef int  (*YAP_agc_hook)(void *_Atom);

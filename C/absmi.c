@@ -857,7 +857,6 @@ Yap_absmi(int inp)
       BOp(Ystop, l);
       SET_ASP(YREG, E_CB*sizeof(CELL));
       /* make sure ASP is initialised */
-      Yap_StartSlots( PASS_REGS1 );
       saveregs();
       
 #if PUSH_REGS

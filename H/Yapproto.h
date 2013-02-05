@@ -182,6 +182,7 @@ Int	STD_PROTO(Yap_execute_goal,(Term, int, Term));
 Int	STD_PROTO(Yap_exec_absmi,(int));
 void	STD_PROTO(Yap_trust_last,(void));
 Term	STD_PROTO(Yap_GetException,(void));
+void	STD_PROTO(Yap_PrepGoal,(UInt, CELL *, choiceptr USES_REGS));
 
 /* exo.c */
 void	STD_PROTO(Yap_InitExoPreds,(void));

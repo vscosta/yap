@@ -107,6 +107,10 @@
 #endif /* HAVE_SYS_TIME_H */
 #endif /* _MSC_VER */
 
+#if HAVE_TIME_H
+#include <time.h>
+#endif
+
 #ifdef __MINGW32__
 #ifndef _WIN32
 #define _WIN32 1
@@ -755,6 +759,10 @@ typedef struct thandle {
 #endif
   pthread_mutex_t tlock;
   pthread_mutex_t tlock_status;
+#if HAVE_GETHRTIME
+  hrtime_t start_of_w_times;
+  hrtime_t last_w_time;
+#endif
 #if HAVE_GETRUSAGE
   struct timeval *start_of_timesp;
   struct timeval *last_timep;
@@ -861,6 +869,8 @@ extern struct worker_local Yap_local;
 
 static inline void
 Yap_StartSlots( USES_REGS1 ) {
+  if (CurSlot == LCL0-ASP)
+    return;
   *--ASP = MkIntegerTerm(CurSlot);
   *--ASP = MkIntTerm(0);
   CurSlot = LCL0-ASP;

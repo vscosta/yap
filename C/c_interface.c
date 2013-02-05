@@ -462,6 +462,7 @@ X_API Term    STD_PROTO(YAP_NBufferToDiffList, (char *, Term, size_t));
 X_API Term    STD_PROTO(YAP_WideBufferToDiffList, (wchar_t *, Term));
 X_API Term    STD_PROTO(YAP_NWideBufferToDiffList, (wchar_t *, Term, size_t));
 X_API void    STD_PROTO(YAP_Error,(int, Term, char *, ...));
+X_API Int     STD_PROTO(YAP_RunPredicate,(PredEntry *, Term *));
 X_API Int     STD_PROTO(YAP_RunGoal,(Term));
 X_API Int     STD_PROTO(YAP_RunGoalOnce,(Term));
 X_API int     STD_PROTO(YAP_RestartGoal,(void));
@@ -472,7 +473,7 @@ X_API int     STD_PROTO(YAP_LeaveGoal,(int, YAP_dogoalinfo *));
 X_API int     STD_PROTO(YAP_GoalHasException,(Term *));
 X_API void    STD_PROTO(YAP_ClearExceptions,(void));
 X_API int     STD_PROTO(YAP_ContinueGoal,(void));
-X_API void    STD_PROTO(YAP_PruneGoal,(void));
+X_API void    STD_PROTO(YAP_PruneGoal,(YAP_dogoalinfo *));
 X_API IOSTREAM   *STD_PROTO(YAP_TermToStream,(Term));
 X_API IOSTREAM   *STD_PROTO(YAP_InitConsult,(int, char *));
 X_API void    STD_PROTO(YAP_EndConsult,(IOSTREAM *));
@@ -2272,36 +2273,14 @@ YAP_AtomToPredInModule(Atom at, Term mod)
 
 
 static int
-run_emulator(YAP_dogoalinfo *dgi)
+run_emulator(YAP_dogoalinfo *dgi USES_REGS)
 {
-  CACHE_REGS
-  choiceptr myB;
   int out;
-  BACKUP_MACHINE_REGS();
 
   LOCAL_PrologMode = UserMode;
   out = Yap_absmi(0);
   LOCAL_PrologMode = UserCCallMode;
-  myB = (choiceptr)(LCL0-dgi->b);
-  CP = myB->cp_cp;
-  if (!out ) {
-    /* recover stack */
-    /* on failed computations */
-    TR = B->cp_tr;
-    H = B->cp_h;
-#ifdef DEPTH_LIMIT
-    DEPTH = B->cp_depth = DEPTH;
-#endif /* DEPTH_LIMIT */
-    YENV = ENV = B->cp_env;
-    ASP = (CELL *)(B+1);
-    Yap_PopSlots( PASS_REGS1 );
-    B = B->cp_b;
-    HB = B->cp_h;
-  } else {
-    Yap_StartSlots( PASS_REGS1 );
-  }
-  P = dgi->p;
-  RECOVER_MACHINE_REGS();
+  Yap_StartSlots(PASS_REGS1);
   return out;
 }
 
@@ -2309,39 +2288,15 @@ X_API int
 YAP_EnterGoal(PredEntry *pe, Term *ptr, YAP_dogoalinfo *dgi)
 {
   CACHE_REGS
-  UInt i;
-  choiceptr myB;
   int out;
 
   BACKUP_MACHINE_REGS();
   dgi->p = P;
-  ptr--;
-  i = pe->ArityOfPE;
-  while (i>0) {
-    XREGS[i] = ptr[i];
-    i--;
-  }
+  dgi->cp = CP;
   P = pe->CodeOfPred;
-  /* create a choice-point to be tag new goal */
-  myB = (choiceptr)ASP;
-  myB--;
-  dgi->b = LCL0-(CELL *)myB;
-  myB->cp_tr = TR;
-  myB->cp_h = HB = H;
-  myB->cp_b = B;
-#ifdef DEPTH_LIMIT
-  myB->cp_depth = DEPTH;
-#endif /* DEPTH_LIMIT */
-  myB->cp_cp = CP;
-  myB->cp_ap = NOCODE;
-  myB->cp_env = ENV;
-  CP = YESCODE;
-  B = myB;
-  HB = H;
-  ASP = YENV = (CELL *)B;
-  Yap_PopSlots( PASS_REGS1 );
-  YENV[E_CB] = Unsigned (B);
-  out = run_emulator(dgi);
+  Yap_PrepGoal(pe->ArityOfPE, ptr, B PASS_REGS);
+  dgi->b = LCL0-(CELL*)B;
+  out = run_emulator(dgi PASS_REGS);
   RECOVER_MACHINE_REGS();
   return out;
 }
@@ -2361,7 +2316,7 @@ YAP_RetryGoal(YAP_dogoalinfo *dgi)
     return FALSE;
   }
   P = FAILCODE;
-  out = run_emulator(dgi);
+  out = run_emulator(dgi PASS_REGS);
   RECOVER_MACHINE_REGS();
   return out;
 }
@@ -2400,15 +2355,25 @@ YAP_LeaveGoal(int backtrack, YAP_dogoalinfo *dgi)
     Yap_TrimTrail();
   }
   /* recover local stack */
-  ASP = (CELL *)(B+1);
-  Yap_PopSlots( PASS_REGS1 );
+#ifdef DEPTH_LIMIT
+  DEPTH= ENV[E_DEPTH];
+#endif
   /* make sure we prune C-choicepoints */
   if (POP_CHOICE_POINT(B->cp_b))
     {
       POP_EXECUTE();
     }
-  B = B->cp_b;
-  HB = B->cp_h;
+  ENV  = (CELL *)(ENV[E_E]);
+  /* ASP should be set to the top of the local stack when we
+     did the call */
+  ASP = B->cp_env;
+  /* YENV should be set to the current environment */
+  YENV = ENV  = (CELL *)((B->cp_env)[E_E]);
+  B    = B->cp_b;
+  //SET_BB(B);
+  HB = PROTECT_FROZEN_H(B);
+  Yap_PopSlots( PASS_REGS1 );
+  CP = dgi->cp;
   P = dgi->p;
   RECOVER_MACHINE_REGS();
   return TRUE;
@@ -2645,12 +2610,13 @@ YAP_ContinueGoal(void)
 }
 
 X_API void
-YAP_PruneGoal(void)
+YAP_PruneGoal(YAP_dogoalinfo *gi)
 {
   CACHE_REGS 
- BACKUP_B();
+  BACKUP_B();
 
-  while (B->cp_ap != NOCODE) {
+  choiceptr myB = (choiceptr)(LCL0-gi->b);
+  while (B != myB) {
     /* make sure we prune C-choicepoints */
     if (POP_CHOICE_POINT(B->cp_b))
       {
@@ -2661,9 +2627,6 @@ YAP_PruneGoal(void)
     B = B->cp_b;
   }
   Yap_TrimTrail();
-  /* make sure that we do not destroy the guard choice-point */
-  if (Yap_op_from_opcode(B->cp_ap->opc) != _Nstop)
-    B = B->cp_b;
 
   RECOVER_B();
 }
