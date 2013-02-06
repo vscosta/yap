@@ -118,14 +118,6 @@ HistogramSet::getNumAssigns (unsigned N, unsigned R)
 
 
 
-ostream& operator<< (ostream &os, const HistogramSet& hs)
-{
-  os << "#" << hs.hist_;
-  return os;
-}
-
-
-
 unsigned
 HistogramSet::maxCount (size_t idx) const
 {
@@ -142,5 +134,13 @@ void
 HistogramSet::clearAfter (size_t idx)
 {
   std::fill (hist_.begin() + idx + 1, hist_.end(), 0);
+}
+
+
+
+ostream& operator<< (ostream &os, const HistogramSet& hs)
+{
+  os << "#" << hs.hist_;
+  return os;
 }
 

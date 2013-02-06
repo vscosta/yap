@@ -216,6 +216,17 @@ ConstraintTree::ConstraintTree (const ConstraintTree& ct)
 
 
 
+ConstraintTree::ConstraintTree (
+    const CTChilds& rootChilds,
+    const LogVars& logVars)
+        : root_(new CTNode (0, 0, rootChilds)),
+          logVars_(logVars),
+          logVarSet_(logVars)
+{
+}
+
+
+
 ConstraintTree::~ConstraintTree (void)
 {
   CTNode::deleteSubtree (root_);

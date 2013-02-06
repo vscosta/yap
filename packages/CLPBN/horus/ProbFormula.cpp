@@ -131,6 +131,22 @@ ProbFormula::getNewGroup (void)
 
 
 
+ObservedFormula::ObservedFormula (Symbol f, unsigned a, unsigned ev)
+    : functor_(f), arity_(a), evidence_(ev), constr_(a)
+{
+
+}
+
+
+
+ObservedFormula::ObservedFormula (Symbol f, unsigned ev, const Tuple& tuple)
+    : functor_(f), arity_(tuple.size()), evidence_(ev), constr_(arity_)
+{
+  constr_.addTuple (tuple);
+}
+
+
+
 ostream& operator<< (ostream &os, const ObservedFormula& of)
 {
   os << of.functor_ << "/" << of.arity_;

@@ -56,6 +56,8 @@ class BayesBallGraph
   public:
     BayesBallGraph (void) { }
 
+    bool empty (void) const { return nodes_.empty(); }
+
     void addNode (BBNode* n);
 
     void addEdge (VarId vid1, VarId vid2);
@@ -63,8 +65,6 @@ class BayesBallGraph
     const BBNode* getNode (VarId vid) const;
 
     BBNode* getNode (VarId vid);
-
-    bool empty (void) const { return nodes_.empty(); }
 
     void setIndexes (void);
 

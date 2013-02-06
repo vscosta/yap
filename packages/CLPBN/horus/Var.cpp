@@ -73,3 +73,38 @@ Var::states (void) const
   return states;
 }
 
+
+
+inline void
+Var::addVarInfo (
+    VarId vid, string label, const States& states)
+{
+  assert (Util::contains (varsInfo_, vid) == false);
+  varsInfo_.insert (make_pair (vid, VarInfo (label, states)));
+}
+
+
+
+inline VarInfo
+Var::getVarInfo (VarId vid)
+{
+  assert (Util::contains (varsInfo_, vid));
+  return varsInfo_.find (vid)->second;
+}
+
+
+
+inline bool
+Var::varsHaveInfo (void)
+{
+  return varsInfo_.empty() == false;
+}
+
+
+
+inline void
+Var::clearVarsInfo (void)
+{
+  varsInfo_.clear();
+}
+

@@ -82,11 +82,7 @@ class FactorGraph
 
     size_t nrFacNodes (void) const { return facNodes_.size(); }
 
-    VarNode* getVarNode (VarId vid) const
-    {
-      VarMap::const_iterator it = varMap_.find (vid);
-      return it != varMap_.end() ? it->second : 0;
-    }
+    VarNode* getVarNode (VarId vid) const;
 
     void readFromUaiFormat (const char*);
 
@@ -163,6 +159,15 @@ class FactorGraph
 
     DISALLOW_ASSIGN (FactorGraph);
 };
+
+
+
+inline VarNode*
+FactorGraph::getVarNode (VarId vid) const
+{
+  VarMap::const_iterator it = varMap_.find (vid);
+  return it != varMap_.end() ? it->second : 0;
+}
 
 
 

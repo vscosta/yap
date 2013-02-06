@@ -27,6 +27,7 @@ typedef unordered_map<VarId, VarCluster*> VarClusterMap;
 typedef vector<VarCluster*> VarClusters;
 typedef vector<FacCluster*> FacClusters;
 
+
 template <class T>
 inline size_t hash_combine (size_t seed, const T& v)
 {
@@ -35,27 +36,29 @@ inline size_t hash_combine (size_t seed, const T& v)
 
 
 namespace std {
-  template <typename T1, typename T2> struct hash<std::pair<T1,T2>>
-  {
-    size_t operator() (const std::pair<T1,T2>& p) const
-    {
-      return hash_combine (std::hash<T1>()(p.first), p.second);
-    }
-  };
 
-  template <typename T> struct hash<std::vector<T>>
+template <typename T1, typename T2> struct hash<std::pair<T1,T2>>
+{
+  size_t operator() (const std::pair<T1,T2>& p) const
   {
-    size_t operator() (const std::vector<T>& vec) const
-    {
-      size_t h = 0;
-      typename vector<T>::const_iterator first = vec.begin();
-      typename vector<T>::const_iterator last  = vec.end();
-      for (; first != last; ++first) {
-        h = hash_combine (h, *first);
-      }
-      return h;
+    return hash_combine (std::hash<T1>()(p.first), p.second);
+  }
+};
+
+template <typename T> struct hash<std::vector<T>>
+{
+  size_t operator() (const std::vector<T>& vec) const
+  {
+    size_t h = 0;
+    typename vector<T>::const_iterator first = vec.begin();
+    typename vector<T>::const_iterator last  = vec.end();
+    for (; first != last; ++first) {
+      h = hash_combine (h, *first);
     }
-  };
+    return h;
+  }
+};
+
 }
 
 
@@ -119,31 +122,15 @@ class CountingBp : public GroundSolver
     static void setFindIdenticalFactorsFlag (bool fif) { fif_ = fif; }
 
   private:
-    Color getNewColor (void)
-    {
-      ++ freeColor_;
-      return freeColor_ - 1;
-    }
+    Color getNewColor (void);
 
-    Color getColor (const VarNode* vn) const
-    {
-      return varColors_[vn->getIndex()];
-    }
+    Color getColor (const VarNode* vn) const;
 
-    Color getColor (const FacNode* fn) const
-    {
-      return facColors_[fn->getIndex()];
-    }
+    Color getColor (const FacNode* fn) const;
 
-    void setColor (const VarNode* vn, Color c)
-    {
-      varColors_[vn->getIndex()] = c;
-    }
+    void setColor (const VarNode* vn, Color c);
 
-    void setColor (const FacNode* fn, Color  c)
-    {
-      facColors_[fn->getIndex()] = c;
-    }
+    void setColor (const FacNode* fn, Color c);
 
     void findIdenticalFactors (void);
 
@@ -183,6 +170,47 @@ class CountingBp : public GroundSolver
 
     DISALLOW_COPY_AND_ASSIGN (CountingBp);
 };
+
+
+
+inline Color
+CountingBp::getNewColor (void)
+{
+  ++ freeColor_;
+  return freeColor_ - 1;
+}
+
+
+
+inline Color
+CountingBp::getColor (const VarNode* vn) const
+{
+  return varColors_[vn->getIndex()];
+}
+
+
+
+inline Color
+CountingBp::getColor (const FacNode* fn) const
+{
+  return facColors_[fn->getIndex()];
+}
+
+
+
+inline void
+CountingBp::setColor (const VarNode* vn, Color c)
+{
+  varColors_[vn->getIndex()] = c;
+}
+
+
+
+inline void
+CountingBp::setColor (const FacNode* fn, Color  c)
+{
+  facColors_[fn->getIndex()] = c;
+}
 
 #endif // HORUS_COUNTINGBP_H
 

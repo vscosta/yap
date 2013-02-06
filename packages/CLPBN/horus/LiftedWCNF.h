@@ -51,12 +51,12 @@ class Literal
       LogVarSet posCountedLvs = LogVarSet(),
       LogVarSet negCountedLvs = LogVarSet()) const;
 
-    friend std::ostream& operator<< (std::ostream &os, const Literal& lit);
-
   private:
     LiteralId  lid_;
     LogVars    logVars_;
     bool       negated_;
+
+    friend std::ostream& operator<< (std::ostream &os, const Literal& lit);
 };
 
 typedef vector<Literal> Literals;
@@ -138,16 +138,16 @@ class Clause
 
     static void deleteClauses (vector<Clause*>& clauses);
 
-    friend std::ostream& operator<< (ostream &os, const Clause& clause);
-
   private:
     LogVarSet getLogVarSetExcluding (size_t idx) const;
 
-    Literals         literals_;
-    LogVarSet        ipgLvs_;
-    LogVarSet        posCountedLvs_;
-    LogVarSet        negCountedLvs_;
-    ConstraintTree   constr_;
+    Literals        literals_;
+    LogVarSet       ipgLvs_;
+    LogVarSet       posCountedLvs_;
+    LogVarSet       negCountedLvs_;
+    ConstraintTree  constr_;
+
+    friend std::ostream& operator<< (ostream &os, const Clause& clause);
 
     DISALLOW_ASSIGN (Clause);
 };
@@ -185,11 +185,11 @@ class LitLvTypes
     void setAllFullLogVars (void) {
         std::fill (lvTypes_.begin(), lvTypes_.end(), LogVarType::FULL_LV); }
 
-    friend std::ostream& operator<< (std::ostream &os, const LitLvTypes& lit);
-
   private:
     LiteralId    lid_;
     LogVarTypes  lvTypes_;
+
+    friend std::ostream& operator<< (std::ostream &os, const LitLvTypes& lit);
 };
 
 typedef TinySet<LitLvTypes,LitLvTypes::CompareLitLvTypes> LitLvTypesSet;

@@ -33,8 +33,6 @@ class HistogramSet
 
     static vector<double> getNumAssigns (unsigned, unsigned);
 
-    friend std::ostream& operator<< (ostream &os, const HistogramSet& hs);
-
   private:
     unsigned maxCount (size_t) const;
 
@@ -42,6 +40,8 @@ class HistogramSet
 
     unsigned   size_;
     Histogram  hist_;
+
+    friend std::ostream& operator<< (ostream &os, const HistogramSet& hs);
 
     DISALLOW_COPY_AND_ASSIGN (HistogramSet);
 };

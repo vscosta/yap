@@ -58,9 +58,9 @@ class ProbFormula
 
     static PrvGroup getNewGroup (void);
 
-    friend std::ostream& operator<< (ostream &os, const ProbFormula& f);
-
     friend bool operator== (const ProbFormula& f1, const ProbFormula& f2);
+
+    friend std::ostream& operator<< (ostream &os, const ProbFormula& f);
 
   private:
     Symbol     functor_;
@@ -77,14 +77,9 @@ typedef vector<ProbFormula> ProbFormulas;
 class ObservedFormula
 {
   public:
-    ObservedFormula (Symbol f, unsigned a, unsigned ev)
-        : functor_(f), arity_(a), evidence_(ev), constr_(a) { }
+    ObservedFormula (Symbol f, unsigned a, unsigned ev);
 
-    ObservedFormula (Symbol f, unsigned ev, const Tuple& tuple)
-        : functor_(f), arity_(tuple.size()), evidence_(ev), constr_(arity_)
-    {
-      constr_.addTuple (tuple);
-    }
+    ObservedFormula (Symbol f, unsigned ev, const Tuple& tuple);
 
     Symbol functor (void) const { return functor_; }
 
@@ -100,13 +95,13 @@ class ObservedFormula
 
     void addTuple (const Tuple& tuple) { constr_.addTuple (tuple); }
 
-    friend ostream& operator<< (ostream &os, const ObservedFormula& of);
-
   private:
     Symbol          functor_;
     unsigned        arity_;
     unsigned        evidence_;
     ConstraintTree  constr_;
+
+    friend ostream& operator<< (ostream &os, const ObservedFormula& of);
 };
 
 typedef vector<ObservedFormula> ObservedFormulas;

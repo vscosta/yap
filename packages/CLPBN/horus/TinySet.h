@@ -25,190 +25,75 @@ class TinySet
     TinySet (const T& t, const Compare& cmp = Compare())
         : vec_(1, t), cmp_(cmp) { }
 
-    TinySet (const vector<T>& elements, const Compare& cmp = Compare())
-        : vec_(elements), cmp_(cmp)
-    {
-      std::sort (begin(), end(), cmp_);
-      iterator it = unique_cmp (begin(), end());
-      vec_.resize (it - begin());
-    }
+    TinySet (const vector<T>& elements, const Compare& cmp = Compare());
 
-    iterator insert (const T& t)
-    {
-      iterator it = std::lower_bound (begin(), end(), t, cmp_);
-      if (it == end() || cmp_(t, *it)) {
-        vec_.insert (it, t);
-      }
-      return it;
-    }
+    iterator insert (const T& t);
 
-    void insert_sorted (const T& t)
-    {
-       vec_.push_back (t);
-       assert (consistent());
-    }
+    void insert_sorted (const T& t);
 
-    void remove (const T& t)
-    {
-      iterator it = std::lower_bound (begin(), end(), t, cmp_);
-      if (it != end()) {
-        vec_.erase (it);
-      }
-    }
+    void remove (const T& t);
 
-    const_iterator find (const T& t) const
-    {
-      const_iterator it = std::lower_bound (begin(), end(), t, cmp_);
-      return it == end() || cmp_(t, *it) ? end() : it;
-    }
+    const_iterator find (const T& t) const;
 
-    iterator find (const T& t)
-    {
-      iterator it = std::lower_bound (begin(), end(), t, cmp_);
-      return it == end() || cmp_(t, *it) ? end() : it;
-    }
-
+    iterator find (const T& t);
+    
     /* set union */
-    TinySet operator| (const TinySet& s) const
-    {
-      TinySet res;
-      std::set_union (
-          vec_.begin(), vec_.end(),
-          s.vec_.begin(), s.vec_.end(),
-          std::back_inserter (res.vec_),
-          cmp_);
-      return res;
-    }
+    TinySet operator| (const TinySet& s) const;
 
     /* set intersection */
-    TinySet operator& (const TinySet& s) const
-    {
-      TinySet res;
-      std::set_intersection (
-          vec_.begin(), vec_.end(),
-          s.vec_.begin(), s.vec_.end(),
-          std::back_inserter (res.vec_),
-          cmp_);
-      return res;
-    }
+    TinySet operator& (const TinySet& s) const;
 
     /* set difference */
-    TinySet operator- (const TinySet& s) const
-    {
-      TinySet res;
-      std::set_difference (
-          vec_.begin(), vec_.end(),
-          s.vec_.begin(), s.vec_.end(),
-          std::back_inserter (res.vec_),
-          cmp_);
-      return res;
-    }
+    TinySet operator- (const TinySet& s) const;
 
-    TinySet& operator|= (const TinySet& s)
-    {
-      return *this = (*this | s);
-    }
+    TinySet& operator|= (const TinySet& s);
 
-    TinySet& operator&= (const TinySet& s)
-    {
-      return *this = (*this & s);
-    }
+    TinySet& operator&= (const TinySet& s);
 
-    TinySet& operator-= (const TinySet& s)
-    {
-      return *this = (*this - s);
-    }
+    TinySet& operator-= (const TinySet& s);
 
-    bool contains (const T& t) const
-    {
-      return std::binary_search (
-          vec_.begin(), vec_.end(), t, cmp_);
-    }
+    bool contains (const T& t) const;
 
-    bool contains (const TinySet& s) const
-    {
-      return std::includes (
-          vec_.begin(),
-          vec_.end(),
-          s.vec_.begin(),
-          s.vec_.end(),
-          cmp_);
-    }
+    bool contains (const TinySet& s) const;
 
-    bool in (const TinySet& s) const
-    {
-      return std::includes (
-          s.vec_.begin(),
-          s.vec_.end(),
-          vec_.begin(),
-          vec_.end(),
-          cmp_);
-    }
+    bool in (const TinySet& s) const;
 
-    bool intersects (const TinySet& s) const
-    {
-      return (*this & s).size() > 0;
-    }
+    bool intersects (const TinySet& s) const;
 
-    const T& operator[] (typename vector<T>::size_type i) const
-    {
-      return vec_[i];
-    }
+    const T& operator[] (typename vector<T>::size_type i) const;
 
-    T& operator[] (typename vector<T>::size_type i)
-    {
-      return vec_[i];
-    }
+    T& operator[] (typename vector<T>::size_type i);
 
-    T front (void) const
-    {
-      return vec_.front();
-    }
+    T front (void) const;
 
-    T& front (void)
-    {
-      return vec_.front();
-    }
+    T& front (void);
 
-    T back (void) const
-    {
-      return vec_.back();
-    }
+    T back (void) const;
 
-    T& back (void)
-    {
-      return vec_.back();
-    }
+    T& back (void);
 
-    const vector<T>& elements (void) const
-    {
-      return vec_;
-    }
+    const vector<T>& elements (void) const;
 
-    bool empty (void) const
-    {
-      return vec_.empty();
-    }
+    bool empty (void) const;
 
-    typename vector<T>::size_type size (void) const
-    {
-      return vec_.size();
-    }
+    typename vector<T>::size_type size (void) const;
 
-    void clear (void)
-    {
-      vec_.clear();
-    }
+    void clear (void);
 
-    void reserve (typename vector<T>::size_type size)
-    {
-      vec_.reserve (size);
-    }
+    void reserve (typename vector<T>::size_type size);
 
     iterator       begin (void)        { return vec_.begin(); }
     iterator       end   (void)        { return vec_.end();   }
     const_iterator begin (void) const  { return vec_.begin(); }
     const_iterator end   (void) const  { return vec_.end();   }
+
+  private:
+    iterator unique_cmp (iterator first, iterator last);
+
+    bool consistent (void) const;
+
+    vector<T>  vec_;
+    Compare    cmp_;
 
     friend bool operator== (const TinySet& s1, const TinySet& s2)
     {
@@ -231,35 +116,295 @@ class TinySet
       return out;
     }
 
-  private:
-    iterator unique_cmp (iterator first, iterator last)
-    {
-      if (first == last) {
-        return last;
-      }
-      iterator result = first;
-      while (++first != last) {
-        if (cmp_(*result, *first)) {
-          *(++result) = *first;
-        }
-      }
-      return ++result;
-    }
-
-    bool consistent (void) const
-    {
-      typename vector<T>::size_type i;
-      for (i = 0; i < vec_.size() - 1; i++) {
-        if ( ! cmp_(vec_[i], vec_[i + 1])) {
-          return false;
-        }
-      }
-      return true;
-    }
-
-    vector<T>  vec_;
-    Compare    cmp_;
 };
+
+
+
+template <typename T, typename C> inline
+TinySet<T,C>::TinySet (const vector<T>& elements, const C& cmp)
+    : vec_(elements), cmp_(cmp)
+{
+  std::sort (begin(), end(), cmp_);
+  iterator it = unique_cmp (begin(), end());
+  vec_.resize (it - begin());
+}
+
+
+
+template <typename T, typename C> inline typename TinySet<T,C>::iterator
+TinySet<T,C>::insert (const T& t)
+{
+  iterator it = std::lower_bound (begin(), end(), t, cmp_);
+  if (it == end() || cmp_(t, *it)) {
+    vec_.insert (it, t);
+  }
+  return it;
+}
+
+
+
+template <typename T, typename C> inline void
+TinySet<T,C>::insert_sorted (const T& t)
+{
+   vec_.push_back (t);
+   assert (consistent());
+}
+
+
+
+template <typename T, typename C> inline void
+TinySet<T,C>::remove (const T& t)
+{
+  iterator it = std::lower_bound (begin(), end(), t, cmp_);
+  if (it != end()) {
+    vec_.erase (it);
+  }
+}
+
+
+
+template <typename T, typename C> inline typename TinySet<T,C>::const_iterator
+TinySet<T,C>::find (const T& t) const
+{
+  const_iterator it = std::lower_bound (begin(), end(), t, cmp_);
+  return it == end() || cmp_(t, *it) ? end() : it;
+}
+
+
+
+template <typename T, typename C> inline typename TinySet<T,C>::iterator
+TinySet<T,C>::find (const T& t)
+{
+  iterator it = std::lower_bound (begin(), end(), t, cmp_);
+  return it == end() || cmp_(t, *it) ? end() : it;
+}
+
+
+
+/* set union */
+template <typename T, typename C> inline TinySet<T,C>
+TinySet<T,C>::operator| (const TinySet& s) const
+{
+  TinySet res;
+  std::set_union (
+      vec_.begin(), vec_.end(),
+      s.vec_.begin(), s.vec_.end(),
+      std::back_inserter (res.vec_),
+      cmp_);
+  return res;
+}
+
+
+
+/* set intersection */
+template <typename T, typename C> inline TinySet<T,C>
+TinySet<T,C>::operator& (const TinySet& s) const
+{
+  TinySet res;
+  std::set_intersection (
+      vec_.begin(), vec_.end(),
+      s.vec_.begin(), s.vec_.end(),
+      std::back_inserter (res.vec_),
+      cmp_);
+  return res;
+}
+
+
+
+/* set difference */
+template <typename T, typename C> inline TinySet<T,C>
+TinySet<T,C>::operator- (const TinySet& s) const
+{
+  TinySet res;
+  std::set_difference (
+      vec_.begin(), vec_.end(),
+      s.vec_.begin(), s.vec_.end(),
+      std::back_inserter (res.vec_),
+      cmp_);
+  return res;
+}
+
+
+
+template <typename T, typename C> inline TinySet<T,C>&
+TinySet<T,C>::operator|= (const TinySet& s)
+{
+  return *this = (*this | s);
+}
+
+
+
+template <typename T, typename C> inline TinySet<T,C>&
+TinySet<T,C>::operator&= (const TinySet& s)
+{
+  return *this = (*this & s);
+}
+
+
+
+template <typename T, typename C> inline TinySet<T,C>&
+TinySet<T,C>::operator-= (const TinySet& s)
+{
+  return *this = (*this - s);
+}
+
+
+
+template <typename T, typename C> inline bool
+TinySet<T,C>::contains (const T& t) const
+{
+  return std::binary_search (
+      vec_.begin(), vec_.end(), t, cmp_);
+}
+
+
+
+template <typename T, typename C> inline bool
+TinySet<T,C>::contains (const TinySet& s) const
+{
+  return std::includes (
+      vec_.begin(), vec_.end(),
+      s.vec_.begin(), s.vec_.end(),
+      cmp_);
+}
+
+
+
+template <typename T, typename C> inline bool
+TinySet<T,C>::in (const TinySet& s) const
+{
+  return std::includes (
+      s.vec_.begin(), s.vec_.end(),
+      vec_.begin(), vec_.end(),
+      cmp_);
+}
+
+
+
+template <typename T, typename C> inline bool
+TinySet<T,C>::intersects (const TinySet& s) const
+{
+  return (*this & s).size() > 0;
+}
+
+
+
+template <typename T, typename C> inline const T&
+TinySet<T,C>::operator[] (typename vector<T>::size_type i) const
+{
+  return vec_[i];
+}
+
+
+
+template <typename T, typename C> inline T&
+TinySet<T,C>::operator[] (typename vector<T>::size_type i)
+{
+  return vec_[i];
+}
+
+
+
+template <typename T, typename C> inline T
+TinySet<T,C>::front (void) const
+{
+  return vec_.front();
+}
+
+
+
+template <typename T, typename C> inline T&
+TinySet<T,C>::front (void)
+{
+  return vec_.front();
+}
+
+
+
+template <typename T, typename C> inline T
+TinySet<T,C>::back (void) const
+{
+  return vec_.back();
+}
+
+
+
+template <typename T, typename C> inline T&
+TinySet<T,C>::back (void)
+{
+  return vec_.back();
+}
+
+
+
+template <typename T, typename C> inline const vector<T>&
+TinySet<T,C>::elements (void) const
+{
+  return vec_;
+}
+
+
+
+template <typename T, typename C> inline bool
+TinySet<T,C>::empty (void) const
+{
+  return vec_.empty();
+}
+
+
+
+template <typename T, typename C> inline typename vector<T>::size_type
+TinySet<T,C>::size (void) const
+{
+  return vec_.size();
+}
+
+
+
+template <typename T, typename C> inline void
+TinySet<T,C>::clear (void)
+{
+  vec_.clear();
+}
+
+
+
+template <typename T, typename C> inline void
+TinySet<T,C>::reserve (typename vector<T>::size_type size)
+{
+  vec_.reserve (size);
+}
+
+
+
+template <typename T, typename C> typename TinySet<T,C>::iterator
+TinySet<T,C>::unique_cmp (iterator first, iterator last)
+{
+  if (first == last) {
+    return last;
+  }
+  iterator result = first;
+  while (++first != last) {
+    if (cmp_(*result, *first)) {
+      *(++result) = *first;
+    }
+  }
+  return ++result;
+}
+
+
+
+template <typename T, typename C> inline bool
+TinySet<T,C>::consistent (void) const
+{
+  typename vector<T>::size_type i;
+  for (i = 0; i < vec_.size() - 1; i++) {
+    if ( ! cmp_(vec_[i], vec_[i + 1])) {
+      return false;
+    }
+  }
+  return true;
+}
 
 #endif // HORUS_TINYSET_H
 

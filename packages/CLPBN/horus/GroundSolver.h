@@ -30,6 +30,7 @@ class GroundSolver
   protected:
     const FactorGraph& fg;
 
+  private:
     DISALLOW_COPY_AND_ASSIGN (GroundSolver);
 };
 

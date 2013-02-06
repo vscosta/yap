@@ -21,7 +21,9 @@ using namespace std;
 
 
 namespace {
+
 const double NEG_INF = -std::numeric_limits<double>::infinity();
+
 };
 
 

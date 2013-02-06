@@ -39,23 +39,13 @@ class Var
 
     void setIndex (size_t idx) { index_ = idx; }
 
-    bool hasEvidence (void) const
-    {
-      return evidence_ != Constants::NO_EVIDENCE;
-    }
+    bool hasEvidence (void) const;
 
-    operator size_t (void) const { return index_; }
+    operator size_t (void) const;
 
-    bool operator== (const Var& var) const
-    {
-      assert (!(varId_ == var.varId() && range_ != var.range()));
-      return varId_ == var.varId();
-    }
+    bool operator== (const Var& var) const;
 
-    bool operator!= (const Var& var) const
-    {
-      return !(*this == var);
-    }
+    bool operator!= (const Var& var) const;
 
     bool isValidState (int);
 
@@ -66,27 +56,13 @@ class Var
     States states (void) const;
 
     static void addVarInfo (
-        VarId vid, string label, const States& states)
-    {
-      assert (Util::contains (varsInfo_, vid) == false);
-      varsInfo_.insert (make_pair (vid, VarInfo (label, states)));
-    }
+        VarId vid, string label, const States& states);
 
-    static VarInfo getVarInfo (VarId vid)
-    {
-      assert (Util::contains (varsInfo_, vid));
-      return varsInfo_.find (vid)->second;
-    }
+    static VarInfo getVarInfo (VarId vid);
 
-    static bool varsHaveInfo (void)
-    {
-      return varsInfo_.empty() == false;
-    }
+    static bool varsHaveInfo (void);
 
-    static void clearVarsInfo (void)
-    {
-      varsInfo_.clear();
-    }
+    static void clearVarsInfo (void);
 
   private:
     VarId     varId_;
@@ -95,8 +71,41 @@ class Var
     size_t    index_;
 
     static unordered_map<VarId, VarInfo> varsInfo_;
-
 };
+
+
+
+inline bool
+Var::hasEvidence (void) const
+{
+  return evidence_ != Constants::NO_EVIDENCE;
+}
+
+
+
+inline
+Var::operator size_t (void) const
+{
+  return index_;
+}
+
+
+
+inline bool
+Var::operator== (const Var& var) const
+{
+  assert (!(varId_ == var.varId() && range_ != var.range()));
+  return varId_ == var.varId();
+}
+
+
+
+inline bool
+Var::operator!= (const Var& var) const
+{
+  return !(*this == var);
+}
+
 
 #endif // HORUS_VAR_H
 

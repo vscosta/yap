@@ -3,6 +3,7 @@
 
 #include "BeliefProp.h"
 
+
 class WeightedLink : public BpLink
 {
   public:
@@ -16,12 +17,7 @@ class WeightedLink : public BpLink
 
     const Params& powMessage (void) const { return pwdMsg_; }
 
-    void updateMessage (void)
-    {
-      pwdMsg_ = *nextMsg_;
-      swap (currMsg_, nextMsg_);
-      LogAware::pow (pwdMsg_, weight_);
-    }
+    void updateMessage (void);
 
   private:
     DISALLOW_COPY_AND_ASSIGN (WeightedLink);
@@ -30,6 +26,16 @@ class WeightedLink : public BpLink
     unsigned  weight_;
     Params    pwdMsg_;
 };
+
+
+
+inline void
+WeightedLink::updateMessage (void)
+{
+  pwdMsg_ = *nextMsg_;
+  swap (currMsg_, nextMsg_);
+  LogAware::pow (pwdMsg_, weight_);
+}
 
 
 

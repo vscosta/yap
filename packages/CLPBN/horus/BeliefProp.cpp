@@ -9,9 +9,59 @@
 #include "Horus.h"
 
 
+BpLink::BpLink (FacNode* fn, VarNode* vn)
+{
+  fac_ = fn;
+  var_ = vn;
+  v1_.resize (vn->range(), LogAware::log (1.0 / vn->range()));
+  v2_.resize (vn->range(), LogAware::log (1.0 / vn->range()));
+  currMsg_   = &v1_;
+  nextMsg_   = &v2_;
+  residual_  = 0.0;
+}
+
+
+
+void
+BpLink::clearResidual (void)
+{
+  residual_ = 0.0;
+}
+
+
+
+void
+BpLink::updateResidual (void)
+{
+  residual_ = LogAware::getMaxNorm (v1_, v2_);
+}
+
+
+
+void
+BpLink::updateMessage (void)
+{
+  swap (currMsg_, nextMsg_);
+}
+
+
+
+string
+BpLink::toString (void) const
+{
+  stringstream ss;
+  ss << fac_->getLabel();
+  ss << " -- " ;
+  ss << var_->label();
+  return ss.str();
+}
+
+
+
 double      BeliefProp::accuracy_ = 0.0001;
 unsigned    BeliefProp::maxIter_  = 1000;
 MsgSchedule BeliefProp::schedule_ = MsgSchedule::SEQ_FIXED;
+
 
 
 BeliefProp::BeliefProp (const FactorGraph& fg) : GroundSolver (fg)
@@ -148,6 +198,46 @@ BeliefProp::getFactorJoint (
     Util::exp (jointDist);
   }
   return jointDist;
+}
+
+
+
+void
+BeliefProp::calculateAndUpdateMessage (BpLink* link, bool calcResidual)
+{
+  if (Globals::verbosity > 2) {
+    cout << "calculating & updating " << link->toString() << endl;
+  }
+  calcFactorToVarMsg (link);
+  if (calcResidual) {
+    link->updateResidual();
+  }
+  link->updateMessage();
+}
+
+
+
+void
+BeliefProp::calculateMessage (BpLink* link, bool calcResidual)
+{
+  if (Globals::verbosity > 2) {
+    cout << "calculating " << link->toString() << endl;
+  }
+  calcFactorToVarMsg (link);
+  if (calcResidual) {
+    link->updateResidual();
+  }
+}
+
+
+
+void
+BeliefProp::updateMessage (BpLink* link)
+{
+  link->updateMessage();
+  if (Globals::verbosity > 2) {
+    cout << "updating " << link->toString() << endl;
+  }
 }
 
 

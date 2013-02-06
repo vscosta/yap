@@ -59,11 +59,7 @@ class CTNode
 
     bool isLeaf (void) const { return childs_.empty(); }
 
-    CTChilds_::iterator findSymbol (Symbol symb)
-    {
-      CTNode tmp (symb, 0);
-      return childs_.find (&tmp);
-    }
+    CTChilds_::iterator findSymbol (Symbol symb);
 
     void mergeSubtree (CTNode*, bool = true);
 
@@ -91,10 +87,19 @@ class CTNode
     DISALLOW_ASSIGN (CTNode);
 };
 
-ostream& operator<< (ostream &out, const CTNode&);
-
 
 typedef TinySet<CTNode*, CTNode::CompareSymbol> CTChilds;
+
+
+inline CTChilds::iterator
+CTNode::findSymbol (Symbol symb)
+{
+  CTNode tmp (symb, 0);
+  return childs_.find (&tmp);
+}
+
+
+ostream& operator<< (ostream &out, const CTNode&);
 
 
 class ConstraintTree
@@ -110,10 +115,7 @@ class ConstraintTree
 
     ConstraintTree (const ConstraintTree&);
 
-    ConstraintTree (const CTChilds& rootChilds, const LogVars& logVars)
-        : root_(new CTNode (0, 0, rootChilds)),
-          logVars_(logVars),
-          logVarSet_(logVars) { }
+    ConstraintTree (const CTChilds& rootChilds, const LogVars& logVars);
 
    ~ConstraintTree (void);
 
@@ -121,23 +123,11 @@ class ConstraintTree
 
     bool empty (void) const { return root_->childs().empty(); }
 
-    const LogVars& logVars (void) const
-    {
-      assert (LogVarSet (logVars_) == logVarSet_);
-      return logVars_;
-    }
+    const LogVars& logVars (void) const;
 
-    const LogVarSet& logVarSet (void) const
-    {
-      assert (LogVarSet (logVars_) == logVarSet_);
-      return logVarSet_;
-    }
+    const LogVarSet& logVarSet (void) const;
 
-    size_t nrLogVars (void) const
-    {
-      return logVars_.size();
-      assert (LogVarSet (logVars_) == logVarSet_);
-    }
+    size_t nrLogVars (void) const;
 
     void addTuple (const Tuple&);
 
@@ -229,6 +219,32 @@ class ConstraintTree
     LogVarSet  logVarSet_;
 };
 
+
+
+inline const LogVars&
+ConstraintTree::logVars (void) const
+{
+  assert (LogVarSet (logVars_) == logVarSet_);
+  return logVars_;
+}
+
+
+
+inline const LogVarSet&
+ConstraintTree::logVarSet (void) const
+{
+  assert (LogVarSet (logVars_) == logVarSet_);
+  return logVarSet_;
+}
+
+
+
+inline size_t
+ConstraintTree::nrLogVars (void) const
+{
+  return logVars_.size();
+  assert (LogVarSet (logVars_) == logVarSet_);
+}
 
 #endif // HORUS_CONSTRAINTTREE_H
 

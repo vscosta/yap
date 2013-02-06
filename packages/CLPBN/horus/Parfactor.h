@@ -110,7 +110,7 @@ class Parfactor : public TFactor<ProbFormula>
 
     static void alignLogicalVars (Parfactor*, Parfactor*);
 
-    ConstraintTree*  constr_;
+    ConstraintTree* constr_;
 
     DISALLOW_ASSIGN (Parfactor);
 };

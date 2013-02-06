@@ -24,16 +24,7 @@ enum MsgSchedule {
 class BpLink
 {
   public:
-    BpLink (FacNode* fn, VarNode* vn)
-    {
-      fac_ = fn;
-      var_ = vn;
-      v1_.resize (vn->range(), LogAware::log (1.0 / vn->range()));
-      v2_.resize (vn->range(), LogAware::log (1.0 / vn->range()));
-      currMsg_   = &v1_;
-      nextMsg_   = &v2_;
-      residual_  = 0.0;
-    }
+    BpLink (FacNode* fn, VarNode* vn);
 
     virtual ~BpLink (void) { };
 
@@ -47,26 +38,13 @@ class BpLink
 
     double residual (void) const { return residual_; }
 
-    void clearResidual (void) { residual_ = 0.0; }
+    void clearResidual (void);
 
-    void updateResidual (void)
-    {
-      residual_ = LogAware::getMaxNorm (v1_, v2_);
-    }
+    void updateResidual (void);
 
-    virtual void updateMessage (void)
-    {
-      swap (currMsg_, nextMsg_);
-    }
+    virtual void updateMessage (void);
 
-    string toString (void) const
-    {
-      stringstream ss;
-      ss << fac_->getLabel();
-      ss << " -- " ;
-      ss << var_->label();
-      return ss.str();
-    }
+    string toString (void) const;
 
   protected:
     FacNode*  fac_;
@@ -126,46 +104,15 @@ class BeliefProp : public GroundSolver
     static void setMsgSchedule (MsgSchedule sch) { schedule_ = sch; }
 
   protected:
-    SPNodeInfo* ninf (const VarNode* var) const
-    {
-      return varsI_[var->getIndex()];
-    }
+    SPNodeInfo* ninf (const VarNode* var) const;
 
-    SPNodeInfo* ninf (const FacNode* fac) const
-    {
-      return facsI_[fac->getIndex()];
-    }
+    SPNodeInfo* ninf (const FacNode* fac) const;
 
-    void calculateAndUpdateMessage (BpLink* link, bool calcResidual = true)
-    {
-      if (Globals::verbosity > 2) {
-        cout << "calculating & updating " << link->toString() << endl;
-      }
-      calcFactorToVarMsg (link);
-      if (calcResidual) {
-        link->updateResidual();
-      }
-      link->updateMessage();
-    }
+    void calculateAndUpdateMessage (BpLink* link, bool calcResidual = true);
 
-    void calculateMessage (BpLink* link, bool calcResidual = true)
-    {
-      if (Globals::verbosity > 2) {
-        cout << "calculating " << link->toString() << endl;
-      }
-      calcFactorToVarMsg (link);
-      if (calcResidual) {
-        link->updateResidual();
-      }
-    }
+    void calculateMessage (BpLink* link, bool calcResidual = true);
 
-    void updateMessage (BpLink* link)
-    {
-      link->updateMessage();
-      if (Globals::verbosity > 2) {
-        cout << "updating " << link->toString() << endl;
-      }
-    }
+    void updateMessage (BpLink* link);
 
     struct CompareResidual
     {
@@ -212,6 +159,22 @@ class BeliefProp : public GroundSolver
 
     DISALLOW_COPY_AND_ASSIGN (BeliefProp);
 };
+
+
+
+inline SPNodeInfo*
+BeliefProp::ninf (const VarNode* var) const
+{
+  return varsI_[var->getIndex()];
+}
+
+
+
+inline SPNodeInfo*
+BeliefProp::ninf (const FacNode* fac) const
+{
+  return facsI_[fac->getIndex()];
+}
 
 #endif // HORUS_BELIEFPROP_H
 

@@ -3,6 +3,23 @@
 #include "BayesBall.h"
 
 
+BayesBall::BayesBall (FactorGraph& fg)
+    : fg_(fg) , dag_(fg.getStructure())
+{
+  dag_.clear();
+}
+
+
+
+FactorGraph*
+BayesBall::getMinimalFactorGraph (FactorGraph& fg, VarIds vids)
+{
+  BayesBall bb (fg);
+  return bb.getMinimalFactorGraph (vids);
+}
+
+
+
 FactorGraph*
 BayesBall::getMinimalFactorGraph (const VarIds& queryIds)
 {
