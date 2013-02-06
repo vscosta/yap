@@ -2314,6 +2314,7 @@ X_API int PL_next_solution(qid_t qi)
   }
   qi->state = 1;
   if (result == 0) {
+    YAP_LeaveGoal(FALSE, &qi->h);
     qi->open = 0;
   }
   return result;
@@ -2343,9 +2344,11 @@ X_API void PL_close_query(qid_t qi)
 
 X_API int PL_call_predicate(module_t ctx, int flags, predicate_t p, term_t t0)
 {
+  fid_t f = PL_open_foreign_frame();
   qid_t qi = PL_open_query(ctx, flags, p, t0);
   int ret = PL_next_solution(qi);
   PL_cut_query(qi);
+  PL_close_foreign_frame(f);
   return ret;
 }
 
