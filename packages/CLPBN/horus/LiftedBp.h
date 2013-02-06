@@ -1,5 +1,5 @@
-#ifndef HORUS_LIFTEDBP_H
-#define HORUS_LIFTEDBP_H
+#ifndef PACKAGES_CLPBN_HORUS_LIFTEDBP_H
+#define PACKAGES_CLPBN_HORUS_LIFTEDBP_H
 
 #include "LiftedSolver.h"
 #include "ParfactorList.h"
@@ -41,5 +41,5 @@ class LiftedBp : public LiftedSolver
 
 };
 
-#endif // HORUS_LIFTEDBP_H
+#endif // PACKAGES_CLPBN_HORUS_LIFTEDBP_H
 

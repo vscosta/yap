@@ -1,5 +1,5 @@
-#ifndef HORUS_ELIMGRAPH_H
-#define HORUS_ELIMGRAPH_H
+#ifndef PACKAGES_CLPBN_HORUS_ELIMGRAPH_H
+#define PACKAGES_CLPBN_HORUS_ELIMGRAPH_H
 
 #include "unordered_map"
 
@@ -169,5 +169,5 @@ ElimGraph::neighbors (EgNode* n1, EgNode* n2) const
   return n1->isNeighbor (n2);
 }
 
-#endif // HORUS_ELIMGRAPH_H
+#endif // PACKAGES_CLPBN_HORUS_ELIMGRAPH_H
 

@@ -1,5 +1,5 @@
-#ifndef HORUS_BAYESBALL_H
-#define HORUS_BAYESBALL_H
+#ifndef PACKAGES_CLPBN_HORUS_BAYESBALL_H
+#define PACKAGES_CLPBN_HORUS_BAYESBALL_H
 
 #include <vector>
 #include <queue>
@@ -72,5 +72,5 @@ BayesBall::scheduleChilds (const BBNode* n, Scheduling& sch) const
   }
 }
 
-#endif // HORUS_BAYESBALL_H
+#endif // PACKAGES_CLPBN_HORUS_BAYESBALL_H
 

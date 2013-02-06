@@ -1,5 +1,5 @@
-#ifndef HORUS_UTIL_H
-#define HORUS_UTIL_H
+#ifndef PACKAGES_CLPBN_HORUS_UTIL_H
+#define PACKAGES_CLPBN_HORUS_UTIL_H
 
 #include <cmath>
 #include <cassert>
@@ -422,5 +422,5 @@ struct abs_diff_exp : public std::binary_function<T, T, T>
 
 }
 
-#endif // HORUS_UTIL_H
+#endif // PACKAGES_CLPBN_HORUS_UTIL_H
 

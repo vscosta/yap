@@ -1,5 +1,5 @@
-#ifndef HORUS_FACTOR_H
-#define HORUS_FACTOR_H
+#ifndef PACKAGES_CLPBN_HORUS_FACTOR_H
+#define PACKAGES_CLPBN_HORUS_FACTOR_H
 
 #include <vector>
 
@@ -364,5 +364,5 @@ class Factor : public TFactor<VarId>
     DISALLOW_ASSIGN (Factor);
 };
 
-#endif // HORUS_FACTOR_H
+#endif // PACKAGES_CLPBN_HORUS_FACTOR_H
 

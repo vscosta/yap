@@ -1,5 +1,5 @@
-#ifndef HORUS_PROBFORMULA_H
-#define HORUS_PROBFORMULA_H
+#ifndef PACKAGES_CLPBN_HORUS_PROBFORMULA_H
+#define PACKAGES_CLPBN_HORUS_PROBFORMULA_H
 
 #include <limits>
 
@@ -106,5 +106,5 @@ class ObservedFormula
 
 typedef vector<ObservedFormula> ObservedFormulas;
 
-#endif // HORUS_PROBFORMULA_H
+#endif // PACKAGES_CLPBN_HORUS_PROBFORMULA_H
 

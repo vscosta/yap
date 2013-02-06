@@ -1,5 +1,5 @@
-#ifndef HORUS_LIFTEDSOLVER_H
-#define HORUS_LIFTEDSOLVER_H
+#ifndef PACKAGES_CLPBN_HORUS_LIFTEDSOLVER_H
+#define PACKAGES_CLPBN_HORUS_LIFTEDSOLVER_H
 
 #include "ParfactorList.h"
 #include "Horus.h"
@@ -26,5 +26,5 @@ class LiftedSolver
     DISALLOW_COPY_AND_ASSIGN (LiftedSolver);
 };
 
-#endif // HORUS_LIFTEDSOLVER_H
+#endif // PACKAGES_CLPBN_HORUS_LIFTEDSOLVER_H
 

@@ -1,5 +1,5 @@
-#ifndef HORUS_COUNTINGBP_H
-#define HORUS_COUNTINGBP_H
+#ifndef PACKAGES_CLPBN_HORUS_COUNTINGBP_H
+#define PACKAGES_CLPBN_HORUS_COUNTINGBP_H
 
 #include <unordered_map>
 
@@ -212,5 +212,5 @@ CountingBp::setColor (const FacNode* fn, Color  c)
   facColors_[fn->getIndex()] = c;
 }
 
-#endif // HORUS_COUNTINGBP_H
+#endif // PACKAGES_CLPBN_HORUS_COUNTINGBP_H
 

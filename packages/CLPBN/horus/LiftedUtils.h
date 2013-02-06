@@ -1,5 +1,5 @@
-#ifndef HORUS_LIFTEDUTILS_H
-#define HORUS_LIFTEDUTILS_H
+#ifndef PACKAGES_CLPBN_HORUS_LIFTEDUTILS_H
+#define PACKAGES_CLPBN_HORUS_LIFTEDUTILS_H
 
 #include <string>
 
@@ -208,5 +208,5 @@ Substitution::nrReplacements (void) const
 }
 
 
-#endif // HORUS_LIFTEDUTILS_H
+#endif // PACKAGES_CLPBN_HORUS_LIFTEDUTILS_H
 

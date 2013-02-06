@@ -1,5 +1,5 @@
-#ifndef HORUS_BELIEFPROP_H
-#define HORUS_BELIEFPROP_H
+#ifndef PACKAGES_CLPBN_HORUS_BELIEFPROP_H
+#define PACKAGES_CLPBN_HORUS_BELIEFPROP_H
 
 #include <set>
 #include <vector>
@@ -176,5 +176,5 @@ BeliefProp::ninf (const FacNode* fac) const
   return facsI_[fac->getIndex()];
 }
 
-#endif // HORUS_BELIEFPROP_H
+#endif // PACKAGES_CLPBN_HORUS_BELIEFPROP_H
 

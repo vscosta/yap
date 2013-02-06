@@ -1,5 +1,5 @@
-#ifndef HORUS_PARFACTOR_H
-#define HORUS_PARFACTOR_H
+#ifndef PACKAGES_CLPBN_HORUS_PARFACTOR_H
+#define PACKAGES_CLPBN_HORUS_PARFACTOR_H
 
 #include "Factor.h"
 #include "ProbFormula.h"
@@ -117,5 +117,5 @@ class Parfactor : public TFactor<ProbFormula>
 
 typedef vector<Parfactor*> Parfactors;
 
-#endif // HORUS_PARFACTOR_H
+#endif // PACKAGES_CLPBN_HORUS_PARFACTOR_H
 

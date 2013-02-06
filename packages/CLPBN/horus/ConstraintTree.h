@@ -1,5 +1,5 @@
-#ifndef HORUS_CONSTRAINTTREE_H
-#define HORUS_CONSTRAINTTREE_H
+#ifndef PACKAGES_CLPBN_HORUS_CONSTRAINTTREE_H
+#define PACKAGES_CLPBN_HORUS_CONSTRAINTTREE_H
 
 #include <cassert>
 #include <algorithm>
@@ -246,5 +246,5 @@ ConstraintTree::nrLogVars (void) const
   assert (LogVarSet (logVars_) == logVarSet_);
 }
 
-#endif // HORUS_CONSTRAINTTREE_H
+#endif // PACKAGES_CLPBN_HORUS_CONSTRAINTTREE_H
 

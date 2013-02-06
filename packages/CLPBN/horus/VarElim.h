@@ -1,5 +1,5 @@
-#ifndef HORUS_VARELIM_H
-#define HORUS_VARELIM_H
+#ifndef PACKAGES_CLPBN_HORUS_VARELIM_H
+#define PACKAGES_CLPBN_HORUS_VARELIM_H
 
 #include "unordered_map"
 
@@ -41,5 +41,5 @@ class VarElim : public GroundSolver
     DISALLOW_COPY_AND_ASSIGN (VarElim);
 };
 
-#endif // HORUS_VARELIM_H
+#endif // PACKAGES_CLPBN_HORUS_VARELIM_H
 

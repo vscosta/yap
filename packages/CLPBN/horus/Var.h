@@ -1,5 +1,5 @@
-#ifndef HORUS_VAR_H
-#define HORUS_VAR_H
+#ifndef PACKAGES_CLPBN_HORUS_VAR_H
+#define PACKAGES_CLPBN_HORUS_VAR_H
 
 #include <cassert>
 
@@ -107,5 +107,5 @@ Var::operator!= (const Var& var) const
 }
 
 
-#endif // HORUS_VAR_H
+#endif // PACKAGES_CLPBN_HORUS_VAR_H
 

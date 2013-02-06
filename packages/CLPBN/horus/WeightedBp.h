@@ -1,5 +1,5 @@
-#ifndef HORUS_WEIGHTEDBP_H
-#define HORUS_WEIGHTEDBP_H
+#ifndef PACKAGES_CLPBN_HORUS_WEIGHTEDBP_H
+#define PACKAGES_CLPBN_HORUS_WEIGHTEDBP_H
 
 #include "BeliefProp.h"
 
@@ -66,5 +66,5 @@ class WeightedBp : public BeliefProp
      DISALLOW_COPY_AND_ASSIGN (WeightedBp);
 };
 
-#endif // HORUS_WEIGHTEDBP_H
+#endif // PACKAGES_CLPBN_HORUS_WEIGHTEDBP_H
 

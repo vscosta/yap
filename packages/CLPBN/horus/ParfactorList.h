@@ -1,5 +1,5 @@
-#ifndef HORUS_PARFACTORLIST_H
-#define HORUS_PARFACTORLIST_H
+#ifndef PACKAGES_CLPBN_HORUS_PARFACTORLIST_H
+#define PACKAGES_CLPBN_HORUS_PARFACTORLIST_H
 
 #include <list>
 
@@ -118,5 +118,5 @@ class ParfactorList
     list<Parfactor*> pfList_;
 };
 
-#endif // HORUS_PARFACTORLIST_H
+#endif // PACKAGES_CLPBN_HORUS_PARFACTORLIST_H
 

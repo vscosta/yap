@@ -1,5 +1,5 @@
-#ifndef HORUS_BAYESBALLGRAPH_H
-#define HORUS_BAYESBALLGRAPH_H
+#ifndef PACKAGES_CLPBN_HORUS_BAYESBALLGRAPH_H
+#define PACKAGES_CLPBN_HORUS_BAYESBALLGRAPH_H
 
 #include <vector>
 #include <unordered_map>
@@ -78,5 +78,5 @@ class BayesBallGraph
     unordered_map<VarId, BBNode*> varMap_;
 };
 
-#endif // HORUS_BAYESBALLGRAPH_H
+#endif // PACKAGES_CLPBN_HORUS_BAYESBALLGRAPH_H
 

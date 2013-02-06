@@ -1,5 +1,5 @@
-#ifndef HORUS_LIFTEDVE_H
-#define HORUS_LIFTEDVE_H
+#ifndef PACKAGES_CLPBN_HORUS_LIFTEDVE_H
+#define PACKAGES_CLPBN_HORUS_LIFTEDVE_H
 
 #include "LiftedSolver.h"
 #include "ParfactorList.h"
@@ -164,5 +164,5 @@ class LiftedVe : public LiftedSolver
     DISALLOW_COPY_AND_ASSIGN (LiftedVe);
 };
 
-#endif // HORUS_LIFTEDVE_H
+#endif // PACKAGES_CLPBN_HORUS_LIFTEDVE_H
 

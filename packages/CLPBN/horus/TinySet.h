@@ -1,5 +1,5 @@
-#ifndef HORUS_TINYSET_H
-#define HORUS_TINYSET_H
+#ifndef PACKAGES_CLPBN_HORUS_TINYSET_H
+#define PACKAGES_CLPBN_HORUS_TINYSET_H
 
 #include <algorithm>
 
@@ -406,5 +406,5 @@ TinySet<T,C>::consistent (void) const
   return true;
 }
 
-#endif // HORUS_TINYSET_H
+#endif // PACKAGES_CLPBN_HORUS_TINYSET_H
 
