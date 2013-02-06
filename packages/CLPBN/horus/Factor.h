@@ -52,7 +52,7 @@ class TFactor
 
     void absorveEvidence (const T& arg, unsigned obsIdx);
 
-    void reorderArguments (const vector<T> new_args);
+    void reorderArguments (const vector<T>& new_args);
 
     bool contains (const T& arg) const;
 
@@ -79,7 +79,7 @@ template <typename T> inline void
 TFactor<T>::randomize (void)
 {
   for (size_t i = 0; i < params_.size(); ++i) {
-  params_[i] = (double) std::rand() / RAND_MAX;
+    params_[i] = (double) std::rand() / RAND_MAX;
   }
 }
 
@@ -225,7 +225,7 @@ TFactor<T>::absorveEvidence (const T& arg, unsigned obsIdx)
 
 
 template <typename T> inline void
-TFactor<T>::reorderArguments (const vector<T> new_args)
+TFactor<T>::reorderArguments (const vector<T>& new_args)
 {
   assert (new_args.size() == args_.size());
   if (new_args == args_) {
