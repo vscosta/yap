@@ -34,7 +34,6 @@ class BayesBall
     static FactorGraph* getMinimalFactorGraph (FactorGraph& fg, VarIds vids);
 
   private:
-
     void constructGraph (FactorGraph* fg) const;
 
     void scheduleParents (const BBNode* n, Scheduling& sch) const;
