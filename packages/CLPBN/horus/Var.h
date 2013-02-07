@@ -105,6 +105,5 @@ Var::operator!= (const Var& var) const
   return !(*this == var);
 }
 
-
 #endif // YAP_PACKAGES_CLPBN_HORUS_VAR_H_
 
