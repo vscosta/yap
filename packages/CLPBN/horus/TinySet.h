@@ -1,5 +1,5 @@
-#ifndef PACKAGES_CLPBN_HORUS_TINYSET_H
-#define PACKAGES_CLPBN_HORUS_TINYSET_H
+#ifndef YAP_PACKAGES_CLPBN_HORUS_TINYSET_H_
+#define YAP_PACKAGES_CLPBN_HORUS_TINYSET_H_
 
 #include <algorithm>
 #include <vector>
@@ -403,5 +403,5 @@ TinySet<T,C>::consistent (void) const
   return true;
 }
 
-#endif // PACKAGES_CLPBN_HORUS_TINYSET_H
+#endif // YAP_PACKAGES_CLPBN_HORUS_TINYSET_H_
 

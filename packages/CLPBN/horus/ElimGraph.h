@@ -1,5 +1,5 @@
-#ifndef PACKAGES_CLPBN_HORUS_ELIMGRAPH_H
-#define PACKAGES_CLPBN_HORUS_ELIMGRAPH_H
+#ifndef YAP_PACKAGES_CLPBN_HORUS_ELIMGRAPH_H_
+#define YAP_PACKAGES_CLPBN_HORUS_ELIMGRAPH_H_
 
 #include "unordered_map"
 
@@ -168,5 +168,5 @@ ElimGraph::neighbors (EgNode* n1, EgNode* n2) const
   return n1->isNeighbor (n2);
 }
 
-#endif // PACKAGES_CLPBN_HORUS_ELIMGRAPH_H
+#endif // YAP_PACKAGES_CLPBN_HORUS_ELIMGRAPH_H_
 

@@ -1,5 +1,5 @@
-#ifndef PACKAGES_CLPBN_HORUS_VARELIM_H
-#define PACKAGES_CLPBN_HORUS_VARELIM_H
+#ifndef YAP_PACKAGES_CLPBN_HORUS_VARELIM_H_
+#define YAP_PACKAGES_CLPBN_HORUS_VARELIM_H_
 
 #include "unordered_map"
 
@@ -38,5 +38,5 @@ class VarElim : public GroundSolver
     DISALLOW_COPY_AND_ASSIGN (VarElim);
 };
 
-#endif // PACKAGES_CLPBN_HORUS_VARELIM_H
+#endif // YAP_PACKAGES_CLPBN_HORUS_VARELIM_H_
 

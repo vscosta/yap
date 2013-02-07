@@ -1,5 +1,5 @@
-#ifndef PACKAGES_CLPBN_HORUS_LIFTEDKC_H
-#define PACKAGES_CLPBN_HORUS_LIFTEDKC_H
+#ifndef YAP_PACKAGES_CLPBN_HORUS_LIFTEDKC_H_
+#define YAP_PACKAGES_CLPBN_HORUS_LIFTEDKC_H_
 
 #include "LiftedSolver.h"
 #include "LiftedWCNF.h"
@@ -298,5 +298,5 @@ class LiftedKc : public LiftedSolver
     DISALLOW_COPY_AND_ASSIGN (LiftedKc);
 };
 
-#endif // PACKAGES_CLPBN_HORUS_LIFTEDKC_H
+#endif // YAP_PACKAGES_CLPBN_HORUS_LIFTEDKC_H_
 

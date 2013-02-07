@@ -1,5 +1,5 @@
-#ifndef PACKAGES_CLPBN_HORUS_INDEXER_H
-#define PACKAGES_CLPBN_HORUS_INDEXER_H
+#ifndef YAP_PACKAGES_CLPBN_HORUS_INDEXER_H_
+#define YAP_PACKAGES_CLPBN_HORUS_INDEXER_H_
 
 #include <algorithm>
 #include <numeric>
@@ -361,5 +361,5 @@ operator<< (std::ostream &os, const MapIndexer& indexer)
   return os;
 }
 
-#endif // PACKAGES_CLPBN_HORUS_INDEXER_H
+#endif // YAP_PACKAGES_CLPBN_HORUS_INDEXER_H_
 

@@ -1,5 +1,5 @@
-#ifndef PACKAGES_CLPBN_HORUS_HORUS_H
-#define PACKAGES_CLPBN_HORUS_HORUS_H
+#ifndef YAP_PACKAGES_CLPBN_HORUS_HORUS_H_
+#define YAP_PACKAGES_CLPBN_HORUS_HORUS_H_
 
 #define DISALLOW_COPY_AND_ASSIGN(TypeName) \
   TypeName(const TypeName&);               \
@@ -72,5 +72,5 @@ const unsigned PRECISION = 6;
 
 };
 
-#endif // PACKAGES_CLPBN_HORUS_HORUS_H
+#endif // YAP_PACKAGES_CLPBN_HORUS_HORUS_H_
 

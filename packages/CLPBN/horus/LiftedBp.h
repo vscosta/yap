@@ -1,5 +1,5 @@
-#ifndef PACKAGES_CLPBN_HORUS_LIFTEDBP_H
-#define PACKAGES_CLPBN_HORUS_LIFTEDBP_H
+#ifndef YAP_PACKAGES_CLPBN_HORUS_LIFTEDBP_H_
+#define YAP_PACKAGES_CLPBN_HORUS_LIFTEDBP_H_
 
 #include "LiftedSolver.h"
 #include "ParfactorList.h"
@@ -41,5 +41,5 @@ class LiftedBp : public LiftedSolver
     DISALLOW_COPY_AND_ASSIGN (LiftedBp);
 };
 
-#endif // PACKAGES_CLPBN_HORUS_LIFTEDBP_H
+#endif // YAP_PACKAGES_CLPBN_HORUS_LIFTEDBP_H_
 

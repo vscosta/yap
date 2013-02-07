@@ -1,5 +1,5 @@
-#ifndef PACKAGES_CLPBN_HORUS_UTIL_H
-#define PACKAGES_CLPBN_HORUS_UTIL_H
+#ifndef YAP_PACKAGES_CLPBN_HORUS_UTIL_H_
+#define YAP_PACKAGES_CLPBN_HORUS_UTIL_H_
 
 #include <cmath>
 #include <cassert>
@@ -433,5 +433,5 @@ struct abs_diff_exp : public std::binary_function<T, T, T>
 
 }
 
-#endif // PACKAGES_CLPBN_HORUS_UTIL_H
+#endif // YAP_PACKAGES_CLPBN_HORUS_UTIL_H_
 

@@ -1,5 +1,5 @@
-#ifndef PACKAGES_CLPBN_HORUS_PARFACTOR_H
-#define PACKAGES_CLPBN_HORUS_PARFACTOR_H
+#ifndef YAP_PACKAGES_CLPBN_HORUS_PARFACTOR_H_
+#define YAP_PACKAGES_CLPBN_HORUS_PARFACTOR_H_
 
 #include "Factor.h"
 #include "ProbFormula.h"
@@ -117,5 +117,5 @@ class Parfactor : public TFactor<ProbFormula>
 
 typedef std::vector<Parfactor*> Parfactors;
 
-#endif // PACKAGES_CLPBN_HORUS_PARFACTOR_H
+#endif // YAP_PACKAGES_CLPBN_HORUS_PARFACTOR_H_
 

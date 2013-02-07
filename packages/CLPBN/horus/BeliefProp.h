@@ -1,5 +1,5 @@
-#ifndef PACKAGES_CLPBN_HORUS_BELIEFPROP_H
-#define PACKAGES_CLPBN_HORUS_BELIEFPROP_H
+#ifndef YAP_PACKAGES_CLPBN_HORUS_BELIEFPROP_H_
+#define YAP_PACKAGES_CLPBN_HORUS_BELIEFPROP_H_
 
 #include <set>
 #include <vector>
@@ -173,5 +173,5 @@ BeliefProp::ninf (const FacNode* fac) const
   return facsI_[fac->getIndex()];
 }
 
-#endif // PACKAGES_CLPBN_HORUS_BELIEFPROP_H
+#endif // YAP_PACKAGES_CLPBN_HORUS_BELIEFPROP_H_
 

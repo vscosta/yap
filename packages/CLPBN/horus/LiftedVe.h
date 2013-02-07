@@ -1,5 +1,5 @@
-#ifndef PACKAGES_CLPBN_HORUS_LIFTEDVE_H
-#define PACKAGES_CLPBN_HORUS_LIFTEDVE_H
+#ifndef YAP_PACKAGES_CLPBN_HORUS_LIFTEDVE_H_
+#define YAP_PACKAGES_CLPBN_HORUS_LIFTEDVE_H_
 
 #include <vector>
 #include <string>
@@ -167,5 +167,5 @@ class LiftedVe : public LiftedSolver
     DISALLOW_COPY_AND_ASSIGN (LiftedVe);
 };
 
-#endif // PACKAGES_CLPBN_HORUS_LIFTEDVE_H
+#endif // YAP_PACKAGES_CLPBN_HORUS_LIFTEDVE_H_
 
