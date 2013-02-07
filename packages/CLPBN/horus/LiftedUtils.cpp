@@ -40,7 +40,8 @@ printSymbolDictionary (void)
 
 
 
-std::ostream& operator<< (std::ostream &os, const Symbol& s)
+std::ostream&
+operator<< (std::ostream& os, const Symbol& s)
 {
   std::unordered_map<std::string, unsigned>::const_iterator it
       = LiftedUtils::symbolDict.begin();
@@ -54,7 +55,8 @@ std::ostream& operator<< (std::ostream &os, const Symbol& s)
 
 
 
-std::ostream& operator<< (std::ostream &os, const LogVar& X)
+std::ostream&
+operator<< (std::ostream& os, const LogVar& X)
 {
   const std::string labels[] = {
       "A", "B", "C", "D", "E", "F",
@@ -65,7 +67,8 @@ std::ostream& operator<< (std::ostream &os, const LogVar& X)
 
 
 
-std::ostream& operator<< (std::ostream &os, const Tuple& t)
+std::ostream&
+operator<< (std::ostream& os, const Tuple& t)
 {
   os << "(" ;
   for (size_t i = 0; i < t.size(); i++) {
@@ -77,7 +80,8 @@ std::ostream& operator<< (std::ostream &os, const Tuple& t)
 
 
 
-std::ostream& operator<< (std::ostream &os, const Ground& gr)
+std::ostream&
+operator<< (std::ostream& os, const Ground& gr)
 {
   os << gr.functor();
   os << "(" ;
@@ -111,7 +115,8 @@ Substitution::getDiscardedLogVars (void) const
 
 
 
-std::ostream& operator<< (std::ostream &os, const Substitution& theta)
+std::ostream&
+operator<< (std::ostream& os, const Substitution& theta)
 {
   std::unordered_map<LogVar, LogVar>::const_iterator it;
   os << "[" ;

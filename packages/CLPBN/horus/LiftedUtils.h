@@ -24,9 +24,9 @@ class Symbol
     static Symbol invalid (void) { return Symbol(); }
 
   private:
-    unsigned id_;
+    friend std::ostream& operator<< (std::ostream&, const Symbol&);
 
-    friend std::ostream& operator<< (std::ostream &os, const Symbol& s);
+    unsigned id_;
 };
 
 
@@ -44,9 +44,9 @@ class LogVar
     bool valid (void) const;
 
   private:
-    unsigned id_;
+    friend std::ostream& operator<< (std::ostream&, const LogVar&);
 
-    friend std::ostream& operator<< (std::ostream &os, const LogVar& X);
+    unsigned id_;
 };
 
 
@@ -86,16 +86,16 @@ template <> struct hash<LogVar> {
 };
 
 
-typedef std::vector<Symbol>   Symbols;
-typedef std::vector<Symbol>   Tuple;
-typedef std::vector<Tuple>    Tuples;
-typedef std::vector<LogVar>   LogVars;
-typedef TinySet<Symbol>       SymbolSet;
-typedef TinySet<LogVar>       LogVarSet;
-typedef TinySet<Tuple>        TupleSet;
+typedef std::vector<Symbol>  Symbols;
+typedef std::vector<Symbol>  Tuple;
+typedef std::vector<Tuple>   Tuples;
+typedef std::vector<LogVar>  LogVars;
+typedef TinySet<Symbol>      SymbolSet;
+typedef TinySet<LogVar>      LogVarSet;
+typedef TinySet<Tuple>       TupleSet;
 
 
-std::ostream& operator<< (std::ostream &os, const Tuple& t);
+std::ostream& operator<< (std::ostream&, const Tuple&);
 
 
 namespace LiftedUtils {
@@ -113,7 +113,8 @@ class Ground
   public:
     Ground (Symbol f) : functor_(f) { }
 
-    Ground (Symbol f, const Symbols& args) : functor_(f), args_(args) { }
+    Ground (Symbol f, const Symbols& args)
+        : functor_(f), args_(args) { }
 
     Symbol functor (void) const { return functor_; }
 
@@ -124,10 +125,10 @@ class Ground
     bool isAtom (void) const { return args_.empty(); }
 
   private:
+    friend std::ostream& operator<< (std::ostream&, const Ground&);
+
     Symbol   functor_;
     Symbols  args_;
-
-    friend std::ostream& operator<< (std::ostream &os, const Ground& gr);
 };
 
 typedef std::vector<Ground> Grounds;
@@ -150,11 +151,10 @@ class Substitution
     LogVars getDiscardedLogVars (void) const;
 
   private:
-    std::unordered_map<LogVar, LogVar> subs_;
-
     friend std::ostream& operator<< (
-        std::ostream &os, const Substitution& theta);
+        std::ostream&, const Substitution&);
 
+    std::unordered_map<LogVar, LogVar> subs_;
 };
 
 
@@ -204,7 +204,6 @@ Substitution::nrReplacements (void) const
 {
   return subs_.size();
 }
-
 
 #endif // YAP_PACKAGES_CLPBN_HORUS_LIFTEDUTILS_H_
 

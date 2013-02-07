@@ -60,13 +60,13 @@ class ProbFormula
 
     static PrvGroup getNewGroup (void);
 
+  private:
     friend bool operator== (
         const ProbFormula& f1, const ProbFormula& f2);
 
     friend std::ostream& operator<< (
-        std::ostream &os, const ProbFormula& f);
+        std::ostream&, const ProbFormula&);
 
-  private:
     Symbol     functor_;
     LogVars    logVars_;
     unsigned   range_;
@@ -100,13 +100,13 @@ class ObservedFormula
     void addTuple (const Tuple& tuple) { constr_.addTuple (tuple); }
 
   private:
+    friend std::ostream& operator<< (
+        std::ostream&, const ObservedFormula&);
+
     Symbol          functor_;
     unsigned        arity_;
     unsigned        evidence_;
     ConstraintTree  constr_;
-
-    friend std::ostream& operator<< (
-        std::ostream &os, const ObservedFormula& of);
 };
 
 typedef std::vector<ObservedFormula> ObservedFormulas;

@@ -145,7 +145,8 @@ CTNode::deleteSubtree (CTNode* n)
 
 
 
-std::ostream& operator<< (std::ostream &out, const CTNode& n)
+std::ostream&
+operator<< (std::ostream& out, const CTNode& n)
 {
   out << "(" << n.level() << ") " ;
   out << n.symbol();

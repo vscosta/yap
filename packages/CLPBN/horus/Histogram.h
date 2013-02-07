@@ -36,10 +36,10 @@ class HistogramSet
 
     void clearAfter (size_t);
 
+    friend std::ostream& operator<< (std::ostream&, const HistogramSet&);
+
     unsigned   size_;
     Histogram  hist_;
-
-    friend std::ostream& operator<< (std::ostream &os, const HistogramSet& hs);
 
     DISALLOW_COPY_AND_ASSIGN (HistogramSet);
 };

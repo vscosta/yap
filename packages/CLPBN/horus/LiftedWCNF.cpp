@@ -65,7 +65,7 @@ Literal::toString (
 
 
 std::ostream&
-operator<< (std::ostream &os, const Literal& lit)
+operator<< (std::ostream& os, const Literal& lit)
 {
   os << lit.toString();
   return os;
@@ -342,7 +342,7 @@ Clause::deleteClauses (Clauses& clauses)
 
 
 std::ostream&
-operator<< (std::ostream &os, const Clause& clause)
+operator<< (std::ostream& os, const Clause& clause)
 {
   for (unsigned i = 0; i < clause.literals_.size(); i++) {
     if (i != 0) os << " v " ;
@@ -374,7 +374,7 @@ Clause::getLogVarSetExcluding (size_t idx) const
 
 
 std::ostream&
-operator<< (std::ostream &os, const LitLvTypes& lit)
+operator<< (std::ostream& os, const LitLvTypes& lit)
 {
   os << lit.lid_ << "<" ;
   for (size_t i = 0; i < lit.lvTypes_.size(); i++) {

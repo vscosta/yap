@@ -135,6 +135,8 @@ class FactorGraph
     static void disablePrintFactorGraph (void) { printFg_ = false; }
 
   private:
+    typedef std::unordered_map<unsigned, VarNode*> VarMap;
+
     void ignoreLines (std::ifstream&) const;
 
     bool containsCycle (void) const;
@@ -145,19 +147,16 @@ class FactorGraph
     bool containsCycle (const FacNode*, const VarNode*,
         std::vector<bool>&, std::vector<bool>&) const;
 
-    VarNodes  varNodes_;
-    FacNodes  facNodes_;
-
+    VarNodes        varNodes_;
+    FacNodes        facNodes_;
+    VarMap          varMap_;
     BayesBallGraph  structure_;
     bool            bayesFactors_;
 
-    typedef std::unordered_map<unsigned, VarNode*> VarMap;
-    VarMap varMap_;
-
-    static bool exportLd_;
-    static bool exportUai_;
-    static bool exportGv_;
-    static bool printFg_;
+    static bool     exportLd_;
+    static bool     exportUai_;
+    static bool     exportGv_;
+    static bool     printFg_;
 
     DISALLOW_ASSIGN (FactorGraph);
 };

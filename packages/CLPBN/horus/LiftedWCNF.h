@@ -54,11 +54,11 @@ class Literal
       LogVarSet negCountedLvs = LogVarSet()) const;
 
   private:
+    friend std::ostream& operator<< (std::ostream&, const Literal&);
+
     LiteralId  lid_;
     LogVars    logVars_;
     bool       negated_;
-
-    friend std::ostream& operator<< (std::ostream &os, const Literal& lit);
 };
 
 typedef std::vector<Literal> Literals;
@@ -145,13 +145,13 @@ class Clause
   private:
     LogVarSet getLogVarSetExcluding (size_t idx) const;
 
+    friend std::ostream& operator<< (std::ostream&, const Clause&);
+
     Literals        literals_;
     LogVarSet       ipgLvs_;
     LogVarSet       posCountedLvs_;
     LogVarSet       negCountedLvs_;
     ConstraintTree  constr_;
-
-    friend std::ostream& operator<< (std::ostream &os, const Clause& clause);
 
     DISALLOW_ASSIGN (Clause);
 };
@@ -163,22 +163,6 @@ typedef std::vector<Clause*> Clauses;
 class LitLvTypes
 {
   public:
-    struct CompareLitLvTypes
-    {
-      bool operator() (
-          const LitLvTypes& types1,
-          const LitLvTypes& types2) const
-      {
-        if (types1.lid_ < types2.lid_) {
-          return true;
-        }
-        if (types1.lid_ == types2.lid_) {
-          return types1.lvTypes_ < types2.lvTypes_;
-        }
-        return false;
-      }
-    };
-
     LitLvTypes (LiteralId lid, const LogVarTypes& lvTypes) :
         lid_(lid), lvTypes_(lvTypes) { }
 
@@ -190,13 +174,29 @@ class LitLvTypes
         std::fill (lvTypes_.begin(), lvTypes_.end(), LogVarType::FULL_LV); }
 
   private:
+    friend std::ostream& operator<< (std::ostream&, const LitLvTypes&);
+
     LiteralId    lid_;
     LogVarTypes  lvTypes_;
-
-    friend std::ostream& operator<< (std::ostream &os, const LitLvTypes& lit);
 };
 
-typedef TinySet<LitLvTypes,LitLvTypes::CompareLitLvTypes> LitLvTypesSet;
+
+
+struct CmpLitLvTypes
+{
+  bool operator() (const LitLvTypes& types1, const LitLvTypes& types2) const
+  {
+    if (types1.lid() < types2.lid()) {
+      return true;
+    }
+    if (types1.lid() == types2.lid()){
+      return types1.logVarTypes() < types2.logVarTypes();
+    }
+    return false;
+  }
+};
+
+typedef TinySet<LitLvTypes, CmpLitLvTypes> LitLvTypesSet;
 
 
 

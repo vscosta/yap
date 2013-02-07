@@ -100,6 +100,14 @@ class BeliefProp : public GroundSolver
     static void setMsgSchedule (MsgSchedule sch) { schedule_ = sch; }
 
   protected:
+    struct CmpResidual {
+      bool operator() (const BpLink* l1, const BpLink* l2) {
+        return l1->residual() > l2->residual();
+    }};
+
+    typedef std::multiset<BpLink*, CmpResidual> SortedOrder;
+    typedef std::unordered_map<BpLink*, SortedOrder::iterator> BpLinkMap;
+
     SPNodeInfo* ninf (const VarNode* var) const;
 
     SPNodeInfo* ninf (const FacNode* fac) const;
@@ -109,14 +117,6 @@ class BeliefProp : public GroundSolver
     void calculateMessage (BpLink* link, bool calcResidual = true);
 
     void updateMessage (BpLink* link);
-
-    struct CompareResidual
-    {
-      inline bool operator() (const BpLink* link1, const BpLink* link2)
-      {
-        return link1->residual() > link2->residual();
-      }
-    };
 
     void runSolver (void);
 
@@ -135,16 +135,12 @@ class BeliefProp : public GroundSolver
     std::vector<SPNodeInfo*>  varsI_;
     std::vector<SPNodeInfo*>  facsI_;
     bool                      runned_;
+    SortedOrder               sortedOrder_;
+    BpLinkMap                 linkMap_;
 
-    typedef std::multiset<BpLink*, CompareResidual> SortedOrder;
-    SortedOrder sortedOrder_;
-
-    typedef std::unordered_map<BpLink*, SortedOrder::iterator> BpLinkMap;
-    BpLinkMap linkMap_;
-
-    static double       accuracy_;
-    static unsigned     maxIter_;
-    static MsgSchedule  schedule_;
+    static double             accuracy_;
+    static unsigned           maxIter_;
+    static MsgSchedule        schedule_;
 
   private:
     void initializeSolver (void);

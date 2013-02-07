@@ -38,13 +38,13 @@ class Indexer
   private:
     void calculateOffsets (void);
 
+    friend std::ostream& operator<< (std::ostream&, const Indexer&);
+
     size_t               index_;
     Ranges               indices_;
     const Ranges&        ranges_;
     size_t               size_;
     std::vector<size_t>  offsets_;
-
-    friend std::ostream& operator<< (std::ostream&, const Indexer&);
 
     DISALLOW_COPY_AND_ASSIGN (Indexer);
 };
@@ -223,13 +223,13 @@ class MapIndexer
     void reset (void);
 
   private:
+    friend std::ostream& operator<< (std::ostream&, const MapIndexer&);
+
     size_t               index_;
     Ranges               indices_;
     const Ranges&        ranges_;
     bool                 valid_;
     std::vector<size_t>  offsets_;
-
-    friend std::ostream& operator<< (std::ostream&, const MapIndexer&);
 
     DISALLOW_COPY_AND_ASSIGN (MapIndexer);
 };

@@ -138,7 +138,8 @@ HistogramSet::clearAfter (size_t idx)
 
 
 
-std::ostream& operator<< (std::ostream &os, const HistogramSet& hs)
+std::ostream&
+operator<< (std::ostream& os, const HistogramSet& hs)
 {
   os << "#" << hs.hist_;
   return os;

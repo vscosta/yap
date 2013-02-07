@@ -10,9 +10,8 @@ template <typename T, typename Compare = std::less<T>>
 class TinySet
 {
   public:
-
-    typedef typename std::vector<T>::iterator        iterator;
-    typedef typename std::vector<T>::const_iterator  const_iterator;
+    typedef typename std::vector<T>::iterator       iterator;
+    typedef typename std::vector<T>::const_iterator const_iterator;
 
     TinySet (const TinySet& s)
         : vec_(s.vec_), cmp_(s.cmp_) { }
@@ -90,9 +89,6 @@ class TinySet
 
     bool consistent (void) const;
 
-    std::vector<T>  vec_;
-    Compare         cmp_;
-
     friend bool operator== (const TinySet& s1, const TinySet& s2)
     {
       return s1.vec_ == s2.vec_;
@@ -114,6 +110,8 @@ class TinySet
       return out;
     }
 
+    std::vector<T>  vec_;
+    Compare         cmp_;
 };
 
 

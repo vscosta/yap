@@ -13,31 +13,28 @@
 
 
 class CTNode;
-typedef std::vector<CTNode*> CTNodes;
-
 class ConstraintTree;
+
+
+typedef std::vector<CTNode*> CTNodes;
 typedef std::vector<ConstraintTree*> ConstraintTrees;
 
 
 class CTNode
 {
-  public:
-    struct CompareSymbol
-    {
-      bool operator() (const CTNode* n1, const CTNode* n2) const
-      {
-        return n1->symbol() < n2->symbol();
-      }
-    };
-
   private:
-    typedef TinySet<CTNode*, CompareSymbol> CTChilds_;
+    struct CmpSymbol {
+      bool operator() (const CTNode* n1, const CTNode* n2) const {
+        return n1->symbol() < n2->symbol();
+    }};
 
   public:
-    CTNode (const CTNode& n, const CTChilds_& chs = CTChilds_()) 
+    typedef TinySet<CTNode*, CmpSymbol> CTChilds;
+
+    CTNode (const CTNode& n, const CTChilds& chs = CTChilds()) 
         : symbol_(n.symbol()), childs_(chs), level_(n.level()) { }
 
-    CTNode (Symbol s, unsigned l, const CTChilds_& chs = CTChilds_())
+    CTNode (Symbol s, unsigned l, const CTChilds& chs = CTChilds())
         : symbol_(s), childs_(chs), level_(l) { }
 
     unsigned level (void) const { return level_; }
@@ -48,9 +45,9 @@ class CTNode
 
     void setSymbol (const Symbol s) { symbol_ = s; }
 
-    CTChilds_& childs (void) { return childs_; }
+    CTChilds& childs (void) { return childs_; }
 
-    const CTChilds_& childs (void) const { return childs_; }
+    const CTChilds& childs (void) const { return childs_; }
 
     size_t nrChilds (void) const { return childs_.size(); }
 
@@ -58,7 +55,7 @@ class CTNode
 
     bool isLeaf (void) const { return childs_.empty(); }
 
-    CTChilds_::iterator findSymbol (Symbol symb);
+    CTChilds::iterator findSymbol (Symbol symb);
 
     void mergeSubtree (CTNode*, bool = true);
 
@@ -80,14 +77,14 @@ class CTNode
     void updateChildLevels (CTNode*, unsigned);
 
     Symbol     symbol_;
-    CTChilds_  childs_;
+    CTChilds  childs_;
     unsigned   level_;
 
     DISALLOW_ASSIGN (CTNode);
 };
 
 
-typedef TinySet<CTNode*, CTNode::CompareSymbol> CTChilds;
+typedef CTNode::CTChilds CTChilds;
 
 
 inline CTChilds::iterator
@@ -98,7 +95,7 @@ CTNode::findSymbol (Symbol symb)
 }
 
 
-std::ostream& operator<< (std::ostream &out, const CTNode&);
+std::ostream& operator<< (std::ostream&, const CTNode&);
 
 
 class ConstraintTree
