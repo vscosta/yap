@@ -1,3 +1,8 @@
+#include <cassert>
+
+#include <iostream>
+#include <sstream>
+
 #include "LiftedWCNF.h"
 #include "ConstraintTree.h"
 #include "Indexer.h"

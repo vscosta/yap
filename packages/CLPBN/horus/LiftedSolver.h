@@ -2,7 +2,7 @@
 #define YAP_PACKAGES_CLPBN_HORUS_LIFTEDSOLVER_H_
 
 #include "ParfactorList.h"
-#include "Horus.h"
+
 
 class LiftedSolver
 {

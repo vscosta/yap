@@ -1,6 +1,10 @@
-#include <algorithm>
+#include <cassert>
 
 #include <set>
+#include <queue>
+#include <algorithm>
+#include <iostream>
+#include <sstream>
 
 #include "LiftedVe.h"
 #include "LiftedOperations.h"

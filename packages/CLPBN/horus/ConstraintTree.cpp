@@ -1,5 +1,6 @@
 #include <queue>
 
+#include <iostream>
 #include <fstream>
 
 #include "ConstraintTree.h"

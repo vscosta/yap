@@ -3,6 +3,9 @@
 
 #include <cassert>
 
+#include <unordered_map>
+#include <string>
+
 #include "Util.h"
 #include "Horus.h"
 

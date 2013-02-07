@@ -1,4 +1,7 @@
-#include <cstdlib>
+#include <cassert>
+
+#include <string>
+#include <iostream>
 
 #include "FactorGraph.h"
 #include "VarElim.h"

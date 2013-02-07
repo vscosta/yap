@@ -1,10 +1,7 @@
+#include <cassert>
+
 #include <algorithm>
-
-#include <vector>
-
 #include <iostream>
-#include <sstream>
-#include <fstream>
 
 #include "FactorGraph.h"
 #include "BayesBall.h"

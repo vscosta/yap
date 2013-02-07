@@ -1,3 +1,8 @@
+#include <cassert>
+
+#include <iostream>
+#include <sstream>
+
 #include "Parfactor.h"
 #include "Histogram.h"
 #include "Indexer.h"

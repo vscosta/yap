@@ -1,3 +1,7 @@
+#include <cassert>
+
+#include <iostream>
+
 #include "WeightedBp.h"
 
 

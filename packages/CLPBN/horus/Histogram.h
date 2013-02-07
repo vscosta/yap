@@ -2,7 +2,6 @@
 #define YAP_PACKAGES_CLPBN_HORUS_HISTOGRAM_H_
 
 #include <vector>
-
 #include <ostream>
 
 #include "Horus.h"

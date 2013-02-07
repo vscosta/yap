@@ -1,4 +1,6 @@
 #include <algorithm>
+#include <iostream>
+#include <sstream>
 
 #include "VarElim.h"
 #include "ElimGraph.h"

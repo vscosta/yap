@@ -1,10 +1,8 @@
 #include <cassert>
 
 #include <iostream>
-#include <sstream>
 
 #include "LiftedUtils.h"
-#include "ConstraintTree.h"
 
 
 namespace LiftedUtils {

@@ -1,7 +1,8 @@
 #ifndef YAP_PACKAGES_CLPBN_HORUS_VARELIM_H_
 #define YAP_PACKAGES_CLPBN_HORUS_VARELIM_H_
 
-#include "unordered_map"
+#include <vector>
+#include <unordered_map>
 
 #include "GroundSolver.h"
 #include "FactorGraph.h"

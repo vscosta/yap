@@ -1,3 +1,8 @@
+#include <cassert>
+
+#include <iostream>
+#include <sstream>
+
 #include "CountingBp.h"
 #include "WeightedBp.h"
 

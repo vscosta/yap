@@ -1,6 +1,8 @@
 #include <cassert>
 
 #include <queue>
+#include <iostream>
+#include <sstream>
 
 #include "ParfactorList.h"
 

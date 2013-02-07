@@ -1,7 +1,10 @@
 #ifndef YAP_PACKAGES_CLPBN_HORUS_LIFTEDWCNF_H_
 #define YAP_PACKAGES_CLPBN_HORUS_LIFTEDWCNF_H_
 
+#include <vector>
 #include <unordered_map>
+#include <string>
+#include <ostream>
 
 #include "ParfactorList.h"
 

@@ -1,6 +1,8 @@
 #ifndef YAP_PACKAGES_CLPBN_HORUS_LIFTEDBP_H_
 #define YAP_PACKAGES_CLPBN_HORUS_LIFTEDBP_H_
 
+#include <vector>
+
 #include "LiftedSolver.h"
 #include "ParfactorList.h"
 

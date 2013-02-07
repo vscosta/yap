@@ -1,3 +1,7 @@
+#include <cassert>
+
+#include <sstream>
+
 #include "LiftedBp.h"
 #include "LiftedOperations.h"
 #include "WeightedBp.h"

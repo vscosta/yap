@@ -1,10 +1,9 @@
 #ifndef YAP_PACKAGES_CLPBN_HORUS_BELIEFPROP_H_
 #define YAP_PACKAGES_CLPBN_HORUS_BELIEFPROP_H_
 
-#include <set>
 #include <vector>
-
-#include <sstream>
+#include <set>
+#include <string>
 
 #include "GroundSolver.h"
 #include "FactorGraph.h"

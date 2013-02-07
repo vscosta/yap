@@ -1,9 +1,9 @@
 #ifndef YAP_PACKAGES_CLPBN_HORUS_INDEXER_H_
 #define YAP_PACKAGES_CLPBN_HORUS_INDEXER_H_
 
+#include <vector>
 #include <algorithm>
 #include <numeric>
-
 #include <sstream>
 #include <iomanip>
 

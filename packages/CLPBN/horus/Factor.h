@@ -1,7 +1,10 @@
 #ifndef YAP_PACKAGES_CLPBN_HORUS_FACTOR_H_
 #define YAP_PACKAGES_CLPBN_HORUS_FACTOR_H_
 
+#include <cassert>
+
 #include <vector>
+#include <string>
 
 #include "Indexer.h"
 #include "Util.h"

@@ -1,4 +1,6 @@
-#include <fstream>
+#include <cassert>
+
+#include <iostream>
 
 #include "LiftedKc.h"
 #include "LiftedOperations.h"

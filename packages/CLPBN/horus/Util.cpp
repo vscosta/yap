@@ -1,5 +1,3 @@
-#include <fstream>
-
 #include "Util.h"
 #include "Indexer.h"
 #include "ElimGraph.h"
@@ -21,7 +19,6 @@ GroundSolverType groundSolver = GroundSolverType::VE;
 
 
 namespace Util {
-
 
 template <> std::string
 toString (const bool& b)

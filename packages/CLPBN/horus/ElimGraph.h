@@ -1,7 +1,10 @@
 #ifndef YAP_PACKAGES_CLPBN_HORUS_ELIMGRAPH_H_
 #define YAP_PACKAGES_CLPBN_HORUS_ELIMGRAPH_H_
 
-#include "unordered_map"
+#include <cassert>
+
+#include <vector>
+#include <unordered_map>
 
 #include "FactorGraph.h"
 #include "TinySet.h"

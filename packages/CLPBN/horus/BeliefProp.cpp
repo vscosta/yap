@@ -1,8 +1,8 @@
 #include <cassert>
 
 #include <algorithm>
-
 #include <iostream>
+#include <sstream>
 
 #include "BeliefProp.h"
 #include "Indexer.h"

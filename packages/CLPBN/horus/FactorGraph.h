@@ -2,6 +2,9 @@
 #define YAP_PACKAGES_CLPBN_HORUS_FACTORGRAPH_H_
 
 #include <vector>
+#include <unordered_map>
+#include <string>
+#include <fstream>
 
 #include "Factor.h"
 #include "BayesBallGraph.h"

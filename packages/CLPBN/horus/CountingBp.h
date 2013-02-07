@@ -1,6 +1,7 @@
 #ifndef YAP_PACKAGES_CLPBN_HORUS_COUNTINGBP_H_
 #define YAP_PACKAGES_CLPBN_HORUS_COUNTINGBP_H_
 
+#include <vector>
 #include <unordered_map>
 
 #include "GroundSolver.h"

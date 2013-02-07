@@ -2,10 +2,11 @@
 #define YAP_PACKAGES_CLPBN_HORUS_CONSTRAINTTREE_H_
 
 #include <cassert>
-#include <algorithm>
 
-#include <iostream>
-#include <sstream>
+#include <vector>
+#include <algorithm>
+#include <string>
+#include <ostream>
 
 #include "TinySet.h"
 #include "LiftedUtils.h"

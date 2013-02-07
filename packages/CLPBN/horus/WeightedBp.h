@@ -1,6 +1,8 @@
 #ifndef YAP_PACKAGES_CLPBN_HORUS_WEIGHTEDBP_H_
 #define YAP_PACKAGES_CLPBN_HORUS_WEIGHTEDBP_H_
 
+#include <vector>
+
 #include "BeliefProp.h"
 
 

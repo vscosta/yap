@@ -1,8 +1,9 @@
 #ifndef YAP_PACKAGES_CLPBN_HORUS_TINYSET_H_
 #define YAP_PACKAGES_CLPBN_HORUS_TINYSET_H_
 
-#include <algorithm>
 #include <vector>
+#include <algorithm>
+#include <ostream>
 
 
 template <typename T, typename Compare = std::less<T>>

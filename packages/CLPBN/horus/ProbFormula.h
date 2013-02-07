@@ -1,6 +1,8 @@
 #ifndef YAP_PACKAGES_CLPBN_HORUS_PROBFORMULA_H_
 #define YAP_PACKAGES_CLPBN_HORUS_PROBFORMULA_H_
 
+#include <vector>
+#include <ostream>
 #include <limits>
 
 #include "ConstraintTree.h"

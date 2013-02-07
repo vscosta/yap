@@ -1,3 +1,9 @@
+#include <cassert>
+
+#include <vector>
+#include <string>
+#include <iostream>
+
 #include "GroundSolver.h"
 #include "VarElim.h"
 #include "BeliefProp.h"

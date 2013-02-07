@@ -1,6 +1,9 @@
 #ifndef YAP_PACKAGES_CLPBN_HORUS_PARFACTOR_H_
 #define YAP_PACKAGES_CLPBN_HORUS_PARFACTOR_H_
 
+#include <vector>
+#include <string>
+
 #include "Factor.h"
 #include "ProbFormula.h"
 #include "ConstraintTree.h"
