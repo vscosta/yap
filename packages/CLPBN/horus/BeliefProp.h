@@ -9,6 +9,8 @@
 #include "FactorGraph.h"
 
 
+namespace horus {
+
 enum MsgSchedule {
   SEQ_FIXED,
   SEQ_RANDOM,
@@ -167,6 +169,8 @@ BeliefProp::ninf (const FacNode* fac) const
 {
   return facsI_[fac->getIndex()];
 }
+
+}  // namespace horus
 
 #endif // YAP_PACKAGES_CLPBN_HORUS_BELIEFPROP_H_
 

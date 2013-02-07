@@ -7,6 +7,8 @@
 #include "ParfactorList.h"
 
 
+namespace horus {
+
 ParfactorList::ParfactorList (const ParfactorList& pfList)
 {
   ParfactorList::const_iterator it = pfList.begin();
@@ -643,4 +645,6 @@ ParfactorList::disjoint (
   TupleSet ts2 = ct2.tupleSet (f2.logVars());
   return (ts1 & ts2).empty();
 }
+
+}  // namespace horus
 

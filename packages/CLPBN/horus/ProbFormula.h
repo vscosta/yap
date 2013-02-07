@@ -9,6 +9,9 @@
 #include "LiftedUtils.h"
 #include "Horus.h"
 
+
+namespace horus {
+
 typedef unsigned long PrvGroup;
 
 class ProbFormula
@@ -110,6 +113,8 @@ class ObservedFormula
 };
 
 typedef std::vector<ObservedFormula> ObservedFormulas;
+
+}  // namespace horus
 
 #endif // YAP_PACKAGES_CLPBN_HORUS_PROBFORMULA_H_
 

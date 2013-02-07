@@ -9,6 +9,8 @@
 #include "ParfactorList.h"
 
 
+namespace horus {
+
 class ConstraintTree;
 
 enum LogVarType
@@ -240,6 +242,8 @@ class LiftedWCNF
 
     DISALLOW_COPY_AND_ASSIGN (LiftedWCNF);
 };
+
+}  // namespace horus
 
 #endif // YAP_PACKAGES_CLPBN_HORUS_LIFTEDWCNF_H_
 

@@ -9,6 +9,9 @@
 #include "Indexer.h"
 #include "Util.h"
 
+
+namespace horus {
+
 template <typename T>
 class TFactor
 {
@@ -362,6 +365,8 @@ class Factor : public TFactor<VarId>
 
     DISALLOW_ASSIGN (Factor);
 };
+
+}  // namespace horus
 
 #endif // YAP_PACKAGES_CLPBN_HORUS_FACTOR_H_
 

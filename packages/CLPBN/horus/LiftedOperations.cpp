@@ -5,6 +5,8 @@
 #include "LiftedOperations.h"
 
 
+namespace horus {
+
 void
 LiftedOperations::shatterAgainstQuery (
     ParfactorList& pfList,
@@ -272,4 +274,6 @@ LiftedOperations::absorve (
   }
   return absorvedPfs;
 }
+
+}  // namespace horus
 

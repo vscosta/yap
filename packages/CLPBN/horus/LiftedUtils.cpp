@@ -5,6 +5,8 @@
 #include "LiftedUtils.h"
 
 
+namespace horus {
+
 namespace LiftedUtils {
 
 std::unordered_map<std::string, unsigned> symbolDict;
@@ -129,4 +131,6 @@ operator<< (std::ostream& os, const Substitution& theta)
   os << "]" ;
   return os;
 }
+
+}  // namespace horus
 

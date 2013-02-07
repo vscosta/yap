@@ -10,6 +10,8 @@
 #include "Horus.h"
 
 
+namespace horus {
+
 struct VarInfo
 {
   VarInfo (std::string l, const States& sts)
@@ -104,6 +106,8 @@ Var::operator!= (const Var& var) const
 {
   return !(*this == var);
 }
+
+}  // namespace horus
 
 #endif // YAP_PACKAGES_CLPBN_HORUS_VAR_H_
 

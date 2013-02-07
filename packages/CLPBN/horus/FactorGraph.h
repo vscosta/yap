@@ -10,6 +10,9 @@
 #include "BayesBallGraph.h"
 #include "Horus.h"
 
+
+namespace horus {
+
 class FacNode;
 
 
@@ -179,6 +182,7 @@ struct sortByVarId
   }
 };
 
+}  // namespace horus
 
 #endif // YAP_PACKAGES_CLPBN_HORUS_FACTORGRAPH_H_
 

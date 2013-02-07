@@ -6,6 +6,8 @@
 #include <ostream>
 
 
+namespace horus {
+
 template <typename T, typename Compare = std::less<T>>
 class TinySet
 {
@@ -401,6 +403,8 @@ TinySet<T,C>::consistent (void) const
   }
   return true;
 }
+
+}  // namespace horus
 
 #endif // YAP_PACKAGES_CLPBN_HORUS_TINYSET_H_
 

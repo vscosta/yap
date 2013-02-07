@@ -8,6 +8,8 @@
 #include "Util.h"
 
 
+namespace horus {
+
 bool FactorGraph::exportLd_  = false;
 bool FactorGraph::exportUai_ = false;
 bool FactorGraph::exportGv_  = false;
@@ -479,4 +481,6 @@ FactorGraph::containsCycle (
   }
   return false; // no cycle detected in this component
 }
+
+}  // namespace horus
 

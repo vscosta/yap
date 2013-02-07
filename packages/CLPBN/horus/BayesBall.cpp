@@ -3,6 +3,8 @@
 #include "BayesBall.h"
 
 
+namespace horus {
+
 BayesBall::BayesBall (FactorGraph& fg)
     : fg_(fg) , dag_(fg.getStructure())
 {
@@ -92,4 +94,6 @@ BayesBall::constructGraph (FactorGraph* fg) const
     }
   }
 }
+
+}  // namespace horus
 

@@ -8,6 +8,8 @@
 #include "Util.h"
 
 
+namespace horus {
+
 Params
 VarElim::solveQuery (VarIds queryVids)
 {
@@ -197,4 +199,6 @@ VarElim::printActiveFactors (void)
     }
   }
 }
+
+}  // namespace horus
 

@@ -8,6 +8,8 @@
 #include "Var.h"
 
 
+namespace horus {
+
 Factor::Factor (const Factor& g)
 {
   clone (g);
@@ -232,4 +234,6 @@ Factor::clone (const Factor& g)
   params_  = g.params();
   distId_  = g.distId();
 }
+
+}  // namespace horus
 

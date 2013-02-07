@@ -8,6 +8,8 @@
 #include "Util.h"
 
 
+namespace horus {
+
 void
 BayesBallGraph::addNode (BBNode* n)
 {
@@ -102,4 +104,6 @@ BayesBallGraph::exportToGraphViz (const char* fileName)
   out << "}" << std::endl;
   out.close();
 }
+
+}  // namespace horus
 

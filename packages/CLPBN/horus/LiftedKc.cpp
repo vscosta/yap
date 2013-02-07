@@ -7,6 +7,8 @@
 #include "Indexer.h"
 
 
+namespace horus {
+
 OrNode::~OrNode (void)
 {
   delete leftBranch_;
@@ -1315,4 +1317,6 @@ LiftedKc::printSolverFlags (void) const
   ss << "]" ;
   std::cout << ss.str() << std::endl;
 }
+
+}  // namespace horus
 

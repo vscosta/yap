@@ -9,6 +9,8 @@
 typedef std::vector<unsigned> Histogram;
 
 
+namespace horus {
+
 class HistogramSet
 {
   public:
@@ -43,6 +45,8 @@ class HistogramSet
 
     DISALLOW_COPY_AND_ASSIGN (HistogramSet);
 };
+
+}  // namespace horus
 
 #endif // YAP_PACKAGES_CLPBN_HORUS_HISTOGRAM_H_
 

@@ -5,6 +5,8 @@
 #include "Horus.h"
 
 
+namespace horus {
+
 class GroundSolver
 {
   public:
@@ -29,6 +31,8 @@ class GroundSolver
   private:
     DISALLOW_COPY_AND_ASSIGN (GroundSolver);
 };
+
+}  // namespace horus
 
 #endif // YAP_PACKAGES_CLPBN_HORUS_GROUNDSOLVER_H_
 

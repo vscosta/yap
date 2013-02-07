@@ -10,6 +10,8 @@
 #include "Util.h"
 
 
+namespace horus {
+
 class Indexer
 {
   public:
@@ -360,6 +362,8 @@ operator<< (std::ostream &os, const MapIndexer& indexer)
   os << indexer.indices_;
   return os;
 }
+
+}  // namespace horus
 
 #endif // YAP_PACKAGES_CLPBN_HORUS_INDEXER_H_
 

@@ -12,6 +12,8 @@
 #include "Util.h"
 
 
+namespace horus {
+
 std::vector<LiftedOperator*>
 LiftedOperator::getValidOps (
     ParfactorList& pfList,
@@ -731,4 +733,6 @@ LiftedVe::getBestOperation (const Grounds& query)
   }
   return bestOp;
 }
+
+}  // namespace horus
 

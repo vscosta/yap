@@ -8,6 +8,8 @@
 #include "FactorGraph.h"
 
 
+namespace horus {
+
 LiftedBp::LiftedBp (const ParfactorList& parfactorList)
     : LiftedSolver (parfactorList)
 {
@@ -234,4 +236,6 @@ LiftedBp::getJointByConditioning (
   }
   return prevBeliefs;
 }
+
+}  // namespace horus
 

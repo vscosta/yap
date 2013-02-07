@@ -7,6 +7,8 @@
 #include "Util.h"
 
 
+namespace horus {
+
 void
 CTNode::mergeSubtree (CTNode* n, bool updateLevels)
 {
@@ -1185,4 +1187,6 @@ ConstraintTree::split (
     }
   }
 }
+
+}  // namespace horus
 

@@ -10,6 +10,8 @@
 #include "Util.h"
 
 
+namespace horus {
+
 class Symbol
 {
   public:
@@ -67,24 +69,27 @@ LogVar::valid (void) const
   return id_ != Util::maxUnsigned();
 }
 
+}  // namespace horus
 
 
 namespace std {
 
-template <> struct hash<Symbol> {
-  size_t operator() (const Symbol& s) const {
+template <> struct hash<horus::Symbol> {
+  size_t operator() (const horus::Symbol& s) const {
     return std::hash<unsigned>() (s);
   }
 };
 
-template <> struct hash<LogVar> {
-  size_t operator() (const LogVar& X) const {
+template <> struct hash<horus::LogVar> {
+  size_t operator() (const horus::LogVar& X) const {
     return std::hash<unsigned>() (X);
   }
 };
 
-};
+}  // namespace std
 
+
+namespace horus {
 
 typedef std::vector<Symbol>  Symbols;
 typedef std::vector<Symbol>  Tuple;
@@ -204,6 +209,8 @@ Substitution::nrReplacements (void) const
 {
   return subs_.size();
 }
+
+}  // namespace horus
 
 #endif // YAP_PACKAGES_CLPBN_HORUS_LIFTEDUTILS_H_
 

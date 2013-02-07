@@ -20,6 +20,7 @@
 #include "ElimGraph.h"
 #include "BayesBall.h"
 
+namespace horus {
 
 typedef std::pair<ParfactorList*, ObservedFormulas*> LiftedNetwork;
 
@@ -580,4 +581,6 @@ init_predicates (void)
   YAP_UserCPredicate ("cpp_free_ground_network",
      freeGroundNetwork, 1);
 }
+
+}  // namespace horus
 

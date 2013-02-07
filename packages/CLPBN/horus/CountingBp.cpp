@@ -7,6 +7,8 @@
 #include "WeightedBp.h"
 
 
+namespace horus {
+
 bool CountingBp::fif_ = true;
 
 
@@ -426,4 +428,6 @@ CountingBp::printGroups (
     }
   }
 }
+
+}  // namespace horus
 

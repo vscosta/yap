@@ -9,6 +9,8 @@
 #include "Horus.h"
 
 
+namespace horus {
+
 BpLink::BpLink (FacNode* fn, VarNode* vn)
 {
   fac_ = fn;
@@ -569,4 +571,6 @@ BeliefProp::printLinkInformation (void) const
     cout << "    residual = " << l->residual() << endl;
   }
 }
+
+}  // namespace horus
 

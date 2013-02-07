@@ -4,6 +4,8 @@
 #include "BeliefProp.h"
 
 
+namespace horus {
+
 namespace Globals {
 
 bool logDomain = false;
@@ -14,7 +16,7 @@ LiftedSolverType liftedSolver = LiftedSolverType::LVE;
 
 GroundSolverType groundSolver = GroundSolverType::VE;
 
-};
+}
 
 
 
@@ -329,8 +331,7 @@ printDashedLine (std::ostream& os)
   os << std::endl;
 }
 
-
-}
+}  // namespace Util
 
 
 
@@ -426,5 +427,8 @@ pow (Params& v, double exp)
   Globals::logDomain ? v *= exp : v ^= exp;
 }
 
-}
+}  // namespace LogAware
+
+}  // namespace horus
+
 

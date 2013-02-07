@@ -16,12 +16,13 @@
 
 #include "Horus.h"
 
+namespace horus {
 
 namespace {
 
 const double NEG_INF = -std::numeric_limits<double>::infinity();
 
-};
+}
 
 
 namespace Util {
@@ -100,7 +101,7 @@ void printAsteriskLine (std::ostream& os = std::cout);
 
 void printDashedLine (std::ostream& os = std::cout);
 
-};
+}  // namespace Util
 
 
 
@@ -289,7 +290,7 @@ void pow (Params&, unsigned);
 
 void pow (Params&, double);
 
-};
+}  // namespace LogAware
 
 
 
@@ -430,7 +431,9 @@ struct abs_diff_exp : public std::binary_function<T, T, T>
   }
 };
 
-}
+}  // namespace FuncObject
+
+}  // namespace horus
 
 #endif // YAP_PACKAGES_CLPBN_HORUS_UTIL_H_
 

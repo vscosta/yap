@@ -8,6 +8,8 @@
 #include "Indexer.h"
 
 
+namespace horus {
+
 bool
 Literal::isGround (ConstraintTree constr, LogVarSet ipgLogVars) const
 {
@@ -658,5 +660,7 @@ void
 LiftedWCNF::printClauses (void) const
 {
   Clause::printClauses (clauses_);
+}
+
 }
 

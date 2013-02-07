@@ -3,6 +3,9 @@
 
 #include "ElimGraph.h"
 
+
+namespace horus {
+
 ElimHeuristic ElimGraph::elimHeuristic_ = MIN_NEIGHBORS;
 
 
@@ -237,4 +240,6 @@ ElimGraph::connectAllNeighbors (const EgNode* n)
     }
   }
 }
+
+}  // namespace horus
 

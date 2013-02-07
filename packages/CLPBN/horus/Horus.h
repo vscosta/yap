@@ -14,6 +14,9 @@
 #include <vector>
 #include <string>
 
+
+namespace horus {
+
 class Var;
 class Factor;
 class VarNode;
@@ -57,7 +60,7 @@ extern unsigned verbosity;
 extern LiftedSolverType liftedSolver;
 extern GroundSolverType groundSolver;
 
-};
+}
 
 
 namespace Constants {
@@ -70,7 +73,9 @@ const int NO_EVIDENCE = -1;
 // number of digits to show when printing a parameter
 const unsigned PRECISION = 6;
 
-};
+}
+
+}  // namespace horus
 
 #endif // YAP_PACKAGES_CLPBN_HORUS_HORUS_H_
 

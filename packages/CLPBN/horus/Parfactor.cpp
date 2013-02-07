@@ -10,6 +10,8 @@
 #include "Horus.h"
 
 
+namespace horus {
+
 Parfactor::Parfactor (
     const ProbFormulas& formulas,
     const Params& params,
@@ -945,4 +947,6 @@ Parfactor::alignLogicalVars (Parfactor* g1, Parfactor* g2)
   g1->applySubstitution (theta1);
   g2->applySubstitution (theta2);
 }
+
+}  // namespace horus
 

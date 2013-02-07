@@ -4,6 +4,7 @@
 
 #include "WeightedBp.h"
 
+namespace horus {
 
 WeightedBp::~WeightedBp (void)
 {
@@ -303,4 +304,6 @@ WeightedBp::printLinkInformation (void) const
     cout << "    residual = " << l->residual() << endl;
   }
 }
+
+}  // namespace horus
 

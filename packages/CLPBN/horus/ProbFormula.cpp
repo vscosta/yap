@@ -5,6 +5,9 @@
 #include "ProbFormula.h"
 
 
+
+namespace horus {
+
 PrvGroup ProbFormula::freeGroup_ = 0;
 
 
@@ -161,4 +164,6 @@ operator<< (std::ostream& os, const ObservedFormula& of)
   os << " [evidence=" << of.evidence_ << "]";
   return os;
 }
+
+}  // namespace horus
 
