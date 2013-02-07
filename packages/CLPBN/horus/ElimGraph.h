@@ -7,7 +7,11 @@
 #include "TinySet.h"
 #include "Horus.h"
 
-using namespace std;
+
+class EgNode;
+
+typedef TinySet<EgNode*> EGNeighs;
+
 
 enum ElimHeuristic
 {
@@ -17,11 +21,6 @@ enum ElimHeuristic
   MIN_FILL,
   WEIGHTED_MIN_FILL
 };
-
-
-class EgNode;
-
-typedef TinySet<EgNode*> EGNeighs;
 
 
 class EgNode : public Var
@@ -83,9 +82,9 @@ class ElimGraph
 
     void connectAllNeighbors (const EgNode*);
 
-    vector<EgNode*>                nodes_;
-    TinySet<EgNode*>               unmarked_;
-    unordered_map<VarId, EgNode*>  varMap_;
+    std::vector<EgNode*>                nodes_;
+    TinySet<EgNode*>                    unmarked_;
+    std::unordered_map<VarId, EgNode*>  varMap_;
 
     static ElimHeuristic elimHeuristic_;
 

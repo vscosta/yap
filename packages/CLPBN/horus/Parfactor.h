@@ -71,7 +71,7 @@ class Parfactor : public TFactor<ProbFormula>
 
     bool containsGroup (PrvGroup) const;
 
-    bool containsGroups (vector<PrvGroup>) const;
+    bool containsGroups (std::vector<PrvGroup>) const;
 
     unsigned nrFormulas (LogVar) const;
 
@@ -81,7 +81,7 @@ class Parfactor : public TFactor<ProbFormula>
 
     unsigned nrFormulasWithGroup (PrvGroup) const;
 
-    vector<PrvGroup> getAllGroups (void) const;
+    std::vector<PrvGroup> getAllGroups (void) const;
 
     void print (bool = false) const;
 
@@ -89,7 +89,7 @@ class Parfactor : public TFactor<ProbFormula>
 
     void printProjections (void) const;
 
-    string getLabel (void) const;
+    std::string getLabel (void) const;
 
     void simplifyGrounds (void);
 
@@ -104,7 +104,7 @@ class Parfactor : public TFactor<ProbFormula>
         Parfactor* g1, Parfactor* g2);
 
     void expandPotential (size_t fIdx, unsigned newRange,
-        const vector<unsigned>& sumIndexes);
+        const std::vector<unsigned>& sumIndexes);
 
     static void alignAndExponentiate (Parfactor*, Parfactor*);
 
@@ -115,7 +115,7 @@ class Parfactor : public TFactor<ProbFormula>
     DISALLOW_ASSIGN (Parfactor);
 };
 
-typedef vector<Parfactor*> Parfactors;
+typedef std::vector<Parfactor*> Parfactors;
 
 #endif // PACKAGES_CLPBN_HORUS_PARFACTOR_H
 

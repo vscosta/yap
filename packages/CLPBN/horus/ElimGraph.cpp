@@ -5,7 +5,7 @@
 ElimHeuristic ElimGraph::elimHeuristic_ = MIN_NEIGHBORS;
 
 
-ElimGraph::ElimGraph (const vector<Factor*>& factors)
+ElimGraph::ElimGraph (const std::vector<Factor*>& factors)
 {
   for (size_t i = 0; i < factors.size(); i++) {
     if (factors[i]) {
@@ -75,12 +75,12 @@ void
 ElimGraph::print (void) const
 {
   for (size_t i = 0; i < nodes_.size(); i++) {
-    cout << "node " << nodes_[i]->label() << " neighs:" ;
+    std::cout << "node " << nodes_[i]->label() << " neighs:" ;
     EGNeighs neighs = nodes_[i]->neighbors();
     for (size_t j = 0; j < neighs.size(); j++) {
-      cout << "  " << neighs[j]->label();
+      std::cout << "  " << neighs[j]->label();
     }
-    cout << endl;
+    std::cout << std::endl;
   }
 }
 
@@ -92,25 +92,26 @@ ElimGraph::exportToGraphViz (
     bool showNeighborless,
     const VarIds& highlightVarIds) const
 {
-  ofstream out (fileName);
+  std::ofstream out (fileName);
   if (!out.is_open()) {
-    cerr << "Error: couldn't open file '" << fileName << "'." ;
+    std::cerr << "Error: couldn't open file '" << fileName << "'." ;
     return;
   }
-  out << "strict graph {" << endl;
+  out << "strict graph {" << std::endl;
   for (size_t i = 0; i < nodes_.size(); i++) {
     if (showNeighborless || nodes_[i]->neighbors().empty() == false) {
-      out << '"' << nodes_[i]->label() << '"' << endl;
+      out << '"' << nodes_[i]->label() << '"' << std::endl;
     }
   }
   for (size_t i = 0; i < highlightVarIds.size(); i++) {
     EgNode* node =getEgNode (highlightVarIds[i]);
     if (node) {
       out << '"' << node->label() << '"' ;
-      out << " [shape=box3d]" << endl;
+      out << " [shape=box3d]" << std::endl;
     } else {
-      cerr << "Error: invalid variable id: " << highlightVarIds[i] << "." ;
-      cerr << endl;
+      std::cerr << "Error: invalid variable id: " ;
+      std::cerr << highlightVarIds[i] << "." ;
+      std::cerr << std::endl;
       exit (EXIT_FAILURE);
     }
   }
@@ -118,10 +119,10 @@ ElimGraph::exportToGraphViz (
     EGNeighs neighs = nodes_[i]->neighbors();
     for (size_t j = 0; j < neighs.size(); j++) {
       out << '"' << nodes_[i]->label() << '"' << " -- " ;
-      out << '"' << neighs[j]->label() << '"' << endl;
+      out << '"' << neighs[j]->label() << '"' << std::endl;
     }
   }
-  out << "}" << endl;
+  out << "}" << std::endl;
   out.close();
 }
 
@@ -154,7 +155,7 @@ ElimGraph::addNode (EgNode* n)
 {
   nodes_.push_back (n);
   n->setIndex (nodes_.size() - 1);
-  varMap_.insert (make_pair (n->varId(), n));
+  varMap_.insert (std::make_pair (n->varId(), n));
 }
 
 
@@ -162,7 +163,7 @@ ElimGraph::addNode (EgNode* n)
 EgNode*
 ElimGraph::getEgNode (VarId vid) const
 {
-  unordered_map<VarId, EgNode*>::const_iterator it;
+  std::unordered_map<VarId, EgNode*>::const_iterator it;
   it = varMap_.find (vid);
   return (it != varMap_.end()) ? it->second : 0;
 }

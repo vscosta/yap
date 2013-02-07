@@ -58,9 +58,11 @@ class ProbFormula
 
     static PrvGroup getNewGroup (void);
 
-    friend bool operator== (const ProbFormula& f1, const ProbFormula& f2);
+    friend bool operator== (
+        const ProbFormula& f1, const ProbFormula& f2);
 
-    friend std::ostream& operator<< (ostream &os, const ProbFormula& f);
+    friend std::ostream& operator<< (
+        std::ostream &os, const ProbFormula& f);
 
   private:
     Symbol     functor_;
@@ -71,7 +73,7 @@ class ProbFormula
     static PrvGroup freeGroup_;
 };
 
-typedef vector<ProbFormula> ProbFormulas;
+typedef std::vector<ProbFormula> ProbFormulas;
 
 
 class ObservedFormula
@@ -101,10 +103,11 @@ class ObservedFormula
     unsigned        evidence_;
     ConstraintTree  constr_;
 
-    friend ostream& operator<< (ostream &os, const ObservedFormula& of);
+    friend std::ostream& operator<< (
+        std::ostream &os, const ObservedFormula& of);
 };
 
-typedef vector<ObservedFormula> ObservedFormulas;
+typedef std::vector<ObservedFormula> ObservedFormulas;
 
 #endif // PACKAGES_CLPBN_HORUS_PROBFORMULA_H
 

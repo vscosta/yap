@@ -2,10 +2,7 @@
 #define PACKAGES_CLPBN_HORUS_TINYSET_H
 
 #include <algorithm>
-
 #include <vector>
-
-using namespace std;
 
 
 template <typename T, typename Compare = std::less<T>>
@@ -13,8 +10,8 @@ class TinySet
 {
   public:
 
-    typedef typename vector<T>::iterator        iterator;
-    typedef typename vector<T>::const_iterator  const_iterator;
+    typedef typename std::vector<T>::iterator        iterator;
+    typedef typename std::vector<T>::const_iterator  const_iterator;
 
     TinySet (const TinySet& s)
         : vec_(s.vec_), cmp_(s.cmp_) { }
@@ -25,7 +22,7 @@ class TinySet
     TinySet (const T& t, const Compare& cmp = Compare())
         : vec_(1, t), cmp_(cmp) { }
 
-    TinySet (const vector<T>& elements, const Compare& cmp = Compare());
+    TinySet (const std::vector<T>& elements, const Compare& cmp = Compare());
 
     iterator insert (const T& t);
 
@@ -60,9 +57,9 @@ class TinySet
 
     bool intersects (const TinySet& s) const;
 
-    const T& operator[] (typename vector<T>::size_type i) const;
+    const T& operator[] (typename std::vector<T>::size_type i) const;
 
-    T& operator[] (typename vector<T>::size_type i);
+    T& operator[] (typename std::vector<T>::size_type i);
 
     T front (void) const;
 
@@ -72,15 +69,15 @@ class TinySet
 
     T& back (void);
 
-    const vector<T>& elements (void) const;
+    const std::vector<T>& elements (void) const;
 
     bool empty (void) const;
 
-    typename vector<T>::size_type size (void) const;
+    typename std::vector<T>::size_type size (void) const;
 
     void clear (void);
 
-    void reserve (typename vector<T>::size_type size);
+    void reserve (typename std::vector<T>::size_type size);
 
     iterator       begin (void)        { return vec_.begin(); }
     iterator       end   (void)        { return vec_.end();   }
@@ -92,8 +89,8 @@ class TinySet
 
     bool consistent (void) const;
 
-    vector<T>  vec_;
-    Compare    cmp_;
+    std::vector<T>  vec_;
+    Compare         cmp_;
 
     friend bool operator== (const TinySet& s1, const TinySet& s2)
     {
@@ -108,7 +105,7 @@ class TinySet
     friend std::ostream& operator<< (std::ostream& out, const TinySet& s)
     {
       out << "{" ;
-      typename vector<T>::size_type i;
+      typename std::vector<T>::size_type i;
       for (i = 0; i < s.size(); i++) {
         out << ((i != 0) ? "," : "") << s.vec_[i];
       }
@@ -121,7 +118,7 @@ class TinySet
 
 
 template <typename T, typename C> inline
-TinySet<T,C>::TinySet (const vector<T>& elements, const C& cmp)
+TinySet<T,C>::TinySet (const std::vector<T>& elements, const C& cmp)
     : vec_(elements), cmp_(cmp)
 {
   std::sort (begin(), end(), cmp_);
@@ -290,7 +287,7 @@ TinySet<T,C>::intersects (const TinySet& s) const
 
 
 template <typename T, typename C> inline const T&
-TinySet<T,C>::operator[] (typename vector<T>::size_type i) const
+TinySet<T,C>::operator[] (typename std::vector<T>::size_type i) const
 {
   return vec_[i];
 }
@@ -298,7 +295,7 @@ TinySet<T,C>::operator[] (typename vector<T>::size_type i) const
 
 
 template <typename T, typename C> inline T&
-TinySet<T,C>::operator[] (typename vector<T>::size_type i)
+TinySet<T,C>::operator[] (typename std::vector<T>::size_type i)
 {
   return vec_[i];
 }
@@ -337,7 +334,7 @@ TinySet<T,C>::back (void)
 
 
 
-template <typename T, typename C> inline const vector<T>&
+template <typename T, typename C> inline const std::vector<T>&
 TinySet<T,C>::elements (void) const
 {
   return vec_;
@@ -353,7 +350,7 @@ TinySet<T,C>::empty (void) const
 
 
 
-template <typename T, typename C> inline typename vector<T>::size_type
+template <typename T, typename C> inline typename std::vector<T>::size_type
 TinySet<T,C>::size (void) const
 {
   return vec_.size();
@@ -370,7 +367,7 @@ TinySet<T,C>::clear (void)
 
 
 template <typename T, typename C> inline void
-TinySet<T,C>::reserve (typename vector<T>::size_type size)
+TinySet<T,C>::reserve (typename std::vector<T>::size_type size)
 {
   vec_.reserve (size);
 }
@@ -397,7 +394,7 @@ TinySet<T,C>::unique_cmp (iterator first, iterator last)
 template <typename T, typename C> inline bool
 TinySet<T,C>::consistent (void) const
 {
-  typename vector<T>::size_type i;
+  typename std::vector<T>::size_type i;
   for (i = 0; i < vec_.size() - 1; i++) {
     if ( ! cmp_(vec_[i], vec_[i + 1])) {
       return false;

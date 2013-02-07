@@ -1,22 +1,20 @@
 #include <cstdlib>
 
-#include <iostream>
-#include <sstream>
-
 #include "FactorGraph.h"
 #include "VarElim.h"
 #include "BeliefProp.h"
 #include "CountingBp.h"
 
-using namespace std;
 
 int readHorusFlags (int, const char* []);
+
 void readFactorGraph (FactorGraph&, const char*);
+
 VarIds readQueryAndEvidence (FactorGraph&, int, const char* [], int);
 
 void runSolver (const FactorGraph&, const VarIds&);
 
-const string USAGE = "usage: ./hcli [solver=hve|bp|cbp] \
+const std::string USAGE = "usage: ./hcli [solver=hve|bp|cbp] \
 [<OPTION>=<VALUE>]... <FILE> [<VAR>|<VAR>=<EVIDENCE>]... " ;
 
 
@@ -24,8 +22,9 @@ int
 main (int argc, const char* argv[])
 {
   if (argc <= 1) {
-    cerr << "Error: no probabilistic graphical model was given." << endl;
-    cerr << USAGE << endl;
+    std::cerr << "Error: no probabilistic graphical model was given." ;
+    std::cerr << std::endl;
+    std::cerr << USAGE << std::endl;
     exit (EXIT_FAILURE);
   }
   int idx = readHorusFlags (argc, argv);
@@ -45,9 +44,9 @@ main (int argc, const char* argv[])
     fg.print();
   }
   if (Globals::verbosity > 0) {
-    cout << "factor graph contains " ;
-    cout << fg.nrVarNodes() << " variables and " ;
-    cout << fg.nrFacNodes() << " factors " << endl;
+    std::cout << "factor graph contains " ;
+    std::cout << fg.nrVarNodes() << " variables and " ;
+    std::cout << fg.nrFacNodes() << " factors " << std::endl;
   }
   runSolver (fg, queryIds);
   return 0;
@@ -60,21 +59,21 @@ readHorusFlags (int argc, const char* argv[])
 {
   int i = 1;
   for (; i < argc; i++) {
-    const string& arg = argv[i];
+    const std::string& arg = argv[i];
     size_t pos = arg.find ('=');
     if (pos == std::string::npos) {
       return i;
     }
-    string leftArg  = arg.substr (0, pos);
-    string rightArg = arg.substr (pos + 1);
+    std::string leftArg  = arg.substr (0, pos);
+    std::string rightArg = arg.substr (pos + 1);
     if (leftArg.empty()) {
-      cerr << "Error: missing left argument." << endl;
-      cerr << USAGE << endl;
+      std::cerr << "Error: missing left argument." << std::endl;
+      std::cerr << USAGE << std::endl;
       exit (EXIT_FAILURE);
     }
     if (rightArg.empty()) {
-      cerr << "Error: missing right argument." << endl;
-      cerr << USAGE << endl;
+      std::cerr << "Error: missing right argument." << std::endl;
+      std::cerr << USAGE << std::endl;
       exit (EXIT_FAILURE);
     }
     Util::setHorusFlag (leftArg, rightArg);
@@ -87,15 +86,15 @@ readHorusFlags (int argc, const char* argv[])
 void
 readFactorGraph (FactorGraph& fg, const char* s)
 {
-  string fileName (s);
-  string extension = fileName.substr (fileName.find_last_of ('.') + 1);
+  std::string fileName (s);
+  std::string extension = fileName.substr (fileName.find_last_of ('.') + 1);
   if (extension == "uai") {
     fg.readFromUaiFormat (fileName.c_str());
   } else if (extension == "fg") {
     fg.readFromLibDaiFormat (fileName.c_str());
   } else {
-    cerr << "Error: the probabilistic graphical model must be " ;
-    cerr << "defined either in a UAI or libDAI file." << endl;
+    std::cerr << "Error: the probabilistic graphical model must be " ;
+    std::cerr << "defined either in a UAI or libDAI file." << std::endl;
     exit (EXIT_FAILURE);
   }
 }
@@ -111,58 +110,58 @@ readQueryAndEvidence (
 {
   VarIds queryIds;
   for (int i = start; i < argc; i++) {
-    const string& arg = argv[i];
+    const std::string& arg = argv[i];
     if (arg.find ('=') == std::string::npos) {
       if (Util::isInteger (arg) == false) {
-        cerr << "Error: `" << arg << "' " ;
-        cerr << "is not a variable id." ;
-        cerr << endl;
+        std::cerr << "Error: `" << arg << "' " ;
+        std::cerr << "is not a variable id." ;
+        std::cerr << std::endl;
         exit (EXIT_FAILURE);
       }
       VarId vid = Util::stringToUnsigned (arg);
       VarNode* queryVar = fg.getVarNode (vid);
       if (queryVar == false) {
-        cerr << "Error: unknow variable with id " ;
-        cerr << "`" << vid << "'."  << endl;
+        std::cerr << "Error: unknow variable with id " ;
+        std::cerr << "`" << vid << "'."  << std::endl;
         exit (EXIT_FAILURE);
       }
       queryIds.push_back (vid);
     } else {
       size_t pos = arg.find ('=');
-      string leftArg  = arg.substr (0, pos);
-      string rightArg = arg.substr (pos + 1);
+      std::string leftArg  = arg.substr (0, pos);
+      std::string rightArg = arg.substr (pos + 1);
       if (leftArg.empty()) {
-        cerr << "Error: missing left argument." << endl;
-        cerr << USAGE << endl;
+        std::cerr << "Error: missing left argument." << std::endl;
+        std::cerr << USAGE << std::endl;
         exit (EXIT_FAILURE);
       }
       if (Util::isInteger (leftArg) == false) {
-        cerr << "Error: `" << leftArg << "' " ;
-        cerr << "is not a variable id." << endl ;
+        std::cerr << "Error: `" << leftArg << "' " ;
+        std::cerr << "is not a variable id." << std::endl;
         exit (EXIT_FAILURE);
       }
       VarId vid = Util::stringToUnsigned (leftArg);
       VarNode* observedVar = fg.getVarNode (vid);
       if (observedVar == false) {
-        cerr << "Error: unknow variable with id " ;
-        cerr << "`" << vid << "'."  << endl;
+        std::cerr << "Error: unknow variable with id " ;
+        std::cerr << "`" << vid << "'."  << std::endl;
         exit (EXIT_FAILURE);
       }
       if (rightArg.empty()) {
-        cerr << "Error: missing right argument." << endl;
-        cerr << USAGE << endl;
+        std::cerr << "Error: missing right argument." << std::endl;
+        std::cerr << USAGE << std::endl;
         exit (EXIT_FAILURE);
       }
       if (Util::isInteger (rightArg) == false) {
-        cerr << "Error: `" << rightArg << "' " ;
-        cerr << "is not a state index." << endl ;
+        std::cerr << "Error: `" << rightArg << "' " ;
+        std::cerr << "is not a state index." << std::endl;
         exit (EXIT_FAILURE);
       }
       unsigned stateIdx = Util::stringToUnsigned (rightArg);
       if (observedVar->isValidState (stateIdx) == false) {
-        cerr << "Error: `" << stateIdx << "' " ;
-        cerr << "is not a valid state index for variable with id " ;
-        cerr << "`" << vid << "'."  << endl;
+        std::cerr << "Error: `" << stateIdx << "' " ;
+        std::cerr << "is not a valid state index for variable with id " ;
+        std::cerr << "`" << vid << "'."  << std::endl;
         exit (EXIT_FAILURE);
       }
       observedVar->setEvidence (stateIdx);
@@ -192,7 +191,7 @@ runSolver (const FactorGraph& fg, const VarIds& queryIds)
   }
   if (Globals::verbosity > 0) {
     solver->printSolverFlags();
-    cout << endl;
+    std::cout << std::endl;
   }
   if (queryIds.empty()) {
     solver->printAllPosterioris();

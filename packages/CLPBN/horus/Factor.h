@@ -6,17 +6,13 @@
 #include "Indexer.h"
 #include "Util.h"
 
-
-using namespace std;
-
-
 template <typename T>
 class TFactor
 {
   public:
-    const vector<T>& arguments (void) const { return args_; }
+    const std::vector<T>& arguments (void) const { return args_; }
 
-    vector<T>& arguments (void) { return args_; }
+    std::vector<T>& arguments (void) { return args_; }
 
     const Ranges& ranges (void) const { return ranges_; }
 
@@ -52,19 +48,19 @@ class TFactor
 
     void absorveEvidence (const T& arg, unsigned obsIdx);
 
-    void reorderArguments (const vector<T>& new_args);
+    void reorderArguments (const std::vector<T>& new_args);
 
     bool contains (const T& arg) const;
 
-    bool contains (const vector<T>& args) const;
+    bool contains (const std::vector<T>& args) const;
 
     double& operator[] (size_t idx);
 
   protected:
-    vector<T>  args_;
-    Ranges     ranges_;
-    Params     params_;
-    unsigned   distId_;
+    std::vector<T>  args_;
+    Ranges          ranges_;
+    Params          params_;
+    unsigned        distId_;
 
   private:
     void extend (unsigned range_prod);
@@ -141,7 +137,7 @@ TFactor<T>::multiply (TFactor<T>& g)
   }
   unsigned range_prod = 1;
   bool share_arguments = false;
-  const vector<T>& g_args = g.arguments();
+  const std::vector<T>& g_args = g.arguments();
   const Ranges& g_ranges  = g.ranges();
   const Params& g_params  = g.params();
   for (size_t i = 0; i < g_args.size(); i++) {
@@ -225,7 +221,7 @@ TFactor<T>::absorveEvidence (const T& arg, unsigned obsIdx)
 
 
 template <typename T> inline void
-TFactor<T>::reorderArguments (const vector<T>& new_args)
+TFactor<T>::reorderArguments (const std::vector<T>& new_args)
 {
   assert (new_args.size() == args_.size());
   if (new_args == args_) {
@@ -259,7 +255,7 @@ TFactor<T>::contains (const T& arg) const
 
 
 template <typename T> inline bool
-TFactor<T>::contains (const vector<T>& args) const
+TFactor<T>::contains (const std::vector<T>& args) const
 {
   for (size_t i = 0; i < args.size(); i++) {
     if (contains (args[i]) == false) {
@@ -348,7 +344,7 @@ class Factor : public TFactor<VarId>
 
     void multiply (Factor&);
 
-    string getLabel (void) const;
+    std::string getLabel (void) const;
 
     void print (void) const;
 
@@ -357,7 +353,7 @@ class Factor : public TFactor<VarId>
 
     void sumOutLastVariable (void);
 
-    void sumOutArgs (const vector<bool>& mask);
+    void sumOutArgs (const std::vector<bool>& mask);
 
     void clone (const Factor& f);
 

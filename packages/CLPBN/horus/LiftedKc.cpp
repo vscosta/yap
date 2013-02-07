@@ -234,10 +234,11 @@ LiftedCircuit::LiftedCircuit (const LiftedWCNF* lwcnf)
   if (Globals::verbosity > 1) {
     if (compilationSucceeded_) {
       double wmc = LogAware::exp (getWeightedModelCount());
-      cout << "Weighted model count = " << wmc << endl << endl;
+      std::cout << "Weighted model count = " << wmc;
+      std::cout << std::endl << std::endl;
     }
-    cout << "Exporting circuit to graphviz (circuit.dot)..." ;
-    cout << endl << endl;
+    std::cout << "Exporting circuit to graphviz (circuit.dot)..." ;
+    std::cout << std::endl << std::endl;
     exportToGraphViz ("circuit.dot");
   }
 }
@@ -247,8 +248,8 @@ LiftedCircuit::LiftedCircuit (const LiftedWCNF* lwcnf)
 LiftedCircuit::~LiftedCircuit (void)
 {
   delete root_;
-  unordered_map<CircuitNode*, Clauses>::iterator it;
-  it = originClausesMap_.begin();
+  std::unordered_map<CircuitNode*, Clauses>::iterator it
+      = originClausesMap_.begin();
   while (it != originClausesMap_.end()) {
     Clause::deleteClauses (it->second);
     ++ it;
@@ -277,15 +278,15 @@ LiftedCircuit::getWeightedModelCount (void) const
 void
 LiftedCircuit::exportToGraphViz (const char* fileName)
 {
-  ofstream out (fileName);
+  std::ofstream out (fileName);
   if (!out.is_open()) {
-    cerr << "Error: couldn't open file '" << fileName << "'." ;
+    std::cerr << "Error: couldn't open file '" << fileName << "'." ;
     return;
   }
-  out << "digraph {" << endl;
-  out << "ranksep=1" << endl;
+  out << "digraph {" << std::endl;
+  out << "ranksep=1" << std::endl;
   exportToGraphViz (root_, out);
-  out << "}" << endl;
+  out << "}" << std::endl;
   out.close();
 }
 
@@ -389,7 +390,7 @@ LiftedCircuit::tryUnitPropagation (
       AndNode* andNode = new AndNode();
       if (Globals::verbosity > 1) {
         originClausesMap_[andNode] = backupClauses_;
-        stringstream explanation;
+        std::stringstream explanation;
         explanation << " UP on " << clauses[i]->literals()[0];
         explanationMap_[andNode] = explanation.str();
       }
@@ -478,7 +479,7 @@ LiftedCircuit::tryShannonDecomp (
         OrNode* orNode = new OrNode();
         if (Globals::verbosity > 1) {
           originClausesMap_[orNode] = backupClauses_;
-          stringstream explanation;
+          std::stringstream explanation;
           explanation << " SD on " << literals[j];
           explanationMap_[orNode] = explanation.str();
         }
@@ -558,7 +559,7 @@ LiftedCircuit::tryInclusionExclusion (
       IncExcNode* ieNode = new IncExcNode();
       if (Globals::verbosity > 1) {
         originClausesMap_[ieNode] = backupClauses_;
-        stringstream explanation;
+        std::stringstream explanation;
         explanation << " IncExc on clause nº " << i + 1;
         explanationMap_[ieNode] = explanation.str();
       }
@@ -635,13 +636,13 @@ LiftedCircuit::tryIndepPartialGroundingAux (
     }
   }
   // verifies if the IPG logical vars appear in the same positions
-  unordered_map<LiteralId, size_t> positions;
+  std::unordered_map<LiteralId, size_t> positions;
   for (size_t i = 0; i < clauses.size(); i++) {
     const Literals& literals = clauses[i]->literals();
     for (size_t j = 0; j < literals.size(); j++) {
       size_t idx = literals[j].indexOfLogVar (rootLogVars[i]);
       assert (idx != literals[j].nrLogVars());
-      unordered_map<LiteralId, size_t>::iterator it;
+      std::unordered_map<LiteralId, size_t>::iterator it;
       it = positions.find (literals[j].lid());
       if (it != positions.end()) {
         if (it->second != idx) {
@@ -835,14 +836,15 @@ LiftedCircuit::smoothCircuit (CircuitNode* node)
     case CircuitNodeType::SET_OR_NODE: {
       SetOrNode* casted = dynamic_cast<SetOrNode*>(node);
       propagLits = smoothCircuit (*casted->follow());
-      TinySet<pair<LiteralId,unsigned>> litSet;
+      TinySet<std::pair<LiteralId,unsigned>> litSet;
       for (size_t i = 0; i < propagLits.size(); i++) {
-        litSet.insert (make_pair (propagLits[i].lid(),
+        litSet.insert (std::make_pair (propagLits[i].lid(),
             propagLits[i].logVarTypes().size()));
       }
       LitLvTypesSet missingLids;
       for (size_t i = 0; i < litSet.size(); i++) {
-        vector<LogVarTypes> allTypes = getAllPossibleTypes (litSet[i].second);
+        std::vector<LogVarTypes> allTypes
+            = getAllPossibleTypes (litSet[i].second);
         for (size_t j = 0; j < allTypes.size(); j++) {
           bool typeFound = false;
           for (size_t k = 0; k < propagLits.size(); k++) {
@@ -911,8 +913,8 @@ LiftedCircuit::createSmoothNode (
 {
   if (missingLits.empty() == false) {
     if (Globals::verbosity > 1) {
-      unordered_map<CircuitNode*, Clauses>::iterator it;
-      it = originClausesMap_.find (*prev);
+      std::unordered_map<CircuitNode*, Clauses>::iterator it
+          = originClausesMap_.find (*prev);
       if (it != originClausesMap_.end()) {
         backupClauses_ = it->second;
       } else {
@@ -947,10 +949,10 @@ LiftedCircuit::createSmoothNode (
 
 
 
-vector<LogVarTypes>
+std::vector<LogVarTypes>
 LiftedCircuit::getAllPossibleTypes (unsigned nrLogVars) const
 {
-  vector<LogVarTypes> res;
+  std::vector<LogVarTypes> res;
   if (nrLogVars == 0) {
     // do nothing
   } else if (nrLogVars == 1) {
@@ -1031,16 +1033,16 @@ LiftedCircuit::getCircuitNodeType (const CircuitNode* node) const
 
 
 void
-LiftedCircuit::exportToGraphViz (CircuitNode* node, ofstream& os)
+LiftedCircuit::exportToGraphViz (CircuitNode* node, std::ofstream& os)
 {
   assert (node);
 
   static unsigned nrAuxNodes = 0;
-  stringstream ss;
+  std::stringstream ss;
   ss << "n" << nrAuxNodes;
-  string auxNode = ss.str();
+  std::string auxNode = ss.str();
   nrAuxNodes ++;
-  string opStyle = "shape=circle,width=0.7,margin=\"0.0,0.0\"," ;
+  std::string opStyle = "shape=circle,width=0.7,margin=\"0.0,0.0\"," ;
 
   switch (getCircuitNodeType (node)) {
 
@@ -1048,20 +1050,21 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, ofstream& os)
       OrNode* casted = dynamic_cast<OrNode*>(node);
       printClauses (casted, os);
 
-      os << auxNode << " [" << opStyle << "label=\"∨\"]" << endl;
+      os << auxNode << " [" << opStyle << "label=\"∨\"]" ;
+      os << std::endl;
       os << escapeNode (node) << " -> " << auxNode;
       os << " [label=\"" << getExplanationString (node) << "\"]" ;
-      os << endl;
+      os << std::endl;
 
       os << auxNode << " -> " ;
       os << escapeNode (*casted->leftBranch());
       os << " [label=\" " << (*casted->leftBranch())->weight() << "\"]" ;
-      os << endl;
+      os << std::endl;
 
       os << auxNode << " -> " ;
       os << escapeNode (*casted->rightBranch());
       os << " [label=\" " << (*casted->rightBranch())->weight() << "\"]" ;
-      os << endl;
+      os << std::endl;
 
       exportToGraphViz (*casted->leftBranch(),  os);
       exportToGraphViz (*casted->rightBranch(), os);
@@ -1072,20 +1075,21 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, ofstream& os)
       AndNode* casted = dynamic_cast<AndNode*>(node);
       printClauses (casted, os);
 
-      os << auxNode << " [" << opStyle << "label=\"∧\"]" << endl;
+      os << auxNode << " [" << opStyle << "label=\"∧\"]" ;
+      os << std::endl;
       os << escapeNode (node) << " -> " << auxNode;
       os << " [label=\"" << getExplanationString (node) << "\"]" ;
-      os << endl;
+      os << std::endl;
 
       os << auxNode << " -> " ;
       os << escapeNode (*casted->leftBranch());
       os << " [label=\" " << (*casted->leftBranch())->weight() << "\"]" ;
-      os << endl;
+      os << std::endl;
 
       os << auxNode << " -> " ;
-      os << escapeNode (*casted->rightBranch()) << endl;
+      os << escapeNode (*casted->rightBranch());
       os << " [label=\" " << (*casted->rightBranch())->weight() << "\"]" ;
-      os << endl;
+      os << std::endl;
 
       exportToGraphViz (*casted->leftBranch(),  os);
       exportToGraphViz (*casted->rightBranch(), os);
@@ -1096,15 +1100,16 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, ofstream& os)
       SetOrNode* casted = dynamic_cast<SetOrNode*>(node);
       printClauses (casted, os);
 
-      os << auxNode << " [" << opStyle << "label=\"∨(X)\"]" << endl;
+      os << auxNode << " [" << opStyle << "label=\"∨(X)\"]" ;
+      os << std::endl;
       os << escapeNode (node) << " -> " << auxNode;
       os << " [label=\"" << getExplanationString (node) << "\"]" ;
-      os << endl;
+      os << std::endl;
 
       os << auxNode << " -> " ;
       os << escapeNode (*casted->follow());
       os << " [label=\" " << (*casted->follow())->weight() << "\"]" ;
-      os << endl;
+      os << std::endl;
 
       exportToGraphViz (*casted->follow(),  os);
       break;
@@ -1114,15 +1119,16 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, ofstream& os)
       SetAndNode* casted = dynamic_cast<SetAndNode*>(node);
       printClauses (casted, os);
 
-      os << auxNode << " [" << opStyle << "label=\"∧(X)\"]" << endl;
+      os << auxNode << " [" << opStyle << "label=\"∧(X)\"]" ;
+      os << std::endl;
       os << escapeNode (node) << " -> " << auxNode;
       os << " [label=\"" << getExplanationString (node) << "\"]" ;
-      os << endl;
+      os << std::endl;
 
       os << auxNode << " -> " ;
       os << escapeNode (*casted->follow());
       os << " [label=\" " << (*casted->follow())->weight() << "\"]" ;
-      os << endl;
+      os << std::endl;
 
       exportToGraphViz (*casted->follow(),  os);
       break;
@@ -1133,25 +1139,25 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, ofstream& os)
       printClauses (casted, os);
 
       os << auxNode << " [" << opStyle << "label=\"+ - +\"]" ;
-      os << endl;
+      os << std::endl;
       os << escapeNode (node) << " -> " << auxNode;
       os << " [label=\"" << getExplanationString (node) << "\"]" ;
-      os << endl;
+      os << std::endl;
 
       os << auxNode << " -> " ;
       os << escapeNode (*casted->plus1Branch());
       os << " [label=\" " << (*casted->plus1Branch())->weight() << "\"]" ;
-      os << endl;
+      os << std::endl;
 
       os << auxNode << " -> " ;
-      os << escapeNode (*casted->minusBranch()) << endl;
+      os << escapeNode (*casted->minusBranch()) << std::endl;
       os << " [label=\" " << (*casted->minusBranch())->weight() << "\"]" ;
-      os << endl;
+      os << std::endl;
 
       os << auxNode << " -> " ;
       os << escapeNode (*casted->plus2Branch());
       os << " [label=\" " << (*casted->plus2Branch())->weight() << "\"]" ;
-      os << endl;
+      os << std::endl;
 
       exportToGraphViz (*casted->plus1Branch(), os);
       exportToGraphViz (*casted->plus2Branch(), os);
@@ -1172,7 +1178,7 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, ofstream& os)
     case TRUE_NODE: {
       os << escapeNode (node);
       os << " [shape=box,label=\"⊤\"]" ;
-      os << endl;
+      os << std::endl;
       break;
     }
 
@@ -1188,17 +1194,17 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, ofstream& os)
 
 
 
-string
+std::string
 LiftedCircuit::escapeNode (const CircuitNode* node) const
 {
-  stringstream ss;
+  std::stringstream ss;
   ss << "\"" << node << "\"" ;
   return ss.str();
 }
 
 
 
-string
+std::string
 LiftedCircuit::getExplanationString (CircuitNode* node)
 {
   return Util::contains (explanationMap_, node)
@@ -1211,8 +1217,8 @@ LiftedCircuit::getExplanationString (CircuitNode* node)
 void
 LiftedCircuit::printClauses (
     CircuitNode* node,
-    ofstream& os,
-    string extraOptions)
+    std::ofstream& os,
+    std::string extraOptions)
 {
   Clauses clauses;
   if (Util::contains (originClausesMap_, node)) {
@@ -1230,7 +1236,7 @@ LiftedCircuit::printClauses (
     os << *clauses[i];
   }
   os << "\"]" ;
-  os << endl;
+  os << std::endl;
 }
 
 
@@ -1252,10 +1258,11 @@ LiftedKc::solveQuery (const Grounds& query)
   lwcnf_ = new LiftedWCNF (pfList_);
   circuit_ = new LiftedCircuit (lwcnf_);
   if (circuit_->isCompilationSucceeded() == false) {
-    cerr << "Error: the circuit compilation has failed." << endl;
+    std::cerr << "Error: the circuit compilation has failed." ;
+    std::cerr << std::endl;
     exit (EXIT_FAILURE);
   }
-  vector<PrvGroup> groups;
+  std::vector<PrvGroup> groups;
   Ranges ranges;
   for (size_t i = 0; i < query.size(); i++) {
     ParfactorList::const_iterator it = pfList_.begin();
@@ -1274,7 +1281,7 @@ LiftedKc::solveQuery (const Grounds& query)
   Indexer indexer (ranges);
   while (indexer.valid()) {
     for (size_t i = 0; i < groups.size(); i++) {
-      vector<LiteralId> litIds = lwcnf_->prvGroupLiterals (groups[i]);
+      std::vector<LiteralId> litIds = lwcnf_->prvGroupLiterals (groups[i]);
       for (size_t j = 0; j < litIds.size(); j++) {
         if (indexer[i] == j) {
           lwcnf_->addWeight (litIds[j], LogAware::one(),
@@ -1300,10 +1307,10 @@ LiftedKc::solveQuery (const Grounds& query)
 void
 LiftedKc::printSolverFlags (void) const
 {
-  stringstream ss;
+  std::stringstream ss;
   ss << "lifted kc [" ;
   ss << "log_domain=" << Util::toString (Globals::logDomain);
   ss << "]" ;
-  cout << ss.str() << endl;
+  std::cout << ss.str() << std::endl;
 }
 

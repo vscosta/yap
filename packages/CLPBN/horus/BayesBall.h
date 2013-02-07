@@ -9,8 +9,6 @@
 #include "BayesBallGraph.h"
 #include "Horus.h"
 
-using namespace std;
-
 
 struct ScheduleInfo
 {
@@ -23,7 +21,7 @@ struct ScheduleInfo
 };
 
 
-typedef queue<ScheduleInfo, list<ScheduleInfo>> Scheduling;
+typedef std::queue<ScheduleInfo, std::list<ScheduleInfo>> Scheduling;
 
 
 class BayesBall
@@ -53,8 +51,8 @@ class BayesBall
 inline void
 BayesBall::scheduleParents (const BBNode* n, Scheduling& sch) const
 {
-  const vector<BBNode*>& ps = n->parents();
-  for (vector<BBNode*>::const_iterator it = ps.begin();
+  const std::vector<BBNode*>& ps = n->parents();
+  for (std::vector<BBNode*>::const_iterator it = ps.begin();
       it != ps.end(); ++it) {
     sch.push (ScheduleInfo (*it, false, true));
   }
@@ -65,8 +63,8 @@ BayesBall::scheduleParents (const BBNode* n, Scheduling& sch) const
 inline void
 BayesBall::scheduleChilds (const BBNode* n, Scheduling& sch) const
 {
-  const vector<BBNode*>& cs = n->childs();
-  for (vector<BBNode*>::const_iterator it = cs.begin();
+  const std::vector<BBNode*>& cs = n->childs();
+  for (std::vector<BBNode*>::const_iterator it = cs.begin();
       it != cs.end(); ++it) {
     sch.push (ScheduleInfo (*it, true, false));
   }

@@ -9,14 +9,13 @@
 
 namespace LiftedUtils {
 
-
-unordered_map<string, unsigned> symbolDict;
+std::unordered_map<std::string, unsigned> symbolDict;
 
 
 Symbol
-getSymbol (const string& symbolName)
+getSymbol (const std::string& symbolName)
 {
-  unordered_map<string, unsigned>::iterator it
+  std::unordered_map<std::string, unsigned>::iterator it
       = symbolDict.find (symbolName);
   if (it != symbolDict.end()) {
     return it->second;
@@ -31,10 +30,10 @@ getSymbol (const string& symbolName)
 void
 printSymbolDictionary (void)
 {
-  unordered_map<string, unsigned>::const_iterator it
+  std::unordered_map<std::string, unsigned>::const_iterator it
       = symbolDict.begin();
   while (it != symbolDict.end()) {
-    cout << it->first << " -> " << it->second << endl;
+    std::cout << it->first << " -> " << it->second << std::endl;
     ++ it;
   }
 }
@@ -43,9 +42,9 @@ printSymbolDictionary (void)
 
 
 
-ostream& operator<< (ostream &os, const Symbol& s)
+std::ostream& operator<< (std::ostream &os, const Symbol& s)
 {
-  unordered_map<string, unsigned>::const_iterator it
+  std::unordered_map<std::string, unsigned>::const_iterator it
       = LiftedUtils::symbolDict.begin();
   while (it != LiftedUtils::symbolDict.end() && it->second != s) {
     ++ it;
@@ -57,9 +56,9 @@ ostream& operator<< (ostream &os, const Symbol& s)
 
 
 
-ostream& operator<< (ostream &os, const LogVar& X)
+std::ostream& operator<< (std::ostream &os, const LogVar& X)
 {
-  const string labels[] = {
+  const std::string labels[] = {
       "A", "B", "C", "D", "E", "F",
       "G", "H", "I", "J", "K", "M"  };
   (X >= 12) ? os << "X_" << X.id_ : os << labels[X];
@@ -68,7 +67,7 @@ ostream& operator<< (ostream &os, const LogVar& X)
 
 
 
-ostream& operator<< (ostream &os, const Tuple& t)
+std::ostream& operator<< (std::ostream &os, const Tuple& t)
 {
   os << "(" ;
   for (size_t i = 0; i < t.size(); i++) {
@@ -80,7 +79,7 @@ ostream& operator<< (ostream &os, const Tuple& t)
 
 
 
-ostream& operator<< (ostream &os, const Ground& gr)
+std::ostream& operator<< (std::ostream &os, const Ground& gr)
 {
   os << gr.functor();
   os << "(" ;
@@ -98,9 +97,9 @@ LogVars
 Substitution::getDiscardedLogVars (void) const
 {
   LogVars discardedLvs;
-  set<LogVar> doneLvs;
-  unordered_map<LogVar, LogVar>::const_iterator it;
-  it = subs_.begin();
+  std::set<LogVar> doneLvs;
+  std::unordered_map<LogVar, LogVar>::const_iterator it
+      = subs_.begin();
   while (it != subs_.end()) {
     if (Util::contains (doneLvs, it->second)) {
       discardedLvs.push_back (it->first);
@@ -114,9 +113,9 @@ Substitution::getDiscardedLogVars (void) const
 
 
 
-ostream& operator<< (ostream &os, const Substitution& theta)
+std::ostream& operator<< (std::ostream &os, const Substitution& theta)
 {
-  unordered_map<LogVar, LogVar>::const_iterator it;
+  std::unordered_map<LogVar, LogVar>::const_iterator it;
   os << "[" ;
   it = theta.subs_.begin();
   while (it != theta.subs_.end()) {

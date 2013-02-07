@@ -101,7 +101,7 @@ bool operator== (const ProbFormula& f1, const ProbFormula& f2)
 
 
 
-std::ostream& operator<< (ostream &os, const ProbFormula& f)
+std::ostream& operator<< (std::ostream &os, const ProbFormula& f)
 {
   os << f.functor_;
   if (f.isAtom() == false) {
@@ -147,7 +147,7 @@ ObservedFormula::ObservedFormula (Symbol f, unsigned ev, const Tuple& tuple)
 
 
 
-ostream& operator<< (ostream &os, const ObservedFormula& of)
+std::ostream& operator<< (std::ostream &os, const ObservedFormula& of)
 {
   os << of.functor_ << "/" << of.arity_;
   os << "|" << of.constr_.tupleSet();

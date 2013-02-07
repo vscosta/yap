@@ -1,6 +1,9 @@
 #ifndef PACKAGES_CLPBN_HORUS_LIFTEDVE_H
 #define PACKAGES_CLPBN_HORUS_LIFTEDVE_H
 
+#include <vector>
+#include <string>
+
 #include "LiftedSolver.h"
 #include "ParfactorList.h"
 
@@ -14,14 +17,14 @@ class LiftedOperator
 
     virtual void apply (void) = 0;
 
-    virtual string toString (void) = 0;
+    virtual std::string toString (void) = 0;
 
-    static vector<LiftedOperator*> getValidOps (
+    static std::vector<LiftedOperator*> getValidOps (
         ParfactorList&, const Grounds&);
 
     static void printValidOps (ParfactorList&, const Grounds&);
 
-    static vector<ParfactorList::iterator> getParfactorsWithGroup (
+    static std::vector<ParfactorList::iterator> getParfactorsWithGroup (
         ParfactorList&, PrvGroup group);
 
   private:
@@ -41,9 +44,9 @@ class ProductOperator : public LiftedOperator
 
     void apply (void);
 
-    static vector<ProductOperator*> getValidOps (ParfactorList&);
+    static std::vector<ProductOperator*> getValidOps (ParfactorList&);
 
-    string toString (void);
+    std::string toString (void);
 
   private:
     static bool validOp (Parfactor*, Parfactor*);
@@ -67,10 +70,10 @@ class SumOutOperator : public LiftedOperator
 
     void apply (void);
 
-    static vector<SumOutOperator*> getValidOps (
+    static std::vector<SumOutOperator*> getValidOps (
         ParfactorList&, const Grounds&);
 
-    string toString (void);
+    std::string toString (void);
 
   private:
     static bool validOp (PrvGroup, ParfactorList&, const Grounds&);
@@ -98,9 +101,9 @@ class CountingOperator : public LiftedOperator
 
     void apply (void);
 
-    static vector<CountingOperator*> getValidOps (ParfactorList&);
+    static std::vector<CountingOperator*> getValidOps (ParfactorList&);
 
-    string toString (void);
+    std::string toString (void);
 
   private:
     static bool validOp (Parfactor*, LogVar);
@@ -127,12 +130,12 @@ class GroundOperator : public LiftedOperator
 
     void apply (void);
 
-    static vector<GroundOperator*> getValidOps (ParfactorList&);
+    static std::vector<GroundOperator*> getValidOps (ParfactorList&);
 
-    string toString (void);
+    std::string toString (void);
 
   private:
-    vector<pair<PrvGroup, unsigned>> getAffectedFormulas (void);
+    std::vector<std::pair<PrvGroup, unsigned>> getAffectedFormulas (void);
 
     PrvGroup        group_;
     unsigned        lvIndex_;

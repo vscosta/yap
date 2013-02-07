@@ -46,10 +46,10 @@ BpLink::updateMessage (void)
 
 
 
-string
+std::string
 BpLink::toString (void) const
 {
-  stringstream ss;
+  std::stringstream ss;
   ss << fac_->getLabel();
   ss << " -- " ;
   ss << var_->label();
@@ -100,7 +100,7 @@ BeliefProp::solveQuery (VarIds queryVids)
 void
 BeliefProp::printSolverFlags (void) const
 {
-  stringstream ss;
+  std::stringstream ss;
   ss << "belief propagation [" ;
   ss << "bp_msg_schedule=" ;
   switch (schedule_) {
@@ -113,7 +113,7 @@ BeliefProp::printSolverFlags (void) const
   ss << ",bp_accuracy="   << Util::toString (accuracy_);
   ss << ",log_domain=" << Util::toString (Globals::logDomain);
   ss << "]" ;
-  cout << ss.str() << endl;
+  std::cout << ss.str() << std::endl;
 }
 
 
@@ -206,7 +206,8 @@ void
 BeliefProp::calculateAndUpdateMessage (BpLink* link, bool calcResidual)
 {
   if (Globals::verbosity > 2) {
-    cout << "calculating & updating " << link->toString() << endl;
+    std::cout << "calculating & updating " << link->toString();
+    std::cout << std::endl;
   }
   calcFactorToVarMsg (link);
   if (calcResidual) {
@@ -221,7 +222,8 @@ void
 BeliefProp::calculateMessage (BpLink* link, bool calcResidual)
 {
   if (Globals::verbosity > 2) {
-    cout << "calculating " << link->toString() << endl;
+    std::cout << "calculating " << link->toString();
+    std::cout << std::endl;
   }
   calcFactorToVarMsg (link);
   if (calcResidual) {
@@ -236,7 +238,8 @@ BeliefProp::updateMessage (BpLink* link)
 {
   link->updateMessage();
   if (Globals::verbosity > 2) {
-    cout << "updating " << link->toString() << endl;
+    std::cout << "updating " << link->toString();
+    std::cout << std::endl;
   }
 }
 
@@ -250,7 +253,8 @@ BeliefProp::runSolver (void)
   while (!converged() && nIters_ < maxIter_) {
     nIters_ ++;
     if (Globals::verbosity > 1) {
-      Util::printHeader (string ("Iteration ") + Util::toString (nIters_));
+      Util::printHeader (std::string ("Iteration ")
+          + Util::toString (nIters_));
     }
     switch (schedule_) {
      case MsgSchedule::SEQ_RANDOM:
@@ -276,13 +280,13 @@ BeliefProp::runSolver (void)
   }
   if (Globals::verbosity > 0) {
     if (nIters_ < maxIter_) {
-      cout << "Belief propagation converged in " ;
-      cout << nIters_ << " iterations" << endl;
+      std::cout << "Belief propagation converged in " ;
+      std::cout << nIters_ << " iterations" << std::endl;
     } else {
-      cout << "The maximum number of iterations was hit, terminating..." ;
-      cout << endl;
+      std::cout << "The maximum number of iterations was hit, terminating..." ;
+      std::cout << std::endl;
     }
-    cout << endl;
+    std::cout << std::endl;
   }
   runned_ = true;
 }
@@ -317,11 +321,13 @@ BeliefProp::maxResidualSchedule (void)
 
   for (size_t c = 0; c < links_.size(); c++) {
     if (Globals::verbosity > 1) {
-      cout << "current residuals:" << endl;
+      std::cout << "current residuals:" << std::endl;
       for (SortedOrder::iterator it = sortedOrder_.begin();
           it != sortedOrder_.end(); ++it) {
-        cout << "    " << setw (30) << left << (*it)->toString();
-        cout << "residual = " << (*it)->residual() << endl;
+        std::cout << "    " << std::setw (30) << std::left;
+        std::cout << (*it)->toString();
+        std::cout << "residual = " << (*it)->residual();
+        std::cout << std::endl;
       }
     }
 
@@ -373,13 +379,13 @@ BeliefProp::calcFactorToVarMsg (BpLink* link)
     for (size_t i = links.size(); i-- > 0; ) {
       if (links[i]->varNode() != dst) {
         if (Constants::SHOW_BP_CALCS) {
-          cout << "    message from " << links[i]->varNode()->label();
-          cout << ": " ;
+          std::cout << "    message from " << links[i]->varNode()->label();
+          std::cout << ": " ;
         }
         Util::apply_n_times (msgProduct, getVarToFactorMsg (links[i]),
             reps, std::plus<double>());
         if (Constants::SHOW_BP_CALCS) {
-          cout << endl;
+          std::cout << std::endl;
         }
       }
       reps *= links[i]->varNode()->range();
@@ -388,13 +394,13 @@ BeliefProp::calcFactorToVarMsg (BpLink* link)
     for (size_t i = links.size(); i-- > 0; ) {
       if (links[i]->varNode() != dst) {
         if (Constants::SHOW_BP_CALCS) {
-          cout << "    message from " << links[i]->varNode()->label();
-          cout << ": " ;
+          std::cout << "    message from " << links[i]->varNode()->label();
+          std::cout << ": " ;
         }
         Util::apply_n_times (msgProduct, getVarToFactorMsg (links[i]),
             reps, std::multiplies<double>());
         if (Constants::SHOW_BP_CALCS) {
-          cout << endl;
+          std::cout << std::endl;
         }
       }
       reps *= links[i]->varNode()->range();
@@ -404,19 +410,20 @@ BeliefProp::calcFactorToVarMsg (BpLink* link)
       src->factor().ranges(), msgProduct);
   result.multiply (src->factor());
   if (Constants::SHOW_BP_CALCS) {
-    cout << "    message product:  " << msgProduct << endl;
-    cout << "    original factor:  " << src->factor().params() << endl;
-    cout << "    factor product:   " << result.params() << endl;
+    std::cout << "    message product:  " << msgProduct << std::endl;
+    std::cout << "    original factor:  " << src->factor().params();
+    std::cout << std::endl;
+    std::cout << "    factor product:   " << result.params() << std::endl;
   }
   result.sumOutAllExcept (dst->varId());
   if (Constants::SHOW_BP_CALCS) {
-    cout << "    marginalized:     " << result.params() << endl;
+    std::cout << "    marginalized:     " << result.params() << std::endl;
   }
   link->nextMessage() = result.params();
   LogAware::normalize (link->nextMessage());
   if (Constants::SHOW_BP_CALCS) {
-    cout << "    curr msg:         " << link->message() << endl;
-    cout << "    next msg:         " << link->nextMessage() << endl;
+    std::cout << "    curr msg:         " << link->message() << std::endl;
+    std::cout << "    next msg:         " << link->nextMessage() << std::endl;
   }
 }
 
@@ -434,7 +441,7 @@ BeliefProp::getVarToFactorMsg (const BpLink* link) const
     msg.resize (src->range(), LogAware::one());
   }
   if (Constants::SHOW_BP_CALCS) {
-    cout << msg;
+    std::cout << msg;
   }
   BpLinks::const_iterator it;
   const BpLinks& links = ninf (src)->getLinks();
@@ -444,7 +451,7 @@ BeliefProp::getVarToFactorMsg (const BpLink* link) const
         msg += (*it)->message();
       }
       if (Constants::SHOW_BP_CALCS) {
-        cout << " x " << (*it)->message();
+        std::cout << " x " << (*it)->message();
       }
     }
   } else {
@@ -453,12 +460,12 @@ BeliefProp::getVarToFactorMsg (const BpLink* link) const
         msg *= (*it)->message();
       }
       if (Constants::SHOW_BP_CALCS) {
-        cout << " x " << (*it)->message();
+        std::cout << " x " << (*it)->message();
       }
     }
   }
   if (Constants::SHOW_BP_CALCS) {
-    cout << " = " << msg;
+    std::cout << " = " << msg;
   }
   return msg;
 }
@@ -508,11 +515,11 @@ BeliefProp::converged (void)
     return false;
   }
   if (Globals::verbosity > 2) {
-    cout << endl;
+    std::cout << std::endl;
   }
   if (nIters_ == 1) {
     if (Globals::verbosity > 1) {
-      cout << "no residuals" << endl << endl;
+      std::cout << "no residuals" << std::endl << std::endl;
     }
     return false;
   }
@@ -528,7 +535,8 @@ BeliefProp::converged (void)
     for (size_t i = 0; i < links_.size(); i++) {
       double residual = links_[i]->residual();
       if (Globals::verbosity > 1) {
-        cout << links_[i]->toString() + " residual = " << residual << endl;
+        std::cout << links_[i]->toString() + " residual = " << residual;
+        std::cout << std::endl;
       }
       if (residual > accuracy_) {
         converged = false;
@@ -538,7 +546,7 @@ BeliefProp::converged (void)
       }
     }
     if (Globals::verbosity > 1) {
-      cout << endl;
+      std::cout << std::endl;
     }
   }
   return converged;
@@ -549,6 +557,8 @@ BeliefProp::converged (void)
 void
 BeliefProp::printLinkInformation (void) const
 {
+  using std::cout;
+  using std::endl;
   for (size_t i = 0; i < links_.size(); i++) {
     BpLink* l = links_[i];
     cout << l->toString() << ":" << endl;

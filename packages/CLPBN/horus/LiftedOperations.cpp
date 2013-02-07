@@ -35,17 +35,17 @@ LiftedOperations::shatterAgainstQuery (
       }
     }
     if (found == false) {
-      cerr << "Error: could not find a parfactor with ground " ;
-      cerr << "`" << query[i] << "'." << endl;
+      std::cerr << "Error: could not find a parfactor with ground " ;
+      std::cerr << "`" << query[i] << "'." << std::endl;
       exit (EXIT_FAILURE);
     }
     pfList.add (newPfs);
   }
   if (Globals::verbosity > 2) {
     Util::printAsteriskLine();
-    cout << "SHATTERED AGAINST THE QUERY" << endl;
+    std::cout << "SHATTERED AGAINST THE QUERY" << std::endl;
     for (size_t i = 0; i < query.size(); i++) {
-      cout << " -> " << query[i] << endl;
+      std::cout << " -> " << query[i] << std::endl;
     }
     Util::printAsteriskLine();
     pfList.print();
@@ -59,8 +59,8 @@ LiftedOperations::runWeakBayesBall (
     ParfactorList& pfList,
     const Grounds& query)
 {
-  queue<PrvGroup> todo; // groups to process
-  set<PrvGroup> done;   // processed or in queue
+  std::queue<PrvGroup> todo; // groups to process
+  std::set<PrvGroup> done;   // processed or in queue
   for (size_t i = 0; i < query.size(); i++) {
     ParfactorList::iterator it = pfList.begin();
     while (it != pfList.end()) {
@@ -74,14 +74,14 @@ LiftedOperations::runWeakBayesBall (
     }
   }
 
-  set<Parfactor*> requiredPfs;
+  std::set<Parfactor*> requiredPfs;
   while (todo.empty() == false) {
     PrvGroup group = todo.front();
     ParfactorList::iterator it = pfList.begin();
     while (it != pfList.end()) {
       if (Util::contains (requiredPfs, *it) == false &&
           (*it)->containsGroup (group)) {
-        vector<PrvGroup> groups = (*it)->getAllGroups();
+        std::vector<PrvGroup> groups = (*it)->getAllGroups();
         for (size_t i = 0; i < groups.size(); i++) {
           if (Util::contains (done, groups[i]) == false) {
             todo.push (groups[i]);
@@ -143,9 +143,9 @@ LiftedOperations::absorveEvidence (
   }
   if (Globals::verbosity > 2 && obsFormulas.empty() == false) {
     Util::printAsteriskLine();
-    cout << "AFTER EVIDENCE ABSORVED" << endl;
+    std::cout << "AFTER EVIDENCE ABSORVED" << std::endl;
     for (size_t i = 0; i < obsFormulas.size(); i++) {
-      cout << " -> " << obsFormulas[i] << endl;
+      std::cout << " -> " << obsFormulas[i] << std::endl;
     }
     Util::printAsteriskLine();
     pfList.print();

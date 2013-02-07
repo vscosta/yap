@@ -3,7 +3,7 @@
 #include "Var.h"
 
 
-unordered_map<VarId, VarInfo> Var::varsInfo_;
+std::unordered_map<VarId, VarInfo> Var::varsInfo_;
 
 
 Var::Var (const Var* v)
@@ -45,13 +45,13 @@ Var::setEvidence (int evidence)
 
 
 
-string
+std::string
 Var::label (void) const
 {
   if (Var::varsHaveInfo()) {
     return Var::getVarInfo (varId_).label;
   }
-  stringstream ss;
+  std::stringstream ss;
   ss << "x" << varId_;
   return ss.str();
 }
@@ -66,7 +66,7 @@ Var::states (void) const
   }
   States states;
   for (unsigned i = 0; i < range_; i++) {
-    stringstream ss;
+    std::stringstream ss;
     ss << i ;
     states.push_back (ss.str());
   }
@@ -77,10 +77,10 @@ Var::states (void) const
 
 inline void
 Var::addVarInfo (
-    VarId vid, string label, const States& states)
+    VarId vid, std::string label, const States& states)
 {
   assert (Util::contains (varsInfo_, vid) == false);
-  varsInfo_.insert (make_pair (vid, VarInfo (label, states)));
+  varsInfo_.insert (std::make_pair (vid, VarInfo (label, states)));
 }
 
 

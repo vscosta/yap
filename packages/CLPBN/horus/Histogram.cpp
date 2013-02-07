@@ -59,12 +59,12 @@ HistogramSet::reset (void)
 
 
 
-vector<Histogram>
+std::vector<Histogram>
 HistogramSet::getHistograms (unsigned N, unsigned R)
 {
   HistogramSet hs (N, R);
   unsigned H = hs.nrHistograms();
-  vector<Histogram> histograms;
+  std::vector<Histogram> histograms;
   histograms.reserve (H);
   for (unsigned i = 0; i < H; i++) {
     histograms.push_back (hs.hist_);
@@ -86,9 +86,9 @@ HistogramSet::nrHistograms (unsigned N, unsigned R)
 size_t
 HistogramSet::findIndex (
     const Histogram& h,
-    const vector<Histogram>& hists)
+    const std::vector<Histogram>& hists)
 {
-  vector<Histogram>::const_iterator it = std::lower_bound (
+  std::vector<Histogram>::const_iterator it = std::lower_bound (
        hists.begin(), hists.end(), h, std::greater<Histogram>());
   assert (it != hists.end() && *it == h);
   return std::distance (hists.begin(), it);
@@ -96,13 +96,13 @@ HistogramSet::findIndex (
 
 
 
-vector<double>
+std::vector<double>
 HistogramSet::getNumAssigns (unsigned N, unsigned R)
 {
   HistogramSet hs (N, R);
   double N_fac = Util::logFactorial (N);
   unsigned H = hs.nrHistograms();
-  vector<double> numAssigns;
+  std::vector<double> numAssigns;
   numAssigns.reserve (H);
   for (unsigned h = 0; h < H; h++) {
     double prod = 0.0;
@@ -138,7 +138,7 @@ HistogramSet::clearAfter (size_t idx)
 
 
 
-ostream& operator<< (ostream &os, const HistogramSet& hs)
+std::ostream& operator<< (std::ostream &os, const HistogramSet& hs)
 {
   os << "#" << hs.hist_;
   return os;

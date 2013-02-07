@@ -43,7 +43,7 @@ class WeightedBp : public BeliefProp
 {
   public:
     WeightedBp (const FactorGraph& fg,
-        const vector<vector<unsigned>>& weights)
+        const std::vector<std::vector<unsigned>>& weights)
       : BeliefProp (fg), weights_(weights) { }
 
    ~WeightedBp (void);
@@ -61,7 +61,7 @@ class WeightedBp : public BeliefProp
 
      void printLinkInformation (void) const;
 
-     vector<vector<unsigned>> weights_;
+     std::vector<std::vector<unsigned>> weights_;
 
      DISALLOW_COPY_AND_ASSIGN (WeightedBp);
 };

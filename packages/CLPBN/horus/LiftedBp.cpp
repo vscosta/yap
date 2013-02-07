@@ -27,7 +27,7 @@ LiftedBp::solveQuery (const Grounds& query)
 {
   assert (query.empty() == false);
   Params res;
-  vector<PrvGroup> groups = getQueryGroups (query);
+  std::vector<PrvGroup> groups = getQueryGroups (query);
   if (query.size() == 1) {
     res = solver_->getPosterioriOf (groups[0]);
   } else {
@@ -60,7 +60,7 @@ LiftedBp::solveQuery (const Grounds& query)
 void
 LiftedBp::printSolverFlags (void) const
 {
-  stringstream ss;
+  std::stringstream ss;
   ss << "lifted bp [" ;
   ss << "bp_msg_schedule=" ;
   switch (WeightedBp::msgSchedule()) {
@@ -73,7 +73,7 @@ LiftedBp::printSolverFlags (void) const
   ss << ",bp_accuracy=" << WeightedBp::accuracy();
   ss << ",log_domain=" << Util::toString (Globals::logDomain);
   ss << "]" ;
-  cout << ss.str() << endl;
+  std::cout << ss.str() << std::endl;
 }
 
 
@@ -114,10 +114,10 @@ LiftedBp::iterate (void)
 
 
 
-vector<PrvGroup>
+std::vector<PrvGroup>
 LiftedBp::getQueryGroups (const Grounds& query)
 {
-  vector<PrvGroup> queryGroups;
+  std::vector<PrvGroup> queryGroups;
   for (unsigned i = 0; i < query.size(); i++) {
     ParfactorList::const_iterator it = pfList_.begin();
     for (; it != pfList_.end(); ++it) {
@@ -139,7 +139,7 @@ LiftedBp::createFactorGraph (void)
   fg_ = new FactorGraph();
   ParfactorList::const_iterator it = pfList_.begin();
   for (; it != pfList_.end(); ++it) {
-    vector<PrvGroup> groups = (*it)->getAllGroups();
+    std::vector<PrvGroup> groups = (*it)->getAllGroups();
     VarIds varIds;
     for (size_t i = 0; i < groups.size(); i++) {
       varIds.push_back (groups[i]);
@@ -150,10 +150,10 @@ LiftedBp::createFactorGraph (void)
 
 
 
-vector<vector<unsigned>>
+std::vector<std::vector<unsigned>>
 LiftedBp::getWeights (void) const
 {
-  vector<vector<unsigned>> weights;
+  std::vector<std::vector<unsigned>> weights;
   weights.reserve (pfList_.size());
   ParfactorList::const_iterator it = pfList_.begin();
   for (; it != pfList_.end(); ++it) {
@@ -196,7 +196,7 @@ LiftedBp::getJointByConditioning (
   Grounds obsGrounds = {query[0]};
   for (size_t i = 1; i < query.size(); i++) {
     Params newBeliefs;
-    vector<ObservedFormula> obsFs;
+    std::vector<ObservedFormula> obsFs;
     Ranges obsRanges;
     for (size_t j = 0; j < obsGrounds.size(); j++) {
       obsFs.push_back (ObservedFormula (

@@ -7,31 +7,32 @@
 #include "FactorGraph.h"
 #include "Horus.h"
 
+
 class VarCluster;
 class FacCluster;
 class WeightedBp;
 
 typedef long Color;
-typedef vector<Color> Colors;
-typedef vector<std::pair<Color,unsigned>> VarSignature;
-typedef vector<Color> FacSignature;
+typedef std::vector<Color> Colors;
+typedef std::vector<std::pair<Color,unsigned>> VarSignature;
+typedef std::vector<Color> FacSignature;
 
-typedef unordered_map<unsigned, Color>  DistColorMap;
-typedef unordered_map<unsigned, Colors> VarColorMap;
+typedef std::unordered_map<unsigned, Color>  DistColorMap;
+typedef std::unordered_map<unsigned, Colors> VarColorMap;
 
-typedef unordered_map<VarSignature, VarNodes> VarSignMap;
-typedef unordered_map<FacSignature, FacNodes> FacSignMap;
+typedef std::unordered_map<VarSignature, VarNodes> VarSignMap;
+typedef std::unordered_map<FacSignature, FacNodes> FacSignMap;
 
-typedef unordered_map<VarId, VarCluster*> VarClusterMap;
+typedef std::unordered_map<VarId, VarCluster*> VarClusterMap;
 
-typedef vector<VarCluster*> VarClusters;
-typedef vector<FacCluster*> FacClusters;
+typedef std::vector<VarCluster*> VarClusters;
+typedef std::vector<FacCluster*> FacClusters;
 
 
 template <class T>
 inline size_t hash_combine (size_t seed, const T& v)
 {
-  return seed ^ (hash<T>()(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2));
+  return seed ^ (std::hash<T>()(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2));
 }
 
 
@@ -50,8 +51,8 @@ template <typename T> struct hash<std::vector<T>>
   size_t operator() (const std::vector<T>& vec) const
   {
     size_t h = 0;
-    typename vector<T>::const_iterator first = vec.begin();
-    typename vector<T>::const_iterator last  = vec.end();
+    typename std::vector<T>::const_iterator first = vec.begin();
+    typename std::vector<T>::const_iterator last  = vec.end();
     for (; first != last; ++first) {
       h = hash_combine (h, *first);
     }
@@ -152,7 +153,7 @@ class CountingBp : public GroundSolver
 
     FactorGraph* getCompressedFactorGraph (void);
 
-    vector<vector<unsigned>> getWeights (void) const;
+    std::vector<std::vector<unsigned>> getWeights (void) const;
 
     unsigned getWeight (const FacCluster*,
         const VarCluster*, size_t index) const;

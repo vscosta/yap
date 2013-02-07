@@ -38,11 +38,11 @@ class Indexer
   private:
     void calculateOffsets (void);
 
-    size_t          index_;
-    Ranges          indices_;
-    const Ranges&   ranges_;
-    size_t          size_;
-    vector<size_t>  offsets_;
+    size_t               index_;
+    Ranges               indices_;
+    const Ranges&        ranges_;
+    size_t               size_;
+    std::vector<size_t>  offsets_;
 
     friend std::ostream& operator<< (std::ostream&, const Indexer&);
 
@@ -201,15 +201,15 @@ operator<< (std::ostream& os, const Indexer& indexer)
 class MapIndexer
 {
   public:
-    MapIndexer (const Ranges& ranges, const vector<bool>& mask);
+    MapIndexer (const Ranges& ranges, const std::vector<bool>& mask);
 
     MapIndexer (const Ranges& ranges, size_t dim);
 
     template <typename T>
     MapIndexer (
-        const vector<T>& allArgs,
+        const std::vector<T>& allArgs,
         const Ranges&    allRanges,
-        const vector<T>& wantedArgs,
+        const std::vector<T>& wantedArgs,
         const Ranges&    wantedRanges);
 
     MapIndexer& operator++ (void);
@@ -223,11 +223,11 @@ class MapIndexer
     void reset (void);
 
   private:
-    size_t          index_;
-    Ranges          indices_;
-    const Ranges&   ranges_;
-    bool            valid_;
-    vector<size_t>  offsets_;
+    size_t               index_;
+    Ranges               indices_;
+    const Ranges&        ranges_;
+    bool                 valid_;
+    std::vector<size_t>  offsets_;
 
     friend std::ostream& operator<< (std::ostream&, const MapIndexer&);
 
@@ -237,7 +237,7 @@ class MapIndexer
 
 
 inline
-MapIndexer::MapIndexer (const Ranges& ranges, const vector<bool>& mask)
+MapIndexer::MapIndexer (const Ranges& ranges, const std::vector<bool>& mask)
     : index_(0), indices_(ranges.size(), 0), ranges_(ranges),
       valid_(true)
 {
@@ -273,15 +273,15 @@ MapIndexer::MapIndexer (const Ranges& ranges, size_t dim)
 
 template <typename T> inline
 MapIndexer::MapIndexer (
-    const vector<T>& allArgs,
+    const std::vector<T>& allArgs,
     const Ranges&    allRanges,
-    const vector<T>& wantedArgs,
+    const std::vector<T>& wantedArgs,
     const Ranges&    wantedRanges)
       : index_(0), indices_(allArgs.size(), 0), ranges_(allRanges),
        valid_(true)
 {
   size_t prod = 1;
-  vector<size_t> offsets (wantedRanges.size());
+  std::vector<size_t> offsets (wantedRanges.size());
   for (size_t i = wantedRanges.size(); i-- > 0; ) {
     offsets[i] = prod;
     prod *= wantedRanges[i];

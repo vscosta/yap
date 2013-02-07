@@ -7,6 +7,7 @@
 
 
 namespace Globals {
+
 bool logDomain = false;
 
 unsigned verbosity = 0;
@@ -33,14 +34,14 @@ toString (const bool& b)
 
 
 unsigned
-stringToUnsigned (string str)
+stringToUnsigned (std::string str)
 {
   int val;
-  stringstream ss;
+  std::stringstream ss;
   ss << str;
   ss >> val;
   if (val < 0) {
-    cerr << "Error: the number readed is negative." << endl;
+    std::cerr << "Error: the number readed is negative." << std::endl;
     exit (EXIT_FAILURE);
   }
   return static_cast<unsigned> (val);
@@ -49,10 +50,10 @@ stringToUnsigned (string str)
 
 
 double
-stringToDouble (string str)
+stringToDouble (std::string str)
 {
   double val;
-  stringstream ss;
+  std::stringstream ss;
   ss << str;
   ss >> val;
   return val;
@@ -117,7 +118,7 @@ size_t
 sizeExpected (const Ranges& ranges)
 {
   return std::accumulate (ranges.begin(),
-      ranges.end(), 1, multiplies<unsigned>());
+      ranges.end(), 1, std::multiplies<unsigned>());
 }
 
 
@@ -136,10 +137,10 @@ nrDigits (int num)
 
 
 bool
-isInteger (const string& s)
+isInteger (const std::string& s)
 {
-  stringstream ss1 (s);
-  stringstream ss2;
+  std::stringstream ss1 (s);
+  std::stringstream ss2;
   int integer;
   ss1 >> integer;
   ss2 << integer;
@@ -148,10 +149,10 @@ isInteger (const string& s)
 
 
 
-string
+std::string
 parametersToString (const Params& v, unsigned precision)
 {
-  stringstream ss;
+  std::stringstream ss;
   ss.precision (precision);
   ss << "[" ;
   for (size_t i = 0; i < v.size(); i++) {
@@ -164,7 +165,7 @@ parametersToString (const Params& v, unsigned precision)
 
 
 
-vector<string>
+std::vector<std::string>
 getStateLines (const Vars& vars)
 {
   Ranges ranges;
@@ -172,9 +173,9 @@ getStateLines (const Vars& vars)
     ranges.push_back (vars[i]->range());
   }
   Indexer indexer (ranges);
-  vector<string> jointStrings;
+  std::vector<std::string> jointStrings;
   while (indexer.valid()) {
-    stringstream ss;
+    std::stringstream ss;
     for (size_t i = 0; i < vars.size(); i++) {
       if (i != 0) ss << ", " ;
       ss << vars[i]->label() << "=" ;
@@ -188,18 +189,18 @@ getStateLines (const Vars& vars)
 
 
 
-bool invalidValue (string option, string value)
+bool invalidValue (std::string option, std::string value)
 {
-  cerr << "Warning: invalid value `" << value << "' " ;
-  cerr << "for `" << option << "'." ;
-  cerr << endl;
+  std::cerr << "Warning: invalid value `" << value << "' " ;
+  std::cerr << "for `" << option << "'." ;
+  std::cerr << std::endl;
   return false;
 }
 
 
 
 bool
-setHorusFlag (string option, string value)
+setHorusFlag (std::string option, std::string value)
 {
   bool returnVal = true;
   if (option == "lifted_solver") {
@@ -215,7 +216,7 @@ setHorusFlag (string option, string value)
     else                      returnVal = invalidValue (option, value);
 
   } else if (option == "verbosity") {
-    stringstream ss;
+    std::stringstream ss;
     ss << value;
     ss >> Globals::verbosity;
 
@@ -251,14 +252,14 @@ setHorusFlag (string option, string value)
       returnVal = invalidValue (option, value);
 
   } else if (option == "bp_accuracy") {
-    stringstream ss;
+    std::stringstream ss;
     double acc;
     ss << value;
     ss >> acc;
     BeliefProp::setAccuracy (acc);
 
   } else if (option == "bp_max_iter") {
-    stringstream ss;
+    std::stringstream ss;
     unsigned mi;
     ss << value;
     ss >> mi;
@@ -285,7 +286,7 @@ setHorusFlag (string option, string value)
     else                       returnVal = invalidValue (option, value);
 
   } else {
-    cerr << "Warning: invalid option `" << option << "'" << endl;
+    std::cerr << "Warning: invalid option `" << option << "'" << std::endl;
     returnVal = false;
   }
   return returnVal;
@@ -294,20 +295,20 @@ setHorusFlag (string option, string value)
 
 
 void
-printHeader (string header, std::ostream& os)
+printHeader (std::string header, std::ostream& os)
 {
   printAsteriskLine (os);
-  os << header << endl;
+  os << header << std::endl;
   printAsteriskLine (os);
 }
 
 
 
 void
-printSubHeader (string header, std::ostream& os)
+printSubHeader (std::string header, std::ostream& os)
 {
   printDashedLine (os);
-  os << header << endl;
+  os << header << std::endl;
   printDashedLine (os);
 }
 
@@ -318,7 +319,7 @@ printAsteriskLine (std::ostream& os)
 {
   os << "********************************" ;
   os << "********************************" ;
-  os << endl;
+  os << std::endl;
 }
 
 
@@ -328,7 +329,7 @@ printDashedLine (std::ostream& os)
 {
   os << "--------------------------------" ;
   os << "--------------------------------" ;
-  os << endl;
+  os << std::endl;
 }
 
 

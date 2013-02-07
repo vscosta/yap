@@ -10,9 +10,6 @@
 #include "Util.h"
 
 
-using namespace std;
-
-
 class Symbol
 {
   public:
@@ -29,7 +26,7 @@ class Symbol
   private:
     unsigned id_;
 
-    friend ostream& operator<< (ostream &os, const Symbol& s);
+    friend std::ostream& operator<< (std::ostream &os, const Symbol& s);
 };
 
 
@@ -49,7 +46,7 @@ class LogVar
   private:
     unsigned id_;
 
-    friend ostream& operator<< (ostream &os, const LogVar& X);
+    friend std::ostream& operator<< (std::ostream &os, const LogVar& X);
 };
 
 
@@ -89,21 +86,21 @@ template <> struct hash<LogVar> {
 };
 
 
-typedef vector<Symbol>   Symbols;
-typedef vector<Symbol>   Tuple;
-typedef vector<Tuple>    Tuples;
-typedef vector<LogVar>   LogVars;
-typedef TinySet<Symbol>  SymbolSet;
-typedef TinySet<LogVar>  LogVarSet;
-typedef TinySet<Tuple>   TupleSet;
+typedef std::vector<Symbol>   Symbols;
+typedef std::vector<Symbol>   Tuple;
+typedef std::vector<Tuple>    Tuples;
+typedef std::vector<LogVar>   LogVars;
+typedef TinySet<Symbol>       SymbolSet;
+typedef TinySet<LogVar>       LogVarSet;
+typedef TinySet<Tuple>        TupleSet;
 
 
-ostream& operator<< (ostream &os, const Tuple& t);
+std::ostream& operator<< (std::ostream &os, const Tuple& t);
 
 
 namespace LiftedUtils {
 
-Symbol getSymbol (const string&);
+Symbol getSymbol (const std::string&);
 
 void printSymbolDictionary (void);
 
@@ -130,10 +127,10 @@ class Ground
     Symbol   functor_;
     Symbols  args_;
 
-    friend ostream& operator<< (ostream &os, const Ground& gr);
+    friend std::ostream& operator<< (std::ostream &os, const Ground& gr);
 };
 
-typedef vector<Ground> Grounds;
+typedef std::vector<Ground> Grounds;
 
 
 
@@ -153,9 +150,10 @@ class Substitution
     LogVars getDiscardedLogVars (void) const;
 
   private:
-    unordered_map<LogVar, LogVar> subs_;
+    std::unordered_map<LogVar, LogVar> subs_;
 
-    friend ostream& operator<< (ostream &os, const Substitution& theta);
+    friend std::ostream& operator<< (
+        std::ostream &os, const Substitution& theta);
 
 };
 
@@ -166,7 +164,7 @@ inline void
 Substitution::add (LogVar X_old, LogVar X_new)
 {
   assert (Util::contains (subs_, X_old) == false);
-  subs_.insert (make_pair (X_old, X_new));
+  subs_.insert (std::make_pair (X_old, X_new));
 }
 
 
@@ -183,7 +181,7 @@ Substitution::rename (LogVar X_old, LogVar X_new)
 inline LogVar
 Substitution::newNameFor (LogVar X) const
 {
-  unordered_map<LogVar, LogVar>::const_iterator it;
+  std::unordered_map<LogVar, LogVar>::const_iterator it;
   it = subs_.find (X);
   if (it != subs_.end()) {
     return subs_.find (X)->second;

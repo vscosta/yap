@@ -250,28 +250,28 @@ class LiftedCircuit
     void createSmoothNode (const LitLvTypesSet& lids,
         CircuitNode** prev);
 
-    vector<LogVarTypes> getAllPossibleTypes (unsigned nrLogVars) const;
+    std::vector<LogVarTypes> getAllPossibleTypes (unsigned nrLogVars) const;
 
     bool containsTypes (const LogVarTypes& typesA,
         const LogVarTypes& typesB) const;
 
     CircuitNodeType getCircuitNodeType (const CircuitNode* node) const;
 
-    void exportToGraphViz (CircuitNode* node, ofstream&);
+    void exportToGraphViz (CircuitNode* node, std::ofstream&);
 
-    void printClauses (CircuitNode* node, ofstream&,
-        string extraOptions = "");
+    void printClauses (CircuitNode* node, std::ofstream&,
+        std::string extraOptions = "");
 
-    string escapeNode (const CircuitNode* node) const;
+    std::string escapeNode (const CircuitNode* node) const;
 
-    string getExplanationString (CircuitNode* node);
+    std::string getExplanationString (CircuitNode* node);
 
     CircuitNode*       root_;
     const LiftedWCNF*  lwcnf_;
     bool compilationSucceeded_;
     Clauses backupClauses_;
-    unordered_map<CircuitNode*, Clauses> originClausesMap_;
-    unordered_map<CircuitNode*, string>  explanationMap_;
+    std::unordered_map<CircuitNode*, Clauses>      originClausesMap_;
+    std::unordered_map<CircuitNode*, std::string>  explanationMap_;
 
     DISALLOW_COPY_AND_ASSIGN (LiftedCircuit);
 };

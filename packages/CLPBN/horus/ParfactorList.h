@@ -6,11 +6,8 @@
 #include "Parfactor.h"
 #include "ProbFormula.h"
 
-
-using namespace std;
-
-
 class Parfactor;
+
 
 class ParfactorList
 {
@@ -23,7 +20,7 @@ class ParfactorList
 
    ~ParfactorList (void);
 
-    const list<Parfactor*>& parfactors (void) const { return pfList_; }
+    const std::list<Parfactor*>& parfactors (void) const { return pfList_; }
 
     void clear (void) { pfList_.clear(); }
 
@@ -47,12 +44,14 @@ class ParfactorList
 
     void addShattered (Parfactor* pf);
 
-    list<Parfactor*>::iterator insertShattered (
-        list<Parfactor*>::iterator, Parfactor*);
+    std::list<Parfactor*>::iterator insertShattered (
+        std::list<Parfactor*>::iterator, Parfactor*);
 
-    list<Parfactor*>::iterator remove (list<Parfactor*>::iterator);
+    std::list<Parfactor*>::iterator remove (
+        std::list<Parfactor*>::iterator);
 
-    list<Parfactor*>::iterator removeAndDelete (list<Parfactor*>::iterator);
+    std::list<Parfactor*>::iterator removeAndDelete (
+        std::list<Parfactor*>::iterator);
 
     bool isAllShattered (void) const;
 
@@ -115,7 +114,7 @@ class ParfactorList
       }
     };
 
-    list<Parfactor*> pfList_;
+    std::list<Parfactor*> pfList_;
 };
 
 #endif // PACKAGES_CLPBN_HORUS_PARFACTORLIST_H

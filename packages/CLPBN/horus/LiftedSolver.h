@@ -4,9 +4,6 @@
 #include "ParfactorList.h"
 #include "Horus.h"
 
-
-using namespace std;
-
 class LiftedSolver
 {
   public:

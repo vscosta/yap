@@ -34,7 +34,7 @@ CountingBp::~CountingBp (void)
 void
 CountingBp::printSolverFlags (void) const
 {
-  stringstream ss;
+  std::stringstream ss;
   ss << "counting bp [" ;
   ss << "bp_msg_schedule=" ;
   switch (WeightedBp::msgSchedule()) {
@@ -48,7 +48,7 @@ CountingBp::printSolverFlags (void) const
   ss << ",log_domain=" << Util::toString (Globals::logDomain);
   ss << ",fif=" << Util::toString (CountingBp::fif_);
   ss << "]" ;
-  cout << ss.str() << endl;
+  std::cout << ss.str() << std::endl;
 }
 
 
@@ -69,7 +69,6 @@ CountingBp::solveQuery (VarIds queryVids)
         idx = i;
         break;
       }
-      cout << endl;
     }
     if (idx == facNodes.size()) {
       res = GroundSolver::getJointByConditioning (
@@ -135,7 +134,7 @@ CountingBp::setInitialColors (void)
     unsigned range = varNodes[i]->range();
     VarColorMap::iterator it = colorMap.find (range);
     if (it == colorMap.end()) {
-      it = colorMap.insert (make_pair (
+      it = colorMap.insert (std::make_pair (
           range, Colors (range + 1, -1))).first;
     }
     unsigned idx = varNodes[i]->hasEvidence()
@@ -154,7 +153,8 @@ CountingBp::setInitialColors (void)
     unsigned distId = facNodes[i]->factor().distId();
     DistColorMap::iterator it = distColors.find (distId);
     if (it == distColors.end()) {
-      it = distColors.insert (make_pair (distId, getNewColor())).first;
+      it = distColors.insert (std::make_pair (
+          distId, getNewColor())).first;
     }
     setColor (facNodes[i], it->second);
   }
@@ -182,7 +182,8 @@ CountingBp::createGroups (void)
       const VarSignature& signature = getSignature (varNodes[i]);
       VarSignMap::iterator it = varGroups.find (signature);
       if (it == varGroups.end()) {
-        it = varGroups.insert (make_pair (signature, VarNodes())).first;
+        it = varGroups.insert (std::make_pair (
+            signature, VarNodes())).first;
       }
       it->second.push_back (varNodes[i]);
     }
@@ -202,7 +203,8 @@ CountingBp::createGroups (void)
       const FacSignature& signature = getSignature (facNodes[i]);
       FacSignMap::iterator it = facGroups.find (signature);
       if (it == facGroups.end()) {
-        it = facGroups.insert (make_pair (signature, FacNodes())).first;
+        it = facGroups.insert (std::make_pair (
+            signature, FacNodes())).first;
       }
       it->second.push_back (facNodes[i]);
     }
@@ -235,7 +237,8 @@ CountingBp::createClusters (
     const VarNodes& groupVars = it->second;
     VarCluster* vc = new VarCluster (groupVars);
     for (size_t i = 0; i < groupVars.size(); i++) {
-      varClusterMap_.insert (make_pair (groupVars[i]->varId(), vc));
+      varClusterMap_.insert (std::make_pair (
+          groupVars[i]->varId(), vc));
     }
     varClusters_.push_back (vc);
   }
@@ -264,12 +267,12 @@ CountingBp::getSignature (const VarNode* varNode)
   VarSignature sign;
   sign.reserve (neighs.size() + 1);
   for (size_t i = 0; i < neighs.size(); i++) {
-    sign.push_back (make_pair (
+    sign.push_back (std::make_pair (
         getColor (neighs[i]),
         neighs[i]->factor().indexOf (varNode->varId())));
   }
   std::sort (sign.begin(), sign.end());
-  sign.push_back (make_pair (getColor (varNode), 0));
+  sign.push_back (std::make_pair (getColor (varNode), 0));
   return sign;
 }
 
@@ -342,10 +345,10 @@ CountingBp::getCompressedFactorGraph (void)
 
 
 
-vector<vector<unsigned>>
+std::vector<std::vector<unsigned>>
 CountingBp::getWeights (void) const
 {
-  vector<vector<unsigned>> weights;
+  std::vector<std::vector<unsigned>> weights;
   weights.reserve (facClusters_.size());
   for (size_t i = 0; i < facClusters_.size(); i++) {
     const VarClusters& neighs = facClusters_[i]->varClusters();
@@ -390,31 +393,31 @@ CountingBp::printGroups (
     const FacSignMap& facGroups) const
 {
   unsigned count = 1;
-  cout << "variable groups:" << endl;
+  std::cout << "variable groups:" << std::endl;
   for (VarSignMap::const_iterator it = varGroups.begin();
       it != varGroups.end(); ++it) {
     const VarNodes& groupMembers = it->second;
     if (groupMembers.size() > 0) {
-      cout << count << ": " ;
+      std::cout << count << ": " ;
       for (size_t i = 0; i < groupMembers.size(); i++) {
-        cout << groupMembers[i]->label() << " " ;
+        std::cout << groupMembers[i]->label() << " " ;
       }
       count ++;
-      cout << endl;
+      std::cout << std::endl;
     }
   }
   count = 1;
-  cout << endl << "factor groups:" << endl;
+  std::cout << std::endl << "factor groups:" << std::endl;
   for (FacSignMap::const_iterator it = facGroups.begin();
       it != facGroups.end(); ++it) {
     const FacNodes& groupMembers = it->second;
     if (groupMembers.size() > 0) {
-      cout << ++count << ": " ;
+      std::cout << ++count << ": " ;
       for (size_t i = 0; i < groupMembers.size(); i++) {
-        cout << groupMembers[i]->getLabel() << " " ;
+        std::cout << groupMembers[i]->getLabel() << " " ;
       }
       count ++;
-      cout << endl;
+      std::cout << std::endl;
     }
   }
 }

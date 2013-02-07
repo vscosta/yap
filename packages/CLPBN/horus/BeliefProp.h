@@ -10,9 +10,6 @@
 #include "FactorGraph.h"
 
 
-using namespace std;
-
-
 enum MsgSchedule {
   SEQ_FIXED,
   SEQ_RANDOM,
@@ -44,7 +41,7 @@ class BpLink
 
     virtual void updateMessage (void);
 
-    string toString (void) const;
+    std::string toString (void) const;
 
   protected:
     FacNode*  fac_;
@@ -59,7 +56,7 @@ class BpLink
     DISALLOW_COPY_AND_ASSIGN (BpLink);
 };
 
-typedef vector<BpLink*> BpLinks;
+typedef std::vector<BpLink*> BpLinks;
 
 
 class SPNodeInfo
@@ -134,16 +131,16 @@ class BeliefProp : public GroundSolver
 
     virtual Params getJointByConditioning (const VarIds&) const;
 
-    BpLinks              links_;
-    unsigned             nIters_;
-    vector<SPNodeInfo*>  varsI_;
-    vector<SPNodeInfo*>  facsI_;
-    bool                 runned_;
+    BpLinks                   links_;
+    unsigned                  nIters_;
+    std::vector<SPNodeInfo*>  varsI_;
+    std::vector<SPNodeInfo*>  facsI_;
+    bool                      runned_;
 
-    typedef multiset<BpLink*, CompareResidual> SortedOrder;
+    typedef std::multiset<BpLink*, CompareResidual> SortedOrder;
     SortedOrder sortedOrder_;
 
-    typedef unordered_map<BpLink*, SortedOrder::iterator> BpLinkMap;
+    typedef std::unordered_map<BpLink*, SortedOrder::iterator> BpLinkMap;
     BpLinkMap linkMap_;
 
     static double       accuracy_;

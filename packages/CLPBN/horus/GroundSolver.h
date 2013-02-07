@@ -1,13 +1,9 @@
 #ifndef PACKAGES_CLPBN_HORUS_GROUNDSOLVER_H
 #define PACKAGES_CLPBN_HORUS_GROUNDSOLVER_H
 
-#include <iomanip>
-
 #include "FactorGraph.h"
 #include "Horus.h"
 
-
-using namespace std;
 
 class GroundSolver
 {

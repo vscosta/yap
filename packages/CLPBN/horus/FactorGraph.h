@@ -7,9 +7,8 @@
 #include "BayesBallGraph.h"
 #include "Horus.h"
 
-using namespace std;
-
 class FacNode;
+
 
 class VarNode : public Var
 {
@@ -49,7 +48,7 @@ class FacNode
 
     void setIndex (size_t index) { index_ = index; }
 
-    string getLabel (void) { return factor_.getLabel(); }
+    std::string getLabel (void) { return factor_.getLabel(); }
 
   private:
     VarNodes  neighs_;
@@ -138,10 +137,10 @@ class FactorGraph
     bool containsCycle (void) const;
 
     bool containsCycle (const VarNode*, const FacNode*,
-        vector<bool>&, vector<bool>&) const;
+        std::vector<bool>&, std::vector<bool>&) const;
 
     bool containsCycle (const FacNode*, const VarNode*,
-        vector<bool>&, vector<bool>&) const;
+        std::vector<bool>&, std::vector<bool>&) const;
 
     VarNodes  varNodes_;
     FacNodes  facNodes_;
@@ -149,7 +148,7 @@ class FactorGraph
     BayesBallGraph  structure_;
     bool            bayesFactors_;
 
-    typedef unordered_map<unsigned, VarNode*> VarMap;
+    typedef std::unordered_map<unsigned, VarNode*> VarMap;
     VarMap varMap_;
 
     static bool exportLd_;

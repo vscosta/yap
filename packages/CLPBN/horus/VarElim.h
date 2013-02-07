@@ -8,9 +8,6 @@
 #include "Horus.h"
 
 
-using namespace std;
-
-
 class VarElim : public GroundSolver
 {
   public:
@@ -36,7 +33,7 @@ class VarElim : public GroundSolver
     Factors   factorList_;
     unsigned  largestFactorSize_;
     unsigned  totalFactorSize_;
-    unordered_map<VarId, vector<size_t>> varMap_;
+    std::unordered_map<VarId, std::vector<size_t>> varMap_;
 
     DISALLOW_COPY_AND_ASSIGN (VarElim);
 };

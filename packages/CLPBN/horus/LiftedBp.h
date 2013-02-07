@@ -4,6 +4,7 @@
 #include "LiftedSolver.h"
 #include "ParfactorList.h"
 
+
 class FactorGraph;
 class WeightedBp;
 
@@ -23,11 +24,11 @@ class LiftedBp : public LiftedSolver
 
     bool iterate (void);
 
-    vector<PrvGroup> getQueryGroups (const Grounds&);
+    std::vector<PrvGroup> getQueryGroups (const Grounds&);
 
     void createFactorGraph (void);
 
-    vector<vector<unsigned>> getWeights (void) const;
+    std::vector<std::vector<unsigned>> getWeights (void) const;
 
     unsigned rangeOfGround (const Ground&);
 
@@ -38,7 +39,6 @@ class LiftedBp : public LiftedSolver
     FactorGraph*   fg_;
 
     DISALLOW_COPY_AND_ASSIGN (LiftedBp);
-
 };
 
 #endif // PACKAGES_CLPBN_HORUS_LIFTEDBP_H

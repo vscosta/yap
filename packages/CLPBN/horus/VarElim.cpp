@@ -10,12 +10,12 @@ Params
 VarElim::solveQuery (VarIds queryVids)
 {
   if (Globals::verbosity > 1) {
-    cout << "Solving query on " ;
+    std::cout << "Solving query on " ;
     for (size_t i = 0; i < queryVids.size(); i++) {
-      if (i != 0) cout << ", " ;
-      cout << fg.getVarNode (queryVids[i])->label();
+      if (i != 0) std::cout << ", " ;
+      std::cout << fg.getVarNode (queryVids[i])->label();
     }
-    cout << endl;
+    std::cout << std::endl;
   }
   totalFactorSize_   = 0;
   largestFactorSize_ = 0;
@@ -35,7 +35,7 @@ VarElim::solveQuery (VarIds queryVids)
 void
 VarElim::printSolverFlags (void) const
 {
-  stringstream ss;
+  std::stringstream ss;
   ss << "variable elimination [" ;
   ss << "elim_heuristic=" ;
   switch (ElimGraph::elimHeuristic()) {
@@ -47,7 +47,7 @@ VarElim::printSolverFlags (void) const
   }
   ss << ",log_domain=" << Util::toString (Globals::logDomain);
   ss << "]" ;
-  cout << ss.str() << endl;
+  std::cout << ss.str() << std::endl;
 }
 
 
@@ -61,7 +61,7 @@ VarElim::createFactorList (void)
     factorList_.push_back (new Factor (facNodes[i]->factor()));
     const VarIds& args = facNodes[i]->factor().arguments();
     for (size_t j = 0; j < args.size(); j++) {
-      unordered_map<VarId, vector<size_t>>::iterator it;
+      std::unordered_map<VarId, std::vector<size_t>>::iterator it;
       it = varMap_.find (args[j]);
       if (it != varMap_.end()) {
         it->second.push_back (i);
@@ -79,18 +79,18 @@ VarElim::absorveEvidence (void)
 {
   if (Globals::verbosity > 2) {
     Util::printDashedLine();
-    cout << "(initial factor list)" << endl;
+    std::cout << "(initial factor list)" << std::endl;
     printActiveFactors();
   }
   const VarNodes& varNodes = fg.varNodes();
   for (size_t i = 0; i < varNodes.size(); i++) {
     if (varNodes[i]->hasEvidence()) {
       if (Globals::verbosity > 1) {
-        cout << "-> aborving evidence on ";
-        cout << varNodes[i]->label() << " = " ;
-        cout << varNodes[i]->getEvidence() << endl;
+        std::cout << "-> aborving evidence on ";
+        std::cout << varNodes[i]->label() << " = " ;
+        std::cout << varNodes[i]->getEvidence() << std::endl;
       }
-      const vector<size_t>& indices = varMap_[varNodes[i]->varId()];
+      const std::vector<size_t>& indices = varMap_[varNodes[i]->varId()];
       for (size_t j = 0; j < indices.size(); j++) {
         size_t idx = indices[j];
         if (factorList_[idx]->nrArguments() > 1) {
@@ -118,8 +118,8 @@ VarElim::processFactorList (const VarIds& queryVids)
         Util::printDashedLine();
         printActiveFactors();
       }
-      cout << "-> summing out " ;
-      cout << fg.getVarNode (elimOrder[i])->label() << endl;
+      std::cout << "-> summing out " ;
+      std::cout << fg.getVarNode (elimOrder[i])->label() << std::endl;
     }
     eliminate (elimOrder[i]);
   }
@@ -143,9 +143,9 @@ VarElim::processFactorList (const VarIds& queryVids)
   result.reorderArguments (unobservedVids);
   result.normalize();
   if (Globals::verbosity > 0) {
-    cout << "total factor size:   " << totalFactorSize_ << endl;
-    cout << "largest factor size: " << largestFactorSize_ << endl;
-    cout << endl;
+    std::cout << "total factor size:   " << totalFactorSize_   << std::endl;
+    std::cout << "largest factor size: " << largestFactorSize_ << std::endl;
+    std::cout << std::endl;
   }
   return result.params();
 }
@@ -156,7 +156,7 @@ void
 VarElim::eliminate (VarId vid)
 {
   Factor* result = new Factor();
-  const vector<size_t>& indices = varMap_[vid];
+  const std::vector<size_t>& indices = varMap_[vid];
   for (size_t i = 0; i < indices.size(); i++) {
     size_t idx = indices[i];
     if (factorList_[idx]) {
@@ -173,7 +173,7 @@ VarElim::eliminate (VarId vid)
     result->sumOut (vid);
     const VarIds& args = result->arguments();
     for (size_t i = 0; i < args.size(); i++) {
-      vector<size_t>& indices2 = varMap_[args[i]];
+      std::vector<size_t>& indices2 = varMap_[args[i]];
       indices2.push_back (factorList_.size());
     }
     factorList_.push_back (result);
@@ -189,9 +189,9 @@ VarElim::printActiveFactors (void)
 {
   for (size_t i = 0; i < factorList_.size(); i++) {
     if (factorList_[i]) {
-      cout << factorList_[i]->getLabel() << " " ;
-      cout << factorList_[i]->params();
-      cout << endl;
+      std::cout << factorList_[i]->getLabel() << " " ;
+      std::cout << factorList_[i]->params();
+      std::cout << std::endl;
     }
   }
 }

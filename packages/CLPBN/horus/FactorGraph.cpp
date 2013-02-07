@@ -1,6 +1,5 @@
 #include <algorithm>
 
-#include <set>
 #include <vector>
 
 #include <iostream>
@@ -55,18 +54,18 @@ FactorGraph::readFromUaiFormat (const char* fileName)
 {
   std::ifstream is (fileName);
   if (!is.is_open()) {
-    cerr << "Error: couldn't open file '" << fileName << "'." ;
+    std::cerr << "Error: couldn't open file '" << fileName << "'." ;
     exit (EXIT_FAILURE);
   }
   ignoreLines (is);
-  string line;
+  std::string line;
   getline (is, line);
   if (line == "BAYES") {
     bayesFactors_ = true;
   } else if (line == "MARKOV") {
     bayesFactors_ = false;
   } else {
-    cerr << "Error: the type of network is missing." << endl;
+    std::cerr << "Error: the type of network is missing." << std::endl;
     exit (EXIT_FAILURE);
   }
   // read the number of vars
@@ -83,8 +82,8 @@ FactorGraph::readFromUaiFormat (const char* fileName)
   unsigned nrArgs;
   unsigned vid;
   is >> nrFactors;
-  vector<VarIds> allVarIds;
-  vector<Ranges> allRanges;
+  std::vector<VarIds> allVarIds;
+  std::vector<Ranges> allRanges;
   for (unsigned i = 0; i < nrFactors; i++) {
     ignoreLines (is);
     is >> nrArgs;
@@ -93,9 +92,10 @@ FactorGraph::readFromUaiFormat (const char* fileName)
     for (unsigned j = 0; j < nrArgs; j++) {
       is >> vid;
       if (vid >= ranges.size()) {
-        cerr << "Error: invalid variable identifier `" << vid << "'. " ;
-        cerr << "Identifiers must be between 0 and " << ranges.size() - 1 ;
-        cerr << "." << endl;
+        std::cerr << "Error: invalid variable identifier `" << vid << "'. " ;
+        std::cerr << "Identifiers must be between 0 and " ;
+        std::cerr << ranges.size() - 1 ;
+        std::cerr << "." << std::endl;
         exit (EXIT_FAILURE);
       }
       allVarIds.back().push_back (vid);
@@ -108,9 +108,9 @@ FactorGraph::readFromUaiFormat (const char* fileName)
     ignoreLines (is);
     is >> nrParams;
     if (nrParams != Util::sizeExpected (allRanges[i])) {
-      cerr << "Error: invalid number of parameters for factor nº " << i ;
-      cerr << ", " << Util::sizeExpected (allRanges[i]);
-      cerr << " expected, " << nrParams << " given." << endl;
+      std::cerr << "Error: invalid number of parameters for factor nº " << i ;
+      std::cerr << ", " << Util::sizeExpected (allRanges[i]);
+      std::cerr << " expected, " << nrParams << " given." << std::endl;
       exit (EXIT_FAILURE);
     }
     Params params (nrParams);
@@ -139,7 +139,7 @@ FactorGraph::readFromLibDaiFormat (const char* fileName)
 {
   std::ifstream is (fileName);
   if (!is.is_open()) {
-    cerr << "Error: couldn't open file '" << fileName << "'." ;
+    std::cerr << "Error: couldn't open file '" << fileName << "'." ;
     exit (EXIT_FAILURE);
   }
   ignoreLines (is);
@@ -164,8 +164,8 @@ FactorGraph::readFromLibDaiFormat (const char* fileName)
       is >> ranges[j];
       VarNode* var = getVarNode (vids[j]);
       if (var && ranges[j] != var->range()) {
-        cerr << "Error: variable `" << vids[j] << "' appears in two or " ;
-        cerr << "more factors with a different range." << endl;
+        std::cerr << "Error: variable `" << vids[j] << "' appears in two or " ;
+        std::cerr << "more factors with a different range." << std::endl;
       }
     }
     // read parameters
@@ -221,7 +221,7 @@ FactorGraph::addVarNode (VarNode* vn)
 {
   varNodes_.push_back (vn);
   vn->setIndex (varNodes_.size() - 1);
-  varMap_.insert (make_pair (vn->varId(), vn));
+  varMap_.insert (std::make_pair (vn->varId(), vn));
 }
 
 
@@ -275,6 +275,8 @@ FactorGraph::getStructure (void)
 void
 FactorGraph::print (void) const
 {
+  using std::cout;
+  using std::endl;
   for (size_t i = 0; i < varNodes_.size(); i++) {
     cout << "var id   = " << varNodes_[i]->varId() << endl;
     cout << "label    = " << varNodes_[i]->label() << endl;
@@ -296,28 +298,28 @@ FactorGraph::print (void) const
 void
 FactorGraph::exportToLibDai (const char* fileName) const
 {
-  ofstream out (fileName);
+  std::ofstream out (fileName);
   if (!out.is_open()) {
-    cerr << "Error: couldn't open file '" << fileName << "'." ;
+    std::cerr << "Error: couldn't open file '" << fileName << "'." ;
     return;
   }
-  out << facNodes_.size() << endl << endl;
+  out << facNodes_.size() << std::endl << std::endl;
   for (size_t i = 0; i < facNodes_.size(); i++) {
     Factor f (facNodes_[i]->factor());
-    out << f.nrArguments() << endl;
-    out << Util::elementsToString (f.arguments()) << endl;
-    out << Util::elementsToString (f.ranges()) << endl;
+    out << f.nrArguments() << std::endl;
+    out << Util::elementsToString (f.arguments()) << std::endl;
+    out << Util::elementsToString (f.ranges()) << std::endl;
     VarIds args = f.arguments();
     std::reverse (args.begin(), args.end());
     f.reorderArguments (args);
     if (Globals::logDomain) {
       Util::exp (f.params());
     }
-    out << f.size() << endl;
+    out << f.size() << std::endl;
     for (size_t j = 0; j < f.size(); j++) {
-      out << j << " " << f[j] << endl;
+      out << j << " " << f[j] << std::endl;
     }
-    out << endl;
+    out << std::endl;
   }
   out.close();
 }
@@ -327,28 +329,29 @@ FactorGraph::exportToLibDai (const char* fileName) const
 void
 FactorGraph::exportToUai (const char* fileName) const
 {
-  ofstream out (fileName);
+  std::ofstream out (fileName);
   if (!out.is_open()) {
-    cerr << "Error: couldn't open file '" << fileName << "'." ;
+    std::cerr << "Error: couldn't open file '" << fileName << "'." ;
     return;
   }
   out << (bayesFactors_ ? "BAYES" : "MARKOV") ;
-  out << endl << endl;
-  out << varNodes_.size() << endl;
+  out << std::endl << std::endl;
+  out << varNodes_.size() << std::endl;
   VarNodes sortedVns = varNodes_;
   std::sort (sortedVns.begin(), sortedVns.end(), sortByVarId());
   for (size_t i = 0; i < sortedVns.size(); i++) {
     out << ((i != 0) ? " " : "") << sortedVns[i]->range();
   }
-  out << endl << facNodes_.size() << endl;
+  out << std::endl << facNodes_.size() << std::endl;
   for (size_t i = 0; i < facNodes_.size(); i++) {
     VarIds args = facNodes_[i]->factor().arguments();
     if (bayesFactors_) {
       std::swap (args.front(), args.back());
     }
-    out << args.size() << " " << Util::elementsToString (args) << endl;
+    out << args.size() << " " << Util::elementsToString (args);
+    out << std::endl;
   }
-  out << endl;
+  out << std::endl;
   for (size_t i = 0; i < facNodes_.size(); i++) {
     Factor f = facNodes_[i]->factor();
     if (bayesFactors_) {
@@ -360,8 +363,9 @@ FactorGraph::exportToUai (const char* fileName) const
     if (Globals::logDomain) {
       Util::exp (params);
     }
-    out << params.size() << endl << " " ;
-    out << Util::elementsToString (params) << endl << endl;
+    out << params.size() << std::endl << " " ;
+    out << Util::elementsToString (params);
+    out << std::endl << std::endl;
   }
   out.close();
 }
@@ -371,32 +375,32 @@ FactorGraph::exportToUai (const char* fileName) const
 void
 FactorGraph::exportToGraphViz (const char* fileName) const
 {
-  ofstream out (fileName);
+  std::ofstream out (fileName);
   if (!out.is_open()) {
-    cerr << "Error: couldn't open file '" << fileName << "'." ;
+    std::cerr << "Error: couldn't open file '" << fileName << "'." ;
     return;
   }
-  out << "graph \"" << fileName << "\" {" << endl;
+  out << "graph \"" << fileName << "\" {" << std::endl;
   for (size_t i = 0; i < varNodes_.size(); i++) {
     if (varNodes_[i]->hasEvidence()) {
       out << '"' << varNodes_[i]->label() << '"' ;
-      out << " [style=filled, fillcolor=yellow]" << endl;
+      out << " [style=filled, fillcolor=yellow]" << std::endl;
     }
   }
   for (size_t i = 0; i < facNodes_.size(); i++) {
     out << '"' << facNodes_[i]->getLabel() << '"' ;
     out << " [label=\"" << facNodes_[i]->getLabel();
-    out << "\"" << ", shape=box]" << endl;
+    out << "\"" << ", shape=box]" << std::endl;
   }
   for (size_t i = 0; i < facNodes_.size(); i++) {
     const VarNodes& myVars = facNodes_[i]->neighbors();
     for (size_t j = 0; j < myVars.size(); j++) {
       out << '"' << facNodes_[i]->getLabel() << '"' ;
       out << " -- " ;
-      out << '"' << myVars[j]->label() << '"' << endl;
+      out << '"' << myVars[j]->label() << '"' << std::endl;
     }
   }
-  out << "}" << endl;
+  out << "}" << std::endl;
   out.close();
 }
 
@@ -405,7 +409,7 @@ FactorGraph::exportToGraphViz (const char* fileName) const
 void
 FactorGraph::ignoreLines (std::ifstream& is) const
 {
-  string ignoreStr;
+  std::string ignoreStr;
   while (is.peek() == '#' || is.peek() == '\n') {
     getline (is, ignoreStr);
   }
@@ -416,8 +420,8 @@ FactorGraph::ignoreLines (std::ifstream& is) const
 bool
 FactorGraph::containsCycle (void) const
 {
-  vector<bool> visitedVars (varNodes_.size(), false);
-  vector<bool> visitedFactors (facNodes_.size(), false);
+  std::vector<bool> visitedVars (varNodes_.size(), false);
+  std::vector<bool> visitedFactors (facNodes_.size(), false);
   for (size_t i = 0; i < varNodes_.size(); i++) {
     int v = varNodes_[i]->getIndex();
     if (!visitedVars[v]) {
@@ -435,8 +439,8 @@ bool
 FactorGraph::containsCycle (
     const VarNode* v,
     const FacNode* p,
-    vector<bool>& visitedVars,
-    vector<bool>& visitedFactors) const
+    std::vector<bool>& visitedVars,
+    std::vector<bool>& visitedFactors) const
 {
   visitedVars[v->getIndex()] = true;
   const FacNodes& adjacencies = v->neighbors();
@@ -460,8 +464,8 @@ bool
 FactorGraph::containsCycle (
     const FacNode* v,
     const VarNode* p,
-    vector<bool>& visitedVars,
-    vector<bool>& visitedFactors) const
+    std::vector<bool>& visitedVars,
+    std::vector<bool>& visitedFactors) const
 {
   visitedFactors[v->getIndex()] = true;
   const VarNodes& adjacencies = v->neighbors();

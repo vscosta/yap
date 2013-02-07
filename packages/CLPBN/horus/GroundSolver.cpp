@@ -19,13 +19,14 @@ GroundSolver::printAnswer (const VarIds& vids)
   }
   if (unobservedVids.empty() == false) {
     Params res = solveQuery (unobservedVids);
-    vector<string> stateLines = Util::getStateLines (unobservedVars);
+    std::vector<std::string> stateLines =
+        Util::getStateLines (unobservedVars);
     for (size_t i = 0; i < res.size(); i++) {
-      cout << "P(" << stateLines[i] << ") = " ;
-      cout << std::setprecision (Constants::PRECISION) << res[i];
-      cout << endl;
+      std::cout << "P(" << stateLines[i] << ") = " ;
+      std::cout << std::setprecision (Constants::PRECISION) << res[i];
+      std::cout << std::endl;
     }
-    cout << endl;
+    std::cout << std::endl;
   }
 }
 

@@ -10,14 +10,12 @@
 #include "TinySet.h"
 #include "LiftedUtils.h"
 
-using namespace std;
-
 
 class CTNode;
-typedef vector<CTNode*> CTNodes;
+typedef std::vector<CTNode*> CTNodes;
 
 class ConstraintTree;
-typedef vector<ConstraintTree*> ConstraintTrees;
+typedef std::vector<ConstraintTree*> ConstraintTrees;
 
 
 class CTNode
@@ -99,7 +97,7 @@ CTNode::findSymbol (Symbol symb)
 }
 
 
-ostream& operator<< (ostream &out, const CTNode&);
+std::ostream& operator<< (std::ostream &out, const CTNode&);
 
 
 class ConstraintTree
@@ -111,7 +109,7 @@ class ConstraintTree
 
     ConstraintTree (const LogVars&, const Tuples&);
 
-    ConstraintTree (vector<vector<string>> names);
+    ConstraintTree (std::vector<std::vector<std::string>> names);
 
     ConstraintTree (const ConstraintTree&);
 
@@ -208,7 +206,7 @@ class ConstraintTree
 
     void getTuples (CTNode*, Tuples, unsigned, Tuples&, CTNodes&) const;
 
-    vector<std::pair<CTNode*, unsigned>> countNormalize (
+    std::vector<std::pair<CTNode*, unsigned>> countNormalize (
         const CTNode*, unsigned);
 
     static void split (

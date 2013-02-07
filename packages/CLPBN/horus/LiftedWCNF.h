@@ -5,7 +5,6 @@
 
 #include "ParfactorList.h"
 
-using namespace std;
 
 class ConstraintTree;
 
@@ -16,8 +15,8 @@ enum LogVarType
   NEG_LV
 };
 
-typedef long                LiteralId;
-typedef vector<LogVarType>  LogVarTypes;
+typedef long                     LiteralId;
+typedef std::vector<LogVarType>  LogVarTypes;
 
 
 class Literal
@@ -47,7 +46,7 @@ class Literal
 
     size_t indexOfLogVar (LogVar X) const;
 
-    string toString (LogVarSet ipgLogVars = LogVarSet(),
+    std::string toString (LogVarSet ipgLogVars = LogVarSet(),
       LogVarSet posCountedLvs = LogVarSet(),
       LogVarSet negCountedLvs = LogVarSet()) const;
 
@@ -59,7 +58,7 @@ class Literal
     friend std::ostream& operator<< (std::ostream &os, const Literal& lit);
 };
 
-typedef vector<Literal> Literals;
+typedef std::vector<Literal> Literals;
 
 
 
@@ -68,7 +67,8 @@ class Clause
   public:
     Clause (const ConstraintTree& ct = ConstraintTree({})) : constr_(ct) { }
 
-    Clause (vector<vector<string>> names) : constr_(ConstraintTree (names)) { }
+    Clause (std::vector<std::vector<std::string>> names) :
+        constr_(ConstraintTree (names)) { }
 
     void addLiteral (const Literal& l) { literals_.push_back (l); }
 
@@ -132,11 +132,12 @@ class Clause
 
     static bool independentClauses (Clause& c1, Clause& c2);
 
-    static vector<Clause*> copyClauses (const vector<Clause*>& clauses);
+    static std::vector<Clause*> copyClauses (
+        const std::vector<Clause*>& clauses);
 
-    static void printClauses (const vector<Clause*>& clauses);
+    static void printClauses (const std::vector<Clause*>& clauses);
 
-    static void deleteClauses (vector<Clause*>& clauses);
+    static void deleteClauses (std::vector<Clause*>& clauses);
 
   private:
     LogVarSet getLogVarSetExcluding (size_t idx) const;
@@ -147,12 +148,12 @@ class Clause
     LogVarSet       negCountedLvs_;
     ConstraintTree  constr_;
 
-    friend std::ostream& operator<< (ostream &os, const Clause& clause);
+    friend std::ostream& operator<< (std::ostream &os, const Clause& clause);
 
     DISALLOW_ASSIGN (Clause);
 };
 
-typedef vector<Clause*> Clauses;
+typedef std::vector<Clause*> Clauses;
 
 
 
@@ -211,7 +212,7 @@ class LiftedWCNF
 
     double negWeight (LiteralId lid) const;
 
-    vector<LiteralId> prvGroupLiterals (PrvGroup prvGroup);
+    std::vector<LiteralId> prvGroupLiterals (PrvGroup prvGroup);
 
     Clause* createClause (LiteralId lid) const;
 
@@ -228,11 +229,11 @@ class LiftedWCNF
 
     void addParameterClauses (const ParfactorList& pfList);
 
-    Clauses                                             clauses_;
-    LiteralId                                           freeLiteralId_;
-    const ParfactorList&                                pfList_;
-    unordered_map<PrvGroup, vector<LiteralId>>          map_;
-    unordered_map<LiteralId, std::pair<double,double>>  weights_;
+    Clauses                                                  clauses_;
+    LiteralId                                                freeLiteralId_;
+    const ParfactorList&                                     pfList_;
+    std::unordered_map<PrvGroup, std::vector<LiteralId>>     map_;
+    std::unordered_map<LiteralId, std::pair<double,double>>  weights_;
 
     DISALLOW_COPY_AND_ASSIGN (LiftedWCNF);
 };

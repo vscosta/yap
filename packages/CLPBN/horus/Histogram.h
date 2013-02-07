@@ -7,9 +7,8 @@
 
 #include "Horus.h"
 
-using namespace std;
+typedef std::vector<unsigned> Histogram;
 
-typedef vector<unsigned> Histogram;
 
 class HistogramSet
 {
@@ -24,14 +23,14 @@ class HistogramSet
 
     void reset (void);
 
-    static vector<Histogram> getHistograms (unsigned, unsigned);
+    static std::vector<Histogram> getHistograms (unsigned, unsigned);
 
     static unsigned nrHistograms (unsigned, unsigned);
 
     static size_t findIndex (
-        const Histogram&, const vector<Histogram>&);
+        const Histogram&, const std::vector<Histogram>&);
 
-    static vector<double> getNumAssigns (unsigned, unsigned);
+    static std::vector<double> getNumAssigns (unsigned, unsigned);
 
   private:
     unsigned maxCount (size_t) const;
@@ -41,7 +40,7 @@ class HistogramSet
     unsigned   size_;
     Histogram  hist_;
 
-    friend std::ostream& operator<< (ostream &os, const HistogramSet& hs);
+    friend std::ostream& operator<< (std::ostream &os, const HistogramSet& hs);
 
     DISALLOW_COPY_AND_ASSIGN (HistogramSet);
 };

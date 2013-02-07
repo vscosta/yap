@@ -77,7 +77,7 @@ Factor::sumOutAllExcept (VarId vid)
 void
 Factor::sumOutAllExcept (const VarIds& vids)
 {
-  vector<bool> mask (args_.size(), false);
+  std::vector<bool> mask (args_.size(), false);
   for (unsigned i = 0; i < vids.size(); i++) {
     assert (indexOf (vids[i]) != args_.size());
     mask[indexOf (vids[i])] = true;
@@ -91,7 +91,7 @@ void
 Factor::sumOutAllExceptIndex (size_t idx)
 {
   assert (idx < args_.size());
-  vector<bool> mask (args_.size(), false);
+  std::vector<bool> mask (args_.size(), false);
   mask[idx] = true;
   sumOutArgs (mask);
 }
@@ -109,10 +109,10 @@ Factor::multiply (Factor& g)
 
 
 
-string
+std::string
 Factor::getLabel (void) const
 {
-  stringstream ss;
+  std::stringstream ss;
   ss << "f(" ;
   for (size_t i = 0; i < args_.size(); i++) {
     if (i != 0) ss << "," ;
@@ -131,13 +131,13 @@ Factor::print (void) const
   for (size_t i = 0; i < args_.size(); i++) {
     vars.push_back (new Var (args_[i], ranges_[i]));
   }
-  vector<string> jointStrings = Util::getStateLines (vars);
+  std::vector<std::string> jointStrings = Util::getStateLines (vars);
   for (size_t i = 0; i < params_.size(); i++) {
     // cout << "[" << distId_ << "] " ;
-    cout << "f(" << jointStrings[i] << ")" ;
-    cout << " = " << params_[i] << endl;
+    std::cout << "f(" << jointStrings[i] << ")" ;
+    std::cout << " = " << params_[i] << std::endl;
   }
-  cout << endl;
+  std::cout << std::endl;
   for (size_t i = 0; i < vars.size(); i++) {
     delete vars[i];
   }
@@ -192,7 +192,7 @@ Factor::sumOutLastVariable (void)
 
 
 void
-Factor::sumOutArgs (const vector<bool>& mask)
+Factor::sumOutArgs (const std::vector<bool>& mask)
 {
   assert (mask.size() == args_.size());
   size_t new_size = 1;

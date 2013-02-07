@@ -7,17 +7,13 @@
 #include "Horus.h"
 
 
-using namespace std;
-
-
 struct VarInfo
 {
-  VarInfo (string l, const States& sts)
+  VarInfo (std::string l, const States& sts)
       : label(l), states(sts) { }
-  string label;
+  std::string label;
   States states;
 };
-
 
 
 class Var
@@ -51,12 +47,12 @@ class Var
 
     void setEvidence (int);
 
-    string label (void) const;
+    std::string label (void) const;
 
     States states (void) const;
 
     static void addVarInfo (
-        VarId vid, string label, const States& states);
+        VarId vid, std::string label, const States& states);
 
     static VarInfo getVarInfo (VarId vid);
 
@@ -70,7 +66,7 @@ class Var
     int       evidence_;
     size_t    index_;
 
-    static unordered_map<VarId, VarInfo> varsInfo_;
+    static std::unordered_map<VarId, VarInfo> varsInfo_;
 };
 
 

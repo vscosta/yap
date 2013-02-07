@@ -7,21 +7,19 @@
 #include "Var.h"
 #include "Horus.h"
 
-using namespace std;
-
 class BBNode : public Var
 {
   public:
     BBNode (Var* v) : Var (v), visited_(false),
         markedOnTop_(false), markedOnBottom_(false) { }
 
-    const vector<BBNode*>& childs (void) const { return childs_;  }
+    const std::vector<BBNode*>& childs (void) const { return childs_; }
 
-    vector<BBNode*>& childs (void) { return childs_;  }
+    std::vector<BBNode*>& childs (void) { return childs_; }
 
-    const vector<BBNode*>& parents (void) const { return parents_; }
+    const std::vector<BBNode*>& parents (void) const { return parents_; }
 
-    vector<BBNode*>& parents (void) { return parents_; }
+    std::vector<BBNode*>& parents (void) { return parents_; }
 
     void addParent (BBNode* p) { parents_.push_back (p); }
 
@@ -46,8 +44,8 @@ class BBNode : public Var
     bool markedOnTop_;
     bool markedOnBottom_;
 
-    vector<BBNode*> childs_;
-    vector<BBNode*> parents_;
+    std::vector<BBNode*> childs_;
+    std::vector<BBNode*> parents_;
 };
 
 
@@ -73,9 +71,9 @@ class BayesBallGraph
     void exportToGraphViz (const char*);
 
   private:
-    vector<BBNode*> nodes_;
+    std::vector<BBNode*> nodes_;
 
-    unordered_map<VarId, BBNode*> varMap_;
+    std::unordered_map<VarId, BBNode*> varMap_;
 };
 
 #endif // PACKAGES_CLPBN_HORUS_BAYESBALLGRAPH_H
