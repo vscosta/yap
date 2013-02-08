@@ -77,7 +77,7 @@ Var::states (void) const
 
 
 
-inline void
+void
 Var::addVarInfo (
     VarId vid, std::string label, const States& states)
 {
@@ -87,7 +87,7 @@ Var::addVarInfo (
 
 
 
-inline VarInfo
+VarInfo
 Var::getVarInfo (VarId vid)
 {
   assert (util::contains (varsInfo_, vid));
@@ -96,7 +96,7 @@ Var::getVarInfo (VarId vid)
 
 
 
-inline bool
+bool
 Var::varsHaveInfo (void)
 {
   return varsInfo_.empty() == false;
@@ -104,7 +104,7 @@ Var::varsHaveInfo (void)
 
 
 
-inline void
+void
 Var::clearVarsInfo (void)
 {
   varsInfo_.clear();
