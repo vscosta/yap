@@ -48,8 +48,10 @@ template <typename T1, typename T2> struct hash<std::pair<T1,T2>> {
     return horus::hash_combine (std::hash<T1>()(p.first), p.second);
 }};
 
-template <typename T> struct hash<std::vector<T>> {
-  size_t operator() (const std::vector<T>& vec) const {
+template <typename T> struct hash<std::vector<T>>
+{
+  size_t operator() (const std::vector<T>& vec) const
+  {
     size_t h = 0;
     typename std::vector<T>::const_iterator first = vec.begin();
     typename std::vector<T>::const_iterator last  = vec.end();
@@ -57,7 +59,8 @@ template <typename T> struct hash<std::vector<T>> {
       h = horus::hash_combine (h, *first);
     }
     return h;
-}};
+  }
+};
 
 }  // namespace std
 

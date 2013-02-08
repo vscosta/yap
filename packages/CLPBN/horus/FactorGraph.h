@@ -175,12 +175,10 @@ FactorGraph::getVarNode (VarId vid) const
 
 
 
-struct sortByVarId
-{
+struct sortByVarId {
   bool operator()(VarNode* vn1, VarNode* vn2) {
     return vn1->varId() < vn2->varId();
-  }
-};
+}};
 
 }  // namespace horus
 

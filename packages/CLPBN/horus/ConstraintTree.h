@@ -18,8 +18,8 @@ class CTNode;
 class ConstraintTree;
 
 
-typedef std::vector<CTNode*> CTNodes;
-typedef std::vector<ConstraintTree*> ConstraintTrees;
+typedef std::vector<CTNode*>          CTNodes;
+typedef std::vector<ConstraintTree*>  ConstraintTrees;
 
 
 class CTNode

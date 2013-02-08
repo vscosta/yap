@@ -105,7 +105,7 @@ class ParfactorList
 
     struct sortByParams
     {
-      inline bool operator() (const Parfactor* pf1, const Parfactor* pf2)
+      bool operator() (const Parfactor* pf1, const Parfactor* pf2)
       {
         if (pf1->params().size() < pf2->params().size()) {
           return true;

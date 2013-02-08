@@ -186,7 +186,9 @@ class LitLvTypes
 
 struct CmpLitLvTypes
 {
-  bool operator() (const LitLvTypes& types1, const LitLvTypes& types2) const
+  bool operator() (
+      const LitLvTypes& types1,
+      const LitLvTypes& types2) const
   {
     if (types1.lid() < types2.lid()) {
       return true;
