@@ -100,3 +100,20 @@
 
 #define GLOBAL_RestoreFile Yap_global->RestoreFile_
 
+#define GLOBAL_ProfCalls Yap_global->ProfCalls_
+#define GLOBAL_ProfGCs Yap_global->ProfGCs_
+#define GLOBAL_ProfHGrows Yap_global->ProfHGrows_
+#define GLOBAL_ProfSGrows Yap_global->ProfSGrows_
+#define GLOBAL_ProfMallocs Yap_global->ProfMallocs_
+#define GLOBAL_ProfIndexing Yap_global->ProfIndexing_
+#define GLOBAL_ProfOn Yap_global->ProfOn_
+#define GLOBAL_ProfOns Yap_global->ProfOns_
+#define GLOBAL_ProfilerRoot Yap_global->ProfilerRoot_
+#define GLOBAL_ProfilerNil Yap_global->ProfilerNil_
+#define GLOBAL_DIRNAME Yap_global->DIRNAME_
+#if LOW_PROF
+#define GLOBAL_ProfilerOn Yap_global->ProfilerOn_
+#define GLOBAL_FProf Yap_global->FProf_
+#define GLOBAL_FPreds Yap_global->FPreds_
+#endif /* LOW_PROF */
+

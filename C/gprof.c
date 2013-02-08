@@ -168,12 +168,11 @@ RBfree(rb_red_blk_node *ptr)
 
 static rb_red_blk_node *
 RBTreeCreate(void) {
-  CACHE_REGS
   rb_red_blk_node* temp;
 
   /*  see the comment in the rb_red_blk_tree structure in red_black_tree.h */
   /*  for information on nil and root */
-  temp=LOCAL_ProfilerNil= RBMalloc(sizeof(rb_red_blk_node));
+  temp=GLOBAL_ProfilerNil= RBMalloc(sizeof(rb_red_blk_node));
   temp->parent=temp->left=temp->right=temp;
   temp->pcs=0;
   temp->red=0;
@@ -181,7 +180,7 @@ RBTreeCreate(void) {
   temp->pe=NULL;
   temp->source=GPROF_NO_EVENT;;
   temp = RBMalloc(sizeof(rb_red_blk_node));
-  temp->parent=temp->left=temp->right=LOCAL_ProfilerNil;
+  temp->parent=temp->left=temp->right=GLOBAL_ProfilerNil;
   temp->key=temp->lim=NULL;
   temp->pe=NULL;
   temp->source=GPROF_NO_EVENT;
@@ -211,9 +210,8 @@ RBTreeCreate(void) {
 
 static void
 LeftRotate(rb_red_blk_node* x) {
-  CACHE_REGS
   rb_red_blk_node* y;
-  rb_red_blk_node* rb_nil=LOCAL_ProfilerNil;
+  rb_red_blk_node* rb_nil=GLOBAL_ProfilerNil;
 
   /*  I originally wrote this function to use the sentinel for */
   /*  nil to avoid checking for nil.  However this introduces a */
@@ -244,7 +242,7 @@ LeftRotate(rb_red_blk_node* x) {
   x->parent=y;
 
 #ifdef DEBUG_ASSERT
-  Assert(!LOCAL_ProfilerNil->red,"nil not red in LeftRotate");
+  Assert(!GLOBAL_ProfilerNil->red,"nil not red in LeftRotate");
 #endif
 }
 
@@ -268,9 +266,8 @@ LeftRotate(rb_red_blk_node* x) {
 
 static void
 RightRotate(rb_red_blk_node* y) {
-  CACHE_REGS
   rb_red_blk_node* x;
-  rb_red_blk_node* rb_nil=LOCAL_ProfilerNil;
+  rb_red_blk_node* rb_nil=GLOBAL_ProfilerNil;
 
   /*  I originally wrote this function to use the sentinel for */
   /*  nil to avoid checking for nil.  However this introduces a */
@@ -300,7 +297,7 @@ RightRotate(rb_red_blk_node* y) {
   y->parent=x;
 
 #ifdef DEBUG_ASSERT
-  Assert(!LOCAL_ProfilerNil->red,"nil not red in RightRotate");
+  Assert(!GLOBAL_ProfilerNil->red,"nil not red in RightRotate");
 #endif
 }
 
@@ -321,15 +318,14 @@ RightRotate(rb_red_blk_node* y) {
 
 static void
 TreeInsertHelp(rb_red_blk_node* z) {
-  CACHE_REGS
   /*  This function should only be called by InsertRBTree (see above) */
   rb_red_blk_node* x;
   rb_red_blk_node* y;
-  rb_red_blk_node* rb_nil=LOCAL_ProfilerNil;
+  rb_red_blk_node* rb_nil=GLOBAL_ProfilerNil;
   
   z->left=z->right=rb_nil;
-  y=LOCAL_ProfilerRoot;
-  x=LOCAL_ProfilerRoot->left;
+  y=GLOBAL_ProfilerRoot;
+  x=GLOBAL_ProfilerRoot->left;
   while( x != rb_nil) {
     y=x;
     if (x->key > z->key) { /* x.key > z.key */
@@ -339,7 +335,7 @@ TreeInsertHelp(rb_red_blk_node* z) {
     }
   }
   z->parent=y;
-  if ( (y == LOCAL_ProfilerRoot) ||
+  if ( (y == GLOBAL_ProfilerRoot) ||
        (y->key > z->key)) { /* y.key > z.key */
     y->left=z;
   } else {
@@ -347,7 +343,7 @@ TreeInsertHelp(rb_red_blk_node* z) {
   }
 
 #ifdef DEBUG_ASSERT
-  Assert(!LOCAL_ProfilerNil->red,"nil not red in TreeInsertHelp");
+  Assert(!GLOBAL_ProfilerNil->red,"nil not red in TreeInsertHelp");
 #endif
 }
 
@@ -373,7 +369,6 @@ TreeInsertHelp(rb_red_blk_node* z) {
 
 static rb_red_blk_node *
 RBTreeInsert(yamop *key, yamop *lim) {
-  CACHE_REGS
   rb_red_blk_node * y;
   rb_red_blk_node * x;
   rb_red_blk_node * newNode;
@@ -420,12 +415,12 @@ RBTreeInsert(yamop *key, yamop *lim) {
       } 
     }
   }
-  LOCAL_ProfilerRoot->left->red=0;
+  GLOBAL_ProfilerRoot->left->red=0;
   return newNode;
 
 #ifdef DEBUG_ASSERT
-  Assert(!LOCAL_ProfilerNil->red,"nil not red in RBTreeInsert");
-  Assert(!LOCAL_ProfilerRoot->red,"root not red in RBTreeInsert");
+  Assert(!GLOBAL_ProfilerNil->red,"nil not red in RBTreeInsert");
+  Assert(!GLOBAL_ProfilerRoot->red,"root not red in RBTreeInsert");
 #endif
 }
 
@@ -445,12 +440,11 @@ RBTreeInsert(yamop *key, yamop *lim) {
   
 static rb_red_blk_node*
 RBExactQuery(yamop* q) {
-  CACHE_REGS
   rb_red_blk_node* x;
-  rb_red_blk_node* rb_nil=LOCAL_ProfilerNil;
+  rb_red_blk_node* rb_nil=GLOBAL_ProfilerNil;
 
-  if (!LOCAL_ProfilerRoot) return NULL;
-  x=LOCAL_ProfilerRoot->left;
+  if (!GLOBAL_ProfilerRoot) return NULL;
+  x=GLOBAL_ProfilerRoot->left;
   if (x == rb_nil) return NULL;
   while(x->key != q) {/*assignemnt*/
     if (x->key > q) { /* x->key > q */
@@ -466,13 +460,12 @@ RBExactQuery(yamop* q) {
 
 static rb_red_blk_node*
 RBLookup(yamop *entry) {
-  CACHE_REGS
   rb_red_blk_node *current;
 
-  if (!LOCAL_ProfilerRoot)
+  if (!GLOBAL_ProfilerRoot)
     return NULL;
-  current = LOCAL_ProfilerRoot->left;
-  while (current != LOCAL_ProfilerNil) {
+  current = GLOBAL_ProfilerRoot->left;
+  while (current != GLOBAL_ProfilerNil) {
     if (current->key <= entry && current->lim >= entry) {
       return current;
     }
@@ -502,8 +495,7 @@ RBLookup(yamop *entry) {
 /***********************************************************************/
 
 static void RBDeleteFixUp(rb_red_blk_node* x) {
-  CACHE_REGS
-  rb_red_blk_node* root=LOCAL_ProfilerRoot->left;
+  rb_red_blk_node* root=GLOBAL_ProfilerRoot->left;
   rb_red_blk_node *w;
 
   while( (!x->red) && (root != x)) {
@@ -582,10 +574,9 @@ static void RBDeleteFixUp(rb_red_blk_node* x) {
   
 static rb_red_blk_node*
 TreeSuccessor(rb_red_blk_node* x) { 
-  CACHE_REGS
   rb_red_blk_node* y;
-  rb_red_blk_node* rb_nil=LOCAL_ProfilerNil;
-  rb_red_blk_node* root=LOCAL_ProfilerRoot;
+  rb_red_blk_node* rb_nil=GLOBAL_ProfilerNil;
+  rb_red_blk_node* root=GLOBAL_ProfilerRoot;
 
   if (rb_nil != (y = x->right)) { /* assignment to y is intentional */
     while(y->left != rb_nil) { /* returns the minium of the right subtree of x */
@@ -621,11 +612,10 @@ TreeSuccessor(rb_red_blk_node* x) {
 
 static void
 RBDelete(rb_red_blk_node* z){
-  CACHE_REGS
   rb_red_blk_node* y;
   rb_red_blk_node* x;
-  rb_red_blk_node* rb_nil=LOCAL_ProfilerNil;
-  rb_red_blk_node* root=LOCAL_ProfilerRoot;
+  rb_red_blk_node* rb_nil=GLOBAL_ProfilerNil;
+  rb_red_blk_node* root=GLOBAL_ProfilerRoot;
 
   y= ((z->left == rb_nil) || (z->right == rb_nil)) ? z : TreeSuccessor(z);
   x= (y->left == rb_nil) ? y->right : y->left;
@@ -674,40 +664,38 @@ RBDelete(rb_red_blk_node* z){
 
 char *set_profile_dir(char *);
 char *set_profile_dir(char *name){
-  CACHE_REGS
     int size=0;
 
     if (name!=NULL) {
       size=strlen(name)+1;
-      if (LOCAL_DIRNAME!=NULL) free(LOCAL_DIRNAME);
-      LOCAL_DIRNAME=malloc(size);
-      if (LOCAL_DIRNAME==NULL) { printf("Profiler Out of Mem\n"); exit(1); }
-      strcpy(LOCAL_DIRNAME,name);
+      if (GLOBAL_DIRNAME!=NULL) free(GLOBAL_DIRNAME);
+      GLOBAL_DIRNAME=malloc(size);
+      if (GLOBAL_DIRNAME==NULL) { printf("Profiler Out of Mem\n"); exit(1); }
+      strcpy(GLOBAL_DIRNAME,name);
     } 
-    if (LOCAL_DIRNAME==NULL) {
+    if (GLOBAL_DIRNAME==NULL) {
       do {
-        if (LOCAL_DIRNAME!=NULL) free(LOCAL_DIRNAME);
+        if (GLOBAL_DIRNAME!=NULL) free(GLOBAL_DIRNAME);
         size+=20;
-        LOCAL_DIRNAME=malloc(size);
-        if (LOCAL_DIRNAME==NULL) { printf("Profiler Out of Mem\n"); exit(1); }
-      } while (getcwd(LOCAL_DIRNAME, size-15)==NULL); 
+        GLOBAL_DIRNAME=malloc(size);
+        if (GLOBAL_DIRNAME==NULL) { printf("Profiler Out of Mem\n"); exit(1); }
+      } while (getcwd(GLOBAL_DIRNAME, size-15)==NULL); 
     }
 
-return LOCAL_DIRNAME;
+return GLOBAL_DIRNAME;
 }
 
 char *profile_names(int);
 char *profile_names(int k) {
-  CACHE_REGS
   static char *FNAME=NULL;
   int size=200;
    
-  if (LOCAL_DIRNAME==NULL) set_profile_dir(NULL);
-  size=strlen(LOCAL_DIRNAME)+40;
+  if (GLOBAL_DIRNAME==NULL) set_profile_dir(NULL);
+  size=strlen(GLOBAL_DIRNAME)+40;
   if (FNAME!=NULL) free(FNAME);
   FNAME=malloc(size);
   if (FNAME==NULL) { printf("Profiler Out of Mem\n"); exit(1); }
-  strcpy(FNAME,LOCAL_DIRNAME);
+  strcpy(FNAME,GLOBAL_DIRNAME);
 
   if (k==PROFILING_FILE) {
     sprintf(FNAME,"%s/PROFILING_%d",FNAME,getpid());
@@ -721,8 +709,7 @@ char *profile_names(int k) {
 
 void del_profile_files(void);
 void del_profile_files() {
-  CACHE_REGS
-  if (LOCAL_DIRNAME!=NULL) {
+  if (GLOBAL_DIRNAME!=NULL) {
     remove(profile_names(PROFPREDS_FILE));
     remove(profile_names(PROFILING_FILE));
   }
@@ -730,18 +717,17 @@ void del_profile_files() {
 
 void
 Yap_inform_profiler_of_clause__(void *code_start, void *code_end, PredEntry *pe,gprof_info index_code) {
-  CACHE_REGS
   buf_ptr b;
   buf_extra e;
-  LOCAL_ProfOn = TRUE;
+  GLOBAL_ProfOn = TRUE;
   b.tag = '+';
   b.ptr= code_start;
   e.inf= index_code;
   e.end= code_end;
   e.pe= pe;
-  fwrite(&b,sizeof(b),1,LOCAL_FPreds);
-  fwrite(&e,sizeof(e),1,LOCAL_FPreds);
-  LOCAL_ProfOn = FALSE;
+  fwrite(&b,sizeof(b),1,GLOBAL_FPreds);
+  fwrite(&e,sizeof(e),1,GLOBAL_FPreds);
+  GLOBAL_ProfOn = FALSE;
 }
 
 typedef struct clause_entry {
@@ -756,8 +742,7 @@ static Int profend( USES_REGS1 );
 
 static void
 clean_tree(rb_red_blk_node* node) {
-  CACHE_REGS
-  if (node == LOCAL_ProfilerNil)
+  if (node == GLOBAL_ProfilerNil)
     return;
   clean_tree(node->left);
   clean_tree(node->right);
@@ -766,20 +751,18 @@ clean_tree(rb_red_blk_node* node) {
 
 static void
 reset_tree(void) {
-  CACHE_REGS
-  clean_tree(LOCAL_ProfilerRoot);
-  Yap_FreeCodeSpace((char *)LOCAL_ProfilerNil);
-  LOCAL_ProfilerNil = LOCAL_ProfilerRoot = NULL;
-  LOCAL_ProfCalls = LOCAL_ProfGCs = LOCAL_ProfHGrows = LOCAL_ProfSGrows = LOCAL_ProfMallocs = LOCAL_ProfOns = 0L;
+  clean_tree(GLOBAL_ProfilerRoot);
+  Yap_FreeCodeSpace((char *)GLOBAL_ProfilerNil);
+  GLOBAL_ProfilerNil = GLOBAL_ProfilerRoot = NULL;
+  GLOBAL_ProfCalls = GLOBAL_ProfGCs = GLOBAL_ProfHGrows = GLOBAL_ProfSGrows = GLOBAL_ProfMallocs = GLOBAL_ProfOns = 0L;
 }
 
 static int
 InitProfTree(void)
 {
-  CACHE_REGS
-  if (LOCAL_ProfilerRoot) 
+  if (GLOBAL_ProfilerRoot) 
     reset_tree();
-  while (!(LOCAL_ProfilerRoot = RBTreeCreate())) {
+  while (!(GLOBAL_ProfilerRoot = RBTreeCreate())) {
     if (!Yap_growheap(FALSE, 0, NULL)) {
       Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "while initialisating profiler");
       return FALSE;
@@ -790,15 +773,14 @@ InitProfTree(void)
 
 static void RemoveCode(CODEADDR clau)
 {
-  CACHE_REGS
   rb_red_blk_node* x, *node;
   PredEntry *pp;
   UInt count;
 
-  if (!LOCAL_ProfilerRoot) return;
+  if (!GLOBAL_ProfilerRoot) return;
   if (!(x = RBExactQuery((yamop *)clau))) {
     /* send message */
-    LOCAL_ProfOn = FALSE;
+    GLOBAL_ProfOn = FALSE;
     return;
   }
   pp = x->pe;
@@ -811,7 +793,7 @@ static void RemoveCode(CODEADDR clau)
     node->pe = pp;
     node->pcs = count;
     /* send message */
-    LOCAL_ProfOn = FALSE;
+    GLOBAL_ProfOn = FALSE;
     return;
   } else {
     node->pcs += count;
@@ -827,21 +809,21 @@ showprofres( USES_REGS1 ) {
   /* First part: Read information about predicates and store it on yap trail */
 
   InitProfTree();
-  LOCAL_ProfGCs=0;
-  LOCAL_ProfMallocs=0;
-  LOCAL_ProfHGrows=0;
-  LOCAL_ProfSGrows=0;
-  LOCAL_ProfIndexing=0;
-  LOCAL_FProf=fopen(profile_names(PROFILING_FILE),"r"); 
-  if (LOCAL_FProf==NULL) { fclose(LOCAL_FProf); return FALSE; }
-  while (fread(&buf, sizeof(buf), 1, LOCAL_FProf)) {
+  GLOBAL_ProfGCs=0;
+  GLOBAL_ProfMallocs=0;
+  GLOBAL_ProfHGrows=0;
+  GLOBAL_ProfSGrows=0;
+  GLOBAL_ProfIndexing=0;
+  GLOBAL_FProf=fopen(profile_names(PROFILING_FILE),"r"); 
+  if (GLOBAL_FProf==NULL) { fclose(GLOBAL_FProf); return FALSE; }
+  while (fread(&buf, sizeof(buf), 1, GLOBAL_FProf)) {
     switch (buf.tag) {
     case '+':
       {
 	rb_red_blk_node *node;
 	buf_extra e;
 
-	if (fread(&e,sizeof(buf_extra),1,LOCAL_FProf) == 0)
+	if (fread(&e,sizeof(buf_extra),1,GLOBAL_FProf) == 0)
 	  return FALSE;;
 	node = RBTreeInsert(buf.ptr, e.end);
 	node->pe = e.pe;
@@ -855,13 +837,13 @@ showprofres( USES_REGS1 ) {
 
 	md = (prolog_exec_mode)buf.ptr;
 	if (md & GCMode) {
-	  LOCAL_ProfGCs++;
+	  GLOBAL_ProfGCs++;
 	} else if (md & MallocMode) {
-	  LOCAL_ProfMallocs++;
+	  GLOBAL_ProfMallocs++;
 	} else if (md & GrowHeapMode) {
-	  LOCAL_ProfHGrows++;
+	  GLOBAL_ProfHGrows++;
 	} else if (md & GrowStackMode) {
-	  LOCAL_ProfSGrows++;
+	  GLOBAL_ProfSGrows++;
 	}
       }
       break;
@@ -888,7 +870,7 @@ showprofres( USES_REGS1 ) {
 	  case GPROF_NEW_LU_SWITCH:
 	  case GPROF_NEW_STATIC_SWITCH:
 	  case GPROF_NEW_EXPAND_BLOCK:
-	    LOCAL_ProfIndexing++;
+	    GLOBAL_ProfIndexing++;
 	    break;
 	  default:
 	    break;
@@ -898,8 +880,8 @@ showprofres( USES_REGS1 ) {
       }
     }
   }
-  fclose(LOCAL_FProf);
-  if (LOCAL_ProfCalls==0) 
+  fclose(GLOBAL_FProf);
+  if (GLOBAL_ProfCalls==0) 
     return TRUE;
   return TRUE;
 }
@@ -916,20 +898,20 @@ prof_alrm(int signo, siginfo_t *si, void *scv)
   yamop *current_p;
   buf_ptr b;
 
-  LOCAL_ProfCalls++;
+  GLOBAL_ProfCalls++;
   /* skip an interrupt */
-  if (LOCAL_ProfOn) {
-    LOCAL_ProfOns++;
+  if (GLOBAL_ProfOn) {
+    GLOBAL_ProfOns++;
     return;
   }
-  LOCAL_ProfOn = TRUE;
+  GLOBAL_ProfOn = TRUE;
   oldpc = (void *) CONTEXT_PC(scv);
   if (LOCAL_PrologMode & TestMode) {
 
     b.tag = '?';
     b.ptr= (void *)LOCAL_PrologMode;
-    fwrite(&b,sizeof(b),1,LOCAL_FPreds);
-    LOCAL_ProfOn = FALSE;
+    fwrite(&b,sizeof(b),1,GLOBAL_FPreds);
+    GLOBAL_ProfOn = FALSE;
     return;
   }
   
@@ -961,34 +943,33 @@ prof_alrm(int signo, siginfo_t *si, void *scv)
 #if DEBUG
     fprintf(stderr,"Oops: %p, %p\n", oldpc, current_p);
 #endif
-    LOCAL_ProfOn = FALSE;
+    GLOBAL_ProfOn = FALSE;
     return;
   }
 #endif
 
   b.tag = '.';
   b.ptr= current_p;
-  fwrite(&b,sizeof(b),1,LOCAL_FPreds);
-  LOCAL_ProfOn = FALSE;
+  fwrite(&b,sizeof(b),1,GLOBAL_FPreds);
+  GLOBAL_ProfOn = FALSE;
 }
 
 
 void
 Yap_InformOfRemoval(void *clau)
 {
-  CACHE_REGS
-  LOCAL_ProfOn = TRUE;
-  if (LOCAL_FPreds != NULL) {
+  GLOBAL_ProfOn = TRUE;
+  if (GLOBAL_FPreds != NULL) {
     /* just store info about what is going on  */
     buf_ptr b;
     
     b.tag = '-';
     b.ptr= clau;
-    fwrite(&b,sizeof(b),1,LOCAL_FPreds);
-    LOCAL_ProfOn = FALSE;
+    fwrite(&b,sizeof(b),1,GLOBAL_FPreds);
+    GLOBAL_ProfOn = FALSE;
     return;
   }
-  LOCAL_ProfOn = FALSE;
+  GLOBAL_ProfOn = FALSE;
 }
 
 static Int profend( USES_REGS1 ); 
@@ -998,25 +979,25 @@ profnode( USES_REGS1 ) {
   Term t1 = Deref(ARG1), tleft, tright;
   rb_red_blk_node *node;
 
-  if (!LOCAL_ProfilerRoot)
+  if (!GLOBAL_ProfilerRoot)
     return FALSE;
   if (!(node = (rb_red_blk_node *)IntegerOfTerm(t1)))
-    node = LOCAL_ProfilerRoot;
+    node = GLOBAL_ProfilerRoot;
   /*
     if (node->key)
     fprintf(stderr,"%p: %p,%p,%d,%p(%d),%p,%p\n",node,node->key,node->lim,node->pcs,node->pe,node->pe->ArityOfPE,node->right,node->left);
   */
-  if (node->left == LOCAL_ProfilerNil) {
+  if (node->left == GLOBAL_ProfilerNil) {
     tleft = TermNil;
   } else {
     tleft = MkIntegerTerm((Int)node->left);
   }
-  if (node->left == LOCAL_ProfilerNil) {
+  if (node->left == GLOBAL_ProfilerNil) {
     tleft = TermNil;
   } else {
     tleft = MkIntegerTerm((Int)node->left);
   }
-  if (node->right == LOCAL_ProfilerNil) {
+  if (node->right == GLOBAL_ProfilerNil) {
     tright = TermNil;
   } else {
     tright = MkIntegerTerm((Int)node->right);
@@ -1032,23 +1013,23 @@ profnode( USES_REGS1 ) {
 static Int
 profglobs( USES_REGS1 ) {
   return 
-    Yap_unify(ARG1,MkIntegerTerm(LOCAL_ProfCalls)) &&
-    Yap_unify(ARG2,MkIntegerTerm(LOCAL_ProfGCs)) &&
-    Yap_unify(ARG3,MkIntegerTerm(LOCAL_ProfHGrows)) &&
-    Yap_unify(ARG4,MkIntegerTerm(LOCAL_ProfSGrows)) &&
-    Yap_unify(ARG5,MkIntegerTerm(LOCAL_ProfMallocs)) &&
-    Yap_unify(ARG6,MkIntegerTerm(LOCAL_ProfIndexing)) &&
-    Yap_unify(ARG7,MkIntegerTerm(LOCAL_ProfOns)) ;
+    Yap_unify(ARG1,MkIntegerTerm(GLOBAL_ProfCalls)) &&
+    Yap_unify(ARG2,MkIntegerTerm(GLOBAL_ProfGCs)) &&
+    Yap_unify(ARG3,MkIntegerTerm(GLOBAL_ProfHGrows)) &&
+    Yap_unify(ARG4,MkIntegerTerm(GLOBAL_ProfSGrows)) &&
+    Yap_unify(ARG5,MkIntegerTerm(GLOBAL_ProfMallocs)) &&
+    Yap_unify(ARG6,MkIntegerTerm(GLOBAL_ProfIndexing)) &&
+    Yap_unify(ARG7,MkIntegerTerm(GLOBAL_ProfOns)) ;
 }
 
 static Int
 do_profinit( USES_REGS1 )
 {
-  //    LOCAL_FPreds=fopen(profile_names(PROFPREDS_FILE),"w+"); 
-  // if (LOCAL_FPreds == NULL) return FALSE;
-  LOCAL_FProf=fopen(profile_names(PROFILING_FILE),"w+"); 
-  if (LOCAL_FProf==NULL) { fclose(LOCAL_FProf); return FALSE; }
-  LOCAL_FPreds = LOCAL_FProf;
+  //    GLOBAL_FPreds=fopen(profile_names(PROFPREDS_FILE),"w+"); 
+  // if (GLOBAL_FPreds == NULL) return FALSE;
+  GLOBAL_FProf=fopen(profile_names(PROFILING_FILE),"w+"); 
+  if (GLOBAL_FProf==NULL) { fclose(GLOBAL_FProf); return FALSE; }
+  GLOBAL_FPreds = GLOBAL_FProf;
 
   Yap_dump_code_area_for_profiler();
   return TRUE;
@@ -1056,22 +1037,21 @@ do_profinit( USES_REGS1 )
 
 static Int profinit( USES_REGS1 )
 {
-  if (LOCAL_ProfilerOn!=0) return (FALSE);
+  if (GLOBAL_ProfilerOn!=0) return (FALSE);
   
   if (!do_profinit( PASS_REGS1 ))
     return FALSE;
 
-  LOCAL_ProfilerOn = -1; /* Inited but not yet started */
+  GLOBAL_ProfilerOn = -1; /* Inited but not yet started */
   return(TRUE);
 }
 
 static Int start_profilers(int msec)
 {
-  CACHE_REGS
   struct itimerval t;
   struct sigaction sa;
   
-  if (LOCAL_ProfilerOn!=-1) {
+  if (GLOBAL_ProfilerOn!=-1) {
     return FALSE; /* have to go through profinit */
   }
   sa.sa_sigaction=prof_alrm;
@@ -1086,15 +1066,15 @@ static Int start_profilers(int msec)
   t.it_value.tv_usec=msec;
   setitimer(ITIMER_PROF,&t,NULL);
 
-  LOCAL_ProfilerOn = msec;
+  GLOBAL_ProfilerOn = msec;
   return TRUE;
 }
 
 
 static Int profoff( USES_REGS1 ) {
-  if (LOCAL_ProfilerOn>0) {
+  if (GLOBAL_ProfilerOn>0) {
     setitimer(ITIMER_PROF,NULL,NULL);
-    LOCAL_ProfilerOn = -1;
+    GLOBAL_ProfilerOn = -1;
     return TRUE;
   }
   return FALSE;
@@ -1113,22 +1093,22 @@ static Int ProfOn0( USES_REGS1 ) {
 }
 
 static Int profison( USES_REGS1 ) {
-  return (LOCAL_ProfilerOn > 0);
+  return (GLOBAL_ProfilerOn > 0);
 }
 
 static Int profalt( USES_REGS1 ) { 
-  if (LOCAL_ProfilerOn==0) return(FALSE);
-  if (LOCAL_ProfilerOn==-1) return ProfOn( PASS_REGS1 );
+  if (GLOBAL_ProfilerOn==0) return(FALSE);
+  if (GLOBAL_ProfilerOn==-1) return ProfOn( PASS_REGS1 );
   return profoff( PASS_REGS1 );
 }
 
 static Int profend( USES_REGS1 ) 
 {
-  if (LOCAL_ProfilerOn==0) return(FALSE);
+  if (GLOBAL_ProfilerOn==0) return(FALSE);
   profoff( PASS_REGS1 );         /* Make sure profiler is off */
-  LOCAL_ProfilerOn=0;
-  fclose(LOCAL_FProf);
-  LOCAL_FPreds = NULL;
+  GLOBAL_ProfilerOn=0;
+  fclose(GLOBAL_FProf);
+  GLOBAL_FPreds = NULL;
   return TRUE;
 }
 
@@ -1178,9 +1158,8 @@ void
 Yap_InitLowProf(void)
 {
 #if LOW_PROF
-  CACHE_REGS
-  LOCAL_ProfCalls = 0;
-  LOCAL_ProfilerOn = FALSE;
+  GLOBAL_ProfCalls = 0;
+  GLOBAL_ProfilerOn = FALSE;
 
   Yap_InitCPred("profinit",0, profinit, SafePredFlag);
   Yap_InitCPred("profend" ,0, profend, SafePredFlag);
