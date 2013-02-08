@@ -8,7 +8,7 @@
 #include "ParfactorList.h"
 
 
-namespace horus {
+namespace Horus {
 
 class LiftedOperator
 {
@@ -169,7 +169,7 @@ class LiftedVe : public LiftedSolver
     DISALLOW_COPY_AND_ASSIGN (LiftedVe);
 };
 
-}  // namespace horus
+}  // namespace Horus
 
 #endif  // YAP_PACKAGES_CLPBN_HORUS_LIFTEDVE_H_
 

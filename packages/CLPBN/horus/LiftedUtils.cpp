@@ -5,7 +5,7 @@
 #include "LiftedUtils.h"
 
 
-namespace horus {
+namespace Horus {
 
 namespace LiftedUtils {
 
@@ -132,5 +132,5 @@ operator<< (std::ostream& os, const Substitution& theta)
   return os;
 }
 
-}  // namespace horus
+}  // namespace Horus
 

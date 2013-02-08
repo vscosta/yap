@@ -6,7 +6,7 @@
 #include "BeliefProp.h"
 
 
-namespace horus {
+namespace Horus {
 
 class WeightedLink : public BpLink
 {
@@ -70,7 +70,7 @@ class WeightedBp : public BeliefProp
      DISALLOW_COPY_AND_ASSIGN (WeightedBp);
 };
 
-}  // namespace horus
+}  // namespace Horus
 
 #endif  // YAP_PACKAGES_CLPBN_HORUS_WEIGHTEDBP_H_
 

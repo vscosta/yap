@@ -7,7 +7,7 @@
 #include "ParfactorList.h"
 
 
-namespace horus {
+namespace Horus {
 
 ParfactorList::ParfactorList (const ParfactorList& pfList)
 {
@@ -646,5 +646,5 @@ ParfactorList::disjoint (
   return (ts1 & ts2).empty();
 }
 
-}  // namespace horus
+}  // namespace Horus
 

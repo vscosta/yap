@@ -16,7 +16,7 @@
 
 #include "Horus.h"
 
-namespace horus {
+namespace Horus {
 
 namespace {
 
@@ -424,7 +424,7 @@ struct abs_diff_exp : public std::binary_function<T, T, T> {
 
 }  // namespace func_obj
 
-}  // namespace horus
+}  // namespace Horus
 
 #endif  // YAP_PACKAGES_CLPBN_HORUS_UTIL_H_
 

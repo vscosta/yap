@@ -4,7 +4,7 @@
 #include "ElimGraph.h"
 
 
-namespace horus {
+namespace Horus {
 
 ElimHeuristic ElimGraph::elimHeuristic_ = MIN_NEIGHBORS;
 
@@ -241,5 +241,5 @@ ElimGraph::connectAllNeighbors (const EgNode* n)
   }
 }
 
-}  // namespace horus
+}  // namespace Horus
 

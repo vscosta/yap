@@ -11,7 +11,7 @@
 #include "Horus.h"
 
 
-namespace horus {
+namespace Horus {
 
 class EgNode;
 
@@ -173,7 +173,7 @@ ElimGraph::neighbors (EgNode* n1, EgNode* n2) const
   return n1->isNeighbor (n2);
 }
 
-}  // namespace horus
+}  // namespace Horus
 
 #endif  // YAP_PACKAGES_CLPBN_HORUS_ELIMGRAPH_H_
 

@@ -9,7 +9,7 @@
 #include "Horus.h"
 
 
-namespace horus {
+namespace Horus {
 
 BpLink::BpLink (FacNode* fn, VarNode* vn)
 {
@@ -572,5 +572,5 @@ BeliefProp::printLinkInformation (void) const
   }
 }
 
-}  // namespace horus
+}  // namespace Horus
 

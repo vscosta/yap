@@ -8,7 +8,7 @@
 #include "Var.h"
 
 
-namespace horus {
+namespace Horus {
 
 Factor::Factor (const Factor& g)
 {
@@ -235,5 +235,5 @@ Factor::clone (const Factor& g)
   distId_  = g.distId();
 }
 
-}  // namespace horus
+}  // namespace Horus
 

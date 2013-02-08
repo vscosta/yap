@@ -3,7 +3,7 @@
 #include "Var.h"
 
 
-namespace horus {
+namespace Horus {
 
 std::unordered_map<VarId, VarInfo> Var::varsInfo_;
 
@@ -110,5 +110,5 @@ Var::clearVarsInfo (void)
   varsInfo_.clear();
 }
 
-}  // namespace horus
+}  // namespace Horus
 

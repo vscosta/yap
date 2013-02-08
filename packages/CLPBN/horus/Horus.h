@@ -15,7 +15,7 @@
 #include <string>
 
 
-namespace horus {
+namespace Horus {
 
 class Var;
 class Factor;
@@ -75,7 +75,7 @@ const unsigned PRECISION = 6;
 
 }
 
-}  // namespace horus
+}  // namespace Horus
 
 #endif  // YAP_PACKAGES_CLPBN_HORUS_HORUS_H_
 

@@ -9,7 +9,7 @@
 #include "FactorGraph.h"
 
 
-namespace horus {
+namespace Horus {
 
 enum MsgSchedule {
   SEQ_FIXED,
@@ -170,7 +170,7 @@ BeliefProp::ninf (const FacNode* fac) const
   return facsI_[fac->getIndex()];
 }
 
-}  // namespace horus
+}  // namespace Horus
 
 #endif  // YAP_PACKAGES_CLPBN_HORUS_BELIEFPROP_H_
 

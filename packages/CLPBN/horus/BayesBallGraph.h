@@ -7,7 +7,7 @@
 #include "Var.h"
 #include "Horus.h"
 
-namespace horus {
+namespace Horus {
 
 class BBNode : public Var
 {
@@ -78,7 +78,7 @@ class BayesBallGraph
     std::unordered_map<VarId, BBNode*> varMap_;
 };
 
-}  // namespace horus
+}  // namespace Horus
 
 #endif  // YAP_PACKAGES_CLPBN_HORUS_BAYESBALLGRAPH_H_
 

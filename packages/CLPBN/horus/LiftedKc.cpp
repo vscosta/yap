@@ -7,7 +7,7 @@
 #include "Indexer.h"
 
 
-namespace horus {
+namespace Horus {
 
 OrNode::~OrNode (void)
 {
@@ -1318,5 +1318,5 @@ LiftedKc::printSolverFlags (void) const
   std::cout << ss.str() << std::endl;
 }
 
-}  // namespace horus
+}  // namespace Horus
 

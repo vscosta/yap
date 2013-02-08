@@ -4,7 +4,7 @@
 
 #include "WeightedBp.h"
 
-namespace horus {
+namespace Horus {
 
 WeightedBp::~WeightedBp (void)
 {
@@ -305,5 +305,5 @@ WeightedBp::printLinkInformation (void) const
   }
 }
 
-}  // namespace horus
+}  // namespace Horus
 

@@ -9,7 +9,7 @@
 #include "Indexer.h"
 
 
-namespace horus {
+namespace Horus {
 
 bool
 Literal::isGround (

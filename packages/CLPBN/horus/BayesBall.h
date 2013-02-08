@@ -9,7 +9,7 @@
 #include "BayesBallGraph.h"
 #include "Horus.h"
 
-namespace horus {
+namespace Horus {
 
 struct ScheduleInfo
 {
@@ -70,7 +70,7 @@ BayesBall::scheduleChilds (const BBNode* n, Scheduling& sch) const
   }
 }
 
-}  // namespace horus
+}  // namespace Horus
 
 #endif  // YAP_PACKAGES_CLPBN_HORUS_BAYESBALL_H_
 

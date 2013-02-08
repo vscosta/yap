@@ -9,7 +9,7 @@
 #include "Horus.h"
 
 
-namespace horus {
+namespace Horus {
 
 class VarElim : public GroundSolver
 {
@@ -41,7 +41,7 @@ class VarElim : public GroundSolver
     DISALLOW_COPY_AND_ASSIGN (VarElim);
 };
 
-}  // namespace horus
+}  // namespace Horus
 
 #endif  // YAP_PACKAGES_CLPBN_HORUS_VARELIM_H_
 

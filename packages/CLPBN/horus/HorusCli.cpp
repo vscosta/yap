@@ -11,12 +11,12 @@
 
 int readHorusFlags (int, const char* []);
 
-void readFactorGraph (horus::FactorGraph&, const char*);
+void readFactorGraph (Horus::FactorGraph&, const char*);
 
-horus::VarIds readQueryAndEvidence (
-    horus::FactorGraph&, int, const char* [], int);
+Horus::VarIds readQueryAndEvidence (
+    Horus::FactorGraph&, int, const char* [], int);
 
-void runSolver (const horus::FactorGraph&, const horus::VarIds&);
+void runSolver (const Horus::FactorGraph&, const Horus::VarIds&);
 
 const std::string USAGE = "usage: ./hcli [solver=hve|bp|cbp] \
 [<OPTION>=<VALUE>]... <FILE> [<VAR>|<VAR>=<EVIDENCE>]... " ;
@@ -31,23 +31,23 @@ main (int argc, const char* argv[])
     exit (EXIT_FAILURE);
   }
   int idx = readHorusFlags (argc, argv);
-  horus::FactorGraph fg;
+  Horus::FactorGraph fg;
   readFactorGraph (fg, argv[idx]);
-  horus::VarIds queryIds
+  Horus::VarIds queryIds
       = readQueryAndEvidence (fg, argc, argv, idx + 1);
-  if (horus::FactorGraph::exportToLibDai()) {
+  if (Horus::FactorGraph::exportToLibDai()) {
     fg.exportToLibDai ("model.fg");
   }
-  if (horus::FactorGraph::exportToUai()) {
+  if (Horus::FactorGraph::exportToUai()) {
     fg.exportToUai ("model.uai");
   }
-  if (horus::FactorGraph::exportGraphViz()) {
+  if (Horus::FactorGraph::exportGraphViz()) {
     fg.exportToGraphViz ("model.dot");
   }
-  if (horus::FactorGraph::printFactorGraph()) {
+  if (Horus::FactorGraph::printFactorGraph()) {
     fg.print();
   }
-  if (horus::Globals::verbosity > 0) {
+  if (Horus::Globals::verbosity > 0) {
     std::cout << "factor graph contains " ;
     std::cout << fg.nrVarNodes() << " variables and " ;
     std::cout << fg.nrFacNodes() << " factors " << std::endl;
@@ -80,7 +80,7 @@ readHorusFlags (int argc, const char* argv[])
       std::cerr << USAGE << std::endl;
       exit (EXIT_FAILURE);
     }
-    horus::Util::setHorusFlag (leftArg, rightArg);
+    Horus::Util::setHorusFlag (leftArg, rightArg);
   }
   return i + 1;
 }
@@ -88,7 +88,7 @@ readHorusFlags (int argc, const char* argv[])
 
 
 void
-readFactorGraph (horus::FactorGraph& fg, const char* s)
+readFactorGraph (Horus::FactorGraph& fg, const char* s)
 {
   std::string fileName (s);
   std::string extension = fileName.substr (fileName.find_last_of ('.') + 1);
@@ -105,25 +105,25 @@ readFactorGraph (horus::FactorGraph& fg, const char* s)
 
 
 
-horus::VarIds
+Horus::VarIds
 readQueryAndEvidence (
-    horus::FactorGraph& fg,
+    Horus::FactorGraph& fg,
     int argc,
     const char* argv[],
     int start)
 {
-  horus::VarIds queryIds;
+  Horus::VarIds queryIds;
   for (int i = start; i < argc; i++) {
     const std::string& arg = argv[i];
     if (arg.find ('=') == std::string::npos) {
-      if (horus::Util::isInteger (arg) == false) {
+      if (Horus::Util::isInteger (arg) == false) {
         std::cerr << "Error: `" << arg << "' " ;
         std::cerr << "is not a variable id." ;
         std::cerr << std::endl;
         exit (EXIT_FAILURE);
       }
-      horus::VarId vid = horus::Util::stringToUnsigned (arg);
-      horus::VarNode* queryVar = fg.getVarNode (vid);
+      Horus::VarId vid = Horus::Util::stringToUnsigned (arg);
+      Horus::VarNode* queryVar = fg.getVarNode (vid);
       if (queryVar == false) {
         std::cerr << "Error: unknow variable with id " ;
         std::cerr << "`" << vid << "'."  << std::endl;
@@ -139,13 +139,13 @@ readQueryAndEvidence (
         std::cerr << USAGE << std::endl;
         exit (EXIT_FAILURE);
       }
-      if (horus::Util::isInteger (leftArg) == false) {
+      if (Horus::Util::isInteger (leftArg) == false) {
         std::cerr << "Error: `" << leftArg << "' " ;
         std::cerr << "is not a variable id." << std::endl;
         exit (EXIT_FAILURE);
       }
-      horus::VarId vid = horus::Util::stringToUnsigned (leftArg);
-      horus::VarNode* observedVar = fg.getVarNode (vid);
+      Horus::VarId vid = Horus::Util::stringToUnsigned (leftArg);
+      Horus::VarNode* observedVar = fg.getVarNode (vid);
       if (observedVar == false) {
         std::cerr << "Error: unknow variable with id " ;
         std::cerr << "`" << vid << "'."  << std::endl;
@@ -156,12 +156,12 @@ readQueryAndEvidence (
         std::cerr << USAGE << std::endl;
         exit (EXIT_FAILURE);
       }
-      if (horus::Util::isInteger (rightArg) == false) {
+      if (Horus::Util::isInteger (rightArg) == false) {
         std::cerr << "Error: `" << rightArg << "' " ;
         std::cerr << "is not a state index." << std::endl;
         exit (EXIT_FAILURE);
       }
-      unsigned stateIdx = horus::Util::stringToUnsigned (rightArg);
+      unsigned stateIdx = Horus::Util::stringToUnsigned (rightArg);
       if (observedVar->isValidState (stateIdx) == false) {
         std::cerr << "Error: `" << stateIdx << "' " ;
         std::cerr << "is not a valid state index for variable with id " ;
@@ -178,24 +178,24 @@ readQueryAndEvidence (
 
 void
 runSolver (
-    const horus::FactorGraph& fg,
-    const horus::VarIds& queryIds)
+    const Horus::FactorGraph& fg,
+    const Horus::VarIds& queryIds)
 {
-  horus::GroundSolver* solver = 0;
-  switch (horus::Globals::groundSolver) {
-    case horus::GroundSolverType::VE:
-      solver = new horus::VarElim (fg);
+  Horus::GroundSolver* solver = 0;
+  switch (Horus::Globals::groundSolver) {
+    case Horus::GroundSolverType::VE:
+      solver = new Horus::VarElim (fg);
       break;
-    case horus::GroundSolverType::BP:
-      solver = new horus::BeliefProp (fg);
+    case Horus::GroundSolverType::BP:
+      solver = new Horus::BeliefProp (fg);
       break;
-    case horus::GroundSolverType::CBP:
-      solver = new horus::CountingBp (fg);
+    case Horus::GroundSolverType::CBP:
+      solver = new Horus::CountingBp (fg);
       break;
     default:
       assert (false);
   }
-  if (horus::Globals::verbosity > 0) {
+  if (Horus::Globals::verbosity > 0) {
     solver->printSolverFlags();
     std::cout << std::endl;
   }

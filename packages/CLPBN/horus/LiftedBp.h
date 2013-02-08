@@ -7,7 +7,7 @@
 #include "ParfactorList.h"
 
 
-namespace horus {
+namespace Horus {
 
 class FactorGraph;
 class WeightedBp;
@@ -45,7 +45,7 @@ class LiftedBp : public LiftedSolver
     DISALLOW_COPY_AND_ASSIGN (LiftedBp);
 };
 
-}  // namespace horus
+}  // namespace Horus
 
 #endif  // YAP_PACKAGES_CLPBN_HORUS_LIFTEDBP_H_
 

@@ -6,7 +6,7 @@
 
 
 
-namespace horus {
+namespace Horus {
 
 PrvGroup ProbFormula::freeGroup_ = 0;
 
@@ -165,5 +165,5 @@ operator<< (std::ostream& os, const ObservedFormula& of)
   return os;
 }
 
-}  // namespace horus
+}  // namespace Horus
 

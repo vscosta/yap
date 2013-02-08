@@ -11,7 +11,7 @@
 #include "Horus.h"
 
 
-namespace horus {
+namespace Horus {
 
 class Parfactor : public TFactor<ProbFormula>
 {
@@ -122,7 +122,7 @@ class Parfactor : public TFactor<ProbFormula>
 
 typedef std::vector<Parfactor*> Parfactors;
 
-}  // namespace horus
+}  // namespace Horus
 
 #endif  // YAP_PACKAGES_CLPBN_HORUS_PARFACTOR_H_
 

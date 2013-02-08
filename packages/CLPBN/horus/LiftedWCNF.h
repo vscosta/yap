@@ -11,7 +11,7 @@
 #include "LiftedUtils.h"
 
 
-namespace horus {
+namespace Horus {
 
 class ParfactorList;
 
@@ -242,7 +242,7 @@ class LiftedWCNF
     DISALLOW_COPY_AND_ASSIGN (LiftedWCNF);
 };
 
-}  // namespace horus
+}  // namespace Horus
 
 #endif  // YAP_PACKAGES_CLPBN_HORUS_LIFTEDWCNF_H_
 

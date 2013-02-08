@@ -11,7 +11,7 @@
 #include "Util.h"
 
 
-namespace horus {
+namespace Horus {
 
 void
 GroundSolver::printAnswer (const VarIds& vids)
@@ -114,5 +114,5 @@ GroundSolver::getJointByConditioning (
   return prevBeliefs;
 }
 
-}  // namespace horus
+}  // namespace Horus
 

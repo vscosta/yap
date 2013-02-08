@@ -11,7 +11,7 @@
 #include "Horus.h"
 
 
-namespace horus {
+namespace Horus {
 
 class FacNode;
 
@@ -180,7 +180,7 @@ struct sortByVarId {
     return vn1->varId() < vn2->varId();
 }};
 
-}  // namespace horus
+}  // namespace Horus
 
 #endif  // YAP_PACKAGES_CLPBN_HORUS_FACTORGRAPH_H_
 

@@ -7,7 +7,7 @@
 #include "ProbFormula.h"
 
 
-namespace horus {
+namespace Horus {
 
 class Parfactor;
 
@@ -120,7 +120,7 @@ class ParfactorList
     std::list<Parfactor*> pfList_;
 };
 
-}  // namespace horus
+}  // namespace Horus
 
 #endif  // YAP_PACKAGES_CLPBN_HORUS_PARFACTORLIST_H_
 

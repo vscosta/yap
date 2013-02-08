@@ -12,7 +12,7 @@
 #include "LiftedUtils.h"
 
 
-namespace horus {
+namespace Horus {
 
 class CTNode;
 class ConstraintTree;
@@ -244,7 +244,7 @@ ConstraintTree::nrLogVars (void) const
   assert (LogVarSet (logVars_) == logVarSet_);
 }
 
-}  // namespace horus
+}  // namespace Horus
 
 #endif  // YAP_PACKAGES_CLPBN_HORUS_CONSTRAINTTREE_H_
 

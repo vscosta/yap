@@ -4,7 +4,7 @@
 #include "ParfactorList.h"
 
 
-namespace horus {
+namespace Horus {
 
 class LiftedOperations
 {
@@ -28,7 +28,7 @@ class LiftedOperations
     DISALLOW_COPY_AND_ASSIGN (LiftedOperations);
 };
 
-}  // namespace horus
+}  // namespace Horus
 
 #endif  // YAP_PACKAGES_CLPBN_HORUS_LIFTEDOPERATIONS_H_
 

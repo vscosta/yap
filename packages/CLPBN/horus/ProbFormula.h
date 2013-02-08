@@ -10,7 +10,7 @@
 #include "Horus.h"
 
 
-namespace horus {
+namespace Horus {
 
 typedef unsigned long PrvGroup;
 
@@ -114,7 +114,7 @@ class ObservedFormula
 
 typedef std::vector<ObservedFormula> ObservedFormulas;
 
-}  // namespace horus
+}  // namespace Horus
 
 #endif  // YAP_PACKAGES_CLPBN_HORUS_PROBFORMULA_H_
 

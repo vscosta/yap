@@ -12,7 +12,7 @@
 #include "Util.h"
 
 
-namespace horus {
+namespace Horus {
 
 std::vector<LiftedOperator*>
 LiftedOperator::getValidOps (
@@ -734,5 +734,5 @@ LiftedVe::getBestOperation (const Grounds& query)
   return bestOp;
 }
 
-}  // namespace horus
+}  // namespace Horus
 

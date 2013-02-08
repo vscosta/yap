@@ -7,7 +7,7 @@
 #include "Util.h"
 
 
-namespace horus {
+namespace Horus {
 
 HistogramSet::HistogramSet (unsigned size, unsigned range)
 {
@@ -147,5 +147,5 @@ operator<< (std::ostream& os, const HistogramSet& hs)
   return os;
 }
 
-}  // namespace horus
+}  // namespace Horus
 

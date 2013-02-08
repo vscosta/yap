@@ -11,7 +11,7 @@
 #include "ParfactorList.h"
 
 
-namespace horus {
+namespace Horus {
 
 enum CircuitNodeType {
   OR_NODE,
@@ -305,7 +305,7 @@ class LiftedKc : public LiftedSolver
     DISALLOW_COPY_AND_ASSIGN (LiftedKc);
 };
 
-}  // namespace horus
+}  // namespace Horus
 
 #endif  // YAP_PACKAGES_CLPBN_HORUS_LIFTEDKC_H_
 

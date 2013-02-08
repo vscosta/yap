@@ -4,7 +4,7 @@
 #include "ParfactorList.h"
 
 
-namespace horus {
+namespace Horus {
 
 class LiftedSolver
 {
@@ -25,7 +25,7 @@ class LiftedSolver
     DISALLOW_COPY_AND_ASSIGN (LiftedSolver);
 };
 
-}  // namespace horus
+}  // namespace Horus
 
 #endif  // YAP_PACKAGES_CLPBN_HORUS_LIFTEDSOLVER_H_
 

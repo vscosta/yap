@@ -4,7 +4,7 @@
 #include "BeliefProp.h"
 
 
-namespace horus {
+namespace Horus {
 
 namespace Globals {
 
@@ -429,6 +429,6 @@ pow (Params& v, double exp)
 
 }  // namespace LogAware
 
-}  // namespace horus
+}  // namespace Horus
 
 

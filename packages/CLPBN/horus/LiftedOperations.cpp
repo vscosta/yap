@@ -5,7 +5,7 @@
 #include "LiftedOperations.h"
 
 
-namespace horus {
+namespace Horus {
 
 void
 LiftedOperations::shatterAgainstQuery (
@@ -275,5 +275,5 @@ LiftedOperations::absorve (
   return absorvedPfs;
 }
 
-}  // namespace horus
+}  // namespace Horus
 

@@ -9,7 +9,7 @@
 #include "Horus.h"
 
 
-namespace horus {
+namespace Horus {
 
 class VarCluster;
 class FacCluster;
@@ -38,14 +38,14 @@ inline size_t hash_combine (size_t seed, const T& v)
   return seed ^ (std::hash<T>()(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2));
 }
 
-}  // namespace horus
+}  // namespace Horus
 
 
 namespace std {
 
 template <typename T1, typename T2> struct hash<std::pair<T1,T2>> {
   size_t operator() (const std::pair<T1,T2>& p) const {
-    return horus::hash_combine (std::hash<T1>()(p.first), p.second);
+    return Horus::hash_combine (std::hash<T1>()(p.first), p.second);
 }};
 
 template <typename T> struct hash<std::vector<T>>
@@ -56,7 +56,7 @@ template <typename T> struct hash<std::vector<T>>
     typename std::vector<T>::const_iterator first = vec.begin();
     typename std::vector<T>::const_iterator last  = vec.end();
     for (; first != last; ++first) {
-      h = horus::hash_combine (h, *first);
+      h = Horus::hash_combine (h, *first);
     }
     return h;
   }
@@ -65,7 +65,7 @@ template <typename T> struct hash<std::vector<T>>
 }  // namespace std
 
 
-namespace horus {
+namespace Horus {
 
 class VarCluster
 {
@@ -217,7 +217,7 @@ CountingBp::setColor (const FacNode* fn, Color  c)
   facColors_[fn->getIndex()] = c;
 }
 
-}  // namespace horus
+}  // namespace Horus
 
 #endif  // YAP_PACKAGES_CLPBN_HORUS_COUNTINGBP_H_
 
