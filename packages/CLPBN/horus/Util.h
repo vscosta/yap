@@ -295,8 +295,8 @@ void pow (Params&, double);
 
 
 
-template <typename T>
-void operator+=(std::vector<T>& v, double val)
+template <typename T> void
+operator+=(std::vector<T>& v, double val)
 {
   std::transform (v.begin(), v.end(), v.begin(),
       std::bind2nd (std::plus<double>(), val));
@@ -304,8 +304,8 @@ void operator+=(std::vector<T>& v, double val)
 
 
 
-template <typename T>
-void operator-=(std::vector<T>& v, double val)
+template <typename T> void
+operator-=(std::vector<T>& v, double val)
 {
   std::transform (v.begin(), v.end(), v.begin(),
       std::bind2nd (std::minus<double>(), val));
@@ -313,8 +313,8 @@ void operator-=(std::vector<T>& v, double val)
 
 
 
-template <typename T>
-void operator*=(std::vector<T>& v, double val)
+template <typename T> void
+operator*=(std::vector<T>& v, double val)
 {
   std::transform (v.begin(), v.end(), v.begin(),
       std::bind2nd (std::multiplies<double>(), val));
@@ -322,8 +322,8 @@ void operator*=(std::vector<T>& v, double val)
 
 
 
-template <typename T>
-void operator/=(std::vector<T>& v, double val)
+template <typename T> void
+operator/=(std::vector<T>& v, double val)
 {
   std::transform (v.begin(), v.end(), v.begin(),
       std::bind2nd (std::divides<double>(), val));
@@ -331,8 +331,8 @@ void operator/=(std::vector<T>& v, double val)
 
 
 
-template <typename T>
-void operator+=(std::vector<T>& a, const std::vector<T>& b)
+template <typename T> void
+operator+=(std::vector<T>& a, const std::vector<T>& b)
 {
   assert (a.size() == b.size());
   std::transform (a.begin(), a.end(), b.begin(), a.begin(),
@@ -341,8 +341,8 @@ void operator+=(std::vector<T>& a, const std::vector<T>& b)
 
 
 
-template <typename T>
-void operator-=(std::vector<T>& a, const std::vector<T>& b)
+template <typename T> void
+operator-=(std::vector<T>& a, const std::vector<T>& b)
 {
   assert (a.size() == b.size());
   std::transform (a.begin(), a.end(), b.begin(), a.begin(),
@@ -351,8 +351,8 @@ void operator-=(std::vector<T>& a, const std::vector<T>& b)
 
 
 
-template <typename T>
-void operator*=(std::vector<T>& a, const std::vector<T>& b)
+template <typename T> void
+operator*=(std::vector<T>& a, const std::vector<T>& b)
 {
   assert (a.size() == b.size());
   std::transform (a.begin(), a.end(), b.begin(), a.begin(),
@@ -361,8 +361,8 @@ void operator*=(std::vector<T>& a, const std::vector<T>& b)
 
 
 
-template <typename T>
-void operator/=(std::vector<T>& a, const std::vector<T>& b)
+template <typename T> void
+operator/=(std::vector<T>& a, const std::vector<T>& b)
 {
   assert (a.size() == b.size());
   std::transform (a.begin(), a.end(), b.begin(), a.begin(),
@@ -371,8 +371,8 @@ void operator/=(std::vector<T>& a, const std::vector<T>& b)
 
 
 
-template <typename T>
-void operator^=(std::vector<T>& v, double exp)
+template <typename T> void
+operator^=(std::vector<T>& v, double exp)
 {
   std::transform (v.begin(), v.end(), v.begin(),
       std::bind2nd (std::ptr_fun<double, double, double> (std::pow), exp));
@@ -380,8 +380,8 @@ void operator^=(std::vector<T>& v, double exp)
 
 
 
-template <typename T>
-void operator^=(std::vector<T>& v, int iexp)
+template <typename T> void
+operator^=(std::vector<T>& v, int iexp)
 {
   std::transform (v.begin(), v.end(), v.begin(),
       std::bind2nd (std::ptr_fun<double, int, double> (std::pow), iexp));
@@ -389,8 +389,8 @@ void operator^=(std::vector<T>& v, int iexp)
 
 
 
-template <typename T>
-std::ostream& operator<< (std::ostream& os, const std::vector<T>& v)
+template <typename T> std::ostream&
+operator<< (std::ostream& os, const std::vector<T>& v)
 {
   os << "[" ;
   os << util::elementsToString (v, ", ");
@@ -399,7 +399,7 @@ std::ostream& operator<< (std::ostream& os, const std::vector<T>& v)
 }
 
 
-namespace FuncObject {
+namespace func_obj {
 
 template<typename T>
 struct max : public std::binary_function<T, T, T>
@@ -432,7 +432,7 @@ struct abs_diff_exp : public std::binary_function<T, T, T>
   }
 };
 
-}  // namespace FuncObject
+}  // namespace func_obj
 
 }  // namespace horus
 

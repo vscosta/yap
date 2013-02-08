@@ -361,10 +361,10 @@ getL1Distance (const Params& v1, const Params& v2)
   double dist = 0.0;
   if (globals::logDomain) {
     dist = std::inner_product (v1.begin(), v1.end(), v2.begin(), 0.0,
-        std::plus<double>(), FuncObject::abs_diff_exp<double>());
+        std::plus<double>(), func_obj::abs_diff_exp<double>());
   } else {
     dist = std::inner_product (v1.begin(), v1.end(), v2.begin(), 0.0,
-        std::plus<double>(), FuncObject::abs_diff<double>());
+        std::plus<double>(), func_obj::abs_diff<double>());
   }
   return dist;
 }
@@ -378,10 +378,10 @@ getMaxNorm (const Params& v1, const Params& v2)
   double max = 0.0;
   if (globals::logDomain) {
     max = std::inner_product (v1.begin(), v1.end(), v2.begin(), 0.0,
-        FuncObject::max<double>(), FuncObject::abs_diff_exp<double>());
+        func_obj::max<double>(), func_obj::abs_diff_exp<double>());
   } else {
     max = std::inner_product (v1.begin(), v1.end(), v2.begin(), 0.0,
-        FuncObject::max<double>(), FuncObject::abs_diff<double>());
+        func_obj::max<double>(), func_obj::abs_diff<double>());
   }
   return max;
 }
