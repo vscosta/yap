@@ -15,13 +15,13 @@ namespace horus {
 class Symbol
 {
   public:
-    Symbol (void) : id_(Util::maxUnsigned()) { }
+    Symbol (void) : id_(util::maxUnsigned()) { }
 
     Symbol (unsigned id) : id_(id) { }
 
     operator unsigned (void) const { return id_; }
 
-    bool valid (void) const { return id_ != Util::maxUnsigned(); }
+    bool valid (void) const { return id_ != util::maxUnsigned(); }
 
     static Symbol invalid (void) { return Symbol(); }
 
@@ -35,7 +35,7 @@ class Symbol
 class LogVar
 {
   public:
-    LogVar (void) : id_(Util::maxUnsigned()) { }
+    LogVar (void) : id_(util::maxUnsigned()) { }
 
     LogVar (unsigned id) : id_(id) { }
 
@@ -66,7 +66,7 @@ LogVar::operator++ (void)
 inline bool
 LogVar::valid (void) const
 {
-  return id_ != Util::maxUnsigned();
+  return id_ != util::maxUnsigned();
 }
 
 }  // namespace horus
@@ -168,7 +168,7 @@ class Substitution
 inline void
 Substitution::add (LogVar X_old, LogVar X_new)
 {
-  assert (Util::contains (subs_, X_old) == false);
+  assert (util::contains (subs_, X_old) == false);
   subs_.insert (std::make_pair (X_old, X_new));
 }
 
@@ -177,7 +177,7 @@ Substitution::add (LogVar X_old, LogVar X_new)
 inline void
 Substitution::rename (LogVar X_old, LogVar X_new)
 {
-  assert (Util::contains (subs_, X_old));
+  assert (util::contains (subs_, X_old));
   subs_.find (X_old)->second = X_new;
 }
 
@@ -199,7 +199,7 @@ Substitution::newNameFor (LogVar X) const
 inline bool
 Substitution::containsReplacementFor (LogVar X) const
 {
-  return Util::contains (subs_, X);
+  return util::contains (subs_, X);
 }
 
 

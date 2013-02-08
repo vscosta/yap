@@ -34,7 +34,7 @@ class TFactor
 
     void setDistId (unsigned id) { distId_ = id; }
 
-    void normalize (void) { LogAware::normalize (params_); }
+    void normalize (void) { log_aware::normalize (params_); }
 
     void randomize (void);
 
@@ -91,7 +91,7 @@ template <typename T> inline void
 TFactor<T>::setParams (const Params& newParams)
 {
   params_ = newParams;
-  assert (params_.size() == Util::sizeExpected (ranges_));
+  assert (params_.size() == util::sizeExpected (ranges_));
 }
 
 
@@ -99,7 +99,7 @@ TFactor<T>::setParams (const Params& newParams)
 template <typename T> inline size_t
 TFactor<T>::indexOf (const T& t) const
 {
-  return Util::indexOf (args_, t);
+  return util::indexOf (args_, t);
 }
 
 
@@ -136,7 +136,7 @@ TFactor<T>::multiply (TFactor<T>& g)
 {
   if (args_ == g.arguments()) {
     // optimization
-    Globals::logDomain
+    globals::logDomain
       ? params_ += g.params()
       : params_ *= g.params();
     return;
@@ -163,7 +163,7 @@ TFactor<T>::multiply (TFactor<T>& g)
     extend (range_prod);
     Params::iterator it = params_.begin();
     MapIndexer indexer (args_, ranges_, g_args, g_ranges);
-    if (Globals::logDomain) {
+    if (globals::logDomain) {
       for (; indexer.valid(); ++it, ++indexer) {
         *it += g_params[indexer];
       }
@@ -183,13 +183,13 @@ TFactor<T>::sumOutIndex (size_t idx)
   assert (idx < args_.size());
   assert (args_.size() > 1);
   size_t new_size = params_.size() / ranges_[idx];
-  Params newps (new_size, LogAware::addIdenty());
+  Params newps (new_size, log_aware::addIdenty());
   Params::const_iterator first = params_.begin();
   Params::const_iterator last  = params_.end();
   MapIndexer indexer (ranges_, idx);
-  if (Globals::logDomain) {
+  if (globals::logDomain) {
     for (; first != last; ++indexer) {
-      newps[indexer] = Util::logSum (newps[indexer], *first++);
+      newps[indexer] = util::logSum (newps[indexer], *first++);
     }
   } else {
     for (; first != last; ++indexer) {
@@ -255,7 +255,7 @@ TFactor<T>::reorderArguments (const std::vector<T>& new_args)
 template <typename T> inline bool
 TFactor<T>::contains (const T& arg) const
 {
-  return Util::contains (args_, arg);
+  return util::contains (args_, arg);
 }
 
 
@@ -310,7 +310,7 @@ TFactor<T>::cartesianProduct (
   Params::const_iterator first1 = backup.begin();
   Params::const_iterator last1  = backup.end();
   Params::const_iterator tmp;
-  if (Globals::logDomain) {
+  if (globals::logDomain) {
     for (; first1 != last1; ++first1) {
       for (tmp = first2; tmp != last2; ++tmp) {
         params_.push_back ((*first1) + (*tmp));
@@ -335,10 +335,10 @@ class Factor : public TFactor<VarId>
     Factor (const Factor&);
 
     Factor (const VarIds&, const Ranges&, const Params&,
-        unsigned = Util::maxUnsigned());
+        unsigned = util::maxUnsigned());
 
     Factor (const Vars&, const Params&,
-        unsigned = Util::maxUnsigned());
+        unsigned = util::maxUnsigned());
 
     void sumOut (VarId);
 

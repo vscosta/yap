@@ -22,7 +22,7 @@ OrNode::weight (void) const
 {
   double lw = leftBranch_->weight();
   double rw = rightBranch_->weight();
-  return Globals::logDomain ? Util::logSum (lw, rw) : lw + rw;
+  return globals::logDomain ? util::logSum (lw, rw) : lw + rw;
 }
 
 
@@ -40,7 +40,7 @@ AndNode::weight (void) const
 {
   double lw = leftBranch_->weight();
   double rw = rightBranch_->weight();
-  return Globals::logDomain ? lw + rw : lw * rw;
+  return globals::logDomain ? lw + rw : lw * rw;
 }
 
 
@@ -60,17 +60,17 @@ SetOrNode::~SetOrNode (void)
 double
 SetOrNode::weight (void) const
 {
-  double weightSum = LogAware::addIdenty();
+  double weightSum = log_aware::addIdenty();
   for (unsigned i = 0; i < nrGroundings_ + 1; i++) {
     nrPos_ = nrGroundings_ - i;
     nrNeg_ = i;
-    if (Globals::logDomain) {
-      double nrCombs = Util::nrCombinations (nrGroundings_, i);
+    if (globals::logDomain) {
+      double nrCombs = util::nrCombinations (nrGroundings_, i);
       double w = follow_->weight();
-      weightSum = Util::logSum (weightSum, std::log (nrCombs) + w);
+      weightSum = util::logSum (weightSum, std::log (nrCombs) + w);
     } else {
       double w = follow_->weight();
-      weightSum += Util::nrCombinations (nrGroundings_, i) * w;
+      weightSum += util::nrCombinations (nrGroundings_, i) * w;
     }
   }
   nrPos_ = -1;
@@ -90,7 +90,7 @@ SetAndNode::~SetAndNode (void)
 double
 SetAndNode::weight (void) const
 {
-  return LogAware::pow (follow_->weight(), nrGroundings_);
+  return log_aware::pow (follow_->weight(), nrGroundings_);
 }
 
 
@@ -108,8 +108,8 @@ double
 IncExcNode::weight (void) const
 {
   double w = 0.0;
-  if (Globals::logDomain) {
-    w = Util::logSum (plus1Branch_->weight(), plus2Branch_->weight());
+  if (globals::logDomain) {
+    w = util::logSum (plus1Branch_->weight(), plus2Branch_->weight());
     w = std::log (std::exp (w) - std::exp (minusBranch_->weight()));
   } else {
     w = plus1Branch_->weight() + plus2Branch_->weight();
@@ -160,7 +160,7 @@ LeafNode::weight (void) const
     nrGroundings *= std::pow (SetOrNode::nrNegatives(),
         clause_->nrNegCountedLogVars());
   }
-  return LogAware::pow (weight, nrGroundings);
+  return log_aware::pow (weight, nrGroundings);
 }
 
 
@@ -176,7 +176,7 @@ double
 SmoothNode::weight (void) const
 {
   Clauses cs = clauses();
-  double totalWeight = LogAware::multIdenty();
+  double totalWeight = log_aware::multIdenty();
   for (size_t i = 0; i < cs.size(); i++) {
     double posWeight = lwcnf_.posWeight (cs[i]->literals()[0].lid());
     double negWeight = lwcnf_.negWeight (cs[i]->literals()[0].lid());
@@ -196,8 +196,8 @@ SmoothNode::weight (void) const
       nrGroundings *= std::pow (SetOrNode::nrNegatives(),
           cs[i]->nrNegCountedLogVars());
     }
-    if (Globals::logDomain) {
-      totalWeight += Util::logSum (posWeight, negWeight) * nrGroundings;
+    if (globals::logDomain) {
+      totalWeight += util::logSum (posWeight, negWeight) * nrGroundings;
     } else {
       totalWeight *= std::pow (posWeight + negWeight, nrGroundings);
     }
@@ -210,7 +210,7 @@ SmoothNode::weight (void) const
 double
 TrueNode::weight (void) const
 {
-  return LogAware::multIdenty();
+  return log_aware::multIdenty();
 }
 
 
@@ -235,9 +235,9 @@ LiftedCircuit::LiftedCircuit (const LiftedWCNF* lwcnf)
   if (compilationSucceeded_) {
     smoothCircuit (root_);
   }
-  if (Globals::verbosity > 1) {
+  if (globals::verbosity > 1) {
     if (compilationSucceeded_) {
-      double wmc = LogAware::exp (getWeightedModelCount());
+      double wmc = log_aware::exp (getWeightedModelCount());
       std::cout << "Weighted model count = " << wmc;
       std::cout << std::endl << std::endl;
     }
@@ -302,7 +302,7 @@ LiftedCircuit::compile (
     Clauses& clauses)
 {
   if (compilationSucceeded_ == false
-      && Globals::verbosity <= 1) {
+      && globals::verbosity <= 1) {
     return;
   }
 
@@ -341,7 +341,7 @@ LiftedCircuit::compile (
   }
 
   *follow = new CompilationFailedNode();
-  if (Globals::verbosity > 1) {
+  if (globals::verbosity > 1) {
     originClausesMap_[*follow] = clauses;
     explanationMap_[*follow]   = "" ;
   }
@@ -355,7 +355,7 @@ LiftedCircuit::tryUnitPropagation (
     CircuitNode** follow,
     Clauses& clauses)
 {
-  if (Globals::verbosity > 1) {
+  if (globals::verbosity > 1) {
     backupClauses_ = Clause::copyClauses (clauses);
   }
   for (size_t i = 0; i < clauses.size(); i++) {
@@ -392,7 +392,7 @@ LiftedCircuit::tryUnitPropagation (
       }
 
       AndNode* andNode = new AndNode();
-      if (Globals::verbosity > 1) {
+      if (globals::verbosity > 1) {
         originClausesMap_[andNode] = backupClauses_;
         std::stringstream explanation;
         explanation << " UP on " << clauses[i]->literals()[0];
@@ -406,7 +406,7 @@ LiftedCircuit::tryUnitPropagation (
       return true;
     }
   }
-  if (Globals::verbosity > 1) {
+  if (globals::verbosity > 1) {
     Clause::deleteClauses (backupClauses_);
   }
   return false;
@@ -422,7 +422,7 @@ LiftedCircuit::tryIndependence (
   if (clauses.size() == 1) {
     return false;
   }
-  if (Globals::verbosity > 1) {
+  if (globals::verbosity > 1) {
     backupClauses_ = Clause::copyClauses (clauses);
   }
   Clauses depClauses = { clauses[0] };
@@ -441,7 +441,7 @@ LiftedCircuit::tryIndependence (
   }
   if (indepClauses.empty() == false) {
     AndNode* andNode = new AndNode ();
-    if (Globals::verbosity > 1) {
+    if (globals::verbosity > 1) {
       originClausesMap_[andNode] = backupClauses_;
       explanationMap_[andNode]   = " Independence" ;
     }
@@ -450,7 +450,7 @@ LiftedCircuit::tryIndependence (
     (*follow) = andNode;
     return true;
   }
-  if (Globals::verbosity > 1) {
+  if (globals::verbosity > 1) {
     Clause::deleteClauses (backupClauses_);
   }
   return false;
@@ -463,7 +463,7 @@ LiftedCircuit::tryShannonDecomp (
     CircuitNode** follow,
     Clauses& clauses)
 {
-  if (Globals::verbosity > 1) {
+  if (globals::verbosity > 1) {
     backupClauses_ = Clause::copyClauses (clauses);
   }
   for (size_t i = 0; i < clauses.size(); i++) {
@@ -481,7 +481,7 @@ LiftedCircuit::tryShannonDecomp (
         otherClauses.push_back (c2);
 
         OrNode* orNode = new OrNode();
-        if (Globals::verbosity > 1) {
+        if (globals::verbosity > 1) {
           originClausesMap_[orNode] = backupClauses_;
           std::stringstream explanation;
           explanation << " SD on " << literals[j];
@@ -495,7 +495,7 @@ LiftedCircuit::tryShannonDecomp (
       }
     }
   }
-  if (Globals::verbosity > 1) {
+  if (globals::verbosity > 1) {
     Clause::deleteClauses (backupClauses_);
   }
   return false;
@@ -508,7 +508,7 @@ LiftedCircuit::tryInclusionExclusion (
     CircuitNode** follow,
     Clauses& clauses)
 {
-  if (Globals::verbosity > 1) {
+  if (globals::verbosity > 1) {
     backupClauses_ = Clause::copyClauses (clauses);
   }
   for (size_t i = 0; i < clauses.size(); i++) {
@@ -561,7 +561,7 @@ LiftedCircuit::tryInclusionExclusion (
       clauses.push_back (c2);
 
       IncExcNode* ieNode = new IncExcNode();
-      if (Globals::verbosity > 1) {
+      if (globals::verbosity > 1) {
         originClausesMap_[ieNode] = backupClauses_;
         std::stringstream explanation;
         explanation << " IncExc on clause nº " << i + 1;
@@ -574,7 +574,7 @@ LiftedCircuit::tryInclusionExclusion (
       return true;
     }
   }
-  if (Globals::verbosity > 1) {
+  if (globals::verbosity > 1) {
     Clause::deleteClauses (backupClauses_);
   }
   return false;
@@ -589,7 +589,7 @@ LiftedCircuit::tryIndepPartialGrounding (
 {
   // assumes that all literals have logical variables
   // else, shannon decomp was possible
-  if (Globals::verbosity > 1) {
+  if (globals::verbosity > 1) {
     backupClauses_ = Clause::copyClauses (clauses);
   }
   LogVars rootLogVars;
@@ -603,7 +603,7 @@ LiftedCircuit::tryIndepPartialGrounding (
         clauses[j]->addIpgLogVar (rootLogVars[j]);
       }
       SetAndNode* setAndNode = new SetAndNode (ct.size());
-      if (Globals::verbosity > 1) {
+      if (globals::verbosity > 1) {
         originClausesMap_[setAndNode] = backupClauses_;
         explanationMap_[setAndNode]   = " IPG" ;
       }
@@ -612,7 +612,7 @@ LiftedCircuit::tryIndepPartialGrounding (
       return true;
     }
   }
-  if (Globals::verbosity > 1) {
+  if (globals::verbosity > 1) {
     Clause::deleteClauses (backupClauses_);
   }
   return false;
@@ -674,7 +674,7 @@ LiftedCircuit::tryAtomCounting (
       return false;
     }
   }
-  if (Globals::verbosity > 1) {
+  if (globals::verbosity > 1) {
     backupClauses_ = Clause::copyClauses (clauses);
   }
   for (size_t i = 0; i < clauses.size(); i++) {
@@ -686,7 +686,7 @@ LiftedCircuit::tryAtomCounting (
         unsigned nrGroundings = clauses[i]->constr().projectedCopy (
             literals[j].logVars()).size();
         SetOrNode* setOrNode = new SetOrNode (nrGroundings);
-        if (Globals::verbosity > 1) {
+        if (globals::verbosity > 1) {
           originClausesMap_[setOrNode] = backupClauses_;
           explanationMap_[setOrNode]   = " AC" ;
         }
@@ -707,7 +707,7 @@ LiftedCircuit::tryAtomCounting (
       }
     }
   }
-  if (Globals::verbosity > 1) {
+  if (globals::verbosity > 1) {
     Clause::deleteClauses (backupClauses_);
   }
   return false;
@@ -916,7 +916,7 @@ LiftedCircuit::createSmoothNode (
     CircuitNode** prev)
 {
   if (missingLits.empty() == false) {
-    if (Globals::verbosity > 1) {
+    if (globals::verbosity > 1) {
       std::unordered_map<CircuitNode*, Clauses>::iterator it
           = originClausesMap_.find (*prev);
       if (it != originClausesMap_.end()) {
@@ -944,7 +944,7 @@ LiftedCircuit::createSmoothNode (
     }
     SmoothNode* smoothNode = new SmoothNode (clauses, *lwcnf_);
     *prev = new AndNode (smoothNode, *prev);
-    if (Globals::verbosity > 1) {
+    if (globals::verbosity > 1) {
       originClausesMap_[*prev] = backupClauses_;
       explanationMap_[*prev]   = " Smoothing" ;
     }
@@ -1211,7 +1211,7 @@ LiftedCircuit::escapeNode (const CircuitNode* node) const
 std::string
 LiftedCircuit::getExplanationString (CircuitNode* node)
 {
-  return Util::contains (explanationMap_, node)
+  return util::contains (explanationMap_, node)
       ? explanationMap_[node]
       : "" ;
 }
@@ -1225,7 +1225,7 @@ LiftedCircuit::printClauses (
     std::string extraOptions)
 {
   Clauses clauses;
-  if (Util::contains (originClausesMap_, node)) {
+  if (util::contains (originClausesMap_, node)) {
     clauses = originClausesMap_[node];
   } else if (getCircuitNodeType (node) == CircuitNodeType::LEAF_NODE) {
     clauses = { (dynamic_cast<LeafNode*>(node))->clause() } ;
@@ -1288,20 +1288,20 @@ LiftedKc::solveQuery (const Grounds& query)
       std::vector<LiteralId> litIds = lwcnf_->prvGroupLiterals (groups[i]);
       for (size_t j = 0; j < litIds.size(); j++) {
         if (indexer[i] == j) {
-          lwcnf_->addWeight (litIds[j], LogAware::one(),
-              LogAware::one());
+          lwcnf_->addWeight (litIds[j], log_aware::one(),
+              log_aware::one());
         } else {
-          lwcnf_->addWeight (litIds[j], LogAware::zero(),
-              LogAware::one());
+          lwcnf_->addWeight (litIds[j], log_aware::zero(),
+              log_aware::one());
         }
       }
     }
     params.push_back (circuit_->getWeightedModelCount());
     ++ indexer;
   }
-  LogAware::normalize (params);
-  if (Globals::logDomain) {
-    Util::exp (params);
+  log_aware::normalize (params);
+  if (globals::logDomain) {
+    util::exp (params);
   }
   return params;
 }
@@ -1313,7 +1313,7 @@ LiftedKc::printSolverFlags (void) const
 {
   std::stringstream ss;
   ss << "lifted kc [" ;
-  ss << "log_domain=" << Util::toString (Globals::logDomain);
+  ss << "log_domain=" << util::toString (globals::logDomain);
   ss << "]" ;
   std::cout << ss.str() << std::endl;
 }

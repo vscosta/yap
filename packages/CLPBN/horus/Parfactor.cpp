@@ -27,7 +27,7 @@ Parfactor::Parfactor (
     ranges_.push_back (args_[i].range());
     const LogVars& lvs = args_[i].logVars();
     for (size_t j = 0; j < lvs.size(); j++) {
-      if (Util::contains (logVars, lvs[j]) == false) {
+      if (util::contains (logVars, lvs[j]) == false) {
         logVars.push_back (lvs[j]);
       }
     }
@@ -50,7 +50,7 @@ Parfactor::Parfactor (
       }
     }
   }
-  assert (params_.size() == Util::sizeExpected (ranges_));
+  assert (params_.size() == util::sizeExpected (ranges_));
 }
 
 
@@ -62,7 +62,7 @@ Parfactor::Parfactor (const Parfactor* g, const Tuple& tuple)
   ranges_  = g->ranges();
   distId_  = g->distId();
   constr_  = new ConstraintTree (g->logVars(), {tuple});
-  assert (params_.size() == Util::sizeExpected (ranges_));
+  assert (params_.size() == util::sizeExpected (ranges_));
 }
 
 
@@ -74,7 +74,7 @@ Parfactor::Parfactor (const Parfactor* g, ConstraintTree* constr)
   ranges_  = g->ranges();
   distId_  = g->distId();
   constr_  = constr;
-  assert (params_.size() == Util::sizeExpected (ranges_));
+  assert (params_.size() == util::sizeExpected (ranges_));
 }
 
 
@@ -86,7 +86,7 @@ Parfactor::Parfactor (const Parfactor& g)
   ranges_  = g.ranges();
   distId_  = g.distId();
   constr_  = new ConstraintTree (*g.constr());
-  assert (params_.size() == Util::sizeExpected (ranges_));
+  assert (params_.size() == util::sizeExpected (ranges_));
 }
 
 
@@ -159,7 +159,7 @@ Parfactor::sumOutIndex (size_t fIdx)
     std::vector<double> numAssigns = HistogramSet::getNumAssigns (N, R);
     Indexer indexer (ranges_, fIdx);
     while (indexer.valid()) {
-      if (Globals::logDomain) {
+      if (globals::logDomain) {
         params_[indexer] += numAssigns[ indexer[fIdx] ];
       } else {
         params_[indexer] *= numAssigns[ indexer[fIdx] ];
@@ -179,7 +179,7 @@ Parfactor::sumOutIndex (size_t fIdx)
   constr_->remove (excl);
 
   TFactor<ProbFormula>::sumOutIndex (fIdx);
-  LogAware::pow (params_, exp);
+  log_aware::pow (params_, exp);
 }
 
 
@@ -253,14 +253,14 @@ Parfactor::countConvert (LogVar X)
   ranges_[fIdx] = H;
   MapIndexer mapIndexer (ranges_, fIdx);
   while (mapIndexer.valid()) {
-    double prod = LogAware::multIdenty();
+    double prod = log_aware::multIdenty();
     size_t i   = mapIndexer;
     unsigned h = mapIndexer[fIdx];
     for (unsigned r = 0; r < R; r++) {
-      if (Globals::logDomain) {
-        prod += LogAware::pow (sumout[i][r], histograms[h][r]);
+      if (globals::logDomain) {
+        prod += log_aware::pow (sumout[i][r], histograms[h][r]);
       } else {
-        prod *= LogAware::pow (sumout[i][r], histograms[h][r]);
+        prod *= log_aware::pow (sumout[i][r], histograms[h][r]);
       }
     }
     params_.push_back (prod);
@@ -390,7 +390,7 @@ Parfactor::absorveEvidence (const ProbFormula& formula, unsigned evidence)
   LogVarSet excl = exclusiveLogVars (fIdx);
   assert (args_[fIdx].isCounting() == false);
   assert (constr_->isCountNormalized (excl));
-  LogAware::pow (params_, constr_->getConditionalCount (excl));
+  log_aware::pow (params_, constr_->getConditionalCount (excl));
   TFactor<ProbFormula>::absorveEvidence (formula, evidence);
   constr_->remove (excl);
 }
@@ -475,7 +475,7 @@ Parfactor::containsGrounds (const Grounds& grounds) const
     }
     LogVars lvs = args_[idx].logVars();
     for (size_t j = 0; j < lvs.size(); j++) {
-      if (Util::contains (tupleLvs, lvs[j]) == false) {
+      if (util::contains (tupleLvs, lvs[j]) == false) {
         tuple.push_back (grounds[i].args()[j]);
         tupleLvs.push_back (lvs[j]);
       }
@@ -613,10 +613,10 @@ Parfactor::print (bool printParams) const
     cout << args_[i];
   }
   cout << endl;
-  if (args_[0].group() != Util::maxUnsigned()) {
+  if (args_[0].group() != util::maxUnsigned()) {
     std::vector<std::string> groups;
     for (size_t i = 0; i < args_.size(); i++) {
-      groups.push_back (std::string ("g") + Util::toString (args_[i].group()));
+      groups.push_back (std::string ("g") + util::toString (args_[i].group()));
     }
     cout << "Groups:    " << groups  << endl;
   }
@@ -844,8 +844,8 @@ Parfactor::getAlignLogVars (Parfactor* g1, Parfactor* g2)
           g1->range (i) == g2->range (j) &&
           matchedI.contains (i) == false &&
           matchedJ.contains (j) == false) {
-        Util::addToVector (Xs_1, formulas1[i].logVars());
-        Util::addToVector (Xs_2, formulas2[j].logVars());
+        util::addToVector (Xs_1, formulas1[i].logVars());
+        util::addToVector (Xs_2, formulas2[j].logVars());
         matchedI.insert (i);
         matchedJ.insert (j);
       }
@@ -869,8 +869,8 @@ Parfactor::alignAndExponentiate (Parfactor* g1, Parfactor* g2)
   assert (g2->constr()->isCountNormalized (Y_2));
   unsigned condCount1 = g1->constr()->getConditionalCount (Y_1);
   unsigned condCount2 = g2->constr()->getConditionalCount (Y_2);
-  LogAware::pow (g1->params(), 1.0 / condCount2);
-  LogAware::pow (g2->params(), 1.0 / condCount1);
+  log_aware::pow (g1->params(), 1.0 / condCount2);
+  log_aware::pow (g2->params(), 1.0 / condCount1);
 }
 
 

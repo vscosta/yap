@@ -106,9 +106,9 @@ FactorGraph::readFromUaiFormat (const char* fileName)
   for (unsigned i = 0; i < nrFactors; i++) {
     ignoreLines (is);
     is >> nrParams;
-    if (nrParams != Util::sizeExpected (allRanges[i])) {
+    if (nrParams != util::sizeExpected (allRanges[i])) {
       std::cerr << "Error: invalid number of parameters for factor nº " << i ;
-      std::cerr << ", " << Util::sizeExpected (allRanges[i]);
+      std::cerr << ", " << util::sizeExpected (allRanges[i]);
       std::cerr << " expected, " << nrParams << " given." << std::endl;
       exit (EXIT_FAILURE);
     }
@@ -116,8 +116,8 @@ FactorGraph::readFromUaiFormat (const char* fileName)
     for (unsigned j = 0; j < nrParams; j++) {
       is >> params[j];
     }
-    if (Globals::logDomain) {
-      Util::log (params);
+    if (globals::logDomain) {
+      util::log (params);
     }
     Factor f (allVarIds[i], allRanges[i], params);
     if (bayesFactors_ && allVarIds[i].size() > 1) {
@@ -171,7 +171,7 @@ FactorGraph::readFromLibDaiFormat (const char* fileName)
     ignoreLines (is);
     unsigned nNonzeros;
     is >> nNonzeros;
-    Params params (Util::sizeExpected (ranges), 0);
+    Params params (util::sizeExpected (ranges), 0);
     for (unsigned j = 0; j < nNonzeros; j++) {
       ignoreLines (is);
       unsigned index;
@@ -181,8 +181,8 @@ FactorGraph::readFromLibDaiFormat (const char* fileName)
       is >> val;
       params[index] = val;
     }
-    if (Globals::logDomain) {
-      Util::log (params);
+    if (globals::logDomain) {
+      util::log (params);
     }
     std::reverse (vids.begin(), vids.end());
     Factor f (vids, ranges, params);
@@ -306,13 +306,13 @@ FactorGraph::exportToLibDai (const char* fileName) const
   for (size_t i = 0; i < facNodes_.size(); i++) {
     Factor f (facNodes_[i]->factor());
     out << f.nrArguments() << std::endl;
-    out << Util::elementsToString (f.arguments()) << std::endl;
-    out << Util::elementsToString (f.ranges()) << std::endl;
+    out << util::elementsToString (f.arguments()) << std::endl;
+    out << util::elementsToString (f.ranges()) << std::endl;
     VarIds args = f.arguments();
     std::reverse (args.begin(), args.end());
     f.reorderArguments (args);
-    if (Globals::logDomain) {
-      Util::exp (f.params());
+    if (globals::logDomain) {
+      util::exp (f.params());
     }
     out << f.size() << std::endl;
     for (size_t j = 0; j < f.size(); j++) {
@@ -347,7 +347,7 @@ FactorGraph::exportToUai (const char* fileName) const
     if (bayesFactors_) {
       std::swap (args.front(), args.back());
     }
-    out << args.size() << " " << Util::elementsToString (args);
+    out << args.size() << " " << util::elementsToString (args);
     out << std::endl;
   }
   out << std::endl;
@@ -359,11 +359,11 @@ FactorGraph::exportToUai (const char* fileName) const
       f.reorderArguments (args);
     }
     Params params = f.params();
-    if (Globals::logDomain) {
-      Util::exp (params);
+    if (globals::logDomain) {
+      util::exp (params);
     }
     out << params.size() << std::endl << " " ;
-    out << Util::elementsToString (params);
+    out << util::elementsToString (params);
     out << std::endl << std::endl;
   }
   out.close();

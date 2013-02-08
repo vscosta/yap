@@ -25,7 +25,7 @@ LiftedOperator::getValidOps (
   multOps = ProductOperator::getValidOps (pfList);
   validOps.insert (validOps.end(), multOps.begin(), multOps.end());
 
-  if (Globals::verbosity > 1 || multOps.empty()) {
+  if (globals::verbosity > 1 || multOps.empty()) {
     std::vector<SumOutOperator*>   sumOutOps;
     std::vector<CountingOperator*> countOps;
     std::vector<GroundOperator*>   groundOps;
@@ -103,14 +103,14 @@ ProductOperator::getValidOps (ParfactorList& pfList)
   ParfactorList::iterator penultimate = -- pfList.end();
   std::set<Parfactor*> pfs;
   while (it1 != penultimate) {
-    if (Util::contains (pfs, *it1)) {
+    if (util::contains (pfs, *it1)) {
       ++ it1;
       continue;
     }
     ParfactorList::iterator it2 = it1;
     ++ it2;
     while (it2 != pfList.end()) {
-      if (Util::contains (pfs, *it2)) {
+      if (util::contains (pfs, *it2)) {
         ++ it2;
         continue;
       } else {
@@ -119,7 +119,7 @@ ProductOperator::getValidOps (ParfactorList& pfList)
           pfs.insert (*it2);
           validOps.push_back (new ProductOperator (
               it1, it2, pfList));
-          if (Globals::verbosity < 2) {
+          if (globals::verbosity < 2) {
             return validOps;
           }
           break;
@@ -353,7 +353,7 @@ CountingOperator::getLogCost (void)
     cost += size * HistogramSet::nrHistograms (counts[i], range);
   }
   PrvGroup group = (*pfIter_)->argument (fIdx).group();
-  size_t lvIndex = Util::indexOf (
+  size_t lvIndex = util::indexOf (
       (*pfIter_)->argument (fIdx).logVars(), X_);
   assert (lvIndex != (*pfIter_)->argument (fIdx).logVars().size());
   ParfactorList::iterator pfIter = pfList_.begin();
@@ -503,7 +503,7 @@ GroundOperator::getLogCost (void)
     if (willBeAffected) {
       // std::cout << " + " << std::exp (reps) << "x" << std::exp (pfSize);
       double pfCost = reps + pfSize;
-      totalCost = Util::logSum (totalCost, pfCost);
+      totalCost = util::logSum (totalCost, pfCost);
     }
     ++ pflIt;
   }
@@ -552,7 +552,7 @@ GroundOperator::getValidOps (ParfactorList& pfList)
   while (it != pfList.end()) {
     const ProbFormulas& formulas = (*it)->arguments();
     for (size_t i = 0; i < formulas.size(); i++) {
-      if (Util::contains (allGroups, formulas[i].group()) == false) {
+      if (util::contains (allGroups, formulas[i].group()) == false) {
         const LogVars& lvs = formulas[i].logVars();
         for (size_t j = 0; j < lvs.size(); j++) {
           if ((*it)->constr()->isSingleton (lvs[j]) == false) {
@@ -618,7 +618,7 @@ GroundOperator::getAffectedFormulas (void)
           if (i != idx && fs[i].contains (X)) {
             std::pair<PrvGroup, unsigned> pair = std::make_pair (
                 fs[i].group(), fs[i].indexOf (X));
-            if (Util::contains (affectedFormulas, pair) == false) {
+            if (util::contains (affectedFormulas, pair) == false) {
               q.push (pair);
               affectedFormulas.push_back (pair);
             }
@@ -642,8 +642,8 @@ LiftedVe::solveQuery (const Grounds& query)
   runSolver (query);
   (*pfList_.begin())->normalize();
   Params params = (*pfList_.begin())->params();
-  if (Globals::logDomain) {
-    Util::exp (params);
+  if (globals::logDomain) {
+    util::exp (params);
   }
   return params;
 }
@@ -655,7 +655,7 @@ LiftedVe::printSolverFlags (void) const
 {
   std::stringstream ss;
   ss << "lve [" ;
-  ss << "log_domain=" << Util::toString (Globals::logDomain);
+  ss << "log_domain=" << util::toString (globals::logDomain);
   ss << "]" ;
   std::cout << ss.str() << std::endl;
 }
@@ -669,10 +669,10 @@ LiftedVe::runSolver (const Grounds& query)
   LiftedOperations::shatterAgainstQuery (pfList_, query);
   LiftedOperations::runWeakBayesBall (pfList_, query);
   while (true) {
-    if (Globals::verbosity > 2) {
-      Util::printDashedLine();
+    if (globals::verbosity > 2) {
+      util::printDashedLine();
       pfList_.print();
-      if (Globals::verbosity > 3) {
+      if (globals::verbosity > 3) {
         LiftedOperator::printValidOps (pfList_, query);
       }
     }
@@ -680,9 +680,9 @@ LiftedVe::runSolver (const Grounds& query)
     if (op == 0) {
       break;
     }
-    if (Globals::verbosity > 1) {
+    if (globals::verbosity > 1) {
       std::cout << "best operation: " << op->toString();
-      if (Globals::verbosity > 2) {
+      if (globals::verbosity > 2) {
         std::cout << std::endl;
       }
     }
@@ -698,7 +698,7 @@ LiftedVe::runSolver (const Grounds& query)
       ++ pfIter;
     }
   }
-  if (Globals::verbosity > 0) {
+  if (globals::verbosity > 0) {
     std::cout << "largest cost = " << std::exp (largestCost_);
     std::cout << std::endl;
     std::cout << std::endl;

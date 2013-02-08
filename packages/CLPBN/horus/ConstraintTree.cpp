@@ -278,7 +278,7 @@ void
 ConstraintTree::moveToTop (const LogVars& lvs)
 {
   for (size_t i = 0; i < lvs.size(); i++) {
-    size_t pos = Util::indexOf (logVars_, lvs[i]);
+    size_t pos = util::indexOf (logVars_, lvs[i]);
     assert (pos != logVars_.size());
     for (size_t j = pos; j-- > i; ) {
       swapLogVar (logVars_[j]);
@@ -292,7 +292,7 @@ void
 ConstraintTree::moveToBottom (const LogVars& lvs)
 {
   for (size_t i = lvs.size(); i-- > 0; ) {
-    size_t pos = Util::indexOf (logVars_, lvs[i]);
+    size_t pos = util::indexOf (logVars_, lvs[i]);
     assert (pos != logVars_.size());
     size_t stop = logVars_.size() - (lvs.size() - i - 1);
     for (size_t j = pos; j < stop - 1; j++) {
@@ -329,7 +329,7 @@ ConstraintTree::join (ConstraintTree* ct, bool oneTwoOne)
   if (intersect.empty()) {
     // cartesian product
     appendOnBottom (root_, ct->root()->childs());
-    Util::addToVector (logVars_, ct->logVars_);
+    util::addToVector (logVars_, ct->logVars_);
     logVarSet_ |= ct->logVarSet_;
   } else {
     moveToTop (intersect.elements());
@@ -350,7 +350,7 @@ ConstraintTree::join (ConstraintTree* ct, bool oneTwoOne)
 
     LogVars newLvs (ct->logVars().begin() + intersect.size(), 
                     ct->logVars().end());
-    Util::addToVector (logVars_, newLvs);
+    util::addToVector (logVars_, newLvs);
     logVarSet_ |= LogVarSet (newLvs);
   }
 }
@@ -360,7 +360,7 @@ ConstraintTree::join (ConstraintTree* ct, bool oneTwoOne)
 unsigned
 ConstraintTree::getLevel (LogVar X) const
 {
-  unsigned level = Util::indexOf (logVars_, X);
+  unsigned level = util::indexOf (logVars_, X);
   level += 1; // root is in level 0, first logVar is in level 1
   return level;
 }
@@ -496,7 +496,7 @@ ConstraintTree::tupleSet (const LogVars& originalLvs)
 {
   LogVars uniqueLvs;
   for (size_t i = 0; i < originalLvs.size(); i++) {
-    if (Util::contains (uniqueLvs, originalLvs[i]) == false) {
+    if (util::contains (uniqueLvs, originalLvs[i]) == false) {
       uniqueLvs.push_back (originalLvs[i]);
     }
   }
@@ -510,7 +510,7 @@ ConstraintTree::tupleSet (const LogVars& originalLvs)
     std::vector<size_t> indexes;
     indexes.reserve (originalLvs.size());
     for (size_t i = 0; i < originalLvs.size(); i++) {
-      indexes.push_back (Util::indexOf (uniqueLvs, originalLvs[i]));
+      indexes.push_back (util::indexOf (uniqueLvs, originalLvs[i]));
     }
     Tuples tuples2;
     tuples2.reserve (tuples.size());
@@ -1030,7 +1030,7 @@ ConstraintTree::appendOnBottom (CTNode* n, const CTChilds& childs)
 void
 ConstraintTree::swapLogVar (LogVar X)
 {
-  size_t pos = Util::indexOf (logVars_, X);
+  size_t pos = util::indexOf (logVars_, X);
   assert (pos != logVars_.size());
   const CTNodes& nodes = getNodesAtLevel (pos);
   for (CTNodes::const_iterator nodeIt = nodes.begin();

@@ -80,7 +80,7 @@ HistogramSet::getHistograms (unsigned N, unsigned R)
 unsigned
 HistogramSet::nrHistograms (unsigned N, unsigned R)
 {
-  return Util::nrCombinations (N + R - 1, R - 1);
+  return util::nrCombinations (N + R - 1, R - 1);
 }
 
 
@@ -102,17 +102,17 @@ std::vector<double>
 HistogramSet::getNumAssigns (unsigned N, unsigned R)
 {
   HistogramSet hs (N, R);
-  double N_fac = Util::logFactorial (N);
+  double N_fac = util::logFactorial (N);
   unsigned H = hs.nrHistograms();
   std::vector<double> numAssigns;
   numAssigns.reserve (H);
   for (unsigned h = 0; h < H; h++) {
     double prod = 0.0;
     for (unsigned r = 0; r < R; r++) {
-      prod += Util::logFactorial (hs[r]);
+      prod += util::logFactorial (hs[r]);
     }
     double res = N_fac - prod;
-    numAssigns.push_back (Globals::logDomain ? res : std::exp (res));
+    numAssigns.push_back (globals::logDomain ? res : std::exp (res));
     hs.nextHistogram();
   }
   return numAssigns;

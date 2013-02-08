@@ -48,8 +48,8 @@ createLiftedNetwork (void)
   }
 
   // LiftedUtils::printSymbolDictionary();
-  if (Globals::verbosity > 2) {
-    Util::printHeader ("INITIAL PARFACTORS");
+  if (globals::verbosity > 2) {
+    util::printHeader ("INITIAL PARFACTORS");
     for (size_t i = 0; i < parfactors.size(); i++) {
       parfactors[i]->print();
       std::cout << std::endl;
@@ -58,8 +58,8 @@ createLiftedNetwork (void)
 
   ParfactorList* pfList = new ParfactorList (parfactors);
 
-  if (Globals::verbosity > 2) {
-    Util::printHeader ("SHATTERED PARFACTORS");
+  if (globals::verbosity > 2) {
+    util::printHeader ("SHATTERED PARFACTORS");
     pfList->print();
   }
 
@@ -120,7 +120,7 @@ createGroundNetwork (void)
   if (FactorGraph::printFactorGraph()) {
     fg->print();
   }
-  if (Globals::verbosity > 0) {
+  if (globals::verbosity > 0) {
     std::cout << "factor graph contains " ;
     std::cout << fg->nrVarNodes() << " variables and " ;
     std::cout << fg->nrFacNodes() << " factors " << std::endl;
@@ -139,13 +139,13 @@ runLiftedSolver (void)
   LiftedOperations::absorveEvidence (pfListCopy, *network->second);
 
   LiftedSolver* solver = 0;
-  switch (Globals::liftedSolver) {
+  switch (globals::liftedSolver) {
     case LiftedSolverType::LVE:  solver = new LiftedVe (pfListCopy); break;
     case LiftedSolverType::LBP:  solver = new LiftedBp (pfListCopy); break;
     case LiftedSolverType::LKC:  solver = new LiftedKc (pfListCopy); break;
   }
 
-  if (Globals::verbosity > 0) {
+  if (globals::verbosity > 0) {
     solver->printSolverFlags();
     std::cout << std::endl;
   }
@@ -205,7 +205,7 @@ runGroundSolver (void)
   if (fg->bayesianFactors()) {
     std::set<VarId> vids;
     for (size_t i = 0; i < tasks.size(); i++) {
-      Util::addToSet (vids, tasks[i]);
+      util::addToSet (vids, tasks[i]);
     }
     mfg = BayesBall::getMinimalFactorGraph (
         *fg, VarIds (vids.begin(), vids.end()));
@@ -213,13 +213,13 @@ runGroundSolver (void)
 
   GroundSolver* solver = 0;
   CountingBp::setFindIdenticalFactorsFlag (false);
-  switch (Globals::groundSolver) {
+  switch (globals::groundSolver) {
     case GroundSolverType::VE:  solver = new VarElim    (*mfg); break;
     case GroundSolverType::BP:  solver = new BeliefProp (*mfg); break;
     case GroundSolverType::CBP: solver = new CountingBp (*mfg); break;
   }
 
-  if (Globals::verbosity > 0) {
+  if (globals::verbosity > 0) {
     solver->printSolverFlags();
     std::cout << std::endl;
   }
@@ -251,14 +251,14 @@ setParfactorsParams (void)
   while (distIdsList != YAP_TermNil()) {
     unsigned distId = (unsigned) YAP_IntOfTerm (
         YAP_HeadOfTerm (distIdsList));
-    assert (Util::contains (paramsMap, distId) == false);
+    assert (util::contains (paramsMap, distId) == false);
     paramsMap[distId] = readParameters (YAP_HeadOfTerm (paramsList));
     distIdsList = YAP_TailOfTerm (distIdsList);
     paramsList  = YAP_TailOfTerm (paramsList);
   }
   ParfactorList::iterator it = pfList->begin();
   while (it != pfList->end()) {
-    assert (Util::contains (paramsMap, (*it)->distId()));
+    assert (util::contains (paramsMap, (*it)->distId()));
     (*it)->setParams (paramsMap[(*it)->distId()]);
     ++ it;
   }
@@ -277,7 +277,7 @@ setFactorsParams (void)
   while (distIdsList != YAP_TermNil()) {
     unsigned distId = (unsigned) YAP_IntOfTerm (
         YAP_HeadOfTerm (distIdsList));
-    assert (Util::contains (paramsMap, distId) == false);
+    assert (util::contains (paramsMap, distId) == false);
     paramsMap[distId] = readParameters (YAP_HeadOfTerm (paramsList));
     distIdsList = YAP_TailOfTerm (distIdsList);
     paramsList  = YAP_TailOfTerm (paramsList);
@@ -285,7 +285,7 @@ setFactorsParams (void)
   const FacNodes& facNodes = fg->facNodes();
   for (size_t i = 0; i < facNodes.size(); i++) {
     unsigned distId = facNodes[i]->factor().distId();
-    assert (Util::contains (paramsMap, distId));
+    assert (util::contains (paramsMap, distId));
     facNodes[i]->factor().setParams (paramsMap[distId]);
   }
   return TRUE;
@@ -343,7 +343,7 @@ setHorusFlag (void)
   } else {
     value = ((char*) YAP_AtomName (YAP_AtomOfTerm (YAP_ARG2)));
   }
-  return Util::setHorusFlag (option, value);
+  return util::setHorusFlag (option, value);
 }
 
 
@@ -519,8 +519,8 @@ readParameters (YAP_Term paramL)
     params.push_back ((double) YAP_FloatOfTerm (YAP_HeadOfTerm (paramL)));
     paramL = YAP_TailOfTerm (paramL);
   }
-  if (Globals::logDomain) {
-    Util::log (params);
+  if (globals::logDomain) {
+    util::log (params);
   }
   return params;
 }

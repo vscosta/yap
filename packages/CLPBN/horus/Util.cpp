@@ -6,7 +6,7 @@
 
 namespace horus {
 
-namespace Globals {
+namespace globals {
 
 bool logDomain = false;
 
@@ -20,7 +20,7 @@ GroundSolverType groundSolver = GroundSolverType::VE;
 
 
 
-namespace Util {
+namespace util {
 
 template <> std::string
 toString (const bool& b)
@@ -203,25 +203,25 @@ setHorusFlag (std::string option, std::string value)
 {
   bool returnVal = true;
   if (option == "lifted_solver") {
-    if      (value == "lve")  Globals::liftedSolver = LiftedSolverType::LVE;
-    else if (value == "lbp")  Globals::liftedSolver = LiftedSolverType::LBP;
-    else if (value == "lkc")  Globals::liftedSolver = LiftedSolverType::LKC;
+    if      (value == "lve")  globals::liftedSolver = LiftedSolverType::LVE;
+    else if (value == "lbp")  globals::liftedSolver = LiftedSolverType::LBP;
+    else if (value == "lkc")  globals::liftedSolver = LiftedSolverType::LKC;
     else                      returnVal = invalidValue (option, value);
 
   } else if (option == "ground_solver" || option == "solver") {
-    if      (value == "hve")  Globals::groundSolver = GroundSolverType::VE;
-    else if (value == "bp")   Globals::groundSolver = GroundSolverType::BP;
-    else if (value == "cbp")  Globals::groundSolver = GroundSolverType::CBP;
+    if      (value == "hve")  globals::groundSolver = GroundSolverType::VE;
+    else if (value == "bp")   globals::groundSolver = GroundSolverType::BP;
+    else if (value == "cbp")  globals::groundSolver = GroundSolverType::CBP;
     else                      returnVal = invalidValue (option, value);
 
   } else if (option == "verbosity") {
     std::stringstream ss;
     ss << value;
-    ss >> Globals::verbosity;
+    ss >> globals::verbosity;
 
   } else if (option == "use_logarithms") {
-    if      (value == "true")  Globals::logDomain = true;
-    else if (value == "false") Globals::logDomain = false;
+    if      (value == "true")  globals::logDomain = true;
+    else if (value == "false") globals::logDomain = false;
     else                       returnVal = invalidValue (option, value);
 
   } else if (option == "hve_elim_heuristic") {
@@ -335,14 +335,14 @@ printDashedLine (std::ostream& os)
 
 
 
-namespace LogAware {
+namespace log_aware {
 
 void
 normalize (Params& v)
 {
-  if (Globals::logDomain) {
+  if (globals::logDomain) {
     double sum = std::accumulate (v.begin(), v.end(),
-        LogAware::addIdenty(), Util::logSum);
+        log_aware::addIdenty(), util::logSum);
     assert (sum != -std::numeric_limits<double>::infinity());
     v -= sum;
   } else {
@@ -359,7 +359,7 @@ getL1Distance (const Params& v1, const Params& v2)
 {
   assert (v1.size() == v2.size());
   double dist = 0.0;
-  if (Globals::logDomain) {
+  if (globals::logDomain) {
     dist = std::inner_product (v1.begin(), v1.end(), v2.begin(), 0.0,
         std::plus<double>(), FuncObject::abs_diff_exp<double>());
   } else {
@@ -376,7 +376,7 @@ getMaxNorm (const Params& v1, const Params& v2)
 {
   assert (v1.size() == v2.size());
   double max = 0.0;
-  if (Globals::logDomain) {
+  if (globals::logDomain) {
     max = std::inner_product (v1.begin(), v1.end(), v2.begin(), 0.0,
         FuncObject::max<double>(), FuncObject::abs_diff_exp<double>());
   } else {
@@ -391,7 +391,7 @@ getMaxNorm (const Params& v1, const Params& v2)
 double
 pow (double base, unsigned iexp)
 {
-  return Globals::logDomain
+  return globals::logDomain
       ? base * iexp
       : std::pow (base, iexp);
 }
@@ -402,7 +402,7 @@ double
 pow (double base, double exp)
 {
   // `expoent' should not be in log domain
-  return Globals::logDomain
+  return globals::logDomain
       ? base * exp
       : std::pow (base, exp);
 }
@@ -415,7 +415,7 @@ pow (Params& v, unsigned iexp)
   if (iexp == 1) {
     return;
   }
-  Globals::logDomain ? v *= iexp : v ^= (int)iexp;
+  globals::logDomain ? v *= iexp : v ^= (int)iexp;
 }
 
 
@@ -424,10 +424,10 @@ void
 pow (Params& v, double exp)
 {
   // `expoent' should not be in log domain
-  Globals::logDomain ? v *= exp : v ^= exp;
+  globals::logDomain ? v *= exp : v ^= exp;
 }
 
-}  // namespace LogAware
+}  // namespace log_aware
 
 }  // namespace horus
 

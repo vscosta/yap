@@ -77,7 +77,7 @@ LiftedBp::printSolverFlags (void) const
   }
   ss << ",bp_max_iter=" << WeightedBp::maxIterations();
   ss << ",bp_accuracy=" << WeightedBp::accuracy();
-  ss << ",log_domain=" << Util::toString (Globals::logDomain);
+  ss << ",log_domain=" << util::toString (globals::logDomain);
   ss << "]" ;
   std::cout << ss.str() << std::endl;
 }
@@ -90,8 +90,8 @@ LiftedBp::refineParfactors (void)
   pfList_ = parfactorList;
   while (iterate() == false);
 
-  if (Globals::verbosity > 2) {
-    Util::printHeader ("AFTER REFINEMENT");
+  if (globals::verbosity > 2) {
+    util::printHeader ("AFTER REFINEMENT");
     pfList_.print();
   }
 }
@@ -187,7 +187,7 @@ LiftedBp::rangeOfGround (const Ground& gr)
     }
     ++ it;
   }
-  return Util::maxUnsigned();
+  return util::maxUnsigned();
 }
 
 

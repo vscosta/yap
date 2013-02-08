@@ -13,7 +13,7 @@ namespace horus {
 void
 BayesBallGraph::addNode (BBNode* n)
 {
-  assert (Util::contains (varMap_, n->varId()) == false);
+  assert (util::contains (varMap_, n->varId()) == false);
   nodes_.push_back (n);
   varMap_[n->varId()] = n;
 }

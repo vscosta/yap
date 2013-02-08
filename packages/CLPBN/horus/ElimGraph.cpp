@@ -55,7 +55,7 @@ ElimGraph::getEliminatingOrder (const VarIds& excludedVids)
   VarIds elimOrder;
   unmarked_.reserve (nodes_.size());
   for (size_t i = 0; i < nodes_.size(); i++) {
-    if (Util::contains (excludedVids, nodes_[i]->varId()) == false) {
+    if (util::contains (excludedVids, nodes_[i]->varId()) == false) {
       unmarked_.insert (nodes_[i]);
     }
   }
@@ -142,7 +142,7 @@ ElimGraph::getEliminationOrder (
     Factors::const_iterator first = factors.begin();
     Factors::const_iterator end   = factors.end();
     for (; first != end; ++first) {
-      Util::addToVector (allVids, (*first)->arguments());
+      util::addToVector (allVids, (*first)->arguments());
     }
     TinySet<VarId> elimOrder (allVids);
     elimOrder -= TinySet<VarId> (excludedVids);
@@ -178,7 +178,7 @@ EgNode*
 ElimGraph::getLowestCostNode (void) const
 {
   EgNode* bestNode = 0;
-  unsigned minCost = Util::maxUnsigned();
+  unsigned minCost = util::maxUnsigned();
   EGNeighs::const_iterator it;
   switch (elimHeuristic_) {
     case MIN_NEIGHBORS: {

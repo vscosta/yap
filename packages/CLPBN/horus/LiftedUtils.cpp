@@ -105,7 +105,7 @@ Substitution::getDiscardedLogVars (void) const
   std::unordered_map<LogVar, LogVar>::const_iterator it
       = subs_.begin();
   while (it != subs_.end()) {
-    if (Util::contains (doneLvs, it->second)) {
+    if (util::contains (doneLvs, it->second)) {
       discardedLvs.push_back (it->first);
     } else {
       doneLvs.insert (it->second);

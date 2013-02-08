@@ -16,6 +16,7 @@
 
 #include "Horus.h"
 
+
 namespace horus {
 
 namespace {
@@ -25,7 +26,7 @@ const double NEG_INF = -std::numeric_limits<double>::infinity();
 }
 
 
-namespace Util {
+namespace util {
 
 template <typename T> void
 addToVector (std::vector<T>&, const std::vector<T>&);
@@ -87,7 +88,7 @@ unsigned nrDigits (int);
 bool isInteger (const std::string&);
 
 std::string parametersToString (
-    const Params&, unsigned = Constants::PRECISION);
+    const Params&, unsigned = constants::PRECISION);
 
 std::vector<std::string> getStateLines (const Vars&);
 
@@ -106,7 +107,7 @@ void printDashedLine (std::ostream& os = std::cout);
 
 
 template <typename T> void
-Util::addToVector (std::vector<T>& v, const std::vector<T>& elements)
+util::addToVector (std::vector<T>& v, const std::vector<T>& elements)
 {
   v.insert (v.end(), elements.begin(), elements.end());
 }
@@ -114,7 +115,7 @@ Util::addToVector (std::vector<T>& v, const std::vector<T>& elements)
 
 
 template <typename T> void
-Util::addToSet (std::set<T>& s, const std::vector<T>& elements)
+util::addToSet (std::set<T>& s, const std::vector<T>& elements)
 {
   s.insert (elements.begin(), elements.end());
 }
@@ -122,7 +123,7 @@ Util::addToSet (std::set<T>& s, const std::vector<T>& elements)
 
 
 template <typename T> void
-Util::addToQueue (std::queue<T>& q, const std::vector<T>& elements)
+util::addToQueue (std::queue<T>& q, const std::vector<T>& elements)
 {
   for (size_t i = 0; i < elements.size(); i++) {
     q.push (elements[i]);
@@ -132,7 +133,7 @@ Util::addToQueue (std::queue<T>& q, const std::vector<T>& elements)
 
 
 template <typename T> bool
-Util::contains (const std::vector<T>& v, const T& e)
+util::contains (const std::vector<T>& v, const T& e)
 {
   return std::find (v.begin(), v.end(), e) != v.end();
 }
@@ -140,7 +141,7 @@ Util::contains (const std::vector<T>& v, const T& e)
 
 
 template <typename T> bool
-Util::contains (const std::set<T>& s, const T& e)
+util::contains (const std::set<T>& s, const T& e)
 {
   return s.find (e) != s.end();
 }
@@ -148,7 +149,7 @@ Util::contains (const std::set<T>& s, const T& e)
 
 
 template <typename K, typename V> bool
-Util::contains (const std::unordered_map<K, V>& m, const K& k)
+util::contains (const std::unordered_map<K, V>& m, const K& k)
 {
   return m.find (k) != m.end();
 }
@@ -156,7 +157,7 @@ Util::contains (const std::unordered_map<K, V>& m, const K& k)
 
 
 template <typename T> size_t
-Util::indexOf (const std::vector<T>& v, const T& e)
+util::indexOf (const std::vector<T>& v, const T& e)
 {
   return std::distance (v.begin(),
       std::find (v.begin(), v.end(), e));
@@ -165,7 +166,7 @@ Util::indexOf (const std::vector<T>& v, const T& e)
 
 
 template <class Operation> void
-Util::apply_n_times (
+util::apply_n_times (
     Params& v1,
     const Params& v2,
     unsigned repetitions,
@@ -187,7 +188,7 @@ Util::apply_n_times (
 
 
 template <typename T> void
-Util::log (std::vector<T>& v)
+util::log (std::vector<T>& v)
 {
   std::transform (v.begin(), v.end(), v.begin(), ::log);
 }
@@ -195,7 +196,7 @@ Util::log (std::vector<T>& v)
 
 
 template <typename T> void
-Util::exp (std::vector<T>& v)
+util::exp (std::vector<T>& v)
 {
   std::transform (v.begin(), v.end(), v.begin(), ::exp);
 }
@@ -203,7 +204,7 @@ Util::exp (std::vector<T>& v)
 
 
 template <typename T> std::string
-Util::elementsToString (const std::vector<T>& v, std::string sep)
+util::elementsToString (const std::vector<T>& v, std::string sep)
 {
   std::stringstream ss;
   for (size_t i = 0; i < v.size(); i++) {
@@ -215,7 +216,7 @@ Util::elementsToString (const std::vector<T>& v, std::string sep)
 
 
 template <typename T> std::string
-Util::toString (const T& t)
+util::toString (const T& t)
 {
   std::stringstream ss;
   ss << t;
@@ -225,7 +226,7 @@ Util::toString (const T& t)
 
 
 inline double
-Util::logSum (double x, double y)
+util::logSum (double x, double y)
 {
   // std::log (std::exp (x) + std::exp (y)) can overflow!
   assert (std::isnan (x) == false);
@@ -258,23 +259,23 @@ Util::logSum (double x, double y)
 
 
 inline unsigned
-Util::maxUnsigned (void)
+util::maxUnsigned (void)
 {
   return std::numeric_limits<unsigned>::max();
 }
 
 
 
-namespace LogAware {
+namespace log_aware {
 
-inline double one()          { return Globals::logDomain ? 0.0     : 1.0; }
-inline double zero()         { return Globals::logDomain ? NEG_INF : 0.0; }
-inline double addIdenty()    { return Globals::logDomain ? NEG_INF : 0.0; }
-inline double multIdenty()   { return Globals::logDomain ? 0.0     : 1.0; }
-inline double withEvidence() { return Globals::logDomain ? 0.0     : 1.0; }
-inline double noEvidence()   { return Globals::logDomain ? NEG_INF : 0.0; }
-inline double log (double v) { return Globals::logDomain ? ::log (v) : v; }
-inline double exp (double v) { return Globals::logDomain ? ::exp (v) : v; }
+inline double one()          { return globals::logDomain ? 0.0     : 1.0; }
+inline double zero()         { return globals::logDomain ? NEG_INF : 0.0; }
+inline double addIdenty()    { return globals::logDomain ? NEG_INF : 0.0; }
+inline double multIdenty()   { return globals::logDomain ? 0.0     : 1.0; }
+inline double withEvidence() { return globals::logDomain ? 0.0     : 1.0; }
+inline double noEvidence()   { return globals::logDomain ? NEG_INF : 0.0; }
+inline double log (double v) { return globals::logDomain ? ::log (v) : v; }
+inline double exp (double v) { return globals::logDomain ? ::exp (v) : v; }
 
 void normalize (Params&);
 
@@ -290,7 +291,7 @@ void pow (Params&, unsigned);
 
 void pow (Params&, double);
 
-}  // namespace LogAware
+}  // namespace log_aware
 
 
 
@@ -392,7 +393,7 @@ template <typename T>
 std::ostream& operator<< (std::ostream& os, const std::vector<T>& v)
 {
   os << "[" ;
-  os << Util::elementsToString (v, ", ");
+  os << util::elementsToString (v, ", ");
   os << "]" ;
   return os;
 }

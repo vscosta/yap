@@ -27,7 +27,7 @@ Factor::Factor (
   ranges_ = ranges;
   params_ = params;
   distId_ = distId;
-  assert (params_.size() == Util::sizeExpected (ranges_));
+  assert (params_.size() == util::sizeExpected (ranges_));
 }
 
 
@@ -43,7 +43,7 @@ Factor::Factor (
   }
   params_ = params;
   distId_ = distId;
-  assert (params_.size() == Util::sizeExpected (ranges_));
+  assert (params_.size() == util::sizeExpected (ranges_));
 }
 
 
@@ -131,7 +131,7 @@ Factor::print (void) const
   for (size_t i = 0; i < args_.size(); i++) {
     vars.push_back (new Var (args_[i], ranges_[i]));
   }
-  std::vector<std::string> jointStrings = Util::getStateLines (vars);
+  std::vector<std::string> jointStrings = util::getStateLines (vars);
   for (size_t i = 0; i < params_.size(); i++) {
     // cout << "[" << distId_ << "] " ;
     std::cout << "f(" << jointStrings[i] << ")" ;
@@ -149,11 +149,11 @@ void
 Factor::sumOutFirstVariable (void)
 {
   size_t sep = params_.size() / 2;
-  if (Globals::logDomain) {
+  if (globals::logDomain) {
     std::transform (
         params_.begin(), params_.begin() + sep,
         params_.begin() + sep, params_.begin(),
-        Util::logSum);
+        util::logSum);
 
   } else {
     std::transform (
@@ -174,10 +174,10 @@ Factor::sumOutLastVariable (void)
   Params::iterator first1 = params_.begin();
   Params::iterator first2 = params_.begin();
   Params::iterator last   = params_.end();
-  if (Globals::logDomain) {
+  if (globals::logDomain) {
     while (first2 != last) {
       // the arguments can be swaped, but that is ok
-      *first1++ = Util::logSum (*first2++, *first2++);
+      *first1++ = util::logSum (*first2++, *first2++);
     }
   } else {
     while (first2 != last) {
@@ -206,13 +206,13 @@ Factor::sumOutArgs (const std::vector<bool>& mask)
       ranges_.push_back (ranges_[i]);
     }
   }
-  Params newps (new_size, LogAware::addIdenty());
+  Params newps (new_size, log_aware::addIdenty());
   Params::const_iterator first = params_.begin();
   Params::const_iterator last  = params_.end();
   MapIndexer indexer (oldRanges, mask);
-  if (Globals::logDomain) {
+  if (globals::logDomain) {
     while (first != last) {
-      newps[indexer] = Util::logSum (newps[indexer], *first++);
+      newps[indexer] = util::logSum (newps[indexer], *first++);
       ++ indexer;
     }
   } else {

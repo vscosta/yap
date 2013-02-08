@@ -50,7 +50,7 @@ enum GroundSolverType
 };
 
 
-namespace Globals {
+namespace globals {
 
 extern bool logDomain;
 
@@ -63,7 +63,7 @@ extern GroundSolverType groundSolver;
 }
 
 
-namespace Constants {
+namespace constants {
 
 // show message calculation for belief propagation
 const bool SHOW_BP_CALCS = false;
@@ -73,7 +73,7 @@ const int NO_EVIDENCE = -1;
 // number of digits to show when printing a parameter
 const unsigned PRECISION = 6;
 
-}
+}  // namespace constants
 
 }  // namespace horus
 

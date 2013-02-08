@@ -79,8 +79,8 @@ BayesBall::constructGraph (FactorGraph* fg) const
     } else if (n->hasEvidence() && n->isVisited()) {
       VarIds varIds = { facNodes[i]->factor().argument (0) };
       Ranges ranges = { facNodes[i]->factor().range (0) };
-      Params params (ranges[0], LogAware::noEvidence());
-      params[n->getEvidence()] = LogAware::withEvidence();
+      Params params (ranges[0], log_aware::noEvidence());
+      params[n->getEvidence()] = log_aware::withEvidence();
       fg->addFactor (Factor (varIds, ranges, params));
     }
   }

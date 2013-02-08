@@ -23,7 +23,7 @@ ProbFormula::sameSkeletonAs (const ProbFormula& f) const
 bool
 ProbFormula::contains (LogVar lv) const
 {
-  return Util::contains (logVars_, lv);
+  return util::contains (logVars_, lv);
 }
 
 
@@ -39,7 +39,7 @@ ProbFormula::contains (LogVarSet s) const
 size_t
 ProbFormula::indexOf (LogVar X) const
 {
-  return Util::indexOf (logVars_, X);
+  return util::indexOf (logVars_, X);
 }
 
 
