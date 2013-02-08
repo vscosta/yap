@@ -77,5 +77,5 @@ const unsigned PRECISION = 6;
 
 }  // namespace horus
 
-#endif // YAP_PACKAGES_CLPBN_HORUS_HORUS_H_
+#endif  // YAP_PACKAGES_CLPBN_HORUS_HORUS_H_
 

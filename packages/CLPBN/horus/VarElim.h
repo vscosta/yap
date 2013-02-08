@@ -43,5 +43,5 @@ class VarElim : public GroundSolver
 
 }  // namespace horus
 
-#endif // YAP_PACKAGES_CLPBN_HORUS_VARELIM_H_
+#endif  // YAP_PACKAGES_CLPBN_HORUS_VARELIM_H_
 

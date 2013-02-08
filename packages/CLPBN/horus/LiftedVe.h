@@ -171,5 +171,5 @@ class LiftedVe : public LiftedSolver
 
 }  // namespace horus
 
-#endif // YAP_PACKAGES_CLPBN_HORUS_LIFTEDVE_H_
+#endif  // YAP_PACKAGES_CLPBN_HORUS_LIFTEDVE_H_
 

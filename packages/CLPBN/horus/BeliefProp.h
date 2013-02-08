@@ -172,5 +172,5 @@ BeliefProp::ninf (const FacNode* fac) const
 
 }  // namespace horus
 
-#endif // YAP_PACKAGES_CLPBN_HORUS_BELIEFPROP_H_
+#endif  // YAP_PACKAGES_CLPBN_HORUS_BELIEFPROP_H_
 

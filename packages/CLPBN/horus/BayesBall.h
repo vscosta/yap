@@ -72,5 +72,5 @@ BayesBall::scheduleChilds (const BBNode* n, Scheduling& sch) const
 
 }  // namespace horus
 
-#endif // YAP_PACKAGES_CLPBN_HORUS_BAYESBALL_H_
+#endif  // YAP_PACKAGES_CLPBN_HORUS_BAYESBALL_H_
 

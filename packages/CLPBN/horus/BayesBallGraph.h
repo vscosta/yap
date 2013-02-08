@@ -80,5 +80,5 @@ class BayesBallGraph
 
 }  // namespace horus
 
-#endif // YAP_PACKAGES_CLPBN_HORUS_BAYESBALLGRAPH_H_
+#endif  // YAP_PACKAGES_CLPBN_HORUS_BAYESBALLGRAPH_H_
 

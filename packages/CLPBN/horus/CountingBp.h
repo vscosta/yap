@@ -222,5 +222,5 @@ CountingBp::setColor (const FacNode* fn, Color  c)
 
 }  // namespace horus
 
-#endif // YAP_PACKAGES_CLPBN_HORUS_COUNTINGBP_H_
+#endif  // YAP_PACKAGES_CLPBN_HORUS_COUNTINGBP_H_
 

@@ -72,5 +72,5 @@ class WeightedBp : public BeliefProp
 
 }  // namespace horus
 
-#endif // YAP_PACKAGES_CLPBN_HORUS_WEIGHTEDBP_H_
+#endif  // YAP_PACKAGES_CLPBN_HORUS_WEIGHTEDBP_H_
 

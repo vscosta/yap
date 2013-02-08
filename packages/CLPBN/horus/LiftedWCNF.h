@@ -245,5 +245,5 @@ class LiftedWCNF
 
 }  // namespace horus
 
-#endif // YAP_PACKAGES_CLPBN_HORUS_LIFTEDWCNF_H_
+#endif  // YAP_PACKAGES_CLPBN_HORUS_LIFTEDWCNF_H_
 

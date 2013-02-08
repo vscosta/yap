@@ -109,5 +109,5 @@ Var::operator!= (const Var& var) const
 
 }  // namespace horus
 
-#endif // YAP_PACKAGES_CLPBN_HORUS_VAR_H_
+#endif  // YAP_PACKAGES_CLPBN_HORUS_VAR_H_
 

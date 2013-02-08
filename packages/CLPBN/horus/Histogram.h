@@ -48,5 +48,5 @@ class HistogramSet
 
 }  // namespace horus
 
-#endif // YAP_PACKAGES_CLPBN_HORUS_HISTOGRAM_H_
+#endif  // YAP_PACKAGES_CLPBN_HORUS_HISTOGRAM_H_
 

@@ -116,5 +116,5 @@ typedef std::vector<ObservedFormula> ObservedFormulas;
 
 }  // namespace horus
 
-#endif // YAP_PACKAGES_CLPBN_HORUS_PROBFORMULA_H_
+#endif  // YAP_PACKAGES_CLPBN_HORUS_PROBFORMULA_H_
 

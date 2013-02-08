@@ -27,5 +27,5 @@ class LiftedSolver
 
 }  // namespace horus
 
-#endif // YAP_PACKAGES_CLPBN_HORUS_LIFTEDSOLVER_H_
+#endif  // YAP_PACKAGES_CLPBN_HORUS_LIFTEDSOLVER_H_
 

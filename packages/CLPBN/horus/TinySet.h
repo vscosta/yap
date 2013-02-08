@@ -406,5 +406,5 @@ TinySet<T,C>::consistent (void) const
 
 }  // namespace horus
 
-#endif // YAP_PACKAGES_CLPBN_HORUS_TINYSET_H_
+#endif  // YAP_PACKAGES_CLPBN_HORUS_TINYSET_H_
 

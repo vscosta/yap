@@ -436,5 +436,5 @@ struct abs_diff_exp : public std::binary_function<T, T, T>
 
 }  // namespace horus
 
-#endif // YAP_PACKAGES_CLPBN_HORUS_UTIL_H_
+#endif  // YAP_PACKAGES_CLPBN_HORUS_UTIL_H_
 

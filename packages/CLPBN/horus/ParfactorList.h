@@ -122,5 +122,5 @@ class ParfactorList
 
 }  // namespace horus
 
-#endif // YAP_PACKAGES_CLPBN_HORUS_PARFACTORLIST_H_
+#endif  // YAP_PACKAGES_CLPBN_HORUS_PARFACTORLIST_H_
 

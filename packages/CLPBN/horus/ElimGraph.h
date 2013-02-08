@@ -175,5 +175,5 @@ ElimGraph::neighbors (EgNode* n1, EgNode* n2) const
 
 }  // namespace horus
 
-#endif // YAP_PACKAGES_CLPBN_HORUS_ELIMGRAPH_H_
+#endif  // YAP_PACKAGES_CLPBN_HORUS_ELIMGRAPH_H_
 

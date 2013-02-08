@@ -246,5 +246,5 @@ ConstraintTree::nrLogVars (void) const
 
 }  // namespace horus
 
-#endif // YAP_PACKAGES_CLPBN_HORUS_CONSTRAINTTREE_H_
+#endif  // YAP_PACKAGES_CLPBN_HORUS_CONSTRAINTTREE_H_
 

@@ -365,5 +365,5 @@ operator<< (std::ostream &os, const MapIndexer& indexer)
 
 }  // namespace horus
 
-#endif // YAP_PACKAGES_CLPBN_HORUS_INDEXER_H_
+#endif  // YAP_PACKAGES_CLPBN_HORUS_INDEXER_H_
 

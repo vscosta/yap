@@ -184,5 +184,5 @@ struct sortByVarId
 
 }  // namespace horus
 
-#endif // YAP_PACKAGES_CLPBN_HORUS_FACTORGRAPH_H_
+#endif  // YAP_PACKAGES_CLPBN_HORUS_FACTORGRAPH_H_
 

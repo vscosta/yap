@@ -47,5 +47,5 @@ class LiftedBp : public LiftedSolver
 
 }  // namespace horus
 
-#endif // YAP_PACKAGES_CLPBN_HORUS_LIFTEDBP_H_
+#endif  // YAP_PACKAGES_CLPBN_HORUS_LIFTEDBP_H_
 

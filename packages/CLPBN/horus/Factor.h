@@ -368,5 +368,5 @@ class Factor : public TFactor<VarId>
 
 }  // namespace horus
 
-#endif // YAP_PACKAGES_CLPBN_HORUS_FACTOR_H_
+#endif  // YAP_PACKAGES_CLPBN_HORUS_FACTOR_H_
 
