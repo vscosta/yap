@@ -289,37 +289,6 @@ version(T) :-
 	fail.
 '$set_toplevel_hook'(_).
 
-'$oncenotrace'(G) :-
-	'$disable_creep', !,
-	(
-	 '$execute'(G)
-	->
-	 '$creep'
-	;
-	 '$creep',
-	 fail
-	).	
-'$oncenotrace'(G) :-
-	'$execute'(G), !.
-
-
-'$once0'(G, M) :-
-	'$pred_exists'(G, M),
-	(
-	 '$disable_creep'
-	->
-	  (
-	   '$execute_nonstop'(G, M)
-	   ->
-	   '$creep'
-	  ;
-	   '$creep',
-	    fail
-	  )
-       ;
-	  '$execute_nonstop'(G,M)
-        ).
-
 nb_getval(GlobalVariable, Val) :-
 	'$nb_getval'(GlobalVariable, Val, Error),
 	(var(Error)

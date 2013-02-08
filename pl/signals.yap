@@ -33,39 +33,10 @@
 	'$wake_up_goal'(G, LG).
 % never creep on entering system mode!!!
 % don't creep on meta-call.
-'$do_signal'(sig_creep, [M|G]) :-
-	'$creep_allowed', !,
-	(
-	 ( G = '$notrace'(G0) ;  G = '$oncenotrace'(G0) ; G = '$once0'(G0) ; G = '$execute0'(G0,M) ; '$system_module'(M), G = G0 )
-	->
-	 (
-	  '$execute_nonstop'(G0,M),
-	  '$signal_creep'
-	 ;
-	  '$signal_creep',
-	  fail
-	 )
-	;
-	 '$start_creep'([M|G])
-	).
-% 
-'$do_signal'(sig_creep, [M|G]) :-
-	( G = '$notrace'(G0) ;  G = '$oncenotrace'(G0) ; G = '$once0'(G0) ; G = '$execute0'(G0,M) ; '$system_module'(M), G = G0 ),
-	!,
-	(
-	 '$execute_nonstop'(G0,M),
-	 '$signal_creep'
-	;
-	 '$signal_creep',
-	 fail
-	).
-% 
-'$do_signal'(sig_creep, [M|G]) :-
-        '$signal_creep',
-	'$execute_nonstop'(G,M).
-'$do_signal'(sig_delay_creep, [M|G]) :-
-	'$execute'(M:G),
-        '$creep'.
+'$do_signal'(sig_creep, MG) :-
+	 '$start_creep'(MG, creep).
+'$do_signal'(sig_delay_creep, MG) :-
+	 '$start_creep'(MG, meta_creep).
 '$do_signal'(sig_iti, [M|G]) :-
 	'$thread_gfetch'(Goal),
 	% if more signals alive, set creep flag
@@ -117,96 +88,12 @@
 	'$current_module'(M0),
 	'$execute0'((Goal,M:G),M0).
 
-% '$execute0' should be ignored.
-'$start_creep'([_|'$execute0'(G,M)]) :-
-	!,
-	'$start_creep'([M|G]).
-% '$call'() is a complicated thing
-'$start_creep'([M0|'$call'(G, CP, G0, M)]) :-
-	!,
-	'$creep',
-	'$execute_nonstop'('$call'(G, CP, G0, M),M0).
-% donotrace: means do not trace! So,
-% ignore and then put creep back for the continuation.
-'$start_creep'([M0|'$notrace'(G)]) :-
-	!,
-	(
-	 CP0 is '$last_choice_pt',
-	 '$execute_nonstop'(G,M0),
-	 CP1 is '$last_choice_pt',
-	 % exit port: creep
-	 '$creep',
-	 (
-	  % if deterministic just creep all you want.
-	  CP0 = CP1 ->
-	  !
-	 ;
-	  % extra disjunction protects reentry into usergoal
-	  (
-	    % cannot cut here
-	    true
-	   ;
-	    % be sure to disable creep on redo port
-	    '$disable_creep',
-	    fail
-	  )
-	 )
-	;
-	   % put it back again on fail
-	 '$creep',
-	 fail	   
-	).
-'$start_creep'([M0|'$oncenotrace'(G)]) :-
-	!,
-	('$execute_nonstop'(G,M0),
-	 CP1 is '$last_choice_pt',
-	 % exit port: creep
-	 '$creep',
-	 !
-	;
-	   % put it back again on fail
-	 '$creep',
-	 fail	   
-	).
-'$start_creep'([M0|'$once0'(G)]) :-
-	!,
-	('$execute_nonstop'(G,M0),
-	 CP1 is '$last_choice_pt',
-	 % exit port: creep
-	 '$creep',
-	 !
-	;
-	   % put it back again on fail
-	 '$creep',
-	 fail	   
-	).
-% do not debug if we are not in debug mode. 
-'$start_creep'([Mod|G]) :-
-	'$debug_on'(DBON), DBON = false, !,
-	'$execute_nonstop'(G,Mod).
-'$start_creep'([Mod|G]) :-
-	nb_getval('$system_mode',on), !,
-	'$execute_nonstop'(G,Mod).
-% notice that the last signal to be processed must always be creep
-'$start_creep'([_|'$cut_by'(CP)]) :- !,
-	'$$cut_by'(CP),
-	'$creep'.
-'$start_creep'([_|true]) :- !,
-	'$creep'.
-'$start_creep'([Mod|G]) :-
-	'$hidden_predicate'(G,Mod), !,
-	'$execute_nonstop'(G,Mod),
-	'$creep'.
-% do not debug if we are zipping through.  
-'$start_creep'([Mod|G]) :-
-	nb_getval('$debug_run',Run),
-	Run \= off,
-	'$zip'(-1, G, Mod), !,
-        '$signal_creep',
-	'$execute_goal'(G, Mod).
-'$start_creep'([Mod|G]) :-
+'$start_creep'([Mod|G], _) :-
+	'$in_system_mode', !,
+	'$execute0'(G, Mod).
+'$start_creep'([Mod|G], WhereFrom) :-
 	CP is '$last_choice_pt',	
-	'$do_spy'(G, Mod, CP, no).
+	'$do_spy'(G, Mod, CP, WhereFrom).
 
 '$execute_goal'(G, Mod) :-
 	(

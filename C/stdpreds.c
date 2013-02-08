@@ -474,207 +474,6 @@ p_values( USES_REGS1 )
   return (TRUE);
 }
 
-inline static void
-do_signal(yap_signals sig USES_REGS)
-{
-  LOCK(LOCAL_SignalLock);
-  if (!LOCAL_InterruptsDisabled)
-    CreepFlag = Unsigned(LCL0);
-  LOCAL_ActiveSignals |= sig;
-  UNLOCK(LOCAL_SignalLock);
-}
-
-inline static void
-undo_signal(yap_signals sig USES_REGS)
-{
-  LOCK(LOCAL_SignalLock);
-  if (LOCAL_ActiveSignals == sig) {
-    CreepFlag = CalculateStackGap();
-  }
-  LOCAL_ActiveSignals &= ~sig;
-  UNLOCK(LOCAL_SignalLock);
-}
-
-
-static Int 
-p_creep( USES_REGS1 )
-{
-  Atom            at;
-  PredEntry      *pred;
-
-  at = AtomCreep;
-  pred = RepPredProp(PredPropByFunc(Yap_MkFunctor(at, 1),0));
-  CreepCode = pred;
-  do_signal(YAP_CREEP_SIGNAL PASS_REGS);
-  return TRUE;
-}
-
-static Int 
-p_signal_creep( USES_REGS1 )
-{
-  Atom            at;
-  PredEntry      *pred;
-
-  at = AtomCreep;
-  pred = RepPredProp(PredPropByFunc(Yap_MkFunctor(at, 1),0));
-  CreepCode = pred;
-  LOCK(LOCAL_SignalLock);
-  LOCAL_ActiveSignals |= YAP_CREEP_SIGNAL;
-  UNLOCK(LOCAL_SignalLock);
-  return TRUE;
-}
-
-static Int 
-p_disable_creep( USES_REGS1 )
-{
-  LOCK(LOCAL_SignalLock);
-  if (LOCAL_ActiveSignals & YAP_CREEP_SIGNAL) {
-    LOCAL_ActiveSignals &= ~YAP_CREEP_SIGNAL;    
-    if (!LOCAL_ActiveSignals)
-      CreepFlag = CalculateStackGap();
-    UNLOCK(LOCAL_SignalLock);
-    return TRUE;
-  }
-  UNLOCK(LOCAL_SignalLock);
-  return FALSE;
-}
-
-/* never fails */
-static Int 
-p_disable_docreep( USES_REGS1 )
-{
-  LOCK(LOCAL_SignalLock);
-  if (LOCAL_ActiveSignals & YAP_CREEP_SIGNAL) {
-    LOCAL_ActiveSignals &= ~YAP_CREEP_SIGNAL;    
-    if (!LOCAL_ActiveSignals)
-      CreepFlag = CalculateStackGap();
-    UNLOCK(LOCAL_SignalLock);
-  } else {
-    UNLOCK(LOCAL_SignalLock);
-  }
-  return TRUE;
-}
-
-static Int 
-p_stop_creep( USES_REGS1 )
-{
-  LOCK(LOCAL_SignalLock);
-  LOCAL_ActiveSignals &= ~YAP_CREEP_SIGNAL;
-  if (!LOCAL_ActiveSignals) {
-    CreepFlag = CalculateStackGap();
-  }
-  UNLOCK(LOCAL_SignalLock);
-  return TRUE;
-}
-
-void 
-Yap_signal(yap_signals sig)
-{
-  CACHE_REGS
-  do_signal(sig PASS_REGS);
-}
-
-void 
-Yap_undo_signal(yap_signals sig)
-{
-  CACHE_REGS
-  undo_signal(sig PASS_REGS);
-}
-
-#ifdef undefined
-
-/*
- * Returns where some particular piece of code is, it may take its time but
- * then you only need it while creeping, so why bother ? 
- */
-static CODEADDR *
-FindAtom(codeToFind, arity)
-     CODEADDR        codeToFind;
-     unsigned int   *arityp;
-{
-  Atom            a;
-  int             i;
-
-  for (i = 0; i < AtomHashTableSize; ++i) {
-    READ_LOCK(HashChain[i].AeRWLock);
-    a = HashChain[i].Entry;
-    READ_UNLOCK(HashChain[i].AeRWLock);
-    while (a != NIL) {
-      register PredEntry *pp;
-      AtomEntry *ae = RepAtom(a);
-      READ_LOCK(ae->ARWLock);
-      pp = RepPredProp(RepAtom(a)->PropsOfAE);
-      while (!EndOfPAEntr(pp) && ((pp->KindOfPE & 0x8000)
-				  || (pp->CodeOfPred != codeToFind)))
-	pp = RepPredProp(pp->NextOfPE);
-      if (pp != NIL) {
-	CODEADDR *out;
-	PELOCK(90,pp);
-	out = &(pp->CodeOfPred)
-	*arityp = pp->ArityOfPE;
-	UNLOCK(pp->PELock);
-	READ_UNLOCK(ae->ARWLock);
-	return (out);
-      }
-      a = RepAtom(a)->NextOfAE;
-      READ_UNLOCK(ae->ARWLock);
-    }
-  }
-  for (i = 0; i < WideAtomHashTableSize; ++i) {
-    READ_LOCK(HashChain[i].AeRWLock);
-    a = HashChain[i].Entry;
-    READ_UNLOCK(HashChain[i].AeRWLock);
-    while (a != NIL) {
-      register PredEntry *pp;
-      AtomEntry *ae = RepAtom(a);
-      READ_LOCK(ae->ARWLock);
-      pp = RepPredProp(RepAtom(a)->PropsOfAE);
-      while (!EndOfPAEntr(pp) && ((pp->KindOfPE & 0x8000)
-				  || (pp->CodeOfPred != codeToFind)))
-	pp = RepPredProp(pp->NextOfPE);
-      if (pp != NIL) {
-	CODEADDR *out;
-	PELOCK(91,pp);
-	out = &(pp->CodeOfPred)
-	*arityp = pp->ArityOfPE;
-	UNLOCK(pp->PELock);
-	READ_UNLOCK(ae->ARWLock);
-	return (out);
-      }
-      a = RepAtom(a)->NextOfAE;
-      READ_UNLOCK(ae->ARWLock);
-    }
-  }
-  *arityp = 0;
-  return (0);
-}
-
-/*
- * This is called when you want to creep a C-predicate or a predicate written
- * in assembly 
- */
-CELL 
-FindWhatCreep(toCreep)
-     CELL            toCreep;
-{
-  unsigned int    arity;
-  Atom            at;
-  CODEADDR       *place;
-
-  if (toCreep > 64) {	/* written in C */
-    int             i;
-    place = FindAtom((CODEADDR) toCreep, &arity);
-    *--ASP = Unsigned(P);
-    *--ASP = N = arity;
-    for (i = 1; i <= arity; ++i)
-      *--ASP = X[i];
-    /* P = CellPtr(CCREEPCODE);		 */
-    return (Unsigned(place));
-  }
-}
-
-#endif				/* undefined */
-
 static Int 
 p_opdec( USES_REGS1 )
 {				/* '$opdec'(p,type,atom)		 */
@@ -3466,18 +3265,6 @@ init_current_atom_op( USES_REGS1 )
   return cont_current_atom_op( PASS_REGS1 );
 }
 
-#ifdef DEBUG
-static Int 
-p_debug( USES_REGS1 )
-{				/* $debug(+Flag) */
-  int             i = IntOfTerm(Deref(ARG1));
-
-  if (i >= 'a' && i <= 'z')
-    GLOBAL_Option[i - 96] = !GLOBAL_Option[i - 96];
-  return (1);
-}
-#endif
-
 static Int 
 p_flags( USES_REGS1 )
 {				/* $flags(+Functor,+Mod,?OldFlags,?NewFlags) */
@@ -4441,17 +4228,6 @@ Yap_InitCPreds(void)
   Yap_InitCPred("$unlock_system", 0, p_unlock_system, SafePredFlag);
   Yap_InitCPred("$enter_undefp", 0, p_enterundefp, SafePredFlag);
   Yap_InitCPred("$exit_undefp", 0, p_exitundefp, SafePredFlag);
-  /* basic predicates for the prolog machine tracer */
-  /* they are defined in analyst.c */
-  /* Basic predicates for the debugger */
-  Yap_InitCPred("$creep", 0, p_creep, SafePredFlag);
-  Yap_InitCPred("$signal_creep", 0, p_signal_creep, SafePredFlag);
-  Yap_InitCPred("$disable_creep", 0, p_disable_creep, SafePredFlag);
-  Yap_InitCPred("$disable_docreep", 0, p_disable_docreep, SafePredFlag);
-  Yap_InitCPred("$do_not_creep", 0, p_stop_creep, SafePredFlag|SyncPredFlag);
-#ifdef DEBUG
-  Yap_InitCPred("$debug", 1, p_debug, SafePredFlag|SyncPredFlag);
-#endif
   /* Accessing and changing the flags for a predicate */
   Yap_InitCPred("$flags", 4, p_flags, SyncPredFlag);
   /* hiding and unhiding some predicates */
@@ -4510,6 +4286,7 @@ Yap_InitCPreds(void)
 #endif
   Yap_udi_init();
 
+  Yap_InitSignalCPreds();
   Yap_InitUserCPreds();
   Yap_InitUtilCPreds();
   Yap_InitSortPreds();

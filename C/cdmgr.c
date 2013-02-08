@@ -5667,6 +5667,7 @@ p_cpc_info( USES_REGS1 )
   PredEntry *pe;
   yamop *ipc = (yamop *)IntegerOfTerm(Deref(ARG1));
 
+  printf("ipc = %p %p\n", ipc, PREVOP(ipc,Osbpp));
   pe = PREVOP(ipc,Osbpp)->u.Osbpp.p0;
   return UnifyPredInfo(pe, 2 PASS_REGS) &&
     Yap_unify(ARG5,MkIntegerTerm(ClauseId(ipc,pe)));

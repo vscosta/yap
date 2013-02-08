@@ -394,7 +394,7 @@ initialization(G,OPT) :-
 	  '$do_error'(type_error(OPT),initialization(G,OPT))
 	).
 '$initialization'(G,now) :-
-	( '$notrace'(G) -> true ; format(user_error,':- ~w:~w failed.~n',[M,G]) ).
+	( '$exit_system_mode'(G,prolog) -> true ; format(user_error,':- ~w:~w failed.~n',[M,G]) ).
 '$initialization'(G,after_load) :-
 	'$initialization'(G).
 % ignore for now.
@@ -412,7 +412,7 @@ initialization(G,OPT) :-
 	recorded('$system_initialisation',G,R),
 	erase(R),
 	G \= '$',
-	'$notrace'(G),
+	'$exit_system_mode'(G, prolog),
 	fail.
 '$exec_initialisation_goals' :-
 	'$show_consult_level'(Level),
@@ -426,7 +426,7 @@ initialization(G,OPT) :-
         ( OldMode == on -> '$exit_system_mode' ; true ),
 	% run initialization under user control (so allow debugging this stuff).
 	(
-	  '$system_catch'('$oncenotrace'(M:G), M, Error, user:'$LoopError'(Error, top)),
+	  '$system_catch'(once(M:G), M, Error, user:'$LoopError'(Error, top)),
 	  fail
 	;
           OldMode = on,
@@ -895,7 +895,7 @@ absolute_file_name(File,Opts,TrueFileName) :-
 
 
 '$extend_path_directory'(Name, D, File, Opts, NewFile, Call) :-
-	'$notrace'(user:file_search_path(Name, Dir)),
+	user:file_search_path(Name, Dir),
 	'$extend_pathd'(Dir, D, File, Opts, NewFile, Call).
 
 '$extend_pathd'(Dir, A, File, Opts, NewFile, Call) :-

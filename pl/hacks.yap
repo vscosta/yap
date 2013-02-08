@@ -126,6 +126,7 @@ show_cp(CP, Continuation) -->
 show_env(Env,Cont,NCont) -->
 	{
 	 yap_hacks:continuation(Env, Addr, NCont, _),
+	format('0x~16r 0x~16r~n',[Env,NCont]),
 	 yap_hacks:cp_to_predicate(Cont, Mod, Name, Arity, ClId)
 	},
         [ '0x~16r~t  ~16+ ~d~16+ ~q:' -

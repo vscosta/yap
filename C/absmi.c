@@ -512,26 +512,6 @@ Term Yap_XREGS[MaxTemps];	/* 29                                     */
 
 #include "arith2.h"
 
-/*
-  I can creep if I am not a prolog builtin that has been called
-  by a prolog builtin,
-  exception: meta-calls
-*/
-static PredEntry *
-creep_allowed(PredEntry *p, PredEntry *p0)
-{
-  if (!p0)
-    return NULL;
-  if (p0 == PredMetaCall)
-    return p0;
-  if (!p0->ModuleOfPred && 
-      (!p ||
-       !p->ModuleOfPred ||
-       p->PredFlags & StandardPredFlag))
-    return NULL;
-  return p;
-}
-
 #ifdef COROUTINING
 /*
   Imagine we are interrupting the execution, say, because we have a spy
@@ -2868,11 +2848,6 @@ Yap_absmi(int inp)
 	  CreepFlag = CalculateStackGap();
 	goto fail;
       }
-      if (LOCAL_ActiveSignals & YAP_CREEP_SIGNAL) {
-	PredEntry *ap = PREG->u.Osbpp.p;
-	SREG = (CELL *) ap;
-	goto creepc;
-      }
       SREG = (CELL *) PREG->u.Osbpp.p;
       if (LOCAL_ActiveSignals & YAP_CDOVF_SIGNAL) {
 	SET_ASP(YREG, PREG->u.Osbpp.s);
@@ -3331,7 +3306,6 @@ Yap_absmi(int inp)
       /* tell whether we can creep or not, this is hard because we will
 	 lose the info RSN
       */
-      PP = creep_allowed((PredEntry*)SREG,PP);
       BEGD(d0);
       d0 = ((PredEntry *)(SREG))->ArityOfPE;
       if (d0 == 0) {
