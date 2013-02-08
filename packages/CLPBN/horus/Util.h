@@ -402,35 +402,26 @@ operator<< (std::ostream& os, const std::vector<T>& v)
 namespace func_obj {
 
 template<typename T>
-struct max : public std::binary_function<T, T, T>
-{
-  T operator() (const T& x, const T& y) const
-  {
+struct max : public std::binary_function<T, T, T> {
+  T operator() (const T& x, const T& y) const {
     return x < y ? y : x;
-  }
-};
+}};
 
 
 
 template <typename T>
-struct abs_diff : public std::binary_function<T, T, T>
-{
-  T operator() (const T& x, const T& y) const
-  {
+struct abs_diff : public std::binary_function<T, T, T> {
+  T operator() (const T& x, const T& y) const {
     return std::abs (x - y);
-  }
-};
+}};
 
 
 
 template <typename T>
-struct abs_diff_exp : public std::binary_function<T, T, T>
-{
-  T operator() (const T& x, const T& y) const
-  {
+struct abs_diff_exp : public std::binary_function<T, T, T> {
+  T operator() (const T& x, const T& y) const {
     return std::abs (std::exp (x) - std::exp (y));
-  }
-};
+}};
 
 }  // namespace func_obj
 

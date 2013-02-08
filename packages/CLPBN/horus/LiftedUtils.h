@@ -77,14 +77,12 @@ namespace std {
 template <> struct hash<horus::Symbol> {
   size_t operator() (const horus::Symbol& s) const {
     return std::hash<unsigned>() (s);
-  }
-};
+}};
 
 template <> struct hash<horus::LogVar> {
   size_t operator() (const horus::LogVar& X) const {
     return std::hash<unsigned>() (X);
-  }
-};
+}};
 
 }  // namespace std
 
