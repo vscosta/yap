@@ -6,19 +6,16 @@
 #include <string>
 #include <ostream>
 
-#include "ParfactorList.h"
+#include "ConstraintTree.h"
+#include "ProbFormula.h"
+#include "LiftedUtils.h"
 
 
 namespace horus {
 
-class ConstraintTree;
+class ParfactorList;
 
-enum LogVarType
-{
-  FULL_LV,
-  POS_LV,
-  NEG_LV
-};
+enum LogVarType { FULL_LV, POS_LV, NEG_LV };
 
 typedef long                     LiteralId;
 typedef std::vector<LogVarType>  LogVarTypes;
@@ -27,11 +24,11 @@ typedef std::vector<LogVarType>  LogVarTypes;
 class Literal
 {
   public:
-    Literal (LiteralId lid, const LogVars& lvs) :
-       lid_(lid), logVars_(lvs), negated_(false) { }
+    Literal (LiteralId lid, const LogVars& lvs)
+        : lid_(lid), logVars_(lvs), negated_(false) { }
 
-    Literal (const Literal& lit, bool negated) :
-       lid_(lit.lid_), logVars_(lit.logVars_), negated_(negated) { }
+    Literal (const Literal& lit, bool negated)
+        : lid_(lit.lid_), logVars_(lit.logVars_), negated_(negated) { }
 
     LiteralId lid (void) const { return lid_; }
 
@@ -47,13 +44,14 @@ class Literal
 
     bool isNegative (void) const { return negated_; }
 
-    bool isGround (ConstraintTree constr, LogVarSet ipgLogVars) const;
+    bool isGround (ConstraintTree constr, const LogVarSet& ipgLogVars) const;
 
     size_t indexOfLogVar (LogVar X) const;
 
-    std::string toString (LogVarSet ipgLogVars = LogVarSet(),
-      LogVarSet posCountedLvs = LogVarSet(),
-      LogVarSet negCountedLvs = LogVarSet()) const;
+    std::string toString (
+        LogVarSet ipgLogVars = LogVarSet(),
+        LogVarSet posCountedLvs = LogVarSet(),
+        LogVarSet negCountedLvs = LogVarSet()) const;
 
   private:
     friend std::ostream& operator<< (std::ostream&, const Literal&);
@@ -172,8 +170,7 @@ class LitLvTypes
 
     const LogVarTypes& logVarTypes (void) const { return lvTypes_; }
 
-    void setAllFullLogVars (void) {
-        std::fill (lvTypes_.begin(), lvTypes_.end(), LogVarType::FULL_LV); }
+    void setAllFullLogVars (void);
 
   private:
     friend std::ostream& operator<< (std::ostream&, const LitLvTypes&);

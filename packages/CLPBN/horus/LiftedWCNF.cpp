@@ -4,6 +4,7 @@
 #include <sstream>
 
 #include "LiftedWCNF.h"
+#include "ParfactorList.h"
 #include "ConstraintTree.h"
 #include "Indexer.h"
 
@@ -11,7 +12,9 @@
 namespace horus {
 
 bool
-Literal::isGround (ConstraintTree constr, LogVarSet ipgLogVars) const
+Literal::isGround (
+    ConstraintTree constr,
+    const LogVarSet& ipgLogVars) const
 {
   if (logVars_.empty()) {
     return true;
@@ -388,6 +391,14 @@ operator<< (std::ostream& os, const LitLvTypes& lit)
   }
   os << ">" ;
   return os;
+}
+
+
+
+void
+LitLvTypes::setAllFullLogVars (void)
+{
+  std::fill (lvTypes_.begin(), lvTypes_.end(), LogVarType::FULL_LV);
 }
 
 
