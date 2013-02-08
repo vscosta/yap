@@ -56,7 +56,7 @@ class Indexer
 inline
 Indexer::Indexer (const Ranges& ranges, bool calcOffsets)
     : index_(0), indices_(ranges.size(), 0), ranges_(ranges),
-      size_(util::sizeExpected (ranges))
+      size_(Util::sizeExpected (ranges))
 {
   if (calcOffsets) {
     calculateOffsets();
@@ -290,7 +290,7 @@ MapIndexer::MapIndexer (
   }
   offsets_.reserve (allArgs.size());
   for (size_t i = 0; i < allArgs.size(); i++) {
-    size_t idx = util::indexOf (wantedArgs, allArgs[i]);
+    size_t idx = Util::indexOf (wantedArgs, allArgs[i]);
     offsets_.push_back (idx != wantedArgs.size() ? offsets[idx] : 0);
   }
 }

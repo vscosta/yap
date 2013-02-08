@@ -29,7 +29,7 @@ Literal::isGround (
 size_t
 Literal::indexOfLogVar (LogVar X) const
 {
-  return util::indexOf (logVars_, X);
+  return Util::indexOf (logVars_, X);
 }
 
 
@@ -248,7 +248,7 @@ Clause::ipgCandidates (void) const
   for (size_t i = 0; i < allLvs.size(); i++) {
     bool valid = true;
     for (size_t j = 0; j < literals_.size(); j++) {
-      if (util::contains (literals_[j].logVars(), allLvs[i]) == false) {
+      if (Util::contains (literals_[j].logVars(), allLvs[i]) == false) {
         valid = false;
         break;
       }
@@ -455,7 +455,7 @@ LiftedWCNF::LiftedWCNF (const ParfactorList& pfList)
   clauses_.push_back(c2);
   */
 
-  if (globals::verbosity > 1) {
+  if (Globals::verbosity > 1) {
     std::cout << "FORMULA INDICATORS:" << std::endl;
     printFormulaIndicators();
     std::cout << std::endl;
@@ -490,7 +490,7 @@ LiftedWCNF::posWeight (LiteralId lid) const
 {
   std::unordered_map<LiteralId, std::pair<double,double>>::const_iterator it
       = weights_.find (lid);
-  return it != weights_.end() ? it->second.first : log_aware::one();
+  return it != weights_.end() ? it->second.first : LogAware::one();
 }
 
 
@@ -500,7 +500,7 @@ LiftedWCNF::negWeight (LiteralId lid) const
 {
   std::unordered_map<LiteralId, std::pair<double,double>>::const_iterator it
       = weights_.find (lid);
-  return it != weights_.end() ? it->second.second : log_aware::one();
+  return it != weights_.end() ? it->second.second : LogAware::one();
 }
 
 
@@ -508,7 +508,7 @@ LiftedWCNF::negWeight (LiteralId lid) const
 std::vector<LiteralId>
 LiftedWCNF::prvGroupLiterals (PrvGroup prvGroup)
 {
-  assert (util::contains (map_, prvGroup));
+  assert (Util::contains (map_, prvGroup));
   return map_[prvGroup];
 }
 
@@ -537,7 +537,7 @@ LiftedWCNF::createClause (LiteralId lid) const
 LiteralId
 LiftedWCNF::getLiteralId (PrvGroup prvGroup, unsigned range)
 {
-  assert (util::contains (map_, prvGroup));
+  assert (Util::contains (map_, prvGroup));
   return map_[prvGroup][range];
 }
 
@@ -550,7 +550,7 @@ LiftedWCNF::addIndicatorClauses (const ParfactorList& pfList)
   while (it != pfList.end()) {
     const ProbFormulas& formulas = (*it)->arguments();
     for (size_t i = 0; i < formulas.size(); i++) {
-      if (util::contains (map_, formulas[i].group()) == false) {
+      if (Util::contains (map_, formulas[i].group()) == false) {
         ConstraintTree tempConstr = (*it)->constr()->projectedCopy(
             formulas[i].logVars());
         Clause* clause = new Clause (tempConstr);
@@ -595,7 +595,7 @@ LiftedWCNF::addParameterClauses (const ParfactorList& pfList)
       // ¬θxi|u1,...,un v λu1           -> tempClause
       // ¬θxi|u1,...,un v λu2           -> tempClause
       double posWeight = (**it)[indexer];
-      addWeight (paramVarLid, posWeight, log_aware::one());
+      addWeight (paramVarLid, posWeight, LogAware::one());
 
       Clause* clause1 = new Clause (*(*it)->constr());
 
@@ -634,7 +634,7 @@ LiftedWCNF::printFormulaIndicators (void) const
   while (it != pfList_.end()) {
     const ProbFormulas& formulas = (*it)->arguments();
     for (size_t i = 0; i < formulas.size(); i++) {
-      if (util::contains (allGroups, formulas[i].group()) == false) {
+      if (Util::contains (allGroups, formulas[i].group()) == false) {
         allGroups.insert (formulas[i].group());
         std::cout << formulas[i] << " | " ;
         ConstraintTree tempCt = (*it)->constr()->projectedCopy (

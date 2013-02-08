@@ -13,7 +13,7 @@ Var::Var (const Var* v)
   varId_    = v->varId();
   range_    = v->range();
   evidence_ = v->getEvidence();
-  index_    = util::maxUnsigned();
+  index_    = Util::maxUnsigned();
 }
 
 
@@ -25,7 +25,7 @@ Var::Var (VarId varId, unsigned range, int evidence)
   varId_    = varId;
   range_    = range;
   evidence_ = evidence;
-  index_    = util::maxUnsigned();
+  index_    = Util::maxUnsigned();
 }
 
 
@@ -81,7 +81,7 @@ void
 Var::addVarInfo (
     VarId vid, std::string label, const States& states)
 {
-  assert (util::contains (varsInfo_, vid) == false);
+  assert (Util::contains (varsInfo_, vid) == false);
   varsInfo_.insert (std::make_pair (vid, VarInfo (label, states)));
 }
 
@@ -90,7 +90,7 @@ Var::addVarInfo (
 VarInfo
 Var::getVarInfo (VarId vid)
 {
-  assert (util::contains (varsInfo_, vid));
+  assert (Util::contains (varsInfo_, vid));
   return varsInfo_.find (vid)->second;
 }
 

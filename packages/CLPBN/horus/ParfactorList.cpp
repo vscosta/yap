@@ -244,13 +244,13 @@ ParfactorList::addToShatteredList (Parfactor* g)
       shattRes = shatter (*pfIter, pf);
       if (shattRes.first.empty() == false) {
         pfIter = removeAndDelete (pfIter);
-        util::addToQueue (residuals, shattRes.first);
+        Util::addToQueue (residuals, shattRes.first);
       } else {
         ++ pfIter;
       }
       if (shattRes.second.empty() == false) {
         delete pf;
-        util::addToQueue (residuals, shattRes.second);
+        Util::addToQueue (residuals, shattRes.second);
         pfSplitted = true;
         break;
       }
@@ -261,7 +261,7 @@ ParfactorList::addToShatteredList (Parfactor* g)
       if (res.empty()) {
         addShattered (pf);
       } else {
-        util::addToQueue (residuals, res);
+        Util::addToQueue (residuals, res);
       }
     }
   }
@@ -329,7 +329,7 @@ ParfactorList::shatterAgainstMySelf (
     size_t fIdx2)
 {
   /*
-  util::printDashedLine();
+  Util::printDashedLine();
   std::cout << "-> SHATTERING" << std::endl;
   g->print();
   std::cout << "-> ON: " << g->argument (fIdx1) << "|" ;
@@ -338,7 +338,7 @@ ParfactorList::shatterAgainstMySelf (
   std::cout << "-> ON: " << g->argument (fIdx2) << "|" ;
   std::cout << g->constr()->tupleSet (g->argument (fIdx2).logVars())
   std::cout << std::endl;
-  util::printDashedLine();
+  Util::printDashedLine();
   */
   ProbFormula& f1 = g->argument (fIdx1);
   ProbFormula& f2 = g->argument (fIdx2);
@@ -399,7 +399,7 @@ ParfactorList::shatterAgainstMySelf (
         res.push_back (res1[i]);
       }
     } else {
-      util::addToVector (res, res2);
+      Util::addToVector (res, res2);
       for (size_t j = 0; j < res2.size(); j++) {
       }
       if (res1[i] != g) {
@@ -448,7 +448,7 @@ ParfactorList::shatter (
   ProbFormula& f1 = g1->argument (fIdx1);
   ProbFormula& f2 = g2->argument (fIdx2);
   /*
-  util::printDashedLine();
+  Util::printDashedLine();
   std::cout << "-> SHATTERING" << std::endl;
   g1->print();
   std::cout << "-> WITH" << std::endl;
@@ -457,7 +457,7 @@ ParfactorList::shatter (
   std::cout << g1->constr()->tupleSet (f1.logVars()) << std::endl;
   std::cout << "-> ON: " << f2 << "|" ;
   std::cout << g2->constr()->tupleSet (f2.logVars()) << std::endl;
-  util::printDashedLine();
+  Util::printDashedLine();
   */
   if (f1.isAtom()) {
     f2.setGroup (f1.group());

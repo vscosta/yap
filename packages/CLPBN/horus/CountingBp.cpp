@@ -52,8 +52,8 @@ CountingBp::printSolverFlags (void) const
   }
   ss << ",bp_max_iter=" << WeightedBp::maxIterations();
   ss << ",bp_accuracy=" << WeightedBp::accuracy();
-  ss << ",log_domain=" << util::toString (globals::logDomain);
-  ss << ",fif=" << util::toString (CountingBp::fif_);
+  ss << ",log_domain=" << Util::toString (Globals::logDomain);
+  ss << ",fif=" << Util::toString (CountingBp::fif_);
   ss << "]" ;
   std::cout << ss.str() << std::endl;
 }
@@ -103,18 +103,18 @@ CountingBp::findIdenticalFactors()
     return;
   }
   for (size_t i = 0; i < facNodes.size(); i++) {
-    facNodes[i]->factor().setDistId (util::maxUnsigned());
+    facNodes[i]->factor().setDistId (Util::maxUnsigned());
   }
   unsigned groupCount = 1;
   for (size_t i = 0; i < facNodes.size() - 1; i++) {
     Factor& f1 = facNodes[i]->factor();
-    if (f1.distId() != util::maxUnsigned()) {
+    if (f1.distId() != Util::maxUnsigned()) {
       continue;
     }
     f1.setDistId (groupCount);
     for (size_t j = i + 1; j < facNodes.size(); j++) {
       Factor& f2 = facNodes[j]->factor();
-      if (f2.distId() != util::maxUnsigned()) {
+      if (f2.distId() != Util::maxUnsigned()) {
         continue;
       }
       if (f1.size()   == f2.size()   &&
@@ -303,7 +303,7 @@ CountingBp::getSignature (const FacNode* facNode)
 VarId
 CountingBp::getRepresentative (VarId vid)
 {
-  assert (util::contains (varClusterMap_, vid));
+  assert (Util::contains (varClusterMap_, vid));
   VarCluster* vc = varClusterMap_.find (vid)->second;
   return vc->representative()->varId();
 }
@@ -314,7 +314,7 @@ FacNode*
 CountingBp::getRepresentative (FacNode* fn)
 {
   for (size_t i = 0; i < facClusters_.size(); i++) {
-    if (util::contains (facClusters_[i]->members(), fn)) {
+    if (Util::contains (facClusters_[i]->members(), fn)) {
       return facClusters_[i]->representative();
     }
   }

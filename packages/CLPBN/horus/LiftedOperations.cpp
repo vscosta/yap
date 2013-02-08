@@ -47,13 +47,13 @@ LiftedOperations::shatterAgainstQuery (
     }
     pfList.add (newPfs);
   }
-  if (globals::verbosity > 2) {
-    util::printAsteriskLine();
+  if (Globals::verbosity > 2) {
+    Util::printAsteriskLine();
     std::cout << "SHATTERED AGAINST THE QUERY" << std::endl;
     for (size_t i = 0; i < query.size(); i++) {
       std::cout << " -> " << query[i] << std::endl;
     }
-    util::printAsteriskLine();
+    Util::printAsteriskLine();
     pfList.print();
   }
 }
@@ -85,11 +85,11 @@ LiftedOperations::runWeakBayesBall (
     PrvGroup group = todo.front();
     ParfactorList::iterator it = pfList.begin();
     while (it != pfList.end()) {
-      if (util::contains (requiredPfs, *it) == false &&
+      if (Util::contains (requiredPfs, *it) == false &&
           (*it)->containsGroup (group)) {
         std::vector<PrvGroup> groups = (*it)->getAllGroups();
         for (size_t i = 0; i < groups.size(); i++) {
-          if (util::contains (done, groups[i]) == false) {
+          if (Util::contains (done, groups[i]) == false) {
             todo.push (groups[i]);
             done.insert (groups[i]);
           }
@@ -104,10 +104,10 @@ LiftedOperations::runWeakBayesBall (
   ParfactorList::iterator it = pfList.begin();
   bool foundNotRequired = false;
   while (it != pfList.end()) {
-    if (util::contains (requiredPfs, *it) == false) {
-      if (globals::verbosity > 2) {
+    if (Util::contains (requiredPfs, *it) == false) {
+      if (Globals::verbosity > 2) {
         if (foundNotRequired == false) {
-          util::printHeader ("PARFACTORS TO DISCARD");
+          Util::printHeader ("PARFACTORS TO DISCARD");
           foundNotRequired = true;
         }
         (*it)->print();
@@ -137,7 +137,7 @@ LiftedOperations::absorveEvidence (
         if (absorvedPfs.size() == 1 && !absorvedPfs[0]) {
           // just remove pf;
         } else {
-          util::addToVector (newPfs, absorvedPfs);
+          Util::addToVector (newPfs, absorvedPfs);
         }
         delete pf;
       } else {
@@ -147,13 +147,13 @@ LiftedOperations::absorveEvidence (
     }
     pfList.add (newPfs);
   }
-  if (globals::verbosity > 2 && obsFormulas.empty() == false) {
-    util::printAsteriskLine();
+  if (Globals::verbosity > 2 && obsFormulas.empty() == false) {
+    Util::printAsteriskLine();
     std::cout << "AFTER EVIDENCE ABSORVED" << std::endl;
     for (size_t i = 0; i < obsFormulas.size(); i++) {
       std::cout << " -> " << obsFormulas[i] << std::endl;
     }
-    util::printAsteriskLine();
+    Util::printAsteriskLine();
     pfList.print();
   }
 }

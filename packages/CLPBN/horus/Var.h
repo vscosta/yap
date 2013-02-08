@@ -26,7 +26,7 @@ class Var
   public:
     Var (const Var*);
 
-    Var (VarId, unsigned, int = constants::NO_EVIDENCE);
+    Var (VarId, unsigned, int = Constants::NO_EVIDENCE);
 
     virtual ~Var (void) { };
 
@@ -79,7 +79,7 @@ class Var
 inline bool
 Var::hasEvidence (void) const
 {
-  return evidence_ != constants::NO_EVIDENCE;
+  return evidence_ != Constants::NO_EVIDENCE;
 }
 
 

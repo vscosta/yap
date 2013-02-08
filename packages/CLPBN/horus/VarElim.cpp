@@ -13,7 +13,7 @@ namespace horus {
 Params
 VarElim::solveQuery (VarIds queryVids)
 {
-  if (globals::verbosity > 1) {
+  if (Globals::verbosity > 1) {
     std::cout << "Solving query on " ;
     for (size_t i = 0; i < queryVids.size(); i++) {
       if (i != 0) std::cout << ", " ;
@@ -28,8 +28,8 @@ VarElim::solveQuery (VarIds queryVids)
   createFactorList();
   absorveEvidence();
   Params params = processFactorList (queryVids);
-  if (globals::logDomain) {
-    util::exp (params);
+  if (Globals::logDomain) {
+    Util::exp (params);
   }
   return params;
 }
@@ -49,7 +49,7 @@ VarElim::printSolverFlags (void) const
     case ElimHeuristic::MIN_FILL:          ss << "min_fill";          break;
     case ElimHeuristic::WEIGHTED_MIN_FILL: ss << "weighted_min_fill"; break;
   }
-  ss << ",log_domain=" << util::toString (globals::logDomain);
+  ss << ",log_domain=" << Util::toString (Globals::logDomain);
   ss << "]" ;
   std::cout << ss.str() << std::endl;
 }
@@ -81,15 +81,15 @@ VarElim::createFactorList (void)
 void
 VarElim::absorveEvidence (void)
 {
-  if (globals::verbosity > 2) {
-    util::printDashedLine();
+  if (Globals::verbosity > 2) {
+    Util::printDashedLine();
     std::cout << "(initial factor list)" << std::endl;
     printActiveFactors();
   }
   const VarNodes& varNodes = fg.varNodes();
   for (size_t i = 0; i < varNodes.size(); i++) {
     if (varNodes[i]->hasEvidence()) {
-      if (globals::verbosity > 1) {
+      if (Globals::verbosity > 1) {
         std::cout << "-> aborving evidence on ";
         std::cout << varNodes[i]->label() << " = " ;
         std::cout << varNodes[i]->getEvidence() << std::endl;
@@ -117,9 +117,9 @@ VarElim::processFactorList (const VarIds& queryVids)
   VarIds elimOrder = ElimGraph::getEliminationOrder (
       factorList_, queryVids);
   for (size_t i = 0; i < elimOrder.size(); i++) {
-    if (globals::verbosity >= 2) {
-      if (globals::verbosity >= 3) {
-        util::printDashedLine();
+    if (Globals::verbosity >= 2) {
+      if (Globals::verbosity >= 3) {
+        Util::printDashedLine();
         printActiveFactors();
       }
       std::cout << "-> summing out " ;
@@ -146,7 +146,7 @@ VarElim::processFactorList (const VarIds& queryVids)
 
   result.reorderArguments (unobservedVids);
   result.normalize();
-  if (globals::verbosity > 0) {
+  if (Globals::verbosity > 0) {
     std::cout << "total factor size:   " << totalFactorSize_   << std::endl;
     std::cout << "largest factor size: " << largestFactorSize_ << std::endl;
     std::cout << std::endl;
