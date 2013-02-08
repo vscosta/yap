@@ -194,7 +194,7 @@ char   *STD_PROTO(Yap_FindExecutable,(void));
 void	STD_PROTO(Yap_InitLowProf,(void));
 #if  LOW_PROF
 void	STD_PROTO(Yap_inform_profiler_of_clause__,(void *,void *,struct pred_entry *, gprof_info));
-#define Yap_inform_profiler_of_clause(CODE0,CODEF,AP,MODE) {if (LOCAL_FPreds) Yap_inform_profiler_of_clause__(CODE0,CODEF,AP,MODE);}
+#define Yap_inform_profiler_of_clause(CODE0,CODEF,AP,MODE) {if (GLOBAL_FPreds) Yap_inform_profiler_of_clause__(CODE0,CODEF,AP,MODE);}
 #else
 #define	Yap_inform_profiler_of_clause(CODE0,CODEF,AP,MODE)
 #endif

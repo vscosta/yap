@@ -252,23 +252,6 @@ UInt				ImportDBRefHashTableSize		=0
 UInt				ImportDBRefHashTableNum			=0
 yamop			       *ImportFAILCODE				=NULL
 
-//gprof.c
-Int 				ProfCalls				void 
-Int				ProfGCs 				void
-Int				ProfHGrows 				void
-Int				ProfSGrows 				void
-Int				ProfMallocs 				void
-Int				ProfIndexing 				void
-Int				ProfOn 					void
-Int				ProfOns					void
-struct RB_red_blk_node* 	ProfilerRoot				void
-struct RB_red_blk_node* 	ProfilerNil				void
-char*				DIRNAME					=NULL
-#if LOW_PROF
-int				ProfilerOn				=FALSE
-FILE*				FProf					=NULL
-FILE*				FPreds					=NULL
-#endif /* LOW_PROF */
 
 Functor				FunctorVar				=FunctorVar
 
