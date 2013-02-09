@@ -257,7 +257,7 @@ C_SOURCES= \
 	$(srcdir)/C/qlyr.c \
 	$(srcdir)/C/qlyw.c \
 	$(srcdir)/C/range.c \
-	$(srcdir)/C/save.c $(srcdir)/C/scanner.c \
+	$(srcdir)/C/save.c $(srcdir)/C/scanner.c $(srcdir)/C/signals.c \
 	$(srcdir)/C/sort.c $(srcdir)/C/stdpreds.c $(srcdir)/C/sysbits.c \
 	$(srcdir)/C/threads.c \
 	$(srcdir)/C/tracer.c $(srcdir)/C/unify.c $(srcdir)/C/userpreds.c  \
@@ -366,7 +366,7 @@ ENGINE_OBJECTS = \
 	myddas_util.o myddas_statistics.o myddas_top_level.o \
 	myddas_wkb2prolog.o modules.o other.o   \
 	parser.o qlyr.o qlyw.o range.o \
-	save.o scanner.o sort.o stdpreds.o \
+	save.o scanner.o signals.o sort.o stdpreds.o \
 	sysbits.o threads.o tracer.o \
 	udi.o\
 	unify.o userpreds.o utilpreds.o \
@@ -465,6 +465,9 @@ qlyw.o: $(srcdir)/C/qlyw.c config.h
 
 save.o: $(srcdir)/C/save.c config.h
 	$(CC) -c $(CFLAGS) $(srcdir)/C/save.c -o $@
+
+signals.o: $(srcdir)/C/signals.c config.h
+	$(CC) -c $(CFLAGS) $(srcdir)/C/signals.c -o $@
 
 sysbits.o: $(srcdir)/C/sysbits.c config.h
 	$(CC) -c $(CFLAGS) $(srcdir)/C/sysbits.c -o $@
