@@ -497,11 +497,11 @@ true :- true.
 	  '$write_answer'(NV, LGs, Written),
 	  '$write_query_answer_true'(Written),
 	  (
-	   '$prompt_alternatives_on'(determinism), CP = NCP, DCP = 0 ->
-	   nl(user_error),
+	   '$prompt_alternatives_on'(determinism), CP = NCP, DCP = 0 
+	   ->
+	   format(user_error, '.~n', []),
 	   !
 	  ;
-	
 	   '$another',
 	   !
 	  ),
@@ -517,8 +517,9 @@ true :- true.
 	 '$delayed_goals'(G, [], NV, LGs, _),
 	 '$write_answer'(NV, LGs, Written),
 	 ( Written = [] ->
-	 !,'$present_answer'(C, yes);
-	 '$another', !
+	   !,'$present_answer'(C, true)
+	 ;
+	   '$another', !
 	 ),
 	 fail.
  '$yes_no'(_,_) :-
@@ -546,9 +547,9 @@ true :- true.
 
 '$out_neg_answer' :-
 	 ( '$undefined'(print_message(_,_),prolog) -> 
-	    '$present_answer'(user_error,"no~n", [])
+	    '$present_answer'(user_error,'false.~n', [])
 	 ;
-	    print_message(help,no)
+	    print_message(help,false)
 	 ),
 	 fail.
 
@@ -559,7 +560,7 @@ true :- true.
 	( '$enter_system_mode' ; '$exit_system_mode', fail).
 
 '$write_query_answer_true'([]) :- !,
-	format(user_error,'~ntrue',[]).
+	format(user_error,'true',[]).
 '$write_query_answer_true'(_).
 
 
@@ -579,7 +580,7 @@ true :- true.
 	   write_term(user_error,Answ,Opts) ;
 	   format(user_error,'~w',[Answ])
         ),
-	format(user_error,'~n', []).
+	format(user_error,'.~n', []).
 
 '$another' :-
 	format(user_error,' ? ',[]),
@@ -588,7 +589,7 @@ true :- true.
 
 '$do_another'(C) :-
 	(   C== 0'; ->  skip(user_input,10), %'
-	    '$add_nl_outside_console',
+	%    '$add_nl_outside_console',
 	    fail
 	;
 	    C== 10 -> '$add_nl_outside_console',

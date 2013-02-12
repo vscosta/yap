@@ -37,6 +37,8 @@ file_position(FileName,LN,MsgCodes) -->
 
 generate_message(halt) --> !,
 	['YAP execution halted'].
+generate_message(false) --> !,
+	['false.'].
 generate_message('$abort') --> !,
 	['YAP execution aborted'].
 generate_message(abort(user)) --> !,
