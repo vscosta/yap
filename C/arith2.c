@@ -51,12 +51,7 @@ p_mod(Term t1, Term t2) {
 	if (i2 == 0)
 	  return Yap_ArithError(EVALUATION_ERROR_ZERO_DIVISOR, t2, "X is " Int_FORMAT " mod 0", i1);
 	if (i1 == Int_MIN && i2 == -1) {
-#ifdef USE_GMP
-	  return Yap_gmp_add_ints(Int_MAX, 1);	  
-#else
-	  return Yap_ArithError(EVALUATION_ERROR_INT_OVERFLOW, t1,
-		    "// /2 with %d and %d", i1, i2);
-#endif
+	  return MkIntTerm(0);
 	}
 	mod = i1%i2;
 	if (mod && (mod ^ i2) < 0)
@@ -181,12 +176,7 @@ p_rem(Term t1, Term t2) {
 	if (i2 == 0)
 	  return Yap_ArithError(EVALUATION_ERROR_ZERO_DIVISOR, t2, "X is " Int_FORMAT " rem 0", i1);
 	if (i1 == Int_MIN && i2 == -1) {
-#ifdef USE_GMP
-	  return Yap_gmp_add_ints(Int_MAX, 1);	  
-#else
-	  return Yap_ArithError(EVALUATION_ERROR_INT_OVERFLOW, t1,
-		    "rem/2 with %d and %d", i1, i2);
-#endif
+	  return MkIntTerm(0);
 	}
 	RINT(i1%i2);
       }

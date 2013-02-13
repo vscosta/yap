@@ -1227,14 +1227,13 @@ case "$target_os" in
         then 
            YAPLIB_LD="\$(CC) -shared"
            EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -lYap -Wl,-R,\$(YAPLIBDIR) -Wl,-R,\$(LIBDIR)"
-           INSTALL_ENV="LD_LIBRARY_PATH=\$(DESTDIR)\$(LIBDIR):\$(DESTDIR)\$(YAPLIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
-           PRE_INSTALL_ENV="LD_LIBRARY_PATH=\$(abs_top_builddir)"
+           INSTALL_ENV="LD_LIBRARY_PATH=:\$(DESTDIR)\$(LIBDIR):\$(DESTDIR)\$(YAPLIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
         else
            YAPLIB_LD="\$(CC)"
            EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -Wl,-R,\$(YAPLIBDIR) -Wl,-R,\$(LIBDIR)"
            INSTALL_ENV="YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
-           PRE_INSTALL_ENV=""
         fi
+        PRE_INSTALL_ENV="LD_LIBRARY_PATH=$LD_LIBRARY_PATH:\$(abs_top_builddir):\$(abs_top_builddir)/lib/sys"
 	;;
       *sunos4*)
 	M4="/usr/5bin/m4"

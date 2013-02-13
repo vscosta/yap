@@ -46,6 +46,8 @@
 #define PLVERSION YAP_VERSION
 #define PLNAME "yap"
 
+#define SWIP "swi_"
+
 /* try not to pollute the SWI space */
 #ifdef P
 #undef P

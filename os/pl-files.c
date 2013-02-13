@@ -828,7 +828,7 @@ PRED_IMPL("tmp_file_stream", 3, tmp_file_stream, 0)
 
 
 static
-PRED_IMPL("delete_file", 1, delete_file, 0)
+PRED_IMPL("swi_delete_file", 1, delete_file, 0)
 { PRED_LD
   char *n;
   atom_t aname;
@@ -1125,7 +1125,7 @@ BeginPredDefs(files)
   PRED_DEF("exists_directory", 1, exists_directory, 0)
   PRED_DEF("tmp_file", 2, tmp_file, 0)
   PRED_DEF("tmp_file_stream", 3, tmp_file_stream, 0)
-  PRED_DEF("delete_file", 1, delete_file, 0)
+  PRED_DEF("swi_delete_file", 1, delete_file, 0)
   PRED_DEF("delete_directory", 1, delete_directory, 0)
   PRED_DEF("make_directory", 1, make_directory, 0)
   PRED_DEF("same_file", 2, same_file, 0)

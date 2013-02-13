@@ -88,7 +88,77 @@ check_int(I, Inp) :-
 	throw(error(type_error(integer,I),Inp)).
 
 % file operations
+% file operations
 
+delete_file(IFile) :-
+	true_file_name(IFile, File),
+	delete_file(File, off, on, off).
+
+delete_file(IFile, Opts) :-
+	true_file_name(IFile, File),
+	process_delete_file_opts(Opts, Dir, Recurse, Ignore, delete_file(File,Opts)),
+	delete_file(File, Dir, Recurse, Ignore).
+
+process_delete_file_opts(V, _, _, _, T) :- var(V), !,
+	throw(error(instantiation_error,T)).
+process_delete_file_opts([], off, off, off, _) :- !.
+process_delete_file_opts([V|_], _, _, _, T) :- var(V), !,
+	throw(error(instantiation_error,T)).
+process_delete_file_opts([directory|Opts], on, Recurse, Ignore, T) :- !,
+	process_delete_file_opts(Opts, _, Recurse, Ignore, T).
+process_delete_file_opts([recursive|Opts], Dir, on, Ignore, T) :- !,
+	process_delete_file_opts(Opts, Dir, _, Ignore, T).
+process_delete_file_opts([ignore|Opts], Dir, Recurse, on, T) :- !,
+	process_delete_file_opts(Opts, Dir, Recurse, _, T).
+process_delete_file_opts(Opts, _, _, _, T) :-
+	throw(error(domain_error(delete_file_option,Opts),T)).
+
+delete_file(IFile, Dir, Recurse, Ignore) :-
+	true_file_name(IFile, File),
+	file_property(File, Type, _, _, _Permissions, _, Ignore),
+	delete_file(Type, File, Dir, Recurse, Ignore).
+
+delete_file(N, File, _Dir, _Recurse, Ignore) :- number(N), !, % error.
+	handle_system_error(N, Ignore, delete_file(File)).
+delete_file(directory, File, Dir, Recurse, Ignore) :-
+	delete_directory(Dir, File, Recurse, Ignore).
+delete_file(_, File, _Dir, _Recurse, Ignore) :-
+	unlink_file(File, Ignore).
+
+unlink_file(IFile, Ignore) :-
+	true_file_name(IFile, File),
+	unlink(File, N),
+	handle_system_error(N, Ignore, delete_file(File)).
+
+delete_directory(on, File, _Recurse, Ignore) :-
+	rm_directory(File, Ignore).
+delete_directory(off, File, Recurse, Ignore) :-
+	delete_directory(Recurse, File, Ignore).
+
+rm_directory(File, Ignore) :-
+	rmdir(File, Error),
+	handle_system_error(Error, Ignore, delete_file(File)).
+
+delete_directory(on, File, Ignore) :-
+	directory_files(File, FileList, Ignore),
+	path_separator(D),
+	atom_concat(File, D, FileP),
+	delete_dirfiles(FileList, FileP, Ignore),
+	rmdir(File, Ignore).
+
+delete_dirfiles([], _, _).
+delete_dirfiles(['.'|Fs], File, Ignore) :- !,
+	delete_dirfiles(Fs, File, Ignore).
+delete_dirfiles(['..'|Fs], File, Ignore) :- !,
+	delete_dirfiles(Fs, File, Ignore).
+delete_dirfiles([F|Fs], File, Ignore) :-
+	atom_concat(File,F,TrueF),
+	delete_file(TrueF, off, on, Ignore),
+	delete_dirfiles(Fs, File, Ignore).
+
+directory_files(File, FileList, Ignore) :-
+       list_directory(File, FileList, Error),
+       handle_system_error(Error, Ignore, directory_files(File, FileList)).
 
 handle_system_error(Error, _Ignore, _G) :- var(Error), !.
 handle_system_error(Error, off, G) :- atom(Error), !,
