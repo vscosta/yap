@@ -12,8 +12,7 @@ namespace Horus {
 class Parfactor;
 
 
-class ParfactorList
-{
+class ParfactorList {
   public:
     ParfactorList (void) { }
 
@@ -103,8 +102,7 @@ class ParfactorList
         const ProbFormula&, ConstraintTree,
         const ProbFormula&, ConstraintTree) const;
 
-    struct sortByParams
-    {
+    struct sortByParams {
       bool operator() (const Parfactor* pf1, const Parfactor* pf2)
       {
         if (pf1->params().size() < pf2->params().size()) {

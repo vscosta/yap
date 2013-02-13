@@ -14,8 +14,7 @@ namespace Horus {
 
 typedef unsigned long PrvGroup;
 
-class ProbFormula
-{
+class ProbFormula {
   public:
     ProbFormula (Symbol f, const LogVars& lvs, unsigned range)
         : functor_(f), logVars_(lvs), range_(range),
@@ -81,8 +80,7 @@ class ProbFormula
 typedef std::vector<ProbFormula> ProbFormulas;
 
 
-class ObservedFormula
-{
+class ObservedFormula {
   public:
     ObservedFormula (Symbol f, unsigned a, unsigned ev);
 

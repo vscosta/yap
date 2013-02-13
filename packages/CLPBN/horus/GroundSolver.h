@@ -7,8 +7,7 @@
 
 namespace Horus {
 
-class GroundSolver
-{
+class GroundSolver {
   public:
     GroundSolver (const FactorGraph& factorGraph) : fg(factorGraph) { }
 

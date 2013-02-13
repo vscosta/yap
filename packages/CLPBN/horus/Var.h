@@ -12,8 +12,7 @@
 
 namespace Horus {
 
-struct VarInfo
-{
+struct VarInfo {
   VarInfo (std::string l, const States& sts)
       : label(l), states(sts) { }
   std::string label;
@@ -21,8 +20,7 @@ struct VarInfo
 };
 
 
-class Var
-{
+class Var {
   public:
     Var (const Var*);
 

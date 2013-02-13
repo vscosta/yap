@@ -13,8 +13,7 @@
 
 namespace Horus {
 
-class Parfactor : public TFactor<ProbFormula>
-{
+class Parfactor : public TFactor<ProbFormula> {
   public:
     Parfactor (
         const ProbFormulas&,

@@ -6,8 +6,7 @@
 
 namespace Horus {
 
-class LiftedOperations
-{
+class LiftedOperations {
   public:
     static void shatterAgainstQuery (
         ParfactorList& pfList, const Grounds& query);

@@ -11,8 +11,7 @@ typedef std::vector<unsigned> Histogram;
 
 namespace Horus {
 
-class HistogramSet
-{
+class HistogramSet {
   public:
     HistogramSet (unsigned, unsigned);
 

@@ -19,8 +19,7 @@ enum MsgSchedule {
 };
 
 
-class BpLink
-{
+class BpLink {
   public:
     BpLink (FacNode* fn, VarNode* vn);
 
@@ -60,20 +59,22 @@ class BpLink
 typedef std::vector<BpLink*> BpLinks;
 
 
-class SPNodeInfo
-{
+class SPNodeInfo {
   public:
     SPNodeInfo (void) { }
+
     void addBpLink (BpLink* link) { links_.push_back (link); }
+
     const BpLinks& getLinks (void) { return links_; }
+
   private:
     BpLinks links_;
+
     DISALLOW_COPY_AND_ASSIGN (SPNodeInfo);
 };
 
 
-class BeliefProp : public GroundSolver
-{
+class BeliefProp : public GroundSolver {
   public:
     BeliefProp (const FactorGraph&);
 

@@ -6,8 +6,7 @@
 
 namespace Horus {
 
-class LiftedSolver
-{
+class LiftedSolver {
   public:
     LiftedSolver (const ParfactorList& pfList)
         : parfactorList(pfList) { }

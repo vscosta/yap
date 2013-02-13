@@ -8,8 +8,7 @@
 
 namespace Horus {
 
-class WeightedLink : public BpLink
-{
+class WeightedLink : public BpLink {
   public:
     WeightedLink (FacNode* fn, VarNode* vn, size_t idx, unsigned weight)
         : BpLink (fn, vn), index_(idx), weight_(weight),
@@ -43,8 +42,7 @@ WeightedLink::updateMessage (void)
 
 
 
-class WeightedBp : public BeliefProp
-{
+class WeightedBp : public BeliefProp {
   public:
     WeightedBp (const FactorGraph& fg,
         const std::vector<std::vector<unsigned>>& weights)

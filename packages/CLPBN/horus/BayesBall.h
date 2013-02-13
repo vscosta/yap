@@ -11,8 +11,7 @@
 
 namespace Horus {
 
-struct ScheduleInfo
-{
+struct ScheduleInfo {
   ScheduleInfo (BBNode* n, bool vfp, bool vfc)
       : node(n), visitedFromParent(vfp), visitedFromChild(vfc) { }
 
@@ -25,8 +24,7 @@ struct ScheduleInfo
 typedef std::queue<ScheduleInfo, std::list<ScheduleInfo>> Scheduling;
 
 
-class BayesBall
-{
+class BayesBall {
   public:
     BayesBall (FactorGraph& fg);
 

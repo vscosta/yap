@@ -10,8 +10,7 @@
 
 namespace Horus {
 
-class LiftedOperator
-{
+class LiftedOperator {
   public:
     virtual ~LiftedOperator (void) { }
 
@@ -35,8 +34,7 @@ class LiftedOperator
 
 
 
-class ProductOperator : public LiftedOperator
-{
+class ProductOperator : public LiftedOperator {
   public:
     ProductOperator (
         ParfactorList::iterator g1, ParfactorList::iterator g2,
@@ -62,8 +60,7 @@ class ProductOperator : public LiftedOperator
 
 
 
-class SumOutOperator : public LiftedOperator
-{
+class SumOutOperator : public LiftedOperator {
   public:
     SumOutOperator (PrvGroup group, ParfactorList& pfList)
         : group_(group), pfList_(pfList) { }
@@ -90,8 +87,7 @@ class SumOutOperator : public LiftedOperator
 
 
 
-class CountingOperator : public LiftedOperator
-{
+class CountingOperator : public LiftedOperator {
   public:
     CountingOperator (
         ParfactorList::iterator pfIter,
@@ -119,8 +115,7 @@ class CountingOperator : public LiftedOperator
 
 
 
-class GroundOperator : public LiftedOperator
-{
+class GroundOperator : public LiftedOperator {
   public:
     GroundOperator (
         PrvGroup group,
@@ -148,8 +143,7 @@ class GroundOperator : public LiftedOperator
 
 
 
-class LiftedVe : public LiftedSolver
-{
+class LiftedVe : public LiftedSolver {
   public:
    LiftedVe (const ParfactorList& pfList)
        : LiftedSolver(pfList) { }

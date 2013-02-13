@@ -15,14 +15,17 @@ namespace Horus {
 
 class ParfactorList;
 
-enum LogVarType { FULL_LV, POS_LV, NEG_LV };
+enum LogVarType {
+  FULL_LV,
+  POS_LV,
+  NEG_LV
+};
 
 typedef long                     LiteralId;
 typedef std::vector<LogVarType>  LogVarTypes;
 
 
-class Literal
-{
+class Literal {
   public:
     Literal (LiteralId lid, const LogVars& lvs)
         : lid_(lid), logVars_(lvs), negated_(false) { }
@@ -65,8 +68,7 @@ typedef std::vector<Literal> Literals;
 
 
 
-class Clause
-{
+class Clause {
   public:
     Clause (const ConstraintTree& ct = ConstraintTree({})) : constr_(ct) { }
 
@@ -160,8 +162,7 @@ typedef std::vector<Clause*> Clauses;
 
 
 
-class LitLvTypes
-{
+class LitLvTypes {
   public:
     LitLvTypes (LiteralId lid, const LogVarTypes& lvTypes) :
         lid_(lid), lvTypes_(lvTypes) { }
@@ -201,8 +202,7 @@ typedef TinySet<LitLvTypes, CmpLitLvTypes> LitLvTypesSet;
 
 
 
-class LiftedWCNF
-{
+class LiftedWCNF {
   public:
     LiftedWCNF (const ParfactorList& pfList);
 

@@ -67,8 +67,7 @@ template <typename T> struct hash<std::vector<T>>
 
 namespace Horus {
 
-class VarCluster
-{
+class VarCluster {
   public:
     VarCluster (const VarNodes& vs) : members_(vs) { }
 
@@ -88,8 +87,7 @@ class VarCluster
 };
 
 
-class FacCluster
-{
+class FacCluster {
   public:
     FacCluster (const FacNodes& fcs, const VarClusters& vcs)
         : members_(fcs), varClusters_(vcs) { }
@@ -113,8 +111,7 @@ class FacCluster
 };
 
 
-class CountingBp : public GroundSolver
-{
+class CountingBp : public GroundSolver {
   public:
     CountingBp (const FactorGraph& fg);
 

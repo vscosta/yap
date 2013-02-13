@@ -27,8 +27,7 @@ enum CircuitNodeType {
 
 
 
-class CircuitNode
-{
+class CircuitNode {
   public:
     CircuitNode (void) { }
 
@@ -39,8 +38,7 @@ class CircuitNode
 
 
 
-class OrNode : public CircuitNode
-{
+class OrNode : public CircuitNode {
   public:
     OrNode (void) : CircuitNode(), leftBranch_(0), rightBranch_(0) { }
 
@@ -58,8 +56,7 @@ class OrNode : public CircuitNode
 
 
 
-class AndNode : public CircuitNode
-{
+class AndNode : public CircuitNode {
   public:
     AndNode (void) : CircuitNode(), leftBranch_(0), rightBranch_(0) { }
 
@@ -80,8 +77,7 @@ class AndNode : public CircuitNode
 
 
 
-class SetOrNode	: public CircuitNode
-{
+class SetOrNode	: public CircuitNode {
   public:
     SetOrNode (unsigned nrGroundings)
         : CircuitNode(), follow_(0), nrGroundings_(nrGroundings) { }
@@ -107,8 +103,7 @@ class SetOrNode	: public CircuitNode
 
 
 
-class SetAndNode : public CircuitNode
-{
+class SetAndNode : public CircuitNode {
   public:
     SetAndNode (unsigned nrGroundings)
         : CircuitNode(), follow_(0), nrGroundings_(nrGroundings) { }
@@ -126,8 +121,7 @@ class SetAndNode : public CircuitNode
 
 
 
-class IncExcNode : public CircuitNode
-{
+class IncExcNode : public CircuitNode {
   public:
     IncExcNode (void)
         : CircuitNode(), plus1Branch_(0), plus2Branch_(0), minusBranch_(0) { }
@@ -148,8 +142,7 @@ class IncExcNode : public CircuitNode
 
 
 
-class LeafNode : public CircuitNode
-{
+class LeafNode : public CircuitNode {
   public:
     LeafNode (Clause* clause, const LiftedWCNF& lwcnf)
         : CircuitNode(), clause_(clause), lwcnf_(lwcnf) { }
@@ -169,8 +162,7 @@ class LeafNode : public CircuitNode
 
 
 
-class SmoothNode : public CircuitNode
-{
+class SmoothNode : public CircuitNode {
   public:
     SmoothNode (const Clauses& clauses, const LiftedWCNF& lwcnf)
         : CircuitNode(), clauses_(clauses), lwcnf_(lwcnf) { }
@@ -190,8 +182,7 @@ class SmoothNode : public CircuitNode
 
 
 
-class TrueNode : public CircuitNode
-{
+class TrueNode : public CircuitNode {
   public:
     TrueNode (void) : CircuitNode() { }
 
@@ -200,8 +191,7 @@ class TrueNode : public CircuitNode
 
 
 
-class CompilationFailedNode : public CircuitNode
-{
+class CompilationFailedNode : public CircuitNode {
   public:
     CompilationFailedNode (void) : CircuitNode() { }
 
@@ -210,8 +200,7 @@ class CompilationFailedNode : public CircuitNode
 
 
 
-class LiftedCircuit
-{
+class LiftedCircuit {
   public:
     LiftedCircuit (const LiftedWCNF* lwcnf);
 
@@ -285,8 +274,7 @@ class LiftedCircuit
 
 
 
-class LiftedKc : public LiftedSolver
-{
+class LiftedKc : public LiftedSolver {
   public:
    LiftedKc (const ParfactorList& pfList)
        : LiftedSolver(pfList) { }

@@ -9,8 +9,7 @@
 
 namespace Horus {
 
-class BBNode : public Var
-{
+class BBNode : public Var {
   public:
     BBNode (Var* v) : Var (v), visited_(false),
         markedOnTop_(false), markedOnBottom_(false) { }
@@ -51,8 +50,7 @@ class BBNode : public Var
 };
 
 
-class BayesBallGraph
-{
+class BayesBallGraph {
   public:
     BayesBallGraph (void) { }
 

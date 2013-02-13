@@ -22,8 +22,7 @@ typedef std::vector<CTNode*>          CTNodes;
 typedef std::vector<ConstraintTree*>  ConstraintTrees;
 
 
-class CTNode
-{
+class CTNode {
   private:
     struct CmpSymbol {
       bool operator() (const CTNode* n1, const CTNode* n2) const {
@@ -100,8 +99,7 @@ CTNode::findSymbol (Symbol symb)
 std::ostream& operator<< (std::ostream&, const CTNode&);
 
 
-class ConstraintTree
-{
+class ConstraintTree {
   public:
     ConstraintTree (unsigned);
 
@@ -209,8 +207,7 @@ class ConstraintTree
     std::vector<std::pair<CTNode*, unsigned>> countNormalize (
         const CTNode*, unsigned);
 
-    static void split (
-        CTNode*, CTNode*, CTChilds&, CTChilds&, unsigned);
+    static void split (CTNode*, CTNode*, CTChilds&, CTChilds&, unsigned);
 
     CTNode*    root_;
     LogVars    logVars_;

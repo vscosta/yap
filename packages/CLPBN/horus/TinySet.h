@@ -9,8 +9,7 @@
 namespace Horus {
 
 template <typename T, typename Compare = std::less<T>>
-class TinySet
-{
+class TinySet {
   public:
     typedef typename std::vector<T>::iterator       iterator;
     typedef typename std::vector<T>::const_iterator const_iterator;

@@ -16,8 +16,7 @@ namespace Horus {
 class FacNode;
 
 
-class VarNode : public Var
-{
+class VarNode : public Var {
   public:
     VarNode (VarId varId, unsigned nrStates,
         int evidence = Constants::NO_EVIDENCE)
@@ -37,8 +36,7 @@ class VarNode : public Var
 
 
 
-class FacNode
-{
+class FacNode {
   public:
     FacNode (const Factor& f) : factor_(f), index_(-1) { }
 
@@ -66,8 +64,7 @@ class FacNode
 
 
 
-class FactorGraph
-{
+class FactorGraph {
   public:
     FactorGraph (void) : bayesFactors_(false) { }
 

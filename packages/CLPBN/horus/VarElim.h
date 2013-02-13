@@ -11,8 +11,7 @@
 
 namespace Horus {
 
-class VarElim : public GroundSolver
-{
+class VarElim : public GroundSolver {
   public:
     VarElim (const FactorGraph& fg) : GroundSolver (fg) { }
 

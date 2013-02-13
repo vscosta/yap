@@ -12,8 +12,7 @@
 
 namespace Horus {
 
-class Indexer
-{
+class Indexer {
   public:
     Indexer (const Ranges& ranges, bool calcOffsets = true);
 
@@ -200,8 +199,7 @@ operator<< (std::ostream& os, const Indexer& indexer)
 
 
 
-class MapIndexer
-{
+class MapIndexer {
   public:
     MapIndexer (const Ranges& ranges, const std::vector<bool>& mask);
 

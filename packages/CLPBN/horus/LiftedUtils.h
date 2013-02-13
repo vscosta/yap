@@ -12,8 +12,7 @@
 
 namespace Horus {
 
-class Symbol
-{
+class Symbol {
   public:
     Symbol (void) : id_(Util::maxUnsigned()) { }
 
@@ -32,8 +31,7 @@ class Symbol
 };
 
 
-class LogVar
-{
+class LogVar {
   public:
     LogVar (void) : id_(Util::maxUnsigned()) { }
 
@@ -111,8 +109,7 @@ void printSymbolDictionary (void);
 
 
 
-class Ground
-{
+class Ground {
   public:
     Ground (Symbol f) : functor_(f) { }
 
@@ -138,8 +135,7 @@ typedef std::vector<Ground> Grounds;
 
 
 
-class Substitution
-{
+class Substitution {
   public:
     void add (LogVar X_old, LogVar X_new);
 

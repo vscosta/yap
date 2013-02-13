@@ -13,8 +13,7 @@
 namespace Horus {
 
 template <typename T>
-class TFactor
-{
+class TFactor {
   public:
     const std::vector<T>& arguments (void) const { return args_; }
 
@@ -327,8 +326,7 @@ TFactor<T>::cartesianProduct (
 
 
 
-class Factor : public TFactor<VarId>
-{
+class Factor : public TFactor<VarId> {
   public:
     Factor (void) { }
 

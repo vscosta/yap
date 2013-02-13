@@ -12,16 +12,15 @@ namespace Horus {
 class FactorGraph;
 class WeightedBp;
 
-class LiftedBp : public LiftedSolver
-{
+class LiftedBp : public LiftedSolver{
   public:
-   LiftedBp (const ParfactorList& pfList);
+    LiftedBp (const ParfactorList& pfList);
 
-  ~LiftedBp (void);
+   ~LiftedBp (void);
 
-   Params solveQuery (const Grounds&);
+    Params solveQuery (const Grounds&);
 
-   void printSolverFlags (void) const;
+    void printSolverFlags (void) const;
 
   private:
     void refineParfactors (void);
