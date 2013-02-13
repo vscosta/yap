@@ -285,6 +285,7 @@ LiftedCircuit::exportToGraphViz (const char* fileName)
   std::ofstream out (fileName);
   if (!out.is_open()) {
     std::cerr << "Error: couldn't open file '" << fileName << "'." ;
+    std::cerr << std::endl;
     return;
   }
   out << "digraph {" << std::endl;

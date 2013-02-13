@@ -54,6 +54,7 @@ FactorGraph::readFromUaiFormat (const char* fileName)
   std::ifstream is (fileName);
   if (!is.is_open()) {
     std::cerr << "Error: couldn't open file '" << fileName << "'." ;
+    std::cerr << std::endl;
     exit (EXIT_FAILURE);
   }
   ignoreLines (is);
@@ -139,6 +140,7 @@ FactorGraph::readFromLibDaiFormat (const char* fileName)
   std::ifstream is (fileName);
   if (!is.is_open()) {
     std::cerr << "Error: couldn't open file '" << fileName << "'." ;
+    std::cerr << std::endl;
     exit (EXIT_FAILURE);
   }
   ignoreLines (is);
@@ -300,6 +302,7 @@ FactorGraph::exportToLibDai (const char* fileName) const
   std::ofstream out (fileName);
   if (!out.is_open()) {
     std::cerr << "Error: couldn't open file '" << fileName << "'." ;
+    std::cerr << std::endl;
     return;
   }
   out << facNodes_.size() << std::endl << std::endl;
@@ -331,6 +334,7 @@ FactorGraph::exportToUai (const char* fileName) const
   std::ofstream out (fileName);
   if (!out.is_open()) {
     std::cerr << "Error: couldn't open file '" << fileName << "'." ;
+    std::cerr << std::endl;
     return;
   }
   out << (bayesFactors_ ? "BAYES" : "MARKOV") ;
@@ -377,6 +381,7 @@ FactorGraph::exportToGraphViz (const char* fileName) const
   std::ofstream out (fileName);
   if (!out.is_open()) {
     std::cerr << "Error: couldn't open file '" << fileName << "'." ;
+    std::cerr << std::endl;
     return;
   }
   out << "graph \"" << fileName << "\" {" << std::endl;

@@ -99,6 +99,7 @@ ElimGraph::exportToGraphViz (
   std::ofstream out (fileName);
   if (!out.is_open()) {
     std::cerr << "Error: couldn't open file '" << fileName << "'." ;
+    std::cerr << std::endl;
     return;
   }
   out << "strict graph {" << std::endl;
