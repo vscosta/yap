@@ -66,9 +66,9 @@ MsgSchedule BeliefProp::schedule_ = MsgSchedule::seqFixedSch;
 
 
 
-BeliefProp::BeliefProp (const FactorGraph& fg) : GroundSolver (fg)
+BeliefProp::BeliefProp (const FactorGraph& fg)
+    : GroundSolver (fg), nIters_(0), runned_(false)
 {
-  runned_ = false;
 }
 
 

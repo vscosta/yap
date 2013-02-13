@@ -44,7 +44,7 @@ class CTNode {
 
     Symbol symbol (void) const { return symbol_; }
 
-    void setSymbol (const Symbol s) { symbol_ = s; }
+    void setSymbol (Symbol s) { symbol_ = s; }
 
     CTChilds& childs (void) { return childs_; }
 
@@ -237,8 +237,8 @@ ConstraintTree::logVarSet (void) const
 inline size_t
 ConstraintTree::nrLogVars (void) const
 {
-  return logVars_.size();
   assert (LogVarSet (logVars_) == logVarSet_);
+  return logVars_.size();
 }
 
 }  // namespace Horus
