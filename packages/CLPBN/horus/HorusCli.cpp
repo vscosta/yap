@@ -18,7 +18,7 @@ Horus::VarIds readQueryAndEvidence (
 
 void runSolver (const Horus::FactorGraph&, const Horus::VarIds&);
 
-const std::string USAGE = "usage: ./hcli [solver=hve|bp|cbp] \
+const std::string usage = "usage: ./hcli [solver=hve|bp|cbp] \
 [<OPTION>=<VALUE>]... <FILE> [<VAR>|<VAR>=<EVIDENCE>]... " ;
 
 
@@ -27,7 +27,7 @@ main (int argc, const char* argv[])
 {
   if (argc <= 1) {
     std::cerr << "Error: no probabilistic graphical model was given." ;
-    std::cerr << std::endl << USAGE << std::endl;
+    std::cerr << std::endl << usage << std::endl;
     exit (EXIT_FAILURE);
   }
   int idx = readHorusFlags (argc, argv);
@@ -72,12 +72,12 @@ readHorusFlags (int argc, const char* argv[])
     std::string rightArg = arg.substr (pos + 1);
     if (leftArg.empty()) {
       std::cerr << "Error: missing left argument." << std::endl;
-      std::cerr << USAGE << std::endl;
+      std::cerr << usage << std::endl;
       exit (EXIT_FAILURE);
     }
     if (rightArg.empty()) {
       std::cerr << "Error: missing right argument." << std::endl;
-      std::cerr << USAGE << std::endl;
+      std::cerr << usage << std::endl;
       exit (EXIT_FAILURE);
     }
     Horus::Util::setHorusFlag (leftArg, rightArg);
@@ -136,7 +136,7 @@ readQueryAndEvidence (
       std::string rightArg = arg.substr (pos + 1);
       if (leftArg.empty()) {
         std::cerr << "Error: missing left argument." << std::endl;
-        std::cerr << USAGE << std::endl;
+        std::cerr << usage << std::endl;
         exit (EXIT_FAILURE);
       }
       if (Horus::Util::isInteger (leftArg) == false) {
@@ -153,7 +153,7 @@ readQueryAndEvidence (
       }
       if (rightArg.empty()) {
         std::cerr << "Error: missing right argument." << std::endl;
-        std::cerr << USAGE << std::endl;
+        std::cerr << usage << std::endl;
         exit (EXIT_FAILURE);
       }
       if (Horus::Util::isInteger (rightArg) == false) {
@@ -183,13 +183,13 @@ runSolver (
 {
   Horus::GroundSolver* solver = 0;
   switch (Horus::Globals::groundSolver) {
-    case Horus::GroundSolverType::VE:
+    case Horus::GroundSolverType::veSolver:
       solver = new Horus::VarElim (fg);
       break;
-    case Horus::GroundSolverType::BP:
+    case Horus::GroundSolverType::bpSolver:
       solver = new Horus::BeliefProp (fg);
       break;
-    case Horus::GroundSolverType::CBP:
+    case Horus::GroundSolverType::CbpSolver:
       solver = new Horus::CountingBp (fg);
       break;
     default:

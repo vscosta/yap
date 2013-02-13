@@ -12,10 +12,10 @@
 namespace Horus {
 
 enum MsgSchedule {
-  SEQ_FIXED,
-  SEQ_RANDOM,
-  PARALLEL,
-  MAX_RESIDUAL
+  seqFixedSch,
+  seqRandomSch,
+  parallelSch,
+  maxResidualSch
 };
 
 

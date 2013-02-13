@@ -269,11 +269,11 @@ Clause::logVarTypes (size_t litIdx) const
   const LogVars& lvs = literals_[litIdx].logVars();
   for (size_t i = 0; i < lvs.size(); i++) {
     if (posCountedLvs_.contains (lvs[i])) {
-      types.push_back (LogVarType::POS_LV);
+      types.push_back (LogVarType::posLvt);
     } else if (negCountedLvs_.contains (lvs[i])) {
-      types.push_back (LogVarType::NEG_LV);
+      types.push_back (LogVarType::negLvt);
     } else {
-      types.push_back (LogVarType::FULL_LV);
+      types.push_back (LogVarType::fullLvt);
     }
   }
   return types;
@@ -384,9 +384,9 @@ operator<< (std::ostream& os, const LitLvTypes& lit)
   os << lit.lid_ << "<" ;
   for (size_t i = 0; i < lit.lvTypes_.size(); i++) {
     switch (lit.lvTypes_[i]) {
-      case LogVarType::FULL_LV: os << "F" ; break;
-      case LogVarType::POS_LV:  os << "P" ; break;
-      case LogVarType::NEG_LV:  os << "N" ; break;
+      case LogVarType::fullLvt: os << "F" ; break;
+      case LogVarType::posLvt:  os << "P" ; break;
+      case LogVarType::negLvt:  os << "N" ; break;
     }
   }
   os << ">" ;
@@ -398,7 +398,7 @@ operator<< (std::ostream& os, const LitLvTypes& lit)
 void
 LitLvTypes::setAllFullLogVars (void)
 {
-  std::fill (lvTypes_.begin(), lvTypes_.end(), LogVarType::FULL_LV);
+  std::fill (lvTypes_.begin(), lvTypes_.end(), LogVarType::fullLvt);
 }
 
 

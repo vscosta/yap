@@ -45,10 +45,10 @@ CountingBp::printSolverFlags (void) const
   ss << "counting bp [" ;
   ss << "bp_msg_schedule=" ;
   switch (WeightedBp::msgSchedule()) {
-    case MsgSchedule::SEQ_FIXED:    ss << "seq_fixed";    break;
-    case MsgSchedule::SEQ_RANDOM:   ss << "seq_random";   break;
-    case MsgSchedule::PARALLEL:     ss << "parallel";     break;
-    case MsgSchedule::MAX_RESIDUAL: ss << "max_residual"; break;
+    case MsgSchedule::seqFixedSch:    ss << "seq_fixed";    break;
+    case MsgSchedule::seqRandomSch:   ss << "seq_random";   break;
+    case MsgSchedule::parallelSch:    ss << "parallel";     break;
+    case MsgSchedule::maxResidualSch: ss << "max_residual"; break;
   }
   ss << ",bp_max_iter=" << WeightedBp::maxIterations();
   ss << ",bp_accuracy=" << WeightedBp::accuracy();
@@ -79,7 +79,7 @@ CountingBp::solveQuery (VarIds queryVids)
     }
     if (idx == facNodes.size()) {
       res = GroundSolver::getJointByConditioning (
-          GroundSolverType::CBP, fg, queryVids);
+          GroundSolverType::CbpSolver, fg, queryVids);
     } else {
       VarIds reprArgs;
       for (size_t i = 0; i < queryVids.size(); i++) {

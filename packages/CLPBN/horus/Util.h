@@ -87,7 +87,7 @@ unsigned nrDigits (int);
 bool isInteger (const std::string&);
 
 std::string parametersToString (
-    const Params&, unsigned = Constants::PRECISION);
+    const Params&, unsigned = Constants::precision);
 
 std::vector<std::string> getStateLines (const Vars&);
 

@@ -62,7 +62,7 @@ BpLink::toString (void) const
 
 double      BeliefProp::accuracy_ = 0.0001;
 unsigned    BeliefProp::maxIter_  = 1000;
-MsgSchedule BeliefProp::schedule_ = MsgSchedule::SEQ_FIXED;
+MsgSchedule BeliefProp::schedule_ = MsgSchedule::seqFixedSch;
 
 
 
@@ -106,10 +106,10 @@ BeliefProp::printSolverFlags (void) const
   ss << "belief propagation [" ;
   ss << "bp_msg_schedule=" ;
   switch (schedule_) {
-    case MsgSchedule::SEQ_FIXED:    ss << "seq_fixed";    break;
-    case MsgSchedule::SEQ_RANDOM:   ss << "seq_random";   break;
-    case MsgSchedule::PARALLEL:     ss << "parallel";     break;
-    case MsgSchedule::MAX_RESIDUAL: ss << "max_residual"; break;
+    case MsgSchedule::seqFixedSch:    ss << "seq_fixed";    break;
+    case MsgSchedule::seqRandomSch:   ss << "seq_random";   break;
+    case MsgSchedule::parallelSch:    ss << "parallel";     break;
+    case MsgSchedule::maxResidualSch: ss << "max_residual"; break;
   }
   ss << ",bp_max_iter="   << Util::toString (maxIter_);
   ss << ",bp_accuracy="   << Util::toString (accuracy_);
@@ -259,15 +259,15 @@ BeliefProp::runSolver (void)
           + Util::toString (nIters_));
     }
     switch (schedule_) {
-     case MsgSchedule::SEQ_RANDOM:
+     case MsgSchedule::seqRandomSch:
        std::random_shuffle (links_.begin(), links_.end());
        // no break
-      case MsgSchedule::SEQ_FIXED:
+      case MsgSchedule::seqFixedSch:
         for (size_t i = 0; i < links_.size(); i++) {
           calculateAndUpdateMessage (links_[i]);
         }
         break;
-      case MsgSchedule::PARALLEL:
+      case MsgSchedule::parallelSch:
         for (size_t i = 0; i < links_.size(); i++) {
           calculateMessage (links_[i]);
         }
@@ -275,7 +275,7 @@ BeliefProp::runSolver (void)
           updateMessage(links_[i]);
         }
         break;
-      case MsgSchedule::MAX_RESIDUAL:
+      case MsgSchedule::maxResidualSch:
         maxResidualSchedule();
         break;
     }
@@ -380,13 +380,13 @@ BeliefProp::calcFactorToVarMsg (BpLink* link)
   if (Globals::logDomain) {
     for (size_t i = links.size(); i-- > 0; ) {
       if (links[i]->varNode() != dst) {
-        if (Constants::SHOW_BP_CALCS) {
+        if (Constants::showBpCalcs) {
           std::cout << "    message from " << links[i]->varNode()->label();
           std::cout << ": " ;
         }
         Util::apply_n_times (msgProduct, getVarToFactorMsg (links[i]),
             reps, std::plus<double>());
-        if (Constants::SHOW_BP_CALCS) {
+        if (Constants::showBpCalcs) {
           std::cout << std::endl;
         }
       }
@@ -395,13 +395,13 @@ BeliefProp::calcFactorToVarMsg (BpLink* link)
   } else {
     for (size_t i = links.size(); i-- > 0; ) {
       if (links[i]->varNode() != dst) {
-        if (Constants::SHOW_BP_CALCS) {
+        if (Constants::showBpCalcs) {
           std::cout << "    message from " << links[i]->varNode()->label();
           std::cout << ": " ;
         }
         Util::apply_n_times (msgProduct, getVarToFactorMsg (links[i]),
             reps, std::multiplies<double>());
-        if (Constants::SHOW_BP_CALCS) {
+        if (Constants::showBpCalcs) {
           std::cout << std::endl;
         }
       }
@@ -411,19 +411,19 @@ BeliefProp::calcFactorToVarMsg (BpLink* link)
   Factor result (src->factor().arguments(),
       src->factor().ranges(), msgProduct);
   result.multiply (src->factor());
-  if (Constants::SHOW_BP_CALCS) {
+  if (Constants::showBpCalcs) {
     std::cout << "    message product:  " << msgProduct << std::endl;
     std::cout << "    original factor:  " << src->factor().params();
     std::cout << std::endl;
     std::cout << "    factor product:   " << result.params() << std::endl;
   }
   result.sumOutAllExcept (dst->varId());
-  if (Constants::SHOW_BP_CALCS) {
+  if (Constants::showBpCalcs) {
     std::cout << "    marginalized:     " << result.params() << std::endl;
   }
   link->nextMessage() = result.params();
   LogAware::normalize (link->nextMessage());
-  if (Constants::SHOW_BP_CALCS) {
+  if (Constants::showBpCalcs) {
     std::cout << "    curr msg:         " << link->message() << std::endl;
     std::cout << "    next msg:         " << link->nextMessage() << std::endl;
   }
@@ -442,7 +442,7 @@ BeliefProp::getVarToFactorMsg (const BpLink* link) const
   } else {
     msg.resize (src->range(), LogAware::one());
   }
-  if (Constants::SHOW_BP_CALCS) {
+  if (Constants::showBpCalcs) {
     std::cout << msg;
   }
   BpLinks::const_iterator it;
@@ -452,7 +452,7 @@ BeliefProp::getVarToFactorMsg (const BpLink* link) const
       if (*it != link) {
         msg += (*it)->message();
       }
-      if (Constants::SHOW_BP_CALCS) {
+      if (Constants::showBpCalcs) {
         std::cout << " x " << (*it)->message();
       }
     }
@@ -461,12 +461,12 @@ BeliefProp::getVarToFactorMsg (const BpLink* link) const
       if (*it != link) {
         msg *= (*it)->message();
       }
-      if (Constants::SHOW_BP_CALCS) {
+      if (Constants::showBpCalcs) {
         std::cout << " x " << (*it)->message();
       }
     }
   }
-  if (Constants::SHOW_BP_CALCS) {
+  if (Constants::showBpCalcs) {
     std::cout << " = " << msg;
   }
   return msg;
@@ -478,7 +478,7 @@ Params
 BeliefProp::getJointByConditioning (const VarIds& jointVarIds) const
 {
   return GroundSolver::getJointByConditioning (
-      GroundSolverType::BP, fg, jointVarIds);
+      GroundSolverType::bpSolver, fg, jointVarIds);
 }
 
 
@@ -526,7 +526,7 @@ BeliefProp::converged (void)
     return false;
   }
   bool converged = true;
-  if (schedule_ == MsgSchedule::MAX_RESIDUAL) {
+  if (schedule_ == MsgSchedule::maxResidualSch) {
     double maxResidual = (*(sortedOrder_.begin()))->residual();
     if (maxResidual > accuracy_) {
       converged = false;

@@ -31,7 +31,7 @@ GroundSolver::printAnswer (const VarIds& vids)
         Util::getStateLines (unobservedVars);
     for (size_t i = 0; i < res.size(); i++) {
       std::cout << "P(" << stateLines[i] << ") = " ;
-      std::cout << std::setprecision (Constants::PRECISION) << res[i];
+      std::cout << std::setprecision (Constants::precision) << res[i];
       std::cout << std::endl;
     }
     std::cout << std::endl;
@@ -66,9 +66,9 @@ GroundSolver::getJointByConditioning (
 
   GroundSolver* solver = 0;
   switch (solverType) {
-    case GroundSolverType::BP:  solver = new BeliefProp (fg); break;
-    case GroundSolverType::CBP: solver = new CountingBp (fg); break;
-    case GroundSolverType::VE:  solver = new VarElim (fg);    break;
+    case GroundSolverType::bpSolver:  solver = new BeliefProp (fg); break;
+    case GroundSolverType::CbpSolver: solver = new CountingBp (fg); break;
+    case GroundSolverType::veSolver:  solver = new VarElim (fg);    break;
   }
   Params prevBeliefs = solver->solveQuery ({jointVarIds[0]});
   VarIds observedVids = {jointVars[0]->varId()};
@@ -89,9 +89,9 @@ GroundSolver::getJointByConditioning (
       }
       delete solver;
       switch (solverType) {
-        case GroundSolverType::BP:  solver = new BeliefProp (fg); break;
-        case GroundSolverType::CBP: solver = new CountingBp (fg); break;
-        case GroundSolverType::VE:  solver = new VarElim (fg);    break;
+        case GroundSolverType::bpSolver:  solver = new BeliefProp (fg); break;
+        case GroundSolverType::CbpSolver: solver = new CountingBp (fg); break;
+        case GroundSolverType::veSolver:  solver = new VarElim (fg);    break;
       }
       Params beliefs = solver->solveQuery ({jointVarIds[i]});
       for (size_t k = 0; k < beliefs.size(); k++) {

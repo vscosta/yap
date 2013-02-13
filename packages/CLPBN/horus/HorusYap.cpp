@@ -140,9 +140,9 @@ runLiftedSolver (void)
 
   LiftedSolver* solver = 0;
   switch (Globals::liftedSolver) {
-    case LiftedSolverType::LVE:  solver = new LiftedVe (pfListCopy); break;
-    case LiftedSolverType::LBP:  solver = new LiftedBp (pfListCopy); break;
-    case LiftedSolverType::LKC:  solver = new LiftedKc (pfListCopy); break;
+    case LiftedSolverType::lveSolver:  solver = new LiftedVe (pfListCopy); break;
+    case LiftedSolverType::lbpSolver:  solver = new LiftedBp (pfListCopy); break;
+    case LiftedSolverType::lkcSolver:  solver = new LiftedKc (pfListCopy); break;
   }
 
   if (Globals::verbosity > 0) {
@@ -214,9 +214,9 @@ runGroundSolver (void)
   GroundSolver* solver = 0;
   CountingBp::setFindIdenticalFactorsFlag (false);
   switch (Globals::groundSolver) {
-    case GroundSolverType::VE:  solver = new VarElim    (*mfg); break;
-    case GroundSolverType::BP:  solver = new BeliefProp (*mfg); break;
-    case GroundSolverType::CBP: solver = new CountingBp (*mfg); break;
+    case GroundSolverType::veSolver:  solver = new VarElim    (*mfg); break;
+    case GroundSolverType::bpSolver:  solver = new BeliefProp (*mfg); break;
+    case GroundSolverType::CbpSolver: solver = new CountingBp (*mfg); break;
   }
 
   if (Globals::verbosity > 0) {

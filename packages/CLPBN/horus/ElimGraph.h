@@ -19,11 +19,11 @@ typedef TinySet<EgNode*> EGNeighs;
 
 
 enum ElimHeuristic {
-  SEQUENTIAL,
-  MIN_NEIGHBORS,
-  MIN_WEIGHT,
-  MIN_FILL,
-  WEIGHTED_MIN_FILL
+  sequentialEh,
+  minNeighborsEh,
+  minWeightEh,
+  minFillEh,
+  weightedMinFillEh
 };
 
 

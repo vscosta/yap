@@ -815,7 +815,7 @@ LiftedCircuit::smoothCircuit (CircuitNode* node)
 
   switch (getCircuitNodeType (node)) {
 
-    case CircuitNodeType::OR_NODE: {
+    case CircuitNodeType::orCnt: {
       OrNode* casted = dynamic_cast<OrNode*>(node);
       LitLvTypesSet lids1 = smoothCircuit (*casted->leftBranch());
       LitLvTypesSet lids2 = smoothCircuit (*casted->rightBranch());
@@ -828,7 +828,7 @@ LiftedCircuit::smoothCircuit (CircuitNode* node)
       break;
     }
 
-    case CircuitNodeType::AND_NODE: {
+    case CircuitNodeType::andCnt: {
       AndNode* casted = dynamic_cast<AndNode*>(node);
       LitLvTypesSet lids1 = smoothCircuit (*casted->leftBranch());
       LitLvTypesSet lids2 = smoothCircuit (*casted->rightBranch());
@@ -837,7 +837,7 @@ LiftedCircuit::smoothCircuit (CircuitNode* node)
       break;
     }
 
-    case CircuitNodeType::SET_OR_NODE: {
+    case CircuitNodeType::setOrCnt: {
       SetOrNode* casted = dynamic_cast<SetOrNode*>(node);
       propagLits = smoothCircuit (*casted->follow());
       TinySet<std::pair<LiteralId,unsigned>> litSet;
@@ -875,13 +875,13 @@ LiftedCircuit::smoothCircuit (CircuitNode* node)
       break;
     }
 
-    case CircuitNodeType::SET_AND_NODE: {
+    case CircuitNodeType::setAndCnt: {
       SetAndNode* casted = dynamic_cast<SetAndNode*>(node);
       propagLits = smoothCircuit (*casted->follow());
       break;
     }
 
-    case CircuitNodeType::INC_EXC_NODE: {
+    case CircuitNodeType::incExcCnt: {
       IncExcNode* casted = dynamic_cast<IncExcNode*>(node);
       LitLvTypesSet lids1 = smoothCircuit (*casted->plus1Branch());
       LitLvTypesSet lids2 = smoothCircuit (*casted->plus2Branch());
@@ -894,7 +894,7 @@ LiftedCircuit::smoothCircuit (CircuitNode* node)
       break;
     }
 
-    case CircuitNodeType::LEAF_NODE: {
+    case CircuitNodeType::leafCnt: {
       LeafNode* casted = dynamic_cast<LeafNode*>(node);
       propagLits.insert (LitLvTypes (
           casted->clause()->literals()[0].lid(),
@@ -933,9 +933,9 @@ LiftedCircuit::createSmoothNode (
       Clause* c = lwcnf_->createClause (lid);
       for (size_t j = 0; j < types.size(); j++) {
         LogVar X = c->literals().front().logVars()[j];
-        if (types[j] == LogVarType::POS_LV) {
+        if (types[j] == LogVarType::posLvt) {
           c->addPosCountedLogVar (X);
-        } else if (types[j] == LogVarType::NEG_LV) {
+        } else if (types[j] == LogVarType::negLvt) {
           c->addNegCountedLogVar (X);
         }
       }
@@ -960,8 +960,8 @@ LiftedCircuit::getAllPossibleTypes (unsigned nrLogVars) const
   if (nrLogVars == 0) {
     // do nothing
   } else if (nrLogVars == 1) {
-    res.push_back ({ LogVarType::POS_LV });
-    res.push_back ({ LogVarType::NEG_LV });
+    res.push_back ({ LogVarType::posLvt });
+    res.push_back ({ LogVarType::negLvt });
   } else {
     Ranges ranges (nrLogVars, 2);
     Indexer indexer (ranges);
@@ -969,9 +969,9 @@ LiftedCircuit::getAllPossibleTypes (unsigned nrLogVars) const
       LogVarTypes types;
       for (size_t i = 0; i < nrLogVars; i++) {
         if (indexer[i] == 0) {
-          types.push_back (LogVarType::POS_LV);
+          types.push_back (LogVarType::posLvt);
         } else {
-          types.push_back (LogVarType::NEG_LV);
+          types.push_back (LogVarType::negLvt);
         }
       }
       res.push_back (types);
@@ -989,13 +989,13 @@ LiftedCircuit::containsTypes (
     const LogVarTypes& typesB) const
 {
   for (size_t i = 0; i < typesA.size(); i++) {
-    if (typesA[i] == LogVarType::FULL_LV) {
+    if (typesA[i] == LogVarType::fullLvt) {
 
-    } else if (typesA[i] == LogVarType::POS_LV
-        && typesB[i] == LogVarType::POS_LV) {
+    } else if (typesA[i] == LogVarType::posLvt
+        && typesB[i] == LogVarType::posLvt) {
 
-    } else if (typesA[i] == LogVarType::NEG_LV
-        && typesB[i] == LogVarType::NEG_LV) {
+    } else if (typesA[i] == LogVarType::negLvt
+        && typesB[i] == LogVarType::negLvt) {
 
     } else {
       return false;
@@ -1009,25 +1009,25 @@ LiftedCircuit::containsTypes (
 CircuitNodeType
 LiftedCircuit::getCircuitNodeType (const CircuitNode* node) const
 {
-  CircuitNodeType type = CircuitNodeType::OR_NODE;
+  CircuitNodeType type = CircuitNodeType::orCnt;
   if (dynamic_cast<const OrNode*>(node)) {
-    type = CircuitNodeType::OR_NODE;
+    type = CircuitNodeType::orCnt;
   } else if (dynamic_cast<const AndNode*>(node)) {
-    type = CircuitNodeType::AND_NODE;
+    type = CircuitNodeType::andCnt;
   } else if (dynamic_cast<const SetOrNode*>(node)) {
-    type = CircuitNodeType::SET_OR_NODE;
+    type = CircuitNodeType::setOrCnt;
   } else if (dynamic_cast<const SetAndNode*>(node)) {
-    type = CircuitNodeType::SET_AND_NODE;
+    type = CircuitNodeType::setAndCnt;
   } else if (dynamic_cast<const IncExcNode*>(node)) {
-    type = CircuitNodeType::INC_EXC_NODE;
+    type = CircuitNodeType::incExcCnt;
   } else if (dynamic_cast<const LeafNode*>(node)) {
-    type = CircuitNodeType::LEAF_NODE;
+    type = CircuitNodeType::leafCnt;
   } else if (dynamic_cast<const SmoothNode*>(node)) {
-    type = CircuitNodeType::SMOOTH_NODE;
+    type = CircuitNodeType::smoothCnt;
   } else if (dynamic_cast<const TrueNode*>(node)) {
-    type = CircuitNodeType::TRUE_NODE;
+    type = CircuitNodeType::trueCnt;
   } else if (dynamic_cast<const CompilationFailedNode*>(node)) {
-    type = CircuitNodeType::COMPILATION_FAILED_NODE;
+    type = CircuitNodeType::compilationFailedCnt;
   } else {
     assert (false);
   }
@@ -1050,7 +1050,7 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, std::ofstream& os)
 
   switch (getCircuitNodeType (node)) {
 
-    case OR_NODE: {
+    case orCnt: {
       OrNode* casted = dynamic_cast<OrNode*>(node);
       printClauses (casted, os);
 
@@ -1075,7 +1075,7 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, std::ofstream& os)
       break;
     }
 
-    case AND_NODE: {
+    case andCnt: {
       AndNode* casted = dynamic_cast<AndNode*>(node);
       printClauses (casted, os);
 
@@ -1100,7 +1100,7 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, std::ofstream& os)
       break;
     }
 
-    case SET_OR_NODE: {
+    case setOrCnt: {
       SetOrNode* casted = dynamic_cast<SetOrNode*>(node);
       printClauses (casted, os);
 
@@ -1119,7 +1119,7 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, std::ofstream& os)
       break;
     }
 
-    case SET_AND_NODE: {
+    case setAndCnt: {
       SetAndNode* casted = dynamic_cast<SetAndNode*>(node);
       printClauses (casted, os);
 
@@ -1138,7 +1138,7 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, std::ofstream& os)
       break;
     }
 
-    case INC_EXC_NODE: {
+    case incExcCnt: {
       IncExcNode* casted = dynamic_cast<IncExcNode*>(node);
       printClauses (casted, os);
 
@@ -1169,24 +1169,24 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, std::ofstream& os)
       break;
     }
 
-    case LEAF_NODE: {
+    case leafCnt: {
       printClauses (node, os, "style=filled,fillcolor=palegreen,");
       break;
     }
 
-    case SMOOTH_NODE: {
+    case smoothCnt: {
       printClauses (node, os, "style=filled,fillcolor=lightblue,");
       break;
     }
 
-    case TRUE_NODE: {
+    case trueCnt: {
       os << escapeNode (node);
       os << " [shape=box,label=\"⊤\"]" ;
       os << std::endl;
       break;
     }
 
-    case COMPILATION_FAILED_NODE: {
+    case compilationFailedCnt: {
       printClauses (node, os, "style=filled,fillcolor=salmon,");
       break;
     }
@@ -1227,9 +1227,9 @@ LiftedCircuit::printClauses (
   Clauses clauses;
   if (Util::contains (originClausesMap_, node)) {
     clauses = originClausesMap_[node];
-  } else if (getCircuitNodeType (node) == CircuitNodeType::LEAF_NODE) {
+  } else if (getCircuitNodeType (node) == CircuitNodeType::leafCnt) {
     clauses = { (dynamic_cast<LeafNode*>(node))->clause() } ;
-  } else if (getCircuitNodeType (node) == CircuitNodeType::SMOOTH_NODE) {
+  } else if (getCircuitNodeType (node) == CircuitNodeType::smoothCnt) {
     clauses = (dynamic_cast<SmoothNode*>(node))->clauses();
   }
   assert (clauses.empty() == false);

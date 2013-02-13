@@ -149,7 +149,7 @@ LiftedOperations::absorveEvidence (
   }
   if (Globals::verbosity > 2 && obsFormulas.empty() == false) {
     Util::printAsteriskLine();
-    std::cout << "AFTER EVIDENCE ABSORVED" << std::endl;
+    std::cout << "AFTER EVIDENCE ABSORveSolverD" << std::endl;
     for (size_t i = 0; i < obsFormulas.size(); i++) {
       std::cout << " -> " << obsFormulas[i] << std::endl;
     }

@@ -6,7 +6,7 @@
 
 namespace Horus {
 
-ElimHeuristic ElimGraph::elimHeuristic_ = MIN_NEIGHBORS;
+ElimHeuristic ElimGraph::elimHeuristic_ = minNeighborsEh;
 
 
 ElimGraph::ElimGraph (const std::vector<Factor*>& factors)
@@ -137,7 +137,7 @@ ElimGraph::getEliminationOrder (
     const Factors& factors,
     VarIds excludedVids)
 {
-  if (elimHeuristic_ == ElimHeuristic::SEQUENTIAL) {
+  if (elimHeuristic_ == ElimHeuristic::sequentialEh) {
     VarIds allVids;
     Factors::const_iterator first = factors.begin();
     Factors::const_iterator end   = factors.end();
@@ -181,7 +181,7 @@ ElimGraph::getLowestCostNode (void) const
   unsigned minCost = Util::maxUnsigned();
   EGNeighs::const_iterator it;
   switch (elimHeuristic_) {
-    case MIN_NEIGHBORS: {
+    case minNeighborsEh: {
       for (it = unmarked_.begin(); it != unmarked_.end(); ++ it) {
         unsigned cost = getNeighborsCost (*it);
         if (cost < minCost) {
@@ -190,7 +190,7 @@ ElimGraph::getLowestCostNode (void) const
         }
       }}
       break;
-    case MIN_WEIGHT: {
+    case minWeightEh: {
       for (it = unmarked_.begin(); it != unmarked_.end(); ++ it) {
         unsigned cost = getWeightCost (*it);
         if (cost < minCost) {
@@ -199,7 +199,7 @@ ElimGraph::getLowestCostNode (void) const
         }
       }}
       break;
-    case MIN_FILL: {
+    case minFillEh: {
       for (it = unmarked_.begin(); it != unmarked_.end(); ++ it) {
         unsigned cost = getFillCost (*it);
         if (cost < minCost) {
@@ -208,7 +208,7 @@ ElimGraph::getLowestCostNode (void) const
         }
       }}
       break;
-    case WEIGHTED_MIN_FILL: {
+    case weightedMinFillEh: {
       for (it = unmarked_.begin(); it != unmarked_.end(); ++ it) {
         unsigned cost = getWeightedFillCost (*it);
         if (cost < minCost) {

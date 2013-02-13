@@ -35,16 +35,16 @@ typedef unsigned long long       ullong;
 
 
 enum LiftedSolverType {
-  LVE,  // generalized counting first-order variable elimination (GC-FOVE)
-  LBP,  // lifted first-order belief propagation
-  LKC   // lifted first-order knowledge compilation
+  lveSolver,  // generalized counting first-order variable elimination (GC-FOveSolver)
+  lbpSolver,  // lifted first-order belief propagation
+  lkcSolver   // lifted first-order knowledge compilation
 };
 
 
 enum GroundSolverType {
-  VE,   // variable elimination
-  BP,   // belief propagation
-  CBP   // counting belief propagation
+  veSolver,   // variable elimination
+  bpSolver,   // belief propagation
+  CbpSolver   // counting belief propagation
 };
 
 
@@ -64,12 +64,12 @@ extern GroundSolverType groundSolver;
 namespace Constants {
 
 // show message calculation for belief propagation
-const bool SHOW_BP_CALCS = false;
+const bool showBpCalcs = false;
 
-const int NO_EVIDENCE = -1;
+const int unobserved = -1;
 
 // number of digits to show when printing a parameter
-const unsigned PRECISION = 6;
+const unsigned precision = 6;
 
 }
 

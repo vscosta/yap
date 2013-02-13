@@ -16,9 +16,9 @@ namespace Horus {
 class ParfactorList;
 
 enum LogVarType {
-  FULL_LV,
-  POS_LV,
-  NEG_LV
+  fullLvt,
+  posLvt,
+  negLvt
 };
 
 typedef long                     LiteralId;

@@ -12,9 +12,9 @@ bool logDomain = false;
 
 unsigned verbosity = 0;
 
-LiftedSolverType liftedSolver = LiftedSolverType::LVE;
+LiftedSolverType liftedSolver = LiftedSolverType::lveSolver;
 
-GroundSolverType groundSolver = GroundSolverType::VE;
+GroundSolverType groundSolver = GroundSolverType::veSolver;
 
 }
 
@@ -203,15 +203,15 @@ setHorusFlag (std::string option, std::string value)
 {
   bool returnVal = true;
   if (option == "lifted_solver") {
-    if      (value == "lve")  Globals::liftedSolver = LiftedSolverType::LVE;
-    else if (value == "lbp")  Globals::liftedSolver = LiftedSolverType::LBP;
-    else if (value == "lkc")  Globals::liftedSolver = LiftedSolverType::LKC;
+    if      (value == "lve")  Globals::liftedSolver = LiftedSolverType::lveSolver;
+    else if (value == "lbp")  Globals::liftedSolver = LiftedSolverType::lbpSolver;
+    else if (value == "lkc")  Globals::liftedSolver = LiftedSolverType::lkcSolver;
     else                      returnVal = invalidValue (option, value);
 
   } else if (option == "ground_solver" || option == "solver") {
-    if      (value == "hve")  Globals::groundSolver = GroundSolverType::VE;
-    else if (value == "bp")   Globals::groundSolver = GroundSolverType::BP;
-    else if (value == "cbp")  Globals::groundSolver = GroundSolverType::CBP;
+    if      (value == "hve")  Globals::groundSolver = GroundSolverType::veSolver;
+    else if (value == "bp")   Globals::groundSolver = GroundSolverType::bpSolver;
+    else if (value == "cbp")  Globals::groundSolver = GroundSolverType::CbpSolver;
     else                      returnVal = invalidValue (option, value);
 
   } else if (option == "verbosity") {
@@ -226,27 +226,27 @@ setHorusFlag (std::string option, std::string value)
 
   } else if (option == "hve_elim_heuristic") {
     if      (value == "sequential")
-      ElimGraph::setElimHeuristic (ElimHeuristic::SEQUENTIAL);
+      ElimGraph::setElimHeuristic (ElimHeuristic::sequentialEh);
     else if (value == "min_neighbors")
-      ElimGraph::setElimHeuristic (ElimHeuristic::MIN_NEIGHBORS);
+      ElimGraph::setElimHeuristic (ElimHeuristic::minNeighborsEh);
     else if (value == "min_weight")
-      ElimGraph::setElimHeuristic (ElimHeuristic::MIN_WEIGHT);
+      ElimGraph::setElimHeuristic (ElimHeuristic::minWeightEh);
     else if (value == "min_fill")
-      ElimGraph::setElimHeuristic (ElimHeuristic::MIN_FILL);
+      ElimGraph::setElimHeuristic (ElimHeuristic::minFillEh);
     else if (value == "weighted_min_fill")
-      ElimGraph::setElimHeuristic (ElimHeuristic::WEIGHTED_MIN_FILL);
+      ElimGraph::setElimHeuristic (ElimHeuristic::weightedMinFillEh);
     else
       returnVal = invalidValue (option, value);
 
   } else if (option == "bp_msg_schedule") {
     if      (value == "seq_fixed")
-      BeliefProp::setMsgSchedule (MsgSchedule::SEQ_FIXED);
+      BeliefProp::setMsgSchedule (MsgSchedule::seqFixedSch);
     else if (value == "seq_random")
-      BeliefProp::setMsgSchedule (MsgSchedule::SEQ_RANDOM);
+      BeliefProp::setMsgSchedule (MsgSchedule::seqRandomSch);
     else if (value == "parallel")
-      BeliefProp::setMsgSchedule (MsgSchedule::PARALLEL);
+      BeliefProp::setMsgSchedule (MsgSchedule::parallelSch);
     else if (value == "max_residual")
-      BeliefProp::setMsgSchedule (MsgSchedule::MAX_RESIDUAL);
+      BeliefProp::setMsgSchedule (MsgSchedule::maxResidualSch);
     else
       returnVal = invalidValue (option, value);
 

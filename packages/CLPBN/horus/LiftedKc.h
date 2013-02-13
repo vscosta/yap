@@ -14,15 +14,15 @@
 namespace Horus {
 
 enum CircuitNodeType {
-  OR_NODE,
-  AND_NODE,
-  SET_OR_NODE,
-  SET_AND_NODE,
-  INC_EXC_NODE,
-  LEAF_NODE,
-  SMOOTH_NODE,
-  TRUE_NODE,
-  COMPILATION_FAILED_NODE
+  orCnt,
+  andCnt,
+  setOrCnt,
+  setAndCnt,
+  incExcCnt,
+  leafCnt,
+  smoothCnt,
+  trueCnt,
+  compilationFailedCnt
 };
 
 
