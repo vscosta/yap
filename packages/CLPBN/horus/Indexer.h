@@ -151,8 +151,8 @@ Indexer::valid (void) const
 inline void
 Indexer::reset (void)
 {
-  std::fill (indices_.begin(), indices_.end(), 0);
   index_ = 0;
+  std::fill (indices_.begin(), indices_.end(), 0);
 }
 
 
@@ -208,9 +208,9 @@ class MapIndexer {
     template <typename T>
     MapIndexer (
         const std::vector<T>& allArgs,
-        const Ranges&    allRanges,
+        const Ranges& allRanges,
         const std::vector<T>& wantedArgs,
-        const Ranges&    wantedRanges);
+        const Ranges& wantedRanges);
 
     MapIndexer& operator++ (void);
 
@@ -274,11 +274,11 @@ MapIndexer::MapIndexer (const Ranges& ranges, size_t dim)
 template <typename T> inline
 MapIndexer::MapIndexer (
     const std::vector<T>& allArgs,
-    const Ranges&    allRanges,
+    const Ranges& allRanges,
     const std::vector<T>& wantedArgs,
-    const Ranges&    wantedRanges)
-      : index_(0), indices_(allArgs.size(), 0), ranges_(allRanges),
-       valid_(true)
+    const Ranges& wantedRanges)
+    : index_(0), indices_(allArgs.size(), 0), ranges_(allRanges),
+      valid_(true)
 {
   size_t prod = 1;
   std::vector<size_t> offsets (wantedRanges.size());
@@ -345,8 +345,8 @@ MapIndexer::valid (void) const
 inline void
 MapIndexer::reset (void)
 {
-  std::fill (indices_.begin(), indices_.end(), 0);
   index_ = 0;
+  std::fill (indices_.begin(), indices_.end(), 0);
 }
 
 

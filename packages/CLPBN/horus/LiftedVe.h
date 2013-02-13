@@ -37,8 +37,10 @@ class LiftedOperator {
 class ProductOperator : public LiftedOperator {
   public:
     ProductOperator (
-        ParfactorList::iterator g1, ParfactorList::iterator g2,
-        ParfactorList& pfList) : g1_(g1), g2_(g2), pfList_(pfList) { }
+        ParfactorList::iterator g1,
+        ParfactorList::iterator g2,
+        ParfactorList& pfList)
+        : g1_(g1), g2_(g2), pfList_(pfList) { }
 
     double getLogCost (void);
 
