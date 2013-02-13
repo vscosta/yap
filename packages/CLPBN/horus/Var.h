@@ -70,6 +70,8 @@ class Var {
     size_t    index_;
 
     static std::unordered_map<VarId, VarInfo> varsInfo_;
+
+    DISALLOW_COPY_AND_ASSIGN(Var);
 };
 
 
