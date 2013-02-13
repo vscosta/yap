@@ -398,7 +398,7 @@ operator<< (std::ostream& os, const std::vector<T>& v)
 }
 
 
-namespace func_obj {
+namespace FuncObj {
 
 template<typename T>
 struct max : public std::binary_function<T, T, T> {
@@ -422,7 +422,7 @@ struct abs_diff_exp : public std::binary_function<T, T, T> {
     return std::abs (std::exp (x) - std::exp (y));
 }};
 
-}  // namespace func_obj
+}  // namespace FuncObj
 
 }  // namespace Horus
 
