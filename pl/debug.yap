@@ -287,10 +287,13 @@ debugging :-
 	'$execute_nonstop'(G,Mod).
 '$spy'([Mod|G]) :-
 	CP is '$last_choice_pt',	
+	'$enter_system_mode',
 	'$do_spy'(G, Mod, CP, spy).
 
 % last argument to do_spy says that we are at the end of a context. It
 % is required to know whether we are controlled by the debugger.
+%'$do_spy'(V, M, CP, Flag) :-
+%	writeln('$do_spy'(V, M, CP, Flag)), fail.
 '$do_spy'(V, M, CP, Flag) :-
 	var(V), !,
 	'$do_spy'(call(V), M, CP, Flag).
@@ -303,20 +306,20 @@ debugging :-
 '$do_spy'(M:G, _, CP, CalledFromDebugger) :- !,
 	'$do_spy'(G, M, CP, CalledFromDebugger).
 '$do_spy'((A,B), M, CP, CalledFromDebugger) :- !,
-	'$do_spy'(A, M, CP, yes),
+	'$do_spy'(A, M, CP, debugger),
 	'$do_spy'(B, M, CP, CalledFromDebugger).
 '$do_spy'((T->A;B), M, CP, CalledFromDebugger) :- !,
-	( '$do_spy'(T, M, CP, yes) -> '$do_spy'(A, M, CP, yes)
+	( '$do_spy'(T, M, CP, debugger) -> '$do_spy'(A, M, CP, CalledFromDebugger)
 	;
 	  '$do_spy'(B, M, CP, CalledFromDebugger)
 	).
 '$do_spy'((T->A|B), M, CP, CalledFromDebugger) :- !,
-	( '$do_spy'(T, M, CP, debugger) -> 	'$do_spy'(A, M, CP, yes)
+	( '$do_spy'(T, M, CP, debugger) -> 	'$do_spy'(A, M, CP, CalledFromDebugger)
 	;
 	  '$do_spy'(B, M, CP, CalledFromDebugger)
 	).
-'$do_spy'((T->A), M, CP, _) :- !,
-	( '$do_spy'(T, M, CP, yes) -> '$do_spy'(A, M, CP, yes) ).
+'$do_spy'((T->A), M, CP, CalledFromDebugger) :- !,
+	( '$do_spy'(T, M, CP, debugger) -> '$do_spy'(A, M, CP,  CalledFromDebugger) ).
 '$do_spy'((A;B), M, CP, CalledFromDebugger) :- !,
 	(
 	  '$do_spy'(A, M, CP, CalledFromDebugger)
@@ -344,7 +347,7 @@ debugging :-
 % we are skipping, so we can just call the goal,
 % while leaving the minimal structure in place.
 '$loop_spy'(GoalNumber, G, Module, CalledFromDebugger) :-
-	yap_hacks:current_choice_point(CP),
+	'$current_choice_point'(CP),
 	'$system_catch'('$loop_spy2'(GoalNumber, G, Module, CalledFromDebugger, CP),
 		    Module, error(Event,Context),
 		    '$loop_spy_event'(error(Event,Context), GoalNumber, G, Module, CalledFromDebugger)).
@@ -404,6 +407,8 @@ debugging :-
 	    /* call port */
 	    '$enter_goal'(GoalNumber, G, Module),
 	    '$spycall'(G, Module, CalledFromDebugger, Retry),
+	    % make sure we are in system mode when running the debugger.
+	    '$enter_system_mode',
 	    (
 	      '$debugger_deterministic_goal'(G) ->
 	      Det=true
@@ -428,6 +433,8 @@ debugging :-
 	      ),
 	      '$continue_debugging'(exit, CalledFromDebugger)	   
 	     ;
+	       % make sure we are in system mode when running the debugger.
+	       '$enter_system_mode',
 		/* backtracking from exit				*/
 	        /* we get here when we want to redo a goal		*/
 		/* redo port */
@@ -443,6 +450,7 @@ debugging :-
 	     fail			/* to backtrack to spycalls	*/
 	     )
 	  ;
+	    '$enter_system_mode',
 	    '$show_trace'(fail,G,Module,GoalNumber,_), /* inform at fail port		*/
 	    '$continue_debugging'(fail, CalledFromDebugger),
 	    /* fail port */
@@ -510,7 +518,7 @@ debugging :-
 	CP is '$last_choice_pt',
 	'$clause'(G, M, Cl, _),
 	% I may backtrack to here from far away
-	( '$do_spy'(Cl, M, CP, CalledFromDebugger) ; InRedo = true ).
+	( '$do_spy'(Cl, M, CP, debugger) ; InRedo = true ).
 '$spycall'(G, M, CalledFromDebugger, InRedo) :-
 	'$undefined'(G, M), !,
 	'$find_goal_definition'(M, G, NM, Goal),
@@ -528,11 +536,11 @@ debugging :-
 
 '$meta_creep'(G,M) :-
 	(
-	 yap_hacks:current_choice_point(CP1),
+	 '$$save_by'(CP1),
 	 '$exit_system_mode',
 	 '$meta_creep',
 	 '$execute_nonstop'(G,M),
-	 yap_hacks:current_choice_point(CP2),
+	 '$$save_by'(CP2),
 	 (CP1 == CP2 -> ! ; ( true ; '$exit_system_mode', '$meta_creep', fail ) ),
 	 '$enter_system_mode'
 	;
@@ -544,6 +552,8 @@ debugging :-
 	'$flags'(G,M,F,F),
 	F /\ 0x00000040 =\= 0.
 
+%'$trace'(P,G,Module,L,Deterministic) :-
+%	'$nb_getval'('$system_mode',On,fail), writeln(On), fail.
 '$trace'(P,G,Module,L,Deterministic) :-
 	% at this point we are done with leap or skip
 	nb_setval('$debug_run',off),
@@ -730,24 +740,34 @@ debugging :-
 
 % first argument is exit, zip or fail
 % second is creep, meta_creep, spy, or debugger
-'$continue_debugging'(exit, debugger) :- !.
-'$continue_debugging'(zip, debugger) :- !.
-'$continue_debugging'(fail, debugger) :- !.
+%'$continue_debugging'(Exit, Debugger) :-
+%	writeln('$continue_debugging'(Exit, Debugger)), fail.
+% that's what follows
+'$continue_debugging'(_, debugger) :- !.
 % do not need to debug!
+% go back to original sequence.
+'$continue_debugging'(zip, _) :- !, '$exit_system_mode'.
+'$continue_debugging'(fail, _) :- !.
 '$continue_debugging'(exit, meta_creep) :- !,
+	 '$exit_system_mode',
 	'$meta_creep'.
-'$continue_debugging'(_, no) :-
+'$continue_debugging'(_, creep) :- !,
+	 '$exit_system_mode',
 	'$creep'.
+'$continue_debugging'(_, spy) :- !,
+	 '$exit_system_mode',
+	'$creep'.
+'$continue_debugging'(_, _) :- '$exit_system_mode'.
 
 % if we are in the interpreter, don't need to care about forcing a trace, do we?
-'$continue_debugging_goal'(_, yes,G) :- !,
+'$continue_debugging_goal'(yes,G) :- !,
 	'$execute_dgoal'(G).
 % do not need to debug!
-'$continue_debugging_goal'(_, _,G) :-
+'$continue_debugging_goal'(_,G) :-
 	'nb_getval'('$debug_run',Zip),
         (Zip == nodebug ;  number(Zip) ; Zip == spy ), !,
 	'$execute_dgoal'(G).
-'$continue_debugging_goal'(_, _,G) :-
+'$continue_debugging_goal'(_,G) :-
 	'$execute_creep_dgoal'(G).
 	
 '$execute_dgoal'('$execute_nonstop'(G,M)) :-

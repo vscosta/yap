@@ -88,6 +88,9 @@
 	'$current_module'(M0),
 	'$execute0'((Goal,M:G),M0).
 
+% we may be creeping outside and coming back to system mode.
+'$start_creep'([_|'$enter_system_mode'], _) :- !,
+	'$enter_system_mode'.
 '$start_creep'([Mod|G], _) :-
 	'$in_system_mode', !,
 	'$execute0'(G, Mod).

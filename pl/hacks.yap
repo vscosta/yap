@@ -47,7 +47,7 @@ code_location(Info,Where,Location) :-
 	integer(Where) , !,
 	'$pred_for_code'(Where,Name,Arity,Mod,Clause),
 	construct_code(Clause,Name,Arity,Mod,Info,Location).
-code_location(Info,_,Info).
+code_location(Ixnfo,_,Info).
 
 construct_code(-1,Name,Arity,Mod,Where,Location) :- !,
 	number_codes(Arity,ArityCode),

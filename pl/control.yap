@@ -112,16 +112,16 @@ setup_call_catcher_cleanup(Setup, Goal, Catcher, Cleanup) :-
 	throw(Exception).
 
 '$safe_call_cleanup'(Goal, Cleanup, Catcher, Exception) :-
-	yap_hacks:current_choice_point(MyCP1),
+	'$current_choice_point'(MyCP1),
 	'$coroutining':freeze_goal(Catcher, '$clean_call'(Active, Cleanup)),
 	(
 	 yap_hacks:trail_suspension_marker(Catcher),
 	 yap_hacks:enable_interrupts,
-	 yap_hacks:current_choice_point(CP0),
+	 '$current_choice_point'(CP0),
 	 '$execute'(Goal),
 	 % ensure environment for delayed variables in Goal
 	 '$true',
-	 yap_hacks:current_choice_point(CPF),
+	 '$current_choice_point'(CPF),
 	 (
 	  CP0 =:= CPF
 	 ->

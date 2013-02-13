@@ -1916,6 +1916,7 @@ Yap_InitExecFs(void)
   Yap_InitCPred("$execute0", 2, p_execute0, 0);
   Yap_InitCPred("$execute_nonstop", 2, p_execute_nonstop, 0);
   Yap_InitCPred("$execute_clause", 4, p_execute_clause, 0);
+  Yap_InitCPred("$current_choice_point", 1, p_save_cp, 0);
   CurrentModule = HACKS_MODULE;
   Yap_InitCPred("current_choice_point", 1, p_save_cp, 0);
   Yap_InitCPred("current_choicepoint", 1, p_save_cp, 0);

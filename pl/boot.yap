@@ -485,10 +485,10 @@ true :- true.
 	 '$yes_no'(G,(?-)).
 '$query'(G,V) :-
 	 (
-	  yap_hacks:current_choice_point(CP),
+	  '$current_choice_point'(CP),
 	  '$current_module'(M),
 	  '$execute_outside_system_mode'(G, M),
-	  yap_hacks:current_choice_point(NCP),
+	  '$current_choice_point'(NCP),
 	  '$delayed_goals'(G, V, NV, LGs, DCP),
 	  '$write_answer'(NV, LGs, Written),
 	  '$write_query_answer_true'(Written),
@@ -531,9 +531,9 @@ true :- true.
 '$delayed_goals'(G, V, NV, LGs, NCP) :-
 	(
 	  CP is '$last_choice_pt',
-	  yap_hacks:current_choice_point(NCP1),
+	  '$current_choice_point'(NCP1),
 	  '$attributes':delayed_goals(G, V, NV, LGs),
-	  yap_hacks:current_choice_point(NCP2),
+	  '$current_choice_point'(NCP2),
 	  '$clean_ifcp'(CP),
 	   NCP is NCP2-NCP1
 	  ;
@@ -759,7 +759,7 @@ incore(G) :- '$execute'(G).
 % standard meta-call, called if $execute could not do everything.
 %
 '$meta_call'(G, M) :-
-	yap_hacks:current_choice_point(CP),
+	'$current_choice_point'(CP),
 	'$call'(G, CP, G, M).
 
 
@@ -814,7 +814,7 @@ not(G) :-    \+ '$execute'(G).
 %
 '$meta_call'(G,_ISO,M) :-
 	'$iso_check_goal'(G,G),
-	yap_hacks:current_choice_point(CP),
+	'$current_choice_point'(CP),
 	'$call'(G, CP, G, M).
 
 '$meta_call'(G, CP, G0, M) :-
@@ -851,7 +851,7 @@ not(G) :-    \+ '$execute'(G).
 	).
 '$call'((X*->Y; Z),CP,G0,M) :- !,
 	(
-	 yap_hacks:current_choicepoint(DCP),
+	 '$current_choicepoint'(DCP),
 	 '$call'(X,CP,G0,M),
 	 yap_hacks:cut_at(DCP),
 	 '$call'(Y,CP,G0,M)
@@ -874,7 +874,7 @@ not(G) :-    \+ '$execute'(G).
 	).
 '$call'((X*->Y| Z),CP,G0,M) :- !,
 	(
-	 yap_hacks:current_choicepoint(DCP),
+	 '$current_choicepoint'(DCP),
 	 '$call'(X,CP,G0,M),
 	 yap_hacks:cut_at(DCP),
 	 '$call'(Y,CP,G0,M)
@@ -888,7 +888,7 @@ not(G) :-    \+ '$execute'(G).
 	    '$call'(B,CP,G0,M)
 	).
 '$call'(\+ X, _CP, _G0, M) :- !,
-	yap_hacks:current_choicepoint(CP),
+	'$current_choicepoint'(CP),
 	\+  '$call'(X,CP,G0,M).
 '$call'(not(X), _CP, _G0, M) :- !,
 	\+  '$call'(X,CP,G0,M).
@@ -1165,9 +1165,9 @@ expand_term(Term,Expanded) :-
 % where was the previous catch	
 catch(G, C, A) :-
 	'$catch'(C,A,_),
-	yap_hacks:current_choice_point(CP0),
+	'$$save_by'(CP0),
 	'$execute'(G),
-	yap_hacks:current_choice_point(CP1),
+	'$$save_by'(CP1),
 	(CP0 == CP1 -> !; true ).
 
 % makes sure we have an environment.
@@ -1182,9 +1182,9 @@ catch(G, C, A) :-
 '$system_catch'(G, M, C, A) :-
 	% check current trail
 	'$catch'(C,A,_),
-	yap_hacks:current_choice_point(CP0),
+	'$$save_by'(CP0),
 	'$execute_nonstop'(G, M),
-	yap_hacks:current_choice_point(CP1),
+	'$$save_by'(CP1),
 	(CP0 == CP1 -> !; true ).
 
 %
@@ -1264,13 +1264,24 @@ catch_ball(C, C).
 	).
 '$execute_outside_system_mode'(G, M, CP) :-
 	nb_getval('$trace', on), !,
-	'$do_spy'(G, M, CP, no).
-'$execute_outside_system_mode'(G, M, CP) :-
 	(
-	 yap_hacks:current_choice_point(CP1),
+	   '$$save_by'(CP1),
+	  '$do_spy'(G, M, CP, meta_creep),
+	   % we may exit system mode...
+	   '$$save_by'(CP2),
+	   (CP1 == CP2 -> ! ; ( true ; '$exit_system_mode', fail ) ),
+	   '$enter_system_mode'
+	;
+	   '$enter_system_mode',
+	   fail
+	).
+'$execute_outside_system_mode'(G, M, CP) :-
+	format('start~n', []),
+	(
+	 '$$save_by'(CP1),
 	 '$exit_system_mode',
 	 '$execute_nonstop'(G,M),
-	 yap_hacks:current_choice_point(CP2),
+	 '$$save_by'(CP2),
 	 (CP1 == CP2 -> ! ; ( true ; '$exit_system_mode', fail ) ),
 	 '$enter_system_mode'
 	;

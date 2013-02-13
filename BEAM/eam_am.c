@@ -1428,6 +1428,7 @@ static void *OpAddress[]= {
         &&p_db_ref,
         &&p_primitive,
         &&p_cut_by,
+        &&p_save_by,
         &&p_succ,
         &&p_predc,
         &&p_plus,
@@ -3536,6 +3537,7 @@ break_debug(contador);
         p_db_ref:
         p_primitive:
         p_cut_by:
+        p_save_by:
         p_succ:
         p_predc:
         p_plus:

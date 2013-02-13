@@ -331,6 +331,9 @@ bip_name(Int op, char *s)
   case _cut_by:
     strcpy(s,"cut_by");
     break;
+  case _save_by:
+    strcpy(s,"save_by");
+    break;
   case _db_ref:
     strcpy(s,"db_ref");
     break;
