@@ -778,7 +778,7 @@ incore(G) :- '$execute'(G).
 	yap_hacks:env_choice_point(CP),
 	'$current_module'(M),
 	(
-	 yap_hacks:current_choicepoint(DCP),
+	 yap_hacks:current_choice_point(DCP),
 	 '$execute'(X),
 	 yap_hacks:cut_at(DCP),
 	 '$call'(A,CP,((X*->A),Y),M)
@@ -848,7 +848,7 @@ not(G) :-    \+ '$execute'(G).
 	).
 '$call'((X*->Y; Z),CP,G0,M) :- !,
 	(
-	 '$current_choicepoint'(DCP),
+	 '$current_choice_point'(DCP),
 	 '$call'(X,CP,G0,M),
 	 yap_hacks:cut_at(DCP),
 	 '$call'(Y,CP,G0,M)
@@ -871,7 +871,7 @@ not(G) :-    \+ '$execute'(G).
 	).
 '$call'((X*->Y| Z),CP,G0,M) :- !,
 	(
-	 '$current_choicepoint'(DCP),
+	 '$current_choice_point'(DCP),
 	 '$call'(X,CP,G0,M),
 	 yap_hacks:cut_at(DCP),
 	 '$call'(Y,CP,G0,M)
@@ -885,7 +885,7 @@ not(G) :-    \+ '$execute'(G).
 	    '$call'(B,CP,G0,M)
 	).
 '$call'(\+ X, _CP, _G0, M) :- !,
-	'$current_choicepoint'(CP),
+	'$current_choice_point'(CP),
 	\+  '$call'(X,CP,G0,M).
 '$call'(not(X), _CP, _G0, M) :- !,
 	\+  '$call'(X,CP,G0,M).
