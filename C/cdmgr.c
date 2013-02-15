@@ -2841,7 +2841,7 @@ p_rmspy( USES_REGS1 )
     return FALSE;
   }
 #if THREADS
-  if (!(pred->PredFlags & ThreadLocalPredFlag)) {
+  if (pred->PredFlags & ThreadLocalPredFlag) {
     pred->OpcodeOfPred = Yap_opcode(_thread_local);
     pred->PredFlags ^= SpiedPredFlag;
     UNLOCKPE(39,pred);
@@ -5288,8 +5288,6 @@ p_continue_static_clause( USES_REGS1 )
 static void
 add_code_in_lu_index(LogUpdIndex *cl, PredEntry *pp)
 {
-  CACHE_REGS
-
   char *code_end = (char *)cl + cl->ClSize;
   Yap_inform_profiler_of_clause(cl, code_end, pp, GPROF_LU_INDEX);
   cl = cl->ChildIndex;
@@ -5302,7 +5300,6 @@ add_code_in_lu_index(LogUpdIndex *cl, PredEntry *pp)
 static void
 add_code_in_static_index(StaticIndex *cl, PredEntry *pp)
 {
-  CACHE_REGS
   char *code_end = (char *)cl + cl->ClSize;
   Yap_inform_profiler_of_clause(cl, code_end, pp, GPROF_STATIC_INDEX);
   cl = cl->ChildIndex;
@@ -5315,7 +5312,6 @@ add_code_in_static_index(StaticIndex *cl, PredEntry *pp)
 
 static void
 add_code_in_pred(PredEntry *pp) {
-  CACHE_REGS
   yamop *clcode;
 
   PELOCK(49,pp);
@@ -5387,7 +5383,6 @@ add_code_in_pred(PredEntry *pp) {
 
 void
 Yap_dump_code_area_for_profiler(void) {
-  CACHE_REGS
   ModEntry *me = CurrentModules;
 
   while (me) {
