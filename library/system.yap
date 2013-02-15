@@ -121,7 +121,7 @@ delete_file(IFile, Dir, Recurse, Ignore) :-
 delete_file(N, File, _Dir, _Recurse, Ignore) :- number(N), !, % error.
 	handle_system_error(N, Ignore, delete_file(File)).
 delete_file(directory, File, Dir, Recurse, Ignore) :-
-	delete_directory(Dir, File, Recurse, Ignore).
+	delete_directory(Dir, File, Recurse, Ignore), !.
 delete_file(_, File, _Dir, _Recurse, Ignore) :-
 	unlink_file(File, Ignore).
 
