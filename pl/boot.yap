@@ -493,7 +493,7 @@ true :- true.
 	  '$write_answer'(NV, LGs, Written),
 	  '$write_query_answer_true'(Written),
 	  (
-	   '$prompt_alternatives_on'(determinism), CP = NCP, DCP = 0 
+	   '$prompt_alternatives_on'(determinism), CP == NCP, DCP = 0 
 	   ->
 	   format(user_error, '.~n', []),
 	   !
@@ -1085,7 +1085,7 @@ bootstrap(F) :-
 % support SWI hook in a separate predicate, to avoid slow down standard consult.
 '$enter_command_with_hook'(Stream,Status) :-
 	'$read_vars'(Stream,Command,_,Pos,Vars, '|: ', Comments),
-	( prolog:comment_hook(Comments,Pos,Command), prolog) -> true ; true ),
+	( prolog:comment_hook(Comments,Pos,Command) -> true ; true ),
 	'$command'(Command,Vars,Pos,Status).
 
 '$abort_loop'(Stream) :-

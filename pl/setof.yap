@@ -50,10 +50,12 @@ findall(Template, Generator, Answers, SoFar) :-
 	nb:nb_queue(Ref),
 	(
 	  '$execute'(Generator),
+	 '$stop_creeping',
 	  nb:nb_queue_enqueue(Ref, Template),
-	  fail
+	 fail
 	;
-	  nb:nb_queue_close(Ref, Answers, SoFar)
+	 '$stop_creeping',
+	 nb:nb_queue_close(Ref, Answers, SoFar)
 	).
 
 
@@ -147,9 +149,11 @@ all(T,G,S) :-
 	'$init_db_queue'(Ref),
 	( '$catch'(Error,'$clean_findall'(Ref,Error),_),
 	  '$execute'(G),
+	  '$stop_creeping',
 	  '$db_enqueue'(Ref, T),
 	  fail
         ;
+	  '$stop_creeping',
 	  '$$set'(S,Ref)
         ).
 
