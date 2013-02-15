@@ -394,7 +394,7 @@ initialization(G,OPT) :-
 	  '$do_error'(type_error(OPT),initialization(G,OPT))
 	).
 '$initialization'(G,now) :-
-	( '$exit_system_mode'(G,prolog) -> true ; format(user_error,':- ~w:~w failed.~n',[M,G]) ).
+	( call(G) -> true ; format(user_error,':- ~w:~w failed.~n',[M,G]) ).
 '$initialization'(G,after_load) :-
 	'$initialization'(G).
 % ignore for now.
@@ -412,7 +412,7 @@ initialization(G,OPT) :-
 	recorded('$system_initialisation',G,R),
 	erase(R),
 	G \= '$',
-	'$exit_system_mode'(G, prolog),
+	once( call(G) ),
 	fail.
 '$exec_initialisation_goals' :-
 	'$show_consult_level'(Level),

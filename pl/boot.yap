@@ -1085,7 +1085,7 @@ bootstrap(F) :-
 % support SWI hook in a separate predicate, to avoid slow down standard consult.
 '$enter_command_with_hook'(Stream,Status) :-
 	'$read_vars'(Stream,Command,_,Pos,Vars, '|: ', Comments),
-	('$exit_system_mode'(comment_hook(Comments,Pos,Command), prolog) -> true ; true ),
+	( prolog:comment_hook(Comments,Pos,Command), prolog) -> true ; true ),
 	'$command'(Command,Vars,Pos,Status).
 
 '$abort_loop'(Stream) :-
@@ -1231,7 +1231,7 @@ catch_ball(C, C).
 	'$nb_getval'('$break', 0, fail),
 	recorded('$toplevel_hooks',H,_), 
 	H \= fail, !,
-	( '$exit_system_mode'(H) -> true ; true).
+	( call(user:H1) -> true ; true).
 '$run_toplevel_hooks'.
 
 '$enter_system_mode' :-
@@ -1273,7 +1273,6 @@ catch_ball(C, C).
 	   fail
 	).
 '$execute_outside_system_mode'(G, M, CP) :-
-	format('start~n', []),
 	(
 	 '$$save_by'(CP1),
 	 '$exit_system_mode',
@@ -1293,7 +1292,7 @@ catch_ball(C, C).
 
 '$run_at_thread_start' :-
 	recorded('$thread_initialization',M:D,_),
-	'$exit_system_mode'(D, M),
+	'$execute_outside_sysem_mode'(D, M),
 	fail.
 '$run_at_thread_start'.
 
