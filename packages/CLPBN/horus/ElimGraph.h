@@ -13,9 +13,9 @@
 
 namespace Horus {
 
-class EgNode;
+class EGNode;
 
-typedef TinySet<EgNode*> EGNeighs;
+typedef TinySet<EGNode*> EGNeighs;
 
 
 enum ElimHeuristic {
@@ -27,15 +27,15 @@ enum ElimHeuristic {
 };
 
 
-class EgNode : public Var {
+class EGNode : public Var {
   public:
-    EgNode (VarId vid, unsigned range) : Var (vid, range) { }
+    EGNode (VarId vid, unsigned range) : Var (vid, range) { }
 
-    void addNeighbor (EgNode* n) { neighs_.insert (n);  }
+    void addNeighbor (EGNode* n) { neighs_.insert (n);  }
 
-    void removeNeighbor (EgNode* n) { neighs_.remove (n); }
+    void removeNeighbor (EGNode* n) { neighs_.remove (n); }
 
-    bool isNeighbor (EgNode* n) const { return neighs_.contains (n); }
+    bool isNeighbor (EGNode* n) const { return neighs_.contains (n); }
 
     const EGNeighs& neighbors (void) const { return neighs_; }
 
@@ -64,29 +64,29 @@ class ElimGraph {
     static void setElimHeuristic (ElimHeuristic eh) { elimHeuristic_ = eh; }
 
   private:
-    void addEdge (EgNode* n1, EgNode* n2);
+    void addEdge (EGNode* n1, EGNode* n2);
 
-    unsigned getNeighborsCost (const EgNode* n) const;
+    unsigned getNeighborsCost (const EGNode* n) const;
 
-    unsigned getWeightCost (const EgNode* n) const;
+    unsigned getWeightCost (const EGNode* n) const;
 
-    unsigned getFillCost (const EgNode* n) const;
+    unsigned getFillCost (const EGNode* n) const;
 
-    unsigned getWeightedFillCost (const EgNode* n) const;
+    unsigned getWeightedFillCost (const EGNode* n) const;
 
-    bool neighbors (EgNode* n1, EgNode* n2) const;
+    bool neighbors (EGNode* n1, EGNode* n2) const;
 
-    void addNode (EgNode*);
+    void addNode (EGNode*);
 
-    EgNode* getEgNode (VarId) const;
+    EGNode* getEGNode (VarId) const;
 
-    EgNode* getLowestCostNode (void) const;
+    EGNode* getLowestCostNode (void) const;
 
-    void connectAllNeighbors (const EgNode*);
+    void connectAllNeighbors (const EGNode*);
 
-    std::vector<EgNode*>                nodes_;
-    TinySet<EgNode*>                    unmarked_;
-    std::unordered_map<VarId, EgNode*>  varMap_;
+    std::vector<EGNode*>                nodes_;
+    EGNeighs                            unmarked_;
+    std::unordered_map<VarId, EGNode*>  varMap_;
 
     static ElimHeuristic elimHeuristic_;
 
@@ -96,7 +96,7 @@ class ElimGraph {
 
 
 inline void
-ElimGraph::addEdge (EgNode* n1, EgNode* n2)
+ElimGraph::addEdge (EGNode* n1, EGNode* n2)
 {
   assert (n1 != n2);
   n1->addNeighbor (n2);
@@ -106,7 +106,7 @@ ElimGraph::addEdge (EgNode* n1, EgNode* n2)
 
 
 inline unsigned
-ElimGraph::getNeighborsCost (const EgNode* n) const
+ElimGraph::getNeighborsCost (const EGNode* n) const
 {
   return n->neighbors().size();
 }
@@ -114,7 +114,7 @@ ElimGraph::getNeighborsCost (const EgNode* n) const
 
 
 inline unsigned
-ElimGraph::getWeightCost (const EgNode* n) const
+ElimGraph::getWeightCost (const EGNode* n) const
 {
   unsigned cost = 1;
   const EGNeighs& neighs = n->neighbors();
@@ -127,7 +127,7 @@ ElimGraph::getWeightCost (const EgNode* n) const
 
 
 inline unsigned
-ElimGraph::getFillCost (const EgNode* n) const
+ElimGraph::getFillCost (const EGNode* n) const
 {
   unsigned cost = 0;
   const EGNeighs& neighs = n->neighbors();
@@ -146,7 +146,7 @@ ElimGraph::getFillCost (const EgNode* n) const
 
 
 inline unsigned
-ElimGraph::getWeightedFillCost (const EgNode* n) const
+ElimGraph::getWeightedFillCost (const EGNode* n) const
 {
   unsigned cost = 0;
   const EGNeighs& neighs = n->neighbors();
@@ -165,7 +165,7 @@ ElimGraph::getWeightedFillCost (const EgNode* n) const
 
 
 inline bool
-ElimGraph::neighbors (EgNode* n1, EgNode* n2) const
+ElimGraph::neighbors (EGNode* n1, EGNode* n2) const
 {
   return n1->isNeighbor (n2);
 }

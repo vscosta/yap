@@ -15,15 +15,15 @@ ElimGraph::ElimGraph (const std::vector<Factor*>& factors)
     if (factors[i]) {
       const VarIds& args = factors[i]->arguments();
       for (size_t j = 0; j < args.size() - 1; j++) {
-        EgNode* n1 = getEgNode (args[j]);
+        EGNode* n1 = getEGNode (args[j]);
         if (!n1) {
-          n1 = new EgNode (args[j], factors[i]->range (j));
+          n1 = new EGNode (args[j], factors[i]->range (j));
           addNode (n1);
         }
         for (size_t k = j + 1; k < args.size(); k++) {
-          EgNode* n2 = getEgNode (args[k]);
+          EGNode* n2 = getEGNode (args[k]);
           if (!n2) {
-            n2 = new EgNode (args[k], factors[i]->range (k));
+            n2 = new EGNode (args[k], factors[i]->range (k));
             addNode (n2);
           }
           if (!neighbors (n1, n2)) {
@@ -31,8 +31,8 @@ ElimGraph::ElimGraph (const std::vector<Factor*>& factors)
           }
         }
       }
-      if (args.size() == 1 && !getEgNode (args[0])) {
-        addNode (new EgNode (args[0], factors[i]->range (0)));
+      if (args.size() == 1 && !getEGNode (args[0])) {
+        addNode (new EGNode (args[0], factors[i]->range (0)));
       }
     }
   }
@@ -61,7 +61,7 @@ ElimGraph::getEliminatingOrder (const VarIds& excludedVids)
   }
   size_t nrVarsToEliminate = nodes_.size() - excludedVids.size();
   for (size_t i = 0; i < nrVarsToEliminate; i++) {
-    EgNode* node = getLowestCostNode();
+    EGNode* node = getLowestCostNode();
     unmarked_.remove (node);
     const EGNeighs& neighs = node->neighbors();
     for (size_t j = 0; j < neighs.size(); j++) {
@@ -109,7 +109,7 @@ ElimGraph::exportToGraphViz (
     }
   }
   for (size_t i = 0; i < highlightVarIds.size(); i++) {
-    EgNode* node =getEgNode (highlightVarIds[i]);
+    EGNode* node =getEGNode (highlightVarIds[i]);
     if (node) {
       out << '"' << node->label() << '"' ;
       out << " [shape=box3d]" << std::endl;
@@ -156,7 +156,7 @@ ElimGraph::getEliminationOrder (
 
 
 void
-ElimGraph::addNode (EgNode* n)
+ElimGraph::addNode (EGNode* n)
 {
   nodes_.push_back (n);
   n->setIndex (nodes_.size() - 1);
@@ -165,20 +165,20 @@ ElimGraph::addNode (EgNode* n)
 
 
 
-EgNode*
-ElimGraph::getEgNode (VarId vid) const
+EGNode*
+ElimGraph::getEGNode (VarId vid) const
 {
-  std::unordered_map<VarId, EgNode*>::const_iterator it;
+  std::unordered_map<VarId, EGNode*>::const_iterator it;
   it = varMap_.find (vid);
   return (it != varMap_.end()) ? it->second : 0;
 }
 
 
 
-EgNode*
+EGNode*
 ElimGraph::getLowestCostNode (void) const
 {
-  EgNode* bestNode = 0;
+  EGNode* bestNode = 0;
   unsigned minCost = Util::maxUnsigned();
   EGNeighs::const_iterator it;
   switch (elimHeuristic_) {
@@ -228,7 +228,7 @@ ElimGraph::getLowestCostNode (void) const
 
 
 void
-ElimGraph::connectAllNeighbors (const EgNode* n)
+ElimGraph::connectAllNeighbors (const EGNode* n)
 {
   const EGNeighs& neighs = n->neighbors();
   if (neighs.size() > 0) {
