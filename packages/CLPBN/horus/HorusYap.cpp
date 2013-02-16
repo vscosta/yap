@@ -26,13 +26,13 @@ typedef std::pair<ParfactorList*, ObservedFormulas*> LiftedNetwork;
 
 Parfactor* readParfactor (YAP_Term);
 
-void readLiftedEvidence (YAP_Term, ObservedFormulas&);
+ObservedFormulas* readLiftedEvidence (YAP_Term);
 
-std::vector<unsigned> readUnsignedList (YAP_Term list);
+std::vector<unsigned> readUnsignedList (YAP_Term);
 
 Params readParameters (YAP_Term);
 
-YAP_Term fillAnswersPrologList (std::vector<Params>& results);
+YAP_Term fillSolutionList (const std::vector<Params>&);
 
 
 
@@ -64,8 +64,7 @@ createLiftedNetwork (void)
   }
 
   // read evidence
-  ObservedFormulas* obsFormulas = new ObservedFormulas();
-  readLiftedEvidence (YAP_ARG2, *(obsFormulas));
+  ObservedFormulas* obsFormulas = readLiftedEvidence (YAP_ARG2);
 
   LiftedNetwork* net = new LiftedNetwork (pfList, obsFormulas);
 
@@ -184,7 +183,7 @@ runLiftedSolver (void)
 
   delete solver;
 
-  return YAP_Unify (fillAnswersPrologList (results), YAP_ARG3);
+  return YAP_Unify (fillSolutionList (results), YAP_ARG3);
 }
 
 
@@ -235,7 +234,7 @@ runGroundSolver (void)
     delete mfg;
   }
 
-  return YAP_Unify (fillAnswersPrologList (results), YAP_ARG3);
+  return YAP_Unify (fillSolutionList (results), YAP_ARG3);
 }
 
 
@@ -451,11 +450,10 @@ readParfactor (YAP_Term pfTerm)
 
 
 
-void
-readLiftedEvidence (
-    YAP_Term observedList,
-    ObservedFormulas& obsFormulas)
+ObservedFormulas*
+readLiftedEvidence (YAP_Term observedList)
 {
+  ObservedFormulas* obsFormulas = new ObservedFormulas();
   while (observedList != YAP_TermNil()) {
     YAP_Term pair = YAP_HeadOfTerm (observedList);
     YAP_Term ground = YAP_ArgOfTerm (1, pair);
@@ -480,19 +478,20 @@ readLiftedEvidence (
     }
     unsigned evidence = (unsigned) YAP_IntOfTerm (YAP_ArgOfTerm (2, pair));
     bool found = false;
-    for (size_t i = 0; i < obsFormulas.size(); i++) {
-      if (obsFormulas[i].functor()  == functor &&
-          obsFormulas[i].arity()    == args.size() &&
-          obsFormulas[i].evidence() == evidence) {
-        obsFormulas[i].addTuple (args);
+    for (size_t i = 0; i < obsFormulas->size(); i++) {
+      if ((*obsFormulas)[i].functor()  == functor &&
+          (*obsFormulas)[i].arity()    == args.size() &&
+          (*obsFormulas)[i].evidence() == evidence) {
+        (*obsFormulas)[i].addTuple (args);
         found = true;
       }
     }
     if (found == false) {
-      obsFormulas.push_back (ObservedFormula (functor, evidence, args));
+      obsFormulas->push_back (ObservedFormula (functor, evidence, args));
     }
     observedList = YAP_TailOfTerm (observedList);
   }
+  return obsFormulas;
 }
 
 
@@ -528,17 +527,17 @@ readParameters (YAP_Term paramL)
 
 
 YAP_Term
-fillAnswersPrologList (std::vector<Params>& results)
+fillSolutionList (const std::vector<Params>& results)
 {
   YAP_Term list = YAP_TermNil();
   for (size_t i = results.size(); i-- > 0; ) {
     const Params& beliefs = results[i];
     YAP_Term queryBeliefsL = YAP_TermNil();
     for (size_t j = beliefs.size(); j-- > 0; ) {
-      YAP_Int sl1      = YAP_InitSlot (list);
+      YAP_Int sl       = YAP_InitSlot (list);
       YAP_Term belief  = YAP_MkFloatTerm (beliefs[j]);
       queryBeliefsL    = YAP_MkPairTerm (belief, queryBeliefsL);
-      list             = YAP_GetFromSlot (sl1);
+      list             = YAP_GetFromSlot (sl);
       YAP_RecoverSlots (1);
     }
     list = YAP_MkPairTerm (queryBeliefsL, list);
