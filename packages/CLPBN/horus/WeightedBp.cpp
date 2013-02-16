@@ -1,8 +1,10 @@
 #include <cassert>
 
 #include <iostream>
+#include <iomanip>
 
 #include "WeightedBp.h"
+
 
 namespace Horus {
 

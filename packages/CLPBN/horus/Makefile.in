@@ -54,6 +54,7 @@ HEADERS = \
 	$(srcdir)/ElimGraph.h \
 	$(srcdir)/Factor.h \
 	$(srcdir)/FactorGraph.h \
+	$(srcdir)/GroundSolver.h \
 	$(srcdir)/Histogram.h \
 	$(srcdir)/Horus.h \
 	$(srcdir)/Indexer.h \
@@ -67,7 +68,6 @@ HEADERS = \
 	$(srcdir)/Parfactor.h \
 	$(srcdir)/ParfactorList.h \
 	$(srcdir)/ProbFormula.h \
-	$(srcdir)/GroundSolver.h \
 	$(srcdir)/TinySet.h \
 	$(srcdir)/Util.h \
 	$(srcdir)/Var.h \
@@ -83,9 +83,11 @@ CPP_SOURCES = \
 	$(srcdir)/ElimGraph.cpp \
 	$(srcdir)/Factor.cpp \
 	$(srcdir)/FactorGraph.cpp \
+	$(srcdir)/GroundSolver.cpp \
 	$(srcdir)/Histogram.cpp \
 	$(srcdir)/HorusCli.cpp \
 	$(srcdir)/HorusYap.cpp \
+	$(srcdir)/Indexer.cpp \
 	$(srcdir)/LiftedBp.cpp \
 	$(srcdir)/LiftedKc.cpp \
 	$(srcdir)/LiftedOperations.cpp \
@@ -95,7 +97,6 @@ CPP_SOURCES = \
 	$(srcdir)/Parfactor.cpp \
 	$(srcdir)/ParfactorList.cpp \
 	$(srcdir)/ProbFormula.cpp \
-	$(srcdir)/GroundSolver.cpp \
 	$(srcdir)/Util.cpp \
 	$(srcdir)/Var.cpp \
 	$(srcdir)/VarElim.cpp \
@@ -110,8 +111,10 @@ OBJS = \
 	ElimGraph.o \
 	Factor.o \
 	FactorGraph.o \
+	GroundSolver.o \
 	Histogram.o \
 	HorusYap.o \
+	Indexer.o \
 	LiftedBp.o \
 	LiftedKc.o \
 	LiftedOperations.o \
@@ -121,7 +124,6 @@ OBJS = \
 	ProbFormula.o \
 	Parfactor.o \
 	ParfactorList.o \
-	GroundSolver.o \
 	Util.o \
 	Var.o \
 	VarElim.o \
@@ -135,8 +137,9 @@ HCLI_OBJS = \
 	ElimGraph.o \
 	Factor.o \
 	FactorGraph.o \
-	HorusCli.o \
 	GroundSolver.o \
+	HorusCli.o \
+	Indexer.o \
 	Util.o \
 	Var.o \
 	VarElim.o \

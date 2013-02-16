@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <iomanip>
 
 #include "GroundSolver.h"
 #include "VarElim.h"

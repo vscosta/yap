@@ -4,8 +4,6 @@
 #include <vector>
 #include <algorithm>
 #include <numeric>
-#include <sstream>
-#include <iomanip>
 
 #include "Util.h"
 
@@ -187,18 +185,6 @@ Indexer::calculateOffsets (void)
 
 
 
-inline std::ostream&
-operator<< (std::ostream& os, const Indexer& indexer)
-{
-  os << "(" ;
-  os << std::setw (2) << std::setfill('0') << indexer.index_;
-  os << ") " ;
-  os << indexer.indices_;
-  return os;
-}
-
-
-
 class MapIndexer {
   public:
     MapIndexer (const Ranges& ranges, const std::vector<bool>& mask);
@@ -237,7 +223,9 @@ class MapIndexer {
 
 
 inline
-MapIndexer::MapIndexer (const Ranges& ranges, const std::vector<bool>& mask)
+MapIndexer::MapIndexer (
+    const Ranges& ranges,
+    const std::vector<bool>& mask)
     : index_(0), indices_(ranges.size(), 0), ranges_(ranges),
       valid_(true)
 {
@@ -347,18 +335,6 @@ MapIndexer::reset (void)
 {
   index_ = 0;
   std::fill (indices_.begin(), indices_.end(), 0);
-}
-
-
-
-inline std::ostream&
-operator<< (std::ostream &os, const MapIndexer& indexer)
-{
-  os << "(" ;
-  os << std::setw (2) << std::setfill('0') << indexer.index_;
-  os << ") " ;
-  os << indexer.indices_;
-  return os;
 }
 
 }  // namespace Horus
