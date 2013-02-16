@@ -6,26 +6,19 @@
 
 namespace Horus {
 
-class LiftedOperations {
-  public:
-    static void shatterAgainstQuery (
-        ParfactorList& pfList, const Grounds& query);
+namespace LiftedOperations {
 
-    static void runWeakBayesBall (
-        ParfactorList& pfList, const Grounds&);
+void shatterAgainstQuery (ParfactorList& pfList, const Grounds& query);
 
-    static void absorveEvidence (
-        ParfactorList& pfList, ObservedFormulas& obsFormulas);
+void runWeakBayesBall (ParfactorList& pfList, const Grounds& query);
 
-    static Parfactors countNormalize (Parfactor*, const LogVarSet&);
+void absorveEvidence (ParfactorList& pfList, ObservedFormulas&);
 
-    static Parfactor calcGroundMultiplication (Parfactor pf);
+Parfactors countNormalize (Parfactor*, const LogVarSet&);
 
-  private:
-    static Parfactors absorve (ObservedFormula&, Parfactor*);
+Parfactor calcGroundMultiplication (Parfactor pf);
 
-    DISALLOW_COPY_AND_ASSIGN (LiftedOperations);
-};
+}  // namespace LiftedOperations
 
 }  // namespace Horus
 

@@ -7,10 +7,16 @@
 
 namespace Horus {
 
+namespace LiftedOperations {
+
+namespace {
+
+Parfactors absorve (ObservedFormula& obsFormula, Parfactor* g);
+
+}
+
 void
-LiftedOperations::shatterAgainstQuery (
-    ParfactorList& pfList,
-    const Grounds& query)
+shatterAgainstQuery (ParfactorList& pfList, const Grounds& query)
 {
   for (size_t i = 0; i < query.size(); i++) {
     if (query[i].isAtom()) {
@@ -61,9 +67,7 @@ LiftedOperations::shatterAgainstQuery (
 
 
 void
-LiftedOperations::runWeakBayesBall (
-    ParfactorList& pfList,
-    const Grounds& query)
+runWeakBayesBall (ParfactorList& pfList, const Grounds& query)
 {
   std::queue<PrvGroup> todo; // groups to process
   std::set<PrvGroup> done;   // processed or in queue
@@ -122,9 +126,7 @@ LiftedOperations::runWeakBayesBall (
 
 
 void
-LiftedOperations::absorveEvidence (
-    ParfactorList& pfList,
-    ObservedFormulas& obsFormulas)
+absorveEvidence (ParfactorList& pfList, ObservedFormulas& obsFormulas)
 {
   for (size_t i = 0; i < obsFormulas.size(); i++) {
     Parfactors newPfs;
@@ -161,9 +163,7 @@ LiftedOperations::absorveEvidence (
 
 
 Parfactors
-LiftedOperations::countNormalize (
-    Parfactor* g,
-    const LogVarSet& set)
+countNormalize (Parfactor* g, const LogVarSet& set)
 {
   Parfactors normPfs;
   if (set.empty()) {
@@ -180,7 +180,7 @@ LiftedOperations::countNormalize (
 
 
 Parfactor
-LiftedOperations::calcGroundMultiplication (Parfactor pf)
+calcGroundMultiplication (Parfactor pf)
 {
   LogVarSet lvs = pf.constr()->logVarSet();
   lvs -= pf.constr()->singletons();
@@ -212,10 +212,10 @@ LiftedOperations::calcGroundMultiplication (Parfactor pf)
 
 
 
+namespace {
+
 Parfactors
-LiftedOperations::absorve (
-    ObservedFormula& obsFormula,
-    Parfactor* g)
+absorve (ObservedFormula& obsFormula, Parfactor* g)
 {
   Parfactors absorvedPfs;
   const ProbFormulas& formulas = g->arguments();
@@ -274,6 +274,10 @@ LiftedOperations::absorve (
   }
   return absorvedPfs;
 }
+
+}
+
+}  // namespace LiftedOperations
 
 }  // namespace Horus
 
