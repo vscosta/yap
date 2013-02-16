@@ -44,7 +44,7 @@ createLiftedNetwork (void)
   while (parfactorList != YAP_TermNil()) {
     YAP_Term pfTerm = YAP_HeadOfTerm (parfactorList);
     parfactors.push_back (readParfactor (pfTerm));
-	  parfactorList = YAP_TailOfTerm (parfactorList);
+    parfactorList = YAP_TailOfTerm (parfactorList);
   }
 
   // LiftedUtils::printSymbolDictionary();
@@ -418,7 +418,7 @@ readParfactor (YAP_Term pfTerm)
   }
 
   // read the parameters
-  const Params& params = readParameters (YAP_ArgOfTerm (4, pfTerm));
+  Params params = readParameters (YAP_ArgOfTerm (4, pfTerm));
 
   // read the constraint
   Tuples tuples;

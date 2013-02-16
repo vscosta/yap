@@ -1033,7 +1033,7 @@ ConstraintTree::swapLogVar (LogVar X)
 {
   size_t pos = Util::indexOf (logVars_, X);
   assert (pos != logVars_.size());
-  const CTNodes& nodes = getNodesAtLevel (pos);
+  CTNodes nodes = getNodesAtLevel (pos);
   for (CTNodes::const_iterator nodeIt = nodes.begin();
        nodeIt != nodes.end(); ++ nodeIt) {
     CTChilds childsCopy = (*nodeIt)->childs();

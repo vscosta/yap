@@ -186,7 +186,7 @@ CountingBp::createGroups (void)
     size_t prevVarGroupsSize = varGroups.size();
     varGroups.clear();
     for (size_t i = 0; i < varNodes.size(); i++) {
-      const VarSignature& signature = getSignature (varNodes[i]);
+      VarSignature signature = getSignature (varNodes[i]);
       VarSignMap::iterator it = varGroups.find (signature);
       if (it == varGroups.end()) {
         it = varGroups.insert (std::make_pair (
@@ -207,7 +207,7 @@ CountingBp::createGroups (void)
     facGroups.clear();
     // set a new color to the factors with the same signature
     for (size_t i = 0; i < facNodes.size(); i++) {
-      const FacSignature& signature = getSignature (facNodes[i]);
+      FacSignature signature = getSignature (facNodes[i]);
       FacSignMap::iterator it = facGroups.find (signature);
       if (it == facGroups.end()) {
         it = facGroups.insert (std::make_pair (
@@ -270,8 +270,8 @@ CountingBp::createClusters (
 VarSignature
 CountingBp::getSignature (const VarNode* varNode)
 {
-  const FacNodes& neighs = varNode->neighbors();
   VarSignature sign;
+  const FacNodes& neighs = varNode->neighbors();
   sign.reserve (neighs.size() + 1);
   for (size_t i = 0; i < neighs.size(); i++) {
     sign.push_back (std::make_pair (
@@ -288,8 +288,8 @@ CountingBp::getSignature (const VarNode* varNode)
 FacSignature
 CountingBp::getSignature (const FacNode* facNode)
 {
-  const VarNodes& neighs = facNode->neighbors();
   FacSignature sign;
+  const VarNodes& neighs = facNode->neighbors();
   sign.reserve (neighs.size() + 1);
   for (size_t i = 0; i < neighs.size(); i++) {
     sign.push_back (getColor (neighs[i]));
