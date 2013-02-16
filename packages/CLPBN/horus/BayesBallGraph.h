@@ -7,12 +7,13 @@
 #include "Var.h"
 #include "Horus.h"
 
+
 namespace Horus {
 
 class BBNode : public Var {
   public:
     BBNode (Var* v) : Var (v), visited_(false),
-        markedOnTop_(false), markedOnBottom_(false) { }
+        markedAbove_(false), markedBelow_(false) { }
 
     const std::vector<BBNode*>& childs (void) const { return childs_; }
 
@@ -30,20 +31,20 @@ class BBNode : public Var {
 
     void setAsVisited (void) { visited_ = true; }
 
-    bool isMarkedOnTop (void) const { return markedOnTop_; }
+    bool isMarkedAbove (void) const { return markedAbove_; }
 
-    void markOnTop (void) { markedOnTop_ = true; }
+    void markAbove (void) { markedAbove_ = true; }
 
-    bool isMarkedOnBottom (void) const { return markedOnBottom_; }
+    bool isMarkedBelow (void) const { return markedBelow_; }
 
-    void markOnBottom (void) { markedOnBottom_ = true; }
+    void markBelow (void) { markedBelow_ = true; }
 
-    void clear (void) { visited_ = markedOnTop_ = markedOnBottom_ = false; }
+    void clear (void) { visited_ = markedAbove_ = markedBelow_ = false; }
 
   private:
     bool visited_;
-    bool markedOnTop_;
-    bool markedOnBottom_;
+    bool markedAbove_;
+    bool markedBelow_;
 
     std::vector<BBNode*> childs_;
     std::vector<BBNode*> parents_;
@@ -71,9 +72,8 @@ class BayesBallGraph {
     void exportToGraphViz (const char*);
 
   private:
-    std::vector<BBNode*> nodes_;
-
-    std::unordered_map<VarId, BBNode*> varMap_;
+    std::vector<BBNode*>                nodes_;
+    std::unordered_map<VarId, BBNode*>  varMap_;
 };
 
 }  // namespace Horus

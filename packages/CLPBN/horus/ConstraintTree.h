@@ -78,7 +78,7 @@ class CTNode {
     void updateChildLevels (CTNode*, unsigned);
 
     Symbol     symbol_;
-    CTChilds  childs_;
+    CTChilds   childs_;
     unsigned   level_;
 
     DISALLOW_ASSIGN (CTNode);

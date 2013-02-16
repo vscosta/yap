@@ -9,6 +9,7 @@
 #include "BayesBallGraph.h"
 #include "Horus.h"
 
+
 namespace Horus {
 
 struct ScheduleInfo {
@@ -39,9 +40,8 @@ class BayesBall {
 
     void scheduleChilds (const BBNode* n, Scheduling& sch) const;
 
-    FactorGraph& fg_;
-
-    BayesBallGraph& dag_;
+    FactorGraph&     fg_;
+    BayesBallGraph&  dag_;
 };
 
 
