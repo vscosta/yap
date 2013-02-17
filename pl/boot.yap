@@ -220,7 +220,6 @@ true :- true.
 	'$run_atom_goal'(GA),
 	( '$pred_exists'(halt(_), user) -> halt(0) ; '$halt'(0) ).
 '$enter_top_level' :-
-	'$disable_docreep',
 	'$run_toplevel_hooks',
 	prompt1(' ?- '),
 	'$read_toplevel'(Command,Varnames),
@@ -378,9 +377,7 @@ true :- true.
  % but YAP and SICStus does.
  %
  '$process_directive'(G, _, M, VL, Pos) :-
-	 '$exit_system_mode',
-	 ( '$notrace'(M:G) -> true ; format(user_error,':- ~w:~w failed.~n',[M,G]) ),
-	 '$enter_system_mode'.
+	 ( '$execute'(M:G) -> true ; format(user_error,':- ~w:~w failed.~n',[M,G]) ).
 
  '$continue_with_command'(Where,V,'$stream_position'(C,_P,A1,A2,A3),'$source_location'(_F,L):G,Source) :- !,
 	  '$continue_with_command'(Where,V,'$stream_position'(C,L,A1,A2,A3),G,Source).
@@ -488,11 +485,10 @@ true :- true.
 	 '$yes_no'(G,(?-)).
 '$query'(G,V) :-
 	 (
-	  yap_hacks:current_choice_point(CP),
-	   '$exit_system_mode',
-	  '$execute'(G),
-	  yap_hacks:current_choice_point(NCP),
-	  ( '$enter_system_mode' ; '$exit_system_mode', fail),
+	  '$current_choice_point'(CP),
+	  '$current_module'(M),
+	  '$execute_outside_system_mode'(G, M),
+	  '$current_choice_point'(NCP),
 	  '$delayed_goals'(G, V, NV, LGs, DCP),
 	  '$write_answer'(NV, LGs, Written),
 	  '$write_query_answer_true'(Written),
@@ -507,7 +503,6 @@ true :- true.
 	  ),
 	  fail	 
 	 ;
-	  '$enter_system_mode',
 	  '$out_neg_answer'
 	 ).
 
@@ -523,7 +518,6 @@ true :- true.
 	 ),
 	 fail.
  '$yes_no'(_,_) :-
-	 '$enter_system_mode',
 	 '$out_neg_answer'.
 
 '$add_env_and_fail' :- fail.
@@ -534,9 +528,9 @@ true :- true.
 '$delayed_goals'(G, V, NV, LGs, NCP) :-
 	(
 	  CP is '$last_choice_pt',
-	  yap_hacks:current_choice_point(NCP1),
+	  '$current_choice_point'(NCP1),
 	  '$attributes':delayed_goals(G, V, NV, LGs),
-	  yap_hacks:current_choice_point(NCP2),
+	  '$current_choice_point'(NCP2),
 	  '$clean_ifcp'(CP),
 	   NCP is NCP2-NCP1
 	  ;
@@ -553,11 +547,11 @@ true :- true.
 	 ),
 	 fail.
 
-'$do_yes_no'([X|L], M) :- !, '$csult'([X|L], M).
+'$do_yes_no'([X|L], M) :-
+	!,
+	'$csult'([X|L], M).
 '$do_yes_no'(G, M) :-
-	'$exit_system_mode',
-	'$execute'(M:G),
-	( '$enter_system_mode' ; '$exit_system_mode', fail).
+	'$execute_outside_system_mode'(G, M).
 
 '$write_query_answer_true'([]) :- !,
 	format(user_error,'true',[]).
@@ -762,7 +756,7 @@ incore(G) :- '$execute'(G).
 % standard meta-call, called if $execute could not do everything.
 %
 '$meta_call'(G, M) :-
-	yap_hacks:current_choice_point(CP),
+	'$current_choice_point'(CP),
 	'$call'(G, CP, G, M).
 
 
@@ -817,7 +811,7 @@ not(G) :-    \+ '$execute'(G).
 %
 '$meta_call'(G,_ISO,M) :-
 	'$iso_check_goal'(G,G),
-	yap_hacks:current_choice_point(CP),
+	'$current_choice_point'(CP),
 	'$call'(G, CP, G, M).
 
 '$meta_call'(G, CP, G0, M) :-
@@ -854,7 +848,7 @@ not(G) :-    \+ '$execute'(G).
 	).
 '$call'((X*->Y; Z),CP,G0,M) :- !,
 	(
-	 yap_hacks:current_choicepoint(DCP),
+	 '$current_choicepoint'(DCP),
 	 '$call'(X,CP,G0,M),
 	 yap_hacks:cut_at(DCP),
 	 '$call'(Y,CP,G0,M)
@@ -877,7 +871,7 @@ not(G) :-    \+ '$execute'(G).
 	).
 '$call'((X*->Y| Z),CP,G0,M) :- !,
 	(
-	 yap_hacks:current_choicepoint(DCP),
+	 '$current_choicepoint'(DCP),
 	 '$call'(X,CP,G0,M),
 	 yap_hacks:cut_at(DCP),
 	 '$call'(Y,CP,G0,M)
@@ -891,7 +885,7 @@ not(G) :-    \+ '$execute'(G).
 	    '$call'(B,CP,G0,M)
 	).
 '$call'(\+ X, _CP, _G0, M) :- !,
-	yap_hacks:current_choicepoint(CP),
+	'$current_choicepoint'(CP),
 	\+  '$call'(X,CP,G0,M).
 '$call'(not(X), _CP, _G0, M) :- !,
 	\+  '$call'(X,CP,G0,M).
@@ -1091,7 +1085,7 @@ bootstrap(F) :-
 % support SWI hook in a separate predicate, to avoid slow down standard consult.
 '$enter_command_with_hook'(Stream,Status) :-
 	'$read_vars'(Stream,Command,_,Pos,Vars, '|: ', Comments),
-	('$notrace'(prolog:comment_hook(Comments,Pos,Command)) -> true ; true ),
+	('$exit_system_mode'(comment_hook(Comments,Pos,Command), prolog) -> true ; true ),
 	'$command'(Command,Vars,Pos,Status).
 
 '$abort_loop'(Stream) :-
@@ -1168,9 +1162,9 @@ expand_term(Term,Expanded) :-
 % where was the previous catch	
 catch(G, C, A) :-
 	'$catch'(C,A,_),
-	yap_hacks:current_choice_point(CP0),
+	'$$save_by'(CP0),
 	'$execute'(G),
-	yap_hacks:current_choice_point(CP1),
+	'$$save_by'(CP1),
 	(CP0 == CP1 -> !; true ).
 
 % makes sure we have an environment.
@@ -1185,9 +1179,9 @@ catch(G, C, A) :-
 '$system_catch'(G, M, C, A) :-
 	% check current trail
 	'$catch'(C,A,_),
-	yap_hacks:current_choice_point(CP0),
+	'$$save_by'(CP0),
 	'$execute_nonstop'(G, M),
-	yap_hacks:current_choice_point(CP1),
+	'$$save_by'(CP1),
 	(CP0 == CP1 -> !; true ).
 
 %
@@ -1237,47 +1231,69 @@ catch_ball(C, C).
 	'$nb_getval'('$break', 0, fail),
 	recorded('$toplevel_hooks',H,_), 
 	H \= fail, !,
-	( '$oncenotrace'(H) -> true ; true).
+	( '$exit_system_mode'(H) -> true ; true).
 '$run_toplevel_hooks'.
 
 '$enter_system_mode' :-
+	'$stop_creeping',
 	nb_setval('$system_mode',on).
+
+'$in_system_mode' :-
+	'$nb_getval'('$system_mode',on,fail).
+
+'$execute_outside_system_mode'(G,M) :-
+	CP is '$last_choice_pt',	
+	'$execute_outside_system_mode'(G,M,CP).
+
+'$execute_outside_system_mode'(V,M,_) :-
+	var(V), !,
+	call(M:G).
+'$execute_outside_system_mode'(M:G, _M, CP) :- !,
+	'$execute_outside_system_mode'(G, M, CP).
+'$execute_outside_system_mode'((G1,G2), M, CP) :- !,
+	'$execute_outside_system_mode'(G1, M, CP),
+	'$execute_outside_system_mode'(G2, M, CP).
+'$execute_outside_system_mode'((G1;G2), M, CP) :- !,
+	(
+	 '$execute_outside_system_mode'(G1, M, CP)
+	;
+	 '$execute_outside_system_mode'(G2, M, CP)
+	).
+'$execute_outside_system_mode'(G, M, CP) :-
+	nb_getval('$trace', on), !,
+	(
+	   '$$save_by'(CP1),
+	  '$do_spy'(G, M, CP, meta_creep),
+	   % we may exit system mode...
+	   '$$save_by'(CP2),
+	   (CP1 == CP2 -> ! ; ( true ; '$exit_system_mode', fail ) ),
+	   '$enter_system_mode'
+	;
+	   '$enter_system_mode',
+	   fail
+	).
+'$execute_outside_system_mode'(G, M, CP) :-
+	format('start~n', []),
+	(
+	 '$$save_by'(CP1),
+	 '$exit_system_mode',
+	 '$execute_nonstop'(G,M),
+	 '$$save_by'(CP2),
+	 (CP1 == CP2 -> ! ; ( true ; '$exit_system_mode', fail ) ),
+	 '$enter_system_mode'
+	;
+	  '$enter_system_mode',
+	  fail
+	).
+
 
 '$exit_system_mode' :-
 	nb_setval('$system_mode',off),
-	( '$nb_getval'('$trace',on,fail) -> '$creep' ; true).
-
-%
-% just prevent creeping from going on...
-%
-'$notrace'(G) :-
-	'$disable_creep', !,
-	(
-		% creep was going on...
-	 yap_hacks:current_choice_point(CP0),
-	 '$execute'(G),
-	 yap_hacks:current_choice_point(CP1),
-	 ( CP0 == CP1 ->
-	   !,
-	   '$creep'
-	 ;
-	   (
-	    '$creep'
-	   ;
-	    '$disable_docreep',
-	    fail
-	   )
-	 )
-	;
-	 '$creep',
-	 fail
-	).
-'$notrace'(G) :-
-	'$execute'(G).
+	( '$nb_getval'('$trace',on,fail) -> '$meta_creep' ; true).
 
 '$run_at_thread_start' :-
 	recorded('$thread_initialization',M:D,_),
-	'$notrace'(M:D),
+	'$exit_system_mode'(D, M),
 	fail.
 '$run_at_thread_start'.
 

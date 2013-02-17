@@ -923,6 +923,8 @@ c_test(Int Op, Term t1, compiler_struct *cglobs) {
   }
   if (Op == _cut_by)
     c_var(t, commit_b_flag, 1, 0, cglobs);
+  else if (Op == _save_by)
+    c_var(t, save_b_flag, 1, 0, cglobs);
   else
     c_var(t, f_flag,(unsigned int)Op, 0, cglobs);
 }

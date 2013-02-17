@@ -258,13 +258,13 @@ add_index(struct index_t **ip, UInt bmap, PredEntry *ap, UInt count, UInt bnds[]
     if (!(base = (CELL *)Yap_AllocCodeSpace(sizeof(CELL)*(ncls+i->hsize)))) {
       CACHE_REGS
       save_machine_regs();
-      LOCAL_Error_Size = 3*ncls*sizeof(CELL);
+      LOCAL_Error_Size = sizeof(CELL)*(ncls+i->hsize);
       LOCAL_ErrorMessage = "not enough space to generate indices";
       Yap_FreeCodeSpace((void *)i);
       Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
       return NULL;
     }
-    bzero(base, 3*sizeof(CELL)*ncls);
+    bzero(base, sizeof(CELL)*(ncls+i->hsize));
   }
   i->size = sizeof(CELL)*(ncls+i->hsize)+sz+sizeof(struct index_t);
   i->key = (CELL **)base;

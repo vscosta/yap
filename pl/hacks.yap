@@ -47,7 +47,7 @@ code_location(Info,Where,Location) :-
 	integer(Where) , !,
 	'$pred_for_code'(Where,Name,Arity,Mod,Clause),
 	construct_code(Clause,Name,Arity,Mod,Info,Location).
-code_location(Info,_,Info).
+code_location(Ixnfo,_,Info).
 
 construct_code(-1,Name,Arity,Mod,Where,Location) :- !,
 	number_codes(Arity,ArityCode),
@@ -126,6 +126,7 @@ show_cp(CP, Continuation) -->
 show_env(Env,Cont,NCont) -->
 	{
 	 yap_hacks:continuation(Env, Addr, NCont, _),
+	format('0x~16r 0x~16r~n',[Env,NCont]),
 	 yap_hacks:cp_to_predicate(Cont, Mod, Name, Arity, ClId)
 	},
         [ '0x~16r~t  ~16+ ~d~16+ ~q:' -

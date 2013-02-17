@@ -3240,28 +3240,29 @@ X_API int
 YAP_Reset(void)
 {
   CACHE_REGS
+  int res = TRUE;
 #ifndef THREADS
   int worker_id = 0;
 #endif
   BACKUP_MACHINE_REGS();
 
+  YAP_ClearExceptions();
   /* first, backtrack to the root */
-  if (B != NULL) {
-    while (B->cp_b != NULL)
-      B = B->cp_b;
+  while (B->cp_b) {
+    B = B->cp_b;
     P = FAILCODE;
-    if (Yap_exec_absmi(0) != 0) {
-      GLOBAL_Initialised = TRUE;
-
-      Yap_InitYaamRegs( worker_id );
-      RECOVER_MACHINE_REGS();
-      return FALSE;
-    }
+    res = Yap_exec_absmi(0);
   }
   /* reinitialise the engine */
   //  Yap_InitYaamRegs( worker_id );
   GLOBAL_Initialised = TRUE;
-
+  ENV = LCL0;
+  ASP = B;
+  /* the first real choice-point will also have AP=FAIL */ 
+  /* always have an empty slots for people to use */
+  CurSlot = 0;
+  Yap_StartSlots( PASS_REGS1 );
+  P = CP = YESCODE;
   RECOVER_MACHINE_REGS();
   return(TRUE);
 }

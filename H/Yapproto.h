@@ -338,6 +338,11 @@ void	STD_PROTO(Yap_InitSavePreds,(void));
 
 /* scanner.c */
 
+/* signals.c */
+void	STD_PROTO(Yap_signal,(yap_signals));
+void	STD_PROTO(Yap_undo_signal,(yap_signals));
+void	STD_PROTO(Yap_InitSignalPreds,(void));
+
 /* sort.c */
 void    STD_PROTO(Yap_InitSortPreds,(void));
 
@@ -345,8 +350,6 @@ void    STD_PROTO(Yap_InitSortPreds,(void));
 void	STD_PROTO(Yap_InitBackCPreds,(void));
 void	STD_PROTO(Yap_InitCPreds,(void));
 void	STD_PROTO(Yap_show_statistics,(void));
-void	STD_PROTO(Yap_signal,(yap_signals));
-void	STD_PROTO(Yap_undo_signal,(yap_signals));
 int	STD_PROTO(Yap_IsOpMaxPrio,(Atom));
 
 /* sysbits.c */

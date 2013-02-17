@@ -535,7 +535,7 @@ expand_goal(G, G).
 % expand argument
 '$meta_expansion_loop'(0,_,_,_,_,_,_,_) :- !.
 '$meta_expansion_loop'(I,D,G,NG,HVars,CurMod,M,HM) :- 
-	arg(I,D,X), (X==':' ; integer(X)),
+	arg(I,D,X), (X==':' -> true ; integer(X)),
 	arg(I,G,A), '$do_expand'(A,HVars),
 	!,
 	arg(I,NG,M:A),

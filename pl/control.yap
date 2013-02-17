@@ -112,16 +112,16 @@ setup_call_catcher_cleanup(Setup, Goal, Catcher, Cleanup) :-
 	throw(Exception).
 
 '$safe_call_cleanup'(Goal, Cleanup, Catcher, Exception) :-
-	yap_hacks:current_choice_point(MyCP1),
+	'$current_choice_point'(MyCP1),
 	'$coroutining':freeze_goal(Catcher, '$clean_call'(Active, Cleanup)),
 	(
 	 yap_hacks:trail_suspension_marker(Catcher),
 	 yap_hacks:enable_interrupts,
-	 yap_hacks:current_choice_point(CP0),
+	 '$current_choice_point'(CP0),
 	 '$execute'(Goal),
 	 % ensure environment for delayed variables in Goal
 	 '$true',
-	 yap_hacks:current_choice_point(CPF),
+	 '$current_choice_point'(CPF),
 	 (
 	  CP0 =:= CPF
 	 ->
@@ -288,37 +288,6 @@ version(T) :-
 	recorda('$toplevel_hooks',H,_),
 	fail.
 '$set_toplevel_hook'(_).
-
-'$oncenotrace'(G) :-
-	'$disable_creep', !,
-	(
-	 '$execute'(G)
-	->
-	 '$creep'
-	;
-	 '$creep',
-	 fail
-	).	
-'$oncenotrace'(G) :-
-	'$execute'(G), !.
-
-
-'$once0'(G, M) :-
-	'$pred_exists'(G, M),
-	(
-	 '$disable_creep'
-	->
-	  (
-	   '$execute_nonstop'(G, M)
-	   ->
-	   '$creep'
-	  ;
-	   '$creep',
-	    fail
-	  )
-       ;
-	  '$execute_nonstop'(G,M)
-        ).
 
 nb_getval(GlobalVariable, Val) :-
 	'$nb_getval'(GlobalVariable, Val, Error),

@@ -242,13 +242,13 @@ print_message(error, error(Msg,[Info|local_sp(P,CP,Envs,CPs)])) :- !,
 	erase(R).
 print_message(Severity, Msg) :-
 	nonvar(Severity), nonvar(Msg),
-	'$notrace'(user:portray_message(Severity, Msg)), !.
+	user:portray_message(Severity, Msg), !.
 % This predicate has more hooks than a pirate ship!
 print_message(Severity, Term) :-
 	% first step at hook processing
 	'$message_to_lines'(Term, Lines),
 	(   nonvar(Term),
-	    '$once0'(message_hook(Term, Severity, Lines), user)
+	    user:message_hook(Term, Severity, Lines)
 	->
            true
 	;
@@ -263,9 +263,9 @@ print_message(_, Term) :-
 	format(user_error,'~q~n',[Term]).
 
 '$message_to_lines'(Term, Lines) :-
-	'$once0'(generate_message_hook(Term, [], Lines), user), !.
+	user:generate_message_hook(Term, [], Lines), !.
 '$message_to_lines'(Term, Lines) :-
-	'$once0'(message(Term, Lines, []), prolog), !.
+	prolog:message(Term, Lines, []), !.
 '$message_to_lines'(Term, Lines) :-
 	'$messages':generate_message(Term, Lines, []), !.
 	
