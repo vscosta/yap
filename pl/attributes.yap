@@ -148,6 +148,7 @@ lcall2([Goal|Goals], Mod) :-
 prolog:call_residue_vars(Goal,Residue) :-
 	attributes:all_attvars(Vs0),
 	call(Goal),
+	'$stop_creeping',
 	attributes:all_attvars(Vs),
 	% this should not be actually strictly necessary right now.
 	% but it makes it a safe bet.

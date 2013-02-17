@@ -493,7 +493,7 @@ true :- true.
 	  '$write_answer'(NV, LGs, Written),
 	  '$write_query_answer_true'(Written),
 	  (
-	   '$prompt_alternatives_on'(determinism), CP = NCP, DCP = 0 
+	   '$prompt_alternatives_on'(determinism), CP == NCP, DCP = 0 
 	   ->
 	   format(user_error, '.~n', []),
 	   !
@@ -778,7 +778,7 @@ incore(G) :- '$execute'(G).
 	yap_hacks:env_choice_point(CP),
 	'$current_module'(M),
 	(
-	 yap_hacks:current_choicepoint(DCP),
+	 yap_hacks:current_choice_point(DCP),
 	 '$execute'(X),
 	 yap_hacks:cut_at(DCP),
 	 '$call'(A,CP,((X*->A),Y),M)
@@ -848,7 +848,7 @@ not(G) :-    \+ '$execute'(G).
 	).
 '$call'((X*->Y; Z),CP,G0,M) :- !,
 	(
-	 '$current_choicepoint'(DCP),
+	 '$current_choice_point'(DCP),
 	 '$call'(X,CP,G0,M),
 	 yap_hacks:cut_at(DCP),
 	 '$call'(Y,CP,G0,M)
@@ -871,7 +871,7 @@ not(G) :-    \+ '$execute'(G).
 	).
 '$call'((X*->Y| Z),CP,G0,M) :- !,
 	(
-	 '$current_choicepoint'(DCP),
+	 '$current_choice_point'(DCP),
 	 '$call'(X,CP,G0,M),
 	 yap_hacks:cut_at(DCP),
 	 '$call'(Y,CP,G0,M)
@@ -885,7 +885,7 @@ not(G) :-    \+ '$execute'(G).
 	    '$call'(B,CP,G0,M)
 	).
 '$call'(\+ X, _CP, _G0, M) :- !,
-	'$current_choicepoint'(CP),
+	'$current_choice_point'(CP),
 	\+  '$call'(X,CP,G0,M).
 '$call'(not(X), _CP, _G0, M) :- !,
 	\+  '$call'(X,CP,G0,M).
@@ -1085,7 +1085,7 @@ bootstrap(F) :-
 % support SWI hook in a separate predicate, to avoid slow down standard consult.
 '$enter_command_with_hook'(Stream,Status) :-
 	'$read_vars'(Stream,Command,_,Pos,Vars, '|: ', Comments),
-	('$exit_system_mode'(comment_hook(Comments,Pos,Command), prolog) -> true ; true ),
+	( prolog:comment_hook(Comments,Pos,Command) -> true ; true ),
 	'$command'(Command,Vars,Pos,Status).
 
 '$abort_loop'(Stream) :-
@@ -1231,7 +1231,7 @@ catch_ball(C, C).
 	'$nb_getval'('$break', 0, fail),
 	recorded('$toplevel_hooks',H,_), 
 	H \= fail, !,
-	( '$exit_system_mode'(H) -> true ; true).
+	( call(user:H1) -> true ; true).
 '$run_toplevel_hooks'.
 
 '$enter_system_mode' :-
@@ -1273,7 +1273,6 @@ catch_ball(C, C).
 	   fail
 	).
 '$execute_outside_system_mode'(G, M, CP) :-
-	format('start~n', []),
 	(
 	 '$$save_by'(CP1),
 	 '$exit_system_mode',
@@ -1293,7 +1292,7 @@ catch_ball(C, C).
 
 '$run_at_thread_start' :-
 	recorded('$thread_initialization',M:D,_),
-	'$exit_system_mode'(D, M),
+	'$execute_outside_sysem_mode'(D, M),
 	fail.
 '$run_at_thread_start'.
 
