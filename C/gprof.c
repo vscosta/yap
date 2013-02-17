@@ -1073,7 +1073,13 @@ static Int start_profilers(int msec)
 
 static Int profoff( USES_REGS1 ) {
   if (GLOBAL_ProfilerOn>0) {
-    setitimer(ITIMER_PROF,NULL,NULL);
+    struct itimerval t;
+    t.it_interval.tv_sec=0;
+    t.it_interval.tv_usec=0;
+    t.it_value.tv_sec=0;
+    t.it_value.tv_usec=0;
+
+    setitimer(ITIMER_PROF,&t,NULL);
     GLOBAL_ProfilerOn = -1;
     return TRUE;
   }
