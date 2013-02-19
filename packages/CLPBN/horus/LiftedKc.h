@@ -1,11 +1,6 @@
 #ifndef YAP_PACKAGES_CLPBN_HORUS_LIFTEDKC_H_
 #define YAP_PACKAGES_CLPBN_HORUS_LIFTEDKC_H_
 
-#include <vector>
-#include <unordered_map>
-#include <string>
-#include <fstream>
-
 #include "LiftedSolver.h"
 #include "ParfactorList.h"
 

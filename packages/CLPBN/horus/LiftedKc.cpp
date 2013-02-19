@@ -1,5 +1,9 @@
 #include <cassert>
 
+#include <vector>
+#include <unordered_map>
+#include <string>
+#include <fstream>
 #include <iostream>
 
 #include "LiftedKc.h"
