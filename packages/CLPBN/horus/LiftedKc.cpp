@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "LiftedKc.h"
+#include "LiftedWCNF.h"
 #include "LiftedOperations.h"
 #include "Indexer.h"
 
@@ -1507,23 +1508,15 @@ LiftedCircuit::printClauses (
 
 
 
-LiftedKc::~LiftedKc (void)
-{
-  delete lwcnf_;
-  delete circuit_;
-}
-
-
-
 Params
 LiftedKc::solveQuery (const Grounds& query)
 {
-  pfList_ = parfactorList;
-  LiftedOperations::shatterAgainstQuery (pfList_, query);
-  LiftedOperations::runWeakBayesBall (pfList_, query);
-  lwcnf_ = new LiftedWCNF (pfList_);
-  circuit_ = new LiftedCircuit (lwcnf_);
-  if (circuit_->isCompilationSucceeded() == false) {
+  ParfactorList pfList (parfactorList);
+  LiftedOperations::shatterAgainstQuery (pfList, query);
+  LiftedOperations::runWeakBayesBall (pfList, query);
+  LiftedWCNF lwcnf (pfList);
+  LiftedCircuit circuit (&lwcnf);
+  if (circuit.isCompilationSucceeded() == false) {
     std::cerr << "Error: the circuit compilation has failed." ;
     std::cerr << std::endl;
     exit (EXIT_FAILURE);
@@ -1531,8 +1524,8 @@ LiftedKc::solveQuery (const Grounds& query)
   std::vector<PrvGroup> groups;
   Ranges ranges;
   for (size_t i = 0; i < query.size(); i++) {
-    ParfactorList::const_iterator it = pfList_.begin();
-    while (it != pfList_.end()) {
+    ParfactorList::const_iterator it = pfList.begin();
+    while (it != pfList.end()) {
       size_t idx = (*it)->indexOfGround (query[i]);
       if (idx != (*it)->nrArguments()) {
         groups.push_back ((*it)->argument (idx).group());
@@ -1547,18 +1540,18 @@ LiftedKc::solveQuery (const Grounds& query)
   Indexer indexer (ranges);
   while (indexer.valid()) {
     for (size_t i = 0; i < groups.size(); i++) {
-      std::vector<LiteralId> litIds = lwcnf_->prvGroupLiterals (groups[i]);
+      std::vector<LiteralId> litIds = lwcnf.prvGroupLiterals (groups[i]);
       for (size_t j = 0; j < litIds.size(); j++) {
         if (indexer[i] == j) {
-          lwcnf_->addWeight (litIds[j], LogAware::one(),
+          lwcnf.addWeight (litIds[j], LogAware::one(),
               LogAware::one());
         } else {
-          lwcnf_->addWeight (litIds[j], LogAware::zero(),
+          lwcnf.addWeight (litIds[j], LogAware::zero(),
               LogAware::one());
         }
       }
     }
-    params.push_back (circuit_->getWeightedModelCount());
+    params.push_back (circuit.getWeightedModelCount());
     ++ indexer;
   }
   LogAware::normalize (params);
