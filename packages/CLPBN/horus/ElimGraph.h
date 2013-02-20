@@ -18,15 +18,6 @@ class EGNode;
 typedef TinySet<EGNode*> EGNeighs;
 
 
-enum ElimHeuristic {
-  sequentialEh,
-  minNeighborsEh,
-  minWeightEh,
-  minFillEh,
-  weightedMinFillEh
-};
-
-
 class EGNode : public Var {
   public:
     EGNode (VarId vid, unsigned range) : Var (vid, range) { }
@@ -46,6 +37,14 @@ class EGNode : public Var {
 
 class ElimGraph {
   public:
+    enum ElimHeuristic {
+      sequentialEh,
+      minNeighborsEh,
+      minWeightEh,
+      minFillEh,
+      weightedMinFillEh
+    };
+
     ElimGraph (const Factors&);
 
    ~ElimGraph (void);

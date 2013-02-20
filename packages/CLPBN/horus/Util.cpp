@@ -226,15 +226,15 @@ setHorusFlag (std::string option, std::string value)
 
   } else if (option == "hve_elim_heuristic") {
     if      (value == "sequential")
-      ElimGraph::setElimHeuristic (ElimHeuristic::sequentialEh);
+      ElimGraph::setElimHeuristic (ElimGraph::ElimHeuristic::sequentialEh);
     else if (value == "min_neighbors")
-      ElimGraph::setElimHeuristic (ElimHeuristic::minNeighborsEh);
+      ElimGraph::setElimHeuristic (ElimGraph::ElimHeuristic::minNeighborsEh);
     else if (value == "min_weight")
-      ElimGraph::setElimHeuristic (ElimHeuristic::minWeightEh);
+      ElimGraph::setElimHeuristic (ElimGraph::ElimHeuristic::minWeightEh);
     else if (value == "min_fill")
-      ElimGraph::setElimHeuristic (ElimHeuristic::minFillEh);
+      ElimGraph::setElimHeuristic (ElimGraph::ElimHeuristic::minFillEh);
     else if (value == "weighted_min_fill")
-      ElimGraph::setElimHeuristic (ElimHeuristic::weightedMinFillEh);
+      ElimGraph::setElimHeuristic (ElimGraph::ElimHeuristic::weightedMinFillEh);
     else
       returnVal = invalidValue (option, value);
 

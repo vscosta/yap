@@ -6,7 +6,8 @@
 
 namespace Horus {
 
-ElimHeuristic ElimGraph::elimHeuristic_ = minNeighborsEh;
+ElimGraph::ElimHeuristic ElimGraph::elimHeuristic_ =
+    ElimHeuristic::minNeighborsEh;
 
 
 ElimGraph::ElimGraph (const std::vector<Factor*>& factors)
