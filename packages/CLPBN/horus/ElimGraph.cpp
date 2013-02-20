@@ -166,7 +166,7 @@ ElimGraph::addNode (EGNode* n)
 
 
 
-EGNode*
+ElimGraph::EGNode*
 ElimGraph::getEGNode (VarId vid) const
 {
   std::unordered_map<VarId, EGNode*>::const_iterator it;
@@ -176,7 +176,7 @@ ElimGraph::getEGNode (VarId vid) const
 
 
 
-EGNode*
+ElimGraph::EGNode*
 ElimGraph::getLowestCostNode (void) const
 {
   EGNode* bestNode = 0;

@@ -13,28 +13,6 @@
 
 namespace Horus {
 
-class EGNode;
-
-typedef TinySet<EGNode*> EGNeighs;
-
-
-class EGNode : public Var {
-  public:
-    EGNode (VarId vid, unsigned range) : Var (vid, range) { }
-
-    void addNeighbor (EGNode* n) { neighs_.insert (n);  }
-
-    void removeNeighbor (EGNode* n) { neighs_.remove (n); }
-
-    bool isNeighbor (EGNode* n) const { return neighs_.contains (n); }
-
-    const EGNeighs& neighbors (void) const { return neighs_; }
-
-  private:
-    EGNeighs neighs_;
-};
-
-
 class ElimGraph {
   public:
     enum ElimHeuristic {
@@ -63,6 +41,26 @@ class ElimGraph {
     static void setElimHeuristic (ElimHeuristic eh) { elimHeuristic_ = eh; }
 
   private:
+    class EGNode;
+
+    typedef TinySet<EGNode*> EGNeighs;
+
+    class EGNode : public Var {
+      public:
+        EGNode (VarId vid, unsigned range) : Var (vid, range) { }
+
+        void addNeighbor (EGNode* n) { neighs_.insert (n);  }
+
+        void removeNeighbor (EGNode* n) { neighs_.remove (n); }
+
+        bool isNeighbor (EGNode* n) const { return neighs_.contains (n); }
+
+        const EGNeighs& neighbors (void) const { return neighs_; }
+
+      private:
+        EGNeighs neighs_;
+    };
+
     void addEdge (EGNode* n1, EGNode* n2);
 
     unsigned getNeighborsCost (const EGNode* n) const;
