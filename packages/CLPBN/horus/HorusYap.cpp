@@ -20,9 +20,10 @@
 #include "ElimGraph.h"
 #include "BayesBall.h"
 
+
 namespace Horus {
 
-typedef std::pair<ParfactorList*, ObservedFormulas*> LiftedNetwork;
+namespace {
 
 Parfactor* readParfactor (YAP_Term);
 
@@ -33,6 +34,10 @@ std::vector<unsigned> readUnsignedList (YAP_Term);
 Params readParameters (YAP_Term);
 
 YAP_Term fillSolutionList (const std::vector<Params>&);
+
+}
+
+typedef std::pair<ParfactorList*, ObservedFormulas*> LiftedNetwork;
 
 
 
@@ -66,9 +71,9 @@ createLiftedNetwork (void)
   // read evidence
   ObservedFormulas* obsFormulas = readLiftedEvidence (YAP_ARG2);
 
-  LiftedNetwork* net = new LiftedNetwork (pfList, obsFormulas);
+  LiftedNetwork* network = new LiftedNetwork (pfList, obsFormulas);
 
-  YAP_Int p = (YAP_Int) (net);
+  YAP_Int p = (YAP_Int) (network);
   return YAP_Unify (YAP_MkIntTerm (p), YAP_ARG3);
 }
 
@@ -134,14 +139,14 @@ int
 runLiftedSolver (void)
 {
   LiftedNetwork* network = (LiftedNetwork*) YAP_IntOfTerm (YAP_ARG1);
-  ParfactorList pfListCopy (*network->first);
-  LiftedOperations::absorveEvidence (pfListCopy, *network->second);
+  ParfactorList copy (*network->first);
+  LiftedOperations::absorveEvidence (copy, *network->second);
 
   LiftedSolver* solver = 0;
   switch (Globals::liftedSolver) {
-    case LiftedSolverType::lveSolver:  solver = new LiftedVe (pfListCopy); break;
-    case LiftedSolverType::lbpSolver:  solver = new LiftedBp (pfListCopy); break;
-    case LiftedSolverType::lkcSolver:  solver = new LiftedKc (pfListCopy); break;
+    case LiftedSolverType::lveSolver: solver = new LiftedVe (copy); break;
+    case LiftedSolverType::lbpSolver: solver = new LiftedBp (copy); break;
+    case LiftedSolverType::lkcSolver: solver = new LiftedKc (copy); break;
   }
 
   if (Globals::verbosity > 0) {
@@ -368,6 +373,8 @@ freeLiftedNetwork (void)
 
 
 
+namespace {
+
 Parfactor*
 readParfactor (YAP_Term pfTerm)
 {
@@ -543,6 +550,8 @@ fillSolutionList (const std::vector<Params>& results)
     list = YAP_MkPairTerm (queryBeliefsL, list);
   }
   return list;
+}
+
 }
 
 

@@ -8,6 +8,7 @@
 #include "BeliefProp.h"
 #include "CountingBp.h"
 
+
 namespace {
 
 int readHorusFlags (int, const char* []);
