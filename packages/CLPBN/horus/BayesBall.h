@@ -12,19 +12,6 @@
 
 namespace Horus {
 
-struct ScheduleInfo {
-  ScheduleInfo (BBNode* n, bool vfp, bool vfc)
-      : node(n), visitedFromParent(vfp), visitedFromChild(vfc) { }
-
-  BBNode*  node;
-  bool     visitedFromParent;
-  bool     visitedFromChild;
-};
-
-
-typedef std::queue<ScheduleInfo, std::list<ScheduleInfo>> Scheduling;
-
-
 class BayesBall {
   public:
     BayesBall (FactorGraph& fg);
@@ -34,6 +21,17 @@ class BayesBall {
     static FactorGraph* getMinimalFactorGraph (FactorGraph& fg, VarIds vids);
 
   private:
+    struct ScheduleInfo {
+      ScheduleInfo (BBNode* n, bool vfp, bool vfc)
+        : node(n), visitedFromParent(vfp), visitedFromChild(vfc) { }
+
+      BBNode*  node;
+      bool     visitedFromParent;
+      bool     visitedFromChild;
+    };
+
+    typedef std::queue<ScheduleInfo, std::list<ScheduleInfo>> Scheduling;
+
     void constructGraph (FactorGraph* fg) const;
 
     void scheduleParents (const BBNode* n, Scheduling& sch) const;
