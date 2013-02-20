@@ -11,13 +11,6 @@
 
 namespace Horus {
 
-enum MsgSchedule {
-  seqFixedSch,
-  seqRandomSch,
-  parallelSch,
-  maxResidualSch
-};
-
 
 class BpLink {
   public:
@@ -59,23 +52,18 @@ class BpLink {
 typedef std::vector<BpLink*> BpLinks;
 
 
-class SPNodeInfo {
-  public:
-    SPNodeInfo (void) { }
-
-    void addBpLink (BpLink* link) { links_.push_back (link); }
-
-    const BpLinks& getLinks (void) { return links_; }
-
-  private:
-    BpLinks links_;
-
-    DISALLOW_COPY_AND_ASSIGN (SPNodeInfo);
-};
-
-
 class BeliefProp : public GroundSolver {
+  private:
+    class SPNodeInfo;
+
   public:
+    enum MsgSchedule {
+      seqFixedSch,
+      seqRandomSch,
+      parallelSch,
+      maxResidualSch
+    };
+
     BeliefProp (const FactorGraph&);
 
     virtual ~BeliefProp (void);
@@ -146,6 +134,20 @@ class BeliefProp : public GroundSolver {
     static MsgSchedule        schedule_;
 
   private:
+    class SPNodeInfo {
+      public:
+        SPNodeInfo (void) { }
+
+        void addBpLink (BpLink* link) { links_.push_back (link); }
+
+        const BpLinks& getLinks (void) { return links_; }
+
+      private:
+        BpLinks links_;
+
+        DISALLOW_COPY_AND_ASSIGN (SPNodeInfo);
+    };
+
     void initializeSolver (void);
 
     bool converged (void);
@@ -157,7 +159,7 @@ class BeliefProp : public GroundSolver {
 
 
 
-inline SPNodeInfo*
+inline BeliefProp::SPNodeInfo*
 BeliefProp::ninf (const VarNode* var) const
 {
   return varsI_[var->getIndex()];
@@ -165,7 +167,7 @@ BeliefProp::ninf (const VarNode* var) const
 
 
 
-inline SPNodeInfo*
+inline BeliefProp::SPNodeInfo*
 BeliefProp::ninf (const FacNode* fac) const
 {
   return facsI_[fac->getIndex()];

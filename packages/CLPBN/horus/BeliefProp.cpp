@@ -61,9 +61,11 @@ BpLink::toString (void) const
 
 
 
-double      BeliefProp::accuracy_ = 0.0001;
-unsigned    BeliefProp::maxIter_  = 1000;
-MsgSchedule BeliefProp::schedule_ = MsgSchedule::seqFixedSch;
+double    BeliefProp::accuracy_ = 0.0001;
+unsigned  BeliefProp::maxIter_  = 1000;
+
+BeliefProp::MsgSchedule BeliefProp::schedule_ =
+    MsgSchedule::seqFixedSch;
 
 
 
@@ -112,9 +114,9 @@ BeliefProp::printSolverFlags (void) const
     case MsgSchedule::parallelSch:    ss << "parallel";     break;
     case MsgSchedule::maxResidualSch: ss << "max_residual"; break;
   }
-  ss << ",bp_max_iter="   << Util::toString (maxIter_);
-  ss << ",bp_accuracy="   << Util::toString (accuracy_);
-  ss << ",log_domain=" << Util::toString (Globals::logDomain);
+  ss << ",bp_max_iter=" << Util::toString (maxIter_);
+  ss << ",bp_accuracy=" << Util::toString (accuracy_);
+  ss << ",log_domain="  << Util::toString (Globals::logDomain);
   ss << "]" ;
   std::cout << ss.str() << std::endl;
 }

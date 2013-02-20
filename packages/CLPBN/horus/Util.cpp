@@ -225,20 +225,22 @@ setHorusFlag (std::string option, std::string value)
     else                       returnVal = invalidValue (option, value);
 
   } else if (option == "hve_elim_heuristic") {
+    typedef ElimGraph::ElimHeuristic ElimHeuristic;
     if      (value == "sequential")
-      ElimGraph::setElimHeuristic (ElimGraph::ElimHeuristic::sequentialEh);
+      ElimGraph::setElimHeuristic (ElimHeuristic::sequentialEh);
     else if (value == "min_neighbors")
-      ElimGraph::setElimHeuristic (ElimGraph::ElimHeuristic::minNeighborsEh);
+      ElimGraph::setElimHeuristic (ElimHeuristic::minNeighborsEh);
     else if (value == "min_weight")
-      ElimGraph::setElimHeuristic (ElimGraph::ElimHeuristic::minWeightEh);
+      ElimGraph::setElimHeuristic (ElimHeuristic::minWeightEh);
     else if (value == "min_fill")
-      ElimGraph::setElimHeuristic (ElimGraph::ElimHeuristic::minFillEh);
+      ElimGraph::setElimHeuristic (ElimHeuristic::minFillEh);
     else if (value == "weighted_min_fill")
-      ElimGraph::setElimHeuristic (ElimGraph::ElimHeuristic::weightedMinFillEh);
+      ElimGraph::setElimHeuristic (ElimHeuristic::weightedMinFillEh);
     else
       returnVal = invalidValue (option, value);
 
   } else if (option == "bp_msg_schedule") {
+    typedef BeliefProp::MsgSchedule MsgSchedule;
     if      (value == "seq_fixed")
       BeliefProp::setMsgSchedule (MsgSchedule::seqFixedSch);
     else if (value == "seq_random")

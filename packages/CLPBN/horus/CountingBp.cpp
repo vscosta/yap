@@ -92,6 +92,7 @@ CountingBp::printSolverFlags (void) const
   std::stringstream ss;
   ss << "counting bp [" ;
   ss << "bp_msg_schedule=" ;
+  typedef WeightedBp::MsgSchedule MsgSchedule;
   switch (WeightedBp::msgSchedule()) {
     case MsgSchedule::seqFixedSch:    ss << "seq_fixed";    break;
     case MsgSchedule::seqRandomSch:   ss << "seq_random";   break;
