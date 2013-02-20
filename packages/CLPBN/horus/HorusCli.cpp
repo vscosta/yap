@@ -8,6 +8,7 @@
 #include "BeliefProp.h"
 #include "CountingBp.h"
 
+namespace {
 
 int readHorusFlags (int, const char* []);
 
@@ -20,6 +21,9 @@ void runSolver (const Horus::FactorGraph&, const Horus::VarIds&);
 
 const std::string usage = "usage: ./hcli [solver=hve|bp|cbp] \
 [<OPTION>=<VALUE>]... <FILE> [<VAR>|<VAR>=<EVIDENCE>]... " ;
+
+}
+
 
 
 int
@@ -57,6 +61,8 @@ main (int argc, const char* argv[])
 }
 
 
+
+namespace {
 
 int
 readHorusFlags (int argc, const char* argv[])
@@ -205,5 +211,7 @@ runSolver (
     solver->printAnswer (queryIds);
   }
   delete solver;
+}
+
 }
 
