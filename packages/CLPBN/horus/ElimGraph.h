@@ -92,6 +92,10 @@ class ElimGraph {
 
 
 
+/* Profiling shows that we should inline the following functions */
+
+
+
 inline void
 ElimGraph::addEdge (EGNode* n1, EGNode* n2)
 {
