@@ -9,6 +9,54 @@
 
 namespace Horus {
 
+class VarCluster {
+  public:
+    VarCluster (const VarNodes& vs) : members_(vs) { }
+
+    const VarNode* first (void) const { return members_.front(); }
+
+    const VarNodes& members (void) const { return members_; }
+
+    VarNode* representative (void) const { return repr_; }
+
+    void setRepresentative (VarNode* vn) { repr_ = vn; }
+
+  private:
+    VarNodes  members_;
+    VarNode*  repr_;
+
+    DISALLOW_COPY_AND_ASSIGN (VarCluster);
+};
+
+
+
+class FacCluster {
+  private:
+    typedef std::vector<VarCluster*> VarClusters;
+
+  public:
+    FacCluster (const FacNodes& fcs, const VarClusters& vcs)
+        : members_(fcs), varClusters_(vcs) { }
+
+    const FacNode* first (void) const { return members_.front(); }
+
+    const FacNodes& members (void) const { return members_; }
+
+    FacNode* representative (void) const { return repr_; }
+
+    void setRepresentative (FacNode* fn) { repr_ = fn; }
+
+    VarClusters& varClusters (void) { return varClusters_; }
+
+    FacNodes     members_;
+    FacNode*     repr_;
+    VarClusters  varClusters_;
+
+    DISALLOW_COPY_AND_ASSIGN (FacCluster);
+};
+
+
+
 bool CountingBp::fif_ = true;
 
 
@@ -267,7 +315,7 @@ CountingBp::createClusters (
 
 
 
-VarSignature
+CountingBp::VarSignature
 CountingBp::getSignature (const VarNode* varNode)
 {
   VarSignature sign;
@@ -285,7 +333,7 @@ CountingBp::getSignature (const VarNode* varNode)
 
 
 
-FacSignature
+CountingBp::FacSignature
 CountingBp::getSignature (const FacNode* facNode)
 {
   FacSignature sign;

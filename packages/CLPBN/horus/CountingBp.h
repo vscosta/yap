@@ -15,25 +15,9 @@ class VarCluster;
 class FacCluster;
 class WeightedBp;
 
-typedef long Color;
-typedef std::vector<Color> Colors;
-typedef std::vector<std::pair<Color,unsigned>> VarSignature;
-typedef std::vector<Color> FacSignature;
 
-typedef std::unordered_map<unsigned, Color>  DistColorMap;
-typedef std::unordered_map<unsigned, Colors> VarColorMap;
-
-typedef std::unordered_map<VarSignature, VarNodes> VarSignMap;
-typedef std::unordered_map<FacSignature, FacNodes> FacSignMap;
-
-typedef std::unordered_map<VarId, VarCluster*> VarClusterMap;
-
-typedef std::vector<VarCluster*> VarClusters;
-typedef std::vector<FacCluster*> FacClusters;
-
-
-template <class T>
-inline size_t hash_combine (size_t seed, const T& v)
+template <class T> inline size_t
+hash_combine (size_t seed, const T& v)
 {
   return seed ^ (std::hash<T>()(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2));
 }
@@ -67,50 +51,6 @@ template <typename T> struct hash<std::vector<T>>
 
 namespace Horus {
 
-class VarCluster {
-  public:
-    VarCluster (const VarNodes& vs) : members_(vs) { }
-
-    const VarNode* first (void) const { return members_.front(); }
-
-    const VarNodes& members (void) const { return members_; }
-
-    VarNode* representative (void) const { return repr_; }
-
-    void setRepresentative (VarNode* vn) { repr_ = vn; }
-
-  private:
-    VarNodes  members_;
-    VarNode*  repr_;
-
-    DISALLOW_COPY_AND_ASSIGN (VarCluster);
-};
-
-
-class FacCluster {
-  public:
-    FacCluster (const FacNodes& fcs, const VarClusters& vcs)
-        : members_(fcs), varClusters_(vcs) { }
-
-    const FacNode* first (void) const { return members_.front(); }
-
-    const FacNodes& members (void) const { return members_; }
-
-    FacNode* representative (void) const { return repr_; }
-
-    void setRepresentative (FacNode* fn) { repr_ = fn; }
-
-    VarClusters& varClusters (void) { return varClusters_; }
-
-  private:
-    FacNodes     members_;
-    FacNode*     repr_;
-    VarClusters  varClusters_;
-
-    DISALLOW_COPY_AND_ASSIGN (FacCluster);
-};
-
-
 class CountingBp : public GroundSolver {
   public:
     CountingBp (const FactorGraph& fg);
@@ -124,6 +64,21 @@ class CountingBp : public GroundSolver {
     static void setFindIdenticalFactorsFlag (bool fif) { fif_ = fif; }
 
   private:
+    typedef long                                        Color;
+    typedef std::vector<Color>                          Colors;
+
+    typedef std::vector<std::pair<Color,unsigned>>      VarSignature;
+    typedef std::vector<Color>                          FacSignature;
+
+    typedef std::vector<VarCluster*>                    VarClusters;
+    typedef std::vector<FacCluster*>                    FacClusters;
+
+    typedef std::unordered_map<unsigned, Color>         DistColorMap;
+    typedef std::unordered_map<unsigned, Colors>        VarColorMap;
+    typedef std::unordered_map<VarSignature, VarNodes>  VarSignMap;
+    typedef std::unordered_map<FacSignature, FacNodes>  FacSignMap;
+    typedef std::unordered_map<VarId, VarCluster*>      VarClusterMap;
+
     Color getNewColor (void);
 
     Color getColor (const VarNode* vn) const;
@@ -156,8 +111,8 @@ class CountingBp : public GroundSolver {
 
     std::vector<std::vector<unsigned>> getWeights (void) const;
 
-    unsigned getWeight (const FacCluster*,
-        const VarCluster*, size_t index) const;
+    unsigned getWeight (const FacCluster*, const VarCluster*,
+        size_t index) const;
 
     Color               freeColor_;
     Colors              varColors_;
@@ -175,7 +130,7 @@ class CountingBp : public GroundSolver {
 
 
 
-inline Color
+inline CountingBp::Color
 CountingBp::getNewColor (void)
 {
   ++ freeColor_;
@@ -184,7 +139,7 @@ CountingBp::getNewColor (void)
 
 
 
-inline Color
+inline CountingBp::Color
 CountingBp::getColor (const VarNode* vn) const
 {
   return varColors_[vn->getIndex()];
@@ -192,7 +147,7 @@ CountingBp::getColor (const VarNode* vn) const
 
 
 
-inline Color
+inline CountingBp::Color
 CountingBp::getColor (const FacNode* fn) const
 {
   return facColors_[fn->getIndex()];
@@ -201,7 +156,7 @@ CountingBp::getColor (const FacNode* fn) const
 
 
 inline void
-CountingBp::setColor (const VarNode* vn, Color c)
+CountingBp::setColor (const VarNode* vn, CountingBp::Color c)
 {
   varColors_[vn->getIndex()] = c;
 }
