@@ -11,47 +11,6 @@
 
 namespace Horus {
 
-
-class BpLink {
-  public:
-    BpLink (FacNode* fn, VarNode* vn);
-
-    virtual ~BpLink (void) { };
-
-    FacNode* facNode (void) const { return fac_; }
-
-    VarNode* varNode (void) const { return var_; }
-
-    const Params& message (void) const { return *currMsg_; }
-
-    Params& nextMessage (void) { return *nextMsg_; }
-
-    double residual (void) const { return residual_; }
-
-    void clearResidual (void);
-
-    void updateResidual (void);
-
-    virtual void updateMessage (void);
-
-    std::string toString (void) const;
-
-  protected:
-    FacNode*  fac_;
-    VarNode*  var_;
-    Params    v1_;
-    Params    v2_;
-    Params*   currMsg_;
-    Params*   nextMsg_;
-    double    residual_;
-
-  private:
-    DISALLOW_COPY_AND_ASSIGN (BpLink);
-};
-
-typedef std::vector<BpLink*> BpLinks;
-
-
 class BeliefProp : public GroundSolver {
   private:
     class SPNodeInfo;
@@ -91,13 +50,51 @@ class BeliefProp : public GroundSolver {
     static void setMsgSchedule (MsgSchedule sch) { schedule_ = sch; }
 
   protected:
+    class BpLink {
+      public:
+        BpLink (FacNode* fn, VarNode* vn);
+
+        virtual ~BpLink (void) { };
+
+        FacNode* facNode (void) const { return fac_; }
+
+        VarNode* varNode (void) const { return var_; }
+
+        const Params& message (void) const { return *currMsg_; }
+
+        Params& nextMessage (void) { return *nextMsg_; }
+
+        double residual (void) const { return residual_; }
+
+        void clearResidual (void);
+
+        void updateResidual (void);
+
+        virtual void updateMessage (void);
+
+        std::string toString (void) const;
+
+      protected:
+        FacNode*  fac_;
+        VarNode*  var_;
+        Params    v1_;
+        Params    v2_;
+        Params*   currMsg_;
+        Params*   nextMsg_;
+        double    residual_;
+
+      private:
+        DISALLOW_COPY_AND_ASSIGN (BpLink);
+    };
+
     struct CmpResidual {
       bool operator() (const BpLink* l1, const BpLink* l2) {
         return l1->residual() > l2->residual();
     }};
 
-    typedef std::multiset<BpLink*, CmpResidual> SortedOrder;
-    typedef std::unordered_map<BpLink*, SortedOrder::iterator> BpLinkMap;
+    typedef std::vector<BeliefProp::BpLink*>                    BpLinks;
+    typedef std::multiset<BpLink*, CmpResidual>                 SortedOrder;
+    typedef std::unordered_map<BpLink*, SortedOrder::iterator>  BpLinkMap;
 
     SPNodeInfo* ninf (const VarNode* var) const;
 
@@ -138,7 +135,7 @@ class BeliefProp : public GroundSolver {
       public:
         SPNodeInfo (void) { }
 
-        void addBpLink (BpLink* link) { links_.push_back (link); }
+        void addBpLink (BeliefProp::BpLink* link) { links_.push_back (link); }
 
         const BpLinks& getLinks (void) { return links_; }
 

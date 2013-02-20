@@ -8,6 +8,16 @@
 
 namespace Horus {
 
+WeightedBp::WeightedBp (
+    const FactorGraph& fg,
+    const std::vector<std::vector<unsigned>>& weights)
+      : BeliefProp (fg), weights_(weights)
+{
+
+}
+
+
+
 WeightedBp::~WeightedBp (void)
 {
   for (size_t i = 0; i < links_.size(); i++) {
@@ -49,6 +59,19 @@ WeightedBp::getPosterioriOf (VarId vid)
     }
   }
   return probs;
+}
+
+
+
+WeightedBp::WeightedLink::WeightedLink (
+    FacNode* fn,
+    VarNode* vn,
+    size_t idx,
+    unsigned weight)
+      : BpLink (fn, vn), index_(idx), weight_(weight),
+        pwdMsg_(vn->range(), LogAware::one())
+{
+
 }
 
 
