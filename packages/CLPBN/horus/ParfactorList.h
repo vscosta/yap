@@ -102,19 +102,6 @@ class ParfactorList {
         const ProbFormula&, ConstraintTree,
         const ProbFormula&, ConstraintTree) const;
 
-    struct sortByParams {
-      bool operator() (const Parfactor* pf1, const Parfactor* pf2)
-      {
-        if (pf1->params().size() < pf2->params().size()) {
-          return true;
-        } else if (pf1->params().size() == pf2->params().size() &&
-                   pf1->params()        <  pf2->params()) {
-          return true;
-        }
-        return false;
-      }
-    };
-
     std::list<Parfactor*> pfList_;
 };
 
