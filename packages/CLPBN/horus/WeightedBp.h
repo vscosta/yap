@@ -30,11 +30,11 @@ class WeightedBp : public BeliefProp {
          void updateMessage (void);
 
        private:
-         DISALLOW_COPY_AND_ASSIGN (WeightedLink);
-
          size_t    index_;
          unsigned  weight_;
          Params    pwdMsg_;
+
+         DISALLOW_COPY_AND_ASSIGN (WeightedLink);
      };
 
      void createLinks (void);
