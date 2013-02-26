@@ -270,6 +270,14 @@ file_search_path(yap, Home) :-
 file_search_path(system, Dir) :-
 	prolog_flag(host_type, Dir).
 file_search_path(foreign, yap('lib/Yap')).
+file_search_path(path, C) :-
+    (   getenv('PATH', A),
+	(   current_prolog_flag(windows, true)
+	->  atomic_list_concat(B, ;, A)
+	;   atomic_list_concat(B, :, A)
+	),
+	lists:member(C, B)
+    ).
 
 :- yap_flag(unknown,error). 
 
