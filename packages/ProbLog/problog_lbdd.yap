@@ -12,9 +12,9 @@ problog_kbest_bdd(Goal, K, Prob, ok) :-
 	bind_maplist(MapList, BoundVars),
 	bdd_to_probability_sum_product(BDD, BoundVars, Prob).
 
-problog_kbest_as_bdd(Goal, K, bdd(Tree, MapList)) :-
+problog_kbest_as_bdd(Goal, K, bdd(Dir, Tree, MapList)) :-
 	problog_kbest_to_bdd(Goal, K, BDD, MapList),
-	bdd_tree(BDD, bdd(_Dir, Tree, _Vars)),
+	bdd_tree(BDD, bdd(Dir, Tree, _Vars)),
 	bdd_close(BDD).
 
 problog_kbest_to_bdd(Goal, K, BDD, MapList) :-
