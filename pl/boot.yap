@@ -168,10 +168,7 @@ true :- true.
 	prompt(_,'|: '),
 	'$system_catch'('$raw_read'(user_input, Line), prolog, E,
 			(print_message(error, E),
-			 (   E = error(syntax_error(_), _)
-			 ->  fail
-			 ;   throw(E)
-			 ))),
+	                 '$handle_toplevel_error'(Line, E))),
 	(   
 	    current_predicate(_, user:rl_add_history(_))
 	-> 
@@ -190,6 +187,10 @@ true :- true.
 			)
 		       ), !.
 
+'$handle_toplevel_error'(_, syntax_error(_)) :- !, fail.
+'$handle_toplevel_error'(end_of_file, error(io_error(read,user_input),_)) :- !.
+'$handle_toplevel_error'(_, E) :-
+	throw(E).
 
 % reset alarms when entering top-level.
 '$enter_top_level' :-
