@@ -17,7 +17,7 @@ class LiftedVe : public LiftedSolver {
 
    Params solveQuery (const Grounds&);
 
-   void printSolverFlags (void) const;
+   void printSolverFlags() const;
 
   private:
     void runSolver (const Grounds&);

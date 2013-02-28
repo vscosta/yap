@@ -24,19 +24,19 @@ class ProbFormula {
         : functor_(f), range_(r),
           group_(std::numeric_limits<PrvGroup>::max()) { }
 
-    Symbol functor (void) const { return functor_; }
+    Symbol functor() const { return functor_; }
 
-    unsigned arity (void) const { return logVars_.size(); }
+    unsigned arity() const { return logVars_.size(); }
 
-    unsigned range (void) const { return range_; }
+    unsigned range() const { return range_; }
 
-    LogVars& logVars (void) { return logVars_; }
+    LogVars& logVars() { return logVars_; }
 
-    const LogVars& logVars (void) const { return logVars_; }
+    const LogVars& logVars() const { return logVars_; }
 
-    LogVarSet logVarSet (void) const { return LogVarSet (logVars_); }
+    LogVarSet logVarSet() const { return LogVarSet (logVars_); }
 
-    PrvGroup group (void) const { return group_; }
+    PrvGroup group() const { return group_; }
 
     void setGroup (PrvGroup g) { group_ = g; }
 
@@ -48,19 +48,19 @@ class ProbFormula {
 
     size_t indexOf (LogVar) const;
 
-    bool isAtom (void) const;
+    bool isAtom() const;
 
-    bool isCounting (void) const;
+    bool isCounting() const;
 
-    LogVar countedLogVar (void) const;
+    LogVar countedLogVar() const;
 
     void setCountedLogVar (LogVar);
 
-    void clearCountedLogVar (void);
+    void clearCountedLogVar();
 
     void rename (LogVar, LogVar);
 
-    static PrvGroup getNewGroup (void);
+    static PrvGroup getNewGroup();
 
   private:
     friend bool operator== (
@@ -86,17 +86,17 @@ class ObservedFormula {
 
     ObservedFormula (Symbol f, unsigned ev, const Tuple& tuple);
 
-    Symbol functor (void) const { return functor_; }
+    Symbol functor() const { return functor_; }
 
-    unsigned arity (void) const { return arity_; }
+    unsigned arity() const { return arity_; }
 
-    unsigned evidence (void) const  { return evidence_; }
+    unsigned evidence() const  { return evidence_; }
 
     void setEvidence (unsigned ev) { evidence_ = ev; }
 
-    ConstraintTree& constr (void) { return constr_; }
+    ConstraintTree& constr() { return constr_; }
 
-    bool isAtom (void) const { return arity_ == 0; }
+    bool isAtom() const { return arity_ == 0; }
 
     void addTuple (const Tuple& tuple) { constr_.addTuple (tuple); }
 

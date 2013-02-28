@@ -26,7 +26,7 @@ class VarNode : public Var {
 
     void addNeighbor (FacNode* fn) { neighs_.push_back (fn); }
 
-    const FacNodes& neighbors (void) const { return neighs_; }
+    const FacNodes& neighbors() const { return neighs_; }
 
   private:
     FacNodes neighs_;
@@ -40,19 +40,19 @@ class FacNode {
   public:
     FacNode (const Factor& f) : factor_(f), index_(-1) { }
 
-    const Factor& factor (void) const { return factor_; }
+    const Factor& factor() const { return factor_; }
 
-    Factor& factor (void) { return factor_; }
+    Factor& factor() { return factor_; }
 
     void addNeighbor (VarNode* vn) { neighs_.push_back (vn); }
 
-    const VarNodes& neighbors (void) const { return neighs_; }
+    const VarNodes& neighbors() const { return neighs_; }
 
-    size_t getIndex (void) const { return index_; }
+    size_t getIndex() const { return index_; }
 
     void setIndex (size_t index) { index_ = index; }
 
-    std::string getLabel (void) { return factor_.getLabel(); }
+    std::string getLabel() { return factor_.getLabel(); }
 
   private:
     VarNodes  neighs_;
@@ -66,23 +66,23 @@ class FacNode {
 
 class FactorGraph {
   public:
-    FactorGraph (void) : bayesFactors_(false) { }
+    FactorGraph() : bayesFactors_(false) { }
 
     FactorGraph (const FactorGraph&);
 
-   ~FactorGraph (void);
+   ~FactorGraph();
 
-    const VarNodes& varNodes (void) const { return varNodes_; }
+    const VarNodes& varNodes() const { return varNodes_; }
 
-    const FacNodes& facNodes (void) const { return facNodes_; }
+    const FacNodes& facNodes() const { return facNodes_; }
 
-    void setFactorsAsBayesian (void) { bayesFactors_ = true; }
+    void setFactorsAsBayesian() { bayesFactors_ = true; }
 
-    bool bayesianFactors (void) const { return bayesFactors_; }
+    bool bayesianFactors() const { return bayesFactors_; }
 
-    size_t nrVarNodes (void) const { return varNodes_.size(); }
+    size_t nrVarNodes() const { return varNodes_.size(); }
 
-    size_t nrFacNodes (void) const { return facNodes_.size(); }
+    size_t nrFacNodes() const { return facNodes_.size(); }
 
     VarNode* getVarNode (VarId vid) const;
 
@@ -98,11 +98,11 @@ class FactorGraph {
 
     void addEdge (VarNode*, FacNode*);
 
-    bool isTree (void) const;
+    bool isTree() const;
 
-    BayesBallGraph& getStructure (void);
+    BayesBallGraph& getStructure();
 
-    void print (void) const;
+    void print() const;
 
     void exportToLibDai (const char*) const;
 
@@ -110,36 +110,36 @@ class FactorGraph {
 
     void exportToGraphViz (const char*) const;
 
-    static bool exportToLibDai (void) { return exportLd_; }
+    static bool exportToLibDai() { return exportLd_; }
 
-    static bool exportToUai (void) { return exportUai_; }
+    static bool exportToUai() { return exportUai_; }
 
-    static bool exportGraphViz (void) { return exportGv_; }
+    static bool exportGraphViz() { return exportGv_; }
 
-    static bool printFactorGraph (void) { return printFg_; }
+    static bool printFactorGraph() { return printFg_; }
 
-    static void enableExportToLibDai (void) { exportLd_ = true; }
+    static void enableExportToLibDai() { exportLd_ = true; }
 
-    static void disableExportToLibDai (void) { exportLd_ = false; }
+    static void disableExportToLibDai() { exportLd_ = false; }
 
-    static void enableExportToUai (void) { exportUai_ = true; }
+    static void enableExportToUai() { exportUai_ = true; }
 
-    static void disableExportToUai (void) { exportUai_ = false; }
+    static void disableExportToUai() { exportUai_ = false; }
 
-    static void enableExportToGraphViz (void) { exportGv_ = true; }
+    static void enableExportToGraphViz() { exportGv_ = true; }
 
-    static void disableExportToGraphViz (void) { exportGv_ = false; }
+    static void disableExportToGraphViz() { exportGv_ = false; }
 
-    static void enablePrintFactorGraph (void) { printFg_ = true; }
+    static void enablePrintFactorGraph() { printFg_ = true; }
 
-    static void disablePrintFactorGraph (void) { printFg_ = false; }
+    static void disablePrintFactorGraph() { printFg_ = false; }
 
   private:
     typedef std::unordered_map<unsigned, VarNode*> VarMap;
 
     void ignoreLines (std::ifstream&) const;
 
-    bool containsCycle (void) const;
+    bool containsCycle() const;
 
     bool containsCycle (const VarNode*, const FacNode*,
         std::vector<bool>&, std::vector<bool>&) const;

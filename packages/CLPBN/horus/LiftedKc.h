@@ -14,7 +14,7 @@ class LiftedKc : public LiftedSolver {
 
    Params solveQuery (const Grounds&);
 
-   void printSolverFlags (void) const;
+   void printSolverFlags() const;
 
   private:
     DISALLOW_COPY_AND_ASSIGN (LiftedKc);

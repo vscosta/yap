@@ -55,9 +55,9 @@ class CountingBp : public GroundSolver {
   public:
     CountingBp (const FactorGraph& fg);
 
-   ~CountingBp (void);
+   ~CountingBp();
 
-    void printSolverFlags (void) const;
+    void printSolverFlags() const;
 
     Params solveQuery (VarIds);
 
@@ -79,7 +79,7 @@ class CountingBp : public GroundSolver {
     typedef std::unordered_map<FacSignature, FacNodes>  FacSignMap;
     typedef std::unordered_map<VarId, VarCluster*>      VarClusterMap;
 
-    Color getNewColor (void);
+    Color getNewColor();
 
     Color getColor (const VarNode* vn) const;
 
@@ -89,11 +89,11 @@ class CountingBp : public GroundSolver {
 
     void setColor (const FacNode* fn, Color c);
 
-    void findIdenticalFactors (void);
+    void findIdenticalFactors();
 
-    void setInitialColors (void);
+    void setInitialColors();
 
-    void createGroups (void);
+    void createGroups();
 
     void createClusters (const VarSignMap&, const FacSignMap&);
 
@@ -107,9 +107,9 @@ class CountingBp : public GroundSolver {
 
     FacNode* getRepresentative (FacNode*);
 
-    FactorGraph* getCompressedFactorGraph (void);
+    FactorGraph* getCompressedFactorGraph();
 
-    std::vector<std::vector<unsigned>> getWeights (void) const;
+    std::vector<std::vector<unsigned>> getWeights() const;
 
     unsigned getWeight (const FacCluster*, const VarCluster*,
         size_t index) const;
@@ -131,7 +131,7 @@ class CountingBp : public GroundSolver {
 
 
 inline CountingBp::Color
-CountingBp::getNewColor (void)
+CountingBp::getNewColor()
 {
   ++ freeColor_;
   return freeColor_ - 1;

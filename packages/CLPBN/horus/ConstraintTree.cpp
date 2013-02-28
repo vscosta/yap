@@ -41,7 +41,7 @@ CTNode::removeChild (CTNode* child)
 
 
 void
-CTNode::removeChilds (void)
+CTNode::removeChilds()
 {
   childs_.clear();
 }
@@ -58,7 +58,7 @@ CTNode::removeAndDeleteChild (CTNode* child)
 
 
 void
-CTNode::removeAndDeleteAllChilds (void)
+CTNode::removeAndDeleteAllChilds()
 {
   for (CTChilds::const_iterator chIt = childs_.begin();
        chIt != childs_.end(); ++ chIt) {
@@ -70,7 +70,7 @@ CTNode::removeAndDeleteAllChilds (void)
 
 
 SymbolSet
-CTNode::childSymbols (void) const
+CTNode::childSymbols() const
 {
   SymbolSet symbols;
   for (CTChilds::const_iterator chIt = childs_.begin();
@@ -232,7 +232,7 @@ ConstraintTree::ConstraintTree (
 
 
 
-ConstraintTree::~ConstraintTree (void)
+ConstraintTree::~ConstraintTree()
 {
   CTNode::deleteSubtree (root_);
 }
@@ -464,7 +464,7 @@ ConstraintTree::ConstraintTree::isSingleton (LogVar X)
 
 
 LogVarSet
-ConstraintTree::singletons (void)
+ConstraintTree::singletons()
 {
   LogVarSet singletons;
   for (size_t i = 0; i < logVars_.size(); i++) {
@@ -1115,7 +1115,7 @@ ConstraintTree::getTuples (
 
 
 unsigned
-ConstraintTree::size (void) const
+ConstraintTree::size() const
 {
   return countTuples (root_);
 }

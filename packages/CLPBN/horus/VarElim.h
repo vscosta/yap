@@ -15,22 +15,22 @@ class VarElim : public GroundSolver {
   public:
     VarElim (const FactorGraph& fg) : GroundSolver (fg) { }
 
-   ~VarElim (void) { }
+   ~VarElim() { }
 
     Params solveQuery (VarIds);
 
-    void printSolverFlags (void) const;
+    void printSolverFlags() const;
 
   private:
-    void createFactorList (void);
+    void createFactorList();
 
-    void absorveEvidence (void);
+    void absorveEvidence();
 
     Params processFactorList (const VarIds&);
 
     void eliminate (VarId);
 
-    void printActiveFactors (void);
+    void printActiveFactors();
 
     Factors   factorList_;
     unsigned  largestFactorSize_;

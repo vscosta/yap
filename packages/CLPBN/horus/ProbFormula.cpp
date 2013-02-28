@@ -45,7 +45,7 @@ ProbFormula::indexOf (LogVar X) const
 
 
 bool
-ProbFormula::isAtom (void) const
+ProbFormula::isAtom() const
 {
   return logVars_.empty();
 }
@@ -53,7 +53,7 @@ ProbFormula::isAtom (void) const
 
 
 bool
-ProbFormula::isCounting (void) const
+ProbFormula::isCounting() const
 {
   return countedLogVar_.valid();
 }
@@ -61,7 +61,7 @@ ProbFormula::isCounting (void) const
 
 
 LogVar
-ProbFormula::countedLogVar (void) const
+ProbFormula::countedLogVar() const
 {
   assert (isCounting());
   return countedLogVar_;
@@ -78,7 +78,7 @@ ProbFormula::setCountedLogVar (LogVar lv)
 
 
 void
-ProbFormula::clearCountedLogVar (void)
+ProbFormula::clearCountedLogVar()
 {
   countedLogVar_ = LogVar();
 }
@@ -131,7 +131,7 @@ operator<< (std::ostream& os, const ProbFormula& f)
 
 
 PrvGroup
-ProbFormula::getNewGroup (void)
+ProbFormula::getNewGroup()
 {
   freeGroup_ ++;
   assert (freeGroup_ != std::numeric_limits<PrvGroup>::max());

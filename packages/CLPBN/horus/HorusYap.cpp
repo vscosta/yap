@@ -42,7 +42,7 @@ typedef std::pair<ParfactorList*, ObservedFormulas*> LiftedNetwork;
 
 
 int
-createLiftedNetwork (void)
+createLiftedNetwork()
 {
   Parfactors parfactors;
   YAP_Term parfactorList = YAP_ARG1;
@@ -80,7 +80,7 @@ createLiftedNetwork (void)
 
 
 int
-createGroundNetwork (void)
+createGroundNetwork()
 {
   std::string factorsType ((char*) YAP_AtomName (YAP_AtomOfTerm (YAP_ARG1)));
   FactorGraph* fg = new FactorGraph();
@@ -136,7 +136,7 @@ createGroundNetwork (void)
 
 
 int
-runLiftedSolver (void)
+runLiftedSolver()
 {
   LiftedNetwork* network = (LiftedNetwork*) YAP_IntOfTerm (YAP_ARG1);
   ParfactorList copy (*network->first);
@@ -194,7 +194,7 @@ runLiftedSolver (void)
 
 
 int
-runGroundSolver (void)
+runGroundSolver()
 {
   FactorGraph* fg = (FactorGraph*) YAP_IntOfTerm (YAP_ARG1);
 
@@ -245,7 +245,7 @@ runGroundSolver (void)
 
 
 int
-setParfactorsParams (void)
+setParfactorsParams()
 {
   LiftedNetwork* network = (LiftedNetwork*) YAP_IntOfTerm (YAP_ARG1);
   ParfactorList* pfList = network->first;
@@ -272,7 +272,7 @@ setParfactorsParams (void)
 
 
 int
-setFactorsParams (void)
+setFactorsParams()
 {
   FactorGraph* fg = (FactorGraph*) YAP_IntOfTerm (YAP_ARG1);
   YAP_Term distIdsList = YAP_ARG2;
@@ -298,7 +298,7 @@ setFactorsParams (void)
 
 
 int
-setVarsInformation (void)
+setVarsInformation()
 {
   Var::clearVarsInfo();
   std::vector<std::string> labels;
@@ -328,7 +328,7 @@ setVarsInformation (void)
 
 
 int
-setHorusFlag (void)
+setHorusFlag()
 {
   std::string option ((char*) YAP_AtomName (YAP_AtomOfTerm (YAP_ARG1)));
   std::string value;
@@ -353,7 +353,7 @@ setHorusFlag (void)
 
 
 int
-freeGroundNetwork (void)
+freeGroundNetwork()
 {
   delete (FactorGraph*) YAP_IntOfTerm (YAP_ARG1);
   return TRUE;
@@ -362,7 +362,7 @@ freeGroundNetwork (void)
 
 
 int
-freeLiftedNetwork (void)
+freeLiftedNetwork()
 {
   LiftedNetwork* network = (LiftedNetwork*) YAP_IntOfTerm (YAP_ARG1);
   delete network->first;
@@ -557,7 +557,7 @@ fillSolutionList (const std::vector<Params>& results)
 
 
 extern "C" void
-init_predicates (void)
+init_predicates()
 {
   YAP_UserCPredicate ("cpp_create_lifted_network",
       createLiftedNetwork, 3);

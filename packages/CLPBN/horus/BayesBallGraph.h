@@ -15,31 +15,31 @@ class BBNode : public Var {
     BBNode (Var* v) : Var (v), visited_(false),
         markedAbove_(false), markedBelow_(false) { }
 
-    const std::vector<BBNode*>& childs (void) const { return childs_; }
+    const std::vector<BBNode*>& childs() const { return childs_; }
 
-    std::vector<BBNode*>& childs (void) { return childs_; }
+    std::vector<BBNode*>& childs() { return childs_; }
 
-    const std::vector<BBNode*>& parents (void) const { return parents_; }
+    const std::vector<BBNode*>& parents() const { return parents_; }
 
-    std::vector<BBNode*>& parents (void) { return parents_; }
+    std::vector<BBNode*>& parents() { return parents_; }
 
     void addParent (BBNode* p) { parents_.push_back (p); }
 
     void addChild (BBNode* c) { childs_.push_back (c); }
 
-    bool isVisited (void) const { return visited_; }
+    bool isVisited() const { return visited_; }
 
-    void setAsVisited (void) { visited_ = true; }
+    void setAsVisited() { visited_ = true; }
 
-    bool isMarkedAbove (void) const { return markedAbove_; }
+    bool isMarkedAbove() const { return markedAbove_; }
 
-    void markAbove (void) { markedAbove_ = true; }
+    void markAbove() { markedAbove_ = true; }
 
-    bool isMarkedBelow (void) const { return markedBelow_; }
+    bool isMarkedBelow() const { return markedBelow_; }
 
-    void markBelow (void) { markedBelow_ = true; }
+    void markBelow() { markedBelow_ = true; }
 
-    void clear (void) { visited_ = markedAbove_ = markedBelow_ = false; }
+    void clear() { visited_ = markedAbove_ = markedBelow_ = false; }
 
   private:
     bool visited_;
@@ -53,9 +53,9 @@ class BBNode : public Var {
 
 class BayesBallGraph {
   public:
-    BayesBallGraph (void) { }
+    BayesBallGraph() { }
 
-    bool empty (void) const { return nodes_.empty(); }
+    bool empty() const { return nodes_.empty(); }
 
     void addNode (BBNode* n);
 
@@ -65,9 +65,9 @@ class BayesBallGraph {
 
     BBNode* getNode (VarId vid);
 
-    void setIndexes (void);
+    void setIndexes();
 
-    void clear (void);
+    void clear();
 
     void exportToGraphViz (const char*);
 

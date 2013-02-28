@@ -36,7 +36,7 @@ FactorGraph::FactorGraph (const FactorGraph& fg)
 
 
 
-FactorGraph::~FactorGraph (void)
+FactorGraph::~FactorGraph()
 {
   for (size_t i = 0; i < varNodes_.size(); i++) {
     delete varNodes_[i];
@@ -246,7 +246,7 @@ FactorGraph::addEdge (VarNode* vn, FacNode* fn)
 
 
 bool
-FactorGraph::isTree (void) const
+FactorGraph::isTree() const
 {
   return !containsCycle();
 }
@@ -254,7 +254,7 @@ FactorGraph::isTree (void) const
 
 
 BayesBallGraph&
-FactorGraph::getStructure (void)
+FactorGraph::getStructure()
 {
   assert (bayesFactors_);
   if (structure_.empty()) {
@@ -274,7 +274,7 @@ FactorGraph::getStructure (void)
 
 
 void
-FactorGraph::print (void) const
+FactorGraph::print() const
 {
   using std::cout;
   using std::endl;
@@ -422,7 +422,7 @@ FactorGraph::ignoreLines (std::ifstream& is) const
 
 
 bool
-FactorGraph::containsCycle (void) const
+FactorGraph::containsCycle() const
 {
   std::vector<bool> visitedVars (varNodes_.size(), false);
   std::vector<bool> visitedFactors (facNodes_.size(), false);

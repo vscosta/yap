@@ -18,7 +18,7 @@ WeightedBp::WeightedBp (
 
 
 
-WeightedBp::~WeightedBp (void)
+WeightedBp::~WeightedBp()
 {
   for (size_t i = 0; i < links_.size(); i++) {
     delete links_[i];
@@ -77,7 +77,7 @@ WeightedBp::WeightedLink::WeightedLink (
 
 
 void
-WeightedBp::createLinks (void)
+WeightedBp::createLinks()
 {
   using std::cout;
   using std::endl;
@@ -110,7 +110,7 @@ WeightedBp::createLinks (void)
 
 
 void
-WeightedBp::maxResidualSchedule (void)
+WeightedBp::maxResidualSchedule()
 {
   if (nIters_ == 1) {
     for (size_t i = 0; i < links_.size(); i++) {
@@ -314,7 +314,7 @@ WeightedBp::getVarToFactorMsg (const BpLink* _link) const
 
 
 void
-WeightedBp::printLinkInformation (void) const
+WeightedBp::printLinkInformation() const
 {
   using std::cout;
   using std::endl;

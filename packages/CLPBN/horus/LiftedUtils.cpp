@@ -28,7 +28,7 @@ getSymbol (const std::string& symbolName)
 
 
 void
-printSymbolDictionary (void)
+printSymbolDictionary()
 {
   std::unordered_map<std::string, unsigned>::const_iterator it
       = symbolDict.begin();
@@ -98,7 +98,7 @@ operator<< (std::ostream& os, const Ground& gr)
 
 
 LogVars
-Substitution::getDiscardedLogVars (void) const
+Substitution::getDiscardedLogVars() const
 {
   LogVars discardedLvs;
   std::set<LogVar> doneLvs;

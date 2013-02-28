@@ -15,27 +15,27 @@ namespace Horus {
 template <typename T>
 class TFactor {
   public:
-    const std::vector<T>& arguments (void) const { return args_; }
+    const std::vector<T>& arguments() const { return args_; }
 
-    std::vector<T>& arguments (void) { return args_; }
+    std::vector<T>& arguments() { return args_; }
 
-    const Ranges& ranges (void) const { return ranges_; }
+    const Ranges& ranges() const { return ranges_; }
 
-    const Params& params (void) const { return params_; }
+    const Params& params() const { return params_; }
 
-    Params& params (void) { return params_; }
+    Params& params() { return params_; }
 
-    size_t nrArguments (void) const { return args_.size(); }
+    size_t nrArguments() const { return args_.size(); }
 
-    size_t size (void) const { return params_.size(); }
+    size_t size() const { return params_.size(); }
 
-    unsigned distId (void) const { return distId_; }
+    unsigned distId() const { return distId_; }
 
     void setDistId (unsigned id) { distId_ = id; }
 
-    void normalize (void) { LogAware::normalize (params_); }
+    void normalize() { LogAware::normalize (params_); }
 
-    void randomize (void);
+    void randomize();
 
     void setParams (const Params& newParams);
 
@@ -77,7 +77,7 @@ class TFactor {
 
 
 template <typename T> inline void
-TFactor<T>::randomize (void)
+TFactor<T>::randomize()
 {
   for (size_t i = 0; i < params_.size(); ++i) {
     params_[i] = (double) std::rand() / RAND_MAX;
@@ -328,7 +328,7 @@ TFactor<T>::cartesianProduct (
 
 class Factor : public TFactor<VarId> {
   public:
-    Factor (void) { }
+    Factor() { }
 
     Factor (const Factor&);
 
@@ -348,14 +348,14 @@ class Factor : public TFactor<VarId> {
 
     void multiply (Factor&);
 
-    std::string getLabel (void) const;
+    std::string getLabel() const;
 
-    void print (void) const;
+    void print() const;
 
   private:
-    void sumOutFirstVariable (void);
+    void sumOutFirstVariable();
 
-    void sumOutLastVariable (void);
+    void sumOutLastVariable();
 
     void sumOutArgs (const std::vector<bool>& mask);
 

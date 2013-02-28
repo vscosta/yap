@@ -48,7 +48,7 @@ Var::setEvidence (int evidence)
 
 
 std::string
-Var::label (void) const
+Var::label() const
 {
   if (Var::varsHaveInfo()) {
     return Var::getVarInfo (varId_).label;
@@ -61,7 +61,7 @@ Var::label (void) const
 
 
 States
-Var::states (void) const
+Var::states() const
 {
   if (Var::varsHaveInfo()) {
     return Var::getVarInfo (varId_).states;
@@ -97,7 +97,7 @@ Var::getVarInfo (VarId vid)
 
 
 bool
-Var::varsHaveInfo (void)
+Var::varsHaveInfo()
 {
   return varsInfo_.empty() == false;
 }
@@ -105,7 +105,7 @@ Var::varsHaveInfo (void)
 
 
 void
-Var::clearVarsInfo (void)
+Var::clearVarsInfo()
 {
   varsInfo_.clear();
 }

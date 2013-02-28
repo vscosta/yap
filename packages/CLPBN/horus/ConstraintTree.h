@@ -38,23 +38,23 @@ class CTNode {
     CTNode (Symbol s, unsigned l, const CTChilds& chs = CTChilds())
         : symbol_(s), childs_(chs), level_(l) { }
 
-    unsigned level (void) const { return level_; }
+    unsigned level() const { return level_; }
 
     void setLevel (unsigned level) { level_ = level; }
 
-    Symbol symbol (void) const { return symbol_; }
+    Symbol symbol() const { return symbol_; }
 
     void setSymbol (Symbol s) { symbol_ = s; }
 
-    CTChilds& childs (void) { return childs_; }
+    CTChilds& childs() { return childs_; }
 
-    const CTChilds& childs (void) const { return childs_; }
+    const CTChilds& childs() const { return childs_; }
 
-    size_t nrChilds (void) const { return childs_.size(); }
+    size_t nrChilds() const { return childs_.size(); }
 
-    bool isRoot (void) const { return level_ == 0; }
+    bool isRoot() const { return level_ == 0; }
 
-    bool isLeaf (void) const { return childs_.empty(); }
+    bool isLeaf() const { return childs_.empty(); }
 
     CTChilds::iterator findSymbol (Symbol symb);
 
@@ -62,13 +62,13 @@ class CTNode {
 
     void removeChild (CTNode*);
 
-    void removeChilds (void);
+    void removeChilds();
 
     void removeAndDeleteChild (CTNode*);
 
-    void removeAndDeleteAllChilds (void);
+    void removeAndDeleteAllChilds();
 
-    SymbolSet childSymbols (void) const;
+    SymbolSet childSymbols() const;
 
     static CTNode* copySubtree (const CTNode*);
 
@@ -113,17 +113,17 @@ class ConstraintTree {
 
     ConstraintTree (const CTChilds& rootChilds, const LogVars& logVars);
 
-   ~ConstraintTree (void);
+   ~ConstraintTree();
 
-    CTNode* root (void) const { return root_; }
+    CTNode* root() const { return root_; }
 
-    bool empty (void) const { return root_->childs().empty(); }
+    bool empty() const { return root_->childs().empty(); }
 
-    const LogVars& logVars (void) const;
+    const LogVars& logVars() const;
 
-    const LogVarSet& logVarSet (void) const;
+    const LogVarSet& logVarSet() const;
 
-    size_t nrLogVars (void) const;
+    size_t nrLogVars() const;
 
     void addTuple (const Tuple&);
 
@@ -149,13 +149,13 @@ class ConstraintTree {
 
     bool isSingleton (LogVar);
 
-    LogVarSet singletons (void);
+    LogVarSet singletons();
 
     TupleSet tupleSet (unsigned = 0) const;
 
     TupleSet tupleSet (const LogVars&);
 
-    unsigned size (void) const;
+    unsigned size() const;
 
     unsigned nrSymbols (LogVar);
 
@@ -217,7 +217,7 @@ class ConstraintTree {
 
 
 inline const LogVars&
-ConstraintTree::logVars (void) const
+ConstraintTree::logVars() const
 {
   assert (LogVarSet (logVars_) == logVarSet_);
   return logVars_;
@@ -226,7 +226,7 @@ ConstraintTree::logVars (void) const
 
 
 inline const LogVarSet&
-ConstraintTree::logVarSet (void) const
+ConstraintTree::logVarSet() const
 {
   assert (LogVarSet (logVars_) == logVarSet_);
   return logVarSet_;
@@ -235,7 +235,7 @@ ConstraintTree::logVarSet (void) const
 
 
 inline size_t
-ConstraintTree::nrLogVars (void) const
+ConstraintTree::nrLogVars() const
 {
   assert (LogVarSet (logVars_) == logVarSet_);
   return logVars_.size();

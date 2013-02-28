@@ -26,21 +26,21 @@ class Var {
 
     Var (VarId, unsigned, int = Constants::unobserved);
 
-    virtual ~Var (void) { };
+    virtual ~Var() { };
 
-    VarId varId (void) const { return varId_; }
+    VarId varId() const { return varId_; }
 
-    unsigned range (void) const { return range_; }
+    unsigned range() const { return range_; }
 
-    int getEvidence (void) const  { return evidence_; }
+    int getEvidence() const  { return evidence_; }
 
-    size_t getIndex (void) const { return index_; }
+    size_t getIndex() const { return index_; }
 
     void setIndex (size_t idx) { index_ = idx; }
 
-    bool hasEvidence (void) const;
+    bool hasEvidence() const;
 
-    operator size_t (void) const;
+    operator size_t() const;
 
     bool operator== (const Var& var) const;
 
@@ -50,18 +50,18 @@ class Var {
 
     void setEvidence (int);
 
-    std::string label (void) const;
+    std::string label() const;
 
-    States states (void) const;
+    States states() const;
 
     static void addVarInfo (
         VarId vid, std::string label, const States& states);
 
     static VarInfo getVarInfo (VarId vid);
 
-    static bool varsHaveInfo (void);
+    static bool varsHaveInfo();
 
-    static void clearVarsInfo (void);
+    static void clearVarsInfo();
 
   private:
     VarId     varId_;
@@ -77,7 +77,7 @@ class Var {
 
 
 inline bool
-Var::hasEvidence (void) const
+Var::hasEvidence() const
 {
   return evidence_ != Constants::unobserved;
 }
@@ -85,7 +85,7 @@ Var::hasEvidence (void) const
 
 
 inline
-Var::operator size_t (void) const
+Var::operator size_t() const
 {
   return index_;
 }

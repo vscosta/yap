@@ -33,19 +33,19 @@ class Literal {
     Literal (const Literal& lit, bool negated)
         : lid_(lit.lid_), logVars_(lit.logVars_), negated_(negated) { }
 
-    LiteralId lid (void) const { return lid_; }
+    LiteralId lid() const { return lid_; }
 
-    LogVars logVars (void) const { return logVars_; }
+    LogVars logVars() const { return logVars_; }
 
-    size_t nrLogVars (void) const { return logVars_.size(); }
+    size_t nrLogVars() const { return logVars_.size(); }
 
-    LogVarSet logVarSet (void) const { return LogVarSet (logVars_); }
+    LogVarSet logVarSet() const { return LogVarSet (logVars_); }
 
-    void complement (void) { negated_ = !negated_; }
+    void complement() { negated_ = !negated_; }
 
-    bool isPositive (void) const { return negated_ == false; }
+    bool isPositive() const { return negated_ == false; }
 
-    bool isNegative (void) const { return negated_; }
+    bool isNegative() const { return negated_; }
 
     bool isGround (ConstraintTree constr, const LogVarSet& ipgLogVars) const;
 
@@ -77,19 +77,19 @@ class Clause {
 
     void addLiteral (const Literal& l) { literals_.push_back (l); }
 
-    const Literals& literals (void) const { return literals_; }
+    const Literals& literals() const { return literals_; }
 
-    Literals& literals (void) { return literals_; }
+    Literals& literals() { return literals_; }
 
-    size_t nrLiterals (void) const { return literals_.size(); }
+    size_t nrLiterals() const { return literals_.size(); }
 
-    const ConstraintTree& constr (void) const { return constr_; }
+    const ConstraintTree& constr() const { return constr_; }
 
-    ConstraintTree constr (void) { return constr_; }
+    ConstraintTree constr() { return constr_; }
 
-    bool isUnit (void) const { return literals_.size() == 1; }
+    bool isUnit() const { return literals_.size() == 1; }
 
-    LogVarSet ipgLogVars (void) const { return ipgLvs_; }
+    LogVarSet ipgLogVars() const { return ipgLvs_; }
 
     void addIpgLogVar (LogVar X) { ipgLvs_.insert (X); }
 
@@ -97,13 +97,13 @@ class Clause {
 
     void addNegCountedLogVar (LogVar X) { negCountedLvs_.insert (X); }
 
-    LogVarSet posCountedLogVars (void) const { return posCountedLvs_; }
+    LogVarSet posCountedLogVars() const { return posCountedLvs_; }
 
-    LogVarSet negCountedLogVars (void) const { return negCountedLvs_; }
+    LogVarSet negCountedLogVars() const { return negCountedLvs_; }
 
-    unsigned nrPosCountedLogVars (void) const { return posCountedLvs_.size(); }
+    unsigned nrPosCountedLogVars() const { return posCountedLvs_.size(); }
 
-    unsigned nrNegCountedLogVars (void) const { return negCountedLvs_.size(); }
+    unsigned nrNegCountedLogVars() const { return negCountedLvs_.size(); }
 
     void addLiteralComplemented (const Literal& lit);
 
@@ -127,9 +127,9 @@ class Clause {
 
     bool isIpgLogVar (LogVar X) const;
 
-    TinySet<LiteralId> lidSet (void) const;
+    TinySet<LiteralId> lidSet() const;
 
-    LogVarSet ipgCandidates (void) const;
+    LogVarSet ipgCandidates() const;
 
     LogVarTypes logVarTypes (size_t litIdx) const;
 
@@ -167,11 +167,11 @@ class LitLvTypes {
     LitLvTypes (LiteralId lid, const LogVarTypes& lvTypes) :
         lid_(lid), lvTypes_(lvTypes) { }
 
-    LiteralId lid (void) const { return lid_; }
+    LiteralId lid() const { return lid_; }
 
-    const LogVarTypes& logVarTypes (void) const { return lvTypes_; }
+    const LogVarTypes& logVarTypes() const { return lvTypes_; }
 
-    void setAllFullLogVars (void);
+    void setAllFullLogVars();
 
   private:
     friend std::ostream& operator<< (std::ostream&, const LitLvTypes&);
@@ -206,9 +206,9 @@ class LiftedWCNF {
   public:
     LiftedWCNF (const ParfactorList& pfList);
 
-   ~LiftedWCNF (void);
+   ~LiftedWCNF();
 
-    const Clauses& clauses (void) const { return clauses_; }
+    const Clauses& clauses() const { return clauses_; }
 
     void addWeight (LiteralId lid, double posW, double negW);
 
@@ -220,11 +220,11 @@ class LiftedWCNF {
 
     Clause* createClause (LiteralId lid) const;
 
-    void printFormulaIndicators (void) const;
+    void printFormulaIndicators() const;
 
-    void printWeights (void) const;
+    void printWeights() const;
 
-    void printClauses (void) const;
+    void printClauses() const;
 
   private:
     LiteralId getLiteralId (PrvGroup prvGroup, unsigned range);

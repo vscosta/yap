@@ -27,7 +27,7 @@ ParfactorList::ParfactorList (const Parfactors& pfs)
 
 
 
-ParfactorList::~ParfactorList (void)
+ParfactorList::~ParfactorList()
 {
   ParfactorList::const_iterator it = pfList_.begin();
   while (it != pfList_.end()) {
@@ -97,7 +97,7 @@ ParfactorList::removeAndDelete (std::list<Parfactor*>::iterator it)
 
 
 bool
-ParfactorList::isAllShattered (void) const
+ParfactorList::isAllShattered() const
 {
   if (pfList_.size() <= 1) {
     return true;
@@ -119,7 +119,7 @@ ParfactorList::isAllShattered (void) const
 
 
 void
-ParfactorList::print (void) const
+ParfactorList::print() const
 {
   struct sortByParams {
     bool operator() (const Parfactor* pf1, const Parfactor* pf2)

@@ -14,15 +14,15 @@ namespace Horus {
 
 class Symbol {
   public:
-    Symbol (void) : id_(Util::maxUnsigned()) { }
+    Symbol() : id_(Util::maxUnsigned()) { }
 
     Symbol (unsigned id) : id_(id) { }
 
-    operator unsigned (void) const { return id_; }
+    operator unsigned() const { return id_; }
 
-    bool valid (void) const { return id_ != Util::maxUnsigned(); }
+    bool valid() const { return id_ != Util::maxUnsigned(); }
 
-    static Symbol invalid (void) { return Symbol(); }
+    static Symbol invalid() { return Symbol(); }
 
   private:
     friend std::ostream& operator<< (std::ostream&, const Symbol&);
@@ -33,15 +33,15 @@ class Symbol {
 
 class LogVar {
   public:
-    LogVar (void) : id_(Util::maxUnsigned()) { }
+    LogVar() : id_(Util::maxUnsigned()) { }
 
     LogVar (unsigned id) : id_(id) { }
 
-    operator unsigned (void) const  { return id_; }
+    operator unsigned() const  { return id_; }
 
-    LogVar& operator++ (void);
+    LogVar& operator++();
 
-    bool valid (void) const;
+    bool valid() const;
 
   private:
     friend std::ostream& operator<< (std::ostream&, const LogVar&);
@@ -52,7 +52,7 @@ class LogVar {
 
 
 inline LogVar&
-LogVar::operator++ (void)
+LogVar::operator++()
 {
   assert (valid());
   id_ ++;
@@ -62,7 +62,7 @@ LogVar::operator++ (void)
 
 
 inline bool
-LogVar::valid (void) const
+LogVar::valid() const
 {
   return id_ != Util::maxUnsigned();
 }
@@ -103,7 +103,7 @@ namespace LiftedUtils {
 
 Symbol getSymbol (const std::string&);
 
-void printSymbolDictionary (void);
+void printSymbolDictionary();
 
 }
 
@@ -116,13 +116,13 @@ class Ground {
     Ground (Symbol f, const Symbols& args)
         : functor_(f), args_(args) { }
 
-    Symbol functor (void) const { return functor_; }
+    Symbol functor() const { return functor_; }
 
-    Symbols args (void) const { return args_; }
+    Symbols args() const { return args_; }
 
-    size_t arity (void) const { return args_.size(); }
+    size_t arity() const { return args_.size(); }
 
-    bool isAtom (void) const { return args_.empty(); }
+    bool isAtom() const { return args_.empty(); }
 
   private:
     friend std::ostream& operator<< (std::ostream&, const Ground&);
@@ -145,9 +145,9 @@ class Substitution {
 
     bool containsReplacementFor (LogVar X) const;
 
-    size_t nrReplacements (void) const;
+    size_t nrReplacements() const;
 
-    LogVars getDiscardedLogVars (void) const;
+    LogVars getDiscardedLogVars() const;
 
   private:
     friend std::ostream& operator<< (
@@ -199,7 +199,7 @@ Substitution::containsReplacementFor (LogVar X) const
 
 
 inline size_t
-Substitution::nrReplacements (void) const
+Substitution::nrReplacements() const
 {
   return subs_.size();
 }

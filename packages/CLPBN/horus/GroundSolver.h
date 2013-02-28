@@ -15,11 +15,11 @@ class GroundSolver {
 
     virtual Params solveQuery (VarIds queryVids) = 0;
 
-    virtual void printSolverFlags (void) const = 0;
+    virtual void printSolverFlags() const = 0;
 
     void printAnswer (const VarIds& vids);
 
-    void printAllPosterioris (void);
+    void printAllPosterioris();
 
     static Params getJointByConditioning (GroundSolverType,
         FactorGraph, const VarIds& jointVarIds);

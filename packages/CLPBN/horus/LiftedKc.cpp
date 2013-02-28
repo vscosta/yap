@@ -30,25 +30,25 @@ enum CircuitNodeType {
 
 class CircuitNode {
   public:
-    CircuitNode (void) { }
+    CircuitNode() { }
 
-    virtual ~CircuitNode (void) { }
+    virtual ~CircuitNode() { }
 
-    virtual double weight (void) const = 0;
+    virtual double weight() const = 0;
 };
 
 
 
 class OrNode : public CircuitNode {
   public:
-    OrNode (void) : CircuitNode(), leftBranch_(0), rightBranch_(0) { }
+    OrNode() : CircuitNode(), leftBranch_(0), rightBranch_(0) { }
 
-   ~OrNode (void);
+   ~OrNode();
 
-    CircuitNode** leftBranch  (void) { return &leftBranch_; }
-    CircuitNode** rightBranch (void) { return &rightBranch_; }
+    CircuitNode** leftBranch () { return &leftBranch_; }
+    CircuitNode** rightBranch() { return &rightBranch_; }
 
-    double weight (void) const;
+    double weight() const;
 
   private:
     CircuitNode*  leftBranch_;
@@ -59,17 +59,17 @@ class OrNode : public CircuitNode {
 
 class AndNode : public CircuitNode {
   public:
-    AndNode (void) : CircuitNode(), leftBranch_(0), rightBranch_(0) { }
+    AndNode() : CircuitNode(), leftBranch_(0), rightBranch_(0) { }
 
     AndNode (CircuitNode* leftBranch, CircuitNode* rightBranch)
         : CircuitNode(), leftBranch_(leftBranch), rightBranch_(rightBranch) { }
 
-   ~AndNode (void);
+   ~AndNode();
 
-    CircuitNode** leftBranch  (void) { return &leftBranch_;  }
-    CircuitNode** rightBranch (void) { return &rightBranch_; }
+    CircuitNode** leftBranch () { return &leftBranch_;  }
+    CircuitNode** rightBranch() { return &rightBranch_; }
 
-    double weight (void) const;
+    double weight() const;
 
   private:
     CircuitNode*  leftBranch_;
@@ -83,17 +83,17 @@ class SetOrNode	: public CircuitNode {
     SetOrNode (unsigned nrGroundings)
         : CircuitNode(), follow_(0), nrGroundings_(nrGroundings) { }
 
-   ~SetOrNode (void);
+   ~SetOrNode();
 
-    CircuitNode** follow (void) { return &follow_; }
+    CircuitNode** follow() { return &follow_; }
 
-    static unsigned nrPositives (void) { return nrPos_; }
+    static unsigned nrPositives() { return nrPos_; }
 
-    static unsigned nrNegatives (void) { return nrNeg_; }
+    static unsigned nrNegatives() { return nrNeg_; }
 
-    static bool isSet (void) { return nrPos_ >= 0; }
+    static bool isSet() { return nrPos_ >= 0; }
 
-    double weight (void) const;
+    double weight() const;
 
   private:
     CircuitNode*  follow_;
@@ -109,11 +109,11 @@ class SetAndNode : public CircuitNode {
     SetAndNode (unsigned nrGroundings)
         : CircuitNode(), follow_(0), nrGroundings_(nrGroundings) { }
 
-   ~SetAndNode (void);
+   ~SetAndNode();
 
-    CircuitNode** follow (void) { return &follow_; }
+    CircuitNode** follow() { return &follow_; }
 
-    double weight (void) const;
+    double weight() const;
 
   private:
     CircuitNode*  follow_;
@@ -124,16 +124,16 @@ class SetAndNode : public CircuitNode {
 
 class IncExcNode : public CircuitNode {
   public:
-    IncExcNode (void)
+    IncExcNode()
         : CircuitNode(), plus1Branch_(0), plus2Branch_(0), minusBranch_(0) { }
 
-   ~IncExcNode (void);
+   ~IncExcNode();
 
-    CircuitNode** plus1Branch (void) { return &plus1Branch_; }
-    CircuitNode** plus2Branch (void) { return &plus2Branch_; }
-    CircuitNode** minusBranch (void) { return &minusBranch_; }
+    CircuitNode** plus1Branch() { return &plus1Branch_; }
+    CircuitNode** plus2Branch() { return &plus2Branch_; }
+    CircuitNode** minusBranch() { return &minusBranch_; }
 
-    double weight (void) const;
+    double weight() const;
 
   private:
     CircuitNode*  plus1Branch_;
@@ -148,13 +148,13 @@ class LeafNode : public CircuitNode {
     LeafNode (Clause* clause, const LiftedWCNF& lwcnf)
         : CircuitNode(), clause_(clause), lwcnf_(lwcnf) { }
 
-   ~LeafNode (void);
+   ~LeafNode();
 
-    const Clause* clause (void) const { return clause_; }
+    const Clause* clause() const { return clause_; }
 
-    Clause* clause (void) { return clause_; }
+    Clause* clause() { return clause_; }
 
-    double weight (void) const;
+    double weight() const;
 
   private:
     Clause*            clause_;
@@ -168,13 +168,13 @@ class SmoothNode : public CircuitNode {
     SmoothNode (const Clauses& clauses, const LiftedWCNF& lwcnf)
         : CircuitNode(), clauses_(clauses), lwcnf_(lwcnf) { }
 
-   ~SmoothNode (void);
+   ~SmoothNode();
 
-    const Clauses& clauses (void) const { return clauses_; }
+    const Clauses& clauses() const { return clauses_; }
 
-    Clauses clauses (void) { return clauses_; }
+    Clauses clauses() { return clauses_; }
 
-    double weight (void) const;
+    double weight() const;
 
   private:
     Clauses            clauses_;
@@ -185,18 +185,18 @@ class SmoothNode : public CircuitNode {
 
 class TrueNode : public CircuitNode {
   public:
-    TrueNode (void) : CircuitNode() { }
+    TrueNode() : CircuitNode() { }
 
-    double weight (void) const;
+    double weight() const;
 };
 
 
 
 class CompilationFailedNode : public CircuitNode {
   public:
-    CompilationFailedNode (void) : CircuitNode() { }
+    CompilationFailedNode() : CircuitNode() { }
 
-    double weight (void) const;
+    double weight() const;
 };
 
 
@@ -205,11 +205,11 @@ class LiftedCircuit {
   public:
     LiftedCircuit (const LiftedWCNF* lwcnf);
 
-   ~LiftedCircuit (void);
+   ~LiftedCircuit();
 
-    bool isCompilationSucceeded (void) const;
+    bool isCompilationSucceeded() const;
 
-    double getWeightedModelCount (void) const;
+    double getWeightedModelCount() const;
 
     void exportToGraphViz (const char*);
 
@@ -275,7 +275,7 @@ class LiftedCircuit {
 
 
 
-OrNode::~OrNode (void)
+OrNode::~OrNode()
 {
   delete leftBranch_;
   delete rightBranch_;
@@ -284,7 +284,7 @@ OrNode::~OrNode (void)
 
 
 double
-OrNode::weight (void) const
+OrNode::weight() const
 {
   double lw = leftBranch_->weight();
   double rw = rightBranch_->weight();
@@ -293,7 +293,7 @@ OrNode::weight (void) const
 
 
 
-AndNode::~AndNode (void)
+AndNode::~AndNode()
 {
   delete leftBranch_;
   delete rightBranch_;
@@ -302,7 +302,7 @@ AndNode::~AndNode (void)
 
 
 double
-AndNode::weight (void) const
+AndNode::weight() const
 {
   double lw = leftBranch_->weight();
   double rw = rightBranch_->weight();
@@ -316,7 +316,7 @@ int SetOrNode::nrNeg_ = -1;
 
 
 
-SetOrNode::~SetOrNode (void)
+SetOrNode::~SetOrNode()
 {
   delete follow_;
 }
@@ -324,7 +324,7 @@ SetOrNode::~SetOrNode (void)
 
 
 double
-SetOrNode::weight (void) const
+SetOrNode::weight() const
 {
   double weightSum = LogAware::addIdenty();
   for (unsigned i = 0; i < nrGroundings_ + 1; i++) {
@@ -346,7 +346,7 @@ SetOrNode::weight (void) const
 
 
 
-SetAndNode::~SetAndNode (void)
+SetAndNode::~SetAndNode()
 {
   delete follow_;
 }
@@ -354,14 +354,14 @@ SetAndNode::~SetAndNode (void)
 
 
 double
-SetAndNode::weight (void) const
+SetAndNode::weight() const
 {
   return LogAware::pow (follow_->weight(), nrGroundings_);
 }
 
 
 
-IncExcNode::~IncExcNode (void)
+IncExcNode::~IncExcNode()
 {
   delete plus1Branch_;
   delete plus2Branch_;
@@ -371,7 +371,7 @@ IncExcNode::~IncExcNode (void)
 
 
 double
-IncExcNode::weight (void) const
+IncExcNode::weight() const
 {
   double w = 0.0;
   if (Globals::logDomain) {
@@ -386,7 +386,7 @@ IncExcNode::weight (void) const
 
 
 
-LeafNode::~LeafNode (void)
+LeafNode::~LeafNode()
 {
   delete clause_;
 }
@@ -394,7 +394,7 @@ LeafNode::~LeafNode (void)
 
 
 double
-LeafNode::weight (void) const
+LeafNode::weight() const
 {
   assert (clause_->isUnit());
   if (clause_->posCountedLogVars().empty() == false
@@ -431,7 +431,7 @@ LeafNode::weight (void) const
 
 
 
-SmoothNode::~SmoothNode (void)
+SmoothNode::~SmoothNode()
 {
   Clause::deleteClauses (clauses_);
 }
@@ -439,7 +439,7 @@ SmoothNode::~SmoothNode (void)
 
 
 double
-SmoothNode::weight (void) const
+SmoothNode::weight() const
 {
   Clauses cs = clauses();
   double totalWeight = LogAware::multIdenty();
@@ -474,7 +474,7 @@ SmoothNode::weight (void) const
 
 
 double
-TrueNode::weight (void) const
+TrueNode::weight() const
 {
   return LogAware::multIdenty();
 }
@@ -482,7 +482,7 @@ TrueNode::weight (void) const
 
 
 double
-CompilationFailedNode::weight (void) const
+CompilationFailedNode::weight() const
 {
   // weighted model counting in compilation
   // failed nodes should give NaN
@@ -515,7 +515,7 @@ LiftedCircuit::LiftedCircuit (const LiftedWCNF* lwcnf)
 
 
 
-LiftedCircuit::~LiftedCircuit (void)
+LiftedCircuit::~LiftedCircuit()
 {
   delete root_;
   std::unordered_map<CircuitNode*, Clauses>::iterator it
@@ -529,7 +529,7 @@ LiftedCircuit::~LiftedCircuit (void)
 
 
 bool
-LiftedCircuit::isCompilationSucceeded (void) const
+LiftedCircuit::isCompilationSucceeded() const
 {
   return compilationSucceeded_;
 }
@@ -537,7 +537,7 @@ LiftedCircuit::isCompilationSucceeded (void) const
 
 
 double
-LiftedCircuit::getWeightedModelCount (void) const
+LiftedCircuit::getWeightedModelCount() const
 {
   assert (compilationSucceeded_);
   return root_->weight();
@@ -1568,7 +1568,7 @@ LiftedKc::solveQuery (const Grounds& query)
 
 
 void
-LiftedKc::printSolverFlags (void) const
+LiftedKc::printSolverFlags() const
 {
   std::stringstream ss;
   ss << "lifted kc [" ;

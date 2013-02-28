@@ -13,11 +13,11 @@ class VarCluster {
   public:
     VarCluster (const VarNodes& vs) : members_(vs) { }
 
-    const VarNode* first (void) const { return members_.front(); }
+    const VarNode* first() const { return members_.front(); }
 
-    const VarNodes& members (void) const { return members_; }
+    const VarNodes& members() const { return members_; }
 
-    VarNode* representative (void) const { return repr_; }
+    VarNode* representative() const { return repr_; }
 
     void setRepresentative (VarNode* vn) { repr_ = vn; }
 
@@ -38,15 +38,15 @@ class FacCluster {
     FacCluster (const FacNodes& fcs, const VarClusters& vcs)
         : members_(fcs), varClusters_(vcs) { }
 
-    const FacNode* first (void) const { return members_.front(); }
+    const FacNode* first() const { return members_.front(); }
 
-    const FacNodes& members (void) const { return members_; }
+    const FacNodes& members() const { return members_; }
 
-    FacNode* representative (void) const { return repr_; }
+    FacNode* representative() const { return repr_; }
 
     void setRepresentative (FacNode* fn) { repr_ = fn; }
 
-    VarClusters& varClusters (void) { return varClusters_; }
+    VarClusters& varClusters() { return varClusters_; }
 
     FacNodes     members_;
     FacNode*     repr_;
@@ -72,7 +72,7 @@ CountingBp::CountingBp (const FactorGraph& fg)
 
 
 
-CountingBp::~CountingBp (void)
+CountingBp::~CountingBp()
 {
   delete solver_;
   delete compressedFg_;
@@ -87,7 +87,7 @@ CountingBp::~CountingBp (void)
 
 
 void
-CountingBp::printSolverFlags (void) const
+CountingBp::printSolverFlags() const
 {
   std::stringstream ss;
   ss << "counting bp [" ;
@@ -179,7 +179,7 @@ CountingBp::findIdenticalFactors()
 
 
 void
-CountingBp::setInitialColors (void)
+CountingBp::setInitialColors()
 {
   varColors_.resize (fg.nrVarNodes());
   facColors_.resize (fg.nrFacNodes());
@@ -219,7 +219,7 @@ CountingBp::setInitialColors (void)
 
 
 void
-CountingBp::createGroups (void)
+CountingBp::createGroups()
 {
   VarSignMap varGroups;
   FacSignMap facGroups;
@@ -373,7 +373,7 @@ CountingBp::getRepresentative (FacNode* fn)
 
 
 FactorGraph*
-CountingBp::getCompressedFactorGraph (void)
+CountingBp::getCompressedFactorGraph()
 {
   FactorGraph* fg = new FactorGraph();
   for (size_t i = 0; i < varClusters_.size(); i++) {
@@ -402,7 +402,7 @@ CountingBp::getCompressedFactorGraph (void)
 
 
 std::vector<std::vector<unsigned>>
-CountingBp::getWeights (void) const
+CountingBp::getWeights() const
 {
   std::vector<std::vector<unsigned>> weights;
   weights.reserve (facClusters_.size());

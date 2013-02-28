@@ -27,7 +27,7 @@ BeliefProp::BeliefProp (const FactorGraph& fg)
 
 
 
-BeliefProp::~BeliefProp (void)
+BeliefProp::~BeliefProp()
 {
   for (size_t i = 0; i < varsI_.size(); i++) {
     delete varsI_[i];
@@ -54,7 +54,7 @@ BeliefProp::solveQuery (VarIds queryVids)
 
 
 void
-BeliefProp::printSolverFlags (void) const
+BeliefProp::printSolverFlags() const
 {
   std::stringstream ss;
   ss << "belief propagation [" ;
@@ -172,7 +172,7 @@ BeliefProp::BpLink::BpLink (FacNode* fn, VarNode* vn)
 
 
 void
-BeliefProp::BpLink::clearResidual (void)
+BeliefProp::BpLink::clearResidual()
 {
   residual_ = 0.0;
 }
@@ -180,7 +180,7 @@ BeliefProp::BpLink::clearResidual (void)
 
 
 void
-BeliefProp::BpLink::updateResidual (void)
+BeliefProp::BpLink::updateResidual()
 {
   residual_ = LogAware::getMaxNorm (v1_, v2_);
 }
@@ -188,7 +188,7 @@ BeliefProp::BpLink::updateResidual (void)
 
 
 void
-BeliefProp::BpLink::updateMessage (void)
+BeliefProp::BpLink::updateMessage()
 {
   swap (currMsg_, nextMsg_);
 }
@@ -196,7 +196,7 @@ BeliefProp::BpLink::updateMessage (void)
 
 
 std::string
-BeliefProp::BpLink::toString (void) const
+BeliefProp::BpLink::toString() const
 {
   std::stringstream ss;
   ss << fac_->getLabel();
@@ -251,7 +251,7 @@ BeliefProp::updateMessage (BpLink* link)
 
 
 void
-BeliefProp::runSolver (void)
+BeliefProp::runSolver()
 {
   initializeSolver();
   nIters_ = 0;
@@ -299,7 +299,7 @@ BeliefProp::runSolver (void)
 
 
 void
-BeliefProp::createLinks (void)
+BeliefProp::createLinks()
 {
   const FacNodes& facNodes = fg.facNodes();
   for (size_t i = 0; i < facNodes.size(); i++) {
@@ -313,7 +313,7 @@ BeliefProp::createLinks (void)
 
 
 void
-BeliefProp::maxResidualSchedule (void)
+BeliefProp::maxResidualSchedule()
 {
   if (nIters_ == 1) {
     for (size_t i = 0; i < links_.size(); i++) {
@@ -487,7 +487,7 @@ BeliefProp::getJointByConditioning (const VarIds& jointVarIds) const
 
 
 void
-BeliefProp::initializeSolver (void)
+BeliefProp::initializeSolver()
 {
   const VarNodes& varNodes = fg.varNodes();
   varsI_.reserve (varNodes.size());
@@ -511,7 +511,7 @@ BeliefProp::initializeSolver (void)
 
 
 bool
-BeliefProp::converged (void)
+BeliefProp::converged()
 {
   if (links_.empty()) {
     return true;
@@ -560,7 +560,7 @@ BeliefProp::converged (void)
 
 
 void
-BeliefProp::printLinkInformation (void) const
+BeliefProp::printLinkInformation() const
 {
   using std::cout;
   using std::endl;

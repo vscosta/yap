@@ -37,7 +37,7 @@ VarElim::solveQuery (VarIds queryVids)
 
 
 void
-VarElim::printSolverFlags (void) const
+VarElim::printSolverFlags() const
 {
   std::stringstream ss;
   ss << "variable elimination [" ;
@@ -58,7 +58,7 @@ VarElim::printSolverFlags (void) const
 
 
 void
-VarElim::createFactorList (void)
+VarElim::createFactorList()
 {
   const FacNodes& facNodes = fg.facNodes();
   factorList_.reserve (facNodes.size() * 2);
@@ -80,7 +80,7 @@ VarElim::createFactorList (void)
 
 
 void
-VarElim::absorveEvidence (void)
+VarElim::absorveEvidence()
 {
   if (Globals::verbosity > 2) {
     Util::printDashedLine();
@@ -190,7 +190,7 @@ VarElim::eliminate (VarId vid)
 
 
 void
-VarElim::printActiveFactors (void)
+VarElim::printActiveFactors()
 {
   for (size_t i = 0; i < factorList_.size(); i++) {
     if (factorList_[i]) {

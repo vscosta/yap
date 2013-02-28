@@ -25,11 +25,11 @@ class BeliefProp : public GroundSolver {
 
     BeliefProp (const FactorGraph&);
 
-    virtual ~BeliefProp (void);
+    virtual ~BeliefProp();
 
     Params solveQuery (VarIds);
 
-    virtual void printSolverFlags (void) const;
+    virtual void printSolverFlags() const;
 
     virtual Params getPosterioriOf (VarId);
 
@@ -37,15 +37,15 @@ class BeliefProp : public GroundSolver {
 
     Params getFactorJoint (FacNode* fn, const VarIds&);
 
-    static double accuracy (void) { return accuracy_; }
+    static double accuracy() { return accuracy_; }
 
     static void setAccuracy (double acc) { accuracy_ = acc; }
 
-    static unsigned maxIterations (void) { return maxIter_; }
+    static unsigned maxIterations() { return maxIter_; }
 
     static void setMaxIterations (unsigned mi) { maxIter_ = mi; }
 
-    static MsgSchedule msgSchedule (void) { return schedule_; }
+    static MsgSchedule msgSchedule() { return schedule_; }
 
     static void setMsgSchedule (MsgSchedule sch) { schedule_ = sch; }
 
@@ -54,25 +54,25 @@ class BeliefProp : public GroundSolver {
       public:
         BpLink (FacNode* fn, VarNode* vn);
 
-        virtual ~BpLink (void) { };
+        virtual ~BpLink() { };
 
-        FacNode* facNode (void) const { return fac_; }
+        FacNode* facNode() const { return fac_; }
 
-        VarNode* varNode (void) const { return var_; }
+        VarNode* varNode() const { return var_; }
 
-        const Params& message (void) const { return *currMsg_; }
+        const Params& message() const { return *currMsg_; }
 
-        Params& nextMessage (void) { return *nextMsg_; }
+        Params& nextMessage() { return *nextMsg_; }
 
-        double residual (void) const { return residual_; }
+        double residual() const { return residual_; }
 
-        void clearResidual (void);
+        void clearResidual();
 
-        void updateResidual (void);
+        void updateResidual();
 
-        virtual void updateMessage (void);
+        virtual void updateMessage();
 
-        std::string toString (void) const;
+        std::string toString() const;
 
       protected:
         FacNode*  fac_;
@@ -106,11 +106,11 @@ class BeliefProp : public GroundSolver {
 
     void updateMessage (BpLink* link);
 
-    void runSolver (void);
+    void runSolver();
 
-    virtual void createLinks (void);
+    virtual void createLinks();
 
-    virtual void maxResidualSchedule (void);
+    virtual void maxResidualSchedule();
 
     virtual void calcFactorToVarMsg (BpLink*);
 
@@ -133,11 +133,11 @@ class BeliefProp : public GroundSolver {
   private:
     class SPNodeInfo {
       public:
-        SPNodeInfo (void) { }
+        SPNodeInfo() { }
 
         void addBpLink (BeliefProp::BpLink* link) { links_.push_back (link); }
 
-        const BpLinks& getLinks (void) { return links_; }
+        const BpLinks& getLinks() { return links_; }
 
       private:
         BpLinks links_;
@@ -145,11 +145,11 @@ class BeliefProp : public GroundSolver {
         DISALLOW_COPY_AND_ASSIGN (SPNodeInfo);
     };
 
-    void initializeSolver (void);
+    void initializeSolver();
 
-    bool converged (void);
+    bool converged();
 
-    virtual void printLinkInformation (void) const;
+    virtual void printLinkInformation() const;
 
     DISALLOW_COPY_AND_ASSIGN (BeliefProp);
 };

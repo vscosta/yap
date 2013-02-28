@@ -15,7 +15,7 @@ class LiftedSolver {
 
     virtual Params solveQuery (const Grounds& query) = 0;
 
-    virtual void printSolverFlags (void) const = 0;
+    virtual void printSolverFlags() const = 0;
 
   protected:
     const ParfactorList& parfactorList;

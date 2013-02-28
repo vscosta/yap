@@ -226,7 +226,7 @@ Clause::isIpgLogVar (LogVar X) const
 
 
 TinySet<LiteralId>
-Clause::lidSet (void) const
+Clause::lidSet() const
 {
   TinySet<LiteralId> lidSet;
   for (size_t i = 0; i < literals_.size(); i++) {
@@ -238,7 +238,7 @@ Clause::lidSet (void) const
 
 
 LogVarSet
-Clause::ipgCandidates (void) const
+Clause::ipgCandidates() const
 {
   LogVarSet candidates;
   LogVarSet allLvs = constr_.logVarSet();
@@ -396,7 +396,7 @@ operator<< (std::ostream& os, const LitLvTypes& lit)
 
 
 void
-LitLvTypes::setAllFullLogVars (void)
+LitLvTypes::setAllFullLogVars()
 {
   std::fill (lvTypes_.begin(), lvTypes_.end(), LogVarType::fullLvt);
 }
@@ -470,7 +470,7 @@ LiftedWCNF::LiftedWCNF (const ParfactorList& pfList)
 
 
 
-LiftedWCNF::~LiftedWCNF (void)
+LiftedWCNF::~LiftedWCNF()
 {
   Clause::deleteClauses (clauses_);
 }
@@ -624,7 +624,7 @@ LiftedWCNF::addParameterClauses (const ParfactorList& pfList)
 
 
 void
-LiftedWCNF::printFormulaIndicators (void) const
+LiftedWCNF::printFormulaIndicators() const
 {
   if (map_.empty()) {
     return;
@@ -653,7 +653,7 @@ LiftedWCNF::printFormulaIndicators (void) const
 
 
 void
-LiftedWCNF::printWeights (void) const
+LiftedWCNF::printWeights() const
 {
   std::unordered_map<LiteralId, std::pair<double,double>>::const_iterator it
       = weights_.begin();
@@ -668,7 +668,7 @@ LiftedWCNF::printWeights (void) const
 
 
 void
-LiftedWCNF::printClauses (void) const
+LiftedWCNF::printClauses() const
 {
   Clause::printClauses (clauses_);
 }

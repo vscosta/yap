@@ -16,22 +16,22 @@ class LiftedBp : public LiftedSolver{
   public:
     LiftedBp (const ParfactorList& pfList);
 
-   ~LiftedBp (void);
+   ~LiftedBp();
 
     Params solveQuery (const Grounds&);
 
-    void printSolverFlags (void) const;
+    void printSolverFlags() const;
 
   private:
-    void refineParfactors (void);
+    void refineParfactors();
 
-    bool iterate (void);
+    bool iterate();
 
     std::vector<PrvGroup> getQueryGroups (const Grounds&);
 
-    void createFactorGraph (void);
+    void createFactorGraph();
 
-    std::vector<std::vector<unsigned>> getWeights (void) const;
+    std::vector<std::vector<unsigned>> getWeights() const;
 
     unsigned rangeOfGround (const Ground&);
 

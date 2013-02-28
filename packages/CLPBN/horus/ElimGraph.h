@@ -25,18 +25,18 @@ class ElimGraph {
 
     ElimGraph (const Factors&);
 
-   ~ElimGraph (void);
+   ~ElimGraph();
 
     VarIds getEliminatingOrder (const VarIds&);
 
-    void print (void) const;
+    void print() const;
 
     void exportToGraphViz (const char*, bool = true,
         const VarIds& = VarIds()) const;
 
     static VarIds getEliminationOrder (const Factors&, VarIds);
 
-    static ElimHeuristic elimHeuristic (void) { return elimHeuristic_; }
+    static ElimHeuristic elimHeuristic() { return elimHeuristic_; }
 
     static void setElimHeuristic (ElimHeuristic eh) { elimHeuristic_ = eh; }
 
@@ -55,7 +55,7 @@ class ElimGraph {
 
         bool isNeighbor (EGNode* n) const { return neighs_.contains (n); }
 
-        const EGNeighs& neighbors (void) const { return neighs_; }
+        const EGNeighs& neighbors() const { return neighs_; }
 
       private:
         EGNeighs neighs_;
@@ -77,7 +77,7 @@ class ElimGraph {
 
     EGNode* getEGNode (VarId) const;
 
-    EGNode* getLowestCostNode (void) const;
+    EGNode* getLowestCostNode() const;
 
     void connectAllNeighbors (const EGNode*);
 

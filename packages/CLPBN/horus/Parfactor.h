@@ -24,21 +24,21 @@ class Parfactor : public TFactor<ProbFormula> {
 
     Parfactor (const Parfactor&);
 
-   ~Parfactor (void);
+   ~Parfactor();
 
-    ConstraintTree* constr (void) { return constr_; }
+    ConstraintTree* constr() { return constr_; }
 
-    const ConstraintTree* constr (void) const { return constr_; }
+    const ConstraintTree* constr() const { return constr_; }
 
-    const LogVars& logVars (void) const { return constr_->logVars(); }
+    const LogVars& logVars() const { return constr_->logVars(); }
 
-    const LogVarSet& logVarSet (void) const { return constr_->logVarSet(); }
+    const LogVarSet& logVarSet() const { return constr_->logVarSet(); }
 
-    LogVarSet countedLogVars (void) const;
+    LogVarSet countedLogVars() const;
 
-    LogVarSet uncountedLogVars (void) const;
+    LogVarSet uncountedLogVars() const;
 
-    LogVarSet elimLogVars (void) const;
+    LogVarSet elimLogVars() const;
 
     LogVarSet exclusiveLogVars (size_t fIdx) const;
 
@@ -58,7 +58,7 @@ class Parfactor : public TFactor<ProbFormula> {
 
     void absorveEvidence (const ProbFormula&, unsigned);
 
-    void setNewGroups (void);
+    void setNewGroups();
 
     void applySubstitution (const Substitution&);
 
@@ -82,17 +82,17 @@ class Parfactor : public TFactor<ProbFormula> {
 
     unsigned nrFormulasWithGroup (PrvGroup) const;
 
-    std::vector<PrvGroup> getAllGroups (void) const;
+    std::vector<PrvGroup> getAllGroups() const;
 
     void print (bool = false) const;
 
-    void printParameters (void) const;
+    void printParameters() const;
 
-    void printProjections (void) const;
+    void printProjections() const;
 
-    std::string getLabel (void) const;
+    std::string getLabel() const;
 
-    void simplifyGrounds (void);
+    void simplifyGrounds();
 
     static bool canMultiply (Parfactor*, Parfactor*);
 

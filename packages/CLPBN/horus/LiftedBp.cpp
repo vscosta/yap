@@ -20,7 +20,7 @@ LiftedBp::LiftedBp (const ParfactorList& parfactorList)
 
 
 
-LiftedBp::~LiftedBp (void)
+LiftedBp::~LiftedBp()
 {
   delete solver_;
   delete fg_;
@@ -64,7 +64,7 @@ LiftedBp::solveQuery (const Grounds& query)
 
 
 void
-LiftedBp::printSolverFlags (void) const
+LiftedBp::printSolverFlags() const
 {
   std::stringstream ss;
   ss << "lifted bp [" ;
@@ -86,7 +86,7 @@ LiftedBp::printSolverFlags (void) const
 
 
 void
-LiftedBp::refineParfactors (void)
+LiftedBp::refineParfactors()
 {
   pfList_ = parfactorList;
   while (iterate() == false);
@@ -100,7 +100,7 @@ LiftedBp::refineParfactors (void)
 
 
 bool
-LiftedBp::iterate (void)
+LiftedBp::iterate()
 {
   ParfactorList::iterator it = pfList_.begin();
   while (it != pfList_.end()) {
@@ -141,7 +141,7 @@ LiftedBp::getQueryGroups (const Grounds& query)
 
 
 void
-LiftedBp::createFactorGraph (void)
+LiftedBp::createFactorGraph()
 {
   fg_ = new FactorGraph();
   ParfactorList::const_iterator it = pfList_.begin();
@@ -158,7 +158,7 @@ LiftedBp::createFactorGraph (void)
 
 
 std::vector<std::vector<unsigned>>
-LiftedBp::getWeights (void) const
+LiftedBp::getWeights() const
 {
   std::vector<std::vector<unsigned>> weights;
   weights.reserve (pfList_.size());

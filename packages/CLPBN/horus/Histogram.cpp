@@ -19,7 +19,7 @@ HistogramSet::HistogramSet (unsigned size, unsigned range)
 
 
 void
-HistogramSet::nextHistogram (void)
+HistogramSet::nextHistogram()
 {
   for (size_t i = hist_.size() - 1; i-- > 0; ) {
     if (hist_[i] > 0) {
@@ -45,7 +45,7 @@ HistogramSet::operator[] (size_t idx) const
 
 
 unsigned
-HistogramSet::nrHistograms (void) const
+HistogramSet::nrHistograms() const
 {
   return HistogramSet::nrHistograms (size_, hist_.size());
 }
@@ -53,7 +53,7 @@ HistogramSet::nrHistograms (void) const
 
 
 void
-HistogramSet::reset (void)
+HistogramSet::reset()
 {
   std::fill (hist_.begin() + 1, hist_.end(), 0);
   hist_[0] = size_;

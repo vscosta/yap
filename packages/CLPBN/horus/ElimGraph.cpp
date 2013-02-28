@@ -41,7 +41,7 @@ ElimGraph::ElimGraph (const std::vector<Factor*>& factors)
 
 
 
-ElimGraph::~ElimGraph (void)
+ElimGraph::~ElimGraph()
 {
   for (size_t i = 0; i < nodes_.size(); i++) {
     delete nodes_[i];
@@ -77,7 +77,7 @@ ElimGraph::getEliminatingOrder (const VarIds& excludedVids)
 
 
 void
-ElimGraph::print (void) const
+ElimGraph::print() const
 {
   for (size_t i = 0; i < nodes_.size(); i++) {
     std::cout << "node " << nodes_[i]->label() << " neighs:" ;
@@ -177,7 +177,7 @@ ElimGraph::getEGNode (VarId vid) const
 
 
 ElimGraph::EGNode*
-ElimGraph::getLowestCostNode (void) const
+ElimGraph::getLowestCostNode() const
 {
   EGNode* bestNode = 0;
   unsigned minCost = Util::maxUnsigned();

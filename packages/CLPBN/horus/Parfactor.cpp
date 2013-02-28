@@ -91,7 +91,7 @@ Parfactor::Parfactor (const Parfactor& g)
 
 
 
-Parfactor::~Parfactor (void)
+Parfactor::~Parfactor()
 {
   delete constr_;
 }
@@ -99,7 +99,7 @@ Parfactor::~Parfactor (void)
 
 
 LogVarSet
-Parfactor::countedLogVars (void) const
+Parfactor::countedLogVars() const
 {
   LogVarSet set;
   for (size_t i = 0; i < args_.size(); i++) {
@@ -113,7 +113,7 @@ Parfactor::countedLogVars (void) const
 
 
 LogVarSet
-Parfactor::uncountedLogVars (void) const
+Parfactor::uncountedLogVars() const
 {
   return constr_->logVarSet() - countedLogVars();
 }
@@ -121,7 +121,7 @@ Parfactor::uncountedLogVars (void) const
 
 
 LogVarSet
-Parfactor::elimLogVars (void) const
+Parfactor::elimLogVars() const
 {
   LogVarSet requiredToElim = constr_->logVarSet();
   requiredToElim -= constr_->singletons();
@@ -398,7 +398,7 @@ Parfactor::absorveEvidence (const ProbFormula& formula, unsigned evidence)
 
 
 void
-Parfactor::setNewGroups (void)
+Parfactor::setNewGroups()
 {
   for (size_t i = 0; i < args_.size(); i++) {
     args_[i].setGroup (ProbFormula::getNewGroup());
@@ -573,7 +573,7 @@ Parfactor::nrFormulasWithGroup (PrvGroup group) const
 
 
 std::vector<PrvGroup>
-Parfactor::getAllGroups (void) const
+Parfactor::getAllGroups() const
 {
   std::vector<PrvGroup> groups (args_.size());
   for (size_t i = 0; i < args_.size(); i++) {
@@ -585,7 +585,7 @@ Parfactor::getAllGroups (void) const
 
 
 std::string
-Parfactor::getLabel (void) const
+Parfactor::getLabel() const
 {
   std::stringstream ss;
   ss << "phi(" ;
@@ -642,7 +642,7 @@ Parfactor::print (bool printParams) const
 
 
 void
-Parfactor::printParameters (void) const
+Parfactor::printParameters() const
 {
   std::vector<std::string> jointStrings;
   Indexer indexer (ranges_);
@@ -676,7 +676,7 @@ Parfactor::printParameters (void) const
 
 
 void
-Parfactor::printProjections (void) const
+Parfactor::printProjections() const
 {
   ConstraintTree copy (*constr_);
 
@@ -768,7 +768,7 @@ Parfactor::simplifyCountingFormulas (size_t fIdx)
 
 
 void
-Parfactor::simplifyGrounds (void)
+Parfactor::simplifyGrounds()
 {
   if (args_.size() == 1) {
     return;

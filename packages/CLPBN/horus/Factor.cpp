@@ -110,7 +110,7 @@ Factor::multiply (Factor& g)
 
 
 std::string
-Factor::getLabel (void) const
+Factor::getLabel() const
 {
   std::stringstream ss;
   ss << "f(" ;
@@ -125,7 +125,7 @@ Factor::getLabel (void) const
 
 
 void
-Factor::print (void) const
+Factor::print() const
 {
   Vars vars;
   for (size_t i = 0; i < args_.size(); i++) {
@@ -146,7 +146,7 @@ Factor::print (void) const
 
 
 void
-Factor::sumOutFirstVariable (void)
+Factor::sumOutFirstVariable()
 {
   size_t sep = params_.size() / 2;
   if (Globals::logDomain) {
@@ -169,7 +169,7 @@ Factor::sumOutFirstVariable (void)
 
 
 void
-Factor::sumOutLastVariable (void)
+Factor::sumOutLastVariable()
 {
   Params::iterator first1 = params_.begin();
   Params::iterator first2 = params_.begin();

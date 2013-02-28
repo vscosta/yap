@@ -14,28 +14,28 @@ class Indexer {
   public:
     Indexer (const Ranges& ranges, bool calcOffsets = true);
 
-    void increment (void);
+    void increment();
 
     void incrementDimension (size_t dim);
 
     void incrementExceptDimension (size_t dim);
 
-    Indexer& operator++ (void);
+    Indexer& operator++();
 
-    operator size_t (void) const;
+    operator size_t() const;
 
     unsigned operator[] (size_t dim) const;
 
-    bool valid (void) const;
+    bool valid() const;
 
-    void reset (void);
+    void reset();
 
     void resetDimension (size_t dim);
 
-    size_t size (void) const;
+    size_t size() const;
 
   private:
-    void calculateOffsets (void);
+    void calculateOffsets();
 
     friend std::ostream& operator<< (std::ostream&, const Indexer&);
 
@@ -63,7 +63,7 @@ Indexer::Indexer (const Ranges& ranges, bool calcOffsets)
 
 
 inline void
-Indexer::increment (void)
+Indexer::increment()
 {
   for (size_t i = ranges_.size(); i-- > 0; ) {
     indices_[i] ++;
@@ -112,7 +112,7 @@ Indexer::incrementExceptDimension (size_t dim)
 
 
 inline Indexer&
-Indexer::operator++ (void)
+Indexer::operator++()
 {
   increment();
   return *this;
@@ -121,7 +121,7 @@ Indexer::operator++ (void)
 
 
 inline
-Indexer::operator size_t (void) const
+Indexer::operator size_t() const
 {
   return index_;
 }
@@ -139,7 +139,7 @@ Indexer::operator[] (size_t dim) const
 
 
 inline bool
-Indexer::valid (void) const
+Indexer::valid() const
 {
   return index_ < size_;
 }
@@ -147,7 +147,7 @@ Indexer::valid (void) const
 
 
 inline void
-Indexer::reset (void)
+Indexer::reset()
 {
   index_ = 0;
   std::fill (indices_.begin(), indices_.end(), 0);
@@ -165,7 +165,7 @@ Indexer::resetDimension (size_t dim)
 
 
 inline size_t
-Indexer::size (void) const
+Indexer::size() const
 {
   return size_ ;
 }
@@ -173,7 +173,7 @@ Indexer::size (void) const
 
 
 inline void
-Indexer::calculateOffsets (void)
+Indexer::calculateOffsets()
 {
   size_t prod = 1;
   offsets_.resize (ranges_.size());
@@ -198,15 +198,15 @@ class MapIndexer {
         const std::vector<T>& wantedArgs,
         const Ranges& wantedRanges);
 
-    MapIndexer& operator++ (void);
+    MapIndexer& operator++();
 
-    operator size_t (void) const;
+    operator size_t() const;
 
     unsigned operator[] (size_t dim) const;
 
-    bool valid (void) const;
+    bool valid() const;
 
-    void reset (void);
+    void reset();
 
   private:
     friend std::ostream& operator<< (std::ostream&, const MapIndexer&);
@@ -284,7 +284,7 @@ MapIndexer::MapIndexer (
 
 
 inline MapIndexer&
-MapIndexer::operator++ (void)
+MapIndexer::operator++()
 {
   assert (valid_);
   for (size_t i = ranges_.size(); i-- > 0; ) {
@@ -304,7 +304,7 @@ MapIndexer::operator++ (void)
 
 
 inline
-MapIndexer::operator size_t (void) const
+MapIndexer::operator size_t() const
 {
   assert (valid());
   return index_;
@@ -323,7 +323,7 @@ MapIndexer::operator[] (size_t dim) const
 
 
 inline bool
-MapIndexer::valid (void) const
+MapIndexer::valid() const
 {
   return valid_;
 }
@@ -331,7 +331,7 @@ MapIndexer::valid (void) const
 
 
 inline void
-MapIndexer::reset (void)
+MapIndexer::reset()
 {
   index_ = 0;
   std::fill (indices_.begin(), indices_.end(), 0);

@@ -68,7 +68,7 @@ toString (const bool&);
 
 double logSum (double, double);
 
-unsigned maxUnsigned (void);
+unsigned maxUnsigned();
 
 unsigned stringToUnsigned (std::string);
 
@@ -258,7 +258,7 @@ Util::logSum (double x, double y)
 
 
 inline unsigned
-Util::maxUnsigned (void)
+Util::maxUnsigned()
 {
   return std::numeric_limits<unsigned>::max();
 }

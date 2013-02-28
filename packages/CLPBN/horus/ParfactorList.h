@@ -14,31 +14,31 @@ class Parfactor;
 
 class ParfactorList {
   public:
-    ParfactorList (void) { }
+    ParfactorList() { }
 
     ParfactorList (const ParfactorList&);
 
     ParfactorList (const Parfactors&);
 
-   ~ParfactorList (void);
+   ~ParfactorList();
 
-    const std::list<Parfactor*>& parfactors (void) const { return pfList_; }
+    const std::list<Parfactor*>& parfactors() const { return pfList_; }
 
-    void clear (void) { pfList_.clear(); }
+    void clear() { pfList_.clear(); }
 
-    size_t size (void) const { return pfList_.size(); }
+    size_t size() const { return pfList_.size(); }
 
     typedef std::list<Parfactor*>::iterator iterator;
 
-    iterator begin (void) { return pfList_.begin(); }
+    iterator begin() { return pfList_.begin(); }
 
-    iterator end (void) { return pfList_.end(); }
+    iterator end() { return pfList_.end(); }
 
     typedef std::list<Parfactor*>::const_iterator const_iterator;
 
-    const_iterator begin (void) const { return pfList_.begin(); }
+    const_iterator begin() const { return pfList_.begin(); }
 
-    const_iterator end (void) const { return pfList_.end(); }
+    const_iterator end() const { return pfList_.end(); }
 
     void add (Parfactor* pf);
 
@@ -55,9 +55,9 @@ class ParfactorList {
     std::list<Parfactor*>::iterator removeAndDelete (
         std::list<Parfactor*>::iterator);
 
-    bool isAllShattered (void) const;
+    bool isAllShattered() const;
 
-    void print (void) const;
+    void print() const;
 
     ParfactorList& operator= (const ParfactorList& pfList);
 

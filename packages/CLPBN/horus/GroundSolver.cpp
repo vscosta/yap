@@ -42,7 +42,7 @@ GroundSolver::printAnswer (const VarIds& vids)
 
 
 void
-GroundSolver::printAllPosterioris (void)
+GroundSolver::printAllPosterioris()
 {
   VarNodes vars = fg.varNodes();
   std::sort (vars.begin(), vars.end(), sortByVarId());

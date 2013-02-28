@@ -11,7 +11,7 @@ class WeightedBp : public BeliefProp {
     WeightedBp (const FactorGraph& fg,
         const std::vector<std::vector<unsigned>>& weights);
 
-   ~WeightedBp (void);
+   ~WeightedBp();
 
     Params getPosterioriOf (VarId);
 
@@ -21,13 +21,13 @@ class WeightedBp : public BeliefProp {
          WeightedLink (FacNode* fn, VarNode* vn, size_t idx,
              unsigned weight);
 
-         size_t index (void) const { return index_; }
+         size_t index() const { return index_; }
 
-         unsigned weight (void) const { return weight_; }
+         unsigned weight() const { return weight_; }
 
-         const Params& powMessage (void) const { return pwdMsg_; }
+         const Params& powMessage() const { return pwdMsg_; }
 
-         void updateMessage (void);
+         void updateMessage();
 
        private:
          size_t    index_;
@@ -37,15 +37,15 @@ class WeightedBp : public BeliefProp {
          DISALLOW_COPY_AND_ASSIGN (WeightedLink);
      };
 
-     void createLinks (void);
+     void createLinks();
 
-     void maxResidualSchedule (void);
+     void maxResidualSchedule();
 
      void calcFactorToVarMsg (BpLink*);
 
      Params getVarToFactorMsg (const BpLink*) const;
 
-     void printLinkInformation (void) const;
+     void printLinkInformation() const;
 
      std::vector<std::vector<unsigned>> weights_;
 
@@ -56,7 +56,7 @@ class WeightedBp : public BeliefProp {
 
 
 inline void
-WeightedBp::WeightedLink::updateMessage (void)
+WeightedBp::WeightedLink::updateMessage()
 {
   pwdMsg_ = *nextMsg_;
   swap (currMsg_, nextMsg_);

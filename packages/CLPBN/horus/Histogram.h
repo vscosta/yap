@@ -15,13 +15,13 @@ class HistogramSet {
   public:
     HistogramSet (unsigned, unsigned);
 
-    void nextHistogram (void);
+    void nextHistogram();
 
     unsigned operator[] (size_t idx) const;
 
-    unsigned nrHistograms (void) const;
+    unsigned nrHistograms() const;
 
-    void reset (void);
+    void reset();
 
     static std::vector<Histogram> getHistograms (unsigned, unsigned);
 

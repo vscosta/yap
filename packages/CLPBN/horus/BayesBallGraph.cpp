@@ -56,7 +56,7 @@ BayesBallGraph::getNode (VarId vid)
 
 
 void
-BayesBallGraph::setIndexes (void)
+BayesBallGraph::setIndexes()
 {
   for (size_t i = 0; i < nodes_.size(); i++) {
     nodes_[i]->setIndex (i);
@@ -66,7 +66,7 @@ BayesBallGraph::setIndexes (void)
 
 
 void
-BayesBallGraph::clear (void)
+BayesBallGraph::clear()
 {
   for (size_t i = 0; i < nodes_.size(); i++) {
     nodes_[i]->clear();
