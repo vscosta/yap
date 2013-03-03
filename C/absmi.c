@@ -7338,6 +7338,7 @@ Yap_absmi(int inp)
 	struct DB_TERM *exp = EX;
 	EX = NULL;
 	Yap_JumpToEnv(Yap_PopTermFromDB(exp));
+	SREG = NULL;
       }
       if (!SREG) {
 	FAIL();
