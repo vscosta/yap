@@ -35,8 +35,6 @@ class TFactor {
 
     void normalize() { LogAware::normalize (params_); }
 
-    void randomize();
-
     void setParams (const Params& newParams);
 
     size_t indexOf (const T& t) const;
@@ -73,16 +71,6 @@ class TFactor {
     void cartesianProduct (
       Params::const_iterator first2, Params::const_iterator last2);
 };
-
-
-
-template <typename T> inline void
-TFactor<T>::randomize()
-{
-  for (size_t i = 0; i < params_.size(); ++i) {
-    params_[i] = (double) std::rand() / RAND_MAX;
-  }
-}
 
 
 
