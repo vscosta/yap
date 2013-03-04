@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 
-#include "Factor.h"
+#include "GenericFactor.h"
 #include "ProbFormula.h"
 #include "ConstraintTree.h"
 #include "LiftedUtils.h"

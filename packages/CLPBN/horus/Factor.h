@@ -7,7 +7,6 @@
 #include <string>
 
 #include "GenericFactor.h"
-#include "Indexer.h"
 #include "Util.h"
 
 

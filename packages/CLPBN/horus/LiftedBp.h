@@ -5,6 +5,7 @@
 
 #include "LiftedSolver.h"
 #include "ParfactorList.h"
+#include "Indexer.h"
 
 
 namespace Horus {

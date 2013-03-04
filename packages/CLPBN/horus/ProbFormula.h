@@ -63,6 +63,7 @@ class ProbFormula {
     static PrvGroup getNewGroup();
 
   private:
+
     friend bool operator== (
         const ProbFormula& f1, const ProbFormula& f2);
 
@@ -78,6 +79,14 @@ class ProbFormula {
 };
 
 typedef std::vector<ProbFormula> ProbFormulas;
+
+
+inline bool
+operator== (const ProbFormula& f1, const ProbFormula& f2)
+{
+  return f1.group_ == f2.group_ && f1.logVars_ == f2.logVars_;
+}
+
 
 
 class ObservedFormula {

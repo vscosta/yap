@@ -9,6 +9,7 @@
 #include "VarElim.h"
 #include "BeliefProp.h"
 #include "CountingBp.h"
+#include "Indexer.h"
 #include "Util.h"
 
 

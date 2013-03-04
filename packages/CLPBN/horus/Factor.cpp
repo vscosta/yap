@@ -5,6 +5,7 @@
 #include <sstream>
 
 #include "Factor.h"
+#include "Indexer.h"
 #include "Var.h"
 
 
