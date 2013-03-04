@@ -1822,7 +1822,7 @@ ReceiveSignal (int s)
 #ifdef SIGHUP
     case SIGHUP:
       /* force the system to creep */
-      Yap_signal (YAP_HUP_SIGNAL);
+      /* Just ignore SUGHUP Yap_signal (YAP_HUP_SIGNAL); */
       break;
 #endif /* defined(SIGHUP) */
     default:
