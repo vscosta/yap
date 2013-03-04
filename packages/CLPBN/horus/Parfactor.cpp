@@ -178,7 +178,7 @@ Parfactor::sumOutIndex (size_t fIdx)
   }
   constr_->remove (excl);
 
-  TFactor<ProbFormula>::sumOutIndex (fIdx);
+  GenericFactor<ProbFormula>::sumOutIndex (fIdx);
   LogAware::pow (params_, exp);
 }
 
@@ -188,7 +188,7 @@ void
 Parfactor::multiply (Parfactor& g)
 {
   alignAndExponentiate (this, &g);
-  TFactor<ProbFormula>::multiply (g);
+  GenericFactor<ProbFormula>::multiply (g);
   constr_->join (g.constr(), true);
   simplifyGrounds();
   assert (constr_->isCartesianProduct (countedLogVars()));
@@ -391,7 +391,7 @@ Parfactor::absorveEvidence (const ProbFormula& formula, unsigned evidence)
   assert (args_[fIdx].isCounting() == false);
   assert (constr_->isCountNormalized (excl));
   LogAware::pow (params_, constr_->getConditionalCount (excl));
-  TFactor<ProbFormula>::absorveEvidence (formula, evidence);
+  GenericFactor<ProbFormula>::absorveEvidence (formula, evidence);
   constr_->remove (excl);
 }
 

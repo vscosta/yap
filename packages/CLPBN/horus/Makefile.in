@@ -54,6 +54,7 @@ HEADERS = \
 	$(srcdir)/ElimGraph.h \
 	$(srcdir)/Factor.h \
 	$(srcdir)/FactorGraph.h \
+	$(srcdir)/GenericFactor.h \
 	$(srcdir)/GroundSolver.h \
 	$(srcdir)/Histogram.h \
 	$(srcdir)/Horus.h \
@@ -83,6 +84,7 @@ CPP_SOURCES = \
 	$(srcdir)/ElimGraph.cpp \
 	$(srcdir)/Factor.cpp \
 	$(srcdir)/FactorGraph.cpp \
+	$(srcdir)/GenericFactor.cpp \
 	$(srcdir)/GroundSolver.cpp \
 	$(srcdir)/Histogram.cpp \
 	$(srcdir)/HorusCli.cpp \
@@ -111,6 +113,7 @@ OBJS = \
 	ElimGraph.o \
 	Factor.o \
 	FactorGraph.o \
+	GenericFactor.o \
 	GroundSolver.o \
 	Histogram.o \
 	HorusYap.o \
@@ -137,6 +140,7 @@ HCLI_OBJS = \
 	ElimGraph.o \
 	Factor.o \
 	FactorGraph.o \
+	GenericFactor.o \
 	GroundSolver.o \
 	HorusCli.o \
 	Indexer.o \

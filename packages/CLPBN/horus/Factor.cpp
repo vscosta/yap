@@ -103,7 +103,7 @@ Factor::multiply (Factor& g)
   if (args_.empty()) {
     clone (g);
   } else {
-    TFactor<VarId>::multiply (g);
+    GenericFactor<VarId>::multiply (g);
   }
 }
 
