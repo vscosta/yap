@@ -175,6 +175,14 @@ trace :-
 	print_message(informational,debug(trace)),
 	'$meta_creep'.
 
+'$do_trace' :- 
+	nb_getval('$trace',on), !.
+'$do_trace' :-
+	nb_setval('$trace',on),
+	'$start_debugging'(on),
+	print_message(informational,debug(trace)),
+	'$creep'.
+
 notrace :-
 	nodebug.
 
@@ -284,6 +292,7 @@ debugging :-
 	'$execute_nonstop'(G,Mod).
 '$spy'([Mod|G]) :-
 	'$in_system_mode', !,
+	 '$exit_system_mode',
 	'$execute_nonstop'(G,Mod).
 '$spy'([Mod|G]) :-
 	CP is '$last_choice_pt',	
@@ -492,6 +501,7 @@ debugging :-
 '$spycall'(G, M, _, _) :-
 	nb_getval('$debug_jump',true),
 	!,
+	'$exit_system_mode',
 	'$execute_nonstop'(G,M).
 '$spycall'(G, M, _, _) :-
         (
@@ -771,9 +781,11 @@ debugging :-
 	'$execute_creep_dgoal'(G).
 	
 '$execute_dgoal'('$execute_nonstop'(G,M)) :-
-	'$execute_nonstop'(G,M).
+	 '$exit_system_mode',
+	 '$execute_nonstop'(G,M).
 '$execute_dgoal'('$execute_clause'(G, M, R, CP)) :-
-	'$execute_clause'(G, M, R, CP).
+	 '$exit_system_mode',
+	 '$execute_clause'(G, M, R, CP).
 
 '$execute_creep_dgoal'('$execute_nonstop'(G,M)) :-
 	'$creep',
