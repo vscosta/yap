@@ -140,8 +140,8 @@ system_mode(verbose,off) :- set_value('$verbose',off).
 :- use_module('history.pl').
 :- use_module('dbload.yap').
 :- use_module('swi.yap').
-:- use_module('../LGPL/predopts.pl').
-:- use_module('../LGPL/menu.pl').
+:- use_module('../swi/library/predopts.pl').
+:- use_module('../swi/library/menu.pl').
 
 
 '$system_module'('$attributes').
