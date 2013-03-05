@@ -22,17 +22,11 @@ INSTALL=@INSTALL@
 INSTALL_DATA=@INSTALL_DATA@
 INSTALL_PROGRAM=@INSTALL_PROGRAM@
 srcdir=@srcdir@
-YAP_EXTRAS=@YAP_EXTRAS@ 
 
-PROGRAMS= \
-	$(srcdir)/aggregate.pl \
-	$(srcdir)/ctypes.pl \
-	$(srcdir)/error.pl \
-	$(srcdir)/occurs.yap \
-	$(srcdir)/pairs.pl
-
+PROGRAMS= $(srcdir)/clp_events.pl
 
 install: $(PROGRAMS)
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
-	for p in $(PROGRAMS); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap; done
+	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/clp
+	for p in $(PROGRAMS); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap/clp; done
 

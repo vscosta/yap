@@ -2479,9 +2479,7 @@ mkdir -p  library/regex
 mkdir -p  library/system
 mkdir -p  library/tries
 mkdir -p  library/rltree
-mkdir -p  LGPL/clp
-mkdir -p  LGPL/swi_console
-mkdir -p  GPL
+mkdir -p  LGPL
 mkdir -p  packages/
 mkdir -p  packages/bdd
 mkdir -p  packages/clib
@@ -2530,9 +2528,12 @@ mkdir -p  packages/sgml
 mkdir -p  packages/xml
 mkdir -p  packages/zlib
 mkdir -p  packages/archive
+mkdir -p  swi
+mkdir -p  swi/console
+mkdir -p  swi/library
+mkdir -p  swi/library/clp
 
 AC_CONFIG_FILES([Makefile])
-AC_CONFIG_FILES([GPL/Makefile])
 AC_CONFIG_FILES([library/Makefile])
 AC_CONFIG_FILES([library/lammpi/Makefile])
 AC_CONFIG_FILES([library/matlab/Makefile])
@@ -2543,9 +2544,6 @@ AC_CONFIG_FILES([library/regex/Makefile])
 AC_CONFIG_FILES([library/rltree/Makefile])
 AC_CONFIG_FILES([library/system/Makefile])
 AC_CONFIG_FILES([library/tries/Makefile])
-AC_CONFIG_FILES([LGPL/Makefile])
-AC_CONFIG_FILES([LGPL/clp/Makefile])
-AC_CONFIG_FILES([LGPL/swi_console/Makefile])
 AC_CONFIG_FILES([packages/Makefile.defs])
 AC_CONFIG_FILES([packages/Dialect.defs])
 AC_CONFIG_FILES([packages/CLPBN/Makefile])
@@ -2555,6 +2553,9 @@ AC_CONFIG_FILES([packages/cplint/slipcase/Makefile])
 AC_CONFIG_FILES([packages/meld/Makefile])
 AC_CONFIG_FILES([packages/xml/Makefile])
 AC_CONFIG_FILES([packages/ProbLog/Makefile ])
+AC_CONFIG_FILES([swi/console/Makefile])
+AC_CONFIG_FILES([swi/library/Makefile])
+AC_CONFIG_FILES([swi/library/clp/Makefile])
 
 if test "$ENABLE_CHR" = ""; then
 AC_CONFIG_FILES([packages/chr/Makefile])
