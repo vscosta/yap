@@ -184,10 +184,9 @@ bind_varnames(term_t varnames ARG_LD)
     t1 = ArgOfTerm(1, tl);
     t2 = ArgOfTerm(2, tl);
     tv = Yap_MkApplTerm(LOCAL_FunctorVar, 1, &t1);
-    if (!IsVarTerm(t2)) {
-      return FALSE;
+    if (IsVarTerm(t2)) {
+      Bind_and_Trail(VarOfTerm(t2), tv);
     }
-    Bind_and_Trail(VarOfTerm(t2), tv);
     t = TailOfTerm(t);
   }
   return TRUE;
