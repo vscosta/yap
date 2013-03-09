@@ -556,7 +556,8 @@ LiftedWCNF::addIndicatorClauses (const ParfactorList& pfList)
         Clause* clause = new Clause (tempConstr);
         std::vector<LiteralId> lids;
         for (size_t j = 0; j < formulas[i].range(); j++) {
-          clause->addLiteral (Literal (freeLiteralId_, formulas[i].logVars()));
+          clause->addLiteral (Literal (
+              freeLiteralId_, formulas[i].logVars()));
           lids.push_back (freeLiteralId_);
           freeLiteralId_ ++;
         }

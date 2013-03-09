@@ -404,7 +404,8 @@ readParfactor (YAP_Term pfTerm)
     } else {
       LogVars logVars;
       YAP_Functor yapFunctor = YAP_FunctorOfTerm (formulaTerm);
-      std::string name ((char*) YAP_AtomName (YAP_NameOfFunctor (yapFunctor)));
+      std::string name ((char*) YAP_AtomName (
+          YAP_NameOfFunctor (yapFunctor)));
       Symbol functor = LiftedUtils::getSymbol (name);
       unsigned arity = (unsigned) YAP_ArityOfFunctor (yapFunctor);
       for (unsigned i = 1; i <= arity; i++) {

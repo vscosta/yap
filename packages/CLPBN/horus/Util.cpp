@@ -203,16 +203,24 @@ setHorusFlag (std::string option, std::string value)
 {
   bool returnVal = true;
   if (option == "lifted_solver") {
-    if      (value == "lve")  Globals::liftedSolver = LiftedSolverType::lveSolver;
-    else if (value == "lbp")  Globals::liftedSolver = LiftedSolverType::lbpSolver;
-    else if (value == "lkc")  Globals::liftedSolver = LiftedSolverType::lkcSolver;
-    else                      returnVal = invalidValue (option, value);
+    if      (value == "lve")
+      Globals::liftedSolver = LiftedSolverType::lveSolver;
+    else if (value == "lbp")
+      Globals::liftedSolver = LiftedSolverType::lbpSolver;
+    else if (value == "lkc")
+      Globals::liftedSolver = LiftedSolverType::lkcSolver;
+    else
+      returnVal = invalidValue (option, value);
 
   } else if (option == "ground_solver" || option == "solver") {
-    if      (value == "hve")  Globals::groundSolver = GroundSolverType::veSolver;
-    else if (value == "bp")   Globals::groundSolver = GroundSolverType::bpSolver;
-    else if (value == "cbp")  Globals::groundSolver = GroundSolverType::CbpSolver;
-    else                      returnVal = invalidValue (option, value);
+    if      (value == "hve")
+      Globals::groundSolver = GroundSolverType::veSolver;
+    else if (value == "bp")
+      Globals::groundSolver = GroundSolverType::bpSolver;
+    else if (value == "cbp")
+      Globals::groundSolver = GroundSolverType::CbpSolver;
+    else
+      returnVal = invalidValue (option, value);
 
   } else if (option == "verbosity") {
     std::stringstream ss;

@@ -23,6 +23,7 @@ BeliefProp::MsgSchedule BeliefProp::schedule_ =
 BeliefProp::BeliefProp (const FactorGraph& fg)
     : GroundSolver (fg), nIters_(0), runned_(false)
 {
+
 }
 
 
@@ -294,7 +295,8 @@ BeliefProp::runSolver()
       std::cout << "Belief propagation converged in " ;
       std::cout << nIters_ << " iterations" << std::endl;
     } else {
-      std::cout << "The maximum number of iterations was hit, terminating..." ;
+      std::cout << "The maximum number of iterations was hit," ;
+      std::cout << " terminating..." ;
       std::cout << std::endl;
     }
     std::cout << std::endl;

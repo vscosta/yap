@@ -35,7 +35,7 @@ typedef unsigned long long       ullong;
 
 
 enum class LiftedSolverType {
-  lveSolver,  // generalized counting first-order variable elimination (GC-FOVE)
+  lveSolver,  // generalized counting first-order variable elimination
   lbpSolver,  // lifted first-order belief propagation
   lkcSolver   // lifted first-order knowledge compilation
 };

@@ -92,10 +92,9 @@ FactorGraph::readFromUaiFormat (const char* fileName)
     for (unsigned j = 0; j < nrArgs; j++) {
       is >> vid;
       if (vid >= ranges.size()) {
-        std::cerr << "Error: invalid variable identifier `" << vid << "'. " ;
-        std::cerr << "Identifiers must be between 0 and " ;
-        std::cerr << ranges.size() - 1 ;
-        std::cerr << "." << std::endl;
+        std::cerr << "Error: invalid variable identifier `" << vid << "'" ;
+        std::cerr << ". Identifiers must be between 0 and " ;
+        std::cerr << ranges.size() - 1 << "." << std::endl;
         exit (EXIT_FAILURE);
       }
       allVarIds.back().push_back (vid);
@@ -108,8 +107,8 @@ FactorGraph::readFromUaiFormat (const char* fileName)
     ignoreLines (is);
     is >> nrParams;
     if (nrParams != Util::sizeExpected (allRanges[i])) {
-      std::cerr << "Error: invalid number of parameters for factor nº " << i ;
-      std::cerr << ", " << Util::sizeExpected (allRanges[i]);
+      std::cerr << "Error: invalid number of parameters for factor nº " ;
+      std::cerr << i << ", " << Util::sizeExpected (allRanges[i]);
       std::cerr << " expected, " << nrParams << " given." << std::endl;
       exit (EXIT_FAILURE);
     }
@@ -165,8 +164,9 @@ FactorGraph::readFromLibDaiFormat (const char* fileName)
       is >> ranges[j];
       VarNode* var = getVarNode (vids[j]);
       if (var && ranges[j] != var->range()) {
-        std::cerr << "Error: variable `" << vids[j] << "' appears in two or " ;
-        std::cerr << "more factors with a different range." << std::endl;
+        std::cerr << "Error: variable `" << vids[j] << "' appears" ;
+        std::cerr << " in two or more factors with a different range." ;
+        std::cerr << std::endl;
       }
     }
     // read parameters

@@ -616,7 +616,8 @@ Parfactor::print (bool printParams) const
   if (args_[0].group() != Util::maxUnsigned()) {
     std::vector<std::string> groups;
     for (size_t i = 0; i < args_.size(); i++) {
-      groups.push_back (std::string ("g") + Util::toString (args_[i].group()));
+      groups.push_back (std::string ("g")
+          + Util::toString (args_[i].group()));
     }
     cout << "Groups:    " << groups  << endl;
   }

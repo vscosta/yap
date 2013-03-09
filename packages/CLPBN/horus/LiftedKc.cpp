@@ -62,7 +62,8 @@ class AndNode : public CircuitNode {
     AndNode() : CircuitNode(), leftBranch_(0), rightBranch_(0) { }
 
     AndNode (CircuitNode* leftBranch, CircuitNode* rightBranch)
-        : CircuitNode(), leftBranch_(leftBranch), rightBranch_(rightBranch) { }
+        : CircuitNode(), leftBranch_(leftBranch),
+          rightBranch_(rightBranch) { }
 
    ~AndNode();
 
@@ -235,7 +236,8 @@ class LiftedCircuit {
 
     bool shatterCountedLogVarsAux (Clauses& clauses);
 
-    bool shatterCountedLogVarsAux (Clauses& clauses, size_t idx1, size_t idx2);
+    bool shatterCountedLogVarsAux (Clauses& clauses,
+        size_t idx1, size_t idx2);
 
     bool independentClause (Clause& clause, Clauses& otherClauses) const;
 
