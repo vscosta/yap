@@ -120,15 +120,11 @@ class BeliefProp : public GroundSolver {
 
     BpLinks                   links_;
     unsigned                  nIters_;
-    std::vector<BpLinks>      varsLinks_;
-    std::vector<BpLinks>      facsLinks_;
     bool                      runned_;
     SortedOrder               sortedOrder_;
     BpLinkMap                 linkMap_;
 
     static double             accuracy_;
-    static unsigned           maxIter_;
-    static MsgSchedule        schedule_;
 
   private:
     void initializeSolver();
@@ -136,6 +132,12 @@ class BeliefProp : public GroundSolver {
     bool converged();
 
     virtual void printLinkInformation() const;
+
+    std::vector<BpLinks>      varsLinks_;
+    std::vector<BpLinks>      facsLinks_;
+
+    static unsigned           maxIter_;
+    static MsgSchedule        schedule_;
 
     DISALLOW_COPY_AND_ASSIGN (BeliefProp);
 };
