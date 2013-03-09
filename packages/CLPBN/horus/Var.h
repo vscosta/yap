@@ -12,19 +12,11 @@
 
 namespace Horus {
 
-struct VarInfo {
-  VarInfo (std::string l, const States& sts)
-      : label(l), states(sts) { }
-  std::string label;
-  States states;
-};
-
-
 class Var {
   public:
     Var (const Var*);
 
-    Var (VarId, unsigned, int = Constants::unobserved);
+    Var (VarId, unsigned range, int evidence = Constants::unobserved);
 
     virtual ~Var() { };
 
@@ -57,13 +49,13 @@ class Var {
     static void addVarInfo (
         VarId vid, std::string label, const States& states);
 
-    static VarInfo getVarInfo (VarId vid);
-
     static bool varsHaveInfo();
 
     static void clearVarsInfo();
 
   private:
+    typedef std::pair<std::string, States> VarInfo;
+
     VarId     varId_;
     unsigned  range_;
     int       evidence_;

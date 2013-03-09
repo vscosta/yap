@@ -5,7 +5,7 @@
 
 namespace Horus {
 
-std::unordered_map<VarId, VarInfo> Var::varsInfo_;
+std::unordered_map<VarId, Var::VarInfo> Var::varsInfo_;
 
 
 Var::Var (const Var* v)
@@ -51,7 +51,8 @@ std::string
 Var::label() const
 {
   if (Var::varsHaveInfo()) {
-    return Var::getVarInfo (varId_).label;
+    assert (Util::contains (varsInfo_, varId_));
+    return varsInfo_.find (varId_)->second.first;
   }
   std::stringstream ss;
   ss << "x" << varId_;
@@ -64,7 +65,8 @@ States
 Var::states() const
 {
   if (Var::varsHaveInfo()) {
-    return Var::getVarInfo (varId_).states;
+    assert (Util::contains (varsInfo_, varId_));
+    return varsInfo_.find (varId_)->second.second;
   }
   States states;
   for (unsigned i = 0; i < range_; i++) {
@@ -83,15 +85,6 @@ Var::addVarInfo (
 {
   assert (Util::contains (varsInfo_, vid) == false);
   varsInfo_.insert (std::make_pair (vid, VarInfo (label, states)));
-}
-
-
-
-VarInfo
-Var::getVarInfo (VarId vid)
-{
-  assert (Util::contains (varsInfo_, vid));
-  return varsInfo_.find (vid)->second;
 }
 
 
