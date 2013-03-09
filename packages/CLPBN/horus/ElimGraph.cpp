@@ -183,7 +183,7 @@ ElimGraph::getLowestCostNode() const
   unsigned minCost = Util::maxUnsigned();
   EGNeighs::const_iterator it;
   switch (elimHeuristic_) {
-    case minNeighborsEh: {
+    case ElimHeuristic::minNeighborsEh: {
       for (it = unmarked_.begin(); it != unmarked_.end(); ++ it) {
         unsigned cost = getNeighborsCost (*it);
         if (cost < minCost) {
@@ -192,7 +192,7 @@ ElimGraph::getLowestCostNode() const
         }
       }}
       break;
-    case minWeightEh: {
+    case ElimHeuristic::minWeightEh: {
       for (it = unmarked_.begin(); it != unmarked_.end(); ++ it) {
         unsigned cost = getWeightCost (*it);
         if (cost < minCost) {
@@ -201,7 +201,7 @@ ElimGraph::getLowestCostNode() const
         }
       }}
       break;
-    case minFillEh: {
+    case ElimHeuristic::minFillEh: {
       for (it = unmarked_.begin(); it != unmarked_.end(); ++ it) {
         unsigned cost = getFillCost (*it);
         if (cost < minCost) {
@@ -210,7 +210,7 @@ ElimGraph::getLowestCostNode() const
         }
       }}
       break;
-    case weightedMinFillEh: {
+    case ElimHeuristic::weightedMinFillEh: {
       for (it = unmarked_.begin(); it != unmarked_.end(); ++ it) {
         unsigned cost = getWeightedFillCost (*it);
         if (cost < minCost) {

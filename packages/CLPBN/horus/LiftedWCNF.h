@@ -15,7 +15,7 @@ namespace Horus {
 
 class ParfactorList;
 
-enum LogVarType {
+enum class LogVarType {
   fullLvt,
   posLvt,
   negLvt

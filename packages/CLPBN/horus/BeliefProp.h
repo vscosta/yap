@@ -16,7 +16,7 @@ class BeliefProp : public GroundSolver {
     class SPNodeInfo;
 
   public:
-    enum MsgSchedule {
+    enum class MsgSchedule {
       seqFixedSch,
       seqRandomSch,
       parallelSch,

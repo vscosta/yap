@@ -14,7 +14,7 @@
 
 namespace Horus {
 
-enum CircuitNodeType {
+enum class CircuitNodeType {
   orCnt,
   andCnt,
   setOrCnt,
@@ -1317,7 +1317,7 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, std::ofstream& os)
 
   switch (getCircuitNodeType (node)) {
 
-    case orCnt: {
+    case CircuitNodeType::orCnt: {
       OrNode* casted = dynamic_cast<OrNode*>(node);
       printClauses (casted, os);
 
@@ -1342,7 +1342,7 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, std::ofstream& os)
       break;
     }
 
-    case andCnt: {
+    case CircuitNodeType::andCnt: {
       AndNode* casted = dynamic_cast<AndNode*>(node);
       printClauses (casted, os);
 
@@ -1367,7 +1367,7 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, std::ofstream& os)
       break;
     }
 
-    case setOrCnt: {
+    case CircuitNodeType::setOrCnt: {
       SetOrNode* casted = dynamic_cast<SetOrNode*>(node);
       printClauses (casted, os);
 
@@ -1386,7 +1386,7 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, std::ofstream& os)
       break;
     }
 
-    case setAndCnt: {
+    case CircuitNodeType::setAndCnt: {
       SetAndNode* casted = dynamic_cast<SetAndNode*>(node);
       printClauses (casted, os);
 
@@ -1405,7 +1405,7 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, std::ofstream& os)
       break;
     }
 
-    case incExcCnt: {
+    case CircuitNodeType::incExcCnt: {
       IncExcNode* casted = dynamic_cast<IncExcNode*>(node);
       printClauses (casted, os);
 
@@ -1436,24 +1436,24 @@ LiftedCircuit::exportToGraphViz (CircuitNode* node, std::ofstream& os)
       break;
     }
 
-    case leafCnt: {
+    case CircuitNodeType::leafCnt: {
       printClauses (node, os, "style=filled,fillcolor=palegreen,");
       break;
     }
 
-    case smoothCnt: {
+    case CircuitNodeType::smoothCnt: {
       printClauses (node, os, "style=filled,fillcolor=lightblue,");
       break;
     }
 
-    case trueCnt: {
+    case CircuitNodeType::trueCnt: {
       os << escapeNode (node);
       os << " [shape=box,label=\"⊤\"]" ;
       os << std::endl;
       break;
     }
 
-    case compilationFailedCnt: {
+    case CircuitNodeType::compilationFailedCnt: {
       printClauses (node, os, "style=filled,fillcolor=salmon,");
       break;
     }

@@ -15,7 +15,7 @@ namespace Horus {
 
 class ElimGraph {
   public:
-    enum ElimHeuristic {
+    enum class ElimHeuristic {
       sequentialEh,
       minNeighborsEh,
       minWeightEh,

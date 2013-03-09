@@ -34,14 +34,14 @@ typedef std::vector<unsigned>    Ranges;
 typedef unsigned long long       ullong;
 
 
-enum LiftedSolverType {
+enum class LiftedSolverType {
   lveSolver,  // generalized counting first-order variable elimination (GC-FOVE)
   lbpSolver,  // lifted first-order belief propagation
   lkcSolver   // lifted first-order knowledge compilation
 };
 
 
-enum GroundSolverType {
+enum class GroundSolverType {
   veSolver,   // variable elimination
   bpSolver,   // belief propagation
   CbpSolver   // counting belief propagation
