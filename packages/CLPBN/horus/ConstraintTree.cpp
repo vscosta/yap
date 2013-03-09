@@ -1,6 +1,7 @@
 #include <queue>
 
 #include <iostream>
+#include <ostream>
 #include <fstream>
 
 #include "ConstraintTree.h"
@@ -8,6 +9,79 @@
 
 
 namespace Horus {
+
+class CTNode {
+  public:
+    CTNode (const CTNode& n, const CTChilds& chs = CTChilds()) 
+        : symbol_(n.symbol()), childs_(chs), level_(n.level()) { }
+
+    CTNode (Symbol s, unsigned l, const CTChilds& chs = CTChilds())
+        : symbol_(s), childs_(chs), level_(l) { }
+
+    unsigned level() const { return level_; }
+
+    void setLevel (unsigned level) { level_ = level; }
+
+    Symbol symbol() const { return symbol_; }
+
+    void setSymbol (Symbol s) { symbol_ = s; }
+
+    CTChilds& childs() { return childs_; }
+
+    const CTChilds& childs() const { return childs_; }
+
+    size_t nrChilds() const { return childs_.size(); }
+
+    bool isRoot() const { return level_ == 0; }
+
+    bool isLeaf() const { return childs_.empty(); }
+
+    CTChilds::iterator findSymbol (Symbol symb);
+
+    void mergeSubtree (CTNode*, bool = true);
+
+    void removeChild (CTNode*);
+
+    void removeChilds();
+
+    void removeAndDeleteChild (CTNode*);
+
+    void removeAndDeleteAllChilds();
+
+    SymbolSet childSymbols() const;
+
+    static CTNode* copySubtree (const CTNode*);
+
+    static void deleteSubtree (CTNode*);
+
+  private:
+    void updateChildLevels (CTNode*, unsigned);
+
+    Symbol     symbol_;
+    CTChilds   childs_;
+    unsigned   level_;
+
+    DISALLOW_ASSIGN (CTNode);
+};
+
+
+
+inline CTChilds::iterator
+CTNode::findSymbol (Symbol symb)
+{
+  CTNode tmp (symb, 0);
+  return childs_.find (&tmp);
+}
+
+
+
+inline bool
+CmpSymbol::operator() (const CTNode* n1, const CTNode* n2) const
+{
+  return n1->symbol() < n2->symbol();
+}
+
+
 
 void
 CTNode::mergeSubtree (CTNode* n, bool updateLevels)
@@ -224,10 +298,11 @@ ConstraintTree::ConstraintTree (const ConstraintTree& ct)
 ConstraintTree::ConstraintTree (
     const CTChilds& rootChilds,
     const LogVars& logVars)
-        : root_(new CTNode (0, 0, rootChilds)),
+        : root_(new CTNode (Symbol (0), unsigned (0), rootChilds)),
           logVars_(logVars),
           logVarSet_(logVars)
 {
+
 }
 
 
@@ -235,6 +310,14 @@ ConstraintTree::ConstraintTree (
 ConstraintTree::~ConstraintTree()
 {
   CTNode::deleteSubtree (root_);
+}
+
+
+
+bool
+ConstraintTree::empty() const
+{
+  return root_->childs().empty();
 }
 
 

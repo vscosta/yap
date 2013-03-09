@@ -6,7 +6,6 @@
 #include <vector>
 #include <algorithm>
 #include <string>
-#include <ostream>
 
 #include "TinySet.h"
 #include "LiftedUtils.h"
@@ -22,81 +21,12 @@ typedef std::vector<CTNode*>          CTNodes;
 typedef std::vector<ConstraintTree*>  ConstraintTrees;
 
 
-class CTNode {
-  private:
-    struct CmpSymbol {
-      bool operator() (const CTNode* n1, const CTNode* n2) const {
-        return n1->symbol() < n2->symbol();
-    }};
-
-  public:
-    typedef TinySet<CTNode*, CmpSymbol> CTChilds;
-
-    CTNode (const CTNode& n, const CTChilds& chs = CTChilds()) 
-        : symbol_(n.symbol()), childs_(chs), level_(n.level()) { }
-
-    CTNode (Symbol s, unsigned l, const CTChilds& chs = CTChilds())
-        : symbol_(s), childs_(chs), level_(l) { }
-
-    unsigned level() const { return level_; }
-
-    void setLevel (unsigned level) { level_ = level; }
-
-    Symbol symbol() const { return symbol_; }
-
-    void setSymbol (Symbol s) { symbol_ = s; }
-
-    CTChilds& childs() { return childs_; }
-
-    const CTChilds& childs() const { return childs_; }
-
-    size_t nrChilds() const { return childs_.size(); }
-
-    bool isRoot() const { return level_ == 0; }
-
-    bool isLeaf() const { return childs_.empty(); }
-
-    CTChilds::iterator findSymbol (Symbol symb);
-
-    void mergeSubtree (CTNode*, bool = true);
-
-    void removeChild (CTNode*);
-
-    void removeChilds();
-
-    void removeAndDeleteChild (CTNode*);
-
-    void removeAndDeleteAllChilds();
-
-    SymbolSet childSymbols() const;
-
-    static CTNode* copySubtree (const CTNode*);
-
-    static void deleteSubtree (CTNode*);
-
-  private:
-    void updateChildLevels (CTNode*, unsigned);
-
-    Symbol     symbol_;
-    CTChilds   childs_;
-    unsigned   level_;
-
-    DISALLOW_ASSIGN (CTNode);
+struct CmpSymbol {
+  bool operator() (const CTNode* n1, const CTNode* n2) const;
 };
 
 
-typedef CTNode::CTChilds CTChilds;
-
-
-inline CTChilds::iterator
-CTNode::findSymbol (Symbol symb)
-{
-  CTNode tmp (symb, 0);
-  return childs_.find (&tmp);
-}
-
-
-std::ostream& operator<< (std::ostream&, const CTNode&);
+typedef TinySet<CTNode*, CmpSymbol>   CTChilds;
 
 
 class ConstraintTree {
@@ -117,7 +47,7 @@ class ConstraintTree {
 
     CTNode* root() const { return root_; }
 
-    bool empty() const { return root_->childs().empty(); }
+    bool empty() const;
 
     const LogVars& logVars() const;
 
