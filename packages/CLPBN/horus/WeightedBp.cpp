@@ -42,7 +42,7 @@ WeightedBp::getPosterioriOf (VarId vid)
     probs[var->getEvidence()] = LogAware::withEvidence();
   } else {
     probs.resize (var->range(), LogAware::multIdenty());
-    const BpLinks& links = ninf(var)->getLinks();
+    const BpLinks& links = getLinks (var);
     if (Globals::logDomain) {
       for (size_t i = 0; i < links.size(); i++) {
         WeightedLink* l = static_cast<WeightedLink*> (links[i]);
@@ -152,7 +152,7 @@ WeightedBp::maxResidualSchedule()
     // update the messages that depend on message source --> destin
     const FacNodes& factorNeighbors = link->varNode()->neighbors();
     for (size_t i = 0; i < factorNeighbors.size(); i++) {
-      const BpLinks& links = ninf(factorNeighbors[i])->getLinks();
+      const BpLinks& links = getLinks (factorNeighbors[i]);
       for (size_t j = 0; j < links.size(); j++) {
         if (links[j]->varNode() != link->varNode()) {
           if (Globals::verbosity > 1) {
@@ -168,7 +168,7 @@ WeightedBp::maxResidualSchedule()
     }
     // in counting bp, the message that a variable X sends to
     // to a factor F depends on the message that F sent to the X
-    const BpLinks& links = ninf(link->facNode())->getLinks();
+    const BpLinks& links = getLinks (link->facNode());
     for (size_t i = 0; i < links.size(); i++) {
       if (links[i]->varNode() != link->varNode()) {
         if (Globals::verbosity > 1) {
@@ -192,7 +192,7 @@ WeightedBp::calcFactorToVarMsg (BpLink* _link)
   WeightedLink* link = static_cast<WeightedLink*> (_link);
   FacNode* src = link->facNode();
   const VarNode* dst = link->varNode();
-  const BpLinks& links = ninf(src)->getLinks();
+  const BpLinks& links = getLinks (src);
   // calculate the product of messages that were sent
   // to factor `src', except from var `dst'
   unsigned reps = 1;
@@ -265,7 +265,7 @@ WeightedBp::calcFactorToVarMsg (BpLink* _link)
 
 
 Params
-WeightedBp::getVarToFactorMsg (const BpLink* _link) const
+WeightedBp::getVarToFactorMsg (const BpLink* _link)
 {
   const WeightedLink* link = static_cast<const WeightedLink*> (_link);
   const VarNode* src = link->varNode();
@@ -286,7 +286,7 @@ WeightedBp::getVarToFactorMsg (const BpLink* _link) const
     }
     LogAware::pow (msg, link->weight() - 1);
   }
-  const BpLinks& links = ninf(src)->getLinks();
+  const BpLinks& links = getLinks (src);
   if (Globals::logDomain) {
     for (size_t i = 0; i < links.size(); i++) {
       WeightedLink* l = static_cast<WeightedLink*> (links[i]);

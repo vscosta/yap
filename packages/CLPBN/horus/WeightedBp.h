@@ -43,7 +43,7 @@ class WeightedBp : public BeliefProp {
 
      void calcFactorToVarMsg (BpLink*);
 
-     Params getVarToFactorMsg (const BpLink*) const;
+     Params getVarToFactorMsg (const BpLink*);
 
      void printLinkInformation() const;
 

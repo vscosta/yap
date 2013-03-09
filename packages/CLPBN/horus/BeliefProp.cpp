@@ -29,11 +29,17 @@ BeliefProp::BeliefProp (const FactorGraph& fg)
 
 BeliefProp::~BeliefProp()
 {
-  for (size_t i = 0; i < varsI_.size(); i++) {
-    delete varsI_[i];
+  for (size_t i = 0; i < varsLinks_.size(); i++) {
+    BpLinks& links = varsLinks_[i];
+    for (unsigned j = 0; j < links.size(); j++) {
+      delete links[j];
+    }
   }
-  for (size_t i = 0; i < facsI_.size(); i++) {
-    delete facsI_[i];
+  for (size_t i = 0; i < facsLinks_.size(); i++) {
+    BpLinks& links = facsLinks_[i];
+    for (unsigned j = 0; j < links.size(); j++) {
+      delete links[j];
+    }
   }
   for (size_t i = 0; i < links_.size(); i++) {
     delete links_[i];
@@ -88,7 +94,7 @@ BeliefProp::getPosterioriOf (VarId vid)
     probs[var->getEvidence()] = LogAware::withEvidence();
   } else {
     probs.resize (var->range(), LogAware::multIdenty());
-    const BpLinks& links = ninf(var)->getLinks();
+    const BpLinks& links = getLinks (var);
     if (Globals::logDomain) {
       for (size_t i = 0; i < links.size(); i++) {
         probs += links[i]->message();
@@ -139,7 +145,7 @@ BeliefProp::getFactorJoint (
     runSolver();
   }
   Factor res (fn->factor());
-  const BpLinks& links = ninf(fn)->getLinks();
+  const BpLinks& links = getLinks( fn);
   for (size_t i = 0; i < links.size(); i++) {
     Factor msg ({links[i]->varNode()->varId()},
                 {links[i]->varNode()->range()},
@@ -350,7 +356,7 @@ BeliefProp::maxResidualSchedule()
     const FacNodes& factorNeighbors = link->varNode()->neighbors();
     for (size_t i = 0; i < factorNeighbors.size(); i++) {
       if (factorNeighbors[i] != link->facNode()) {
-        const BpLinks& links = ninf(factorNeighbors[i])->getLinks();
+        const BpLinks& links = getLinks (factorNeighbors[i]);
         for (size_t j = 0; j < links.size(); j++) {
           if (links[j]->varNode() != link->varNode()) {
             calculateMessage (links[j]);
@@ -374,7 +380,7 @@ BeliefProp::calcFactorToVarMsg (BpLink* link)
 {
   FacNode* src = link->facNode();
   const VarNode* dst = link->varNode();
-  const BpLinks& links = ninf(src)->getLinks();
+  const BpLinks& links = getLinks (src);
   // calculate the product of messages that were sent
   // to factor `src', except from var `dst'
   unsigned reps    = 1;
@@ -435,7 +441,7 @@ BeliefProp::calcFactorToVarMsg (BpLink* link)
 
 
 Params
-BeliefProp::getVarToFactorMsg (const BpLink* link) const
+BeliefProp::getVarToFactorMsg (const BpLink* link)
 {
   const VarNode* src = link->varNode();
   Params msg;
@@ -449,7 +455,7 @@ BeliefProp::getVarToFactorMsg (const BpLink* link) const
     std::cout << msg;
   }
   BpLinks::const_iterator it;
-  const BpLinks& links = ninf (src)->getLinks();
+  const BpLinks& links = getLinks (src);
   if (Globals::logDomain) {
     for (it = links.begin(); it != links.end(); ++it) {
       if (*it != link) {
@@ -490,21 +496,21 @@ void
 BeliefProp::initializeSolver()
 {
   const VarNodes& varNodes = fg.varNodes();
-  varsI_.reserve (varNodes.size());
+  varsLinks_.reserve (varNodes.size());
   for (size_t i = 0; i < varNodes.size(); i++) {
-    varsI_.push_back (new SPNodeInfo());
+    varsLinks_.push_back (BpLinks());
   }
   const FacNodes& facNodes = fg.facNodes();
-  facsI_.reserve (facNodes.size());
+  facsLinks_.reserve (facNodes.size());
   for (size_t i = 0; i < facNodes.size(); i++) {
-    facsI_.push_back (new SPNodeInfo());
+    facsLinks_.push_back (BpLinks());
   }
   createLinks();
   for (size_t i = 0; i < links_.size(); i++) {
     FacNode* src = links_[i]->facNode();
     VarNode* dst = links_[i]->varNode();
-    ninf (dst)->addBpLink (links_[i]);
-    ninf (src)->addBpLink (links_[i]);
+    getLinks (dst).push_back (links_[i]);
+    getLinks (src).push_back (links_[i]);
   }
 }
 

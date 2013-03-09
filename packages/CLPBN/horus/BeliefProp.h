@@ -96,9 +96,9 @@ class BeliefProp : public GroundSolver {
     typedef std::multiset<BpLink*, CmpResidual>                 SortedOrder;
     typedef std::unordered_map<BpLink*, SortedOrder::iterator>  BpLinkMap;
 
-    SPNodeInfo* ninf (const VarNode* var) const;
+    BpLinks& getLinks (const VarNode* var);
 
-    SPNodeInfo* ninf (const FacNode* fac) const;
+    BpLinks& getLinks (const FacNode* fac);
 
     void calculateAndUpdateMessage (BpLink* link, bool calcResidual = true);
 
@@ -114,14 +114,14 @@ class BeliefProp : public GroundSolver {
 
     virtual void calcFactorToVarMsg (BpLink*);
 
-    virtual Params getVarToFactorMsg (const BpLink*) const;
+    virtual Params getVarToFactorMsg (const BpLink*);
 
     virtual Params getJointByConditioning (const VarIds&) const;
 
     BpLinks                   links_;
     unsigned                  nIters_;
-    std::vector<SPNodeInfo*>  varsI_;
-    std::vector<SPNodeInfo*>  facsI_;
+    std::vector<BpLinks>      varsLinks_;
+    std::vector<BpLinks>      facsLinks_;
     bool                      runned_;
     SortedOrder               sortedOrder_;
     BpLinkMap                 linkMap_;
@@ -131,20 +131,6 @@ class BeliefProp : public GroundSolver {
     static MsgSchedule        schedule_;
 
   private:
-    class SPNodeInfo {
-      public:
-        SPNodeInfo() { }
-
-        void addBpLink (BeliefProp::BpLink* link) { links_.push_back (link); }
-
-        const BpLinks& getLinks() { return links_; }
-
-      private:
-        BpLinks links_;
-
-        DISALLOW_COPY_AND_ASSIGN (SPNodeInfo);
-    };
-
     void initializeSolver();
 
     bool converged();
@@ -156,18 +142,18 @@ class BeliefProp : public GroundSolver {
 
 
 
-inline BeliefProp::SPNodeInfo*
-BeliefProp::ninf (const VarNode* var) const
+inline BeliefProp::BpLinks&
+BeliefProp::getLinks (const VarNode* var)
 {
-  return varsI_[var->getIndex()];
+  return varsLinks_[var->getIndex()];
 }
 
 
 
-inline BeliefProp::SPNodeInfo*
-BeliefProp::ninf (const FacNode* fac) const
+inline BeliefProp::BpLinks&
+BeliefProp::getLinks (const FacNode* fac)
 {
-  return facsI_[fac->getIndex()];
+  return facsLinks_[fac->getIndex()];
 }
 
 }  // namespace Horus
