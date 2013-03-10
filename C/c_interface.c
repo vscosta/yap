@@ -2238,12 +2238,6 @@ YAP_Error(int myerrno, Term t, char *buf,...)
   Yap_Error(myerrno,t,tmpbuf);
 }
 
-static int myputc (wchar_t ch)
-{
-  putc(ch,stderr);
-  return ch;
-}
-
 X_API PredEntry *
 YAP_FunctorToPred(Functor func)
 {
@@ -2279,7 +2273,8 @@ run_emulator(YAP_dogoalinfo *dgi USES_REGS)
   LOCAL_PrologMode = UserMode;
   out = Yap_absmi(0);
   LOCAL_PrologMode = UserCCallMode;
-  Yap_StartSlots(PASS_REGS1);
+  if (out)
+    Yap_StartSlots(PASS_REGS1);
   return out;
 }
 
@@ -2315,6 +2310,9 @@ YAP_RetryGoal(YAP_dogoalinfo *dgi)
     return FALSE;
   }
   P = FAILCODE;
+  /* make sure we didn't leave live slots when we backtrack */
+  ASP = (CELL *)B;
+  Yap_PopSlots( PASS_REGS1 );
   out = run_emulator(dgi PASS_REGS);
   RECOVER_MACHINE_REGS();
   return out;
@@ -2366,12 +2364,12 @@ YAP_LeaveGoal(int backtrack, YAP_dogoalinfo *dgi)
   /* ASP should be set to the top of the local stack when we
      did the call */
   ASP = B->cp_env;
+  Yap_PopSlots(PASS_REGS1);
   /* YENV should be set to the current environment */
   YENV = ENV  = (CELL *)((B->cp_env)[E_E]);
   B    = B->cp_b;
   //SET_BB(B);
   HB = PROTECT_FROZEN_H(B);
-  Yap_PopSlots( PASS_REGS1 );
   CP = dgi->cp;
   P = dgi->p;
   RECOVER_MACHINE_REGS();
@@ -3257,14 +3255,14 @@ YAP_Reset(void)
   //  Yap_InitYaamRegs( worker_id );
   GLOBAL_Initialised = TRUE;
   ENV = LCL0;
-  ASP = B;
+  ASP = (CELL *)B;
   /* the first real choice-point will also have AP=FAIL */ 
   /* always have an empty slots for people to use */
   CurSlot = 0;
   Yap_StartSlots( PASS_REGS1 );
   P = CP = YESCODE;
   RECOVER_MACHINE_REGS();
-  return(TRUE);
+  return res;
 }
 
 X_API void
