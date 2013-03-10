@@ -1154,6 +1154,9 @@ elif test -e "$srcdir"/packages/jpl/Makefile.in; then
 	  JAVAC=$yap_cv_java/bin/javac
 	  JAVADOC=$yap_cv_java/bin/javadoc
         fi
+        if test "x$JAVACFLAGS" = x; then
+          JAVACFLAGS="-source 1.4 -target 1.4"
+        fi
 else
       ENABLE_JPL="@#"
 fi
@@ -1849,6 +1852,7 @@ AC_SUBST(JAVA)
 AC_SUBST(JAVA_HOME)
 AC_SUBST(JUNIT)
 AC_SUBST(JAVAC)
+AC_SUBST(JAVACFLAGS)
 AC_SUBST(JAVADOC)
 AC_SUBST(JAR)
 AC_SUBST(LIBJPL)
