@@ -2467,7 +2467,7 @@ X_API int PL_thread_self(void)
 #if THREADS
   if (pthread_getspecific(Yap_yaamregs_key) == NULL)
     return -1;
-  return worker_id;
+  return (worker_id+1)<<3;
 #else
   return -2;
 #endif
@@ -2481,9 +2481,22 @@ X_API int PL_unify_thread_id(term_t t, int i)
 }
 
 
+static int
+pl_thread_self(void)
+{
+  CACHE_REGS
+#if THREADS
+  if (pthread_getspecific(Yap_yaamregs_key) == NULL)
+    return -1;
+  return worker_id+1;
+#else
+  return -2;
+#endif
+}
+
 X_API int PL_thread_attach_engine(const PL_thread_attr_t *attr)
 {
-  int wid = PL_thread_self();
+  int wid = pl_thread_self();
   
   if (wid < 0) {
     /* we do not have an engine */
@@ -2512,7 +2525,7 @@ X_API int PL_thread_attach_engine(const PL_thread_attr_t *attr)
 
 X_API int PL_thread_destroy_engine(void)
 {
-  int wid = PL_thread_self();
+  int wid = pl_thread_self();
 
   if (wid < 0) {
     /* we do not have an engine */
@@ -2570,7 +2583,7 @@ PL_set_engine(PL_engine_t engine, PL_engine_t *old)
 {
   CACHE_REGS
 #if THREADS
-  int cwid = PL_thread_self(), nwid;
+  int cwid = pl_thread_self(), nwid;
   if (cwid >= 0) {
     if (old) *old = (PL_engine_t)(Yap_local[cwid]);
   }
