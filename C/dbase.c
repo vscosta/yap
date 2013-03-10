@@ -1893,7 +1893,6 @@ record_lu(PredEntry *pe, Term t, int position)
     return NULL;
   }
   {
-    CACHE_REGS
     Yap_inform_profiler_of_clause(cl, (char *)cl+cl->ClSize, pe, GPROF_NEW_LU_CLAUSE); 
   }
   Yap_add_logupd_clause(pe, cl, (position == MkFirst ? 2 : 0));
@@ -4740,7 +4739,13 @@ p_instance( USES_REGS1 )
 	YENV = ASP;
 	YENV[E_CB] = (CELL) B;
 	P = cl->ClCode;
-	UNLOCK(ap->PELock);
+#if defined(YAPOR) || defined(THREADS)
+	if (ap->PredFlags & ThreadLocalPredFlag) {
+	  UNLOCK(ap->PELock);	
+	} else {
+	  PP = ap;
+	}
+#endif
 	return TRUE;
       }
     }
