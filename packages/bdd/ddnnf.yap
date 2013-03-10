@@ -27,8 +27,8 @@ mkddnnf(CNF, PVs, DDNNF) :-
 	close(S),
 	% execute c2d at this point, but we're lazy%
 %	unix(system('c2d -dt_method 3 -in dimacs')),
-%	unix(system('c2d -visualize -in dimacs')),
-	unix(system('dsharp -Fnnf dimacs.nnf  dimacs')),
+	unix(system('c2d -visualize -in dimacs')),
+%	unix(system('dsharp -Fnnf dimacs.nnf  dimacs')),
 	open('dimacs.nnf',read,R),
 	SVars =.. [v|AllVars],
 %	ones(LVars),
