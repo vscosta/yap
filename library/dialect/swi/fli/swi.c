@@ -2488,7 +2488,7 @@ pl_thread_self(void)
 #if THREADS
   if (pthread_getspecific(Yap_yaamregs_key) == NULL)
     return -1;
-  return worker_id+1;
+  return worker_id;
 #else
   return -2;
 #endif
