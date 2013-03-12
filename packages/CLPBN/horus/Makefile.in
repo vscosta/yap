@@ -43,7 +43,6 @@ SO=@SO@
 #4.1VPATH=@srcdir@:@srcdir@/OPTYap
 CWD=$(PWD)
 
-HCLI = $(srcdir)/hcli
 
 HEADERS = \
 	$(srcdir)/BayesBall.h \
@@ -104,7 +103,7 @@ CPP_SOURCES = \
 	$(srcdir)/VarElim.cpp \
 	$(srcdir)/WeightedBp.cpp
 
-OBJS = \
+LIB_OBJS = \
 	BayesBall.o \
 	BayesBallGraph.o \
 	BeliefProp.o \
@@ -149,38 +148,41 @@ HCLI_OBJS = \
 	VarElim.o \
 	WeightedBp.o
 
-SOBJS=horus.@SO@
+
+LIB = $(srcdir)/horus.@SO@
+HCLI = $(srcdir)/hcli
 
 
-all: $(SOBJS) hcli
+all: $(LIB) $(HCLI)
+
+
+@DO_SECOND_LD@$(LIB): $(LIB_OBJS)
+@DO_SECOND_LD@	@SHLIB_CXX_LD@ -o $@ $(LIB_OBJS) @EXTRA_LIBS_FOR_SWIDLLS@
+
+
+$(HCLI): $(HCLI_OBJS)
+	$(CXX) -o $@ $(HCLI_OBJS)
+
 
 # default rule
 %.o : $(srcdir)/%.cpp
-	$(CXX) -c $(CXXFLAGS) $< -o $@
-
-
-@DO_SECOND_LD@horus.@SO@: $(OBJS)
-@DO_SECOND_LD@	@SHLIB_CXX_LD@ -o horus.@SO@ $(OBJS) @EXTRA_LIBS_FOR_SWIDLLS@
-
-
-hcli: $(HCLI_OBJS)
-	$(CXX) -o $(HCLI) $(HCLI_OBJS)
+	$(CXX) -o $@ -c $(CXXFLAGS) $<
 
 
 install: all
-	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR)
+	$(INSTALL_PROGRAM) $(LIB) $(DESTDIR)$(YAPLIBDIR)
 	$(INSTALL_PROGRAM) $(HCLI) $(DESTDIR)$(BINDIR)
 
 
 clean:
-	rm -f *.o *~ $(OBJS) $(SOBJS) $(HCLI) *.BAK
+	rm -f $(LIB) $(HCLI) *.o *~
 
 
 erase_dots:
 	rm -f *.dot *.png
 
 
-depend: $(HEADERS) $(CPP_SOURCES)
+depend: $(CPP_SOURCES) $(HEADERS)
 	-@if test "$(GCC)" = yes; then\
 	  $(CC) -std=c++0x -MM -MG $(CFLAGS) -I$(srcdir) -I$(srcdir)/../../../../include -I$(srcdir)/../../../../H $(CPP_SOURCES) >> Makefile;\
 	else\
