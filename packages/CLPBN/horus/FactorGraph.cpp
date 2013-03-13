@@ -167,6 +167,7 @@ FactorGraph::readFromLibDaiFormat (const char* fileName)
         std::cerr << "Error: variable `" << vids[j] << "' appears" ;
         std::cerr << " in two or more factors with a different range." ;
         std::cerr << std::endl;
+        exit (EXIT_FAILURE);
       }
     }
     // read parameters
