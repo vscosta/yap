@@ -43,6 +43,7 @@ SO=@SO@
 #4.1VPATH=@srcdir@:@srcdir@/OPTYap
 CWD=$(PWD)
 
+utestsdir=@srcdir@/unit_tests
 
 HEADERS = \
 	$(srcdir)/BayesBall.h \
@@ -74,7 +75,7 @@ HEADERS = \
 	$(srcdir)/VarElim.h \
 	$(srcdir)/WeightedBp.h
 
-CPP_SOURCES = \
+MAIN_SOURCES = \
 	$(srcdir)/BayesBall.cpp \
 	$(srcdir)/BayesBallGraph.cpp \
 	$(srcdir)/BeliefProp.cpp \
@@ -103,7 +104,14 @@ CPP_SOURCES = \
 	$(srcdir)/VarElim.cpp \
 	$(srcdir)/WeightedBp.cpp
 
-LIB_OBJS = \
+UTESTS_SOURCES = \
+	$(utestsdir)/UnitTesting.cpp
+
+SOURCES = \
+	$(MAIN_SOURCES) \
+	$(UTESTS_SOURCES)
+
+OBJS = \
 	BayesBall.o \
 	BayesBallGraph.o \
 	BeliefProp.o \
@@ -115,7 +123,6 @@ LIB_OBJS = \
 	GenericFactor.o \
 	GroundSolver.o \
 	Histogram.o \
-	HorusYap.o \
 	Indexer.o \
 	LiftedBp.o \
 	LiftedKc.o \
@@ -130,6 +137,10 @@ LIB_OBJS = \
 	Var.o \
 	VarElim.o \
 	WeightedBp.o
+
+LIB_OBJS = \
+	$(OBJS) \
+	HorusYap.o
 
 HCLI_OBJS = \
 	BayesBall.o \
@@ -148,12 +159,22 @@ HCLI_OBJS = \
 	VarElim.o \
 	WeightedBp.o
 
+UTESTS_OBJS = \
+	$(OBJS) \
+	$(utestsdir)/UnitTesting.o
+
 
 LIB = $(srcdir)/horus.@SO@
 HCLI = $(srcdir)/hcli
+UTESTING = $(srcdir)/run_tests
 
 
-all: $(LIB) $(HCLI)
+# Don't require $(UTESTING) by default as we
+# don't want a hard dependency on CppUnit
+default: $(LIB) $(HCLI)
+
+
+all: $(LIB) $(HCLI) $(UTESTING)
 
 
 @DO_SECOND_LD@$(LIB): $(LIB_OBJS)
@@ -162,6 +183,10 @@ all: $(LIB) $(HCLI)
 
 $(HCLI): $(HCLI_OBJS)
 	$(CXX) -o $@ $(HCLI_OBJS)
+
+
+$(UTESTING): $(UTESTS_OBJS)
+	$(CXX) -o $@ $(UTESTS_OBJS) -lcppunit
 
 
 # default rule
@@ -175,20 +200,27 @@ install: all
 
 
 clean:
-	rm -f $(LIB) $(HCLI) *.o *~
+	rm -f $(LIB) $(HCLI) $(UTESTING) *.o *~
 
 
-erase_dots:
-	rm -f *.dot *.png
+remove_dots:
+	rm -f *.dot *.png *.svg
 
 
-depend: $(CPP_SOURCES) $(HEADERS)
+depend: $(SOURCES) $(HEADERS)
 	-@if test "$(GCC)" = yes; then\
-	  $(CC) -std=c++0x -MM -MG $(CFLAGS) -I$(srcdir) -I$(srcdir)/../../../../include -I$(srcdir)/../../../../H $(CPP_SOURCES) >> Makefile;\
+	  for F in $(SOURCES); do \
+	    D=`dirname $$F`; \
+	    B=`basename $$F .cpp`; \
+	    $(CXX) $(CXXFLAGS) -MM -MG -MT "$$D/$$B.o" -I$(srcdir)/../../../../H -I$(srcdir)/../../../../include $$F >> Makefile; \
+	  done; \
 	else\
-	  makedepend -f - -- $(CFLAGS) -I$(srcdir)/../../../../H -I$(srcdir)/../../../../include -- $(CPP_SOURCES) |\
-	  sed 's|.*/\([^:]*\):|\1:|' >> Makefile ;\
+	  makedepend -- $(CXXFLAGS) -- -I$(srcdir)/../../../../H -I$(srcdir)/../../../../include $(SOURCES); \
 	fi
+
+
+.PHONY: default all install clean remove_dots depend
+
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
 
