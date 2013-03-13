@@ -188,6 +188,7 @@ FactorGraph::readFromLibDaiFormat (const char* fileName)
       Util::log (params);
     }
     std::reverse (vids.begin(), vids.end());
+    std::reverse (ranges.begin(), ranges.end());
     Factor f (vids, ranges, params);
     std::reverse (vids.begin(), vids.end());
     f.reorderArguments (vids);
