@@ -86,10 +86,6 @@ class FactorGraph {
 
     VarNode* getVarNode (VarId vid) const;
 
-    void readFromUaiFormat (const char*);
-
-    void readFromLibDaiFormat (const char*);
-
     void addFactor (const Factor& factor);
 
     void addVarNode (VarNode*);
@@ -109,6 +105,12 @@ class FactorGraph {
     void exportToUai (const char*) const;
 
     void exportToGraphViz (const char*) const;
+
+    FactorGraph& operator= (const FactorGraph&);
+
+    static FactorGraph readFromUaiFormat (const char*);
+
+    static FactorGraph readFromLibDaiFormat (const char*);
 
     static bool exportToLibDai() { return exportLd_; }
 
@@ -137,7 +139,7 @@ class FactorGraph {
   private:
     typedef std::unordered_map<unsigned, VarNode*> VarMap;
 
-    void ignoreLines (std::ifstream&) const;
+    void clone (const FactorGraph& fg);
 
     bool containsCycle() const;
 
@@ -146,6 +148,8 @@ class FactorGraph {
 
     bool containsCycle (const FacNode*, const VarNode*,
         std::vector<bool>&, std::vector<bool>&) const;
+
+    static void ignoreLines (std::ifstream&);
 
     VarNodes        varNodes_;
     FacNodes        facNodes_;
@@ -157,8 +161,6 @@ class FactorGraph {
     static bool     exportUai_;
     static bool     exportGv_;
     static bool     printFg_;
-
-    DISALLOW_ASSIGN (FactorGraph);
 };
 
 

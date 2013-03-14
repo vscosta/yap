@@ -100,9 +100,9 @@ readFactorGraph (Horus::FactorGraph& fg, const char* s)
   std::string fileName (s);
   std::string extension = fileName.substr (fileName.find_last_of ('.') + 1);
   if (extension == "uai") {
-    fg.readFromUaiFormat (fileName.c_str());
+    fg = Horus::FactorGraph::readFromUaiFormat (fileName.c_str());
   } else if (extension == "fg") {
-    fg.readFromLibDaiFormat (fileName.c_str());
+    fg = Horus::FactorGraph::readFromLibDaiFormat (fileName.c_str());
   } else {
     std::cerr << "Error: the probabilistic graphical model must be " ;
     std::cerr << "defined either in a UAI or libDAI file." << std::endl;
