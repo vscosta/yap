@@ -69,7 +69,7 @@ const bool showBpCalcs = false;
 const int unobserved = -1;
 
 // number of digits to show when printing a parameter
-const unsigned precision = 6;
+const unsigned precision = 8;
 
 }
 
