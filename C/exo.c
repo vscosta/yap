@@ -40,50 +40,67 @@
 
 #define MAX_ARITY 256
 
+#define FNV32_PRIME 16777619
+#define FNV64_PRIME ((UInt)1099511628211)
+
+#define FNV32_OFFSET 2166136261 
+#define FNV64_OFFSET ((UInt)14695981039346656037)
+
 
 /* Simple hash function:
    first component is the base key.
    hash0 spreads extensions coming from different elements.
    spread over j quadrants.
  */
-static UInt
-HASH(UInt hash0, UInt j, CELL *cl, struct index_t *it)
+static BITS32
+HASH(UInt arity, CELL *cl, UInt bnds[], UInt sz)
 {
-  Term t = cl[j];
-  UInt sz = it->hsize;
-  if (IsIntTerm(t))
-    return (17*(IntOfTerm(t) + (hash0+1)*j ) ) % sz;
-  return (17*(((UInt)AtomOfTerm(t)>>5) + (hash0+1)*j ) ) % sz;
+  UInt hash;
+  UInt  j=0;
+
+  hash = FNV32_OFFSET;
+  while (j < arity) {
+    if (bnds[j]) {
+      unsigned char *i=(unsigned char*)(cl+j);
+      unsigned char *m=(unsigned char*)(cl+(j+1));
+
+      while (i < m) {
+	hash = hash ^ i[0];
+	hash = hash * FNV32_PRIME;
+	i++;
+      }
+    }
+    j++;
+  }
+  return hash;
 }
 
-static UInt
-NEXT(UInt hash, Term t, UInt j, struct index_t *it)
+static BITS32
+NEXT(UInt hash)
 {
-  return (hash+(j+1)*997) % (it->hsize);
+  return (hash*997);
 }
 
 /* search for matching elements */
 static int 
-MATCH(CELL *clp, CELL *kvp, UInt j, struct index_t *it, UInt bnds[])
+MATCH(CELL *clp, CELL *kvp, UInt arity, UInt bnds[])
 {
-  if ((kvp - it->cls)%it->arity != j)
-    return FALSE;
-  do {
-    if ( bnds[j] && *clp != *kvp)
+  UInt j = 0;
+  while (j< arity) {
+    if ( bnds[j] && clp[j] != kvp[j])
       return FALSE;
-    clp--;
-    kvp--;
-  } while (j-- != 0);
+    j++;
+  }
   return TRUE;
 }
 
 static void
 ADD_TO_TRY_CHAIN(CELL *kvp, CELL *cl, struct index_t *it)
 {
-  UInt old = (kvp-it->cls)/it->arity;
-  UInt new = (cl-it->cls)/it->arity;
-  UInt *links = it->links;
-  UInt tmp = links[old]; /* points to the end of the chain */
+  BITS32 old = (kvp-it->cls)/it->arity;
+  BITS32 new = (cl-it->cls)/it->arity;
+  BITS32 *links = it->links;
+  BITS32 tmp = links[old]; /* points to the end of the chain */
 
   if (!tmp) {
     links[old] = links[new] = new;
@@ -112,49 +129,28 @@ ADD_TO_TRY_CHAIN(CELL *kvp, CELL *cl, struct index_t *it)
  * else
  */
 static void
-INSERT(CELL *cl, struct index_t *it, UInt arity, UInt base, UInt hash0, UInt bnds[])
+INSERT(CELL *cl, struct index_t *it, UInt arity, UInt base, UInt bnds[])
 {
-  UInt j = base;
   CELL *kvp;
-  UInt hash;
+  BITS32 hash;
 
-  /* skip over argument */
-  while (!bnds[j]) {
-    j++;
-  }
-  /* j is the firs bound element */
-  /* check if we match */
-  hash = hash0 = HASH(hash0, j, cl, it);
-  //if (exo_write) printf("h=%ld j=%ld %lx\n", hash, j, cl[j]);
+
+  hash = HASH(arity, cl, bnds, it->hsize);
  next:
-  /* loop to insert element */
-  kvp = it->key[hash];
+  kvp = EXO_OFFSET_TO_ADDRESS(it, it->key [hash % it->hsize]);
   if (kvp == NULL) {
     /* simple case, new entry */
     it->nentries++;
-    it->key[hash] = cl+j;
+    it->key[hash % it->hsize ] = EXO_ADDRESS_TO_OFFSET(it, cl);
     return;
-  } else if (MATCH(cl+j, kvp, j, it, bnds))  {
-    /* collision */
-    UInt k;
-    CELL *target;
-    
-    for (k =j+1, target = kvp+1; k < arity; k++,target++ ) {
-      if (bnds[k]) {
-	if (*target != cl[k]) {
-	  /* found a new forking point */
-	  //    printf("j=%ld hash0=%ld cl[j]=%lx\n", j, hash0, cl[j]);
-	  INSERT(cl, it, arity, k, hash0, bnds);
-	  return;
-	}
-      }
-    }
+  } else if (MATCH(kvp, cl, arity, bnds))  {
     it->ntrys++;
     ADD_TO_TRY_CHAIN(kvp, cl, it);
     return;
   } else {
     it->ncollisions++;
-    hash =  NEXT(hash, cl[j], j, it);
+    //  printf("#");
+    hash =  NEXT(hash);
     //if (exo_write) printf("N=%ld\n", hash);
     goto next;
   }
@@ -165,40 +161,26 @@ LOOKUP(struct index_t *it, UInt arity, UInt j, UInt bnds[])
 {
   CACHE_REGS
   CELL *kvp;
-  UInt hash, hash0 = 0;
+  BITS32 hash;
 
   /* j is the firs bound element */
   /* check if we match */
- hash:
-  hash = hash0 = HASH(hash0, j, XREGS+1, it);
+  hash = HASH(arity, XREGS+1, bnds, it->hsize);
  next:
   /* loop to insert element */
-  kvp = it->key[hash];
+  kvp = EXO_OFFSET_TO_ADDRESS(it, it->key[hash % it->hsize]);
   if (kvp == NULL) {
     /* simple case, no element */
     return FAILCODE;
-  } else if (MATCH(XREGS+(j+1), kvp, j, it, bnds))  {
-    /* found element */
-    UInt k;
-    CELL *target;
-
-    for (k =j+1, target = kvp+1; k < arity; k++ ) {
-      if (bnds[k]) {
-	if (*target != XREGS[k+1]) {
-	  j = k;
-	  goto hash;
-	}
-      }
-      target++;
-    }
-    S = target-arity;
+  } else if (MATCH(kvp, XREGS+1, arity, bnds))  {
+    S = kvp;
     if (!it->is_key && it->links[(S-it->cls)/arity])
       return it->code;
     else
       return NEXTOP(NEXTOP(it->code,lp),lp);
   } else {
     /* collision */
-    hash =  NEXT(hash, XREGS[j+1], j, it);
+    hash =  NEXT(hash);
     goto next;
   }
 }
@@ -211,12 +193,12 @@ fill_hash(UInt bmap, struct index_t *it, UInt bnds[])
   CELL *cl = it->cls;
 
   for (i=0; i < it->nels; i++) {
-    INSERT(cl, it, arity, 0, 0, bnds);
+    INSERT(cl, it, arity, 0, bnds);
     cl += arity;
   }
   for (i=0; i < it->hsize; i++) {
     if (it->key[i]) {
-      UInt offset = (it->key[i]-it->cls)/arity;
+      UInt offset = it->key[i]/arity;
       UInt last = it->links[offset];
       if (last) {
       /* the chain used to point straight to the last, and the last back to the origibal first */
@@ -255,7 +237,7 @@ add_index(struct index_t **ip, UInt bmap, PredEntry *ap, UInt count, UInt bnds[]
   i->is_key = FALSE;
   i->hsize = 2*ncls;
   if (count) {
-    if (!(base = (CELL *)Yap_AllocCodeSpace(sizeof(CELL)*(ncls+i->hsize)))) {
+    if (!(base = (CELL *)Yap_AllocCodeSpace(sizeof(BITS32)*(ncls+i->hsize)))) {
       CACHE_REGS
       save_machine_regs();
       LOCAL_Error_Size = sizeof(CELL)*(ncls+i->hsize);
@@ -267,7 +249,7 @@ add_index(struct index_t **ip, UInt bmap, PredEntry *ap, UInt count, UInt bnds[]
     bzero(base, sizeof(CELL)*(ncls+i->hsize));
   }
   i->size = sizeof(CELL)*(ncls+i->hsize)+sz+sizeof(struct index_t);
-  i->key = (CELL **)base;
+  i->key = (CELL *)base;
   i->links = (CELL *)(base+i->hsize);
   i->ncollisions = i->nentries = i->ntrys = 0;
   i->cls = (CELL *)((ADDR)ap->cs.p_code.FirstClause+2*sizeof(struct index_t *)); 
@@ -337,14 +319,11 @@ Yap_ExoLookup(PredEntry *ap USES_REGS)
   }
 
   while (i) {
-    if (i->is_key) {
-      if ((i->bmap & bmap) == i->bmap) {
-	break;
-      }
-    } else {
-      if (i->bmap == bmap) {
-	break;
-      }
+    //    if (i->is_key && (i->bmap & bmap)  == i->bmap) {
+    //  break;
+    // }
+    if (i->bmap == bmap) {
+      break;
     }
     ip = &i->next;
     i = i->next;
@@ -362,9 +341,9 @@ CELL
 Yap_NextExo(choiceptr cptr, struct index_t *it) 
 {
   CACHE_REGS
-  CELL offset = EXO_ADDRESS_TO_OFFSET(it,(CELL *)((CELL *)(B+1))[it->arity]);
+  CELL offset = ADDRESS_TO_LINK(it,(CELL *)((CELL *)(B+1))[it->arity]);
   CELL next = it->links[offset];
-  ((CELL *)(B+1))[it->arity] = (CELL)EXO_OFFSET_TO_ADDRESS(it, next);
+  ((CELL *)(B+1))[it->arity] = (CELL)LINK_TO_ADDRESS(it, next);
   S = it->cls+it->arity*offset;
   return next;
 }

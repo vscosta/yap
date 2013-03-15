@@ -170,25 +170,43 @@ typedef struct index_t {
   UInt ntrys;
   UInt nentries;
   UInt hsize;
-  CELL **key;
+  BITS32 *key;
   CELL *cls;
-  CELL *links;
+  BITS32 *links;
   size_t size;
   yamop *code;
 } Index_t;
 
-INLINE_ONLY EXTERN inline  UInt EXO_ADDRESS_TO_OFFSET(struct index_t *it, CELL *ptr);
+INLINE_ONLY EXTERN inline BITS32 EXO_ADDRESS_TO_OFFSET(struct index_t *it, CELL *ptr);
 
-INLINE_ONLY EXTERN inline   UInt
+INLINE_ONLY EXTERN inline   BITS32
 EXO_ADDRESS_TO_OFFSET(struct index_t *it, CELL* ptr)
 {
-  return ptr-it->links;
+  return 1+(ptr-it->cls);
 }
 
 INLINE_ONLY EXTERN inline  CELL *EXO_OFFSET_TO_ADDRESS(struct index_t *it, UInt  off);
 
 INLINE_ONLY EXTERN inline   CELL *
-EXO_OFFSET_TO_ADDRESS(struct index_t *it, UInt  off)
+EXO_OFFSET_TO_ADDRESS(struct index_t *it, BITS32  off)
+{
+  if (off == 0L) 
+    return NULL;
+  return (it->cls-1)+off;
+}
+
+INLINE_ONLY EXTERN inline  BITS32 ADDRESS_TO_LINK(struct index_t *it, CELL *ptr);
+
+INLINE_ONLY EXTERN inline  BITS32
+ADDRESS_TO_LINK(struct index_t *it, CELL* ptr)
+{
+  return ptr-it->links;
+}
+
+INLINE_ONLY EXTERN inline CELL *LINK_TO_ADDRESS(struct index_t *it, BITS32  off);
+
+INLINE_ONLY EXTERN inline   CELL *
+LINK_TO_ADDRESS(struct index_t *it, BITS32  off)
 {
   return it->links+off;
 }
