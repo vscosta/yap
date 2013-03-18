@@ -179,12 +179,13 @@ Factor::sumOutLastVariable()
   Params::iterator last   = params_.end();
   if (Globals::logDomain) {
     while (first2 != last) {
-      // the arguments can be swaped, but that is ok
-      *first1++ = Util::logSum (*first2++, *first2++);
+      double tmp = *first2++;
+      *first1++ = Util::logSum (tmp, *first2++);
     }
   } else {
     while (first2 != last) {
-      *first1++ = (*first2++) + (*first2++);
+      *first1    = *first2++;
+      *first1++ += *first2++;
     }
   }
   params_.resize (params_.size() / 2);
