@@ -30,21 +30,10 @@ BeliefProp::BeliefProp (const FactorGraph& fg)
 
 BeliefProp::~BeliefProp()
 {
-  for (size_t i = 0; i < varsLinks_.size(); i++) {
-    BpLinks& links = varsLinks_[i];
-    for (unsigned j = 0; j < links.size(); j++) {
-      delete links[j];
-    }
-  }
-  for (size_t i = 0; i < facsLinks_.size(); i++) {
-    BpLinks& links = facsLinks_[i];
-    for (unsigned j = 0; j < links.size(); j++) {
-      delete links[j];
-    }
-  }
   for (size_t i = 0; i < links_.size(); i++) {
     delete links_[i];
   }
+  links_.clear();
 }
 
 
