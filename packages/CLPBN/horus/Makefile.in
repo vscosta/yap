@@ -23,10 +23,10 @@ CC=@CC@
 CXX=@CXX@
 
 # normal
-CXXFLAGS= -std=c++0x @SHLIB_CXXFLAGS@ $(YAP_EXTRAS) $(DEFS) -D_YAP_NOT_INSTALLED_=1 -I$(srcdir) -I../../.. -I$(srcdir)/../../../include @CPPFLAGS@ -DNDEBUG
+#CXXFLAGS= -std=c++0x @SHLIB_CXXFLAGS@ $(YAP_EXTRAS) $(DEFS) -D_YAP_NOT_INSTALLED_=1 -I$(srcdir) -I../../.. -I$(srcdir)/../../../include @CPPFLAGS@ -DNDEBUG
 
 # debug 
-#CXXFLAGS= -std=c++0x @SHLIB_CXXFLAGS@ $(YAP_EXTRAS) $(DEFS) -D_YAP_NOT_INSTALLED_=1 -I$(srcdir) -I../../.. -I$(srcdir)/../../../include @CPPFLAGS@ -g -O0 -Wextra
+CXXFLAGS= -std=c++0x @SHLIB_CXXFLAGS@ $(YAP_EXTRAS) $(DEFS) -D_YAP_NOT_INSTALLED_=1 -I$(srcdir) -I../../.. -I$(srcdir)/../../../include @CPPFLAGS@ -g -O0 -Wextra
 
 
 #
@@ -45,7 +45,7 @@ CWD=$(PWD)
 
 utestsdir=@srcdir@/unit_tests
 
-HEADERS = \
+MAIN_HEADERS = \
 	$(srcdir)/BayesBall.h \
 	$(srcdir)/BayesBallGraph.h \
 	$(srcdir)/BeliefProp.h \
@@ -74,6 +74,13 @@ HEADERS = \
 	$(srcdir)/Var.h \
 	$(srcdir)/VarElim.h \
 	$(srcdir)/WeightedBp.h
+
+UTESTS_HEADERS = \
+	$(utestsdir)/Common.h
+
+HEADERS = \
+	$(MAIN_HEADERS) \
+	$(UTESTS_HEADERS)
 
 MAIN_SOURCES = \
 	$(srcdir)/BayesBall.cpp \
@@ -105,6 +112,11 @@ MAIN_SOURCES = \
 	$(srcdir)/WeightedBp.cpp
 
 UTESTS_SOURCES = \
+	$(utestsdir)/BeliefPropTest.cpp \
+	$(utestsdir)/Common.cpp	\
+	$(utestsdir)/CountingBpTest.cpp \
+	$(utestsdir)/FactorTest.cpp \
+	$(utestsdir)/VarElimTest.cpp \
 	$(utestsdir)/UnitTesting.cpp
 
 SOURCES = \
@@ -161,6 +173,11 @@ HCLI_OBJS = \
 
 UTESTS_OBJS = \
 	$(OBJS) \
+	$(utestsdir)/BeliefPropTest.o \
+	$(utestsdir)/Common.o	\
+	$(utestsdir)/CountingBpTest.o \
+	$(utestsdir)/FactorTest.o \
+	$(utestsdir)/VarElimTest.o \
 	$(utestsdir)/UnitTesting.o
 
 
