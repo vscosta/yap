@@ -128,11 +128,12 @@ ADD_TO_TRY_CHAIN(CELL *kvp, CELL *cl, struct index_t *it)
  * match ci..j ck..j -> find j = minarg(cij \= c2j)
  * else
  */
-static void
+static int
 INSERT(CELL *cl, struct index_t *it, UInt arity, UInt base, UInt bnds[])
 {
   CELL *kvp;
   BITS32 hash;
+  int coll_count = 0;
 
 
   hash = HASH(arity, cl, bnds, it->hsize);
@@ -142,12 +143,15 @@ INSERT(CELL *cl, struct index_t *it, UInt arity, UInt base, UInt bnds[])
     /* simple case, new entry */
     it->nentries++;
     it->key[hash % it->hsize ] = EXO_ADDRESS_TO_OFFSET(it, cl);
-    return;
+    return TRUE;
   } else if (MATCH(kvp, cl, arity, bnds))  {
     it->ntrys++;
     ADD_TO_TRY_CHAIN(kvp, cl, it);
-    return;
+    return TRUE;
   } else {
+    coll_count++;
+    if (coll_count == 32)
+      return FALSE;
     it->ncollisions++;
     //  printf("#");
     hash =  NEXT(hash);
@@ -185,7 +189,7 @@ LOOKUP(struct index_t *it, UInt arity, UInt j, UInt bnds[])
   }
 }
 
-static void
+static int
 fill_hash(UInt bmap, struct index_t *it, UInt bnds[])
 {
   UInt i;
@@ -193,7 +197,8 @@ fill_hash(UInt bmap, struct index_t *it, UInt bnds[])
   CELL *cl = it->cls;
 
   for (i=0; i < it->nels; i++) {
-    INSERT(cl, it, arity, 0, bnds);
+    if (!INSERT(cl, it, arity, 0, bnds))
+      return FALSE;
     cl += arity;
   }
   for (i=0; i < it->hsize; i++) {
@@ -207,6 +212,7 @@ fill_hash(UInt bmap, struct index_t *it, UInt bnds[])
       }
     }
   }
+  return TRUE;
 }
 
 static struct index_t *
@@ -228,6 +234,7 @@ add_index(struct index_t **ip, UInt bmap, PredEntry *ap, UInt count, UInt bnds[]
     Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
     return NULL;
   }
+  i->is_key = FALSE;
   i->next = *ip;
   i->prev = NULL;
   i->nels = ncls;
@@ -254,13 +261,46 @@ add_index(struct index_t **ip, UInt bmap, PredEntry *ap, UInt count, UInt bnds[]
   i->ncollisions = i->nentries = i->ntrys = 0;
   i->cls = (CELL *)((ADDR)ap->cs.p_code.FirstClause+2*sizeof(struct index_t *)); 
   *ip = i;
-  if (count) {
-    fill_hash(bmap, i, bnds);
-    printf("entries=%ld collisions=%ld trys=%ld\n", i->nentries, i->ncollisions, i->ntrys);
-    if (!i->ntrys) {
-      i->is_key = TRUE;
-      if (base != realloc(base, i->hsize*sizeof(CELL)))
+  while (count) {
+    if (!fill_hash(bmap, i, bnds)) {
+      size_t sz;
+      i->hsize += ncls;
+      if (i->is_key) {
+	sz = i->hsize*sizeof(BITS32);
+      } else {
+	sz = (ncls+i->hsize)*sizeof(BITS32);
+      }
+      if (base != realloc(base, sz))
 	return FALSE;
+      bzero(base, sz);
+      i->key = (CELL *)base;
+      i->links = (CELL *)(base+i->hsize);
+      i->ncollisions = i->nentries = i->ntrys = 0;
+      continue;
+    }
+    fprintf(stderr, "entries=%ld collisions=%ld trys=%ld\n", i->nentries, i->ncollisions, i->ntrys);
+    if (!i->ntrys && !i->is_key) {
+      i->is_key = TRUE;
+      if (base != realloc(base, i->hsize*sizeof(BITS32)))
+	return FALSE;
+    }
+    /* our hash table is just too large */
+    if (( i->nentries+i->ncollisions  )*10 < i->hsize) {
+      size_t sz;
+      i->hsize = ( i->nentries+i->ncollisions  )*10;
+      if (i->is_key) {
+	sz = i->hsize*sizeof(BITS32);
+      } else {
+	sz = (ncls+i->hsize)*sizeof(BITS32);
+      }
+      if (base != realloc(base, sz))
+	return FALSE;
+      bzero(base, sz);
+      i->key = (CELL *)base;
+      i->links = (CELL *)(base+i->hsize);
+      i->ncollisions = i->nentries = i->ntrys = 0;
+    } else {
+      break;
     }
   }
   ptr = (yamop *)(i+1);
