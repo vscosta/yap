@@ -13432,7 +13432,6 @@ Yap_absmi(int inp)
 	}
 	PP = NULL;
 	SREG = (CELL *) pen;
-	fprintf(stderr,"Here I was\n");
 	ASP = ENV_YREG;
 	if (ASP > (CELL *)PROTECT_FROZEN_B(B))
 	  ASP = (CELL *)PROTECT_FROZEN_B(B);
