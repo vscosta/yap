@@ -167,6 +167,9 @@ system_message(error(context_error(Goal,Who),Where)) -->
 system_message(error(domain_error(DomainType,Opt), Where)) -->
 	[ 'DOMAIN ERROR- ~w: ' - Where],
 	domain_error(DomainType, Opt).
+system_message(error(format_argument_type(Type,Arg), Where)) -->
+	[ 'FORMAT ARGUMENT ERROR- ~~~a called with ~w in ~w: ' - [Type,Arg,Where]],
+	domain_error(DomainType, Opt).
 system_message(error(existence_error(directory,Key), Where)) -->
 	[ 'EXISTENCE ERROR- ~w: ~w not an existing directory' - [Where,Key] ].
 system_message(error(existence_error(key,Key), Where)) -->
