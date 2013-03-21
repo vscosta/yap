@@ -73,8 +73,8 @@ ParfactorList::insertShattered (
     std::list<Parfactor*>::iterator it,
     Parfactor* pf)
 {
-  return pfList_.insert (it, pf);
   assert (isAllShattered());
+  return pfList_.insert (it, pf);
 }
 
 
