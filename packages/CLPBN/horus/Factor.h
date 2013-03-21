@@ -30,7 +30,7 @@ class Factor : public GenericFactor<VarId> {
 
     void sumOutAllExceptIndex (size_t idx);
 
-    void multiply (Factor&);
+    Factor& multiply (const Factor&);
 
     std::string getLabel() const;
 

@@ -49,7 +49,7 @@ class GenericFactor {
 
     double& operator[] (size_t idx);
 
-    void multiply (GenericFactor<T>& g);
+    GenericFactor<T>& multiply (const GenericFactor<T>& g);
 
     void sumOutIndex (size_t idx);
 

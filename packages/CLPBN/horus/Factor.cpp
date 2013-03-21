@@ -91,14 +91,16 @@ Factor::sumOutAllExceptIndex (size_t idx)
 }
 
 
-void
-Factor::multiply (Factor& g)
+
+Factor&
+Factor::multiply (const Factor& g)
 {
   if (args_.empty()) {
-    *this = g;
+    operator= (g);
   } else {
     GenericFactor<VarId>::multiply (g);
   }
+  return *this;
 }
 
 

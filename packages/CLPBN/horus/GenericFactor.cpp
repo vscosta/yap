@@ -82,15 +82,15 @@ GenericFactor<T>::operator[] (size_t idx)
 
 
 
-template <typename T> void
-GenericFactor<T>::multiply (GenericFactor<T>& g)
+template <typename T> GenericFactor<T>&
+GenericFactor<T>::multiply (const GenericFactor<T>& g)
 {
   if (args_ == g.arguments()) {
     // optimization
     Globals::logDomain
       ? params_ += g.params()
       : params_ *= g.params();
-    return;
+    return *this;
   }
   unsigned range_prod = 1;
   bool share_arguments = false;
@@ -124,6 +124,7 @@ GenericFactor<T>::multiply (GenericFactor<T>& g)
       }
     }
   }
+  return *this;
 }
 
 
