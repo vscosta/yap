@@ -16,8 +16,6 @@ class Factor : public GenericFactor<VarId> {
   public:
     Factor() { }
 
-    Factor (const Factor&);
-
     Factor (const VarIds&, const Ranges&, const Params&,
         unsigned = Util::maxUnsigned());
 
@@ -44,10 +42,6 @@ class Factor : public GenericFactor<VarId> {
     void sumOutLastVariable();
 
     void sumOutArgs (const std::vector<bool>& mask);
-
-    void clone (const Factor& f);
-
-    DISALLOW_ASSIGN (Factor);
 };
 
 }  // namespace Horus

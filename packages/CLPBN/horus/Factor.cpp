@@ -11,13 +11,6 @@
 
 namespace Horus {
 
-Factor::Factor (const Factor& g)
-{
-  clone (g);
-}
-
-
-
 Factor::Factor (
     const VarIds& vids,
     const Ranges& ranges,
@@ -102,7 +95,7 @@ void
 Factor::multiply (Factor& g)
 {
   if (args_.empty()) {
-    clone (g);
+    *this = g;
   } else {
     GenericFactor<VarId>::multiply (g);
   }
@@ -226,17 +219,6 @@ Factor::sumOutArgs (const std::vector<bool>& mask)
     }
   }
   params_ = newps;
-}
-
-
-
-void
-Factor::clone (const Factor& g)
-{
-  args_    = g.arguments();
-  ranges_  = g.ranges();
-  params_  = g.params();
-  distId_  = g.distId();
 }
 
 }  // namespace Horus
