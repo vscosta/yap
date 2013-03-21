@@ -142,7 +142,7 @@ Factor::print() const
 void
 Factor::sumOutFirstVariable()
 {
-  assert (ranges_.size() == 2);
+  assert (ranges_.front() == 2);
   size_t sep = params_.size() / 2;
   if (Globals::logDomain) {
     std::transform (
@@ -166,7 +166,7 @@ Factor::sumOutFirstVariable()
 void
 Factor::sumOutLastVariable()
 {
-  assert (ranges_.size() == 2);
+  assert (ranges_.back() == 2);
   Params::iterator first1 = params_.begin();
   Params::iterator first2 = params_.begin();
   Params::iterator last   = params_.end();
