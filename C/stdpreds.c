@@ -1375,7 +1375,7 @@ p_atom_concat( USES_REGS1 )
   if (wide_mode) {
     wchar_t *cptr = (wchar_t *)(((AtomEntry *)Yap_PreAllocCodeSpace())->StrOfAE), *cpt0;
     wchar_t *top = (wchar_t *)AuxSp;
-    unsigned char *atom_str;
+    unsigned char *atom_str = NULL;
     Atom ahead;
     UInt sz;
 

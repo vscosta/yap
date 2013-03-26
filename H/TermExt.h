@@ -60,13 +60,14 @@ blob_type;
 
 #include "inline-only.h"
 
-INLINE_ONLY inline EXTERN int IsAttVar (CELL *pt);
+#define IsAttVar(pt) __IsAttVar((pt) PASS_REGS)
+
+INLINE_ONLY inline EXTERN int __IsAttVar (CELL *pt USES_REGS);
 
 INLINE_ONLY inline EXTERN int
-IsAttVar (CELL *pt)
+__IsAttVar (CELL *pt USES_REGS)
 {
 #ifdef YAP_H
-  CACHE_REGS
   return (pt)[-1] == (CELL)attvar_e
     && pt < H;
 #else
@@ -547,11 +548,12 @@ IsAttachFunc (Functor f)
 
 
 
+#define IsAttachedTerm(t) __IsAttachedTerm(t PASS_REGS)
 
-INLINE_ONLY inline EXTERN Int IsAttachedTerm (Term);
+INLINE_ONLY inline EXTERN Int __IsAttachedTerm (Term USES_REGS);
 
 INLINE_ONLY inline EXTERN Int
-IsAttachedTerm (Term t)
+__IsAttachedTerm (Term t USES_REGS)
 {
   return (Int) ((IsVarTerm (t) && IsAttVar(VarOfTerm(t))));
 }
@@ -564,16 +566,15 @@ GlobalIsAttachedTerm (Term t)
   return (Int) ((IsVarTerm (t) && GlobalIsAttVar(VarOfTerm(t))));
 }
 
-INLINE_ONLY inline EXTERN Int SafeIsAttachedTerm (Term);
+#define SafeIsAttachedTerm(t) __SafeIsAttachedTerm((t) PASS_REGS)
+
+INLINE_ONLY inline EXTERN Int __SafeIsAttachedTerm (Term USES_REGS);
 
 INLINE_ONLY inline EXTERN Int
-SafeIsAttachedTerm (Term t)
+__SafeIsAttachedTerm (Term t USES_REGS)
 {
   return (Int) (IsVarTerm (t) && IsAttVar(VarOfTerm(t)));
 }
-
-
-
 
 INLINE_ONLY inline EXTERN exts ExtFromCell (CELL *);
 
