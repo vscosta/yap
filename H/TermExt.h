@@ -182,13 +182,13 @@ INLINE_ONLY inline EXTERN Float CpFloatUnaligned(CELL *ptr);
 
 #if SIZEOF_DOUBLE == SIZEOF_LONG_INT
 
+#define MkFloatTerm(fl) __MkFloatTerm((fl) PASS_REGS)
 
-INLINE_ONLY inline EXTERN Term MkFloatTerm (Float);
+INLINE_ONLY inline EXTERN Term __MkFloatTerm (Float USES_REGS);
 
 INLINE_ONLY inline EXTERN Term
-MkFloatTerm (Float dbl)
+__MkFloatTerm (Float dbl USES_REGS)
 {
-  CACHE_REGS
   return (Term) ((H[0] = (CELL) FunctorDouble, *(Float *) (H + 1) =
 		  dbl, H[2] = EndSpecials, H +=
 		  3, AbsAppl (H - 3)));
@@ -303,12 +303,13 @@ IsFloatTerm (Term t)
 
 /* extern Functor FunctorLongInt; */
 
-INLINE_ONLY inline EXTERN Term MkLongIntTerm (Int);
+#define MkLongIntTerm(i) __MkLongIntTerm((i) PASS_REGS)
+
+INLINE_ONLY inline EXTERN Term __MkLongIntTerm (Int USES_REGS);
 
 INLINE_ONLY inline EXTERN Term
-MkLongIntTerm (Int i)
+__MkLongIntTerm (Int i USES_REGS)
 {
-  CACHE_REGS
   H[0] = (CELL) FunctorLongInt;
   H[1] = (CELL) (i);
   H[2] =  EndSpecials;

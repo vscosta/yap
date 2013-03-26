@@ -2381,6 +2381,7 @@ GetDBLUKey(PredEntry *ap)
 {
   PELOCK(63,ap);
   if (ap->PredFlags & NumberDBPredFlag) {
+    CACHE_REGS
     Int id = ap->src.IndxId;
     UNLOCK(ap->PELock);
     return MkIntegerTerm(id);
@@ -2430,6 +2431,7 @@ UnifyDBKey(DBRef DBSP, PropFlags flags, Term t)
 static int 
 UnifyDBNumber(DBRef DBSP, Term t)
 {
+  CACHE_REGS
   DBProp p = DBSP->Parent;
   DBRef ref;
   Int i = 1;

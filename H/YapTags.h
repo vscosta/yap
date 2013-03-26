@@ -364,10 +364,13 @@ MkPairTerm__ (Term head, Term tail USES_REGS)
 #define IsAccessFunc(func)		((func) == FunctorAccess)
 
 #ifdef YAP_H
-INLINE_ONLY inline EXTERN Term MkIntegerTerm (Int);
+
+#define MkIntegerTerm(i) __MkIntegerTerm(i PASS_REGS)
+
+INLINE_ONLY inline EXTERN Term __MkIntegerTerm (Int USES_REGS);
 
 INLINE_ONLY inline EXTERN Term
-MkIntegerTerm (Int n)
+__MkIntegerTerm (Int n USES_REGS)
 {
   return (Term) (IntInBnd (n) ? MkIntTerm (n) : MkLongIntTerm (n));
 }

@@ -4910,6 +4910,7 @@ replace_integer(Term orig, UInt new)
     return MkIntTerm(new);
   /* should create an old integer */
   if (!IsApplTerm(orig)) {
+    CACHE_REGS
     Yap_Error(SYSTEM_ERROR,orig,"%uld-->%uld  where it should increase",(unsigned long int)IntegerOfTerm(orig),(unsigned long int)new);
     return MkIntegerTerm(new);
   }

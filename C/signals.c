@@ -74,9 +74,6 @@ p_creep( USES_REGS1 )
 static Int 
 p_stop_creeping( USES_REGS1 )
 {
-  Atom            at;
-  PredEntry      *pred;
-
   LOCK(LOCAL_SignalLock);
   LOCAL_ActiveSignals &= ~(YAP_CREEP_SIGNAL|YAP_DELAY_CREEP_SIGNAL);
   if (!LOCAL_ActiveSignals) {

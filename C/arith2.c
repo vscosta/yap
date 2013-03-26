@@ -37,7 +37,7 @@ typedef struct init_un_eval {
 
 
 static Term
-p_mod(Term t1, Term t2) {
+p_mod(Term t1, Term t2 USES_REGS) {
   switch (ETypeOfTerm(t1)) {
   case (CELL)long_int_e:
     switch (ETypeOfTerm(t2)) {
@@ -97,7 +97,7 @@ p_mod(Term t1, Term t2) {
 }
 
 static Term
-p_div2(Term t1, Term t2) {
+p_div2(Term t1, Term t2 USES_REGS) {
   switch (ETypeOfTerm(t1)) {
   case (CELL)long_int_e:
     switch (ETypeOfTerm(t2)) {
@@ -163,7 +163,7 @@ p_div2(Term t1, Term t2) {
 }
 
 static Term
-p_rem(Term t1, Term t2) {
+p_rem(Term t1, Term t2 USES_REGS) {
   switch (ETypeOfTerm(t1)) {
   case (CELL)long_int_e:
     switch (ETypeOfTerm(t2)) {
@@ -215,7 +215,7 @@ p_rem(Term t1, Term t2) {
 
 
 static Term
-p_rdiv(Term t1, Term t2) {
+p_rdiv(Term t1, Term t2 USES_REGS) {
 #ifdef USE_GMP
   switch (ETypeOfTerm(t1)) {
   case (CELL)double_e:
@@ -266,7 +266,7 @@ p_rdiv(Term t1, Term t2) {
   Floating point division: /
 */
 static Term
-p_fdiv(Term t1, Term t2)
+p_fdiv(Term t1, Term t2 USES_REGS)
 {
   switch (ETypeOfTerm(t1)) {
   case long_int_e:
@@ -338,7 +338,7 @@ p_fdiv(Term t1, Term t2)
   xor #
 */
 static Term
-p_xor(Term t1, Term t2)
+p_xor(Term t1, Term t2 USES_REGS)
 {
   switch (ETypeOfTerm(t1)) {
   case long_int_e:
@@ -382,7 +382,7 @@ p_xor(Term t1, Term t2)
   atan2: arc tangent x/y
 */
 static Term
-p_atan2(Term t1, Term t2)
+p_atan2(Term t1, Term t2 USES_REGS)
 {
   switch (ETypeOfTerm(t1)) {
   case long_int_e:
@@ -461,7 +461,7 @@ p_atan2(Term t1, Term t2)
   power: x^y
 */
 static Term
-p_power(Term t1, Term t2)
+p_power(Term t1, Term t2 USES_REGS)
 {
   switch (ETypeOfTerm(t1)) {
   case long_int_e:
@@ -577,7 +577,7 @@ ipow(Int x, Int p)
   power: x^y
 */
 static Term
-p_exp(Term t1, Term t2)
+p_exp(Term t1, Term t2 USES_REGS)
 {
   switch (ETypeOfTerm(t1)) {
   case long_int_e:
@@ -669,7 +669,7 @@ p_exp(Term t1, Term t2)
 }
 
 static Int
-gcd(Int m11,Int m21)
+gcd(Int m11,Int m21 USES_REGS)
 {
   /* Blankinship algorithm, provided by Miguel Filgueiras */
   Int m12=1, m22=0, k;
@@ -719,7 +719,7 @@ Int gcdmult(Int m11,Int m21,Int *pm11)	/* *pm11 gets multiplier of m11 */
   module gcd
 */
 static Term
-p_gcd(Term t1, Term t2)
+p_gcd(Term t1, Term t2 USES_REGS)
 {
   switch (ETypeOfTerm(t1)) {
   case long_int_e:
@@ -731,7 +731,7 @@ p_gcd(Term t1, Term t2)
 	i1 = (i1 >= 0 ? i1 : -i1);
 	i2 = (i2 >= 0 ? i2 : -i2);
 
-	RINT(gcd(i1,i2));
+	RINT(gcd(i1,i2 PASS_REGS));
       }
     case double_e:
       return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "gcd/2");
@@ -957,56 +957,57 @@ p_max(Term t1, Term t2)
 }
 
 static Term
-eval2(Int fi, Term t1, Term t2) {
+eval2(Int fi, Term t1, Term t2 USES_REGS) {
   arith2_op f = fi;
   switch (f) {
   case op_plus:
-    return p_plus(t1, t2);
+    return p_plus(t1, t2 PASS_REGS);
   case op_minus:
-    return p_minus(t1, t2);
+    return p_minus(t1, t2 PASS_REGS);
   case op_times:
-    return p_times(t1, t2);
+    return p_times(t1, t2 PASS_REGS);
   case op_div:
-    return p_div(t1, t2);
+    return p_div(t1, t2 PASS_REGS);
   case op_idiv:
-    return p_div2(t1, t2);
+    return p_div2(t1, t2 PASS_REGS);
   case op_and:
-    return p_and(t1, t2);
+    return p_and(t1, t2 PASS_REGS);
   case op_or:
-    return p_or(t1, t2);
+    return p_or(t1, t2 PASS_REGS);
   case op_sll:
-    return p_sll(t1, t2);
+    return p_sll(t1, t2 PASS_REGS);
   case op_slr:
-    return p_slr(t1, t2);
+    return p_slr(t1, t2 PASS_REGS);
   case op_mod:
-    return p_mod(t1, t2);
+    return p_mod(t1, t2 PASS_REGS);
   case op_rem:
-    return p_rem(t1, t2);
+    return p_rem(t1, t2 PASS_REGS);
   case op_fdiv:
-    return p_fdiv(t1, t2);
+    return p_fdiv(t1, t2 PASS_REGS);
   case op_xor:
-    return p_xor(t1, t2);
+    return p_xor(t1, t2 PASS_REGS);
   case op_atan2:
-    return p_atan2(t1, t2);
+    return p_atan2(t1, t2 PASS_REGS);
   case op_power:
-    return p_exp(t1, t2);
+    return p_exp(t1, t2 PASS_REGS);
   case op_power2:
-    return p_power(t1, t2);
+    return p_power(t1, t2 PASS_REGS);
   case op_gcd:
-    return p_gcd(t1, t2);
+    return p_gcd(t1, t2 PASS_REGS);
   case op_min:
     return p_min(t1, t2);
   case op_max:
     return p_max(t1, t2);
   case op_rdiv:
-    return p_rdiv(t1, t2);
+    return p_rdiv(t1, t2 PASS_REGS);
   }
   RERROR();
 }
 
 Term Yap_eval_binary(Int f, Term t1, Term t2)
 {
-  return eval2(f,t1,t2);
+  CACHE_REGS
+  return eval2(f,t1,t2 PASS_REGS);
 }
 
 static InitBinEntry InitBinTab[] = {
@@ -1058,7 +1059,7 @@ p_binary_is( USES_REGS1 )
     return FALSE;
   }
   if (IsIntTerm(t)) {
-    Term tout = Yap_FoundArithError(eval2(IntOfTerm(t), t1, t2), 0L);
+    Term tout = Yap_FoundArithError(eval2(IntOfTerm(t), t1, t2 PASS_REGS), 0L);
     if (!tout)
       return FALSE;
     return Yap_unify_constant(ARG1,tout);
@@ -1081,7 +1082,7 @@ p_binary_is( USES_REGS1 )
       P = FAILCODE;
       return(FALSE);
     }
-    if (!(out=Yap_FoundArithError(eval2(p->FOfEE, t1, t2), 0L)))
+    if (!(out=Yap_FoundArithError(eval2(p->FOfEE, t1, t2 PASS_REGS), 0L)))
       return FALSE;
     return Yap_unify_constant(ARG1,out);
   }
@@ -1105,7 +1106,7 @@ do_arith23(arith2_op op USES_REGS)
   t2 = Yap_Eval(Deref(ARG2));
   if (t2 == 0L)
     return FALSE;
-  if (!(out=Yap_FoundArithError(eval2(op, t1, t2), 0L)))
+  if (!(out=Yap_FoundArithError(eval2(op, t1, t2 PASS_REGS), 0L)))
     return FALSE;
   return Yap_unify_constant(ARG3,out);
 }

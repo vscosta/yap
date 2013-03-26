@@ -341,7 +341,7 @@ void	STD_PROTO(Yap_InitSavePreds,(void));
 /* signals.c */
 void	STD_PROTO(Yap_signal,(yap_signals));
 void	STD_PROTO(Yap_undo_signal,(yap_signals));
-void	STD_PROTO(Yap_InitSignalPreds,(void));
+void	STD_PROTO(Yap_InitSignalCPreds,(void));
 
 /* sort.c */
 void    STD_PROTO(Yap_InitSortPreds,(void));

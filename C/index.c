@@ -1923,10 +1923,7 @@ suspend_indexing(ClauseDef *min, ClauseDef *max, PredEntry *ap, struct intermedi
     } else {
       Yap_IndexSpace_EXT += sz;
     }
-    {
-      CACHE_REGS
-      Yap_inform_profiler_of_clause(ncode, (CODEADDR)ncode+sz, ap, GPROF_NEW_EXPAND_BLOCK); 
-    }
+    Yap_inform_profiler_of_clause(ncode, (CODEADDR)ncode+sz, ap, GPROF_NEW_EXPAND_BLOCK); 
     /* create an expand_block */
     ncode->opc = Yap_opcode(_expand_clauses);
     ncode->u.sssllp.p = ap;

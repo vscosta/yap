@@ -341,8 +341,10 @@ same_lu_block(yamop **paddr, yamop *p)
 }
 #endif
 
+#define Yap_MkStaticRefTerm(cp) __Yap_MkStaticRefTerm((cp) PASS_REGS)
+
 static inline Term 
-Yap_MkStaticRefTerm(StaticClause *cp)
+__Yap_MkStaticRefTerm(StaticClause *cp USES_REGS)
 {
   Term t[1];
   t[0] = MkIntegerTerm((Int)cp);
@@ -355,8 +357,10 @@ Yap_ClauseFromTerm(Term t)
   return (StaticClause *)IntegerOfTerm(ArgOfTerm(1,t));
 }
 
+#define Yap_MkMegaRefTerm(ap, ipc) __Yap_MkMegaRefTerm((ap), (ipc) PASS_REGS)
+
 static inline Term 
-Yap_MkMegaRefTerm(PredEntry *ap,yamop *ipc)
+__Yap_MkMegaRefTerm(PredEntry *ap,yamop *ipc USES_REGS)
 {
   Term t[2];
   t[0] = MkIntegerTerm((Int)ap);

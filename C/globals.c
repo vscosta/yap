@@ -2121,6 +2121,7 @@ p_nb_beam_close( USES_REGS1 )
 static void
 PushBeam(CELL *pt, CELL *npt, UInt hsize, Term key, Term to)
 {
+  CACHE_REGS
   UInt off = hsize, off2 = hsize;
   Term toff, toff2;
 
@@ -2166,6 +2167,7 @@ PushBeam(CELL *pt, CELL *npt, UInt hsize, Term key, Term to)
 static void
 DelBeamMax(CELL *pt, CELL *pt2, UInt sz)
 {
+  CACHE_REGS
   UInt off = IntegerOfTerm(pt2[1]);
   UInt indx = 0;
   Term tk, ti, tv;
@@ -2240,6 +2242,7 @@ DelBeamMax(CELL *pt, CELL *pt2, UInt sz)
 static Term
 DelBeamMin(CELL *pt, CELL *pt2, UInt sz)
 {
+  CACHE_REGS
   UInt off2 = IntegerOfTerm(pt[1]);
   Term ov = pt2[3*off2+2]; /* return value */
   UInt indx = 0;

@@ -29,7 +29,7 @@ static char     SccsId[] = "%W% %G%";
 #include "eval.h"
 
 static Term
-float_to_int(Float v)
+float_to_int(Float v USES_REGS)
 {
 #if  USE_GMP
   Int i = (Int)v;
@@ -44,7 +44,7 @@ float_to_int(Float v)
 #endif
 }
 
-#define RBIG_FL(v)  return(float_to_int(v))
+#define RBIG_FL(v)  return(float_to_int(v PASS_REGS))
 
 typedef struct init_un_eval {
   char          *OpName;
@@ -118,7 +118,7 @@ double my_rint(double x)
 #endif
 
 static Int
-msb(Int inp)	/* calculate the most significant bit for an integer */
+msb(Int inp USES_REGS)	/* calculate the most significant bit for an integer */
 {
   /* the obvious solution: do it by using binary search */
   Int out = 0;
@@ -141,7 +141,7 @@ msb(Int inp)	/* calculate the most significant bit for an integer */
 }
 
 static Int
-lsb(Int inp)	/* calculate the least significant bit for an integer */
+lsb(Int inp USES_REGS)	/* calculate the least significant bit for an integer */
 {
   /* the obvious solution: do it by using binary search */
   Int out = 0;
@@ -165,7 +165,7 @@ lsb(Int inp)	/* calculate the least significant bit for an integer */
 }
 
 static Int
-popcount(Int inp)	/* calculate the least significant bit for an integer */
+popcount(Int inp USES_REGS)	/* calculate the least significant bit for an integer */
 {
   /* the obvious solution: do it by using binary search */
   Int c = 0, j = 0, m = ((CELL)1);
@@ -185,7 +185,7 @@ popcount(Int inp)	/* calculate the least significant bit for an integer */
 }
 
 static Term
-eval1(Int fi, Term t) {
+eval1(Int fi, Term t USES_REGS) {
   arith1_op f = fi;
   switch (f) {
   case op_uplus:
@@ -586,7 +586,7 @@ eval1(Int fi, Term t) {
   case op_msb:
     switch (ETypeOfTerm(t)) {
     case long_int_e:
-      RINT(msb(IntegerOfTerm(t)));
+      RINT(msb(IntegerOfTerm(t) PASS_REGS));
     case double_e:
       return Yap_ArithError(TYPE_ERROR_INTEGER, t, "msb(%f)", FloatOfTerm(t));
     case big_int_e:
@@ -599,7 +599,7 @@ eval1(Int fi, Term t) {
   case op_lsb:
     switch (ETypeOfTerm(t)) {
     case long_int_e:
-      RINT(lsb(IntegerOfTerm(t)));
+      RINT(lsb(IntegerOfTerm(t) PASS_REGS));
     case double_e:
       return Yap_ArithError(TYPE_ERROR_INTEGER, t, "lsb(%f)", FloatOfTerm(t));
     case big_int_e:
@@ -612,7 +612,7 @@ eval1(Int fi, Term t) {
   case op_popcount:
     switch (ETypeOfTerm(t)) {
     case long_int_e:
-      RINT(popcount(IntegerOfTerm(t)));
+      RINT(popcount(IntegerOfTerm(t) PASS_REGS));
     case double_e:
       return Yap_ArithError(TYPE_ERROR_INTEGER, t, "popcount(%f)", FloatOfTerm(t));
     case big_int_e:
@@ -699,7 +699,8 @@ eval1(Int fi, Term t) {
 
 Term Yap_eval_unary(Int f, Term t)
 {
-  return eval1(f,t);
+  CACHE_REGS
+  return eval1(f,t PASS_REGS);
 }
 
 static InitUnEntry InitUnTab[] = {
@@ -758,7 +759,7 @@ p_unary_is( USES_REGS1 )
     return FALSE;
   }
   if (IsIntTerm(t)) {
-    Term tout = Yap_FoundArithError(eval1(IntegerOfTerm(t), top), Deref(ARG3));
+    Term tout = Yap_FoundArithError(eval1(IntegerOfTerm(t), top PASS_REGS), Deref(ARG3));
     if (!tout)
       return FALSE;
     return Yap_unify_constant(ARG1,tout);
@@ -781,7 +782,7 @@ p_unary_is( USES_REGS1 )
       P = FAILCODE;
       return(FALSE);
     }
-    if (!(out=Yap_FoundArithError(eval1(p->FOfEE, top),Deref(ARG3))))
+    if (!(out=Yap_FoundArithError(eval1(p->FOfEE, top PASS_REGS),Deref(ARG3))))
       return FALSE;
     return Yap_unify_constant(ARG1,out);
   }

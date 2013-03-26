@@ -738,6 +738,7 @@ YAP_IsCompoundTerm(Term t)
 X_API Term 
 YAP_MkIntTerm(Int n)
 {
+  CACHE_REGS
   Term I;
   BACKUP_H();
 
@@ -854,6 +855,7 @@ YAP_BlobOfTerm(Term t)
 X_API Term 
 YAP_MkFloatTerm(double n)
 {
+  CACHE_REGS
   Term t;
   BACKUP_H();
 
