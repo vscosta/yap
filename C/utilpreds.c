@@ -4921,7 +4921,7 @@ numbervar_singleton(USES_REGS1)
 }
 
 static void
-renumbervar(Term t, Int id)
+renumbervar(Term t, Int id USES_REGS)
 {
   Term *ts = RepAppl(t);
   ts[1] = MkIntegerTerm(id);
@@ -4975,7 +4975,7 @@ static Int numbervars_in_complex_term(register CELL *pt0, register CELL *pt0_end
 	  continue;
 	}
 	if (singles && ap2 >= InitialH && ap2 < H) {
-	  renumbervar(d0, numbv++);
+	  renumbervar(d0, numbv++ PASS_REGS);
 	  continue;
 	}
 	/* store the terms to visit */

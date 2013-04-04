@@ -188,6 +188,7 @@ static void RestoreWorker(int wid USES_REGS) {
 
 
 
+
 #ifdef LOAD_DYLD
 
 #endif
@@ -223,23 +224,6 @@ static void RestoreWorker(int wid USES_REGS) {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-#if LOW_PROF
-
-
-
-#endif /* LOW_PROF */
 
 
 

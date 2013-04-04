@@ -257,7 +257,7 @@ C_SOURCES= \
 	$(srcdir)/C/qlyr.c \
 	$(srcdir)/C/qlyw.c \
 	$(srcdir)/C/range.c \
-	$(srcdir)/C/save.c $(srcdir)/C/scanner.c \
+	$(srcdir)/C/save.c $(srcdir)/C/scanner.c $(srcdir)/C/signals.c \
 	$(srcdir)/C/sort.c $(srcdir)/C/stdpreds.c $(srcdir)/C/sysbits.c \
 	$(srcdir)/C/threads.c \
 	$(srcdir)/C/tracer.c $(srcdir)/C/unify.c $(srcdir)/C/userpreds.c  \
@@ -366,7 +366,7 @@ ENGINE_OBJECTS = \
 	myddas_util.o myddas_statistics.o myddas_top_level.o \
 	myddas_wkb2prolog.o modules.o other.o   \
 	parser.o qlyr.o qlyw.o range.o \
-	save.o scanner.o sort.o stdpreds.o \
+	save.o scanner.o signals.o sort.o stdpreds.o \
 	sysbits.o threads.o tracer.o \
 	udi.o\
 	unify.o userpreds.o utilpreds.o \
@@ -465,6 +465,9 @@ qlyw.o: $(srcdir)/C/qlyw.c config.h
 
 save.o: $(srcdir)/C/save.c config.h
 	$(CC) -c $(CFLAGS) $(srcdir)/C/save.c -o $@
+
+signals.o: $(srcdir)/C/signals.c config.h
+	$(CC) -c $(CFLAGS) $(srcdir)/C/signals.c -o $@
 
 sysbits.o: $(srcdir)/C/sysbits.c config.h
 	$(CC) -c $(CFLAGS) $(srcdir)/C/sysbits.c -o $@
@@ -697,7 +700,7 @@ all: startup.yss
 	@INSTALL_DLLS@ (cd library/random; $(MAKE))
 	@INSTALL_DLLS@ (cd library/regex; $(MAKE))
 	@INSTALL_DLLS@ (cd library/rltree; $(MAKE))
-	@ENABLE_WINCONSOLE@ (cd LGPL/swi_console; $(MAKE))
+	@ENABLE_WINCONSOLE@ (cd swi/console; $(MAKE))
 	@INSTALL_DLLS@ (cd library/system; $(MAKE))
 	@INSTALL_DLLS@ (cd library/tries; $(MAKE))
 	@ENABLE_CLIB@ @INSTALL_DLLS@ (cd packages/clib; $(MAKE))
@@ -737,7 +740,7 @@ yap-win: yap-win@EXEC_SUFFIX@
 yapwin: yap-win@EXEC_SUFFIX@
 
 yap-win@EXEC_SUFFIX@: $(PLCONS_OBJECTS) $(HEADERS) @YAPLIB@
-	(cd LGPL/swi_console; $(MAKE))
+	(cd swi/console; $(MAKE))
 	$(MPI_CC) -municode -DUNICODE -D_UNICODE $(EXECUTABLE_CFLAGS) $(LDFLAGS) -Wl,-subsystem,windows -o yap-win $(PLCONS_OBJECTS) plterm.dll @YAPLIB@ $(LIBS) @MPI_LIBS@
 
 libYap.a: $(LIB_OBJECTS) 
@@ -839,7 +842,7 @@ install_win32: startup.yss @ENABLE_WINCONSOLE@ yap-win@EXEC_SUFFIX@
 	(cd library/regex; $(MAKE) install)
 	(cd library/rltree; $(MAKE) install)
 	(cd library/system; $(MAKE) install)
-	@ENABLE_WINCONSOLE@ (cd LGPL/swi_console; $(MAKE) install)
+	@ENABLE_WINCONSOLE@ (cd swi/console; $(MAKE) install)
 	@INSTALL_MATLAB@ (cd library/matlab; $(MAKE) install)
 	@ENABLE_REAL@ (cd packages/real; $(MAKE) install)
 	(cd library/tries; $(MAKE) install)
@@ -880,11 +883,10 @@ install_data: install_copied_files install_bin
 install_copied_files:
 	(cd library ; $(MAKE) install)
 	@ENABLE_MINISAT@ (cd packages/swi-minisat2; $(MAKE) install)
-	(cd LGPL ; $(MAKE) install)
-	(cd GPL ; $(MAKE) install)
+	(cd swi/library ; $(MAKE) install)
 	$(INSTALL_DATA) $(srcdir)/LGPL/pillow/icon_address.pl $(DESTDIR)$(SHAREDIR)/Yap/
 	$(INSTALL_DATA) $(srcdir)/LGPL/pillow/pillow.pl $(DESTDIR)$(SHAREDIR)/Yap/
-	@INSTALLCLP@(cd LGPL/clp ; $(MAKE) install)
+	@INSTALLCLP@(cd swi/library/clp ; $(MAKE) install)
 	(cd packages/CLPBN ; $(MAKE) install)
 	(cd packages/meld; $(MAKE) install)
 	(cd packages/xml; $(MAKE) install)
@@ -911,7 +913,7 @@ clean: clean_docs
 	@INSTALL_DLLS@ (cd library/random; $(MAKE) clean)
 	@INSTALL_DLLS@ (cd library/regex; $(MAKE) clean)
 	@INSTALL_DLLS@ (cd library/rltree; $(MAKE) clean)
-	@ENABLE_WINCONSOLE@ (cd LGPL/swi_console; $(MAKE) clean)
+	@ENABLE_WINCONSOLE@ (cd swi/console; $(MAKE) clean)
 	@INSTALL_DLLS@ (cd library/system; $(MAKE) clean)
 	@INSTALL_DLLS@ (cd library/tries; $(MAKE) clean)
 	@ENABLE_CLIB@ @INSTALL_DLLS@ (cd packages/clib; $(MAKE) clean)

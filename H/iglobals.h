@@ -99,4 +99,21 @@ static void InitGlobal(void) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+  GLOBAL_DIRNAME = NULL;
+#if LOW_PROF
+  GLOBAL_ProfilerOn = FALSE;
+  GLOBAL_FProf = NULL;
+  GLOBAL_FPreds = NULL;
+#endif /* LOW_PROF */
 }

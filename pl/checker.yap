@@ -68,11 +68,11 @@
 :- op(1150, fx, multifile).
 
 style_check(V) :- var(V), !, fail.
-style_check(all) :- '$syntax_check_mode'(_,on),
+style_check(all) :-
 	'$syntax_check_single_var'(_,on),
 	'$syntax_check_discontiguous'(_,on),
 	'$syntax_check_multiple'(_,on).
-style_check(single_var) :- '$syntax_check_mode'(_,on),
+style_check(single_var) :-
 	'$syntax_check_single_var'(_,on).
 style_check(singleton) :-
 	style_check(single_var).
@@ -80,11 +80,11 @@ style_check(-single_var) :-
 	no_style_check(single_var).
 style_check(-singleton) :-
 	no_style_check(single_var).
-style_check(discontiguous) :- '$syntax_check_mode'(_,on),
+style_check(discontiguous) :-
 	'$syntax_check_discontiguous'(_,on).
 style_check(-discontiguous) :-
 	no_style_check(discontiguous).
-style_check(multiple) :- '$syntax_check_mode'(_,on),
+style_check(multiple) :-
 	'$syntax_check_multiple'(_,on).
 style_check(-multiple) :-
 	no_style_check(multiple).
@@ -92,31 +92,46 @@ style_check([]).
 style_check([H|T]) :- style_check(H), style_check(T).
 
 no_style_check(V) :- var(V), !, fail.
-no_style_check(all) :- '$syntax_check_mode'(_,off),
+no_style_check(all) :-
 	'$syntax_check_single_var'(_,off),
 	'$syntax_check_discontiguous'(_,off),
 	'$syntax_check_multiple'(_,off).
-no_style_check(single_var) :- '$syntax_check_mode'(_,off),
+no_style_check(single_var) :-
 	'$syntax_check_single_var'(_,off).
-no_style_check(discontiguous) :- '$syntax_check_mode'(_,off),
+no_style_check(discontiguous) :-
 	'$syntax_check_discontiguous'(_,off).
-no_style_check(multiple) :- '$syntax_check_mode'(_,on),
+no_style_check(multiple) :-
 	'$syntax_check_multiple'(_,off).
 no_style_check([]).
 no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 
 
-'$syntax_check_mode'(O,N) :- 
-	'$values'('$syntaxcheckflag',O,N).
-
 '$syntax_check_single_var'(O,N) :- 
-	'$values'('$syntaxchecksinglevar',O,N).
+	'$values'('$syntaxchecksinglevar',O,N),
+	'$checking_on'.
 
 '$syntax_check_discontiguous'(O,N) :- 
-	'$values'('$syntaxcheckdiscontiguous',O,N).
+	'$values'('$syntaxcheckdiscontiguous',O,N),
+	'$checking_on'.
 
 '$syntax_check_multiple'(O,N) :- 
-	'$values'('$syntaxcheckmultiple',O,N).
+	'$values'('$syntaxcheckmultiple',O,N),
+	'$checking_on'.
+
+%
+% cases where you need to check a clause
+%
+'$checking_on' :-
+	( 
+	  get_value('$syntaxchecksinglevar',on)
+	;
+	  get_value('$syntaxcheckdiscontiguous',on)
+	;
+	  get_value('$syntaxcheckmultiple',on)
+	), !,
+	set_value('$syntaxcheckflag',on).
+'$checking_on' :-
+	set_value('$syntaxcheckflag',off).
 
 % reset current state of style checker.
 '$init_style_check'(File) :-
@@ -166,24 +181,24 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 %
 '$singletons_in_clause'(T, VL, Sv) :-
         % first check which variables are not singleton
-	'$non_singletons_in_term'(T,[],V2L),
+	'$non_singletons_in_term'(T, [], V2L),
         % bound them
 	'$ground_vars'(V2L),
         % the remainder which do not start by _ are our target! 
 	'$sv_list'(VL, Sv).
 
 '$ground_vars'([]).
-'$ground_vars'(ground.V2L) :-
+'$ground_vars'([ground|V2L]) :-
 	'$ground_vars'(V2L).
 
 '$sv_list'([],[]).
-'$sv_list'([[95|_]._|T],L) :- !,
+'$sv_list'([(_=V)|T],L) :- nonvar(V), !,
 	'$sv_list'(T,L).
-'$sv_list'([_|V].T,L) :- nonvar(V), !,
+'$sv_list'([(X=_)|T], L) :-
+	atom_concat('_',_,X), !,
 	'$sv_list'(T,L).
-'$sv_list'([Name|_].T, Name.L) :-
+'$sv_list'([(Name=_)|T], [Name|L]) :-
 	'$sv_list'(T,L).
-	
 
 '$sv_warning'([], _) :- !.
 '$sv_warning'(SVs, T) :-

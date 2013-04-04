@@ -132,6 +132,14 @@ Yap_gmp_add_int_big(Int i, Term t)
   }
 }
 
+/* add i + b using temporary bigint new */
+void
+Yap_gmp_set_bit(Int i, Term t)
+{
+  MP_INT *b = Yap_BigIntOfTerm(t);
+  mpz_setbit(b, i);
+}
+
 /* sub i - b using temporary bigint new */
 Term 
 Yap_gmp_sub_int_big(Int i, Term t)
@@ -384,6 +392,7 @@ Yap_gmp_sll_big_int(Term t, Int i)
     } else {
       mpz_init(&new);
       if (i == Int_MIN) {
+	CACHE_REGS
 	return Yap_ArithError(RESOURCE_ERROR_HUGE_INT, MkIntegerTerm(i), "<</2");
       }
       mpz_fdiv_q_2exp(&new, b, -i);
@@ -706,6 +715,7 @@ Yap_gmp_mod_big_int(Term t, Int i2)
 Term 
 Yap_gmp_mod_int_big(Int i1, Term t)
 {
+  CACHE_REGS
   CELL *pt = RepAppl(t);
   if (pt[1] != BIG_INT) {
     return Yap_ArithError(TYPE_ERROR_INTEGER, t, "mod/2");
@@ -782,6 +792,7 @@ Yap_gmp_rem_big_int(Term t, Int i2)
 Term 
 Yap_gmp_rem_int_big(Int i1, Term t)
 {
+  CACHE_REGS
   CELL *pt = RepAppl(t);
   if (pt[1] != BIG_INT) {
     return Yap_ArithError(TYPE_ERROR_INTEGER, t, "mod/2");
@@ -815,6 +826,7 @@ Yap_gmp_gcd_big_big(Term t1, Term t2)
 Term 
 Yap_gmp_gcd_int_big(Int i, Term t)
 {
+  CACHE_REGS
   CELL *pt = RepAppl(t);
   if (pt[1] != BIG_INT) {
     return Yap_ArithError(TYPE_ERROR_INTEGER, t, "mod/2");
@@ -855,6 +867,7 @@ Yap_gmp_to_float(Term t)
 Term
 Yap_gmp_add_float_big(Float d, Term t)
 {
+  CACHE_REGS
   CELL *pt = RepAppl(t);
   if (pt[1] == BIG_INT) {
     MP_INT *b = Yap_BigIntOfTerm(t);
@@ -868,6 +881,7 @@ Yap_gmp_add_float_big(Float d, Term t)
 Term
 Yap_gmp_sub_float_big(Float d, Term t)
 {
+  CACHE_REGS
   CELL *pt = RepAppl(t);
   if (pt[1] == BIG_INT) {
     MP_INT *b = Yap_BigIntOfTerm(t);
@@ -881,6 +895,7 @@ Yap_gmp_sub_float_big(Float d, Term t)
 Term
 Yap_gmp_sub_big_float(Term t, Float d)
 {
+  CACHE_REGS
   CELL *pt = RepAppl(t);
   if (pt[1] == BIG_INT) {
     MP_INT *b = Yap_BigIntOfTerm(t);
@@ -894,6 +909,7 @@ Yap_gmp_sub_big_float(Term t, Float d)
 Term
 Yap_gmp_mul_float_big(Float d, Term t)
 {
+  CACHE_REGS
   CELL *pt = RepAppl(t);
   if (pt[1] == BIG_INT) {
     MP_INT *b = Yap_BigIntOfTerm(t);
@@ -907,6 +923,7 @@ Yap_gmp_mul_float_big(Float d, Term t)
 Term
 Yap_gmp_fdiv_float_big(Float d, Term t)
 {
+  CACHE_REGS
   CELL *pt = RepAppl(t);
   if (pt[1] == BIG_INT) {
     MP_INT *b = Yap_BigIntOfTerm(t);
@@ -920,6 +937,7 @@ Yap_gmp_fdiv_float_big(Float d, Term t)
 Term
 Yap_gmp_fdiv_big_float(Term t, Float d)
 {
+  CACHE_REGS
   CELL *pt = RepAppl(t);
   if (pt[1] == BIG_INT) {
     MP_INT *b = Yap_BigIntOfTerm(t);
@@ -943,6 +961,7 @@ Yap_gmp_exp_int_int(Int i1, Int i2)
 Term
 Yap_gmp_exp_big_int(Term t, Int i)
 {
+  CACHE_REGS
   MP_INT new;
   
   CELL *pt = RepAppl(t);
@@ -969,6 +988,7 @@ Yap_gmp_exp_big_int(Term t, Int i)
 Term
 Yap_gmp_exp_int_big(Int i, Term t)
 {
+  CACHE_REGS
   CELL *pt = RepAppl(t);
   if (pt[1] == BIG_INT) {
     return Yap_ArithError(RESOURCE_ERROR_HUGE_INT, t, "^/2");
@@ -982,6 +1002,7 @@ Yap_gmp_exp_int_big(Int i, Term t)
 Term 
 Yap_gmp_exp_big_big(Term t1, Term t2)
 {
+  CACHE_REGS
   CELL *pt1 = RepAppl(t1);
   CELL *pt2 = RepAppl(t2);
   Float dbl1, dbl2;
@@ -1116,6 +1137,7 @@ Yap_gmq_rdiv_big_big(Term t1, Term t2)
 Term 
 Yap_gmp_fdiv_int_big(Int i1, Term t2)
 {
+  CACHE_REGS
   MP_RAT new;
   MP_RAT *b1, *b2;
   MP_RAT bb1, bb2;
@@ -1142,6 +1164,7 @@ Yap_gmp_fdiv_int_big(Int i1, Term t2)
 Term 
 Yap_gmp_fdiv_big_int(Term t2, Int i1)
 {
+  CACHE_REGS
   MP_RAT new;
   MP_RAT *b1, *b2;
   MP_RAT bb1, bb2;
@@ -1168,6 +1191,7 @@ Yap_gmp_fdiv_big_int(Term t2, Int i1)
 Term 
 Yap_gmp_fdiv_big_big(Term t1, Term t2)
 {
+  CACHE_REGS
   CELL *pt1 = RepAppl(t1);
   CELL *pt2 = RepAppl(t2);
   MP_RAT new;
@@ -1602,6 +1626,7 @@ Yap_gmp_float_integer_part(Term t)
 Term
 Yap_gmp_sign(Term t)
 {
+  CACHE_REGS
   CELL *pt = RepAppl(t);
   if (pt[1] == BIG_INT) {
     return MkIntegerTerm(mpz_sgn(Yap_BigIntOfTerm(t)));
@@ -1613,6 +1638,7 @@ Yap_gmp_sign(Term t)
 Term
 Yap_gmp_lsb(Term t)
 {
+  CACHE_REGS
   CELL *pt = RepAppl(t);
   if (pt[1] == BIG_INT) {
     MP_INT *big = Yap_BigIntOfTerm(t);
@@ -1629,6 +1655,7 @@ Yap_gmp_lsb(Term t)
 Term
 Yap_gmp_msb(Term t)
 {
+  CACHE_REGS
   CELL *pt = RepAppl(t);
   if (pt[1] == BIG_INT) {
     MP_INT *big = Yap_BigIntOfTerm(t);
@@ -1645,6 +1672,7 @@ Yap_gmp_msb(Term t)
 Term
 Yap_gmp_popcount(Term t)
 {
+  CACHE_REGS
   CELL *pt = RepAppl(t);
   if (pt[1] == BIG_INT) {
     MP_INT *big = Yap_BigIntOfTerm(t);

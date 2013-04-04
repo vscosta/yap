@@ -916,6 +916,22 @@ c_test(Int Op, Term t1, compiler_struct *cglobs) {
   CACHE_REGS
   Term t = Deref(t1);
 
+  /* be caareful, has to be first occurrence */
+  if (Op == _save_by) {
+    if (!IsNewVar(t)) {
+	char s[32];
+
+	LOCAL_Error_TYPE = TYPE_ERROR_VARIABLE;
+	LOCAL_Error_Term = t;
+	LOCAL_ErrorMessage = LOCAL_ErrorSay;
+	Yap_bip_name(Op, s);
+	sprintf(LOCAL_ErrorMessage, "compiling %s/2 on bound variable", s);
+	save_machine_regs();
+	siglongjmp(cglobs->cint.CompilerBotch,1);
+    }
+    c_var(t, save_b_flag, 1, 0, cglobs);
+    return;
+  }
   if (!IsVarTerm(t) || IsNewVar(t)) {
     Term tn = MkVarTerm();
     c_eq(t, tn, cglobs);

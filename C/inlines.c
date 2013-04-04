@@ -760,6 +760,13 @@ p_functor( USES_REGS1 )			/* functor(?,?,?) */
   ENDD(d0);
 }
 
+static Term
+cp_as_integer(choiceptr cp USES_REGS)
+{
+  return(MkIntegerTerm(LCL0-(CELL *)cp));
+}
+
+
 static Int
 p_cut_by( USES_REGS1 )
 {
@@ -897,6 +904,20 @@ cont_genarg( USES_REGS1 )
       Yap_unify(ARG3,pt[0]);
 }
 
+static Int
+p_save_cp( USES_REGS1 )
+{
+  Term t = Deref(ARG1);
+  Term td;
+#if SHADOW_HB
+  register CELL *HBREG = HB;
+#endif
+  if (!IsVarTerm(t)) return(FALSE);
+  td = cp_as_integer(B PASS_REGS);
+  Bind((CELL *)t,td);
+  return(TRUE);
+}
+
 
 void 
 Yap_InitInlines(void)
@@ -904,6 +925,7 @@ Yap_InitInlines(void)
   CACHE_REGS
   Term cm = CurrentModule;
   Yap_InitAsmPred("$$cut_by", 1, _cut_by, p_cut_by, SafePredFlag);
+  Yap_InitAsmPred("$$save_by", 1, _save_by, p_save_cp, SafePredFlag);
   Yap_InitAsmPred("atom", 1, _atom, p_atom, SafePredFlag);
   Yap_InitAsmPred("atomic", 1, _atomic, p_atomic, SafePredFlag);
   Yap_InitAsmPred("integer", 1, _integer, p_integer, SafePredFlag);

@@ -882,6 +882,8 @@ Yap_InitCPredBack(char *Name, unsigned long int Arity,
 static void 
 InitStdPreds(void)
 {
+  void initIO(void);
+
   Yap_InitCPreds();
   Yap_InitBackCPreds();
   BACKUP_MACHINE_REGS();
@@ -1288,17 +1290,21 @@ Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts, UInt max_table_s
   if (Heap < MinHeapSpace)
     Heap = MinHeapSpace;
   Heap = AdjustPageSize(Heap * K);
+  Heap /= (K);
   /* sanity checking for data areas */
   if (Trail < MinTrailSpace)
     Trail = MinTrailSpace;
   Trail = AdjustPageSize(Trail * K);
+  Trail /= (K);
   if (Stack < MinStackSpace)
     Stack = MinStackSpace;
   Stack = AdjustPageSize(Stack * K);
+  Stack /= (K);
   if (!Atts)
     Atts = 2048*sizeof(CELL);
   else
     Atts = AdjustPageSize(Atts * K);
+  Atts /= (K);
 #if defined(YAPOR) || defined(THREADS)
   worker_id = 0;
 #endif /* YAPOR || THREADS */

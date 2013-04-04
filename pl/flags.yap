@@ -328,27 +328,6 @@ yap_flag(version,X) :-
 yap_flag(version,X) :-
 	'$do_error'(permission_error(modify,flag,version),yap_flag(version,X)).
 
-yap_flag(version_data,X) :-
-	var(X), !,
-	'$get_version_codes'(Major,Minor,Patch),
-	X = yap(Major, Minor, Patch, 0).
-yap_flag(version_data,X) :-
-	'$do_error'(permission_error(modify,flag,version),yap_flag(version_data,X)).
-
-'$get_version_codes'(Major,Minor,Patch) :-
-	get_value('$version_name',X),
-	atom_codes(X,[_,_,_,_|VersionTag]), %'
-	'$fetch_num_code'(VersionTag,0,Major,L1),
-	'$fetch_num_code'(L1,0,Minor,L2),
-	'$fetch_num_code'(L2,0,Patch,_).
-
-'$fetch_num_code'([],Code,Code,[]).
-'$fetch_num_code'([C|Cs],Code0,CodeF,L) :-
-        C >= 0'0, C =< 0'9, !,
-	CodeI is Code0*10+(C-0'0), %'
-	'$fetch_num_code'(Cs,CodeI,CodeF,L).
-'$fetch_num_code'([_|Cs],Code,Code,Cs).
-
 yap_flag(max_integer,X) :-
 	var(X), !,
 	'$access_yap_flags'(0, 1),
@@ -524,18 +503,14 @@ yap_flag(debug,X) :-
 
 yap_flag(discontiguous_warnings,X) :-
 	var(X), !,
-	('$syntax_check_mode'(on,_), '$syntax_check_discontiguous'(on,_) ->
-	    X = on
-	;
-	    X = off
-	).
+	'$syntax_check_discontiguous'(on,_).
 yap_flag(discontiguous_warnings,X) :-
 	'$transl_to_on_off'(_,X), !,
-	(X = on -> 
-	    '$syntax_check_mode'(_,on),
-	    '$syntax_check_discontiguous'(_,on)
+	(X == on -> 
+	    style_check(discontiguous)
 	;
-	    '$syntax_check_discontiguous'(_,off)).
+	    style_check(-discontiguous)
+	).
 yap_flag(discontiguous_warnings,X) :-
 	'$do_error'(domain_error(flag_value,discontiguous_warnings+X),yap_flag(discontiguous_warnings,X)).
 
@@ -548,18 +523,14 @@ yap_flag(occurs_check,X) :-
 
 yap_flag(redefine_warnings,X) :-
 	var(X), !,
-	('$syntax_check_mode'(on,_), '$syntax_check_multiple'(on,_) ->
-	    X = on
-	;
-	    X = off
-	).
+	'$syntax_check_multiple'(X,X).
 yap_flag(redefine_warnings,X) :-
 	'$transl_to_on_off'(_,X), !,
-	(X = on -> 
-	    '$syntax_check_mode'(_,on),
-	    '$syntax_check_multiple'(_,on)
+	(X == on -> 
+	    style_check(multiple)
 	;
-	    '$syntax_check_multiple'(_,off)).
+	    style_check(-multiple)
+	).
 yap_flag(redefine_warnings,X) :-
 	'$do_error'(domain_error(flag_value,redefine_warnings+X),yap_flag(redefine_warnings,X)).
 
@@ -580,18 +551,14 @@ yap_flag(open_expands_filename,Expand) :-
 
 yap_flag(single_var_warnings,X) :-
 	var(X), !,
-	('$syntax_check_mode'(on,_), '$syntax_check_single_var'(on,_) ->
-	    X = on
-	;
-	    X = off
-	).
+	'$syntax_check_single_var'(X,X).
 yap_flag(single_var_warnings,X) :-
 	'$transl_to_on_off'(_,X), !,
-	(X = on -> 
-	    '$syntax_check_mode'(_,on),
-	    '$syntax_check_single_var'(_,on)
+	(X == on ->
+	     style_check(single_var)
 	;
-	    '$syntax_check_single_var'(_,off)).
+	     style_check(-single_var)
+	).
 yap_flag(single_var_warnings,X) :-
 	'$do_error'(domain_error(flag_value,single_var_warnings+X),yap_flag(single_var_warnings,X)).
 
@@ -911,7 +878,6 @@ yap_flag(dialect,yap).
 '$yap_system_flag'(verbose_load).
 '$yap_system_flag'(verbose_auto_load).
 '$yap_system_flag'(version).
-'$yap_system_flag'(version_data).
 '$yap_system_flag'(windows).
 '$yap_system_flag'(write_strings).
 

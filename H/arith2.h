@@ -26,7 +26,7 @@ add_overflow(Int x, Int i, Int j)
 }
 
 inline static Term
-add_int(Int i, Int j)
+add_int(Int i, Int j USES_REGS)
 {
   Int x = i+j;
 #if USE_GMP
@@ -51,7 +51,7 @@ sub_overflow(Int x, Int i, Int j)
 }
 
 inline static Term
-sub_int(Int i, Int j)
+sub_int(Int i, Int j USES_REGS)
 {
   Int x = i-j;
 #if USE_GMP
@@ -105,7 +105,7 @@ mul_overflow(Int z, Int i1, Int i2)
 #endif
 
 inline static Term
-times_int(Int i1, Int i2) {
+times_int(Int i1, Int i2 USES_REGS) {
 #ifdef USE_GMP
   Int z;
   DO_MULTI();
@@ -151,7 +151,7 @@ clrsb(Int i)
 #endif
 
 inline static Term
-do_sll(Int i, Int j) /* j > 0 */
+do_sll(Int i, Int j USES_REGS) /* j > 0 */
 {
 #ifdef USE_GMP
   if (
@@ -174,13 +174,13 @@ do_sll(Int i, Int j) /* j > 0 */
 
 
 static inline Term
-p_plus(Term t1, Term t2) {
+p_plus(Term t1, Term t2 USES_REGS) {
   switch (ETypeOfTerm(t1)) {
   case long_int_e:
     switch (ETypeOfTerm(t2)) {
     case long_int_e:
       /* two integers */
-      return add_int(IntegerOfTerm(t1),IntegerOfTerm(t2));
+      return add_int(IntegerOfTerm(t1),IntegerOfTerm(t2) PASS_REGS);
     case double_e:
       {
 	/* integer, double */
@@ -230,13 +230,13 @@ p_plus(Term t1, Term t2) {
 }
 
 static Term
-p_minus(Term t1, Term t2) {
+p_minus(Term t1, Term t2 USES_REGS) {
   switch (ETypeOfTerm(t1)) {
   case long_int_e:
     switch (ETypeOfTerm(t2)) {
     case long_int_e:
       /* two integers */
-      return sub_int(IntegerOfTerm(t1), IntegerOfTerm(t2));
+      return sub_int(IntegerOfTerm(t1), IntegerOfTerm(t2) PASS_REGS);
     case double_e:
       {
 	/* integer, double */
@@ -290,13 +290,13 @@ p_minus(Term t1, Term t2) {
 
 
 static Term
-p_times(Term t1, Term t2) {
+p_times(Term t1, Term t2 USES_REGS) {
   switch (ETypeOfTerm(t1)) {
   case long_int_e:
     switch (ETypeOfTerm(t2)) {
     case long_int_e:
       /* two integers */
-      return(times_int(IntegerOfTerm(t1),IntegerOfTerm(t2)));
+      return(times_int(IntegerOfTerm(t1),IntegerOfTerm(t2) PASS_REGS));
     case double_e:
       {
 	/* integer, double */
@@ -348,7 +348,7 @@ p_times(Term t1, Term t2) {
 }
 
 static Term
-p_div(Term t1, Term t2) {
+p_div(Term t1, Term t2 USES_REGS) {
   switch (ETypeOfTerm(t1)) {
   case long_int_e:
     switch (ETypeOfTerm(t2)) {
@@ -405,7 +405,7 @@ p_div(Term t1, Term t2) {
 }
 
 static Term
-p_and(Term t1, Term t2) {
+p_and(Term t1, Term t2 USES_REGS) {
   switch (ETypeOfTerm(t1)) {
   case long_int_e:
     switch (ETypeOfTerm(t2)) {
@@ -446,7 +446,7 @@ p_and(Term t1, Term t2) {
 }
 
 static Term
-p_or(Term t1, Term t2) {
+p_or(Term t1, Term t2 USES_REGS) {
   switch(ETypeOfTerm(t1)) {
   case long_int_e:
     switch (ETypeOfTerm(t2)) {
@@ -487,7 +487,7 @@ p_or(Term t1, Term t2) {
 }
 
 static Term
-p_sll(Term t1, Term t2) {
+p_sll(Term t1, Term t2 USES_REGS) {
   switch (ETypeOfTerm(t1)) {
   case long_int_e:
     switch (ETypeOfTerm(t2)) {
@@ -501,7 +501,7 @@ p_sll(Term t1, Term t2) {
 	  }
 	  RINT(SLR(IntegerOfTerm(t1), -i2));
 	}
-	return do_sll(IntegerOfTerm(t1),i2);
+	return do_sll(IntegerOfTerm(t1),i2 PASS_REGS);
       }
     case double_e:
       return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "<</2");
@@ -535,7 +535,7 @@ p_sll(Term t1, Term t2) {
 }
 
 static Term
-p_slr(Term t1, Term t2) {
+p_slr(Term t1, Term t2 USES_REGS) {
   switch (ETypeOfTerm(t1)) {
   case long_int_e:
     switch (ETypeOfTerm(t2)) {
@@ -547,7 +547,7 @@ p_slr(Term t1, Term t2) {
 	  if (i2 == Int_MIN) {
 	    return Yap_ArithError(RESOURCE_ERROR_HUGE_INT, t2, ">>/2");
 	  }
-	  return do_sll(IntegerOfTerm(t1), -i2);
+	  return do_sll(IntegerOfTerm(t1), -i2 PASS_REGS);
 	}
 	RINT(SLR(IntegerOfTerm(t1), i2));
       }

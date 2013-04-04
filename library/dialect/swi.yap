@@ -203,8 +203,9 @@ convert_time(Stamp, Y, Mon, Day, Hour, Min, Sec, MilliSec) :-
 	Sec is integer(float_integer_part(FSec)),
 	MilliSec is integer(float_fractional_part(FSec)*1000).
 
+
 compile_aux_clauses([]).
-compile_aux_clauses([(:- G)|Cls]) :-
+compile_aux_clauses([(:- G)|Cls]) :- !,
 	prolog_load_context(module, M),
 	once(M:G),
 	compile_aux_clauses(Cls).
@@ -212,6 +213,7 @@ compile_aux_clauses([Cl|Cls]) :-
 	prolog_load_context(module, M),
 	assert_static(M:Cl),
 	compile_aux_clauses(Cls).
+
 
 '$set_predicate_attribute'(_, _, _).
 

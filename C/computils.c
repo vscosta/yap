@@ -331,6 +331,9 @@ bip_name(Int op, char *s)
   case _cut_by:
     strcpy(s,"cut_by");
     break;
+  case _save_by:
+    strcpy(s,"save_by");
+    break;
   case _db_ref:
     strcpy(s,"db_ref");
     break;
@@ -468,6 +471,7 @@ ShowOp (char *f, struct PSEUDO *cpc)
 	  case 'b':
 	    /* write a variable bitmap for a call */
 	    {
+	      CACHE_REGS
 	      int max = arg/(8*sizeof(CELL)), i;
 	      CELL *ptr = cptr;
 	      for (i = 0; i <= max; i++) {
@@ -487,7 +491,10 @@ ShowOp (char *f, struct PSEUDO *cpc)
 	    }
 	    break;
 	  case 'd':
-	    Yap_DebugPlWrite (MkIntegerTerm (arg));
+	    {
+	      CACHE_REGS
+	      Yap_DebugPlWrite (MkIntegerTerm (arg));
+	    }
 	    break;
 	  case 'z':
 	    Yap_DebugPlWrite (MkIntTerm (cpc->rnd3));

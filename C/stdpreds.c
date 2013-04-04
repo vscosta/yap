@@ -292,7 +292,7 @@ STD_PROTO(static Int p_values, ( USES_REGS1 ));
 STD_PROTO(static CODEADDR *FindAtom, (CODEADDR, int *));
 #endif /* undefined */
 STD_PROTO(static Int p_opdec, ( USES_REGS1 ));
-STD_PROTO(static Term get_num, (char *));
+STD_PROTO(static Term get_num, (char * USES_REGS));
 STD_PROTO(static Int p_name, ( USES_REGS1 ));
 STD_PROTO(static Int p_atom_chars, ( USES_REGS1 ));
 STD_PROTO(static Int p_atom_codes, ( USES_REGS1 ));
@@ -474,207 +474,6 @@ p_values( USES_REGS1 )
   return (TRUE);
 }
 
-inline static void
-do_signal(yap_signals sig USES_REGS)
-{
-  LOCK(LOCAL_SignalLock);
-  if (!LOCAL_InterruptsDisabled)
-    CreepFlag = Unsigned(LCL0);
-  LOCAL_ActiveSignals |= sig;
-  UNLOCK(LOCAL_SignalLock);
-}
-
-inline static void
-undo_signal(yap_signals sig USES_REGS)
-{
-  LOCK(LOCAL_SignalLock);
-  if (LOCAL_ActiveSignals == sig) {
-    CreepFlag = CalculateStackGap();
-  }
-  LOCAL_ActiveSignals &= ~sig;
-  UNLOCK(LOCAL_SignalLock);
-}
-
-
-static Int 
-p_creep( USES_REGS1 )
-{
-  Atom            at;
-  PredEntry      *pred;
-
-  at = AtomCreep;
-  pred = RepPredProp(PredPropByFunc(Yap_MkFunctor(at, 1),0));
-  CreepCode = pred;
-  do_signal(YAP_CREEP_SIGNAL PASS_REGS);
-  return TRUE;
-}
-
-static Int 
-p_signal_creep( USES_REGS1 )
-{
-  Atom            at;
-  PredEntry      *pred;
-
-  at = AtomCreep;
-  pred = RepPredProp(PredPropByFunc(Yap_MkFunctor(at, 1),0));
-  CreepCode = pred;
-  LOCK(LOCAL_SignalLock);
-  LOCAL_ActiveSignals |= YAP_CREEP_SIGNAL;
-  UNLOCK(LOCAL_SignalLock);
-  return TRUE;
-}
-
-static Int 
-p_disable_creep( USES_REGS1 )
-{
-  LOCK(LOCAL_SignalLock);
-  if (LOCAL_ActiveSignals & YAP_CREEP_SIGNAL) {
-    LOCAL_ActiveSignals &= ~YAP_CREEP_SIGNAL;    
-    if (!LOCAL_ActiveSignals)
-      CreepFlag = CalculateStackGap();
-    UNLOCK(LOCAL_SignalLock);
-    return TRUE;
-  }
-  UNLOCK(LOCAL_SignalLock);
-  return FALSE;
-}
-
-/* never fails */
-static Int 
-p_disable_docreep( USES_REGS1 )
-{
-  LOCK(LOCAL_SignalLock);
-  if (LOCAL_ActiveSignals & YAP_CREEP_SIGNAL) {
-    LOCAL_ActiveSignals &= ~YAP_CREEP_SIGNAL;    
-    if (!LOCAL_ActiveSignals)
-      CreepFlag = CalculateStackGap();
-    UNLOCK(LOCAL_SignalLock);
-  } else {
-    UNLOCK(LOCAL_SignalLock);
-  }
-  return TRUE;
-}
-
-static Int 
-p_stop_creep( USES_REGS1 )
-{
-  LOCK(LOCAL_SignalLock);
-  LOCAL_ActiveSignals &= ~YAP_CREEP_SIGNAL;
-  if (!LOCAL_ActiveSignals) {
-    CreepFlag = CalculateStackGap();
-  }
-  UNLOCK(LOCAL_SignalLock);
-  return TRUE;
-}
-
-void 
-Yap_signal(yap_signals sig)
-{
-  CACHE_REGS
-  do_signal(sig PASS_REGS);
-}
-
-void 
-Yap_undo_signal(yap_signals sig)
-{
-  CACHE_REGS
-  undo_signal(sig PASS_REGS);
-}
-
-#ifdef undefined
-
-/*
- * Returns where some particular piece of code is, it may take its time but
- * then you only need it while creeping, so why bother ? 
- */
-static CODEADDR *
-FindAtom(codeToFind, arity)
-     CODEADDR        codeToFind;
-     unsigned int   *arityp;
-{
-  Atom            a;
-  int             i;
-
-  for (i = 0; i < AtomHashTableSize; ++i) {
-    READ_LOCK(HashChain[i].AeRWLock);
-    a = HashChain[i].Entry;
-    READ_UNLOCK(HashChain[i].AeRWLock);
-    while (a != NIL) {
-      register PredEntry *pp;
-      AtomEntry *ae = RepAtom(a);
-      READ_LOCK(ae->ARWLock);
-      pp = RepPredProp(RepAtom(a)->PropsOfAE);
-      while (!EndOfPAEntr(pp) && ((pp->KindOfPE & 0x8000)
-				  || (pp->CodeOfPred != codeToFind)))
-	pp = RepPredProp(pp->NextOfPE);
-      if (pp != NIL) {
-	CODEADDR *out;
-	PELOCK(90,pp);
-	out = &(pp->CodeOfPred)
-	*arityp = pp->ArityOfPE;
-	UNLOCK(pp->PELock);
-	READ_UNLOCK(ae->ARWLock);
-	return (out);
-      }
-      a = RepAtom(a)->NextOfAE;
-      READ_UNLOCK(ae->ARWLock);
-    }
-  }
-  for (i = 0; i < WideAtomHashTableSize; ++i) {
-    READ_LOCK(HashChain[i].AeRWLock);
-    a = HashChain[i].Entry;
-    READ_UNLOCK(HashChain[i].AeRWLock);
-    while (a != NIL) {
-      register PredEntry *pp;
-      AtomEntry *ae = RepAtom(a);
-      READ_LOCK(ae->ARWLock);
-      pp = RepPredProp(RepAtom(a)->PropsOfAE);
-      while (!EndOfPAEntr(pp) && ((pp->KindOfPE & 0x8000)
-				  || (pp->CodeOfPred != codeToFind)))
-	pp = RepPredProp(pp->NextOfPE);
-      if (pp != NIL) {
-	CODEADDR *out;
-	PELOCK(91,pp);
-	out = &(pp->CodeOfPred)
-	*arityp = pp->ArityOfPE;
-	UNLOCK(pp->PELock);
-	READ_UNLOCK(ae->ARWLock);
-	return (out);
-      }
-      a = RepAtom(a)->NextOfAE;
-      READ_UNLOCK(ae->ARWLock);
-    }
-  }
-  *arityp = 0;
-  return (0);
-}
-
-/*
- * This is called when you want to creep a C-predicate or a predicate written
- * in assembly 
- */
-CELL 
-FindWhatCreep(toCreep)
-     CELL            toCreep;
-{
-  unsigned int    arity;
-  Atom            at;
-  CODEADDR       *place;
-
-  if (toCreep > 64) {	/* written in C */
-    int             i;
-    place = FindAtom((CODEADDR) toCreep, &arity);
-    *--ASP = Unsigned(P);
-    *--ASP = N = arity;
-    for (i = 1; i <= arity; ++i)
-      *--ASP = X[i];
-    /* P = CellPtr(CCREEPCODE);		 */
-    return (Unsigned(place));
-  }
-}
-
-#endif				/* undefined */
-
 static Int 
 p_opdec( USES_REGS1 )
 {				/* '$opdec'(p,type,atom)		 */
@@ -738,7 +537,7 @@ strtod(s, pe)
 #endif
 
 static Term 
-get_num(char *t)
+get_num(char *t USES_REGS)
 {
   Term out;
   IOSTREAM *smem = Sopenmem(&t, NULL, "r");
@@ -1033,7 +832,7 @@ p_name( USES_REGS1 )
     return(FALSE);
   }
   if (IsAtomTerm(t) && AtomOfTerm(t) == AtomNil) {
-    if ((NewT = get_num(String)) == TermNil) {
+    if ((NewT = get_num(String PASS_REGS)) == TermNil) {
       Atom at;
       while ((at = Yap_LookupAtom(String)) == NIL) {
 	if (!Yap_growheap(FALSE, 0, NULL)) {
@@ -1576,7 +1375,7 @@ p_atom_concat( USES_REGS1 )
   if (wide_mode) {
     wchar_t *cptr = (wchar_t *)(((AtomEntry *)Yap_PreAllocCodeSpace())->StrOfAE), *cpt0;
     wchar_t *top = (wchar_t *)AuxSp;
-    unsigned char *atom_str;
+    unsigned char *atom_str = NULL;
     Atom ahead;
     UInt sz;
 
@@ -2428,7 +2227,7 @@ p_number_chars( USES_REGS1 )
     }
   }
   *s++ = '\0';
-  if ((NewT = get_num(String)) == TermNil) {
+  if ((NewT = get_num(String PASS_REGS)) == TermNil) {
     Yap_Error(SYNTAX_ERROR, gen_syntax_error(Yap_LookupAtom(String), "number_chars"), "while scanning %s", String);
     return (FALSE);
   }
@@ -2495,7 +2294,7 @@ p_number_atom( USES_REGS1 )
     return(FALSE);		
   }
   s = RepAtom(AtomOfTerm(t))->StrOfAE;
-  if ((NewT = get_num(s)) == TermNil) {
+  if ((NewT = get_num(s PASS_REGS)) == TermNil) {
     Yap_Error(SYNTAX_ERROR, gen_syntax_error(Yap_LookupAtom(String), "number_atom"), "while scanning %s", s);
     return (FALSE);
   }
@@ -2588,7 +2387,7 @@ p_number_codes( USES_REGS1 )
     }
   }
   *s++ = '\0';
-  if ((NewT = get_num(String)) == TermNil) {
+  if ((NewT = get_num(String PASS_REGS)) == TermNil) {
     Yap_Error(SYNTAX_ERROR, gen_syntax_error(Yap_LookupAtom(String), "number_codes"), "while scanning %s", String);
     return (FALSE);
   }
@@ -2653,7 +2452,7 @@ p_atom_number( USES_REGS1 )
       return FALSE;
     }
     s = RepAtom(at)->StrOfAE; /* alloc temp space on Trail */
-    if ((NewT = get_num(s)) == TermNil) {
+    if ((NewT = get_num(s PASS_REGS)) == TermNil) {
       Yap_Error(SYNTAX_ERROR, gen_syntax_error(at, "atom_number"), "while scanning %s", s);
       return FALSE;
     }
@@ -3466,18 +3265,6 @@ init_current_atom_op( USES_REGS1 )
   return cont_current_atom_op( PASS_REGS1 );
 }
 
-#ifdef DEBUG
-static Int 
-p_debug( USES_REGS1 )
-{				/* $debug(+Flag) */
-  int             i = IntOfTerm(Deref(ARG1));
-
-  if (i >= 'a' && i <= 'z')
-    GLOBAL_Option[i - 96] = !GLOBAL_Option[i - 96];
-  return (1);
-}
-#endif
-
 static Int 
 p_flags( USES_REGS1 )
 {				/* $flags(+Functor,+Mod,?OldFlags,?NewFlags) */
@@ -4010,7 +3797,7 @@ p_executable( USES_REGS1 )
   if (GLOBAL_argv && GLOBAL_argv[0])
     Yap_TrueFileName (GLOBAL_argv[0], LOCAL_FileNameBuf, FALSE);
   else
-    strncpy(LOCAL_FileNameBuf,Yap_FindExecutable (), YAP_FILENAME_MAX) ;
+    strncpy(LOCAL_FileNameBuf, Yap_FindExecutable(), YAP_FILENAME_MAX-1) ;
 
   return Yap_unify(MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf)),ARG1);
 }
@@ -4034,23 +3821,25 @@ p_access_yap_flags( USES_REGS1 )
   if (flag < 0 || flag >= NUMBER_OF_YAP_FLAGS) {
     return(FALSE);
   }
-#ifdef TABLING
   if (flag == TABLING_MODE_FLAG) {
+#ifdef TABLING
     tout = TermNil;
     if (IsMode_LocalTrie(yap_flags[flag]))
       tout = MkPairTerm(MkAtomTerm(AtomLocalTrie), tout);
-    else if (IsMode_GlobalTrie(yap_flags[flag]))
+    else // if (IsMode_GlobalTrie(yap_flags[flag]))
       tout = MkPairTerm(MkAtomTerm(AtomGlobalTrie), tout);
-    if (IsMode_ExecAnswers(yap_flags[flag]))
-      tout = MkPairTerm(MkAtomTerm(AtomExecAnswers), tout);
-    else if (IsMode_LoadAnswers(yap_flags[flag]))
+    if (IsMode_LoadAnswers(yap_flags[flag]))
       tout = MkPairTerm(MkAtomTerm(AtomLoadAnswers), tout);
-    if (IsMode_Batched(yap_flags[flag]))
-      tout = MkPairTerm(MkAtomTerm(AtomBatched), tout);
-    else if (IsMode_Local(yap_flags[flag]))
+    else // if (IsMode_ExecAnswers(yap_flags[flag]))
+      tout = MkPairTerm(MkAtomTerm(AtomExecAnswers), tout);
+    if (IsMode_Local(yap_flags[flag]))
       tout = MkPairTerm(MkAtomTerm(AtomLocal), tout);
-  } else
+    else // if (IsMode_Batched(yap_flags[flag]))
+      tout = MkPairTerm(MkAtomTerm(AtomBatched), tout);
+#else
+    tout = MkAtomTerm(AtomFalse);
 #endif /* TABLING */
+  } else
   tout = MkIntegerTerm(yap_flags[flag]);
   return(Yap_unify(ARG2, tout));
 }
@@ -4439,17 +4228,6 @@ Yap_InitCPreds(void)
   Yap_InitCPred("$unlock_system", 0, p_unlock_system, SafePredFlag);
   Yap_InitCPred("$enter_undefp", 0, p_enterundefp, SafePredFlag);
   Yap_InitCPred("$exit_undefp", 0, p_exitundefp, SafePredFlag);
-  /* basic predicates for the prolog machine tracer */
-  /* they are defined in analyst.c */
-  /* Basic predicates for the debugger */
-  Yap_InitCPred("$creep", 0, p_creep, SafePredFlag);
-  Yap_InitCPred("$signal_creep", 0, p_signal_creep, SafePredFlag);
-  Yap_InitCPred("$disable_creep", 0, p_disable_creep, SafePredFlag);
-  Yap_InitCPred("$disable_docreep", 0, p_disable_docreep, SafePredFlag);
-  Yap_InitCPred("$do_not_creep", 0, p_stop_creep, SafePredFlag|SyncPredFlag);
-#ifdef DEBUG
-  Yap_InitCPred("$debug", 1, p_debug, SafePredFlag|SyncPredFlag);
-#endif
   /* Accessing and changing the flags for a predicate */
   Yap_InitCPred("$flags", 4, p_flags, SyncPredFlag);
   /* hiding and unhiding some predicates */
@@ -4508,6 +4286,7 @@ Yap_InitCPreds(void)
 #endif
   Yap_udi_init();
 
+  Yap_InitSignalCPreds();
   Yap_InitUserCPreds();
   Yap_InitUtilCPreds();
   Yap_InitSortPreds();

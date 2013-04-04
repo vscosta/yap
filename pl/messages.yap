@@ -37,6 +37,8 @@ file_position(FileName,LN,MsgCodes) -->
 
 generate_message(halt) --> !,
 	['YAP execution halted'].
+generate_message(false) --> !,
+	['false.'].
 generate_message('$abort') --> !,
 	['YAP execution aborted'].
 generate_message(abort(user)) --> !,
@@ -164,6 +166,9 @@ system_message(error(context_error(Goal,Who),Where)) -->
 	[ 'CONTEXT ERROR- ~w: ~w appeared in ~w' - [Goal,Who,Where] ].
 system_message(error(domain_error(DomainType,Opt), Where)) -->
 	[ 'DOMAIN ERROR- ~w: ' - Where],
+	domain_error(DomainType, Opt).
+system_message(error(format_argument_type(Type,Arg), Where)) -->
+	[ 'FORMAT ARGUMENT ERROR- ~~~a called with ~w in ~w: ' - [Type,Arg,Where]],
 	domain_error(DomainType, Opt).
 system_message(error(existence_error(directory,Key), Where)) -->
 	[ 'EXISTENCE ERROR- ~w: ~w not an existing directory' - [Where,Key] ].
@@ -423,8 +428,9 @@ object_name(unsigned_byte, 'unsigned byte').
 object_name(unsigned_char, 'unsigned char').
 object_name(variable, 'unbound variable').
 
-svs([H]) --> !, H.
-svs([H|L]) -->
+svs([A]) --> !, { atom_codes(A, H) }, H.
+svs([A|L]) -->
+	{ atom_codes(A, H) },
 	H,
 	", ",
 	svs(L).

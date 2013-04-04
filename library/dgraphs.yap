@@ -32,6 +32,7 @@
 	    dgraph_min_paths/3,
 	    dgraph_isomorphic/4,
 	    dgraph_path/3,
+	    dgraph_path/4,
 	    dgraph_leaves/2,
 	    dgraph_reachable/3
 	]).
@@ -40,7 +41,8 @@
 	[rb_new/1 as dgraph_new]).
 
 :- use_module(library(rbtrees),
-	[rb_empty/1,
+	[rb_new/1,
+	 rb_empty/1,
 	 rb_lookup/3,
 	 rb_apply/4,
 	 rb_insert/4,
@@ -361,10 +363,21 @@ dgraph_min_paths(V1, Graph, Paths) :-
 	dgraph_to_wdgraph(Graph, WGraph),
 	wdgraph_min_paths(V1, WGraph, Paths).
 
-dgraph_path(V, G, [V|P]) :-
-	rb_lookup(V, Children, G),
-	ord_del_element(Children, V, Ch),
-	do_path(Ch, G, [V], P).
+dgraph_path(V1, V2, Graph, Path) :-
+	rb_new(E0),
+	rb_lookup(V1, Children, Graph),
+	dgraph_path_children(Children, V2, E0, Graph, Path).
+
+dgraph_path_children([V1|_], V2, _E1, _Graph, []) :- V1 == V2.
+dgraph_path_children([V1|_], V2, E1, Graph, [V1|Path]) :-
+	V2 \== V1,
+	\+ rb_lookup(V1, _, E0),
+	rb_insert(E0, V2, [], E1),
+	rb_lookup(V1, Children, Graph),
+	dgraph_path_children(Children, V2, E1, Graph, Path).
+dgraph_path_children([_|Children], V2, E1, Graph, Path) :-
+	dgraph_path_children(Children, V2, E1, Graph, Path).
+
 
 do_path([], _, _, []).
 do_path([C|Children], G, SoFar, Path) :-
@@ -377,6 +390,11 @@ do_children([V|_], G, SoFar, [V|Path]) :-
 	do_path(Ch, G, NextSoFar, Path).
 do_children([_|Children], G, SoFar, Path) :-
 	do_children(Children, G, SoFar, Path).
+
+dgraph_path(V, G, [V|P]) :-
+	rb_lookup(V, Children, G),
+	ord_del_element(Children, V, Ch),
+	do_path(Ch, G, [V], P).
 
 
 dgraph_isomorphic(Vs, Vs2, G1, G2) :-

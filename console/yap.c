@@ -166,7 +166,7 @@ main (int argc, char **argv)
       YAP_RunGoalOnce(t_goal);
     }
   }
-  YAP_ClearExceptions();
+  YAP_Reset();
   /* End preprocessor code */
 
   exec_top_level(BootMode, &init_args);

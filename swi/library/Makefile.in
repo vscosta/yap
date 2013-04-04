@@ -24,14 +24,19 @@ INSTALL_PROGRAM=@INSTALL_PROGRAM@
 srcdir=@srcdir@
 YAP_EXTRAS=@YAP_EXTRAS@ 
 
-PROGRAMS= $(srcdir)/base64.pl \
+PROGRAMS= \
+	$(srcdir)/aggregate.pl \
+	$(srcdir)/base64.pl \
 	$(srcdir)/broadcast.pl \
+	$(srcdir)/ctypes.pl \
 	$(srcdir)/date.pl \
 	$(srcdir)/debug.pl \
+	$(srcdir)/error.pl \
 	$(srcdir)/main.pl \
 	$(srcdir)/maplist.pl \
 	$(srcdir)/menu.pl \
 	$(srcdir)/nb_set.pl \
+	$(srcdir)/occurs.yap \
 	$(srcdir)/operators.pl \
 	$(srcdir)/option.pl \
 	$(srcdir)/pairs.pl \

@@ -141,7 +141,8 @@ save_program(File, _Goal) :-
 	X \= user_input,
 	X \= user_output,
 	X \= user_error,
-	X \= version.
+	X \= version,
+	X \= version_data.
 
 '$init_state' :-
 	recorded('$program_state', _, _), !,

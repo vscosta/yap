@@ -3378,7 +3378,7 @@ Succeeds if there are no free variables in the term @var{T}.
 @findex acyclic_term/1
 @snindex acyclic_term/1
 @cnindex acyclic_term/1
-Succeeds if there are loops in the term @var{T}, that is, it is an infite term.
+Succeeds if there are loops in the term @var{T}, that is, it is an infinite term.
 
 @item arg(+@var{N},+@var{T},@var{A}) [ISO]
 @findex arg/3
@@ -12839,6 +12839,13 @@ vertices in @var{Vs} map to vertices in @var{NewVs}.
 @cnindex dgraph_path/3
 The path @var{Path} is a path starting at vertex @var{Vertex} in graph
 @var{Graph}.
+
+@item dgraph_path(+@var{Vertex}, +@var{Vertex1}, +@var{Graph}, ?@var{Path})
+@findex  dgraph_path/3
+@snindex dgraph_path/3
+@cnindex dgraph_path/3
+The path @var{Path} is a path starting at vertex @var{Vertex} in graph
+@var{Graph} and ending at path @var{Vertex2}.
 
 @item dgraph_reachable(+@var{Vertex}, +@var{Graph}, ?@var{Edges})
 @findex  dgraph_path/3

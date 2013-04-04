@@ -120,6 +120,23 @@ char				pwd[YAP_FILENAME_MAX]			void
 
 char*			 	RestoreFile				void	
 
+//gprof.c
+Int 				ProfCalls				void 
+Int				ProfGCs 				void
+Int				ProfHGrows 				void
+Int				ProfSGrows 				void
+Int				ProfMallocs 				void
+Int				ProfIndexing 				void
+Int				ProfOn 					void
+Int				ProfOns					void
+struct RB_red_blk_node* 	ProfilerRoot				void
+struct RB_red_blk_node* 	ProfilerNil				void
+char*				DIRNAME					=NULL
+#if LOW_PROF
+int				ProfilerOn				=FALSE
+FILE*				FProf					=NULL
+FILE*				FPreds					=NULL
+#endif /* LOW_PROF */
 
 
 END_GLOBAL_DATA

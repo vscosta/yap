@@ -182,15 +182,19 @@ Int	STD_PROTO(Yap_execute_goal,(Term, int, Term));
 Int	STD_PROTO(Yap_exec_absmi,(int));
 void	STD_PROTO(Yap_trust_last,(void));
 Term	STD_PROTO(Yap_GetException,(void));
+void	STD_PROTO(Yap_PrepGoal,(UInt, CELL *, choiceptr USES_REGS));
 
 /* exo.c */
 void	STD_PROTO(Yap_InitExoPreds,(void));
+
+/* foreign.c */
+char   *STD_PROTO(Yap_FindExecutable,(void));
 
 /* gprof.c */
 void	STD_PROTO(Yap_InitLowProf,(void));
 #if  LOW_PROF
 void	STD_PROTO(Yap_inform_profiler_of_clause__,(void *,void *,struct pred_entry *, gprof_info));
-#define Yap_inform_profiler_of_clause(CODE0,CODEF,AP,MODE) {if (LOCAL_FPreds) Yap_inform_profiler_of_clause__(CODE0,CODEF,AP,MODE);}
+#define Yap_inform_profiler_of_clause(CODE0,CODEF,AP,MODE) {if (GLOBAL_FPreds) Yap_inform_profiler_of_clause__(CODE0,CODEF,AP,MODE);}
 #else
 #define	Yap_inform_profiler_of_clause(CODE0,CODEF,AP,MODE)
 #endif
@@ -334,6 +338,11 @@ void	STD_PROTO(Yap_InitSavePreds,(void));
 
 /* scanner.c */
 
+/* signals.c */
+void	STD_PROTO(Yap_signal,(yap_signals));
+void	STD_PROTO(Yap_undo_signal,(yap_signals));
+void	STD_PROTO(Yap_InitSignalCPreds,(void));
+
 /* sort.c */
 void    STD_PROTO(Yap_InitSortPreds,(void));
 
@@ -341,8 +350,6 @@ void    STD_PROTO(Yap_InitSortPreds,(void));
 void	STD_PROTO(Yap_InitBackCPreds,(void));
 void	STD_PROTO(Yap_InitCPreds,(void));
 void	STD_PROTO(Yap_show_statistics,(void));
-void	STD_PROTO(Yap_signal,(yap_signals));
-void	STD_PROTO(Yap_undo_signal,(yap_signals));
 int	STD_PROTO(Yap_IsOpMaxPrio,(Atom));
 
 /* sysbits.c */

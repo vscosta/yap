@@ -7,12 +7,15 @@
 :- use_module(library(rbtrees)).
 
 trie_to_bdd(Trie, BDD, MapList) :-
+	%trie_print(Trie),
 	trie_to_list(Trie, Complex),
+	%(numbervars(Complex,1,_), writeln(Complex), fail ; true ),
 	rb_new(Map0),
 	complex_to_andor(Complex,Map0,Map,Tree),
+	%numbervars(Tree,1,_), writeln(Tree), fail ; true ),
 	rb_visit(Map, MapList),
 	extract_vars(MapList, Vs),
-	bdd_new(Tree, Vs, BDD).
+	bdd_new(Tree, Vs, BDD). %writeln(BDD).
 
 tabled_trie_to_bdd(Trie, BDD, MapList) :-
 	trie_to_list(Trie, Complex),
@@ -43,12 +46,24 @@ complex_to_and(int(A1,[endlist]), Map0, MapF, V) :- !,
 	check(Map0, A1, V, MapF).
 complex_to_and(functor(not,1,[int(A1,[endlist])]), Map0, MapF, not(V)) :- !,
 	check(Map0, A1, V, MapF).
-complex_to_and(int(A1,Els), Map0, MapF, and(V,T2)) :- 
+complex_to_and(int(A1,Els), Map0, MapF, and(V,T2)) :-  !,
 	check(Map0, A1, V, MapI),
 	complex_to_andor(Els, MapI, MapF, T2).
-complex_to_and(functor(not,1,[int(A1,Els)]), Map0, MapF, and(not(V),T2)) :-
+complex_to_and(functor(not,1,[int(A1,Els)]), Map0, MapF, and(not(V),T2)) :- !,
 	check(Map0, A1, V, MapI),
 	complex_to_andor(Els, MapI, MapF, T2).
+% HASH TABLE, it can be an OR or an AND.
+complex_to_and(functor(not,1,[int(A1,Els)|More]), Map0, MapF, or(NOTV1,O2)) :- 
+	check(Map0, A1, V, MapI),
+	(Els == [endlist]
+	->
+	  NOTV1 = not(V),
+	  MapI = MapI2
+	;
+	  complex_to_andor(Els, MapI, MapI2, T2),
+	  NOTV1 = and(not(V), T2)
+	),
+	complex_to_and(functor(not,1,More), MapI2, MapF, O2).
 
 tabled_complex_to_andor(T, Map, Map, Tab, Tab, V) :- 
 	rb_lookup(T, V, Tab), !,

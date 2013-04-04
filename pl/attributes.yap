@@ -148,6 +148,7 @@ lcall2([Goal|Goals], Mod) :-
 prolog:call_residue_vars(Goal,Residue) :-
 	attributes:all_attvars(Vs0),
 	call(Goal),
+	'$stop_creeping',
 	attributes:all_attvars(Vs),
 	% this should not be actually strictly necessary right now.
 	% but it makes it a safe bet.
@@ -216,14 +217,14 @@ attvar_residuals(att(Module,Value,As), V) -->
 	       ->
 	      []
 	      ;
-	      { '$notrace'(Module:attribute_goal(V, Goal)) },
+	      { call(Module:attribute_goal(V, Goal)) },
 	      dot_list(Goal)
 	    )
 	;   (	{ current_predicate(Module:attribute_goals/3) }
-	    ->	{ '$notrace'(Module:attribute_goals(V, Goals, [])) },
+	    ->	{ call(Module:attribute_goals(V, Goals, [])) },
 		list(Goals)
 	    ;	{ current_predicate(Module:attribute_goal/2) }
-	    ->	{ '$notrace'(Module:attribute_goal(V, Goal)) },
+	    ->	{ call(Module:attribute_goal(V, Goal)) },
 		dot_list(Goal)
 	    ;	[put_attr(V, Module, Value)]
 	    ),
@@ -312,7 +313,7 @@ pick_att_vars([_|L],NL) :-
 project_module([], _, _).
 project_module([Mod|LMods], LIV, LAV) :-
 	'$pred_exists'(project_attributes(LIV, LAV),Mod),
-	'$notrace'(Mod:project_attributes(LIV, LAV)), !,
+	call(Mod:project_attributes(LIV, LAV)), !,
 	attributes:all_attvars(NLAV),
 	project_module(LMods,LIV,NLAV).
 project_module([_|LMods], LIV, LAV) :-

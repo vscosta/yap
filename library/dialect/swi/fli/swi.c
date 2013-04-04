@@ -110,23 +110,6 @@ Yap_InitSWIHash(void)
 }
 
 static void
-PredicateInfo(void *p, Atom* a, unsigned long int* arity, Term* m)
-{
-  PredEntry *pd = (PredEntry *)p;
-  if (pd->ArityOfPE) {
-    *arity = pd->ArityOfPE;
-    *a = NameOfFunctor(pd->FunctorOfPred);
-  } else {
-    *arity = 0;
-    *a = (Atom)(pd->FunctorOfPred);
-  }
-  if (pd->ModuleOfPred)
-    *m = pd->ModuleOfPred;
-  else
-    *m = TermProlog;
-} 
-
-static void
 UserCPredicate(char *a, CPredicate def, unsigned long int arity, Term mod, int flags)
 {
   CACHE_REGS
@@ -2198,7 +2181,7 @@ PL_open_foreign_frame(void)
   open_query *new = (open_query *)malloc(sizeof(open_query));
   if (!new) return 0;
   new->old = LOCAL_execution;
-  new->g = TermNil;
+  new->g = NULL;
   new->open = FALSE;
   new->cp = CP;
   new->p = P;
@@ -2245,7 +2228,6 @@ backtrack(void)
   CACHE_REGS
   P = FAILCODE;
   Yap_absmi(0);
-  H = HB = B->cp_h;
   TR = B->cp_tr;
 }
 
@@ -2291,16 +2273,16 @@ PL_discard_foreign_frame(fid_t f)
 X_API qid_t PL_open_query(module_t ctx, int flags, predicate_t p, term_t t0)
 {
   CACHE_REGS
-  Atom yname;
-  unsigned long int  arity;
-  Term t[2], m;
+  YAP_Term *t = NULL;
+  if (t0) 
+    t = Yap_AddressFromSlot(t0 PASS_REGS);
 
   /* ignore flags  and module for now */
   if (!LOCAL_execution) {
     open_query *new = (open_query *)malloc(sizeof(open_query));
     if (!new) return 0;
     new->old = LOCAL_execution;
-    new->g = TermNil;
+    new->g = NULL;
     new->open = FALSE;
     new->cp = CP;
     new->p = P;
@@ -2312,31 +2294,8 @@ X_API qid_t PL_open_query(module_t ctx, int flags, predicate_t p, term_t t0)
   LOCAL_execution->open=1;
   LOCAL_execution->state=0;
   LOCAL_execution->flags = flags;
-  PredicateInfo((PredEntry *)p, &yname, &arity, &m);
-  t[0] = SWIModuleToModule(ctx);
-  if (arity == 0) {
-    t[1] = MkAtomTerm(yname);
-  } else {
-    Functor f = Yap_MkFunctor(yname, arity);
-    t[1] = Yap_MkApplTerm(f,arity,Yap_AddressFromSlot(t0 PASS_REGS));
-  }
-  if (ctx) {
-    Term ti;
-    t[0] = MkAtomTerm((Atom)ctx);
-    ti = Yap_MkApplTerm(FunctorModule,2,t);
-    t[0] = ti;
-    LOCAL_execution->g = Yap_MkApplTerm(FunctorCall,1,t);
-  } else {
-    if (m && m != CurrentModule) {
-      Term ti;
-      t[0] = m;
-      ti = Yap_MkApplTerm(FunctorModule,2,t);
-      t[0] = ti;
-      LOCAL_execution->g = Yap_MkApplTerm(FunctorCall,1,t);
-    } else {
-      LOCAL_execution->g = t[1];
-    }
-  }
+  LOCAL_execution->pe = (PredEntry *)p;
+  LOCAL_execution->g = t;
   return LOCAL_execution;
 }
 
@@ -2348,13 +2307,14 @@ X_API int PL_next_solution(qid_t qi)
   if (setjmp(LOCAL_execution->env))
     return 0;
   if (qi->state == 0) {
-    result = YAP_RunGoal(qi->g);
+    result = YAP_EnterGoal((YAP_PredEntryPtr)qi->pe, qi->g, &qi->h);
   } else {
     LOCAL_AllowRestart = qi->open;
-    result = YAP_RestartGoal();
+    result = YAP_RetryGoal(&qi->h);
   }
   qi->state = 1;
   if (result == 0) {
+    YAP_LeaveGoal(FALSE, &qi->h);
     qi->open = 0;
   }
   return result;
@@ -2363,8 +2323,7 @@ X_API int PL_next_solution(qid_t qi)
 X_API void PL_cut_query(qid_t qi)
 {
   if (qi->open != 1 || qi->state == 0) return;
-  YAP_PruneGoal();
-  YAP_cut_up();
+  YAP_LeaveGoal(FALSE, &qi->h);
   qi->open = 0;
 }
 
@@ -2379,16 +2338,17 @@ X_API void PL_close_query(qid_t qi)
   if (qi->open != 1 || qi->state == 0) {
     return;
   }
-  YAP_PruneGoal();
-  YAP_RestartGoal();
+  YAP_LeaveGoal(FALSE, &qi->h);
   qi->open = 0;
 }
 
 X_API int PL_call_predicate(module_t ctx, int flags, predicate_t p, term_t t0)
 {
+  fid_t f = PL_open_foreign_frame();
   qid_t qi = PL_open_query(ctx, flags, p, t0);
   int ret = PL_next_solution(qi);
   PL_cut_query(qi);
+  PL_close_foreign_frame(f);
   return ret;
 }
 
@@ -2507,7 +2467,7 @@ X_API int PL_thread_self(void)
 #if THREADS
   if (pthread_getspecific(Yap_yaamregs_key) == NULL)
     return -1;
-  return worker_id;
+  return (worker_id+1)<<3;
 #else
   return -2;
 #endif
@@ -2521,9 +2481,22 @@ X_API int PL_unify_thread_id(term_t t, int i)
 }
 
 
+static int
+pl_thread_self(void)
+{
+  CACHE_REGS
+#if THREADS
+  if (pthread_getspecific(Yap_yaamregs_key) == NULL)
+    return -1;
+  return worker_id;
+#else
+  return -2;
+#endif
+}
+
 X_API int PL_thread_attach_engine(const PL_thread_attr_t *attr)
 {
-  int wid = PL_thread_self();
+  int wid = pl_thread_self();
   
   if (wid < 0) {
     /* we do not have an engine */
@@ -2552,7 +2525,7 @@ X_API int PL_thread_attach_engine(const PL_thread_attr_t *attr)
 
 X_API int PL_thread_destroy_engine(void)
 {
-  int wid = PL_thread_self();
+  int wid = pl_thread_self();
 
   if (wid < 0) {
     /* we do not have an engine */
@@ -2610,7 +2583,7 @@ PL_set_engine(PL_engine_t engine, PL_engine_t *old)
 {
   CACHE_REGS
 #if THREADS
-  int cwid = PL_thread_self(), nwid;
+  int cwid = pl_thread_self(), nwid;
   if (cwid >= 0) {
     if (old) *old = (PL_engine_t)(Yap_local[cwid]);
   }

@@ -821,10 +821,6 @@ RestoreExpandList__( USES_REGS1 )
 static void
 RestoreUdiControlBlocks(void)
 {
-  if (Yap_heap_regs->udi_control_blocks) {
-      Yap_Error(SYSTEM_ERROR, TermNil,
-	    "YAP cannot restore UDI entries!!\n");
-  }
 }
 
 static void

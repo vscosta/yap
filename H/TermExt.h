@@ -60,13 +60,14 @@ blob_type;
 
 #include "inline-only.h"
 
-INLINE_ONLY inline EXTERN int IsAttVar (CELL *pt);
+#define IsAttVar(pt) __IsAttVar((pt) PASS_REGS)
+
+INLINE_ONLY inline EXTERN int __IsAttVar (CELL *pt USES_REGS);
 
 INLINE_ONLY inline EXTERN int
-IsAttVar (CELL *pt)
+__IsAttVar (CELL *pt USES_REGS)
 {
 #ifdef YAP_H
-  CACHE_REGS
   return (pt)[-1] == (CELL)attvar_e
     && pt < H;
 #else
@@ -182,13 +183,13 @@ INLINE_ONLY inline EXTERN Float CpFloatUnaligned(CELL *ptr);
 
 #if SIZEOF_DOUBLE == SIZEOF_LONG_INT
 
+#define MkFloatTerm(fl) __MkFloatTerm((fl) PASS_REGS)
 
-INLINE_ONLY inline EXTERN Term MkFloatTerm (Float);
+INLINE_ONLY inline EXTERN Term __MkFloatTerm (Float USES_REGS);
 
 INLINE_ONLY inline EXTERN Term
-MkFloatTerm (Float dbl)
+__MkFloatTerm (Float dbl USES_REGS)
 {
-  CACHE_REGS
   return (Term) ((H[0] = (CELL) FunctorDouble, *(Float *) (H + 1) =
 		  dbl, H[2] = EndSpecials, H +=
 		  3, AbsAppl (H - 3)));
@@ -303,12 +304,13 @@ IsFloatTerm (Term t)
 
 /* extern Functor FunctorLongInt; */
 
-INLINE_ONLY inline EXTERN Term MkLongIntTerm (Int);
+#define MkLongIntTerm(i) __MkLongIntTerm((i) PASS_REGS)
+
+INLINE_ONLY inline EXTERN Term __MkLongIntTerm (Int USES_REGS);
 
 INLINE_ONLY inline EXTERN Term
-MkLongIntTerm (Int i)
+__MkLongIntTerm (Int i USES_REGS)
 {
-  CACHE_REGS
   H[0] = (CELL) FunctorLongInt;
   H[1] = (CELL) (i);
   H[2] =  EndSpecials;
@@ -546,11 +548,12 @@ IsAttachFunc (Functor f)
 
 
 
+#define IsAttachedTerm(t) __IsAttachedTerm(t PASS_REGS)
 
-INLINE_ONLY inline EXTERN Int IsAttachedTerm (Term);
+INLINE_ONLY inline EXTERN Int __IsAttachedTerm (Term USES_REGS);
 
 INLINE_ONLY inline EXTERN Int
-IsAttachedTerm (Term t)
+__IsAttachedTerm (Term t USES_REGS)
 {
   return (Int) ((IsVarTerm (t) && IsAttVar(VarOfTerm(t))));
 }
@@ -563,16 +566,15 @@ GlobalIsAttachedTerm (Term t)
   return (Int) ((IsVarTerm (t) && GlobalIsAttVar(VarOfTerm(t))));
 }
 
-INLINE_ONLY inline EXTERN Int SafeIsAttachedTerm (Term);
+#define SafeIsAttachedTerm(t) __SafeIsAttachedTerm((t) PASS_REGS)
+
+INLINE_ONLY inline EXTERN Int __SafeIsAttachedTerm (Term USES_REGS);
 
 INLINE_ONLY inline EXTERN Int
-SafeIsAttachedTerm (Term t)
+__SafeIsAttachedTerm (Term t USES_REGS)
 {
   return (Int) (IsVarTerm (t) && IsAttVar(VarOfTerm(t)));
 }
-
-
-
 
 INLINE_ONLY inline EXTERN exts ExtFromCell (CELL *);
 

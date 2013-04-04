@@ -685,6 +685,7 @@ IN_UNIX
 LIBJPL
 JAR
 JAVADOC
+JAVACFLAGS
 JAVAC
 JUNIT
 JAVA_HOME
@@ -7778,6 +7779,9 @@ elif test -e "$srcdir"/packages/jpl/Makefile.in; then
 	  JAVAC=$yap_cv_java/bin/javac
 	  JAVADOC=$yap_cv_java/bin/javadoc
         fi
+        if test "x$JAVACFLAGS" = x; then
+          JAVACFLAGS="-source 1.4 -target 1.4"
+        fi
 else
       ENABLE_JPL="@#"
 fi
@@ -8133,14 +8137,13 @@ fi
         then
            YAPLIB_LD="\$(CC) -shared"
            EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -lYap -Wl,-R,\$(YAPLIBDIR) -Wl,-R,\$(LIBDIR)"
-           INSTALL_ENV="LD_LIBRARY_PATH=\$(DESTDIR)\$(LIBDIR):\$(DESTDIR)\$(YAPLIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
-           PRE_INSTALL_ENV="LD_LIBRARY_PATH=\$(abs_top_builddir)"
+           INSTALL_ENV="LD_LIBRARY_PATH=:\$(DESTDIR)\$(LIBDIR):\$(DESTDIR)\$(YAPLIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
         else
            YAPLIB_LD="\$(CC)"
            EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -Wl,-R,\$(YAPLIBDIR) -Wl,-R,\$(LIBDIR)"
            INSTALL_ENV="YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
-           PRE_INSTALL_ENV=""
         fi
+        PRE_INSTALL_ENV="LD_LIBRARY_PATH=$LD_LIBRARY_PATH:\$(abs_top_builddir):\$(abs_top_builddir)/lib/sys"
 	;;
       *sunos4*)
 	M4="/usr/5bin/m4"
@@ -9802,6 +9805,7 @@ CMDEXT=sh
 
 
 
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for gcc threaded code" >&5
 $as_echo_n "checking for gcc threaded code... " >&6; }
 if ${yap_cv_threaded_code+:} false; then :
@@ -11313,9 +11317,7 @@ mkdir -p  library/regex
 mkdir -p  library/system
 mkdir -p  library/tries
 mkdir -p  library/rltree
-mkdir -p  LGPL/clp
-mkdir -p  LGPL/swi_console
-mkdir -p  GPL
+mkdir -p  LGPL
 mkdir -p  packages/
 mkdir -p  packages/bdd
 mkdir -p  packages/clib
@@ -11364,10 +11366,12 @@ mkdir -p  packages/sgml
 mkdir -p  packages/xml
 mkdir -p  packages/zlib
 mkdir -p  packages/archive
+mkdir -p  swi
+mkdir -p  swi/console
+mkdir -p  swi/library
+mkdir -p  swi/library/clp
 
 ac_config_files="$ac_config_files Makefile"
-
-ac_config_files="$ac_config_files GPL/Makefile"
 
 ac_config_files="$ac_config_files library/Makefile"
 
@@ -11389,12 +11393,6 @@ ac_config_files="$ac_config_files library/system/Makefile"
 
 ac_config_files="$ac_config_files library/tries/Makefile"
 
-ac_config_files="$ac_config_files LGPL/Makefile"
-
-ac_config_files="$ac_config_files LGPL/clp/Makefile"
-
-ac_config_files="$ac_config_files LGPL/swi_console/Makefile"
-
 ac_config_files="$ac_config_files packages/Makefile.defs"
 
 ac_config_files="$ac_config_files packages/Dialect.defs"
@@ -11412,6 +11410,12 @@ ac_config_files="$ac_config_files packages/meld/Makefile"
 ac_config_files="$ac_config_files packages/xml/Makefile"
 
 ac_config_files="$ac_config_files packages/ProbLog/Makefile"
+
+ac_config_files="$ac_config_files swi/console/Makefile"
+
+ac_config_files="$ac_config_files swi/library/Makefile"
+
+ac_config_files="$ac_config_files swi/library/clp/Makefile"
 
 
 if test "$ENABLE_CHR" = ""; then
@@ -12230,7 +12234,6 @@ do
     "config.h") CONFIG_HEADERS="$CONFIG_HEADERS config.h" ;;
     "YapTermConfig.h") CONFIG_HEADERS="$CONFIG_HEADERS YapTermConfig.h" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
-    "GPL/Makefile") CONFIG_FILES="$CONFIG_FILES GPL/Makefile" ;;
     "library/Makefile") CONFIG_FILES="$CONFIG_FILES library/Makefile" ;;
     "library/lammpi/Makefile") CONFIG_FILES="$CONFIG_FILES library/lammpi/Makefile" ;;
     "library/matlab/Makefile") CONFIG_FILES="$CONFIG_FILES library/matlab/Makefile" ;;
@@ -12241,9 +12244,6 @@ do
     "library/rltree/Makefile") CONFIG_FILES="$CONFIG_FILES library/rltree/Makefile" ;;
     "library/system/Makefile") CONFIG_FILES="$CONFIG_FILES library/system/Makefile" ;;
     "library/tries/Makefile") CONFIG_FILES="$CONFIG_FILES library/tries/Makefile" ;;
-    "LGPL/Makefile") CONFIG_FILES="$CONFIG_FILES LGPL/Makefile" ;;
-    "LGPL/clp/Makefile") CONFIG_FILES="$CONFIG_FILES LGPL/clp/Makefile" ;;
-    "LGPL/swi_console/Makefile") CONFIG_FILES="$CONFIG_FILES LGPL/swi_console/Makefile" ;;
     "packages/Makefile.defs") CONFIG_FILES="$CONFIG_FILES packages/Makefile.defs" ;;
     "packages/Dialect.defs") CONFIG_FILES="$CONFIG_FILES packages/Dialect.defs" ;;
     "packages/CLPBN/Makefile") CONFIG_FILES="$CONFIG_FILES packages/CLPBN/Makefile" ;;
@@ -12253,6 +12253,9 @@ do
     "packages/meld/Makefile") CONFIG_FILES="$CONFIG_FILES packages/meld/Makefile" ;;
     "packages/xml/Makefile") CONFIG_FILES="$CONFIG_FILES packages/xml/Makefile" ;;
     "packages/ProbLog/Makefile") CONFIG_FILES="$CONFIG_FILES packages/ProbLog/Makefile" ;;
+    "swi/console/Makefile") CONFIG_FILES="$CONFIG_FILES swi/console/Makefile" ;;
+    "swi/library/Makefile") CONFIG_FILES="$CONFIG_FILES swi/library/Makefile" ;;
+    "swi/library/clp/Makefile") CONFIG_FILES="$CONFIG_FILES swi/library/clp/Makefile" ;;
     "packages/chr/Makefile") CONFIG_FILES="$CONFIG_FILES packages/chr/Makefile" ;;
     "packages/clib/Makefile") CONFIG_FILES="$CONFIG_FILES packages/clib/Makefile" ;;
     "packages/clib/maildrop/rfc822/Makefile") CONFIG_FILES="$CONFIG_FILES packages/clib/maildrop/rfc822/Makefile" ;;

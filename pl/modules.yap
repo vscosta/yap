@@ -396,7 +396,7 @@ expand_goal(G, G).
 	% make built-in processing transparent.
 	'$match_mod'(G, M, ORIG, HM, G1),
 	'$c_built_in'(G1, M, Gi),
-	G1 = G2.
+	Gi = G2.
 '$complete_goal_expansion'(G, GMod, _, HM, NG, NG, _) :-
 	'$match_mod'(G, GMod, GMod, HM, NG).
 
@@ -535,7 +535,7 @@ expand_goal(G, G).
 % expand argument
 '$meta_expansion_loop'(0,_,_,_,_,_,_,_) :- !.
 '$meta_expansion_loop'(I,D,G,NG,HVars,CurMod,M,HM) :- 
-	arg(I,D,X), (X==':' ; integer(X)),
+	arg(I,D,X), (X==':' -> true ; integer(X)),
 	arg(I,G,A), '$do_expand'(A,HVars),
 	!,
 	arg(I,NG,M:A),

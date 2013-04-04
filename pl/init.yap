@@ -140,8 +140,8 @@ system_mode(verbose,off) :- set_value('$verbose',off).
 :- use_module('history.pl').
 :- use_module('dbload.yap').
 :- use_module('swi.yap').
-:- use_module('../LGPL/predopts.pl').
-:- use_module('../LGPL/menu.pl').
+:- use_module('../swi/library/predopts.pl').
+:- use_module('../swi/library/menu.pl').
 
 
 '$system_module'('$attributes').
@@ -177,7 +177,7 @@ yap_hacks:cut_by(CP) :- '$$cut_by'(CP).
 
 :- set_value('$user_module',user), '$protect'.
 
-:- style_check([]).
+:- style_check([-discontiguous,-multiple,-single_var]).
 
 %
 % moved this to init_gc in gc.c to separate the alpha
@@ -270,6 +270,14 @@ file_search_path(yap, Home) :-
 file_search_path(system, Dir) :-
 	prolog_flag(host_type, Dir).
 file_search_path(foreign, yap('lib/Yap')).
+file_search_path(path, C) :-
+    (   getenv('PATH', A),
+	(   current_prolog_flag(windows, true)
+	->  atomic_list_concat(B, ;, A)
+	;   atomic_list_concat(B, :, A)
+	),
+	lists:member(C, B)
+    ).
 
 :- yap_flag(unknown,error). 
 
