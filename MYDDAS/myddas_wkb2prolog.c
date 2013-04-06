@@ -13,7 +13,7 @@ static void readswap8(double *buf);
 static byte get_hostbyteorder(void);
 static byte get_inbyteorder(void);
 static uint32 get_wkbType(void);
-static Term get_point(char *functor);
+static Term get_point(char *functor USES_REGS);
 static Term get_linestring(char *functor);
 static Term get_polygon(char *functor);
 static Term get_geometry(uint32 type);
@@ -150,7 +150,7 @@ static void readswap8(double *buf) {
   cursor += 8;
 }
 
-static Term get_point(char *func){
+static Term get_point(char *func USES_REGS){
   Term args[2];
   Functor functor;
   double d;
@@ -188,7 +188,7 @@ static Term get_linestring(char *func){
   c_list = (Term *) calloc(sizeof(Term),n);
 
   for ( i = 0; i < n; i++) {
-    c_list[i] = get_point(NULL);
+    c_list[i] = get_point(NULL PASS_REGS);
   }
 
   list = MkAtomTerm(Yap_LookupAtom("[]"));
@@ -241,15 +241,14 @@ static Term get_geometry(uint32 type){
 
   switch(type) {
   case WKBPOINT:
-    return get_point("point");
+    return get_point("point" PASS_REGS);
   case WKBLINESTRING:
     return get_linestring("linestring");
   case WKBPOLYGON:
     return get_polygon("polygon");
   case WKBMULTIPOINT:
     {
-      byte b;
-      uint32 n, u;
+      uint32 n;
       int i;
       Functor functor;
       Term *c_list;
@@ -264,10 +263,10 @@ static Term get_geometry(uint32 type){
 
       for ( i = 0; i < n; i++ ) {
 	/* read (and ignore) the byteorder and type */
-	b = get_inbyteorder();
-	u = get_wkbType();
+	get_inbyteorder();
+	get_wkbType();
 
-	c_list[i] = get_point(NULL);
+	c_list[i] = get_point(NULL PASS_REGS);
       }
 
       list = MkAtomTerm(Yap_LookupAtom("[]"));
@@ -282,8 +281,7 @@ static Term get_geometry(uint32 type){
     }
   case WKBMULTILINESTRING:
     {
-      byte b;
-      uint32 n, u;
+      uint32 n;
       int i;
       Functor functor;
       Term *c_list;
@@ -298,8 +296,8 @@ static Term get_geometry(uint32 type){
 
       for ( i = 0; i < n; i++ ) {
 	/* read (and ignore) the byteorder and type */
-	b = get_inbyteorder();
-	u = get_wkbType();
+	get_inbyteorder();
+	get_wkbType();
 
 	c_list[i] = get_linestring(NULL);
       }
@@ -316,8 +314,7 @@ static Term get_geometry(uint32 type){
     }
   case WKBMULTIPOLYGON:
     {
-      byte b;
-      uint32 n, u;
+      uint32 n;
       int i;
       Functor functor;
       Term *c_list;
@@ -332,8 +329,8 @@ static Term get_geometry(uint32 type){
 
       for ( i = 0; i < n; i++ ) {
 	/* read (and ignore) the byteorder and type */
-	b = get_inbyteorder();
-	u = get_wkbType();
+	get_inbyteorder();
+	get_wkbType();
 
 	c_list[i] = get_polygon(NULL);
       }
@@ -350,7 +347,6 @@ static Term get_geometry(uint32 type){
     }
   case WKBGEOMETRYCOLLECTION:
     {
-      byte b;
       uint32 n;
       int i;
       Functor functor;
@@ -365,7 +361,7 @@ static Term get_geometry(uint32 type){
 
 
       for ( i = 0; i < n; i++ ) {
-	b = get_inbyteorder();
+	get_inbyteorder();
 	c_list[i] = get_geometry(get_wkbType());
       }
 

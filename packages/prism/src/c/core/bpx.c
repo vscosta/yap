@@ -34,7 +34,7 @@ double      floatval(TERM);
 #ifdef __YAP_PROLOG__
 static inline
 #endif
-TERM        encodefloat1(double);
+TERM        encodefloat1(double USES_REGS);
 
 /* loader.c */
 SYM_REC_PTR insert(const char *, int, int);
@@ -272,7 +272,7 @@ TERM bpx_build_float(double x)
 {
   CACHE_REGS
     REQUIRE_HEAP(4);
-    return encodefloat1(x);
+    return encodefloat1(x PASS_REGS);
 }
 
 TERM bpx_build_atom(const char *name)
