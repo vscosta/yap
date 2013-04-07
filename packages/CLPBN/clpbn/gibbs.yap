@@ -191,7 +191,7 @@ compile_graph(Graph) :-
 
 compile_var(Graph, var(_,I,_,Vals,Sz,VarSlot,Parents,_,_)) :-
 	foldl2( fetch_parent(Graph), VarSlot, [], Parents, [], Sizes),
-	foldl( mult_list, Sizes,1,TotSize),
+	foldl( mult, Sizes, 1, TotSize),
 	compile_var(TotSize,I,Vals,Sz,VarSlot,Parents,Sizes,Graph).
 
 fetch_parent(Graph, tabular(_,_,Ps), Parents0, ParentsF, Sizes0, SizesF) :-
@@ -210,8 +210,7 @@ add_parent([P|Parents0],I,[I,P|Parents0],Sizes0,Sz,[Sz|Sizes0]) :-
 add_parent([P|Parents0],I,[P|ParentsI],[S|Sizes0],Sz,[S|SizesI]) :-
 	add_parent(Parents0,I,ParentsI,Sizes0,Sz,SizesI).
 
-
-mult_list(Sz,Mult0,Mult) :-
+mult(Sz, Mult0, Mult) :-
 	Mult is Sz*Mult0.
 
 % compile node as set of facts, faster execution
@@ -247,29 +246,24 @@ fetch_val([_|Vals],I0,Pos) :-
 	I is I0+1,
 	fetch_val(Vals,I,Pos).
 
-multiply_all([tabular(Table,_,Parents)|CPTs],Graph,Probs) :-
+multiply_all([tabular(Table,_,Parents)|CPTs], Graph, LProbs) :-
 	maplist( fetch_parent(Graph), Parents, Vals),
-	column_from_possibly_deterministic_CPT(Table,Vals,Probs0),
-	multiply_more(CPTs,Graph,Probs0,Probs).
+	column_from_possibly_deterministic_CPT(Table, Vals, Probs0),
+	foldl( multiply_more(Graph), CPTs, Probs0, Probs1),
+	normalise_possibly_deterministic_CPT(Probs1, Probs),
+	list_from_CPT(Probs, LProbs0),
+	foldl( accumulate_up, LProbs0, LProbs, 0.0, _).
 
 fetch_parent(Graph, P, Val) :-
 	arg(P,Graph,var(_,_,Val,_,_,_,_,_,_)).
 
-multiply_more([],_,Probs0,LProbs) :-
-	normalise_possibly_deterministic_CPT(Probs0, Probs),
-	list_from_CPT(Probs, LProbs0),
-	accumulate_up_list(LProbs0, 0.0, LProbs).
-multiply_more([tabular(Table,_,Parents)|CPTs],Graph,Probs0,Probs) :-
+multiply_more(Graph, tabular(Table,_,Parents), Probs0, Probs) :-
 	maplist( fetch_parent(Graph), Parents, Vals),
 	column_from_possibly_deterministic_CPT(Table, Vals, P0),
-	multiply_possibly_deterministic_factors(Probs0, P0, ProbsI),
-	multiply_more(CPTs,Graph,ProbsI,Probs).
+	multiply_possibly_deterministic_factors(Probs0, P0, Probs).
 
-accumulate_up_list([], _, []).
-accumulate_up_list([P|LProbs], P0, [P1|L]) :-
-	P1 is P0+P,
-	accumulate_up_list(LProbs, P1, L).
-
+accumulate_up(P, P1, P0, P1) :-
+	P1 is P0+P.
 
 store_mblanket(I,Values,Probs) :-
 	recordz(mblanket,m(I,Values,Probs),_).
@@ -348,33 +342,24 @@ gen_e0(Sz,[0|E0L]) :-
 process_chains(0,_,F,F,_,_,Est,Est) :- !.
 process_chains(ToDo,VarOrder,End,Start,Graph,Len,Est0,Estf) :-
 %format('ToDo = ~d~n',[ToDo]),
-	process_chains(Start,VarOrder,Int,Graph,Len,Est0,Esti),
+	maplist( process_chain(VarOrder, Graph, Len), Start, Int, Est0, Esti),
 % (ToDo mod 100 =:= 1 -> statistics,maplist(cvt2prob, Esti, Probs), Int =[S|_], format('did ~d: ~w~n ~w~n',[ToDo,Probs,S]) ; true),
 	ToDo1 is ToDo-1,
 	process_chains(ToDo1,VarOrder,End,Int,Graph,Len,Esti,Estf).
 
 
-process_chains([], _, [], _, _,[],[]).
-process_chains([Sample0|Samples0], VarOrder, [Sample|Samples], Graph, SampLen,[E0|E0s],[Ef|Efs]) :-
+process_chain(VarOrder, Graph, SampLen, Sample0, Sample, E0, Ef) :-
 	functor(Sample,sample,SampLen),
-	do_sample(VarOrder,Sample,Sample0,Graph),
+	maplist(do_var(Graph, Sample0, Sample), VarOrder),
 % format('Sample = ~w~n',[Sample]),
-	maplist(update_estimate(Sample), E0, Ef),
-	process_chains(Samples0, VarOrder, Samples, Graph, SampLen,E0s,Efs).
+	maplist(update_estimate(Sample), E0, Ef).
 
-do_sample([],_,_,_).
-do_sample([I|VarOrder],Sample,Sample0,Graph) :-
-	do_var(I,Sample,Sample0,Graph),
-	do_sample(VarOrder,Sample,Sample0,Graph).
-
-do_var(I,Sample,Sample0,Graph) :-
+do_var(Graph, Sample0, Sample, I) :-
+	arg(I,Graph,var(_,_,_,_,_,CPTs,Parents,_,_)),
+	maplist( fetch_parent(Sample0, Sample), Parents, Bindings),
 	( explicit(I) ->
-	  arg(I,Graph,var(_,_,_,_,_,_,Parents,_,_)),
-	  fetch_parents(Parents,I,Sample,Sample0,Args),
-	  recorded(mblanket,m(I,Args,Vals),_)
+	  recorded(mblanket,m(I,Bindings,Vals),_)
 	;
-	  arg(I,Graph,var(_,_,_,_,_,CPTs,Parents,_,_)),
-	  fetch_parents(Parents,I,Sample,Sample0,Bindings),
 	  multiply_all_in_context(Parents,Bindings,CPTs,Graph,Vals)
 	),
 	X is random,
@@ -382,25 +367,20 @@ do_var(I,Sample,Sample0,Graph) :-
 	arg(I,Sample,Val).
 
 multiply_all_in_context(Parents,Args,CPTs,Graph,Vals) :-
-	set_pos(Parents,Args,Graph),
+	maplist( set_pos(Graph), Parents, Args),
 	multiply_all(CPTs,Graph,Vals),
 	assert(mall(Vals)), fail.
 multiply_all_in_context(_,_,_,_,Vals) :-
 	retract(mall(Vals)).
 
-set_pos([],[],_).
-set_pos([I|Is],[Pos|Args],Graph) :-
-	arg(I,Graph,var(_,I,Pos,_,_,_,_,_,_)),
-	set_pos(Is,Args,Graph).
+set_pos(Graph, I, Pos) :-
+	arg(I,Graph,var(_,I,Pos,_,_,_,_,_,_)).
 
-fetch_parents([],_,_,_,[]).
-fetch_parents([P|Parents],I,Sample,Sample0,[VP|Args]) :-
-	arg(P,Sample,VP),
-	nonvar(VP), !,
-	fetch_parents(Parents,I,Sample,Sample0,Args).
-fetch_parents([P|Parents],I,Sample,Sample0,[VP|Args]) :-
-	arg(P,Sample0,VP),
-	fetch_parents(Parents,I,Sample,Sample0,Args).
+fetch_parent(_Sample0, Sample, P, VP) :-
+	arg(P, Sample,VP),
+	nonvar(VP), !.
+fetch_parent(Sample0, _Sample, P, VP) :-
+	arg(P, Sample0, VP).
 
 pick_new_value([V|Vals],X,I0,Val) :-
 	( X < V ->
