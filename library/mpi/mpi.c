@@ -32,23 +32,23 @@ static char *rcsid = "$Header: /Users/vitor/Yap/yap-cvsbackup/library/mpi/mpi.c,
 
 void    STD_PROTO(YAP_Write, (Term, void (*)(int), int));
 
-STATIC_PROTO (Int p_mpi_open, (void));
-STATIC_PROTO (Int p_mpi_close, (void));
-STATIC_PROTO (Int p_mpi_send, (void));
-STATIC_PROTO (Int p_mpi_receive, (void));
-STATIC_PROTO (Int p_mpi_bcast3, (void));
-STATIC_PROTO (Int p_mpi_bcast2, (void));
-STATIC_PROTO (Int p_mpi_barrier, (void));
+STATIC_PROTO (Int p_mpi_open, ( USES_REGS1 ));
+STATIC_PROTO (Int p_mpi_close, ( USES_REGS1 ));
+STATIC_PROTO (Int p_mpi_send, ( USES_REGS1 ));
+STATIC_PROTO (Int p_mpi_receive, ( USES_REGS1 ));
+STATIC_PROTO (Int p_mpi_bcast3, ( USES_REGS1 ));
+STATIC_PROTO (Int p_mpi_bcast2, ( USES_REGS1 ));
+STATIC_PROTO (Int p_mpi_barrier, ( USES_REGS1 ));
 
 
 /*
  * Auxiliary Data
  */
 
-static Int rank, numprocs, namelen;
+static int rank, numprocs, namelen;
 static char processor_name[MPI_MAX_PROCESSOR_NAME];
 
-static Int mpi_argc;
+static int mpi_argc;
 static char **mpi_argv;
 
 /* this should eventually be moved to config.h */
@@ -111,7 +111,7 @@ mpi_putc(Int ch)
 
 
 static Int
-p_mpi_open(void)         /* mpi_open(?rank, ?num_procs, ?proc_name) */
+p_mpi_open( USES_REGS1 )         /* mpi_open(?rank, ?num_procs, ?proc_name) */
 {
   Term t_rank = Deref(ARG1), t_numprocs = Deref(ARG2), t_procname = Deref(ARG3);
   Int retv;
@@ -156,7 +156,7 @@ Yap exit(FAILURE), whereas in Yap/LAM mpi_open/3 simply fails.
 
 
 static Int               /* mpi_close */
-p_mpi_close()
+p_mpi_close( USES_REGS1 )
 {
   MPI_Finalize();
   return TRUE;
@@ -164,7 +164,7 @@ p_mpi_close()
 
 
 static Int
-p_mpi_send()             /* mpi_send(+data, +destination, +tag) */
+p_mpi_send( USES_REGS1 )             /* mpi_send(+data, +destination, +tag) */
 {
   Term t_data = Deref(ARG1), t_dest = Deref(ARG2), t_tag = Deref(ARG3);
   int tag, dest, retv;
@@ -216,7 +216,7 @@ p_mpi_send()             /* mpi_send(+data, +destination, +tag) */
 
 
 static Int
-p_mpi_receive()          /* mpi_receive(-data, ?orig, ?tag) */
+p_mpi_receive( USES_REGS1 )          /* mpi_receive(-data, ?orig, ?tag) */
 {
   Term t, t_data = Deref(ARG1), t_orig = Deref(ARG2), t_tag = Deref(ARG3);
   int tag, orig, retv;
@@ -305,7 +305,7 @@ p_mpi_receive()          /* mpi_receive(-data, ?orig, ?tag) */
 
 
 static Int
-p_mpi_bcast3()           /* mpi_bcast( ?data, +root, +max_size ) */
+p_mpi_bcast3( USES_REGS1 )           /* mpi_bcast( ?data, +root, +max_size ) */
 {
   Term t_data = Deref(ARG1), t_root = Deref(ARG2), t_max_size = Deref(ARG3);
   int root, retv, max_size;
@@ -386,7 +386,7 @@ p_mpi_bcast3()           /* mpi_bcast( ?data, +root, +max_size ) */
 */
 
 static Int
-p_mpi_bcast2()           /* mpi_bcast( ?data, +root ) */
+p_mpi_bcast2( USES_REGS1 )           /* mpi_bcast( ?data, +root ) */
 {
   Term t_data = Deref(ARG1), t_root = Deref(ARG2);
   int root, retv;
@@ -460,7 +460,7 @@ p_mpi_bcast2()           /* mpi_bcast( ?data, +root ) */
 
 
 static Int
-p_mpi_barrier()            /* mpi_barrier/0 */
+p_mpi_barrier( USES_REGS1 )            /* mpi_barrier/0 */
 {
   int retv;
 
