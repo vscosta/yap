@@ -28,7 +28,7 @@
 :- use_module(library(pfl),
 		[factor/6,
 		 skolem/2,
-		 get_pfl_parameters/2
+		 get_pfl_parameters/3
 		]).
 
 :- use_module(library(maplist)).
@@ -50,9 +50,9 @@ init_horus_lifted_solver(_, AllVars, _, state(Network, DistIds)) :-
 	sort(DistIds0, DistIds).
 
 
-run_horus_lifted_solver(QueryVars, Solutions, state(Network, DistIds)) :-
+run_horus_lifted_solver(QueryVars, Solutions, state(Network, _DistIds)) :-
 	maplist(get_query_keys, QueryVars, QueryKeys),
-	%maplist(get_pfl_parameters, DistIds,DistsParams),
+	%maplist(get_pfl_parameters, DistIds, _, DistsParams),
 	%cpp_set_parfactors_params(Network, DistIds, DistsParams),
 	cpp_run_lifted_solver(Network, QueryKeys, Solutions).
 

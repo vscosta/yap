@@ -131,9 +131,9 @@ init_ve(FactorIds, EvidenceIds, Hash, Id, ve(FactorIds, Hash, Id, Ev)) :-
 evtotree(K=V,Ev0,Ev) :-
 	rb_insert(Ev0, K, V, Ev).
 
-factor_to_graph( f(Nodes, Sizes, _Pars0, Id), Factors0, Factors, Edges0, Edges, I0, I) :-
+factor_to_graph( fn(Nodes, Sizes, _Pars0, Id, Keys), Factors0, Factors, Edges0, Edges, I0, I) :-
 	I is I0+1,
-	pfl:get_pfl_parameters(Id, Pars0),
+	pfl:get_pfl_parameters(Id, Keys, Pars0),
 	init_CPT(Pars0, Sizes, CPT0),
 	reorder_CPT(Nodes, CPT0, FIPs, CPT, _),
 	F = f(I0, FIPs, CPT),
