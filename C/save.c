@@ -261,7 +261,7 @@ open_file(char *my_file, int flag)
 #endif  /* O_BINARY */
 #endif 	/* M_WILLIAMS */
       {
-	splfild = 0;	/* We do not have an open file */
+	splfild = -1;	/* We do not have an open file */
 	return -1;
       }
 #ifdef undf0
@@ -1466,7 +1466,7 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
   } else {
     strncat(LOCAL_FileNameBuf, inpf, YAP_FILENAME_MAX-1);
   }
-  if (inpf != NULL && (splfild = open_file(inpf, O_RDONLY)) > 0) {
+  if (inpf != NULL && !((splfild = open_file(inpf, O_RDONLY)) < 0)) {
     if ((mode = try_open(inpf,Astate,ATrail,AStack,AHeap,save_buffer,streamp)) != FAIL_RESTORE) {
       return mode;
     }
@@ -1499,7 +1499,7 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
 #endif
     if (YAP_LIBDIR != NULL) {
       cat_file_name(LOCAL_FileNameBuf, YAP_LIBDIR, inpf, YAP_FILENAME_MAX);
-      if ((splfild = open_file(LOCAL_FileNameBuf, O_RDONLY)) > 0) {
+      if (!((splfild = open_file(LOCAL_FileNameBuf, O_RDONLY)) < 0)) {
 	if ((mode = try_open(LOCAL_FileNameBuf,Astate,ATrail,AStack,AHeap,save_buffer,streamp)) != FAIL_RESTORE) {
 	  return mode;
 	}
@@ -1508,7 +1508,7 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
   }
 #if _MSC_VER || defined(__MINGW32__)
   if ((inpf = Yap_RegistryGetString("startup"))) {
-    if ((splfild = open_file(inpf, O_RDONLY)) > 0) {
+    if (!((splfild = open_file(inpf, O_RDONLY)) < 0)) {
       if ((mode = try_open(inpf,Astate,ATrail,AStack,AHeap,save_buffer,streamp)) != FAIL_RESTORE) {
 	return mode;
       }
