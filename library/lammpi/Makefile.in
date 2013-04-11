@@ -37,8 +37,8 @@ RANLIB=@RANLIB@
 srcdir=@srcdir@
 SO=@SO@
 CWD=$(PWD)
-MPILDF=`$(MPI_CC) -showme|sed "s/[^ ]*//"|sed "s/-pt/-lpt/"`
-MPICF=`$(MPI_CC) -showme| cut -d " " -f 2`
+MPILDF=`$(MPI_CC) --showme:link`
+MPICF=`$(MPI_CC) --showme:compile`
 #
 
 OBJS=yap_mpi.o hash.o prologterms2c.o

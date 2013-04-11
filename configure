@@ -1539,7 +1539,7 @@ Optional Packages:
  --with-java=JAVA_HOME       use Java instalation in JAVA_HOME
  --with-readline=DIR      use GNU Readline Library in DIR
  --with-matlab=DIR      use MATLAB package in DIR
- --with-mpi=DIR           use MPI library in DIR
+ --with-mpi=DIR           use LAM/MPI library in DIR
  --with-mpe=DIR           use MPE library in DIR
  --with-lam=DIR           use LAM MPI library in DIR
  --with-heap-space=space  default heap size in Kbytes
@@ -4860,16 +4860,16 @@ fi
 # Check whether --with-mpi was given.
 if test "${with_mpi+set}" = set; then :
   withval=$with_mpi; if test "$withval" = yes; then
-        		yap_cv_mpi=yes
+        		yap_cv_lam=yes
 	elif test "$withval" = no; then
-		yap_cv_mpi=no
+		yap_cv_lam=no
 	else
-		yap_cv_mpi=$with_mpi
+		yap_cv_lam=$with_mpi
 		LDFLAGS="$LDFLAGS -L${yap_cv_mpi}/lib"
 		CPPFLAGS="$CPPFLAGS -I${yap_cv_mpi}/include"
 	fi
 else
-  yap_cv_mpi=no
+  yap_cv_lam=no
 fi
 
 

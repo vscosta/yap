@@ -360,18 +360,18 @@ AC_ARG_WITH(matlab,
 	[yap_cv_matlab=no])
 
 AC_ARG_WITH(mpi,
-	[ --with-mpi[=DIR]           use MPI library in DIR],
+	[ --with-mpi[=DIR]           use LAM/MPI library in DIR],
 	if test "$withval" = yes; then
         dnl handle UBUNTU systems
-		yap_cv_mpi=yes
+		yap_cv_lam=yes
 	elif test "$withval" = no; then
-		yap_cv_mpi=no
+		yap_cv_lam=no
 	else
-		yap_cv_mpi=$with_mpi
+		yap_cv_lam=$with_mpi
 		LDFLAGS="$LDFLAGS -L${yap_cv_mpi}/lib"
 		CPPFLAGS="$CPPFLAGS -I${yap_cv_mpi}/include"
 	fi,
-	[yap_cv_mpi=no])
+	[yap_cv_lam=no])
 
 
 AC_ARG_WITH(mpe,

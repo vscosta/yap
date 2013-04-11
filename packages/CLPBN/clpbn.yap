@@ -473,7 +473,7 @@ factor_to_dist(Hash, f(bayes, Id, Ks)) :-
 	maplist(key_to_var(Hash), Ks, [V|Parents]),
 	Ks =[Key|_],
 	pfl:skolem(Key, Domain),
-	pfl:get_pfl_parameters(Id, CPT),
+	pfl:get_pfl_parameters(Id, Ks, CPT),
 	dist(p(Domain,CPT,Parents), DistInfo, Key, Parents),
 	put_atts(V,[dist(DistInfo,Parents)]).
 

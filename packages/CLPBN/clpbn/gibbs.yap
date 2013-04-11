@@ -28,6 +28,8 @@
 		 sum_list/2
 		]).
 
+:- use_module(library(maplist)).
+
 :- use_module(library(ordsets),
 		[ord_subtract/3]).
 
@@ -87,7 +89,7 @@ run_gibbs_solver(LVs, LPs, Vs) :-
 
 initialise(LVs, Graph, GVs, OutputVars, VarOrder) :-
 	init_keys(Keys0),
-	gen_keys(LVs, 0, VLen, Keys0, Keys),
+	foldl2(gen_key, LVs, 0, VLen, Keys0, Keys),
 	functor(Graph,graph,VLen),
 	graph_representation(LVs, Graph, 0, Keys, TGraph),
 	compile_graph(Graph),
@@ -99,21 +101,18 @@ initialise(LVs, Graph, GVs, OutputVars, VarOrder) :-
 init_keys(Keys0) :-
 	rb_new(Keys0).
 
-gen_keys([], I, I, Keys, Keys).
-gen_keys([V|Vs], I0, If, Keys0, Keys) :-
-	clpbn:get_atts(V,[evidence(_)]), !,
-	gen_keys(Vs, I0, If, Keys0, Keys).
-gen_keys([V|Vs], I0, If, Keys0, Keys) :-
+gen_key(V, I0, I0, Keys0, Keys0) :-
+	clpbn:get_atts(V,[evidence(_)]), !.
+gen_key(V, I0, I, Keys0, Keys) :-
 	I is I0+1,
-	rb_insert(Keys0,V,I,KeysI),
-	gen_keys(Vs, I, If, KeysI, Keys).
+	rb_insert(Keys0,V,I,Keys).
 
 graph_representation([],_,_,_,[]).
 graph_representation([V|Vs], Graph, I0, Keys, TGraph) :-
 	clpbn:get_atts(V,[evidence(_)]), !,
 	clpbn:get_atts(V, [dist(Id,Parents)]),
 	get_possibly_deterministic_dist_matrix(Id, Parents, _, Vals, Table),
-	get_sizes(Parents, Szs),
+	maplist(get_size, Parents, Szs),
 	length(Vals,Sz),
 	project_evidence_out([V|Parents],[V|Parents],Table,[Sz|Szs],Variables,NewTable),
 	% all variables are parents
@@ -123,7 +122,7 @@ graph_representation([V|Vs], Graph, I0, Keys, [I-IParents|TGraph]) :-
 	I is I0+1,
 	clpbn:get_atts(V, [dist(Id,Parents)]),
 	get_possibly_deterministic_dist_matrix(Id, Parents, _, Vals, Table),
-	get_sizes(Parents, Szs),
+	maplist( get_size, Parents, Szs),
 	length(Vals,Sz),
 	project_evidence_out([V|Parents],[V|Parents],Table,[Sz|Szs],Variables,NewTable),
 	Variables = [V|NewParents],
@@ -131,7 +130,7 @@ graph_representation([V|Vs], Graph, I0, Keys, [I-IParents|TGraph]) :-
 	reorder_CPT(Variables,NewTable,[V|SortedNVs],NewTable2,_),
 	add2graph(V, Vals, NewTable2, SortedIndices, Graph, Keys),
 	propagate2parents(NewParents, NewTable, Variables, Graph,Keys),
-	parent_indices(NewParents, Keys, IVariables0),
+	maplist(parent_index(Keys), NewParents, IVariables0),
 	sort(IVariables0, IParents),
 	arg(I, Graph, var(_,_,_,_,_,_,_,NewTable2,SortedIndices)),
 	graph_representation(Vs, Graph, I, Keys, TGraph).
@@ -141,18 +140,12 @@ write_pars([V|Parents]) :-
 	clpbn:get_atts(V, [key(K),dist(I,_)]),write(K:I),nl,
 	write_pars(Parents).
 
-get_sizes([], []).
-get_sizes([V|Parents], [Sz|Szs]) :-
+get_size(V, Sz) :-
 	clpbn:get_atts(V, [dist(Id,_)]),
-	get_dist_domain_size(Id, Sz),
-	get_sizes(Parents, Szs).
+	get_dist_domain_size(Id, Sz).
 
-parent_indices([], _, []).
-parent_indices([V|Parents], Keys, [I|IParents]) :-
-	rb_lookup(V, I, Keys),
-	parent_indices(Parents, Keys, IParents).
-
-
+parent_index(Keys, V, I) :-
+	rb_lookup(V, I, Keys).
 
 %
 % first, remove nodes that have evidence from tables.
@@ -180,52 +173,36 @@ add2graph(V, Vals, Table, IParents, Graph, Keys) :-
 	member(tabular(Table,Index,IParents), VarSlot), !.
 
 sort_according_to_indices(NVs,Keys,SortedNVs,SortedIndices) :-
-	vars2indices(NVs,Keys,ToSort),
+	maplist(var2index(Keys), NVs, ToSort),
 	keysort(ToSort, Sorted),
-	split_parents(Sorted, SortedNVs,SortedIndices).
+	maplist(split_parent, Sorted, SortedNVs,SortedIndices).
 
-split_parents([], [], []).
-split_parents([I-V|Sorted], [V|SortedNVs],[I|SortedIndices]) :-
-	split_parents(Sorted, SortedNVs, SortedIndices).
+split_parent(I-V, V, I).
 
-
-vars2indices([],_,[]).
-vars2indices([V|Parents],Keys,[I-V|IParents]) :-
-	rb_lookup(V, I, Keys),
-	vars2indices(Parents,Keys,IParents).
+var2index(Keys, V, I-V) :-
+	rb_lookup(V, I, Keys).
 
 %
 % This is the really cool bit.
 %
 compile_graph(Graph) :-
 	Graph =.. [_|VarsInfo],
-	compile_vars(VarsInfo,Graph).
+	maplist( compile_var(Graph), VarsInfo).
 
-compile_vars([],_).
-compile_vars([var(_,I,_,Vals,Sz,VarSlot,Parents,_,_)|VarsInfo],Graph)
-:-
-	compile_var(I,Vals,Sz,VarSlot,Parents,Graph),
-	compile_vars(VarsInfo,Graph).
-
-compile_var(I,Vals,Sz,VarSlot,Parents,Graph) :-
-	fetch_all_parents(VarSlot,Graph,[],Parents,[],Sizes),
-	mult_list(Sizes,1,TotSize),
+compile_var(Graph, var(_,I,_,Vals,Sz,VarSlot,Parents,_,_)) :-
+	foldl2( fetch_parent(Graph), VarSlot, [], Parents, [], Sizes),
+	foldl( mult_list, Sizes,1,TotSize),
 	compile_var(TotSize,I,Vals,Sz,VarSlot,Parents,Sizes,Graph).
 
-fetch_all_parents([],_,Parents,Parents,Sizes,Sizes) :- !.
-fetch_all_parents([tabular(_,_,Ps)|CPTs],Graph,Parents0,ParentsF,Sizes0,SizesF) :-
-	merge_these_parents(Ps,Graph,Parents0,ParentsI,Sizes0,SizesI),
-	fetch_all_parents(CPTs,Graph,ParentsI,ParentsF,SizesI,SizesF).
+fetch_parent(Graph, tabular(_,_,Ps), Parents0, ParentsF, Sizes0, SizesF) :-
+	foldl2( merge_these_parents(Graph), Ps, Parents0, ParentsF, Sizes0, SizesF).
 
-merge_these_parents([],_,Parents,Parents,Sizes,Sizes).
-merge_these_parents([I|Ps],Graph,Parents0,ParentsF,Sizes0,SizesF) :-
-	member(I,Parents0), !,
-	merge_these_parents(Ps,Graph,Parents0,ParentsF,Sizes0,SizesF).
-merge_these_parents([I|Ps],Graph,Parents0,ParentsF,Sizes0,SizesF) :-
+merge_these_parents(_Graph, I,Parents0,Parents0,Sizes0,Sizes0) :-
+	member(I,Parents0), !.
+merge_these_parents(Graph, I, Parents0,ParentsF,Sizes0,SizesF) :-
 	arg(I,Graph,var(_,I,_,Vals,_,_,_,_,_)),
 	length(Vals, Sz),
-	add_parent(Parents0,I,ParentsI,Sizes0,Sz,SizesI),
-	merge_these_parents(Ps,Graph,ParentsI,ParentsF,SizesI,SizesF).
+	add_parent(Parents0,I,ParentsF,Sizes0,Sz,SizesF).
 
 add_parent([],I,[I],[],Sz,[Sz]).
 add_parent([P|Parents0],I,[I,P|Parents0],Sizes0,Sz,[Sz|Sizes0]) :-
@@ -234,10 +211,8 @@ add_parent([P|Parents0],I,[P|ParentsI],[S|Sizes0],Sz,[S|SizesI]) :-
 	add_parent(Parents0,I,ParentsI,Sizes0,Sz,SizesI).
 
 
-mult_list([],Mult,Mult).
-mult_list([Sz|Sizes],Mult0,Mult) :-
-	MultI is Sz*Mult0,
-	mult_list(Sizes,MultI,Mult).
+mult_list(Sz,Mult0,Mult) :-
+	Mult is Sz*Mult0.
 
 % compile node as set of facts, faster execution
 compile_var(TotSize,I,_Vals,Sz,CPTs,Parents,_Sizes,Graph) :-
@@ -247,7 +222,7 @@ compile_var(TotSize,I,_Vals,Sz,CPTs,Parents,_Sizes,Graph) :-
 compile_var(_,_,_,_,_,_,_,_).
 
 multiply_all(I,Parents,CPTs,Sz,Graph) :-
-	markov_blanket_instance(Parents,Graph,Values),
+	maplist( markov_blanket_instance(Graph), Parents, Values),
 	(
 	  multiply_all(CPTs,Graph,Probs)
 	->
@@ -261,11 +236,9 @@ multiply_all(I,_,_,_,_) :-
 
 % note: what matters is how this predicate instantiates the temp
 % slot in the graph!
-markov_blanket_instance([],_,[]).
-markov_blanket_instance([I|Parents],Graph,[Pos|Values]) :-
-	arg(I,Graph,var(_,I,Pos,Vals,_,_,_,_,_)),
-	fetch_val(Vals,0,Pos),
-	markov_blanket_instance(Parents,Graph,Values).
+markov_blanket_instance(Graph, I, Pos) :-
+	arg(I, Graph, var(_,I,Pos,Vals,_,_,_,_,_)),
+	fetch_val(Vals, 0, Pos).
 
 % backtrack through every value in domain
 %
@@ -275,21 +248,19 @@ fetch_val([_|Vals],I0,Pos) :-
 	fetch_val(Vals,I,Pos).
 
 multiply_all([tabular(Table,_,Parents)|CPTs],Graph,Probs) :-
-	fetch_parents(Parents, Graph, Vals),
+	maplist( fetch_parent(Graph), Parents, Vals),
 	column_from_possibly_deterministic_CPT(Table,Vals,Probs0),
 	multiply_more(CPTs,Graph,Probs0,Probs).
 
-fetch_parents([], _, []).
-fetch_parents([P|Parents], Graph, [Val|Vals]) :-
-	arg(P,Graph,var(_,_,Val,_,_,_,_,_,_)),
-	fetch_parents(Parents, Graph, Vals).
+fetch_parent(Graph, P, Val) :-
+	arg(P,Graph,var(_,_,Val,_,_,_,_,_,_)).
 
 multiply_more([],_,Probs0,LProbs) :-
 	normalise_possibly_deterministic_CPT(Probs0, Probs),
 	list_from_CPT(Probs, LProbs0),
 	accumulate_up_list(LProbs0, 0.0, LProbs).
 multiply_more([tabular(Table,_,Parents)|CPTs],Graph,Probs0,Probs) :-
-	fetch_parents(Parents, Graph, Vals),
+	maplist( fetch_parent(Graph), Parents, Vals),
 	column_from_possibly_deterministic_CPT(Table, Vals, P0),
 	multiply_possibly_deterministic_factors(Probs0, P0, ProbsI),
 	multiply_more(CPTs,Graph,ProbsI,Probs).
@@ -378,7 +349,7 @@ process_chains(0,_,F,F,_,_,Est,Est) :- !.
 process_chains(ToDo,VarOrder,End,Start,Graph,Len,Est0,Estf) :-
 %format('ToDo = ~d~n',[ToDo]),
 	process_chains(Start,VarOrder,Int,Graph,Len,Est0,Esti),
-% (ToDo mod 100 =:= 1 -> statistics,cvt2problist(Esti, Probs), Int =[S|_], format('did ~d: ~w~n ~w~n',[ToDo,Probs,S]) ; true),
+% (ToDo mod 100 =:= 1 -> statistics,maplist(cvt2prob, Esti, Probs), Int =[S|_], format('did ~d: ~w~n ~w~n',[ToDo,Probs,S]) ; true),
 	ToDo1 is ToDo-1,
 	process_chains(ToDo1,VarOrder,End,Int,Graph,Len,Esti,Estf).
 
@@ -388,7 +359,7 @@ process_chains([Sample0|Samples0], VarOrder, [Sample|Samples], Graph, SampLen,[E
 	functor(Sample,sample,SampLen),
 	do_sample(VarOrder,Sample,Sample0,Graph),
 % format('Sample = ~w~n',[Sample]),
-	update_estimates(E0,Sample,Ef),
+	maplist(update_estimate(Sample), E0, Ef),
 	process_chains(Samples0, VarOrder, Samples, Graph, SampLen,E0s,Efs).
 
 do_sample([],_,_,_).
@@ -439,15 +410,10 @@ pick_new_value([V|Vals],X,I0,Val) :-
 	  pick_new_value(Vals,X,I,Val)
 	).
 
-update_estimates([],_,[]).
-update_estimates([Est|E0],Sample,[NEst|Ef]) :-
-	update_estimate(Est,Sample,NEst),
-	update_estimates(E0,Sample,Ef).
-
-update_estimate([I|E],Sample,[I|NE]) :-
+update_estimate(Sample, [I|E],[I|NE]) :-
 	arg(I,Sample,V),
 	update_estimate_for_var(V,E,NE).
-update_estimate(me(Is,Mult,E),Sample,me(Is,Mult,NE)) :-
+update_estimate(Sample,me(Is,Mult,E),me(Is,Mult,NE)) :-
 	get_estimate_pos(Is, Sample, Mult, 0, V),
 	update_estimate_for_var(V,E,NE).
 
@@ -481,21 +447,15 @@ clean_up.
 
 gibbs_params(5,100,1000).
 
-cvt2problist([], []).
-cvt2problist([[[_|E]]|Est0], [Ps|Probs]) :-
-	sum_all(E,0,Sum),
-	do_probs(E,Sum,Ps),
-	cvt2problist(Est0, Probs) .
+cvt2prob([[_|E]], Ps) :-
+	foldl(sum_all, E, 0, Sum),
+	maplist( do_prob(Sum), E, Ps).
 
-sum_all([],Sum,Sum).
-sum_all([E|Es],S0,Sum) :-
-	SI is S0+E,
-	sum_all(Es,SI,Sum).
+sum_all(E, S0, Sum) :-
+	Sum is S0+E.
 
-do_probs([],_,[]).
-do_probs([E|Es],Sum,[P|Ps]) :-
-	P is E/Sum,
-	do_probs(Es,Sum,Ps).
+do_prob(Sum, E, P) :-
+	P is E/Sum.
 
 show_sorted([], _) :- nl.
 show_sorted([I|VarOrder], Graph) :-
@@ -506,13 +466,11 @@ show_sorted([I|VarOrder], Graph) :-
 
 sum_up_all([[]|_], []).
 sum_up_all([[C|MoreC]|Chains], [Dist|Dists]) :-
-	extract_sums(Chains, CurrentChains, LeftChains),
+	maplist( extract_sum, Chains, CurrentChains, LeftChains),
 	sum_up([C|CurrentChains], Dist),
 	sum_up_all([MoreC|LeftChains], Dists).
 
-extract_sums([], [], []).
-extract_sums([[C|Chains]|MoreChains], [C|CurrentChains], [Chains|LeftChains]) :-
-	extract_sums(MoreChains, CurrentChains, LeftChains).
+extract_sum([C|Chains], C, Chains).
 
 sum_up([[_|Counts]|Chains], Dist) :-
 	add_up(Counts,Chains, Add),
@@ -523,25 +481,21 @@ sum_up([me(_,_,Counts)|Chains], Dist) :-
 
 add_up(Counts,[],Counts).
 add_up(Counts,[[_|Cs]|Chains], Add) :-
-	sum_lists(Counts, Cs, NCounts),
+	maplist(sum, Counts, Cs, NCounts),
 	add_up(NCounts, Chains, Add).
 
 add_up_mes(Counts,[],Counts).
 add_up_mes(Counts,[me(_,_,Cs)|Chains], Add) :-
-	sum_lists(Counts, Cs, NCounts),
+	maplist( sum_list, Counts, Cs, NCounts),
 	add_up_mes(NCounts, Chains, Add).
 
-sum_lists([],[],[]).
-sum_lists([Count|Counts], [C|Cs], [NC|NCounts]) :-
-	NC is Count+C,
-	sum_lists(Counts, Cs, NCounts).
+sum(Count, C, NC) :-
+	NC is Count+C.
 
 normalise(Add, Dist) :-
 	sum_list(Add, Sum),
-	divide_list(Add, Sum, Dist).
+	maplist(divide(Sum), Add, Dist).
 
-divide_list([],  _, []).
-divide_list([C|Add], Sum, [P|Dist]) :-
-	P is C/Sum,
-	divide_list(Add, Sum, Dist).
+divide(Sum, C, P) :-
+	P is C/Sum.
 
