@@ -186,12 +186,12 @@ HCLI = $(srcdir)/hcli
 UTESTING = $(srcdir)/run_tests
 
 
+all: $(LIB) $(HCLI)
+
+
 # Don't require $(UTESTING) by default as we
 # don't want a hard dependency on CppUnit
-default: $(LIB) $(HCLI)
-
-
-all: $(LIB) $(HCLI) $(UTESTING)
+with_tests: $(LIB) $(HCLI) $(UTESTING)
 
 
 @DO_SECOND_LD@$(LIB): $(LIB_OBJS)
