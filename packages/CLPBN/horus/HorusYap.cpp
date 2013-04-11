@@ -524,10 +524,11 @@ readParameters (YAP_Term paramL)
   assert (YAP_IsPairTerm (paramL));
   while (paramL != YAP_TermNil()) {
     YAP_Term hd = YAP_HeadOfTerm (paramL);
-    if (YAP_IsFloatTerm(hd))
+    if (YAP_IsFloatTerm (hd)) {
       params.push_back ((double) YAP_FloatOfTerm (hd));
-    else 
+    } else {
       params.push_back ((double) YAP_IntOfTerm (hd));
+    }
     paramL = YAP_TailOfTerm (paramL);
   }
   if (Globals::logDomain) {
