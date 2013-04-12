@@ -43,7 +43,14 @@ body {
   padding-top:15px;
   padding-right:0px;
   margin-right:0px;
+}
+
+#name {
   color:#2798CA;
+}
+
+#email {
+  color:gray;
 }
 
 .mainbody {
@@ -58,7 +65,7 @@ body {
 
 #menu ul {
   padding:0px;
-  margin:0px;
+  margin: 20px 0px;
   background-color:#EDEDED;
   list-style:none;
   text-align: center;

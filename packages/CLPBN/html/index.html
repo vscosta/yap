@@ -16,10 +16,15 @@
 <div class="header">
 <div id="leftcolumn"><h1>Prolog Factor Language</h1></div>
 <div id="rightcolumn">
-  <table>
-    <tr><td>vsc</td><td>at gmail.com</td></tr>
-    <tr><td>tiago.avv</td><td>at gmail.com</td></tr>
-  </table>
+  <div>
+    <div id=name>Vítor Costa</div>
+    <div id=email>vsc at gmail.com </div>
+  </div>
+  <div style="padding-top:10px">
+    <div id=name>Tiago Gomes</div>
+    <div id=email>tiago.avv at gmail.com</div>
+  </div>
+
 </div>
 <div style="clear: both"></div>
   <nav id="menu">
@@ -28,8 +33,8 @@
     <li><a href="#installation">Installation</a></li>
     <li><a href="#language">Language</a></li>
     <li><a href="#querying">Querying</a></li>
-    <li><a href="#inference_options">Inference Options</a></li>
-    <li><a href="#parameter_learning">Parameter Learning</a></li>
+    <li><a href="#options">Options</a></li>
+    <li><a href="#learning">Learning</a></li>
     <li><a href="#external_interface">External Interface</a></li>
     <li><a href="#papers">Papers</a></li>
     </ul>
@@ -238,7 +243,7 @@ In this section we demonstrate how to use PFL to solve probabilistic queries. We
 <!--+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
 <!--+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
 <!--+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
-<h2 id="inference_options">Inference Options</h2>
+<h2 id="options">Options</h2>
 PFL supports both ground and lifted inference methods. The inference algorithm can be chosen by calling <span class=texttt>set_solver/1</span>. The following are supported:
 
 <ul>
@@ -352,7 +357,7 @@ This option allows to print a textual representation of the factor graph.
 <!--+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
 <!--+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
 <!--+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
-<h2 id="parameter_learning">Parameter Learning</h2>
+<h2 id="learning">Learning</h2>
 PFL is capable to learn the parameters for bayesian networks, through an implementation of the expectation-maximization algorithm.
 
 <p>Next we show an example of parameter learning for the sprinkler network.</p>
