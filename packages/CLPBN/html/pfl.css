@@ -45,11 +45,11 @@ body {
   margin-right:0px;
 }
 
-#name {
+div.name {
   color:#2798CA;
 }
 
-#email {
+div.email {
   color:gray;
 }
 
