@@ -1,104 +1,35 @@
-#ifndef HORUS_CONSTRAINTTREE_H
-#define HORUS_CONSTRAINTTREE_H
+#ifndef YAP_PACKAGES_CLPBN_HORUS_CONSTRAINTTREE_H_
+#define YAP_PACKAGES_CLPBN_HORUS_CONSTRAINTTREE_H_
 
 #include <cassert>
-#include <algorithm>
 
-#include <iostream>
-#include <sstream>
+#include <vector>
+#include <algorithm>
+#include <string>
 
 #include "TinySet.h"
 #include "LiftedUtils.h"
 
-using namespace std;
 
+namespace Horus {
 
 class CTNode;
-typedef vector<CTNode*> CTNodes;
-
 class ConstraintTree;
-typedef vector<ConstraintTree*> ConstraintTrees;
 
 
-class CTNode
-{
-  public:
-    struct CompareSymbol
-    {
-      bool operator() (const CTNode* n1, const CTNode* n2) const
-      {
-        return n1->symbol() < n2->symbol();
-      }
-    };
+typedef std::vector<CTNode*>          CTNodes;
+typedef std::vector<ConstraintTree*>  ConstraintTrees;
 
-  private:
-    typedef TinySet<CTNode*, CompareSymbol> CTChilds_;
 
-  public:
-    CTNode (const CTNode& n, const CTChilds_& chs = CTChilds_()) 
-        : symbol_(n.symbol()), childs_(chs), level_(n.level()) { }
-
-    CTNode (Symbol s, unsigned l, const CTChilds_& chs = CTChilds_())
-        : symbol_(s), childs_(chs), level_(l) { }
-
-    unsigned level (void) const { return level_; }
-
-    void setLevel (unsigned level) { level_ = level; }
-
-    Symbol symbol (void) const { return symbol_; }
-
-    void setSymbol (const Symbol s) { symbol_ = s; }
-
-    CTChilds_& childs (void) { return childs_; }
-
-    const CTChilds_& childs (void) const { return childs_; }
-
-    size_t nrChilds (void) const { return childs_.size(); }
-
-    bool isRoot (void) const { return level_ == 0; }
-
-    bool isLeaf (void) const { return childs_.empty(); }
-
-    CTChilds_::iterator findSymbol (Symbol symb)
-    {
-      CTNode tmp (symb, 0);
-      return childs_.find (&tmp);
-    }
-
-    void mergeSubtree (CTNode*, bool = true);
-
-    void removeChild (CTNode*);
-
-    void removeChilds (void);
-
-    void removeAndDeleteChild (CTNode*);
-
-    void removeAndDeleteAllChilds (void);
-
-    SymbolSet childSymbols (void) const;
-
-    static CTNode* copySubtree (const CTNode*);
-
-    static void deleteSubtree (CTNode*);
-
-  private:
-    void updateChildLevels (CTNode*, unsigned);
-
-    Symbol     symbol_;
-    CTChilds_  childs_;
-    unsigned   level_;
-
-    DISALLOW_ASSIGN (CTNode);
+struct CmpSymbol {
+  bool operator() (const CTNode* n1, const CTNode* n2) const;
 };
 
-ostream& operator<< (ostream &out, const CTNode&);
+
+typedef TinySet<CTNode*, CmpSymbol>   CTChilds;
 
 
-typedef TinySet<CTNode*, CTNode::CompareSymbol> CTChilds;
-
-
-class ConstraintTree
-{
+class ConstraintTree {
   public:
     ConstraintTree (unsigned);
 
@@ -106,38 +37,23 @@ class ConstraintTree
 
     ConstraintTree (const LogVars&, const Tuples&);
 
-    ConstraintTree (vector<vector<string>> names);
+    ConstraintTree (std::vector<std::vector<std::string>> names);
 
     ConstraintTree (const ConstraintTree&);
 
-    ConstraintTree (const CTChilds& rootChilds, const LogVars& logVars)
-        : root_(new CTNode (0, 0, rootChilds)),
-          logVars_(logVars),
-          logVarSet_(logVars) { }
+    ConstraintTree (const CTChilds& rootChilds, const LogVars& logVars);
 
-   ~ConstraintTree (void);
+   ~ConstraintTree();
 
-    CTNode* root (void) const { return root_; }
+    CTNode* root() const { return root_; }
 
-    bool empty (void) const { return root_->childs().empty(); }
+    bool empty() const;
 
-    const LogVars& logVars (void) const
-    {
-      assert (LogVarSet (logVars_) == logVarSet_);
-      return logVars_;
-    }
+    const LogVars& logVars() const;
 
-    const LogVarSet& logVarSet (void) const
-    {
-      assert (LogVarSet (logVars_) == logVarSet_);
-      return logVarSet_;
-    }
+    const LogVarSet& logVarSet() const;
 
-    size_t nrLogVars (void) const
-    {
-      return logVars_.size();
-      assert (LogVarSet (logVars_) == logVarSet_);
-    }
+    size_t nrLogVars() const;
 
     void addTuple (const Tuple&);
 
@@ -163,13 +79,13 @@ class ConstraintTree
 
     bool isSingleton (LogVar);
 
-    LogVarSet singletons (void);
+    LogVarSet singletons();
 
     TupleSet tupleSet (unsigned = 0) const;
 
     TupleSet tupleSet (const LogVars&);
 
-    unsigned size (void) const;
+    unsigned size() const;
 
     unsigned nrSymbols (LogVar);
 
@@ -218,11 +134,10 @@ class ConstraintTree
 
     void getTuples (CTNode*, Tuples, unsigned, Tuples&, CTNodes&) const;
 
-    vector<std::pair<CTNode*, unsigned>> countNormalize (
+    std::vector<std::pair<CTNode*, unsigned>> countNormalize (
         const CTNode*, unsigned);
 
-    static void split (
-        CTNode*, CTNode*, CTChilds&, CTChilds&, unsigned);
+    static void split (CTNode*, CTNode*, CTChilds&, CTChilds&, unsigned);
 
     CTNode*    root_;
     LogVars    logVars_;
@@ -230,5 +145,33 @@ class ConstraintTree
 };
 
 
-#endif // HORUS_CONSTRAINTTREE_H
+
+inline const LogVars&
+ConstraintTree::logVars() const
+{
+  assert (LogVarSet (logVars_) == logVarSet_);
+  return logVars_;
+}
+
+
+
+inline const LogVarSet&
+ConstraintTree::logVarSet() const
+{
+  assert (LogVarSet (logVars_) == logVarSet_);
+  return logVarSet_;
+}
+
+
+
+inline size_t
+ConstraintTree::nrLogVars() const
+{
+  assert (LogVarSet (logVars_) == logVarSet_);
+  return logVars_.size();
+}
+
+}  // namespace Horus
+
+#endif  // YAP_PACKAGES_CLPBN_HORUS_CONSTRAINTTREE_H_
 

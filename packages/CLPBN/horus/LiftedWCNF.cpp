@@ -1,10 +1,20 @@
+#include <cassert>
+
+#include <iostream>
+#include <sstream>
+
 #include "LiftedWCNF.h"
+#include "ParfactorList.h"
 #include "ConstraintTree.h"
 #include "Indexer.h"
 
 
+namespace Horus {
+
 bool
-Literal::isGround (ConstraintTree constr, LogVarSet ipgLogVars) const
+Literal::isGround (
+    ConstraintTree constr,
+    const LogVarSet& ipgLogVars) const
 {
   if (logVars_.empty()) {
     return true;
@@ -24,13 +34,13 @@ Literal::indexOfLogVar (LogVar X) const
 
 
 
-string
+std::string
 Literal::toString (
     LogVarSet ipgLogVars,
     LogVarSet posCountedLvs,
     LogVarSet negCountedLvs) const
 {
-  stringstream ss;
+  std::stringstream ss;
   negated_ ? ss << "¬" : ss << "" ;
   ss << "λ" ;
   ss << lid_ ;
@@ -44,7 +54,7 @@ Literal::toString (
         ss << "-" << logVars_[i];
       } else if (ipgLogVars.contains (logVars_[i])) {
         LogVar X = logVars_[i];
-        const string labels[] = {
+        const std::string labels[] = {
             "a", "b", "c", "d", "e", "f",
             "g", "h", "i", "j", "k", "m" };
         (X >= 12) ? ss << "x_" << X : ss << labels[X];
@@ -60,7 +70,7 @@ Literal::toString (
 
 
 std::ostream&
-operator<< (ostream &os, const Literal& lit)
+operator<< (std::ostream& os, const Literal& lit)
 {
   os << lit.toString();
   return os;
@@ -216,7 +226,7 @@ Clause::isIpgLogVar (LogVar X) const
 
 
 TinySet<LiteralId>
-Clause::lidSet (void) const
+Clause::lidSet() const
 {
   TinySet<LiteralId> lidSet;
   for (size_t i = 0; i < literals_.size(); i++) {
@@ -228,7 +238,7 @@ Clause::lidSet (void) const
 
 
 LogVarSet
-Clause::ipgCandidates (void) const
+Clause::ipgCandidates() const
 {
   LogVarSet candidates;
   LogVarSet allLvs = constr_.logVarSet();
@@ -259,11 +269,11 @@ Clause::logVarTypes (size_t litIdx) const
   const LogVars& lvs = literals_[litIdx].logVars();
   for (size_t i = 0; i < lvs.size(); i++) {
     if (posCountedLvs_.contains (lvs[i])) {
-      types.push_back (LogVarType::POS_LV);
+      types.push_back (LogVarType::posLvt);
     } else if (negCountedLvs_.contains (lvs[i])) {
-      types.push_back (LogVarType::NEG_LV);
+      types.push_back (LogVarType::negLvt);
     } else {
-      types.push_back (LogVarType::FULL_LV);
+      types.push_back (LogVarType::fullLvt);
     }
   }
   return types;
@@ -320,7 +330,7 @@ void
 Clause::printClauses (const Clauses& clauses)
 {
   for (size_t i = 0; i < clauses.size(); i++) {
-    cout << *clauses[i] << endl;
+    std::cout << *clauses[i] << std::endl;
   }
 }
 
@@ -337,7 +347,7 @@ Clause::deleteClauses (Clauses& clauses)
 
 
 std::ostream&
-operator<< (ostream &os, const Clause& clause)
+operator<< (std::ostream& os, const Clause& clause)
 {
   for (unsigned i = 0; i < clause.literals_.size(); i++) {
     if (i != 0) os << " v " ;
@@ -369,18 +379,26 @@ Clause::getLogVarSetExcluding (size_t idx) const
 
 
 std::ostream&
-operator<< (std::ostream &os, const LitLvTypes& lit)
+operator<< (std::ostream& os, const LitLvTypes& lit)
 {
   os << lit.lid_ << "<" ;
   for (size_t i = 0; i < lit.lvTypes_.size(); i++) {
     switch (lit.lvTypes_[i]) {
-      case LogVarType::FULL_LV: os << "F" ; break;
-      case LogVarType::POS_LV:  os << "P" ; break;
-      case LogVarType::NEG_LV:  os << "N" ; break;
+      case LogVarType::fullLvt: os << "F" ; break;
+      case LogVarType::posLvt:  os << "P" ; break;
+      case LogVarType::negLvt:  os << "N" ; break;
     }
   }
   os << ">" ;
   return os;
+}
+
+
+
+void
+LitLvTypes::setAllFullLogVars()
+{
+  std::fill (lvTypes_.begin(), lvTypes_.end(), LogVarType::fullLvt);
 }
 
 
@@ -394,7 +412,7 @@ LiftedWCNF::LiftedWCNF (const ParfactorList& pfList)
   /*
   // INCLUSION-EXCLUSION TEST
   clauses_.clear();
-  vector<vector<string>> names = {
+  std::vector<std::vector<string>> names = {
     {"a1","b1"},{"a2","b2"}
   };
   Clause* c1 = new Clause (names);
@@ -406,7 +424,7 @@ LiftedWCNF::LiftedWCNF (const ParfactorList& pfList)
   /*
   // INDEPENDENT PARTIAL GROUND TEST
   clauses_.clear();
-  vector<vector<string>> names = {
+  std::vector<std::vector<string>> names = {
     {"a1","b1"},{"a2","b2"}
   };
   Clause* c1 = new Clause (names);
@@ -422,7 +440,7 @@ LiftedWCNF::LiftedWCNF (const ParfactorList& pfList)
   /*
   // ATOM-COUNTING TEST
   clauses_.clear();
-  vector<vector<string>> names = {
+  std::vector<std::vector<string>> names = {
     {"p1","p1"},{"p1","p2"},{"p1","p3"},
     {"p2","p1"},{"p2","p2"},{"p2","p3"},
     {"p3","p1"},{"p3","p2"},{"p3","p3"}
@@ -438,21 +456,21 @@ LiftedWCNF::LiftedWCNF (const ParfactorList& pfList)
   */
 
   if (Globals::verbosity > 1) {
-    cout << "FORMULA INDICATORS:" << endl;
+    std::cout << "FORMULA INDICATORS:" << std::endl;
     printFormulaIndicators();
-    cout << endl;
-    cout << "WEIGHTED INDICATORS:" << endl;
+    std::cout << std::endl;
+    std::cout << "WEIGHTED INDICATORS:" << std::endl;
     printWeights();
-    cout << endl;
-    cout << "CLAUSES:" << endl;
+    std::cout << std::endl;
+    std::cout << "CLAUSES:" << std::endl;
     printClauses();
-    cout << endl;
+    std::cout << std::endl;
   }
 }
 
 
 
-LiftedWCNF::~LiftedWCNF (void)
+LiftedWCNF::~LiftedWCNF()
 {
   Clause::deleteClauses (clauses_);
 }
@@ -462,7 +480,7 @@ LiftedWCNF::~LiftedWCNF (void)
 void
 LiftedWCNF::addWeight (LiteralId lid, double posW, double negW)
 {
-  weights_[lid] = make_pair (posW, negW);
+  weights_[lid] = std::make_pair (posW, negW);
 }
 
 
@@ -470,8 +488,8 @@ LiftedWCNF::addWeight (LiteralId lid, double posW, double negW)
 double
 LiftedWCNF::posWeight (LiteralId lid) const
 {
-  unordered_map<LiteralId, std::pair<double,double>>::const_iterator it;
-  it = weights_.find (lid);
+  std::unordered_map<LiteralId, std::pair<double,double>>::const_iterator it
+      = weights_.find (lid);
   return it != weights_.end() ? it->second.first : LogAware::one();
 }
 
@@ -480,14 +498,14 @@ LiftedWCNF::posWeight (LiteralId lid) const
 double
 LiftedWCNF::negWeight (LiteralId lid) const
 {
-  unordered_map<LiteralId, std::pair<double,double>>::const_iterator it;
-  it = weights_.find (lid);
+  std::unordered_map<LiteralId, std::pair<double,double>>::const_iterator it
+      = weights_.find (lid);
   return it != weights_.end() ? it->second.second : LogAware::one();
 }
 
 
 
-vector<LiteralId>
+std::vector<LiteralId>
 LiftedWCNF::prvGroupLiterals (PrvGroup prvGroup)
 {
   assert (Util::contains (map_, prvGroup));
@@ -536,9 +554,10 @@ LiftedWCNF::addIndicatorClauses (const ParfactorList& pfList)
         ConstraintTree tempConstr = (*it)->constr()->projectedCopy(
             formulas[i].logVars());
         Clause* clause = new Clause (tempConstr);
-        vector<LiteralId> lids;
+        std::vector<LiteralId> lids;
         for (size_t j = 0; j < formulas[i].range(); j++) {
-          clause->addLiteral (Literal (freeLiteralId_, formulas[i].logVars()));
+          clause->addLiteral (Literal (
+              freeLiteralId_, formulas[i].logVars()));
           lids.push_back (freeLiteralId_);
           freeLiteralId_ ++;
         }
@@ -568,7 +587,7 @@ LiftedWCNF::addParameterClauses (const ParfactorList& pfList)
   ParfactorList::const_iterator it = pfList.begin();
   while (it != pfList.end()) {
     Indexer indexer ((*it)->ranges());
-    vector<PrvGroup> groups = (*it)->getAllGroups();
+    std::vector<PrvGroup> groups = (*it)->getAllGroups();
     while (indexer.valid()) {
       LiteralId paramVarLid = freeLiteralId_;
       // λu1 ∧ ... ∧ λun ∧ λxi <=> θxi|u1,...,un
@@ -606,26 +625,26 @@ LiftedWCNF::addParameterClauses (const ParfactorList& pfList)
 
 
 void
-LiftedWCNF::printFormulaIndicators (void) const
+LiftedWCNF::printFormulaIndicators() const
 {
   if (map_.empty()) {
     return;
   }
-  set<PrvGroup> allGroups;
+  std::set<PrvGroup> allGroups;
   ParfactorList::const_iterator it = pfList_.begin();
   while (it != pfList_.end()) {
     const ProbFormulas& formulas = (*it)->arguments();
     for (size_t i = 0; i < formulas.size(); i++) {
       if (Util::contains (allGroups, formulas[i].group()) == false) {
         allGroups.insert (formulas[i].group());
-        cout << formulas[i] << " | " ;
+        std::cout << formulas[i] << " | " ;
         ConstraintTree tempCt = (*it)->constr()->projectedCopy (
             formulas[i].logVars());
-        cout << tempCt.tupleSet();
-        cout << " indicators => " ;
-        vector<LiteralId> indicators = 
+        std::cout << tempCt.tupleSet();
+        std::cout << " indicators => " ;
+        std::vector<LiteralId> indicators = 
             (map_.find (formulas[i].group()))->second;
-        cout << indicators << endl;
+        std::cout << indicators << std::endl;
       }
     }
     ++ it;
@@ -635,14 +654,14 @@ LiftedWCNF::printFormulaIndicators (void) const
 
 
 void
-LiftedWCNF::printWeights (void) const
+LiftedWCNF::printWeights() const
 {
-  unordered_map<LiteralId, std::pair<double,double>>::const_iterator it;
-  it = weights_.begin();
+  std::unordered_map<LiteralId, std::pair<double,double>>::const_iterator it
+      = weights_.begin();
   while (it != weights_.end()) {
-    cout << "λ" << it->first << " weights: " ;
-    cout << it->second.first << " " << it->second.second;
-    cout << endl;
+    std::cout << "λ" << it->first << " weights: " ;
+    std::cout << it->second.first << " " << it->second.second;
+    std::cout << std::endl;
     ++ it;
   }
 }
@@ -650,8 +669,10 @@ LiftedWCNF::printWeights (void) const
 
 
 void
-LiftedWCNF::printClauses (void) const
+LiftedWCNF::printClauses() const
 {
   Clause::printClauses (clauses_);
+}
+
 }
 

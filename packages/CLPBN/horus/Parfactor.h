@@ -1,20 +1,21 @@
-#ifndef HORUS_PARFACTOR_H
-#define HORUS_PARFACTOR_H
+#ifndef YAP_PACKAGES_CLPBN_HORUS_PARFACTOR_H_
+#define YAP_PACKAGES_CLPBN_HORUS_PARFACTOR_H_
 
-#include "Factor.h"
+#include <vector>
+#include <string>
+
+#include "GenericFactor.h"
 #include "ProbFormula.h"
 #include "ConstraintTree.h"
 #include "LiftedUtils.h"
 #include "Horus.h"
 
 
-class Parfactor : public TFactor<ProbFormula>
-{
+namespace Horus {
+
+class Parfactor : public GenericFactor<ProbFormula> {
   public:
-    Parfactor (
-        const ProbFormulas&,
-        const Params&,
-        const Tuples&,
+    Parfactor (const ProbFormulas&, const Params&, const Tuples&,
         unsigned distId);
 
     Parfactor (const Parfactor*, const Tuple&);
@@ -23,21 +24,21 @@ class Parfactor : public TFactor<ProbFormula>
 
     Parfactor (const Parfactor&);
 
-   ~Parfactor (void);
+   ~Parfactor();
 
-    ConstraintTree* constr (void) { return constr_; }
+    ConstraintTree* constr() { return constr_; }
 
-    const ConstraintTree* constr (void) const { return constr_; }
+    const ConstraintTree* constr() const { return constr_; }
 
-    const LogVars& logVars (void) const { return constr_->logVars(); }
+    const LogVars& logVars() const { return constr_->logVars(); }
 
-    const LogVarSet& logVarSet (void) const { return constr_->logVarSet(); }
+    const LogVarSet& logVarSet() const { return constr_->logVarSet(); }
 
-    LogVarSet countedLogVars (void) const;
+    LogVarSet countedLogVars() const;
 
-    LogVarSet uncountedLogVars (void) const;
+    LogVarSet uncountedLogVars() const;
 
-    LogVarSet elimLogVars (void) const;
+    LogVarSet elimLogVars() const;
 
     LogVarSet exclusiveLogVars (size_t fIdx) const;
 
@@ -57,7 +58,7 @@ class Parfactor : public TFactor<ProbFormula>
 
     void absorveEvidence (const ProbFormula&, unsigned);
 
-    void setNewGroups (void);
+    void setNewGroups();
 
     void applySubstitution (const Substitution&);
 
@@ -71,7 +72,7 @@ class Parfactor : public TFactor<ProbFormula>
 
     bool containsGroup (PrvGroup) const;
 
-    bool containsGroups (vector<PrvGroup>) const;
+    bool containsGroups (std::vector<PrvGroup>) const;
 
     unsigned nrFormulas (LogVar) const;
 
@@ -81,17 +82,17 @@ class Parfactor : public TFactor<ProbFormula>
 
     unsigned nrFormulasWithGroup (PrvGroup) const;
 
-    vector<PrvGroup> getAllGroups (void) const;
+    std::vector<PrvGroup> getAllGroups() const;
 
     void print (bool = false) const;
 
-    void printParameters (void) const;
+    void printParameters() const;
 
-    void printProjections (void) const;
+    void printProjections() const;
 
-    string getLabel (void) const;
+    std::string getLabel() const;
 
-    void simplifyGrounds (void);
+    void simplifyGrounds();
 
     static bool canMultiply (Parfactor*, Parfactor*);
 
@@ -104,18 +105,20 @@ class Parfactor : public TFactor<ProbFormula>
         Parfactor* g1, Parfactor* g2);
 
     void expandPotential (size_t fIdx, unsigned newRange,
-        const vector<unsigned>& sumIndexes);
+        const std::vector<unsigned>& sumIndexes);
 
     static void alignAndExponentiate (Parfactor*, Parfactor*);
 
     static void alignLogicalVars (Parfactor*, Parfactor*);
 
-    ConstraintTree*  constr_;
+    ConstraintTree* constr_;
 
     DISALLOW_ASSIGN (Parfactor);
 };
 
-typedef vector<Parfactor*> Parfactors;
+typedef std::vector<Parfactor*> Parfactors;
 
-#endif // HORUS_PARFACTOR_H
+}  // namespace Horus
+
+#endif  // YAP_PACKAGES_CLPBN_HORUS_PARFACTOR_H_
 

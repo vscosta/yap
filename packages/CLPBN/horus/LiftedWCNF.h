@@ -1,90 +1,95 @@
-#ifndef HORUS_LIFTEDWCNF_H
-#define HORUS_LIFTEDWCNF_H
+#ifndef YAP_PACKAGES_CLPBN_HORUS_LIFTEDWCNF_H_
+#define YAP_PACKAGES_CLPBN_HORUS_LIFTEDWCNF_H_
 
+#include <vector>
 #include <unordered_map>
+#include <string>
+#include <ostream>
 
-#include "ParfactorList.h"
+#include "ConstraintTree.h"
+#include "ProbFormula.h"
+#include "LiftedUtils.h"
 
-using namespace std;
 
-class ConstraintTree;
+namespace Horus {
 
-enum LogVarType
-{
-  FULL_LV,
-  POS_LV,
-  NEG_LV
+class ParfactorList;
+
+enum class LogVarType {
+  fullLvt,
+  posLvt,
+  negLvt
 };
 
-typedef long                LiteralId;
-typedef vector<LogVarType>  LogVarTypes;
+typedef long                     LiteralId;
+typedef std::vector<LogVarType>  LogVarTypes;
 
 
-class Literal
-{
+class Literal {
   public:
-    Literal (LiteralId lid, const LogVars& lvs) :
-       lid_(lid), logVars_(lvs), negated_(false) { }
+    Literal (LiteralId lid, const LogVars& lvs)
+        : lid_(lid), logVars_(lvs), negated_(false) { }
 
-    Literal (const Literal& lit, bool negated) :
-       lid_(lit.lid_), logVars_(lit.logVars_), negated_(negated) { }
+    Literal (const Literal& lit, bool negated)
+        : lid_(lit.lid_), logVars_(lit.logVars_), negated_(negated) { }
 
-    LiteralId lid (void) const { return lid_; }
+    LiteralId lid() const { return lid_; }
 
-    LogVars logVars (void) const { return logVars_; }
+    LogVars logVars() const { return logVars_; }
 
-    size_t nrLogVars (void) const { return logVars_.size(); }
+    size_t nrLogVars() const { return logVars_.size(); }
 
-    LogVarSet logVarSet (void) const { return LogVarSet (logVars_); }
+    LogVarSet logVarSet() const { return LogVarSet (logVars_); }
 
-    void complement (void) { negated_ = !negated_; }
+    void complement() { negated_ = !negated_; }
 
-    bool isPositive (void) const { return negated_ == false; }
+    bool isPositive() const { return negated_ == false; }
 
-    bool isNegative (void) const { return negated_; }
+    bool isNegative() const { return negated_; }
 
-    bool isGround (ConstraintTree constr, LogVarSet ipgLogVars) const;
+    bool isGround (ConstraintTree constr, const LogVarSet& ipgLogVars) const;
 
     size_t indexOfLogVar (LogVar X) const;
 
-    string toString (LogVarSet ipgLogVars = LogVarSet(),
-      LogVarSet posCountedLvs = LogVarSet(),
-      LogVarSet negCountedLvs = LogVarSet()) const;
-
-    friend std::ostream& operator<< (std::ostream &os, const Literal& lit);
+    std::string toString (
+        LogVarSet ipgLogVars = LogVarSet(),
+        LogVarSet posCountedLvs = LogVarSet(),
+        LogVarSet negCountedLvs = LogVarSet()) const;
 
   private:
+    friend std::ostream& operator<< (std::ostream&, const Literal&);
+
     LiteralId  lid_;
     LogVars    logVars_;
     bool       negated_;
 };
 
-typedef vector<Literal> Literals;
+typedef std::vector<Literal> Literals;
 
 
 
-class Clause
-{
+class Clause {
   public:
     Clause (const ConstraintTree& ct = ConstraintTree({})) : constr_(ct) { }
 
-    Clause (vector<vector<string>> names) : constr_(ConstraintTree (names)) { }
+    Clause (std::vector<std::vector<std::string>> names) :
+        constr_(ConstraintTree (names)) { }
 
     void addLiteral (const Literal& l) { literals_.push_back (l); }
 
-    const Literals& literals (void) const { return literals_; }
+    const Literals& literals() const { return literals_; }
 
-    Literals& literals (void) { return literals_; }
+    Literals& literals() { return literals_; }
 
-    size_t nrLiterals (void) const { return literals_.size(); }
+    size_t nrLiterals() const { return literals_.size(); }
 
-    const ConstraintTree& constr (void) const { return constr_; }
+    const ConstraintTree& constr() const { return constr_; }
 
-    ConstraintTree constr (void) { return constr_; }
+    ConstraintTree constr() { return constr_; }
 
-    bool isUnit (void) const { return literals_.size() == 1; }
+    bool isUnit() const { return literals_.size() == 1; }
 
-    LogVarSet ipgLogVars (void) const { return ipgLvs_; }
+    LogVarSet ipgLogVars() const { return ipgLvs_; }
 
     void addIpgLogVar (LogVar X) { ipgLvs_.insert (X); }
 
@@ -92,13 +97,13 @@ class Clause
 
     void addNegCountedLogVar (LogVar X) { negCountedLvs_.insert (X); }
 
-    LogVarSet posCountedLogVars (void) const { return posCountedLvs_; }
+    LogVarSet posCountedLogVars() const { return posCountedLvs_; }
 
-    LogVarSet negCountedLogVars (void) const { return negCountedLvs_; }
+    LogVarSet negCountedLogVars() const { return negCountedLvs_; }
 
-    unsigned nrPosCountedLogVars (void) const { return posCountedLvs_.size(); }
+    unsigned nrPosCountedLogVars() const { return posCountedLvs_.size(); }
 
-    unsigned nrNegCountedLogVars (void) const { return negCountedLvs_.size(); }
+    unsigned nrNegCountedLogVars() const { return negCountedLvs_.size(); }
 
     void addLiteralComplemented (const Literal& lit);
 
@@ -122,9 +127,9 @@ class Clause
 
     bool isIpgLogVar (LogVar X) const;
 
-    TinySet<LiteralId> lidSet (void) const;
+    TinySet<LiteralId> lidSet() const;
 
-    LogVarSet ipgCandidates (void) const;
+    LogVarSet ipgCandidates() const;
 
     LogVarTypes logVarTypes (size_t litIdx) const;
 
@@ -132,78 +137,78 @@ class Clause
 
     static bool independentClauses (Clause& c1, Clause& c2);
 
-    static vector<Clause*> copyClauses (const vector<Clause*>& clauses);
+    static std::vector<Clause*> copyClauses (
+        const std::vector<Clause*>& clauses);
 
-    static void printClauses (const vector<Clause*>& clauses);
+    static void printClauses (const std::vector<Clause*>& clauses);
 
-    static void deleteClauses (vector<Clause*>& clauses);
-
-    friend std::ostream& operator<< (ostream &os, const Clause& clause);
+    static void deleteClauses (std::vector<Clause*>& clauses);
 
   private:
     LogVarSet getLogVarSetExcluding (size_t idx) const;
 
-    Literals         literals_;
-    LogVarSet        ipgLvs_;
-    LogVarSet        posCountedLvs_;
-    LogVarSet        negCountedLvs_;
-    ConstraintTree   constr_;
+    friend std::ostream& operator<< (std::ostream&, const Clause&);
+
+    Literals        literals_;
+    LogVarSet       ipgLvs_;
+    LogVarSet       posCountedLvs_;
+    LogVarSet       negCountedLvs_;
+    ConstraintTree  constr_;
 
     DISALLOW_ASSIGN (Clause);
 };
 
-typedef vector<Clause*> Clauses;
+typedef std::vector<Clause*> Clauses;
 
 
 
-class LitLvTypes
-{
+class LitLvTypes {
   public:
-    struct CompareLitLvTypes
-    {
-      bool operator() (
-          const LitLvTypes& types1,
-          const LitLvTypes& types2) const
-      {
-        if (types1.lid_ < types2.lid_) {
-          return true;
-        }
-        if (types1.lid_ == types2.lid_) {
-          return types1.lvTypes_ < types2.lvTypes_;
-        }
-        return false;
-      }
-    };
-
     LitLvTypes (LiteralId lid, const LogVarTypes& lvTypes) :
         lid_(lid), lvTypes_(lvTypes) { }
 
-    LiteralId lid (void) const { return lid_; }
+    LiteralId lid() const { return lid_; }
 
-    const LogVarTypes& logVarTypes (void) const { return lvTypes_; }
+    const LogVarTypes& logVarTypes() const { return lvTypes_; }
 
-    void setAllFullLogVars (void) {
-        std::fill (lvTypes_.begin(), lvTypes_.end(), LogVarType::FULL_LV); }
-
-    friend std::ostream& operator<< (std::ostream &os, const LitLvTypes& lit);
+    void setAllFullLogVars();
 
   private:
+    friend std::ostream& operator<< (std::ostream&, const LitLvTypes&);
+
     LiteralId    lid_;
     LogVarTypes  lvTypes_;
 };
 
-typedef TinySet<LitLvTypes,LitLvTypes::CompareLitLvTypes> LitLvTypesSet;
 
 
-
-class LiftedWCNF
+struct CmpLitLvTypes
 {
+  bool operator() (
+      const LitLvTypes& types1,
+      const LitLvTypes& types2) const
+  {
+    if (types1.lid() < types2.lid()) {
+      return true;
+    }
+    if (types1.lid() == types2.lid()){
+      return types1.logVarTypes() < types2.logVarTypes();
+    }
+    return false;
+  }
+};
+
+typedef TinySet<LitLvTypes, CmpLitLvTypes> LitLvTypesSet;
+
+
+
+class LiftedWCNF {
   public:
     LiftedWCNF (const ParfactorList& pfList);
 
-   ~LiftedWCNF (void);
+   ~LiftedWCNF();
 
-    const Clauses& clauses (void) const { return clauses_; }
+    const Clauses& clauses() const { return clauses_; }
 
     void addWeight (LiteralId lid, double posW, double negW);
 
@@ -211,15 +216,15 @@ class LiftedWCNF
 
     double negWeight (LiteralId lid) const;
 
-    vector<LiteralId> prvGroupLiterals (PrvGroup prvGroup);
+    std::vector<LiteralId> prvGroupLiterals (PrvGroup prvGroup);
 
     Clause* createClause (LiteralId lid) const;
 
-    void printFormulaIndicators (void) const;
+    void printFormulaIndicators() const;
 
-    void printWeights (void) const;
+    void printWeights() const;
 
-    void printClauses (void) const;
+    void printClauses() const;
 
   private:
     LiteralId getLiteralId (PrvGroup prvGroup, unsigned range);
@@ -228,14 +233,16 @@ class LiftedWCNF
 
     void addParameterClauses (const ParfactorList& pfList);
 
-    Clauses                                             clauses_;
-    LiteralId                                           freeLiteralId_;
-    const ParfactorList&                                pfList_;
-    unordered_map<PrvGroup, vector<LiteralId>>          map_;
-    unordered_map<LiteralId, std::pair<double,double>>  weights_;
+    Clauses                                                  clauses_;
+    LiteralId                                                freeLiteralId_;
+    const ParfactorList&                                     pfList_;
+    std::unordered_map<PrvGroup, std::vector<LiteralId>>     map_;
+    std::unordered_map<LiteralId, std::pair<double,double>>  weights_;
 
     DISALLOW_COPY_AND_ASSIGN (LiftedWCNF);
 };
 
-#endif // HORUS_LIFTEDWCNF_H
+}  // namespace Horus
+
+#endif  // YAP_PACKAGES_CLPBN_HORUS_LIFTEDWCNF_H_
 
