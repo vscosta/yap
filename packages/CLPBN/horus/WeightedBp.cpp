@@ -1,7 +1,24 @@
+#include <cassert>
+
+#include <iostream>
+#include <iomanip>
+
 #include "WeightedBp.h"
 
 
-WeightedBp::~WeightedBp (void)
+namespace Horus {
+
+WeightedBp::WeightedBp (
+    const FactorGraph& fg,
+    const std::vector<std::vector<unsigned>>& weights)
+      : BeliefProp (fg), weights_(weights)
+{
+
+}
+
+
+
+WeightedBp::~WeightedBp()
 {
   for (size_t i = 0; i < links_.size(); i++) {
     delete links_[i];
@@ -25,7 +42,7 @@ WeightedBp::getPosterioriOf (VarId vid)
     probs[var->getEvidence()] = LogAware::withEvidence();
   } else {
     probs.resize (var->range(), LogAware::multIdenty());
-    const BpLinks& links = ninf(var)->getLinks();
+    const BpLinks& links = getLinks (var);
     if (Globals::logDomain) {
       for (size_t i = 0; i < links.size(); i++) {
         WeightedLink* l = static_cast<WeightedLink*> (links[i]);
@@ -46,9 +63,24 @@ WeightedBp::getPosterioriOf (VarId vid)
 
 
 
-void
-WeightedBp::createLinks (void)
+WeightedBp::WeightedLink::WeightedLink (
+    FacNode* fn,
+    VarNode* vn,
+    size_t idx,
+    unsigned weight)
+      : BpLink (fn, vn), index_(idx), weight_(weight),
+        pwdMsg_(vn->range(), LogAware::one())
 {
+
+}
+
+
+
+void
+WeightedBp::createLinks()
+{
+  using std::cout;
+  using std::endl;
   if (Globals::verbosity > 0) {
     cout << "compressed factor graph contains " ;
     cout << fg.nrVarNodes() << " variables and " ;
@@ -78,7 +110,7 @@ WeightedBp::createLinks (void)
 
 
 void
-WeightedBp::maxResidualSchedule (void)
+WeightedBp::maxResidualSchedule()
 {
   if (nIters_ == 1) {
     for (size_t i = 0; i < links_.size(); i++) {
@@ -86,7 +118,7 @@ WeightedBp::maxResidualSchedule (void)
       SortedOrder::iterator it = sortedOrder_.insert (links_[i]);
       linkMap_.insert (make_pair (links_[i], it));
       if (Globals::verbosity >= 1) {
-        cout << "calculating " << links_[i]->toString() << endl;
+        std::cout << "calculating " << links_[i]->toString() << std::endl;
       }
     }
     return;
@@ -94,18 +126,20 @@ WeightedBp::maxResidualSchedule (void)
 
   for (size_t c = 0; c < links_.size(); c++) {
     if (Globals::verbosity > 1) {
-      cout << endl << "current residuals:" << endl;
+      std::cout << std::endl << "current residuals:" << std::endl;
       for (SortedOrder::iterator it = sortedOrder_.begin();
           it != sortedOrder_.end(); ++it) {
-        cout << "    " << setw (30) << left << (*it)->toString();
-        cout << "residual = " << (*it)->residual() << endl;
+        std::cout << "    " << std::setw (30) << std::left;
+        std::cout << (*it)->toString();
+        std::cout << "residual = " << (*it)->residual() << std::endl;
       }
     }
 
     SortedOrder::iterator it = sortedOrder_.begin();
     BpLink* link = *it;
     if (Globals::verbosity >= 1) {
-      cout << "updating " << (*sortedOrder_.begin())->toString() << endl;
+      std::cout << "updating " << (*sortedOrder_.begin())->toString();
+      std::cout << std::endl;
     }
     if (link->residual() < accuracy_) {
       return;
@@ -118,11 +152,12 @@ WeightedBp::maxResidualSchedule (void)
     // update the messages that depend on message source --> destin
     const FacNodes& factorNeighbors = link->varNode()->neighbors();
     for (size_t i = 0; i < factorNeighbors.size(); i++) {
-      const BpLinks& links = ninf(factorNeighbors[i])->getLinks();
+      const BpLinks& links = getLinks (factorNeighbors[i]);
       for (size_t j = 0; j < links.size(); j++) {
         if (links[j]->varNode() != link->varNode()) {
           if (Globals::verbosity > 1) {
-            cout << "    calculating " << links[j]->toString() << endl;
+            std::cout << "    calculating " << links[j]->toString();
+            std::cout << std::endl;
           }
           calculateMessage (links[j]);
           BpLinkMap::iterator iter = linkMap_.find (links[j]);
@@ -133,11 +168,12 @@ WeightedBp::maxResidualSchedule (void)
     }
     // in counting bp, the message that a variable X sends to
     // to a factor F depends on the message that F sent to the X
-    const BpLinks& links = ninf(link->facNode())->getLinks();
+    const BpLinks& links = getLinks (link->facNode());
     for (size_t i = 0; i < links.size(); i++) {
       if (links[i]->varNode() != link->varNode()) {
         if (Globals::verbosity > 1) {
-          cout << "    calculating " << links[i]->toString() << endl;
+          std::cout << "    calculating " << links[i]->toString();
+          std::cout << std::endl;
         }
         calculateMessage (links[i]);
         BpLinkMap::iterator iter = linkMap_.find (links[i]);
@@ -156,7 +192,7 @@ WeightedBp::calcFactorToVarMsg (BpLink* _link)
   WeightedLink* link = static_cast<WeightedLink*> (_link);
   FacNode* src = link->facNode();
   const VarNode* dst = link->varNode();
-  const BpLinks& links = ninf(src)->getLinks();
+  const BpLinks& links = getLinks (src);
   // calculate the product of messages that were sent
   // to factor `src', except from var `dst'
   unsigned reps = 1;
@@ -166,14 +202,14 @@ WeightedBp::calcFactorToVarMsg (BpLink* _link)
     for (size_t i = links.size(); i-- > 0; ) {
       const WeightedLink* l = static_cast<const WeightedLink*> (links[i]);
       if ( ! (l->varNode() == dst && l->index() == link->index())) {
-        if (Constants::SHOW_BP_CALCS) {
-          cout << "    message from " << links[i]->varNode()->label();
-          cout << ": " ;
+        if (Constants::showBpCalcs) {
+          std::cout << "    message from " << links[i]->varNode()->label();
+          std::cout << ": " ;
         }
         Util::apply_n_times (msgProduct, getVarToFactorMsg (links[i]),
             reps, std::plus<double>());
-        if (Constants::SHOW_BP_CALCS) {
-          cout << endl;
+        if (Constants::showBpCalcs) {
+          std::cout << std::endl;
         }
       }
       reps *= links[i]->varNode()->range();
@@ -182,14 +218,14 @@ WeightedBp::calcFactorToVarMsg (BpLink* _link)
     for (size_t i = links.size(); i-- > 0; ) {
       const WeightedLink* l = static_cast<const WeightedLink*> (links[i]);
       if ( ! (l->varNode() == dst && l->index() == link->index())) {
-        if (Constants::SHOW_BP_CALCS) {
-          cout << "    message from " << links[i]->varNode()->label();
-          cout << ": " ;
+        if (Constants::showBpCalcs) {
+          std::cout << "    message from " << links[i]->varNode()->label();
+          std::cout << ": " ;
         }
         Util::apply_n_times (msgProduct, getVarToFactorMsg (links[i]),
             reps, std::multiplies<double>());
-        if (Constants::SHOW_BP_CALCS) {
-          cout << endl;
+        if (Constants::showBpCalcs) {
+          std::cout << std::endl;
         }
       }
       reps *= links[i]->varNode()->range();
@@ -203,27 +239,33 @@ WeightedBp::calcFactorToVarMsg (BpLink* _link)
   } else {
     result.params() *= src->factor().params();
   }
-  if (Constants::SHOW_BP_CALCS) {
-    cout << "    message product:  " << msgProduct << endl;
-    cout << "    original factor:  " << src->factor().params() << endl;
-    cout << "    factor product:   " << result.params() << endl;
+  if (Constants::showBpCalcs) {
+    std::cout << "    message product: " ;
+    std::cout << msgProduct << std::endl;
+    std::cout << "    original factor: " ;
+    std::cout << src->factor().params() << std::endl;
+    std::cout << "    factor product:  " ;
+    std::cout << result.params() << std::endl;
   }
   result.sumOutAllExceptIndex (link->index());
-  if (Constants::SHOW_BP_CALCS) {
-    cout << "    marginalized:     " << result.params() << endl;
+  if (Constants::showBpCalcs) {
+    std::cout << "    marginalized:    " ;
+    std::cout << result.params() << std::endl;
   }
   link->nextMessage() = result.params();
   LogAware::normalize (link->nextMessage());
-  if (Constants::SHOW_BP_CALCS) {
-    cout << "    curr msg:         " << link->message() << endl;
-    cout << "    next msg:         " << link->nextMessage() << endl;
+  if (Constants::showBpCalcs) {
+    std::cout << "    curr msg:        " ;
+    std::cout << link->message() << std::endl;
+    std::cout << "    next msg:        " ;
+    std::cout << link->nextMessage() << std::endl;
   }
 }
 
 
 
 Params
-WeightedBp::getVarToFactorMsg (const BpLink* _link) const
+WeightedBp::getVarToFactorMsg (const BpLink* _link)
 {
   const WeightedLink* link = static_cast<const WeightedLink*> (_link);
   const VarNode* src = link->varNode();
@@ -232,19 +274,19 @@ WeightedBp::getVarToFactorMsg (const BpLink* _link) const
   if (src->hasEvidence()) {
     msg.resize (src->range(), LogAware::noEvidence());
     double value = link->message()[src->getEvidence()];
-    if (Constants::SHOW_BP_CALCS) {
+    if (Constants::showBpCalcs) {
       msg[src->getEvidence()] = value;
-      cout << msg << "^" << link->weight() << "-1" ;
+      std::cout << msg << "^" << link->weight() << "-1" ;
     }
     msg[src->getEvidence()] = LogAware::pow (value, link->weight() - 1);
   } else {
     msg = link->message();
-    if (Constants::SHOW_BP_CALCS) {
-      cout << msg << "^" << link->weight() << "-1" ;
+    if (Constants::showBpCalcs) {
+      std::cout << msg << "^" << link->weight() << "-1" ;
     }
     LogAware::pow (msg, link->weight() - 1);
   }
-  const BpLinks& links = ninf(src)->getLinks();
+  const BpLinks& links = getLinks (src);
   if (Globals::logDomain) {
     for (size_t i = 0; i < links.size(); i++) {
       WeightedLink* l = static_cast<WeightedLink*> (links[i]);
@@ -257,14 +299,14 @@ WeightedBp::getVarToFactorMsg (const BpLink* _link) const
       WeightedLink* l = static_cast<WeightedLink*> (links[i]);
       if ( ! (l->facNode() == dst && l->index() == link->index())) {
         msg *= l->powMessage();
-        if (Constants::SHOW_BP_CALCS) {
-          cout << " x " << l->nextMessage() << "^" << link->weight();
+        if (Constants::showBpCalcs) {
+          std::cout << " x " << l->nextMessage() << "^" << link->weight();
         }
       }
     }
   }
-  if (Constants::SHOW_BP_CALCS) {
-    cout << " = " << msg;
+  if (Constants::showBpCalcs) {
+    std::cout << " = " << msg;
   }
   return msg;
 }
@@ -272,8 +314,10 @@ WeightedBp::getVarToFactorMsg (const BpLink* _link) const
 
 
 void
-WeightedBp::printLinkInformation (void) const
+WeightedBp::printLinkInformation() const
 {
+  using std::cout;
+  using std::endl;
   for (size_t i = 0; i < links_.size(); i++) {
     WeightedLink* l = static_cast<WeightedLink*> (links_[i]);
     cout << l->toString() << ":" << endl;
@@ -285,4 +329,6 @@ WeightedBp::printLinkInformation (void) const
     cout << "    residual = " << l->residual() << endl;
   }
 }
+
+}  // namespace Horus
 

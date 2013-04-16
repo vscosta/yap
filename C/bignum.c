@@ -320,6 +320,7 @@ Yap_MkULLIntTerm(YAP_ULONG_LONG n)
     /* try to scan it as a bignum */
     mpz_init_set_str (new, tmp, 10);
     if (mpz_fits_slong_p(new)) {
+      CACHE_REGS
       return MkIntegerTerm(mpz_get_si(new));
     }
     t = Yap_MkBigIntTerm(new);
@@ -341,6 +342,38 @@ p_is_bignum( USES_REGS1 )
 	 FunctorOfTerm(t) == FunctorBigInt &&
 	 RepAppl(t)[1] == BIG_INT
 	 );
+#else
+  return FALSE;
+#endif
+}
+
+static Int 
+p_nb_set_bit( USES_REGS1 )
+{
+#ifdef USE_GMP
+  Term t = Deref(ARG1);
+  Term ti = Deref(ARG2);
+  Int i;
+
+  if (!(
+	 IsNonVarTerm(t) && 
+	 IsApplTerm(t) && 
+	 FunctorOfTerm(t) == FunctorBigInt &&
+	 RepAppl(t)[1] == BIG_INT
+	))
+    return FALSE;
+  if (!IsIntegerTerm(ti)) {
+    return FALSE;
+  }
+  if (!IsIntegerTerm(ti)) {
+    return FALSE;
+  }
+  i = IntegerOfTerm(ti);
+  if (i < 0) {
+    return FALSE;
+  }
+  Yap_gmp_set_bit(i, t);
+  return TRUE;
 #else
   return FALSE;
 #endif
@@ -560,4 +593,5 @@ Yap_InitBigNums(void)
   Yap_InitCPred("$bignum", 1, p_is_bignum, SafePredFlag);
   Yap_InitCPred("rational", 3, p_rational, 0);
   Yap_InitCPred("rational", 1, p_is_rational, SafePredFlag);
+  Yap_InitCPred("nb_set_bit", 2, p_nb_set_bit, SafePredFlag);
 }

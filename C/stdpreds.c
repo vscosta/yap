@@ -292,7 +292,7 @@ STD_PROTO(static Int p_values, ( USES_REGS1 ));
 STD_PROTO(static CODEADDR *FindAtom, (CODEADDR, int *));
 #endif /* undefined */
 STD_PROTO(static Int p_opdec, ( USES_REGS1 ));
-STD_PROTO(static Term get_num, (char *));
+STD_PROTO(static Term get_num, (char * USES_REGS));
 STD_PROTO(static Int p_name, ( USES_REGS1 ));
 STD_PROTO(static Int p_atom_chars, ( USES_REGS1 ));
 STD_PROTO(static Int p_atom_codes, ( USES_REGS1 ));
@@ -537,7 +537,7 @@ strtod(s, pe)
 #endif
 
 static Term 
-get_num(char *t)
+get_num(char *t USES_REGS)
 {
   Term out;
   IOSTREAM *smem = Sopenmem(&t, NULL, "r");
@@ -832,7 +832,7 @@ p_name( USES_REGS1 )
     return(FALSE);
   }
   if (IsAtomTerm(t) && AtomOfTerm(t) == AtomNil) {
-    if ((NewT = get_num(String)) == TermNil) {
+    if ((NewT = get_num(String PASS_REGS)) == TermNil) {
       Atom at;
       while ((at = Yap_LookupAtom(String)) == NIL) {
 	if (!Yap_growheap(FALSE, 0, NULL)) {
@@ -1375,7 +1375,7 @@ p_atom_concat( USES_REGS1 )
   if (wide_mode) {
     wchar_t *cptr = (wchar_t *)(((AtomEntry *)Yap_PreAllocCodeSpace())->StrOfAE), *cpt0;
     wchar_t *top = (wchar_t *)AuxSp;
-    unsigned char *atom_str;
+    unsigned char *atom_str = NULL;
     Atom ahead;
     UInt sz;
 
@@ -2227,7 +2227,7 @@ p_number_chars( USES_REGS1 )
     }
   }
   *s++ = '\0';
-  if ((NewT = get_num(String)) == TermNil) {
+  if ((NewT = get_num(String PASS_REGS)) == TermNil) {
     Yap_Error(SYNTAX_ERROR, gen_syntax_error(Yap_LookupAtom(String), "number_chars"), "while scanning %s", String);
     return (FALSE);
   }
@@ -2294,7 +2294,7 @@ p_number_atom( USES_REGS1 )
     return(FALSE);		
   }
   s = RepAtom(AtomOfTerm(t))->StrOfAE;
-  if ((NewT = get_num(s)) == TermNil) {
+  if ((NewT = get_num(s PASS_REGS)) == TermNil) {
     Yap_Error(SYNTAX_ERROR, gen_syntax_error(Yap_LookupAtom(String), "number_atom"), "while scanning %s", s);
     return (FALSE);
   }
@@ -2387,7 +2387,7 @@ p_number_codes( USES_REGS1 )
     }
   }
   *s++ = '\0';
-  if ((NewT = get_num(String)) == TermNil) {
+  if ((NewT = get_num(String PASS_REGS)) == TermNil) {
     Yap_Error(SYNTAX_ERROR, gen_syntax_error(Yap_LookupAtom(String), "number_codes"), "while scanning %s", String);
     return (FALSE);
   }
@@ -2452,7 +2452,7 @@ p_atom_number( USES_REGS1 )
       return FALSE;
     }
     s = RepAtom(at)->StrOfAE; /* alloc temp space on Trail */
-    if ((NewT = get_num(s)) == TermNil) {
+    if ((NewT = get_num(s PASS_REGS)) == TermNil) {
       Yap_Error(SYNTAX_ERROR, gen_syntax_error(at, "atom_number"), "while scanning %s", s);
       return FALSE;
     }

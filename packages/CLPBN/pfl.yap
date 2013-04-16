@@ -12,8 +12,8 @@
 		 skolem/2,
 		 defined_in_factor/2,
 		 get_pfl_cpt/5, % given id and keys,  return new keys and cpt
-		 get_pfl_parameters/2, % given id return par factor parameter
-		 new_pfl_parameters/2, % given id  set new parameters
+		 get_pfl_parameters/3, % given id return par factor parameter
+		 new_pfl_parameters/3, % given id  set new parameters
 		 get_first_pvariable/2, % given id get firt pvar (useful in bayesian)
 		 get_factor_pvariable/2, % given id get any pvar
 		 add_ground_factor/5    %add a new bayesian variable (for now)
@@ -181,27 +181,33 @@ insert_atts(Var,Sk) :-
 add_evidence(Sk,Var) :-
 	skolem(Sk,D),
 	once(nth0(E,D,Var)),
-	clpbn:put_atts(_V,[key(Sk),evidence(E)]).
+	clpbn:put_atts(V,[key(Sk),evidence(E)]),
+	( catch(b_getval(pfl_evidence, Vs), _, fail) ->
+	    b_setval(pfl_evidence, [V|Vs])
+	;
+	    b_setval(pfl_evidence, [V])
+	).
 
 
-%% get_pfl_cpt(Id, Keys, Ev, NewKeys, Out) :-
-%% 	factor(_Type,Id,[Key|_],_FV,avg,_Constraints), !,
-%% 	Keys = [Key|Parents],
-%% 	writeln(Key:Parents),
-%% 	avg_factors(Key, Parents, 0.0, Ev, NewKeys, Out).
+get_pfl_cpt(Id, Keys, Ev, NewKeys, Out) :-
+ 	factor(_Type,Id,[Key|_],_FV,avg,_Constraints), !,
+ 	Keys = [Key|Parents],
+	writeln(Key:Parents),
+ 	avg_factors(Key, Parents, 0.0, Ev, NewKeys, Out).
 get_pfl_cpt(Id, Keys, _, Keys, Out) :-
-	get_pfl_parameters(Id,Out).
+ 	factor(_Type,Id,Keys,_FV,Phi,_Constraints),
+	( Phi = [_|_] -> Phi = Out ; call(user:Phi, Out) ).
 
-get_pfl_parameters(Id,Out) :-
-	factor(_Type,Id,_FList,_FV,Phi,_Constraints),
+get_pfl_parameters(Id, Keys, Out) :-
+ 	factor(_Type,Id,Keys,_FV,Phi,_Constraints),
 	( Phi = [_|_] -> Phi = Out ; call(user:Phi, Out) ).
 
 
-new_pfl_parameters(Id, NewPhi) :-
-	retract(factor(Type,Id,FList,FV,_Phi,Constraints)),
-	assert(factor(Type,Id,FList,FV,NewPhi,Constraints)),
+new_pfl_parameters(Id, Keys, NewPhi) :-
+	retract(factor(Type,Id,Keys,FV,_Phi,Constraints)),
+	assert(factor(Type,Id,Keys,FV,NewPhi,Constraints)),
 	fail.
-new_pfl_parameters(_Id, _NewPhi).
+new_pfl_parameters(_Id, _Keys, _NewPhi).
 
 get_pfl_factor_sizes(Id, DSizes) :-
 	factor(_Type, Id, FList, _FV, _Phi, _Constraints),

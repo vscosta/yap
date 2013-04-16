@@ -128,7 +128,7 @@ double floatval(TERM t)
 }
 
 static inline
-TERM encodefloat1(double f)
+TERM encodefloat1(double f USES_REGS)
 {
   return MkFloatTerm((Float)f);
 }

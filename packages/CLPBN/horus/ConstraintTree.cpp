@@ -1,9 +1,86 @@
 #include <queue>
 
+#include <iostream>
+#include <ostream>
 #include <fstream>
 
 #include "ConstraintTree.h"
 #include "Util.h"
+
+
+namespace Horus {
+
+class CTNode {
+  public:
+    CTNode (const CTNode& n, const CTChilds& chs = CTChilds()) 
+        : symbol_(n.symbol()), childs_(chs), level_(n.level()) { }
+
+    CTNode (Symbol s, unsigned l, const CTChilds& chs = CTChilds())
+        : symbol_(s), childs_(chs), level_(l) { }
+
+    unsigned level() const { return level_; }
+
+    void setLevel (unsigned level) { level_ = level; }
+
+    Symbol symbol() const { return symbol_; }
+
+    void setSymbol (Symbol s) { symbol_ = s; }
+
+    CTChilds& childs() { return childs_; }
+
+    const CTChilds& childs() const { return childs_; }
+
+    size_t nrChilds() const { return childs_.size(); }
+
+    bool isRoot() const { return level_ == 0; }
+
+    bool isLeaf() const { return childs_.empty(); }
+
+    CTChilds::iterator findSymbol (Symbol symb);
+
+    void mergeSubtree (CTNode*, bool = true);
+
+    void removeChild (CTNode*);
+
+    void removeChilds();
+
+    void removeAndDeleteChild (CTNode*);
+
+    void removeAndDeleteAllChilds();
+
+    SymbolSet childSymbols() const;
+
+    static CTNode* copySubtree (const CTNode*);
+
+    static void deleteSubtree (CTNode*);
+
+  private:
+    void updateChildLevels (CTNode*, unsigned);
+
+    Symbol     symbol_;
+    CTChilds   childs_;
+    unsigned   level_;
+
+    DISALLOW_ASSIGN (CTNode);
+};
+
+
+
+inline CTChilds::iterator
+CTNode::findSymbol (Symbol symb)
+{
+  CTNode tmp (symb, 0);
+  return childs_.find (&tmp);
+}
+
+
+
+inline bool
+CmpSymbol::operator() (const CTNode* n1, const CTNode* n2) const
+{
+  return n1->symbol() < n2->symbol();
+}
+
 
 
 void
@@ -38,7 +115,7 @@ CTNode::removeChild (CTNode* child)
 
 
 void
-CTNode::removeChilds (void)
+CTNode::removeChilds()
 {
   childs_.clear();
 }
@@ -55,7 +132,7 @@ CTNode::removeAndDeleteChild (CTNode* child)
 
 
 void
-CTNode::removeAndDeleteAllChilds (void)
+CTNode::removeAndDeleteAllChilds()
 {
   for (CTChilds::const_iterator chIt = childs_.begin();
        chIt != childs_.end(); ++ chIt) {
@@ -67,7 +144,7 @@ CTNode::removeAndDeleteAllChilds (void)
 
 
 SymbolSet
-CTNode::childSymbols (void) const
+CTNode::childSymbols() const
 {
   SymbolSet symbols;
   for (CTChilds::const_iterator chIt = childs_.begin();
@@ -106,14 +183,14 @@ CTNode::copySubtree (const CTNode* root1)
     return new CTNode (*root1);
   }
   CTNode* root2 = new CTNode (*root1);
-  typedef pair<const CTNode*, CTNode*> StackPair;
-  vector<StackPair> stack = { StackPair (root1, root2) };
+  typedef std::pair<const CTNode*, CTNode*> StackPair;
+  std::vector<StackPair> stack = { StackPair (root1, root2) };
   while (stack.empty() == false) {
     const CTNode* n1 = stack.back().first;
     CTNode* n2 = stack.back().second;
     stack.pop_back();
-    // cout << "n2 childs: " << n2->childs();
-    // cout << "n1 childs: " << n1->childs();
+    // std::cout << "n2 childs: " << n2->childs();
+    // std::cout << "n1 childs: " << n1->childs();
     n2->childs().reserve (n1->nrChilds());
     stack.reserve (n1->nrChilds());
     for (CTChilds::const_iterator chIt = n1->childs().begin();
@@ -144,7 +221,8 @@ CTNode::deleteSubtree (CTNode* n)
 
 
 
-ostream& operator<< (ostream &out, const CTNode& n)
+std::ostream&
+operator<< (std::ostream& out, const CTNode& n)
 {
   out << "(" << n.level() << ") " ;
   out << n.symbol();
@@ -187,7 +265,8 @@ ConstraintTree::ConstraintTree (
 
 
 
-ConstraintTree::ConstraintTree (vector<vector<string>> names)
+ConstraintTree::ConstraintTree (
+     std::vector<std::vector<std::string>> names)
 {
   assert (names.empty() == false);
   assert (names.front().empty() == false);
@@ -216,9 +295,29 @@ ConstraintTree::ConstraintTree (const ConstraintTree& ct)
 
 
 
-ConstraintTree::~ConstraintTree (void)
+ConstraintTree::ConstraintTree (
+    const CTChilds& rootChilds,
+    const LogVars& logVars)
+        : root_(new CTNode (Symbol (0), unsigned (0), rootChilds)),
+          logVars_(logVars),
+          logVarSet_(logVars)
+{
+
+}
+
+
+
+ConstraintTree::~ConstraintTree()
 {
   CTNode::deleteSubtree (root_);
+}
+
+
+
+bool
+ConstraintTree::empty() const
+{
+  return root_->childs().empty();
 }
 
 
@@ -448,7 +547,7 @@ ConstraintTree::ConstraintTree::isSingleton (LogVar X)
 
 
 LogVarSet
-ConstraintTree::singletons (void)
+ConstraintTree::singletons()
 {
   LogVarSet singletons;
   for (size_t i = 0; i < logVars_.size(); i++) {
@@ -491,7 +590,7 @@ ConstraintTree::tupleSet (const LogVars& originalLvs)
   getTuples (root_, Tuples(), stopLevel, tuples, CTNodes() = {});
 
   if (originalLvs.size() != uniqueLvs.size()) {
-    vector<size_t> indexes;
+    std::vector<size_t> indexes;
     indexes.reserve (originalLvs.size());
     for (size_t i = 0; i < originalLvs.size(); i++) {
       indexes.push_back (Util::indexOf (uniqueLvs, originalLvs[i]));
@@ -519,21 +618,22 @@ ConstraintTree::exportToGraphViz (
     const char* fileName,
     bool showLogVars) const
 {
-  ofstream out (fileName);
+  std::ofstream out (fileName);
   if (!out.is_open()) {
-    cerr << "Error: couldn't open file '" << fileName << "'." ;
+    std::cerr << "Error: couldn't open file '" << fileName << "'." ;
+    std::cerr << std::endl;
     return;
   }
-  out << "digraph {" << endl;
+  out << "digraph {" << std::endl;
   ConstraintTree copy (*this);
   copy.moveToTop (copy.logVarSet_.elements());
   CTNodes nodes = getNodesBelow (copy.root_);
-  out << "\"" << copy.root_ << "\"" << " [label=\"R\"]" << endl;
+  out << "\"" << copy.root_ << "\"" << " [label=\"R\"]" << std::endl;
   for (CTNodes::const_iterator it = ++ nodes.begin();
        it != nodes.end(); ++ it) {
     out << "\"" << *it << "\"";
     out << " [label=\"" << **it << "\"]" ;
-    out << endl;
+    out << std::endl;
   }
   for (CTNodes::const_iterator it = nodes.begin();
        it != nodes.end(); ++ it) {
@@ -542,24 +642,24 @@ ConstraintTree::exportToGraphViz (
          chIt != childs.end(); ++ chIt) {
       out << "\"" << *it << "\"" ;
       out << " -> " ;
-      out << "\"" << *chIt << "\"" << endl ;
+      out << "\"" << *chIt << "\"" << std::endl ;
     }
   }
   if (showLogVars) {
-    out << "Root [label=\"\", shape=plaintext]" << endl;
+    out << "Root [label=\"\", shape=plaintext]" << std::endl;
     for (size_t i = 0; i < copy.logVars_.size(); i++) {
       out << copy.logVars_[i] << " [label=" ;
       out << copy.logVars_[i] << ", " ;
-      out << "shape=plaintext, fontsize=14]" << endl;
+      out << "shape=plaintext, fontsize=14]" << std::endl;
     }
    out << "Root -> " << copy.logVars_[0];
-   out << " [style=invis]" << endl;
+   out << " [style=invis]" << std::endl;
     for (size_t i = 0; i < copy.logVars_.size() - 1; i++) {
       out << copy.logVars_[i] << " -> " << copy.logVars_[i + 1];
-      out << " [style=invis]" << endl;
+      out << " [style=invis]" << std::endl;
     }
   }
-  out << "}" << endl;
+  out << "}" <<std::endl;
   out.close();
 }
 
@@ -690,9 +790,9 @@ ConstraintTree::split (
   split (root_, ct->root(), commChilds, exclChilds, stopLevel);
   ConstraintTree* commCt = new ConstraintTree (commChilds, logVars_);
   ConstraintTree* exclCt = new ConstraintTree (exclChilds, logVars_);
-  // cout << commCt->tupleSet() << " + " ;
-  // cout << exclCt->tupleSet() << " = " ;
-  // cout << tupleSet() << endl;
+  // std::cout << commCt->tupleSet() << " + " ;
+  // std::cout << exclCt->tupleSet() << " = " ;
+  // std::cout << tupleSet() << std::endl;
   assert ((commCt->tupleSet() | exclCt->tupleSet()) == tupleSet());
   assert ((exclCt->tupleSet (stopLevel) & ct->tupleSet (stopLevel)).empty());
   return {commCt, exclCt};
@@ -710,20 +810,20 @@ ConstraintTree::countNormalize (const LogVarSet& Ys)
   }
   moveToTop (Zs.elements());
   ConstraintTrees cts;
-  unordered_map<unsigned, ConstraintTree*> countMap;
+  std::unordered_map<unsigned, ConstraintTree*> countMap;
   unsigned stopLevel = getLevel (Zs.back());
   const CTChilds& childs = root_->childs();
 
   for (CTChilds::const_iterator chIt = childs.begin();
        chIt != childs.end(); ++ chIt) {
-    const vector<pair<CTNode*, unsigned>>& res =
+    const std::vector<std::pair<CTNode*, unsigned>>& res =
         countNormalize (*chIt, stopLevel);
     for (size_t j = 0; j < res.size(); j++) {
-      unordered_map<unsigned, ConstraintTree*>::iterator it
+      std::unordered_map<unsigned, ConstraintTree*>::iterator it
           = countMap.find (res[j].second);
       if (it == countMap.end()) {
         ConstraintTree* newCt = new ConstraintTree (logVars_);
-        it = countMap.insert (make_pair (res[j].second, newCt)).first;
+        it = countMap.insert (std::make_pair (res[j].second, newCt)).first;
         cts.push_back (newCt);
       }
       it->second->root_->mergeSubtree (res[j].first);
@@ -743,31 +843,31 @@ ConstraintTree::jointCountNormalize (
     LogVar X_new2)
 {
   unsigned N = getConditionalCount (X);
-  // cout << "My tuples:     " << tupleSet() << endl;
-  // cout << "CommCt tuples: " << commCt->tupleSet() << endl;
-  // cout << "ExclCt tuples: " << exclCt->tupleSet() << endl;
-  // cout << "Counted Lv:    " << X << endl;
-  // cout << "X_new1:        " << X_new1 << endl;
-  // cout << "X_new2:        " << X_new2 << endl;
-  // cout << "Original N:    " << N << endl;
-  // cout << endl;
+  // std::cout << "My tuples:     " << tupleSet() << std::endl;
+  // std::cout << "CommCt tuples: " << commCt->tupleSet() << std::endl;
+  // std::cout << "ExclCt tuples: " << exclCt->tupleSet() << std::endl;
+  // std::cout << "Counted Lv:    " << X << std::endl;
+  // std::cout << "X_new1:        " << X_new1 << std::endl;
+  // std::cout << "X_new2:        " << X_new2 << std::endl;
+  // std::cout << "Original N:    " << N << std::endl;
+  // std::cout << endl;
 
   ConstraintTrees normCts1 = commCt->countNormalize (X);
-  vector<unsigned> counts1 (normCts1.size());
+  std::vector<unsigned> counts1 (normCts1.size());
   for (size_t i = 0; i < normCts1.size(); i++) {
     counts1[i] = normCts1[i]->getConditionalCount (X);
-    // cout << "normCts1[" << i << "] #" << counts1[i] ;
-    // cout << " " << normCts1[i]->tupleSet() << endl;
+    // std::cout << "normCts1[" << i << "] #" << counts1[i] ;
+    // std::cout << " " << normCts1[i]->tupleSet() << std::endl;
   }
 
   ConstraintTrees normCts2 = exclCt->countNormalize (X);
-  vector<unsigned> counts2 (normCts2.size());
+  std::vector<unsigned> counts2 (normCts2.size());
   for (size_t i = 0; i < normCts2.size(); i++) {
     counts2[i] = normCts2[i]->getConditionalCount (X);
-    // cout << "normCts2[" << i << "] #" << counts2[i] ;
-    // cout << " " << normCts2[i]->tupleSet() << endl;
+    // std::cout << "normCts2[" << i << "] #" << counts2[i] ;
+    // std::cout << " " << normCts2[i]->tupleSet() << std::endl;
   }
-  // cout << endl;
+  // std::cout << std::endl;
 
   ConstraintTree* excl1 = 0;
   for (size_t i = 0; i < normCts1.size(); i++) {
@@ -775,7 +875,7 @@ ConstraintTree::jointCountNormalize (
       excl1 = normCts1[i];
       normCts1.erase (normCts1.begin() + i);
       counts1.erase (counts1.begin() + i);
-      // cout << "joint-count(" << N << ",0)" << endl;
+      // std::cout << "joint-count(" << N << ",0)" << std::endl;
       break;
     }
   }
@@ -786,7 +886,7 @@ ConstraintTree::jointCountNormalize (
       excl2 = normCts2[i];
       normCts2.erase (normCts2.begin() + i);
       counts2.erase (counts2.begin() + i);
-      // cout << "joint-count(0," << N << ")" << endl;
+      // std::cout << "joint-count(0," << N << ")" << std::endl;
       break;
     }
   }
@@ -794,8 +894,8 @@ ConstraintTree::jointCountNormalize (
   for (size_t i = 0; i < normCts1.size(); i++) {
     unsigned j;
     for (j = 0; counts1[i] + counts2[j] != N; j++) ;
-    // cout << "joint-count(" << counts1[i] ;
-    // cout <<  "," << counts2[j] << ")" << endl;
+    // std::cout << "joint-count(" << counts1[i] ;
+    // std::cout <<  "," << counts2[j] << ")" << std::endl;
     const CTChilds& childs = normCts2[j]->root_->childs();
     for (CTChilds::const_iterator chIt = childs.begin();
          chIt != childs.end(); ++ chIt) {
@@ -930,7 +1030,7 @@ CTNodes
 ConstraintTree::getNodesBelow (CTNode* fromHere) const
 {
   CTNodes nodes;
-  queue<CTNode*> queue;
+  std::queue<CTNode*> queue;
   queue.push (fromHere);
   while (queue.empty() == false) {
     CTNode* node = queue.front();
@@ -1016,7 +1116,7 @@ ConstraintTree::swapLogVar (LogVar X)
 {
   size_t pos = Util::indexOf (logVars_, X);
   assert (pos != logVars_.size());
-  const CTNodes& nodes = getNodesAtLevel (pos);
+  CTNodes nodes = getNodesAtLevel (pos);
   for (CTNodes::const_iterator nodeIt = nodes.begin();
        nodeIt != nodes.end(); ++ nodeIt) {
     CTChilds childsCopy = (*nodeIt)->childs();
@@ -1098,7 +1198,7 @@ ConstraintTree::getTuples (
 
 
 unsigned
-ConstraintTree::size (void) const
+ConstraintTree::size() const
 {
   return countTuples (root_);
 }
@@ -1114,26 +1214,26 @@ ConstraintTree::nrSymbols (LogVar X)
 
 
 
-vector<pair<CTNode*, unsigned>>
+std::vector<std::pair<CTNode*, unsigned>>
 ConstraintTree::countNormalize (
      const CTNode* n,
      unsigned stopLevel)
 {
   if (n->level() == stopLevel) {
-    return vector<pair<CTNode*, unsigned>>() = {
-      make_pair (CTNode::copySubtree (n), countTuples (n))
+    return std::vector<std::pair<CTNode*, unsigned>>() = {
+      std::make_pair (CTNode::copySubtree (n), countTuples (n))
     };
   }
-  vector<pair<CTNode*, unsigned>> res;
+  std::vector<std::pair<CTNode*, unsigned>> res;
   const CTChilds& childs = n->childs();
   for (CTChilds::const_iterator chIt = childs.begin();
        chIt != childs.end(); ++ chIt) {
-    const vector<pair<CTNode*, unsigned>>& lowerRes =
+    const std::vector<std::pair<CTNode*, unsigned>>& lowerRes =
         countNormalize (*chIt, stopLevel);
     for (size_t j = 0; j < lowerRes.size(); j++) {
       CTNode* newNode = new CTNode (*n);
       newNode->mergeSubtree (lowerRes[j].first);
-      res.push_back (make_pair (newNode, lowerRes[j].second));
+      res.push_back (std::make_pair (newNode, lowerRes[j].second));
     }
   }
   return res;
@@ -1171,4 +1271,6 @@ ConstraintTree::split (
     }
   }
 }
+
+}  // namespace Horus
 

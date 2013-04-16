@@ -1,5 +1,5 @@
-#ifndef HORUS_PARFACTORLIST_H
-#define HORUS_PARFACTORLIST_H
+#ifndef YAP_PACKAGES_CLPBN_HORUS_PARFACTORLIST_H_
+#define YAP_PACKAGES_CLPBN_HORUS_PARFACTORLIST_H_
 
 #include <list>
 
@@ -7,39 +7,38 @@
 #include "ProbFormula.h"
 
 
-using namespace std;
-
+namespace Horus {
 
 class Parfactor;
 
-class ParfactorList
-{
+
+class ParfactorList {
   public:
-    ParfactorList (void) { }
+    ParfactorList() { }
 
     ParfactorList (const ParfactorList&);
 
     ParfactorList (const Parfactors&);
 
-   ~ParfactorList (void);
+   ~ParfactorList();
 
-    const list<Parfactor*>& parfactors (void) const { return pfList_; }
+    const std::list<Parfactor*>& parfactors() const { return pfList_; }
 
-    void clear (void) { pfList_.clear(); }
+    void clear() { pfList_.clear(); }
 
-    size_t size (void) const { return pfList_.size(); }
+    size_t size() const { return pfList_.size(); }
 
     typedef std::list<Parfactor*>::iterator iterator;
 
-    iterator begin (void) { return pfList_.begin(); }
+    iterator begin() { return pfList_.begin(); }
 
-    iterator end (void) { return pfList_.end(); }
+    iterator end() { return pfList_.end(); }
 
     typedef std::list<Parfactor*>::const_iterator const_iterator;
 
-    const_iterator begin (void) const { return pfList_.begin(); }
+    const_iterator begin() const { return pfList_.begin(); }
 
-    const_iterator end (void) const { return pfList_.end(); }
+    const_iterator end() const { return pfList_.end(); }
 
     void add (Parfactor* pf);
 
@@ -47,16 +46,18 @@ class ParfactorList
 
     void addShattered (Parfactor* pf);
 
-    list<Parfactor*>::iterator insertShattered (
-        list<Parfactor*>::iterator, Parfactor*);
+    std::list<Parfactor*>::iterator insertShattered (
+        std::list<Parfactor*>::iterator, Parfactor*);
 
-    list<Parfactor*>::iterator remove (list<Parfactor*>::iterator);
+    std::list<Parfactor*>::iterator remove (
+        std::list<Parfactor*>::iterator);
 
-    list<Parfactor*>::iterator removeAndDelete (list<Parfactor*>::iterator);
+    std::list<Parfactor*>::iterator removeAndDelete (
+        std::list<Parfactor*>::iterator);
 
-    bool isAllShattered (void) const;
+    bool isAllShattered() const;
 
-    void print (void) const;
+    void print() const;
 
     ParfactorList& operator= (const ParfactorList& pfList);
 
@@ -101,22 +102,10 @@ class ParfactorList
         const ProbFormula&, ConstraintTree,
         const ProbFormula&, ConstraintTree) const;
 
-    struct sortByParams
-    {
-      inline bool operator() (const Parfactor* pf1, const Parfactor* pf2)
-      {
-        if (pf1->params().size() < pf2->params().size()) {
-          return true;
-        } else if (pf1->params().size() == pf2->params().size() &&
-                   pf1->params()        <  pf2->params()) {
-          return true;
-        }
-        return false;
-      }
-    };
-
-    list<Parfactor*> pfList_;
+    std::list<Parfactor*> pfList_;
 };
 
-#endif // HORUS_PARFACTORLIST_H
+}  // namespace Horus
+
+#endif  // YAP_PACKAGES_CLPBN_HORUS_PARFACTORLIST_H_
 

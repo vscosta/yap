@@ -230,6 +230,7 @@ extern double atof(const char *);
 static Term
 float_send(char *s, int sign)
 {
+  CACHE_REGS
   Float f = (Float)atof(s);
 #if HAVE_FINITE
   if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
@@ -512,6 +513,7 @@ num_send_error_message(char s[])
 static Term
 get_num(int *chp, int *chbuffp, IOSTREAM *inp_stream, char *s, UInt max_size, int sign)
 {
+  CACHE_REGS
   char *sp = s;
   int ch = *chp;
   Int val = 0L, base = ch - '0';

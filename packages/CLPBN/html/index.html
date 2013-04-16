@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset=utf-8>
+<meta name="description" content="Prolog Factor Language Tutorial">
+<meta name="keywords" content="Graphical Models, Lifted Inference, First Order, Bayesian Networks, Markov Networks, Variable Elimination">
+<meta name="author" content="Tiago Gomes">
+<link rel="stylesheet" type="text/css" href="pfl.css">
+<title>The Prolog Factor Language</title>
+</head>
+
+<body id="top">
+
+<div class="container">
+
+<div class="header">
+<div id="leftcolumn"><h1>Prolog Factor Language</h1></div>
+<div id="rightcolumn">
+  <div>
+    <div class="name">Vítor Costa</div>
+    <div class="email">vsc at gmail.com </div>
+  </div>
+  <div style="padding-top:10px">
+    <div class="name">Tiago Gomes</div>
+    <div class="email">tiago.avv at gmail.com</div>
+  </div>
+
+</div>
+<div style="clear: both"></div>
+  <nav id="menu">
+    <ul>
+    <li><a href="#intro">Introduction</a></li>
+    <li><a href="#installation">Installation</a></li>
+    <li><a href="#language">Language</a></li>
+    <li><a href="#querying">Querying</a></li>
+    <li><a href="#options">Options</a></li>
+    <li><a href="#learning">Learning</a></li>
+    <li><a href="#external_interface">External Interface</a></li>
+    <li><a href="#papers">Papers</a></li>
+    </ul>
+  </nav>
+</div>  <!-- end of header -->
+
+
+<div class="mainbody">
+<!--+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
+<!--+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
+<!--+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
+<h2 id="introduction">Introduction</h2>
+The Prolog Factor Language (PFL) is a language that extends Prolog for providing a syntax to describe first-order probabilistic graphical models. These models can be either directed (bayesian networks) or undirected (markov networks). This language replaces the old one known as CLP(BN).
+
+<p>The package also includes implementations for a set of well-known inference algorithms for solving probabilistic queries on these models. Both ground and lifted inference methods are support.</p>
+
+<p><a href="#top" style="font-size:15px">Back to the top</a></p>
+
+
+
+<!--+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
+<!--+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
+<!--+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
+<h2 id="installation">Installation</h2>
+PFL is included with the <a href="http://www.dcc.fc.up.pt/~vsc/Yap/">YAP</a> Prolog system. However, there isn't yet a stable release of YAP that includes PFL and you will need to install a development version. To do so, you must have installed the <a href="http://git-scm.com/">Git</a> version control system. The commands to perform a default installation of YAP in your home directory in a Unix-based environment are shown next.
+<p>
+<div class=console>
+<p>$ cd $HOME</p>
+<p>$ git clone git://yap.git.sourceforge.net/gitroot/yap/yap-6.3</p>
+<p>$ cd yap-6.3/</p>
+<p>$ ./configure --enable-clpbn-bp --prefix=$HOME</p>
+<p>$ make depend &amp; make install</p>
+</div>
+
+<p>In case you want to install YAP somewhere else or with different settings, please consult the YAP documentation. From now on, we will assume that the directory <span class=texttt>$HOME &#x25B7; bin</span> (where the binary is) is in your <span class=texttt>$PATH</span> environment variable.</p>
+
+<p>Once in a while, we will refer to the PFL examples directory. In a default installation, this directory will be located at <span class=texttt> $HOME &#x25B7; share &#x25B7; doc &#x25B7; Yap &#x25B7; packages &#x25B7; examples &#x25B7; CLPBN</span>.</p>
+
+<p><a href="#top" style="font-size:15px">Back to the top</a></p>
+
+
+
+<!--+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
+<!--+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
+<!--+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
+<h2 id="language">Language</h2>
+A first-order probabilistic graphical model is described using parametric factors, commonly known as parfactors. The PFL syntax for a parfactor is
+
+<div style="text-align:center">
+<br>
+<em>Type</em> &nbsp; <em>F</em> &nbsp; ; &nbsp; <em>Phi</em> &nbsp; ; &nbsp; <em>C</em>.
+<br>
+<br>
+</div>
+
+Where,
+<ul>
+<li>
+  <em>Type</em> refers the type of network over which the parfactor is defined. It can be <span class=texttt>bayes</span> for     directed networks, or <span class=texttt>markov</span> for undirected ones.
+  <p>
+</li>
+
+<li>
+  <em>F</em> is a comma-separated sequence of Prolog terms that will define sets of random variables under the   constraint <em>C</em>. If <em>Type</em> is <span class=texttt>bayes</span>, the first term defines the node while the remaining   terms define its parents.
+  <p>
+</li>
+
+<li>
+  <em>Phi</em> is either a Prolog list of potential values or a Prolog goal that unifies with one. Notice that if   <em>Type</em> is <span class=texttt>bayes</span>, this will correspond to the conditional probability table. Domain combinations are implicitly assumed in ascending order, with the first term being the 'most significant' (e.g.
+  <span class="texttt">x<sub>0</sub>y<sub>0</sub></span>,
+  <span class="texttt">x<sub>0</sub>y<sub>1</sub></span>,
+  <span class="texttt">x<sub>0</sub>y<sub>2</sub></span>,
+  <span class="texttt">x<sub>1</sub>y<sub>0</sub></span>,
+  <span class="texttt">x<sub>1</sub>y<sub>1</sub></span>,
+  <span class="texttt">x<sub>1</sub>y<sub>2</sub></span>).
+  <p>
+</li>
+
+<li>
+  <em>C</em> is a (possibly empty) list of Prolog goals that will instantiate the logical variables that appear in <em>F</em>, that is, the successful substitutions for the goals in <em>C</em> will be the valid values for the logical variables. This allows the constraint to be defined as any relation (set of tuples) over the logical variables.
+</li>
+</ul>
+
+<IMG style="display:block; margin:auto" src="sprinkler.png" alt="Sprinkler Network">
+
+<p>Towards a better understanding of the language, next we show the PFL representation for the sprinkler network found in the above figure.</p>
+
+<div class="pflcode">
+<pre >
+:- use_module(library(pfl)).
+
+bayes cloudy ; cloudy_table ; [].
+
+bayes sprinkler, cloudy ; sprinkler_table ; [].
+
+bayes rain, cloudy ; rain_table ; [].
+
+bayes wet_grass, sprinkler, rain ; wet_grass_table ; [].
+
+cloudy_table(
+    [ 0.5,
+      0.5 ]).
+
+sprinkler_table(
+    [ 0.1, 0.5,
+      0.9, 0.5 ]).
+
+rain_table(
+    [ 0.8, 0.2,
+      0.2, 0.8 ]).
+
+wet_grass_table(
+    [ 0.99, 0.9, 0.9, 0.0,
+      0.01, 0.1, 0.1, 1.0 ]).
+</pre>
+</div>
+
+<p>In the example, we started by loading the PFL library, then we have defined one factor for each node, and finally we have specified the probabilities for each conditional probability table.</p>
+
+<p>Notice that this network is fully grounded, as all constraints are empty. Next we present the PFL representation for a well-known markov logic network - the social network model. For convenience, the two main weighted formulas of this model are shown below.</p>
+
+<div class="pflcode">
+<pre>
+1.5 : Smokes(x) => Cancer(x)
+1.1 : Smokes(x) ^ Friends(x,y) => Smokes(y)
+</pre>
+</div>
+
+<p>Next, we show the PFL representation for this model.</p>
+
+<div class="pflcode">
+<pre>
+:- use_module(library(pfl)).
+
+person(anna).
+person(bob).
+
+markov smokes(X), cancer(X) ;
+    [4.482, 4.482, 1.0, 4.482] ;
+    [person(X)].
+
+markov friends(X,Y), smokes(X), smokes(Y) ;
+    [3.004, 3.004, 3.004, 3.004, 3.004, 1.0, 1.0, 3.004] ;
+    [person(X), person(Y)].
+</pre>
+</div>
+
+<p>Notice that we have defined the world to be consisted of only two persons, <span class=texttt>anna</span> and <span class=texttt>bob</span>. We can easily add as many persons as we want by inserting in the program a fact like <span class=texttt>person @ 10.</span>&nbsp;. This would automatically create ten persons named <span class=texttt>p1</span>, <span class=texttt>p2</span>, ..., <span class=texttt>p10</span>.</p>
+
+<p>Unlike other fist-order probabilistic languages, in PFL the logical variables that appear in the terms are not directly typed, and they will be only constrained by the goals that appears in the constraint of the parfactor. This allows the logical variables to be constrained to any relation (set of tuples), and not only pairwise (in)equalities. For instance, the next example defines a network with three ground factors, each defined respectively over the random variables <span class=texttt>p(a,b)</span>, <span class=texttt>p(b,d)</span> and <span class=texttt>p(d,e)</span>.</p>
+
+<div class="pflcode">
+<pre>
+constraint(a,b).
+constraint(b,d).
+constraint(d,e).
+
+markov p(A,B); some_table; [constraint(A,B)].
+</pre>
+</div>
+
+<p>We can easily add static evidence to PFL programs by inserting a fact with the same functor and arguments as the random variable, plus one extra argument with the observed state or value. For instance, suppose that we know that <span class=texttt>anna</span> and <span class=texttt>bob</span> are friends. We can add this knowledge to the program with the following fact: <span class=texttt>friends(anna,bob,t).</span>&nbsp;.</p>
+
+<p>One last note for the domain of the random variables. By default, all terms instantiate boolean (<span class=texttt>t</span>/<span class=texttt>f</span>) random variables. It is possible to choose a different domain for a term by appending a list of its possible values or states. Next we present a self-explanatory example of how this can be done.</p>
+
+<div class="pflcode">
+<pre>
+bayes professor_ability::[high, medium, low] ; [0.5, 0.4, 0.1].
+</pre>
+</div>
+
+<p>More probabilistic models defined using PFL can be found in the examples directory.</p>
+
+<p><a href="#top" style="font-size:15px">Back to the top</a></p>
+
+
+
+<!--+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
+<!--+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
+<!--+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
+<h2 id=querying>Querying</h2>
+In this section we demonstrate how to use PFL to solve probabilistic queries. We will use the sprinkler network as example.
+
+<p>Assuming that the current directory is the one where the examples are located, first we load the model with the following command.</p>
+
+<p class=console>$ yap -l sprinkler.pfl</p>
+
+<p>Let's suppose that we want to estimate the marginal probability for the <em>WetGrass</em> random variable. To do so, we call the following goal.</p>
+
+<p class=console>?- wet_grass(X).</p>
+
+<p>The output of this goal will show the marginal probability for each <em>WetGrass</em> possible state or value, that is, <span class=texttt>t</span> and <span class=texttt>f</span>. Notice that in PFL a random variable is identified by a term with the same functor and arguments plus one extra argument.</p>
+
+<p>Now let's suppose that we want to estimate the probability for the same random variable, but this time we have evidence that it had rained in the day before. We can estimate this probability without resorting to static evidence with:</p>
+
+<p class=console>?- wet_grass(X), rain(t).</p>
+
+<p>PFL also supports calculating joint probability distributions. For instance, we can obtain the joint probability for <em>Sprinkler</em> and <em>Rain</em> with:</p>
+
+<p class=console>?- sprinkler(X), rain(Y).</p>
+
+<p><a href="#top" style="font-size:15px">Back to the top</a></p>
+
+
+
+<!--+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
+<!--+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
+<!--+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
+<h2 id="options">Options</h2>
+PFL supports both ground and lifted inference methods. The inference algorithm can be chosen by calling <span class=texttt>set_solver/1</span>. The following are supported:
+
+<ul>
+<li><span class=texttt>ve</span>, variable elimination (written in Prolog)</li>
+<li><span class=texttt>hve</span>, variable elimination (written in C++)</li>
+<li><span class=texttt>jt</span>, junction tree</li>
+<li><span class=texttt>bdd</span>, binary decision diagrams</li>
+<li><span class=texttt>bp</span>, belief propagation</li>
+<li><span class=texttt>cbp</span>, counting belief propagation</li>
+<li><span class=texttt>gibbs</span>, gibbs sampling</li>
+<li><span class=texttt>lve</span>, generalized counting first-order variable elimination (GC-FOVE)</li>
+<li><span class=texttt>lkc</span>, lifted first-order knowledge compilation</li>
+<li><span class=texttt>lbp</span>, lifted first-order belief propagation</li>
+</ul>
+
+<p>For instance, if we want to use belief propagation to solve some probabilistic query, we need to call first:</p>
+
+<p class=console>?- set_solver(bp).</p>
+
+<p>It is possible to tweak some parameters of PFL through <span class=texttt>set_pfl_flag/2</span> predicate. The first argument is a option name that identifies the parameter that we want to tweak. The second argument is some possible value for this option. Next we explain the available options in detail.</p>
+
+<h3><span class=texttt>verbosity</span></h3>
+This option controls the level of debugging information that will be shown.
+<ul>
+<li>Values: a positive integer (default is 0 - no debugging). The higher the number, the more information that will be shown.</li>
+<li>Affects: <span class=texttt>hve</span>, <span class=texttt>bp</span>, <span class=texttt>cbp</span>, <span class=texttt>lve</span>, <span class=texttt>lkc</span> and <span class=texttt>lbp</span>.</li>
+</ul>
+<p>
+For instance, we can view some basic debugging information by calling the following goal.
+<p class="console">?- set_pfl_flag(verbosity, 1).</p>
+
+<h3><span class=texttt>use_logarithms</span></h3>
+This option controls whether the calculations performed during inference should be done in a logarithm domain or not.
+<ul>
+<li>Values: <span class=texttt>true</span> (default) or <span class=texttt>false</span>.</li>
+<li>Affects: <span class=texttt>hve</span>, <span class=texttt>bp</span>, <span class=texttt>cbp</span>, <span class=texttt>lve</span>, <span class=texttt>lkc</span> and <span class=texttt>lbp</span>.</li>
+</ul>
+
+<h3><span class=texttt>hve_elim_heuristic</span></h3>
+This option allows to choose which elimination heuristic will be used by the <span class=texttt>hve</span>.
+<ul>
+<li>Values: <span class=texttt>sequential</span>, <span class=texttt>min_neighbors</span>, <span class=texttt>min_weight</span>, <span class=texttt>min_fill</span> and
+<br><span class=texttt>weighted_min_fill</span> (default).</li>
+<li>Affects: <span class=texttt>hve</span>.</li>
+</ul>
+<p>An explanation for each of these heuristics can be found in Daphne Koller's book <em>Probabilistic Graphical Models</em>.</p>
+
+<h3><span class=texttt>bp_max_iter</span></h3>
+This option establishes a maximum number of iterations. One iteration consists in sending all possible messages.
+<ul>
+<li>Values: a positive integer (default is <span class=texttt>1000</span>).</li>
+<li>Affects: <span class=texttt>bp</span>, <span class=texttt>cbp</span> and <span class=texttt>lbp</span>.</li>
+</ul>
+
+
+
+<h3><span class=texttt>bp_accuracy</span></h3>
+This option allows to control when the message passing should cease. Be the residual of one message the difference (according some metric) between the one sent in the current iteration and the one sent in the previous. If the highest residual is lesser than the given value, the message passing is stopped and the probabilities are calculated using the last messages that were sent.
+<ul>
+<li>Values: a float-point number (default is <span class=texttt>0.0001</span>).</li>
+<li>Affects: <span class=texttt>bp</span>, <span class=texttt>cbp</span> and <span class=texttt>lbp</span>.</li>
+</ul>
+
+<h3><span class=texttt>bp_msg_schedule</span></h3>
+This option allows to control the message sending order.
+<ul>
+<li>Values:
+  <ul>
+  <li><span class=texttt>seq_fixed</span> (default), at each iteration, all messages are sent with the same order.<p></li>
+  <li><span class=texttt>seq_random</span>, at each iteration, all messages are sent with a random order.<p></li>
+  <li><span class=texttt>parallel</span>, at each iteration, all messages are calculated using only the values of the previous iteration.<p></li>
+  <li><span class=texttt>max_residual</span>, the next message to be sent is the one with maximum residual (as explained in the paper <em>Residual Belief Propagation: Informed Scheduling for Asynchronous Message Passing</em>).</li>
+  </ul>
+</li>
+<li>Affects: <span class=texttt>bp</span>, <span class=texttt>cbp</span> and <span class=texttt>lbp</span>.
+</li>
+</ul>
+
+<h3><span class=texttt>export_libdai</span></h3>
+This option allows exporting the current model to the <a href="http://cs.ru.nl/~jorism/libDAI/doc/fileformats.html">libDAI</a> file format.
+<ul>
+<li>Values: <span class=texttt>true</span> or <span class=texttt>false</span> (default).</li>
+<li>Affects: <span class=texttt>hve</span>, <span class=texttt>bp</span>, and <span class=texttt>cbp</span>.</li>
+</ul>
+
+<h3><span class=texttt>export_uai</span></h3>
+This option allows exporting the current model to the <a href="http://graphmod.ics.uci.edu/uai08/FileFormat">UAI</a> file format.
+<ul>
+<li>Values: <span class=texttt>true</span> or <span class=texttt>false</span> (default).</li>
+<li>Affects: <span class=texttt>hve</span>, <span class=texttt>bp</span>, and <span class=texttt>cbp</span>.</li>
+</ul>
+
+<h3><span class=texttt>export_graphviz</span></h3>
+This option allows exporting the factor graph's structure into a format that can be parsed by <a href="http://www.graphviz.org/">Graphviz</a>.
+<ul>
+<li>Values: <span class=texttt>true</span> or <span class=texttt>false</span> (default).</li>
+<li>Affects: <span class=texttt>hve</span>, <span class=texttt>bp</span>, and <span class=texttt>cbp</span>.</li>
+</ul>
+
+<h3><span class=texttt>print_fg</span></h3>
+This option allows to print a textual representation of the factor graph.
+<ul>
+<li>Values: <span class=texttt>true</span> or <span class=texttt>false</span> (default).</li>
+<li>Affects: <span class=texttt>hve</span>, <span class=texttt>bp</span>, and <span class=texttt>cbp</span>.</li>
+</ul>
+
+<p><a href="#top" style="font-size:15px">Back to the top</a></p>
+
+
+
+<!--+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
+<!--+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
+<!--+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
+<h2 id="learning">Learning</h2>
+PFL is capable to learn the parameters for bayesian networks, through an implementation of the expectation-maximization algorithm.
+
+<p>Next we show an example of parameter learning for the sprinkler network.</p>
+
+<div class="pflcode">
+<pre>
+:- [sprinkler.pfl].
+
+:- use_module(library(clpbn/learning/em)).
+
+data(t, t, t, t).
+data(_, t, _, t).
+data(t, t, f, f).
+data(t, t, f, t).
+data(t, _, _, t).
+data(t, f, t, t).
+data(t, t, f, t).
+data(t, _, f, f).
+data(t, t, f, f).
+data(f, f, t, t).
+
+main :-
+    findall(X, scan_data(X), L),
+    em(L, 0.01, 10, CPTs, LogLik),
+    writeln(LogLik:CPTs).
+
+scan_data([cloudy(C), sprinkler(S), rain(R), wet_grass(W)]) :-
+    data(C, S, R, W).
+</pre>
+</div>
+
+<p>Parameter learning is done by calling the <span class=texttt>em/5</span> predicate. Its arguments are the following.</p>
+
+<div style="text-align:center">
+<br>
+<span class=texttt>em(+Data, +MaxError, +MaxIters, -CPTs, -LogLik)</span>
+<br>
+<br>
+</div>
+
+Where,
+<ul>
+<li><span class=texttt>Data</span> is a list of samples for the distribution that we want to estimate. Each sample is a list of either observed random variables or unobserved random variables (denoted when its state or value is not instantiated).</li>
+<li><span class=texttt>MaxError</span> is the maximum error allowed before stopping the EM loop.</li>
+<li><span class=texttt>MaxIters</span> is the maximum number of iterations for the EM loop.</li>
+<li><span class=texttt>CPTs</span> is a list with the estimated conditional probability tables.</li>
+<li><span class=texttt>LogLik</span> is the log-likelihood.</li>
+</ul>
+
+<p>It is possible to choose the solver that will be used for the inference part during parameter learning with the <span class=texttt>set_em_solver/1</span> predicate (defaults to <span class=texttt>hve</span>). At the moment, only the following solvers support parameter learning: <span class=texttt>ve</span>, <span class=texttt>hve</span>, <span class=texttt>bdd</span>, <span class=texttt>bp</span> and <span class=texttt>cbp</span>.</p>
+
+<p>Inside the <span class=texttt>learning</span> directory from the examples directory, one can find more examples of parameter learning.</p>
+
+<p><a href="#top" style="font-size:15px">Back to the top</a></p>
+
+
+
+<!--+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
+<!--+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
+<!--+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
+<h2 id="external_interface">External Interface</h2>
+This package also includes an external command for perform inference over probabilistic graphical models described in formats other than PFL. Currently two are support, the http://cs.ru.nl/&nbsp;jorism/libDAI/doc/fileformats.htmllibDAI file format, and the http://graphmod.ics.uci.edu/uai08/FileFormatUAI08 file format.
+
+<p>This command's name is <span class=texttt>hcli</span> and its usage is as follows.</p>
+
+<p class=console>$ ./hcli [solver=hve|bp|cbp] [&lt;OPTION&gt;=&lt;VALUE&gt;]... &lt;FILE&gt;[&lt;VAR&gt;|&lt;VAR&gt;=&lt;EVIDENCE&gt;]... </p>
+
+<p>Let's assume that the current directory is the one where the examples are located. We can perform inference in any supported model by passing the file name where the model is defined as argument. Next, we show how to load a model with <span class=texttt>hcli</span>.</p>
+
+<p class=console>$ ./hcli burglary-alarm.uai</p>
+
+<p>With the above command, the program will load the model and print the marginal probabilities for all defined random variables. We can view only the marginal probability for some variable with a identifier <em>X</em>, if we pass <em>X</em> as an extra argument following the file name. For instance, the following command will output only the marginal probability for the variable with identifier <em>0</em>.</p>
+
+<p class=console>$ ./hcli burglary-alarm.uai 0</p>
+
+<p>If we give more than one variable identifier as argument, the program will output the joint probability for all the passed variables.</p>
+
+<p>Evidence can be given as a pair containing a variable identifier and its observed state (index), separated by a '=`. For instance, we can introduce knowledge that some variable with identifier <em>0</em> has evidence on its second state as follows.</p>
+
+<p class=console>$ ./hcli burglary-alarm.uai 0=1</p>
+
+<p>By default, all probability tasks are resolved using the <span class=texttt>hve</span> solver. It is possible to choose another solver using the <span class=texttt>solver</span> option as follows.</p>
+
+<p class=console>$ ./hcli solver=bp burglary-alarm.uai</p>
+
+<p>Notice that only the <span class=texttt>hve</span>, <span class=texttt>bp</span> and <span class=texttt>cbp</span> solvers can be used with <span class=texttt>hcli</span>.</p>
+
+<p>The options that are available with the <span class=texttt>set_pfl_flag/2</span> predicate can be used in <span class=texttt>hcli</span> too. The syntax is a pair <span class=texttt>&lt;Option&gt;=&lt;Value&gt;</span> before the model's file name.</p>
+
+<p><a href="#top" style="font-size:15px">Back to the top</a></p>
+
+
+
+<!--+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
+<!--+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
+<!--+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
+<h2 id="papers">Papers</h2>
+<ul>
+<li><em>Evaluating Inference Algorithms for the Prolog Factor Language.</em></li>
+</ul>
+
+<p><a href="#top" style="font-size:15px">Back to the top</a></p>
+
+</div>  <!-- end of mainbody -->
+
+<div class="footer"></div>
+
+</div>  <!-- end of container -->
+
+</body>
+</html>

@@ -170,25 +170,43 @@ typedef struct index_t {
   UInt ntrys;
   UInt nentries;
   UInt hsize;
-  CELL **key;
+  BITS32 *key;
   CELL *cls;
-  CELL *links;
+  BITS32 *links;
   size_t size;
   yamop *code;
 } Index_t;
 
-INLINE_ONLY EXTERN inline  UInt EXO_ADDRESS_TO_OFFSET(struct index_t *it, CELL *ptr);
+INLINE_ONLY EXTERN inline BITS32 EXO_ADDRESS_TO_OFFSET(struct index_t *it, CELL *ptr);
 
-INLINE_ONLY EXTERN inline   UInt
+INLINE_ONLY EXTERN inline   BITS32
 EXO_ADDRESS_TO_OFFSET(struct index_t *it, CELL* ptr)
 {
-  return ptr-it->links;
+  return 1+(ptr-it->cls);
 }
 
 INLINE_ONLY EXTERN inline  CELL *EXO_OFFSET_TO_ADDRESS(struct index_t *it, UInt  off);
 
 INLINE_ONLY EXTERN inline   CELL *
-EXO_OFFSET_TO_ADDRESS(struct index_t *it, UInt  off)
+EXO_OFFSET_TO_ADDRESS(struct index_t *it, BITS32  off)
+{
+  if (off == 0L) 
+    return NULL;
+  return (it->cls-1)+off;
+}
+
+INLINE_ONLY EXTERN inline  BITS32 ADDRESS_TO_LINK(struct index_t *it, CELL *ptr);
+
+INLINE_ONLY EXTERN inline  BITS32
+ADDRESS_TO_LINK(struct index_t *it, CELL* ptr)
+{
+  return ptr-it->links;
+}
+
+INLINE_ONLY EXTERN inline CELL *LINK_TO_ADDRESS(struct index_t *it, BITS32  off);
+
+INLINE_ONLY EXTERN inline   CELL *
+LINK_TO_ADDRESS(struct index_t *it, BITS32  off)
 {
   return it->links+off;
 }
@@ -323,8 +341,10 @@ same_lu_block(yamop **paddr, yamop *p)
 }
 #endif
 
+#define Yap_MkStaticRefTerm(cp) __Yap_MkStaticRefTerm((cp) PASS_REGS)
+
 static inline Term 
-Yap_MkStaticRefTerm(StaticClause *cp)
+__Yap_MkStaticRefTerm(StaticClause *cp USES_REGS)
 {
   Term t[1];
   t[0] = MkIntegerTerm((Int)cp);
@@ -337,8 +357,10 @@ Yap_ClauseFromTerm(Term t)
   return (StaticClause *)IntegerOfTerm(ArgOfTerm(1,t));
 }
 
+#define Yap_MkMegaRefTerm(ap, ipc) __Yap_MkMegaRefTerm((ap), (ipc) PASS_REGS)
+
 static inline Term 
-Yap_MkMegaRefTerm(PredEntry *ap,yamop *ipc)
+__Yap_MkMegaRefTerm(PredEntry *ap,yamop *ipc USES_REGS)
 {
   Term t[2];
   t[0] = MkIntegerTerm((Int)ap);

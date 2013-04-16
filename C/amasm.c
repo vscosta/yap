@@ -2056,10 +2056,7 @@ a_try(op_numbers opcode, CELL lab, CELL opr, int nofalts, int hascut, yamop *cod
 	save_machine_regs();
 	siglongjmp(cip->CompilerBotch,2);
       }
-      {
-        CACHE_REGS
-        Yap_inform_profiler_of_clause(newcp, (char *)(newcp)+size, ap, GPROF_INDEX); 
-      }
+      Yap_inform_profiler_of_clause(newcp, (char *)(newcp)+size, ap, GPROF_INDEX); 
       Yap_LUIndexSpace_CP += size;
 #ifdef DEBUG
       Yap_NewCps++;

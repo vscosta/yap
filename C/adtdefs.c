@@ -852,7 +852,6 @@ Yap_NewPredPropByFunctor(FunctorEntry *fe, Term cur_mod)
   p->FunctorOfPred = fe;
   WRITE_UNLOCK(fe->FRWLock);
   {
-    CACHE_REGS
     Yap_inform_profiler_of_clause(&(p->OpcodeOfPred), &(p->OpcodeOfPred)+1, p, GPROF_NEW_PRED_FUNC);
     if (!(p->PredFlags & (CPredFlag|AsmPredFlag))) {
       Yap_inform_profiler_of_clause(&(p->cs.p_code.ExpandCode), &(p->cs.p_code.ExpandCode)+1, p, GPROF_NEW_PRED_FUNC);
@@ -966,7 +965,6 @@ Yap_NewPredPropByAtom(AtomEntry *ae, Term cur_mod)
   p->FunctorOfPred = (Functor)AbsAtom(ae);
   WRITE_UNLOCK(ae->ARWLock);
   {
-    CACHE_REGS
     Yap_inform_profiler_of_clause(&(p->OpcodeOfPred), &(p->OpcodeOfPred)+1, p, GPROF_NEW_PRED_ATOM);
     if (!(p->PredFlags & (CPredFlag|AsmPredFlag))) {
       Yap_inform_profiler_of_clause(&(p->cs.p_code.ExpandCode), &(p->cs.p_code.ExpandCode)+1, p, GPROF_NEW_PRED_ATOM);
@@ -1057,8 +1055,10 @@ Yap_GetValue(Atom a)
   if (IsApplTerm(out)) {
     Functor f = FunctorOfTerm(out);
     if (f == FunctorDouble) {
+      CACHE_REGS
       out = MkFloatTerm(FloatOfTerm(out));
     } else if (f == FunctorLongInt) {
+      CACHE_REGS
       out = MkLongIntTerm(LongIntOfTerm(out));
     }
 #ifdef USE_GMP

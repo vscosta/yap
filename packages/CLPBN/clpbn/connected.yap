@@ -42,7 +42,7 @@ init_influences(Vs, G, RG) :-
 	to_dgraph(Vs, G0, G),
 	dgraph_transpose(G, RG).
 
-factor_to_dgraph(f([V|Parents],_,_,_), G0, G) :-
+factor_to_dgraph(fn([V|Parents],_,_,_,_), G0, G) :-
 	dgraph_add_vertex(G0, V, G00),
 	build_edges(Parents, V, Edges),
 	dgraph_add_edges(G00, Edges, G).

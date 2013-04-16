@@ -1,25 +1,30 @@
+#include <iostream>
 #include <fstream>
 
 #include "ElimGraph.h"
 
-ElimHeuristic ElimGraph::elimHeuristic_ = MIN_NEIGHBORS;
+
+namespace Horus {
+
+ElimGraph::ElimHeuristic ElimGraph::elimHeuristic_ =
+    ElimHeuristic::minNeighborsEh;
 
 
-ElimGraph::ElimGraph (const vector<Factor*>& factors)
+ElimGraph::ElimGraph (const std::vector<Factor*>& factors)
 {
   for (size_t i = 0; i < factors.size(); i++) {
     if (factors[i]) {
       const VarIds& args = factors[i]->arguments();
       for (size_t j = 0; j < args.size() - 1; j++) {
-        EgNode* n1 = getEgNode (args[j]);
+        EGNode* n1 = getEGNode (args[j]);
         if (!n1) {
-          n1 = new EgNode (args[j], factors[i]->range (j));
+          n1 = new EGNode (args[j], factors[i]->range (j));
           addNode (n1);
         }
         for (size_t k = j + 1; k < args.size(); k++) {
-          EgNode* n2 = getEgNode (args[k]);
+          EGNode* n2 = getEGNode (args[k]);
           if (!n2) {
-            n2 = new EgNode (args[k], factors[i]->range (k));
+            n2 = new EGNode (args[k], factors[i]->range (k));
             addNode (n2);
           }
           if (!neighbors (n1, n2)) {
@@ -27,8 +32,8 @@ ElimGraph::ElimGraph (const vector<Factor*>& factors)
           }
         }
       }
-      if (args.size() == 1 && !getEgNode (args[0])) {
-        addNode (new EgNode (args[0], factors[i]->range (0)));
+      if (args.size() == 1 && !getEGNode (args[0])) {
+        addNode (new EGNode (args[0], factors[i]->range (0)));
       }
     }
   }
@@ -36,7 +41,7 @@ ElimGraph::ElimGraph (const vector<Factor*>& factors)
 
 
 
-ElimGraph::~ElimGraph (void)
+ElimGraph::~ElimGraph()
 {
   for (size_t i = 0; i < nodes_.size(); i++) {
     delete nodes_[i];
@@ -57,7 +62,7 @@ ElimGraph::getEliminatingOrder (const VarIds& excludedVids)
   }
   size_t nrVarsToEliminate = nodes_.size() - excludedVids.size();
   for (size_t i = 0; i < nrVarsToEliminate; i++) {
-    EgNode* node = getLowestCostNode();
+    EGNode* node = getLowestCostNode();
     unmarked_.remove (node);
     const EGNeighs& neighs = node->neighbors();
     for (size_t j = 0; j < neighs.size(); j++) {
@@ -72,15 +77,15 @@ ElimGraph::getEliminatingOrder (const VarIds& excludedVids)
 
 
 void
-ElimGraph::print (void) const
+ElimGraph::print() const
 {
   for (size_t i = 0; i < nodes_.size(); i++) {
-    cout << "node " << nodes_[i]->label() << " neighs:" ;
+    std::cout << "node " << nodes_[i]->label() << " neighs:" ;
     EGNeighs neighs = nodes_[i]->neighbors();
     for (size_t j = 0; j < neighs.size(); j++) {
-      cout << "  " << neighs[j]->label();
+      std::cout << "  " << neighs[j]->label();
     }
-    cout << endl;
+    std::cout << std::endl;
   }
 }
 
@@ -92,25 +97,27 @@ ElimGraph::exportToGraphViz (
     bool showNeighborless,
     const VarIds& highlightVarIds) const
 {
-  ofstream out (fileName);
+  std::ofstream out (fileName);
   if (!out.is_open()) {
-    cerr << "Error: couldn't open file '" << fileName << "'." ;
+    std::cerr << "Error: couldn't open file '" << fileName << "'." ;
+    std::cerr << std::endl;
     return;
   }
-  out << "strict graph {" << endl;
+  out << "strict graph {" << std::endl;
   for (size_t i = 0; i < nodes_.size(); i++) {
     if (showNeighborless || nodes_[i]->neighbors().empty() == false) {
-      out << '"' << nodes_[i]->label() << '"' << endl;
+      out << '"' << nodes_[i]->label() << '"' << std::endl;
     }
   }
   for (size_t i = 0; i < highlightVarIds.size(); i++) {
-    EgNode* node =getEgNode (highlightVarIds[i]);
+    EGNode* node =getEGNode (highlightVarIds[i]);
     if (node) {
       out << '"' << node->label() << '"' ;
-      out << " [shape=box3d]" << endl;
+      out << " [shape=box3d]" << std::endl;
     } else {
-      cerr << "Error: invalid variable id: " << highlightVarIds[i] << "." ;
-      cerr << endl;
+      std::cerr << "Error: invalid variable id: " ;
+      std::cerr << highlightVarIds[i] << "." ;
+      std::cerr << std::endl;
       exit (EXIT_FAILURE);
     }
   }
@@ -118,10 +125,10 @@ ElimGraph::exportToGraphViz (
     EGNeighs neighs = nodes_[i]->neighbors();
     for (size_t j = 0; j < neighs.size(); j++) {
       out << '"' << nodes_[i]->label() << '"' << " -- " ;
-      out << '"' << neighs[j]->label() << '"' << endl;
+      out << '"' << neighs[j]->label() << '"' << std::endl;
     }
   }
-  out << "}" << endl;
+  out << "}" << std::endl;
   out.close();
 }
 
@@ -132,7 +139,7 @@ ElimGraph::getEliminationOrder (
     const Factors& factors,
     VarIds excludedVids)
 {
-  if (elimHeuristic_ == ElimHeuristic::SEQUENTIAL) {
+  if (elimHeuristic_ == ElimHeuristic::sequentialEh) {
     VarIds allVids;
     Factors::const_iterator first = factors.begin();
     Factors::const_iterator end   = factors.end();
@@ -150,33 +157,33 @@ ElimGraph::getEliminationOrder (
 
 
 void
-ElimGraph::addNode (EgNode* n)
+ElimGraph::addNode (EGNode* n)
 {
   nodes_.push_back (n);
   n->setIndex (nodes_.size() - 1);
-  varMap_.insert (make_pair (n->varId(), n));
+  varMap_.insert (std::make_pair (n->varId(), n));
 }
 
 
 
-EgNode*
-ElimGraph::getEgNode (VarId vid) const
+ElimGraph::EGNode*
+ElimGraph::getEGNode (VarId vid) const
 {
-  unordered_map<VarId, EgNode*>::const_iterator it;
+  std::unordered_map<VarId, EGNode*>::const_iterator it;
   it = varMap_.find (vid);
   return (it != varMap_.end()) ? it->second : 0;
 }
 
 
 
-EgNode*
-ElimGraph::getLowestCostNode (void) const
+ElimGraph::EGNode*
+ElimGraph::getLowestCostNode() const
 {
-  EgNode* bestNode = 0;
+  EGNode* bestNode = 0;
   unsigned minCost = Util::maxUnsigned();
   EGNeighs::const_iterator it;
   switch (elimHeuristic_) {
-    case MIN_NEIGHBORS: {
+    case ElimHeuristic::minNeighborsEh: {
       for (it = unmarked_.begin(); it != unmarked_.end(); ++ it) {
         unsigned cost = getNeighborsCost (*it);
         if (cost < minCost) {
@@ -185,7 +192,7 @@ ElimGraph::getLowestCostNode (void) const
         }
       }}
       break;
-    case MIN_WEIGHT: {
+    case ElimHeuristic::minWeightEh: {
       for (it = unmarked_.begin(); it != unmarked_.end(); ++ it) {
         unsigned cost = getWeightCost (*it);
         if (cost < minCost) {
@@ -194,7 +201,7 @@ ElimGraph::getLowestCostNode (void) const
         }
       }}
       break;
-    case MIN_FILL: {
+    case ElimHeuristic::minFillEh: {
       for (it = unmarked_.begin(); it != unmarked_.end(); ++ it) {
         unsigned cost = getFillCost (*it);
         if (cost < minCost) {
@@ -203,7 +210,7 @@ ElimGraph::getLowestCostNode (void) const
         }
       }}
       break;
-    case WEIGHTED_MIN_FILL: {
+    case ElimHeuristic::weightedMinFillEh: {
       for (it = unmarked_.begin(); it != unmarked_.end(); ++ it) {
         unsigned cost = getWeightedFillCost (*it);
         if (cost < minCost) {
@@ -222,7 +229,7 @@ ElimGraph::getLowestCostNode (void) const
 
 
 void
-ElimGraph::connectAllNeighbors (const EgNode* n)
+ElimGraph::connectAllNeighbors (const EGNode* n)
 {
   const EGNeighs& neighs = n->neighbors();
   if (neighs.size() > 0) {
@@ -235,4 +242,6 @@ ElimGraph::connectAllNeighbors (const EgNode* n)
     }
   }
 }
+
+}  // namespace Horus
 

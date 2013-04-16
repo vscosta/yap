@@ -738,6 +738,7 @@ YAP_IsCompoundTerm(Term t)
 X_API Term 
 YAP_MkIntTerm(Int n)
 {
+  CACHE_REGS
   Term I;
   BACKUP_H();
 
@@ -854,6 +855,7 @@ YAP_BlobOfTerm(Term t)
 X_API Term 
 YAP_MkFloatTerm(double n)
 {
+  CACHE_REGS
   Term t;
   BACKUP_H();
 
@@ -3734,6 +3736,7 @@ YAP_CloseList(Term t0, Term tail)
 X_API int
 YAP_IsAttVar(Term t)
 {
+  CACHE_REGS
   t = Deref(t);
   if (!IsVarTerm(t))
     return FALSE;
@@ -3743,6 +3746,7 @@ YAP_IsAttVar(Term t)
 X_API Term
 YAP_AttsOfVar(Term t)
 {
+  CACHE_REGS
   attvar_record *attv;
   
   t = Deref(t);
@@ -4023,6 +4027,7 @@ YAP_TagOfTerm(Term t)
   if (IsVarTerm(t)) {
     CELL *pt = VarOfTerm(t);
     if (IsUnboundVar(pt)) {
+      CACHE_REGS
       if (IsAttVar(pt))
 	return YAP_TAG_ATT;
       return YAP_TAG_UNBOUND;

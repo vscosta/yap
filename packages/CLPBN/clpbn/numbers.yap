@@ -41,7 +41,7 @@ key_to_id(Key, I0, Hash0, Hash, I0, I) :-
 	b_hash_insert(Hash0, Key, I0, Hash),
 	I is I0+1.
 
-factor_to_id(Ev, f(_, DistId, Keys), f(Ids, Ranges, CPT, DistId), Hash0, Hash, I0, I) :-
+factor_to_id(Ev, f(_, DistId, Keys), fn(Ids, Ranges, CPT, DistId, Keys), Hash0, Hash, I0, I) :-
 	get_pfl_cpt(DistId, Keys, Ev, NKeys, CPT),
 	foldl2(key_to_id, NKeys, Ids, Hash0, Hash, I0, I),
 	maplist(get_range, Keys, Ranges).

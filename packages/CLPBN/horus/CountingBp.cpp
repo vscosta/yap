@@ -1,5 +1,60 @@
+#include <cassert>
+
+#include <iostream>
+#include <sstream>
+
 #include "CountingBp.h"
 #include "WeightedBp.h"
+
+
+namespace Horus {
+
+class VarCluster {
+  public:
+    VarCluster (const VarNodes& vs) : members_(vs) { }
+
+    const VarNode* first() const { return members_.front(); }
+
+    const VarNodes& members() const { return members_; }
+
+    VarNode* representative() const { return repr_; }
+
+    void setRepresentative (VarNode* vn) { repr_ = vn; }
+
+  private:
+    VarNodes  members_;
+    VarNode*  repr_;
+
+    DISALLOW_COPY_AND_ASSIGN (VarCluster);
+};
+
+
+
+class FacCluster {
+  private:
+    typedef std::vector<VarCluster*> VarClusters;
+
+  public:
+    FacCluster (const FacNodes& fcs, const VarClusters& vcs)
+        : members_(fcs), varClusters_(vcs) { }
+
+    const FacNode* first() const { return members_.front(); }
+
+    const FacNodes& members() const { return members_; }
+
+    FacNode* representative() const { return repr_; }
+
+    void setRepresentative (FacNode* fn) { repr_ = fn; }
+
+    VarClusters& varClusters() { return varClusters_; }
+
+    FacNodes     members_;
+    FacNode*     repr_;
+    VarClusters  varClusters_;
+
+    DISALLOW_COPY_AND_ASSIGN (FacCluster);
+};
+
 
 
 bool CountingBp::fif_ = true;
@@ -17,7 +72,7 @@ CountingBp::CountingBp (const FactorGraph& fg)
 
 
 
-CountingBp::~CountingBp (void)
+CountingBp::~CountingBp()
 {
   delete solver_;
   delete compressedFg_;
@@ -32,23 +87,24 @@ CountingBp::~CountingBp (void)
 
 
 void
-CountingBp::printSolverFlags (void) const
+CountingBp::printSolverFlags() const
 {
-  stringstream ss;
+  std::stringstream ss;
   ss << "counting bp [" ;
   ss << "bp_msg_schedule=" ;
+  typedef WeightedBp::MsgSchedule MsgSchedule;
   switch (WeightedBp::msgSchedule()) {
-    case MsgSchedule::SEQ_FIXED:    ss << "seq_fixed";    break;
-    case MsgSchedule::SEQ_RANDOM:   ss << "seq_random";   break;
-    case MsgSchedule::PARALLEL:     ss << "parallel";     break;
-    case MsgSchedule::MAX_RESIDUAL: ss << "max_residual"; break;
+    case MsgSchedule::seqFixedSch:    ss << "seq_fixed";    break;
+    case MsgSchedule::seqRandomSch:   ss << "seq_random";   break;
+    case MsgSchedule::parallelSch:    ss << "parallel";     break;
+    case MsgSchedule::maxResidualSch: ss << "max_residual"; break;
   }
   ss << ",bp_max_iter=" << WeightedBp::maxIterations();
   ss << ",bp_accuracy=" << WeightedBp::accuracy();
   ss << ",log_domain=" << Util::toString (Globals::logDomain);
   ss << ",fif=" << Util::toString (CountingBp::fif_);
   ss << "]" ;
-  cout << ss.str() << endl;
+  std::cout << ss.str() << std::endl;
 }
 
 
@@ -69,11 +125,10 @@ CountingBp::solveQuery (VarIds queryVids)
         idx = i;
         break;
       }
-      cout << endl;
     }
     if (idx == facNodes.size()) {
       res = GroundSolver::getJointByConditioning (
-          GroundSolverType::CBP, fg, queryVids);
+          GroundSolverType::CbpSolver, fg, queryVids);
     } else {
       VarIds reprArgs;
       for (size_t i = 0; i < queryVids.size(); i++) {
@@ -124,7 +179,7 @@ CountingBp::findIdenticalFactors()
 
 
 void
-CountingBp::setInitialColors (void)
+CountingBp::setInitialColors()
 {
   varColors_.resize (fg.nrVarNodes());
   facColors_.resize (fg.nrFacNodes());
@@ -135,7 +190,7 @@ CountingBp::setInitialColors (void)
     unsigned range = varNodes[i]->range();
     VarColorMap::iterator it = colorMap.find (range);
     if (it == colorMap.end()) {
-      it = colorMap.insert (make_pair (
+      it = colorMap.insert (std::make_pair (
           range, Colors (range + 1, -1))).first;
     }
     unsigned idx = varNodes[i]->hasEvidence()
@@ -154,7 +209,8 @@ CountingBp::setInitialColors (void)
     unsigned distId = facNodes[i]->factor().distId();
     DistColorMap::iterator it = distColors.find (distId);
     if (it == distColors.end()) {
-      it = distColors.insert (make_pair (distId, getNewColor())).first;
+      it = distColors.insert (std::make_pair (
+          distId, getNewColor())).first;
     }
     setColor (facNodes[i], it->second);
   }
@@ -163,7 +219,7 @@ CountingBp::setInitialColors (void)
 
 
 void
-CountingBp::createGroups (void)
+CountingBp::createGroups()
 {
   VarSignMap varGroups;
   FacSignMap facGroups;
@@ -179,10 +235,11 @@ CountingBp::createGroups (void)
     size_t prevVarGroupsSize = varGroups.size();
     varGroups.clear();
     for (size_t i = 0; i < varNodes.size(); i++) {
-      const VarSignature& signature = getSignature (varNodes[i]);
+      VarSignature signature = getSignature (varNodes[i]);
       VarSignMap::iterator it = varGroups.find (signature);
       if (it == varGroups.end()) {
-        it = varGroups.insert (make_pair (signature, VarNodes())).first;
+        it = varGroups.insert (std::make_pair (
+            signature, VarNodes())).first;
       }
       it->second.push_back (varNodes[i]);
     }
@@ -199,10 +256,11 @@ CountingBp::createGroups (void)
     facGroups.clear();
     // set a new color to the factors with the same signature
     for (size_t i = 0; i < facNodes.size(); i++) {
-      const FacSignature& signature = getSignature (facNodes[i]);
+      FacSignature signature = getSignature (facNodes[i]);
       FacSignMap::iterator it = facGroups.find (signature);
       if (it == facGroups.end()) {
-        it = facGroups.insert (make_pair (signature, FacNodes())).first;
+        it = facGroups.insert (std::make_pair (
+            signature, FacNodes())).first;
       }
       it->second.push_back (facNodes[i]);
     }
@@ -235,7 +293,8 @@ CountingBp::createClusters (
     const VarNodes& groupVars = it->second;
     VarCluster* vc = new VarCluster (groupVars);
     for (size_t i = 0; i < groupVars.size(); i++) {
-      varClusterMap_.insert (make_pair (groupVars[i]->varId(), vc));
+      varClusterMap_.insert (std::make_pair (
+          groupVars[i]->varId(), vc));
     }
     varClusters_.push_back (vc);
   }
@@ -257,29 +316,29 @@ CountingBp::createClusters (
 
 
 
-VarSignature
+CountingBp::VarSignature
 CountingBp::getSignature (const VarNode* varNode)
 {
-  const FacNodes& neighs = varNode->neighbors();
   VarSignature sign;
+  const FacNodes& neighs = varNode->neighbors();
   sign.reserve (neighs.size() + 1);
   for (size_t i = 0; i < neighs.size(); i++) {
-    sign.push_back (make_pair (
+    sign.push_back (std::make_pair (
         getColor (neighs[i]),
         neighs[i]->factor().indexOf (varNode->varId())));
   }
   std::sort (sign.begin(), sign.end());
-  sign.push_back (make_pair (getColor (varNode), 0));
+  sign.push_back (std::make_pair (getColor (varNode), 0));
   return sign;
 }
 
 
 
-FacSignature
+CountingBp::FacSignature
 CountingBp::getSignature (const FacNode* facNode)
 {
-  const VarNodes& neighs = facNode->neighbors();
   FacSignature sign;
+  const VarNodes& neighs = facNode->neighbors();
   sign.reserve (neighs.size() + 1);
   for (size_t i = 0; i < neighs.size(); i++) {
     sign.push_back (getColor (neighs[i]));
@@ -314,7 +373,7 @@ CountingBp::getRepresentative (FacNode* fn)
 
 
 FactorGraph*
-CountingBp::getCompressedFactorGraph (void)
+CountingBp::getCompressedFactorGraph()
 {
   FactorGraph* fg = new FactorGraph();
   for (size_t i = 0; i < varClusters_.size(); i++) {
@@ -342,10 +401,10 @@ CountingBp::getCompressedFactorGraph (void)
 
 
 
-vector<vector<unsigned>>
-CountingBp::getWeights (void) const
+std::vector<std::vector<unsigned>>
+CountingBp::getWeights() const
 {
-  vector<vector<unsigned>> weights;
+  std::vector<std::vector<unsigned>> weights;
   weights.reserve (facClusters_.size());
   for (size_t i = 0; i < facClusters_.size(); i++) {
     const VarClusters& neighs = facClusters_[i]->varClusters();
@@ -390,32 +449,34 @@ CountingBp::printGroups (
     const FacSignMap& facGroups) const
 {
   unsigned count = 1;
-  cout << "variable groups:" << endl;
+  std::cout << "variable groups:" << std::endl;
   for (VarSignMap::const_iterator it = varGroups.begin();
       it != varGroups.end(); ++it) {
     const VarNodes& groupMembers = it->second;
     if (groupMembers.size() > 0) {
-      cout << count << ": " ;
+      std::cout << count << ": " ;
       for (size_t i = 0; i < groupMembers.size(); i++) {
-        cout << groupMembers[i]->label() << " " ;
+        std::cout << groupMembers[i]->label() << " " ;
       }
       count ++;
-      cout << endl;
+      std::cout << std::endl;
     }
   }
   count = 1;
-  cout << endl << "factor groups:" << endl;
+  std::cout << std::endl << "factor groups:" << std::endl;
   for (FacSignMap::const_iterator it = facGroups.begin();
       it != facGroups.end(); ++it) {
     const FacNodes& groupMembers = it->second;
     if (groupMembers.size() > 0) {
-      cout << ++count << ": " ;
+      std::cout << ++count << ": " ;
       for (size_t i = 0; i < groupMembers.size(); i++) {
-        cout << groupMembers[i]->getLabel() << " " ;
+        std::cout << groupMembers[i]->getLabel() << " " ;
       }
       count ++;
-      cout << endl;
+      std::cout << std::endl;
     }
   }
 }
+
+}  // namespace Horus
 

@@ -1,21 +1,15 @@
-#include <cstdlib>
 #include <cassert>
 
 #include <algorithm>
-
 #include <iostream>
 #include <sstream>
 
 #include "Factor.h"
+#include "Indexer.h"
 #include "Var.h"
 
 
-Factor::Factor (const Factor& g)
-{
-  clone (g);
-}
-
-
+namespace Horus {
 
 Factor::Factor (
     const VarIds& vids,
@@ -77,7 +71,7 @@ Factor::sumOutAllExcept (VarId vid)
 void
 Factor::sumOutAllExcept (const VarIds& vids)
 {
-  vector<bool> mask (args_.size(), false);
+  std::vector<bool> mask (args_.size(), false);
   for (unsigned i = 0; i < vids.size(); i++) {
     assert (indexOf (vids[i]) != args_.size());
     mask[indexOf (vids[i])] = true;
@@ -91,28 +85,30 @@ void
 Factor::sumOutAllExceptIndex (size_t idx)
 {
   assert (idx < args_.size());
-  vector<bool> mask (args_.size(), false);
+  std::vector<bool> mask (args_.size(), false);
   mask[idx] = true;
   sumOutArgs (mask);
 }
 
 
-void
-Factor::multiply (Factor& g)
+
+Factor&
+Factor::multiply (const Factor& g)
 {
   if (args_.empty()) {
-    clone (g);
+    operator= (g);
   } else {
-    TFactor<VarId>::multiply (g);
+    GenericFactor<VarId>::multiply (g);
   }
+  return *this;
 }
 
 
 
-string
-Factor::getLabel (void) const
+std::string
+Factor::getLabel() const
 {
-  stringstream ss;
+  std::stringstream ss;
   ss << "f(" ;
   for (size_t i = 0; i < args_.size(); i++) {
     if (i != 0) ss << "," ;
@@ -125,19 +121,19 @@ Factor::getLabel (void) const
 
 
 void
-Factor::print (void) const
+Factor::print() const
 {
   Vars vars;
   for (size_t i = 0; i < args_.size(); i++) {
     vars.push_back (new Var (args_[i], ranges_[i]));
   }
-  vector<string> jointStrings = Util::getStateLines (vars);
+  std::vector<std::string> jointStrings = Util::getStateLines (vars);
   for (size_t i = 0; i < params_.size(); i++) {
     // cout << "[" << distId_ << "] " ;
-    cout << "f(" << jointStrings[i] << ")" ;
-    cout << " = " << params_[i] << endl;
+    std::cout << "f(" << jointStrings[i] << ")" ;
+    std::cout << " = " << params_[i] << std::endl;
   }
-  cout << endl;
+  std::cout << std::endl;
   for (size_t i = 0; i < vars.size(); i++) {
     delete vars[i];
   }
@@ -146,8 +142,9 @@ Factor::print (void) const
 
 
 void
-Factor::sumOutFirstVariable (void)
+Factor::sumOutFirstVariable()
 {
+  assert (ranges_.front() == 2);
   size_t sep = params_.size() / 2;
   if (Globals::logDomain) {
     std::transform (
@@ -169,19 +166,21 @@ Factor::sumOutFirstVariable (void)
 
 
 void
-Factor::sumOutLastVariable (void)
+Factor::sumOutLastVariable()
 {
+  assert (ranges_.back() == 2);
   Params::iterator first1 = params_.begin();
   Params::iterator first2 = params_.begin();
   Params::iterator last   = params_.end();
   if (Globals::logDomain) {
     while (first2 != last) {
-      // the arguments can be swaped, but that is ok
-      *first1++ = Util::logSum (*first2++, *first2++);
+      double tmp = *first2++;
+      *first1++ = Util::logSum (tmp, *first2++);
     }
   } else {
     while (first2 != last) {
-      *first1++ = (*first2++) + (*first2++);
+      *first1    = *first2++;
+      *first1++ += *first2++;
     }
   }
   params_.resize (params_.size() / 2);
@@ -192,7 +191,7 @@ Factor::sumOutLastVariable (void)
 
 
 void
-Factor::sumOutArgs (const vector<bool>& mask)
+Factor::sumOutArgs (const std::vector<bool>& mask)
 {
   assert (mask.size() == args_.size());
   size_t new_size = 1;
@@ -224,14 +223,5 @@ Factor::sumOutArgs (const vector<bool>& mask)
   params_ = newps;
 }
 
-
-
-void
-Factor::clone (const Factor& g)
-{
-  args_    = g.arguments();
-  ranges_  = g.ranges();
-  params_  = g.params();
-  distId_  = g.distId();
-}
+}  // namespace Horus
 

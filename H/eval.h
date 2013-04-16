@@ -314,12 +314,16 @@ size_t  STD_PROTO(Yap_gmp_to_size,(Term, int));
 
 int   STD_PROTO(Yap_term_to_existing_big,(Term, MP_INT *));
 int   STD_PROTO(Yap_term_to_existing_rat,(Term, MP_RAT *));
+
+void  Yap_gmp_set_bit(Int i, Term t);
 #endif
 
-INLINE_ONLY inline EXTERN Term Yap_Mk64IntegerTerm(YAP_LONG_LONG);
+#define Yap_Mk64IntegerTerm(i) __Yap_Mk64IntegerTerm((i) PASS_REGS)
+
+INLINE_ONLY inline EXTERN Term __Yap_Mk64IntegerTerm(YAP_LONG_LONG USES_REGS);
 
 INLINE_ONLY inline EXTERN Term
-Yap_Mk64IntegerTerm(YAP_LONG_LONG i)
+__Yap_Mk64IntegerTerm(YAP_LONG_LONG i USES_REGS)
 {
   if (i <= Int_MAX && i >= Int_MIN) {
     return MkIntegerTerm((Int)i);

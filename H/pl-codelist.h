@@ -10,6 +10,7 @@ INIT_SEQ_STRING(size_t n)
 
 static inline Word
 EXTEND_SEQ_CODES(Word ptr, int c) {
+  CACHE_REGS
   ptr[0] = MkIntegerTerm(c);
   ptr[1] = AbsPair(ptr+2);
 

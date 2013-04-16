@@ -1,44 +1,43 @@
-#ifndef HORUS_HISTOGRAM_H
-#define HORUS_HISTOGRAM_H
+#ifndef YAP_PACKAGES_CLPBN_HORUS_HISTOGRAM_H_
+#define YAP_PACKAGES_CLPBN_HORUS_HISTOGRAM_H_
 
 #include <vector>
-
 #include <ostream>
 
 #include "Horus.h"
 
-using namespace std;
+typedef std::vector<unsigned> Histogram;
 
-typedef vector<unsigned> Histogram;
 
-class HistogramSet
-{
+namespace Horus {
+
+class HistogramSet {
   public:
     HistogramSet (unsigned, unsigned);
 
-    void nextHistogram (void);
+    void nextHistogram();
 
     unsigned operator[] (size_t idx) const;
 
-    unsigned nrHistograms (void) const;
+    unsigned nrHistograms() const;
 
-    void reset (void);
+    void reset();
 
-    static vector<Histogram> getHistograms (unsigned, unsigned);
+    static std::vector<Histogram> getHistograms (unsigned, unsigned);
 
     static unsigned nrHistograms (unsigned, unsigned);
 
     static size_t findIndex (
-        const Histogram&, const vector<Histogram>&);
+        const Histogram&, const std::vector<Histogram>&);
 
-    static vector<double> getNumAssigns (unsigned, unsigned);
-
-    friend std::ostream& operator<< (ostream &os, const HistogramSet& hs);
+    static std::vector<double> getNumAssigns (unsigned, unsigned);
 
   private:
     unsigned maxCount (size_t) const;
 
     void clearAfter (size_t);
+
+    friend std::ostream& operator<< (std::ostream&, const HistogramSet&);
 
     unsigned   size_;
     Histogram  hist_;
@@ -46,5 +45,7 @@ class HistogramSet
     DISALLOW_COPY_AND_ASSIGN (HistogramSet);
 };
 
-#endif // HORUS_HISTOGRAM_H
+}  // namespace Horus
+
+#endif  // YAP_PACKAGES_CLPBN_HORUS_HISTOGRAM_H_
 

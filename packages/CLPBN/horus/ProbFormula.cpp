@@ -1,5 +1,12 @@
+#include <cassert>
+
+#include <iostream>
+
 #include "ProbFormula.h"
 
+
+
+namespace Horus {
 
 PrvGroup ProbFormula::freeGroup_ = 0;
 
@@ -38,7 +45,7 @@ ProbFormula::indexOf (LogVar X) const
 
 
 bool
-ProbFormula::isAtom (void) const
+ProbFormula::isAtom() const
 {
   return logVars_.empty();
 }
@@ -46,7 +53,7 @@ ProbFormula::isAtom (void) const
 
 
 bool
-ProbFormula::isCounting (void) const
+ProbFormula::isCounting() const
 {
   return countedLogVar_.valid();
 }
@@ -54,7 +61,7 @@ ProbFormula::isCounting (void) const
 
 
 LogVar
-ProbFormula::countedLogVar (void) const
+ProbFormula::countedLogVar() const
 {
   assert (isCounting());
   return countedLogVar_;
@@ -71,7 +78,7 @@ ProbFormula::setCountedLogVar (LogVar lv)
 
 
 void
-ProbFormula::clearCountedLogVar (void)
+ProbFormula::clearCountedLogVar()
 {
   countedLogVar_ = LogVar();
 }
@@ -93,15 +100,8 @@ ProbFormula::rename (LogVar oldName, LogVar newName)
 
 
 
-bool operator== (const ProbFormula& f1, const ProbFormula& f2)
-{
-  return f1.group_   == f2.group_ &&
-         f1.logVars_ == f2.logVars_;
-}
-
-
-
-std::ostream& operator<< (ostream &os, const ProbFormula& f)
+std::ostream&
+operator<< (std::ostream& os, const ProbFormula& f)
 {
   os << f.functor_;
   if (f.isAtom() == false) {
@@ -122,7 +122,7 @@ std::ostream& operator<< (ostream &os, const ProbFormula& f)
 
 
 PrvGroup
-ProbFormula::getNewGroup (void)
+ProbFormula::getNewGroup()
 {
   freeGroup_ ++;
   assert (freeGroup_ != std::numeric_limits<PrvGroup>::max());
@@ -131,11 +131,30 @@ ProbFormula::getNewGroup (void)
 
 
 
-ostream& operator<< (ostream &os, const ObservedFormula& of)
+ObservedFormula::ObservedFormula (Symbol f, unsigned a, unsigned ev)
+    : functor_(f), arity_(a), evidence_(ev), constr_(a)
+{
+
+}
+
+
+
+ObservedFormula::ObservedFormula (Symbol f, unsigned ev, const Tuple& tuple)
+    : functor_(f), arity_(tuple.size()), evidence_(ev), constr_(arity_)
+{
+  constr_.addTuple (tuple);
+}
+
+
+
+std::ostream&
+operator<< (std::ostream& os, const ObservedFormula& of)
 {
   os << of.functor_ << "/" << of.arity_;
   os << "|" << of.constr_.tupleSet();
   os << " [evidence=" << of.evidence_ << "]";
   return os;
 }
+
+}  // namespace Horus
 

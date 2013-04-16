@@ -122,7 +122,7 @@ evtotree(K=V,Ev0,Ev) :-
 	rb_insert(Ev0, K, V, Ev).
 
 ftotree(F, Fs0, Fs) :-
-	F = f([K|_Parents],_,_,_),
+	F = fn([K|_Parents],_,_,_,_),
 	rb_insert(Fs0, K, F, Fs).
 
 bdd([[]],_,_) :- !.
@@ -160,7 +160,7 @@ sort_keys(AllFs, AllVars, Leaves) :-
 	dgraph_leaves(Graph, Leaves),
 	dgraph_top_sort(Graph, AllVars).
 
-add_node(f([K|Parents],_,_,_), Graph0, Graph) :-
+add_node(fn([K|Parents],_,_,_,_), Graph0, Graph) :-
 	dgraph_add_vertex(Graph0, K, Graph1),
 	foldl(add_edge(K), Parents, Graph1, Graph).
 
@@ -190,7 +190,7 @@ add_parents([V0|Parents], V, Graph0, GraphF) :-
 get_keys_info([], _, _, _, Vs, Vs, Ps, Ps, _, _) --> [].
 get_keys_info([V|MoreVs], Evs, Fs, OrderVs, Vs, VsF, Ps, PsF, Lvs, Outs) -->
 	{ rb_lookup(V, F, Fs) }, !,
-	{ F = f([V|Parents], _, _, DistId) },
+	{ F = fn([V|Parents], _, _, DistId, _) },
 %{writeln(v:DistId:Parents)},
 	[DIST],
 	{ get_key_info(V, F, Fs, Evs, OrderVs, DistId, Parents, Vs, Vs2, Ps, Ps1, Lvs, Outs, DIST) },
@@ -200,7 +200,7 @@ get_key_info(V, F, Fs, Evs, OrderVs, DistId, Parents0, Vs, Vs2, Ps, Ps1, Lvs, Ou
 	reorder_keys(Parents0, OrderVs, Parents, Map),
 	check_key_p(DistId, F, Map, Parms, _ParmVars, Ps, Ps1),
 	unbound_parms(Parms, ParmVars),
-	F = f(_,[Size|_],_,_),
+	F = fn(_,[Size|_],_,_,_),
 	check_key(V, Size, DIST, Vs, Vs1),
 	DIST = info(V, Tree, Ev, Values, Formula, ParmVars, Parms),
 	% get a list of form [[P00,P01], [P10,P11], [P20,P21]]
@@ -599,7 +599,7 @@ to_disj2([V,V1|Vs], V0, Out) :-
 %
 check_key_p(DistId, _, Map, Parms, ParmVars, Ps, Ps) :-
 	rb_lookup(DistId-Map, theta(Parms, ParmVars), Ps), !.
-check_key_p(DistId, f(_, Sizes, Parms0, DistId), Map, Parms, ParmVars, Ps, PsF) :-
+check_key_p(DistId, fn(_, Sizes, Parms0, DistId, _), Map, Parms, ParmVars, Ps, PsF) :-
 	swap_parms(Parms0, Sizes, [0|Map], Parms1),
 	length(Parms1, L0),
 	Sizes = [Size|_],
@@ -693,7 +693,7 @@ get_parents(V.Parents, Values.PVars, Vs0, Vs) :-
 
 get_key_parent(Fs, V, Values, Vs0, Vs) :-
 	INFO = info(V, _Parent, _Ev, Values, _, _, _),
-	rb_lookup(V, f(_, [Size|_], _, _), Fs),
+	rb_lookup(V, fn(_, [Size|_], _, _, _), Fs),
 	check_key(V, Size, INFO, Vs0, Vs).
 
 check_key(V, _, INFO, Vs, Vs) :-

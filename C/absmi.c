@@ -9376,7 +9376,7 @@ Yap_absmi(int inp)
       }
       else {
 	saveregs();
-	d0 = p_plus(Yap_Eval(d0), Yap_Eval(d1));
+	d0 = p_plus(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
 	setregs();
 	if (d0 == 0L) {
 	  saveregs();
@@ -9421,7 +9421,7 @@ Yap_absmi(int inp)
 	}
 	else {
 	  saveregs();
-	  d0 = p_plus(Yap_Eval(d0), MkIntegerTerm(d1));
+	  d0 = p_plus(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
 	  setregs();
 	  if (d0 == 0L) {
 	    saveregs();
@@ -9462,7 +9462,7 @@ Yap_absmi(int inp)
       }
       else {
 	saveregs();
-	d0 = p_plus(Yap_Eval(d0), Yap_Eval(d1));
+	d0 = p_plus(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
 	setregs();
 	if (d0 == 0L) {
 	  saveregs();
@@ -9510,7 +9510,7 @@ Yap_absmi(int inp)
 	}
 	else {
 	  saveregs();
-	  d0 = p_plus(Yap_Eval(d0), MkIntegerTerm(d1));
+	  d0 = p_plus(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
 	  setregs();
 	  if (d0 == 0L) {
 	    saveregs();
@@ -9554,7 +9554,7 @@ Yap_absmi(int inp)
       }
       else {
 	saveregs();
-	d0 = p_minus(Yap_Eval(d0), Yap_Eval(d1));
+	d0 = p_minus(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
 	setregs();
 	if (d0 == 0L) {
 	  saveregs();
@@ -9599,7 +9599,7 @@ Yap_absmi(int inp)
 	}
 	else {
 	  saveregs();
-	  d0 = p_minus(MkIntegerTerm(d1),Yap_Eval(d0));
+	  d0 = p_minus(MkIntegerTerm(d1),Yap_Eval(d0) PASS_REGS);
 	  setregs();
 	  if (d0 == 0L) {
 	    saveregs();
@@ -9640,7 +9640,7 @@ Yap_absmi(int inp)
       }
       else {
 	saveregs();
-	d0 = p_minus(Yap_Eval(d0), Yap_Eval(d1));
+	d0 = p_minus(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
 	setregs();
 	if (d0 == 0L) {
 	  saveregs();
@@ -9688,7 +9688,7 @@ Yap_absmi(int inp)
 	}
 	else {
 	  saveregs();
-	  d0 = p_minus(MkIntegerTerm(d1), Yap_Eval(d0));
+	  d0 = p_minus(MkIntegerTerm(d1), Yap_Eval(d0) PASS_REGS);
 	  setregs();
 	  if (d0 == 0L) {
 	    saveregs();
@@ -9728,11 +9728,11 @@ Yap_absmi(int inp)
     times_vv_nvar_nvar:
       /* d0 and d1 are where I want them */
       if (IsIntTerm(d0) && IsIntTerm(d1)) {
-	d0 = times_int(IntOfTerm(d0), IntOfTerm(d1));
+	d0 = times_int(IntOfTerm(d0), IntOfTerm(d1) PASS_REGS);
       }
       else {
 	saveregs();
-	d0 = p_times(Yap_Eval(d0), Yap_Eval(d1));
+	d0 = p_times(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
 	setregs();
 	if (d0 == 0L) {
 	  saveregs();
@@ -9773,11 +9773,11 @@ Yap_absmi(int inp)
       {
 	Int d1 = PREG->u.xxn.c;
 	if (IsIntTerm(d0)) {
-	  d0 = times_int(IntOfTerm(d0), d1);
+	  d0 = times_int(IntOfTerm(d0), d1 PASS_REGS);
 	}
 	else {
 	  saveregs();
-	  d0 = p_times(Yap_Eval(d0), MkIntegerTerm(d1));
+	  d0 = p_times(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
 	  setregs();
 	  if (d0 == 0L) {
 	    saveregs();
@@ -9814,11 +9814,11 @@ Yap_absmi(int inp)
     times_y_vv_nvar_nvar:
       /* d0 and d1 are where I want them */
       if (IsIntTerm(d0) && IsIntTerm(d1)) {
-	d0 = times_int(IntOfTerm(d0), IntOfTerm(d1));
+	d0 = times_int(IntOfTerm(d0), IntOfTerm(d1) PASS_REGS);
       }
       else {
 	saveregs();
-	d0 = p_times(Yap_Eval(d0), Yap_Eval(d1));
+	d0 = p_times(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
 	setregs();
 	if (d0 == 0L) {
 	  saveregs();
@@ -9862,11 +9862,11 @@ Yap_absmi(int inp)
       {
 	Int d1 = PREG->u.yxn.c;
 	if (IsIntTerm(d0)) {
-	  d0 = times_int(IntOfTerm(d0), d1);
+	  d0 = times_int(IntOfTerm(d0), d1 PASS_REGS);
 	}
 	else {
 	  saveregs();
-	  d0 = p_times(Yap_Eval(d0), MkIntegerTerm(d1));
+	  d0 = p_times(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
 	  setregs();
 	  if (d0 == 0L) {
 	    saveregs();
@@ -9917,7 +9917,7 @@ Yap_absmi(int inp)
       }
       else {
 	saveregs();
-	d0 = p_div(Yap_Eval(d0), Yap_Eval(d1));
+	d0 = p_div(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
 	setregs();
 	if (d0 == 0L) {
 	  saveregs();
@@ -9962,7 +9962,7 @@ Yap_absmi(int inp)
 	}
 	else {
 	  saveregs();
-	  d0 = p_div(Yap_Eval(d0),MkIntegerTerm(d1));
+	  d0 = p_div(Yap_Eval(d0),MkIntegerTerm(d1) PASS_REGS);
 	  setregs();
 	  if (d0 == 0L) {
 	    saveregs();
@@ -10006,7 +10006,7 @@ Yap_absmi(int inp)
 	}
 	else {
 	  saveregs();
-	  d0 = p_div(MkIntegerTerm(d1),Yap_Eval(d0));
+	  d0 = p_div(MkIntegerTerm(d1),Yap_Eval(d0) PASS_REGS);
 	  if (d0 == 0L) {
 	    saveregs();
 	    Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
@@ -10053,7 +10053,7 @@ Yap_absmi(int inp)
       }
       else {
 	saveregs();
-	d0 = p_div(Yap_Eval(d0), Yap_Eval(d1));
+	d0 = p_div(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
 	setregs();
 	if (d0 == 0L) {
 	  saveregs();
@@ -10101,7 +10101,7 @@ Yap_absmi(int inp)
 	}
 	else {
 	  saveregs();
-	  d0 = p_div(Yap_Eval(d0),MkIntegerTerm(d1));
+	  d0 = p_div(Yap_Eval(d0),MkIntegerTerm(d1) PASS_REGS);
 	  setregs();
 	  if (d0 == 0L) {
 	    saveregs();
@@ -10148,7 +10148,7 @@ Yap_absmi(int inp)
 	}
 	else {
 	  saveregs();
-	  d0 = p_div(MkIntegerTerm(d1), Yap_Eval(d0));
+	  d0 = p_div(MkIntegerTerm(d1), Yap_Eval(d0) PASS_REGS);
 	  setregs();
 	  if (d0 == 0L) {
 	    saveregs();
@@ -10193,7 +10193,7 @@ Yap_absmi(int inp)
       }
       else {
 	saveregs();
-	d0 = p_and(Yap_Eval(d0), Yap_Eval(d1));
+	d0 = p_and(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
 	setregs();
 	if (d0 == 0L) {
 	  saveregs();
@@ -10238,7 +10238,7 @@ Yap_absmi(int inp)
 	}
 	else {
 	  saveregs();
-	  d0 = p_and(Yap_Eval(d0), MkIntegerTerm(d1));
+	  d0 = p_and(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
 	  setregs();
 	  if (d0 == 0L) {
 	    saveregs();
@@ -10279,7 +10279,7 @@ Yap_absmi(int inp)
       }
       else {
 	saveregs();
-	d0 = p_and(Yap_Eval(d0), Yap_Eval(d1));
+	d0 = p_and(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
 	setregs();
 	if (d0 == 0L) {
 	  saveregs();
@@ -10327,7 +10327,7 @@ Yap_absmi(int inp)
 	}
 	else {
 	  saveregs();
-	  d0 = p_and(Yap_Eval(d0), MkIntegerTerm(d1));
+	  d0 = p_and(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
 	  setregs();
 	  if (d0 == 0L) {
 	    saveregs();
@@ -10372,7 +10372,7 @@ Yap_absmi(int inp)
       }
       else {
 	saveregs();
-	d0 = p_or(Yap_Eval(d0), Yap_Eval(d1));
+	d0 = p_or(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
 	setregs();
 	if (d0 == 0L) {
 	  saveregs();
@@ -10417,7 +10417,7 @@ Yap_absmi(int inp)
 	}
 	else {
 	  saveregs();
-	  d0 = p_or(Yap_Eval(d0), MkIntegerTerm(d1));
+	  d0 = p_or(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
 	  if (d0 == 0L) {
 	    saveregs();
 	    Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
@@ -10457,7 +10457,7 @@ Yap_absmi(int inp)
       }
       else {
 	saveregs();
-	d0 = p_or(Yap_Eval(d0), Yap_Eval(d1));
+	d0 = p_or(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
 	setregs();
 	if (d0 == 0L) {
 	  saveregs();
@@ -10505,7 +10505,7 @@ Yap_absmi(int inp)
 	}
 	else {
 	  saveregs();
-	  d0 = p_or(Yap_Eval(d0), MkIntegerTerm(d1));
+	  d0 = p_or(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
 	  setregs();
 	  if (d0 == 0L) {
 	    saveregs();
@@ -10549,11 +10549,11 @@ Yap_absmi(int inp)
 	if (i2 < 0)
 	  d0 = MkIntegerTerm(SLR(IntOfTerm(d0), -i2));
 	else
-	  d0 = do_sll(IntOfTerm(d0),i2);
+	  d0 = do_sll(IntOfTerm(d0),i2 PASS_REGS);
       }
       else {
 	saveregs();
-	d0 = p_sll(Yap_Eval(d0), Yap_Eval(d1));
+	d0 = p_sll(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
 	setregs();
       }
       if (d0 == 0L) {
@@ -10594,11 +10594,11 @@ Yap_absmi(int inp)
       {
 	Int d1 = PREG->u.xxn.c;
 	if (IsIntTerm(d0)) {
-	  d0 = do_sll(IntOfTerm(d0), (Int)d1);
+	  d0 = do_sll(IntOfTerm(d0), (Int)d1 PASS_REGS);
 	}
 	else {
 	  saveregs();
-	  d0 = p_sll(Yap_Eval(d0), MkIntegerTerm(d1));
+	  d0 = p_sll(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
 	  setregs();
 	}
       }
@@ -10635,11 +10635,11 @@ Yap_absmi(int inp)
 	  if (i2 < 0)
 	    d0 = MkIntegerTerm(SLR(d1, -i2));
 	  else
-	    d0 = do_sll(d1,i2);
+	    d0 = do_sll(d1,i2 PASS_REGS);
 	}
 	else {
 	  saveregs();
-	  d0 = p_sll(MkIntegerTerm(d1), Yap_Eval(d0));
+	  d0 = p_sll(MkIntegerTerm(d1), Yap_Eval(d0) PASS_REGS);
 	  setregs();
 	}
       }
@@ -10680,11 +10680,11 @@ Yap_absmi(int inp)
 	if (i2 < 0)
 	  d0 = MkIntegerTerm(SLR(IntOfTerm(d0), -i2));
 	else
-	  d0 = do_sll(IntOfTerm(d0),i2);
+	  d0 = do_sll(IntOfTerm(d0),i2 PASS_REGS);
       }
       else {
 	saveregs();
-	d0 = p_sll(Yap_Eval(d0), Yap_Eval(d1));
+	d0 = p_sll(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
 	setregs();
       }
       if (d0 == 0L) {
@@ -10728,11 +10728,11 @@ Yap_absmi(int inp)
       {
 	Int d1 = PREG->u.yxn.c;
 	if (IsIntTerm(d0)) {
-	  d0 = do_sll(IntOfTerm(d0), Yap_Eval(d1));
+	  d0 = do_sll(IntOfTerm(d0), Yap_Eval(d1) PASS_REGS);
 	}
 	else {
 	  saveregs();
-	  d0 = p_sll(Yap_Eval(d0), MkIntegerTerm(d1));
+	  d0 = p_sll(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
 	  setregs();
 	}
       }
@@ -10773,11 +10773,11 @@ Yap_absmi(int inp)
 	  if (i2 < 0)
 	    d0 = MkIntegerTerm(SLR(d1, -i2));
 	  else
-	    d0 = do_sll(d1,i2);
+	    d0 = do_sll(d1,i2 PASS_REGS);
 	}
 	else {
 	  saveregs();
-	  d0 = p_sll(MkIntegerTerm(d1), Yap_Eval(0));
+	  d0 = p_sll(MkIntegerTerm(d1), Yap_Eval(0) PASS_REGS);
 	  setregs();
 	}
       }
@@ -10819,13 +10819,13 @@ Yap_absmi(int inp)
       if (IsIntTerm(d0) && IsIntTerm(d1)) {
 	Int i2 = IntOfTerm(d1);
 	if (i2 < 0)
-	  d0 = do_sll(IntOfTerm(d0), -i2);
+	  d0 = do_sll(IntOfTerm(d0), -i2 PASS_REGS);
 	else
 	  d0 = MkIntTerm(SLR(IntOfTerm(d0), i2));
       }
       else {
 	saveregs();
-	d0 = p_slr(Yap_Eval(d0), Yap_Eval(d1));
+	d0 = p_slr(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
 	setregs();
       }
       if (d0 == 0L) {
@@ -10870,7 +10870,7 @@ Yap_absmi(int inp)
 	}
 	else {
 	  saveregs();
-	  d0 = p_slr(Yap_Eval(d0), MkIntegerTerm(d1));
+	  d0 = p_slr(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
 	  setregs();
 	  if (d0 == 0L) {
 	    saveregs();
@@ -10905,13 +10905,13 @@ Yap_absmi(int inp)
 	if (IsIntTerm(d0)) {
 	 Int i2 = IntOfTerm(d0);
 	 if (i2 < 0)
-	   d0 = do_sll(d1, -i2);
+	   d0 = do_sll(d1, -i2 PASS_REGS);
 	 else
 	   d0 = MkIntegerTerm(SLR(d1, i2));
 	}
 	else {
 	  saveregs();
-	  d0 = p_slr(MkIntegerTerm(d1), Yap_Eval(d0));
+	  d0 = p_slr(MkIntegerTerm(d1), Yap_Eval(d0) PASS_REGS);
 	  setregs();
 	}
       }
@@ -10950,13 +10950,13 @@ Yap_absmi(int inp)
       if (IsIntTerm(d0) && IsIntTerm(d1)) {
 	 Int i2 = IntOfTerm(d1);
 	 if (i2 < 0)
-	   d0 = do_sll(IntOfTerm(d0), -i2);
+	   d0 = do_sll(IntOfTerm(d0), -i2 PASS_REGS);
 	 else
 	   d0 = MkIntTerm(SLR(IntOfTerm(d0), i2));
       }
       else {
 	saveregs();
-	d0 = p_slr(Yap_Eval(d0), Yap_Eval(d1));
+	d0 = p_slr(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
 	setregs();
       }
       BEGP(pt0);
@@ -11004,7 +11004,7 @@ Yap_absmi(int inp)
 	}
 	else {
 	  saveregs();
-	  d0 = p_slr(Yap_Eval(d0), MkIntegerTerm(d1));
+	  d0 = p_slr(Yap_Eval(d0), MkIntegerTerm(d1) PASS_REGS);
 	  setregs();
 	  if (d0 == 0L) {
 	    saveregs();
@@ -11041,13 +11041,13 @@ Yap_absmi(int inp)
 	if (IsIntTerm(d0)) {
 	 Int i2 = IntOfTerm(d0);
 	 if (i2 < 0)
-	   d0 = do_sll(d1, -i2);
+	   d0 = do_sll(d1, -i2 PASS_REGS);
 	 else
 	   d0 = MkIntegerTerm(SLR(d1, i2));
 	}
 	else {
 	  saveregs();
-	  d0 = p_slr(MkIntegerTerm(d1), Yap_Eval(d0));
+	  d0 = p_slr(MkIntegerTerm(d1), Yap_Eval(d0) PASS_REGS);
 	  setregs();
 	}
       }
@@ -13432,7 +13432,6 @@ Yap_absmi(int inp)
 	}
 	PP = NULL;
 	SREG = (CELL *) pen;
-	fprintf(stderr,"Here I was\n");
 	ASP = ENV_YREG;
 	if (ASP > (CELL *)PROTECT_FROZEN_B(B))
 	  ASP = (CELL *)PROTECT_FROZEN_B(B);

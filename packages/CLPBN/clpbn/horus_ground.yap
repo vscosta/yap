@@ -32,7 +32,7 @@
 		[clpbn_bind_vals/3]).
 
 :- use_module(library(pfl),
-		[get_pfl_parameters/2,
+		[get_pfl_parameters/3,
 		 skolem/2
 		]).
 
@@ -50,7 +50,7 @@ call_horus_ground_solver(QueryVars, QueryKeys, AllKeys, Factors, Evidence,
 	end_horus_ground_solver(State).
 
 
-init_horus_ground_solver(QueryKeys, AllKeys, Factors, Evidence,
+init_horus_ground_solver(_QueryKeys, AllKeys, Factors, Evidence,
 		state(Network,Hash,Id,DistIds)) :-
 	factors_type(Factors, Type),
 	keys_to_numbers(AllKeys, Factors, Evidence, Hash, Id, FacIds, EvIds),
@@ -64,10 +64,10 @@ init_horus_ground_solver(QueryKeys, AllKeys, Factors, Evidence,
 
 
 run_horus_ground_solver(QueryKeys, Solutions,
-		state(Network,Hash,Id, DistIds)) :-
+		state(Network,Hash,Id, _DistIds)) :-
 	lists_of_keys_to_ids(QueryKeys, QueryIds, Hash, _, Id, _),
-	%maplist(get_pfl_parameters, DistIds, DistParams),
-	%cpp_set_factors_params(Network, DistIds, DistParams),
+	%maplist(get_pfl_parameters, _DistIds, _, DistParams),
+	%cpp_set_factors_params(Network, _DistIds, DistParams),
 	cpp_run_ground_solver(Network, QueryIds, Solutions).
 
 
@@ -79,7 +79,7 @@ factors_type([f(bayes, _, _)|_], bayes) :- ! .
 factors_type([f(markov, _, _)|_], markov) :- ! .
 
 
-get_dist_id(f(_, _, _, DistId), DistId).
+get_dist_id(fn(_, _, _, DistId, _), DistId).
 
 
 get_domain(_:Key, Domain) :- !,

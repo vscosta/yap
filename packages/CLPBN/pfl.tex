@@ -38,7 +38,7 @@ CRACS \& INESC TEC, Faculty of Sciences, University of Porto
 \thispagestyle{empty}
 \vspace{5cm}
 \begin{center}
-  \large Last revision: January 18, 2013
+  \large Last revision: April 12, 2013
 \end{center}
 \newpage
 
@@ -87,7 +87,7 @@ A first-order probabilistic graphical model is described using parametric factor
 
 $$Type~~F~~;~~Phi~~;~~C.$$
 
-, where
+Where,
 \begin{itemize}
 \item $Type$ refers the type of network over which the parfactor is defined. It can be \texttt{bayes} for directed networks, or \texttt{markov} for undirected ones.
 
@@ -274,7 +274,7 @@ PFL also supports calculating joint probability distributions. For instance, we 
 %------------------------------------------------------------------------------
 %------------------------------------------------------------------------------
 %------------------------------------------------------------------------------
-\section{Inference Options}
+\section{Options}
 PFL supports both ground and lifted inference methods. The inference algorithm can be chosen by calling \texttt{set\_solver/1}. The following are supported:
 \begin{itemize}
  \item \texttt{ve},  variable elimination (written in Prolog)
@@ -397,7 +397,7 @@ This option allows to print a textual representation of the factor graph.
 %------------------------------------------------------------------------------
 %------------------------------------------------------------------------------
 %------------------------------------------------------------------------------
-\section{Parameter Learning}
+\section{Learning}
 PFL is capable to learn the parameters for bayesian networks, through an implementation of the expectation-maximization algorithm.
 
 Next we show an example of parameter learning for the sprinkler network.
@@ -429,7 +429,9 @@ scan_data([cloudy(C), sprinkler(S), rain(R), wet_grass(W)]) :-
 
 Parameter learning is done by calling the \texttt{em/5} predicate. Its arguments are the following.
 
+\begin{center}
 \texttt{em(+Data, +MaxError, +MaxIters, -CPTs, -LogLik)}
+\end{center}
 
 Where,
 \begin{itemize}
@@ -489,9 +491,9 @@ The options that are available with the \texttt{set\_pfl\_flag/2} predicate can 
 %------------------------------------------------------------------------------
 %------------------------------------------------------------------------------
 %------------------------------------------------------------------------------
-\section{Further Information}
-Please check the paper \textit{Evaluating Inference Algorithms for the Prolog Factor Language} for further information.
-
-Any question? Don't hesitate to contact us!
+\section{Papers}
+\begin{itemize}
+  \item \textit{Evaluating Inference Algorithms for the Prolog Factor Language}.
+\end{itemize}
 
 \end{document}
