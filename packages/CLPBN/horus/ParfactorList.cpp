@@ -134,7 +134,7 @@ ParfactorList::print() const
     }
   };
   Parfactors pfVec (pfList_.begin(), pfList_.end());
-  std::sort (pfVec.begin(), pfVec.end(), sortByParams());
+  // vsc  std::sort (pfVec.begin(), pfVec.end(), sortByParams());
   for (size_t i = 0; i < pfVec.size(); i++) {
     pfVec[i]->print();
     std::cout << std::endl;
