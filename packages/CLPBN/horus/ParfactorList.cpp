@@ -122,7 +122,7 @@ void
 ParfactorList::print() const
 {
   struct sortByParams {
-    bool operator() (const Parfactor* pf1, const Parfactor* pf2)
+    bool operator() (const Parfactor* pf1, const Parfactor* pf2) const
     {
       if (pf1->params().size() < pf2->params().size()) {
         return true;
@@ -134,7 +134,9 @@ ParfactorList::print() const
     }
   };
   Parfactors pfVec (pfList_.begin(), pfList_.end());
-  // vsc  std::sort (pfVec.begin(), pfVec.end(), sortByParams());
+#if !defined(__GNUC__) || ( __GNUC__ == 4 && __GNUC_MINOR__ > 4)
+  std::sort (pfVec.begin(), pfVec.end(), sortByParams());
+#endif
   for (size_t i = 0; i < pfVec.size(); i++) {
     pfVec[i]->print();
     std::cout << std::endl;

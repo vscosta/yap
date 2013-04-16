@@ -191,9 +191,11 @@ struct CmpLitLvTypes
     if (types1.lid() < types2.lid()) {
       return true;
     }
-    // vsc if (types1.lid() == types2.lid()){
-    //  return types1.logVarTypes() < types2.logVarTypes();
-    //}
+    if (types1.lid() == types2.lid()){
+#if !defined(__GNUC__) || ( __GNUC__ == 4 && __GNUC_MINOR__ > 4)
+      return types1.logVarTypes() < types2.logVarTypes();
+#endif
+    }
     return false;
   }
 };
