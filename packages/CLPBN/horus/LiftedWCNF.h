@@ -21,6 +21,16 @@ enum class LogVarType {
   negLvt
 };
 
+
+
+// Workaround GCC bug #38064
+inline bool operator< (LogVarType lvt1, LogVarType lvt2)
+{
+  return (int)lvt1 < (int)lvt2;
+}
+
+
+
 typedef long                     LiteralId;
 typedef std::vector<LogVarType>  LogVarTypes;
 
