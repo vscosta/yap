@@ -201,9 +201,9 @@ struct CmpLitLvTypes
     if (types1.lid() < types2.lid()) {
       return true;
     }
-    if (types1.lid() == types2.lid()){
-      return types1.logVarTypes() < types2.logVarTypes();
-    }
+    // vsc if (types1.lid() == types2.lid()){
+    //  return types1.logVarTypes() < types2.logVarTypes();
+    //}
     return false;
   }
 };
