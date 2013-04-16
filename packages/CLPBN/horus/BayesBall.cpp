@@ -3,6 +3,25 @@
 #include "BayesBall.h"
 
 
+namespace Horus {
+
+BayesBall::BayesBall (FactorGraph& fg)
+    : fg_(fg) , dag_(fg.getStructure())
+{
+  dag_.clear();
+}
+
+
+
+FactorGraph*
+BayesBall::getMinimalFactorGraph (FactorGraph& fg, VarIds vids)
+{
+  BayesBall bb (fg);
+  return bb.getMinimalFactorGraph (vids);
+}
+
+
+
 FactorGraph*
 BayesBall::getMinimalFactorGraph (const VarIds& queryIds)
 {
@@ -19,22 +38,22 @@ BayesBall::getMinimalFactorGraph (const VarIds& queryIds)
     BBNode* n = sch.node;
     n->setAsVisited();
     if (n->hasEvidence() == false && sch.visitedFromChild) {
-      if (n->isMarkedOnTop() == false) {
-        n->markOnTop();
+      if (n->isMarkedAbove() == false) {
+        n->markAbove();
         scheduleParents (n, scheduling);
       }
-      if (n->isMarkedOnBottom() == false) {
-        n->markOnBottom();
+      if (n->isMarkedBelow() == false) {
+        n->markBelow();
         scheduleChilds (n, scheduling);
       }
     }
     if (sch.visitedFromParent) {
-      if (n->hasEvidence() && n->isMarkedOnTop() == false) {
-        n->markOnTop();
+      if (n->hasEvidence() && n->isMarkedAbove() == false) {
+        n->markAbove();
         scheduleParents (n, scheduling);
       }
-      if (n->hasEvidence() == false && n->isMarkedOnBottom() == false) {
-        n->markOnBottom();
+      if (n->hasEvidence() == false && n->isMarkedBelow() == false) {
+        n->markBelow();
         scheduleChilds (n, scheduling);
       }
     }
@@ -55,7 +74,7 @@ BayesBall::constructGraph (FactorGraph* fg) const
   for (size_t i = 0; i < facNodes.size(); i++) {
     const BBNode* n = dag_.getNode (
         facNodes[i]->factor().argument (0));
-    if (n->isMarkedOnTop()) {
+    if (n->isMarkedAbove()) {
       fg->addFactor (facNodes[i]->factor());
     } else if (n->hasEvidence() && n->isVisited()) {
       VarIds varIds = { facNodes[i]->factor().argument (0) };
@@ -75,4 +94,6 @@ BayesBall::constructGraph (FactorGraph* fg) const
     }
   }
 }
+
+}  // namespace Horus
 

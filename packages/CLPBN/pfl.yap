@@ -181,7 +181,12 @@ insert_atts(Var,Sk) :-
 add_evidence(Sk,Var) :-
 	skolem(Sk,D),
 	once(nth0(E,D,Var)),
-	clpbn:put_atts(_V,[key(Sk),evidence(E)]).
+	clpbn:put_atts(V,[key(Sk),evidence(E)]),
+	( catch(b_getval(pfl_evidence, Vs), _, fail) ->
+	    b_setval(pfl_evidence, [V|Vs])
+	;
+	    b_setval(pfl_evidence, [V])
+	).
 
 
 get_pfl_cpt(Id, Keys, Ev, NewKeys, Out) :-

@@ -1520,9 +1520,18 @@ ExportTerm(Term inp, char * buf, size_t len, UInt arity, int newattvs USES_REGS)
   Term t = Deref(inp);
   tr_fr_ptr TR0 = TR;
   size_t res = 0;
-  CELL *Hi;
+  CELL *Hi = H;
 
   do {
+    if (IsVarTerm(t) || IsIntTerm(t)) {
+      return export_term_to_buffer(t, buf, buf+ 3*sizeof(CELL), &inp, &inp, len);
+    }
+    if (IsAtomTerm(t)) {
+      Atom at = AtomOfTerm(t);
+      char *b = buf+3*sizeof(CELL);
+      export_atom(at, &b, b, len-3*sizeof(CELL));
+      return export_term_to_buffer(t, buf, b, &inp, &inp, len);
+    }
     if ((Int)res < 0) {
       H = Hi;
       TR = TR0;
@@ -1634,16 +1643,14 @@ Yap_ImportTerm(char * buf) {
   CELL *bc = (CELL *)buf;
   size_t sz = bc[1];
   Term tinp, tret;
-
   tinp = bc[2];
   if (IsVarTerm(tinp))
     return MkVarTerm();
-  if (IsAtomOrIntTerm(tinp)) {
-    if (IsAtomTerm(tinp)) {
-      char *pt = (char *)AdjustSize(bc+3, buf);
-      return MkAtomTerm(Yap_LookupAtom(pt));
-    } else
-      return tinp;
+  else if (IsIntTerm(tinp))
+    return tinp;
+  else if (IsAtomTerm(tinp)) {
+    tret = MkAtomTerm(AddAtom(NULL,(char *)(bc+3)));
+    return tret;
   }
   if (H + sz > ASP)
     return (Term)0;
@@ -1654,7 +1661,7 @@ Yap_ImportTerm(char * buf) {
   } else {
     tret = AbsPair(H);
     import_pair(H, (char *)H, buf, H);
-  }
+  } 
   H += sz;
   return tret;
 }

@@ -1,5 +1,5 @@
-#ifndef HORUS_HORUS_H
-#define HORUS_HORUS_H
+#ifndef YAP_PACKAGES_CLPBN_HORUS_HORUS_H_
+#define YAP_PACKAGES_CLPBN_HORUS_HORUS_H_
 
 #define DISALLOW_COPY_AND_ASSIGN(TypeName) \
   TypeName(const TypeName&);               \
@@ -13,6 +13,9 @@
 
 #include <vector>
 #include <string>
+
+
+namespace Horus {
 
 class Var;
 class Factor;
@@ -31,19 +34,17 @@ typedef std::vector<unsigned>    Ranges;
 typedef unsigned long long       ullong;
 
 
-enum LiftedSolverType
-{
-  LVE,  // generalized counting first-order variable elimination (GC-FOVE)
-  LBP,  // lifted first-order belief propagation
-  LKC   // lifted first-order knowledge compilation
+enum class LiftedSolverType {
+  lveSolver,  // generalized counting first-order variable elimination
+  lbpSolver,  // lifted first-order belief propagation
+  lkcSolver   // lifted first-order knowledge compilation
 };
 
 
-enum GroundSolverType
-{
-  VE,   // variable elimination
-  BP,   // belief propagation
-  CBP   // counting belief propagation
+enum class GroundSolverType {
+  veSolver,   // variable elimination
+  bpSolver,   // belief propagation
+  CbpSolver   // counting belief propagation
 };
 
 
@@ -57,20 +58,22 @@ extern unsigned verbosity;
 extern LiftedSolverType liftedSolver;
 extern GroundSolverType groundSolver;
 
-};
+}
 
 
 namespace Constants {
 
 // show message calculation for belief propagation
-const bool SHOW_BP_CALCS = false;
+const bool showBpCalcs = false;
 
-const int NO_EVIDENCE = -1;
+const int unobserved = -1;
 
 // number of digits to show when printing a parameter
-const unsigned PRECISION = 6;
+const unsigned precision = 8;
 
-};
+}
 
-#endif // HORUS_HORUS_H
+}  // namespace Horus
+
+#endif  // YAP_PACKAGES_CLPBN_HORUS_HORUS_H_
 

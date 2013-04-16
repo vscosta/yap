@@ -3,7 +3,9 @@
 #include "Var.h"
 
 
-unordered_map<VarId, VarInfo> Var::varsInfo_;
+namespace Horus {
+
+std::unordered_map<VarId, Var::VarInfo> Var::varsInfo_;
 
 
 Var::Var (const Var* v)
@@ -45,13 +47,14 @@ Var::setEvidence (int evidence)
 
 
 
-string
-Var::label (void) const
+std::string
+Var::label() const
 {
   if (Var::varsHaveInfo()) {
-    return Var::getVarInfo (varId_).label;
+    assert (Util::contains (varsInfo_, varId_));
+    return varsInfo_.find (varId_)->second.first;
   }
-  stringstream ss;
+  std::stringstream ss;
   ss << "x" << varId_;
   return ss.str();
 }
@@ -59,17 +62,46 @@ Var::label (void) const
 
 
 States
-Var::states (void) const
+Var::states() const
 {
   if (Var::varsHaveInfo()) {
-    return Var::getVarInfo (varId_).states;
+    assert (Util::contains (varsInfo_, varId_));
+    return varsInfo_.find (varId_)->second.second;
   }
   States states;
   for (unsigned i = 0; i < range_; i++) {
-    stringstream ss;
+    std::stringstream ss;
     ss << i ;
     states.push_back (ss.str());
   }
   return states;
 }
+
+
+
+void
+Var::addVarInfo (
+    VarId vid, std::string label, const States& states)
+{
+  assert (Util::contains (varsInfo_, vid) == false);
+  varsInfo_.insert (std::make_pair (vid, VarInfo (label, states)));
+}
+
+
+
+bool
+Var::varsHaveInfo()
+{
+  return varsInfo_.empty() == false;
+}
+
+
+
+void
+Var::clearVarsInfo()
+{
+  varsInfo_.clear();
+}
+
+}  // namespace Horus
 

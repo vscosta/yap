@@ -1,157 +1,23 @@
-#ifndef HORUS_LIFTEDVE_H
-#define HORUS_LIFTEDVE_H
+#ifndef YAP_PACKAGES_CLPBN_HORUS_LIFTEDVE_H_
+#define YAP_PACKAGES_CLPBN_HORUS_LIFTEDVE_H_
 
 #include "LiftedSolver.h"
 #include "ParfactorList.h"
 
 
-class LiftedOperator
-{
-  public:
-    virtual ~LiftedOperator (void) { }
+namespace Horus {
 
-    virtual double getLogCost (void) = 0;
-
-    virtual void apply (void) = 0;
-
-    virtual string toString (void) = 0;
-
-    static vector<LiftedOperator*> getValidOps (
-        ParfactorList&, const Grounds&);
-
-    static void printValidOps (ParfactorList&, const Grounds&);
-
-    static vector<ParfactorList::iterator> getParfactorsWithGroup (
-        ParfactorList&, PrvGroup group);
-
-  private:
-    DISALLOW_ASSIGN (LiftedOperator);
-};
+class LiftedOperator;
 
 
-
-class ProductOperator : public LiftedOperator
-{
-  public:
-    ProductOperator (
-        ParfactorList::iterator g1, ParfactorList::iterator g2,
-        ParfactorList& pfList) : g1_(g1), g2_(g2), pfList_(pfList) { }
-
-    double getLogCost (void);
-
-    void apply (void);
-
-    static vector<ProductOperator*> getValidOps (ParfactorList&);
-
-    string toString (void);
-
-  private:
-    static bool validOp (Parfactor*, Parfactor*);
-
-    ParfactorList::iterator  g1_;
-    ParfactorList::iterator  g2_;
-    ParfactorList&           pfList_;
-
-    DISALLOW_COPY_AND_ASSIGN (ProductOperator);
-};
-
-
-
-class SumOutOperator : public LiftedOperator
-{
-  public:
-    SumOutOperator (PrvGroup group, ParfactorList& pfList)
-        : group_(group), pfList_(pfList) { }
-
-    double getLogCost (void);
-
-    void apply (void);
-
-    static vector<SumOutOperator*> getValidOps (
-        ParfactorList&, const Grounds&);
-
-    string toString (void);
-
-  private:
-    static bool validOp (PrvGroup, ParfactorList&, const Grounds&);
-
-    static bool isToEliminate (Parfactor*, PrvGroup, const Grounds&);
-
-    PrvGroup        group_;
-    ParfactorList&  pfList_;
-
-    DISALLOW_COPY_AND_ASSIGN (SumOutOperator);
-};
-
-
-
-class CountingOperator : public LiftedOperator
-{
-  public:
-    CountingOperator (
-        ParfactorList::iterator pfIter,
-        LogVar X,
-        ParfactorList& pfList)
-        : pfIter_(pfIter), X_(X), pfList_(pfList) { }
-
-    double getLogCost (void);
-
-    void apply (void);
-
-    static vector<CountingOperator*> getValidOps (ParfactorList&);
-
-    string toString (void);
-
-  private:
-    static bool validOp (Parfactor*, LogVar);
-
-    ParfactorList::iterator  pfIter_;
-    LogVar                   X_;
-    ParfactorList&           pfList_;
-
-    DISALLOW_COPY_AND_ASSIGN (CountingOperator);
-};
-
-
-
-class GroundOperator : public LiftedOperator
-{
-  public:
-    GroundOperator (
-        PrvGroup group,
-        unsigned lvIndex,
-        ParfactorList& pfList)
-        : group_(group), lvIndex_(lvIndex), pfList_(pfList) { }
-
-    double getLogCost (void);
-
-    void apply (void);
-
-    static vector<GroundOperator*> getValidOps (ParfactorList&);
-
-    string toString (void);
-
-  private:
-    vector<pair<PrvGroup, unsigned>> getAffectedFormulas (void);
-
-    PrvGroup        group_;
-    unsigned        lvIndex_;
-    ParfactorList&  pfList_;
-
-    DISALLOW_COPY_AND_ASSIGN (GroundOperator);
-};
-
-
-
-class LiftedVe : public LiftedSolver
-{
+class LiftedVe : public LiftedSolver {
   public:
    LiftedVe (const ParfactorList& pfList)
        : LiftedSolver(pfList) { }
 
    Params solveQuery (const Grounds&);
 
-   void printSolverFlags (void) const;
+   void printSolverFlags() const;
 
   private:
     void runSolver (const Grounds&);
@@ -164,5 +30,7 @@ class LiftedVe : public LiftedSolver
     DISALLOW_COPY_AND_ASSIGN (LiftedVe);
 };
 
-#endif // HORUS_LIFTEDVE_H
+}  // namespace Horus
+
+#endif  // YAP_PACKAGES_CLPBN_HORUS_LIFTEDVE_H_
 

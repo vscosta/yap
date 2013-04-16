@@ -1,13 +1,14 @@
-#include <cstdlib>
 #include <cassert>
 
 #include <iostream>
-#include <sstream>
 #include <fstream>
+#include <sstream>
 
 #include "BayesBallGraph.h"
 #include "Util.h"
 
+
+namespace Horus {
 
 void
 BayesBallGraph::addNode (BBNode* n)
@@ -22,8 +23,8 @@ BayesBallGraph::addNode (BBNode* n)
 void
 BayesBallGraph::addEdge (VarId vid1, VarId vid2)
 {
-  unordered_map<VarId, BBNode*>::iterator it1;
-  unordered_map<VarId, BBNode*>::iterator it2;
+  std::unordered_map<VarId, BBNode*>::iterator it1;
+  std::unordered_map<VarId, BBNode*>::iterator it2;
   it1 = varMap_.find (vid1);
   it2 = varMap_.find (vid2);
   assert (it1 != varMap_.end());
@@ -37,7 +38,7 @@ BayesBallGraph::addEdge (VarId vid1, VarId vid2)
 const BBNode*
 BayesBallGraph::getNode (VarId vid) const
 {
-  unordered_map<VarId, BBNode*>::const_iterator it;
+  std::unordered_map<VarId, BBNode*>::const_iterator it;
   it = varMap_.find (vid);
   return it != varMap_.end() ? it->second : 0;
 }
@@ -47,7 +48,7 @@ BayesBallGraph::getNode (VarId vid) const
 BBNode*
 BayesBallGraph::getNode (VarId vid)
 {
-  unordered_map<VarId, BBNode*>::const_iterator it;
+  std::unordered_map<VarId, BBNode*>::const_iterator it;
   it = varMap_.find (vid);
   return it != varMap_.end() ? it->second : 0;
 }
@@ -55,7 +56,7 @@ BayesBallGraph::getNode (VarId vid)
 
 
 void
-BayesBallGraph::setIndexes (void)
+BayesBallGraph::setIndexes()
 {
   for (size_t i = 0; i < nodes_.size(); i++) {
     nodes_[i]->setIndex (i);
@@ -65,7 +66,7 @@ BayesBallGraph::setIndexes (void)
 
 
 void
-BayesBallGraph::clear (void)
+BayesBallGraph::clear()
 {
   for (size_t i = 0; i < nodes_.size(); i++) {
     nodes_[i]->clear();
@@ -77,13 +78,14 @@ BayesBallGraph::clear (void)
 void
 BayesBallGraph::exportToGraphViz (const char* fileName)
 {
-  ofstream out (fileName);
+  std::ofstream out (fileName);
   if (!out.is_open()) {
-    cerr << "Error: couldn't open file '" << fileName << "'." ;
+    std::cerr << "Error: couldn't open file '" << fileName << "'." ;
+    std::cerr << std::endl;
     return;
   }
-  out << "digraph {" << endl;
-  out << "ranksep=1" << endl;
+  out << "digraph {" << std::endl;
+  out << "ranksep=1" << std::endl;
   for (size_t i = 0; i < nodes_.size(); i++) {
     out << nodes_[i]->varId() ;
     out << " [" ;
@@ -91,16 +93,18 @@ BayesBallGraph::exportToGraphViz (const char* fileName)
     if (nodes_[i]->hasEvidence()) {
       out << ",style=filled, fillcolor=yellow" ;
     }
-    out << "]" << endl;
+    out << "]" << std::endl;
   }
   for (size_t i = 0; i < nodes_.size(); i++) {
-    const vector<BBNode*>& childs = nodes_[i]->childs();
+    const std::vector<BBNode*>& childs = nodes_[i]->childs();
     for (size_t j = 0; j < childs.size(); j++) {
       out << nodes_[i]->varId() << " -> " << childs[j]->varId();
-      out << " [style=bold]" << endl ;
+      out << " [style=bold]" << std::endl;
     }
   }
-  out << "}" << endl;
+  out << "}" << std::endl;
   out.close();
 }
+
+}  // namespace Horus
 

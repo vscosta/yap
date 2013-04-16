@@ -144,7 +144,6 @@ create_new_variable(K, V, Vf0, Vff, C0, Cf) :-
 	Id =.. [Na,Dom],
 	Dist =.. [Na,Dom,NTVs],
 	{ V = K with Dist },
-writeln(done),
 	add_stored_evidence(K, V),
 	add_variables(TVs, NTVs, Vf0, Vff, C0, Cf).
 

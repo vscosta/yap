@@ -1,9 +1,19 @@
+#include <cassert>
+
+#include <vector>
+#include <string>
+#include <iostream>
+#include <iomanip>
+
 #include "GroundSolver.h"
 #include "VarElim.h"
 #include "BeliefProp.h"
 #include "CountingBp.h"
+#include "Indexer.h"
 #include "Util.h"
 
+
+namespace Horus {
 
 void
 GroundSolver::printAnswer (const VarIds& vids)
@@ -19,20 +29,21 @@ GroundSolver::printAnswer (const VarIds& vids)
   }
   if (unobservedVids.empty() == false) {
     Params res = solveQuery (unobservedVids);
-    vector<string> stateLines = Util::getStateLines (unobservedVars);
+    std::vector<std::string> stateLines =
+        Util::getStateLines (unobservedVars);
     for (size_t i = 0; i < res.size(); i++) {
-      cout << "P(" << stateLines[i] << ") = " ;
-      cout << std::setprecision (Constants::PRECISION) << res[i];
-      cout << endl;
+      std::cout << "P(" << stateLines[i] << ") = " ;
+      std::cout << std::setprecision (Constants::precision) << res[i];
+      std::cout << std::endl;
     }
-    cout << endl;
+    std::cout << std::endl;
   }
 }
 
 
 
 void
-GroundSolver::printAllPosterioris (void)
+GroundSolver::printAllPosterioris()
 {
   VarNodes vars = fg.varNodes();
   std::sort (vars.begin(), vars.end(), sortByVarId());
@@ -57,9 +68,9 @@ GroundSolver::getJointByConditioning (
 
   GroundSolver* solver = 0;
   switch (solverType) {
-    case GroundSolverType::BP:  solver = new BeliefProp (fg); break;
-    case GroundSolverType::CBP: solver = new CountingBp (fg); break;
-    case GroundSolverType::VE:  solver = new VarElim (fg);    break;
+    case GroundSolverType::bpSolver:  solver = new BeliefProp (fg); break;
+    case GroundSolverType::CbpSolver: solver = new CountingBp (fg); break;
+    case GroundSolverType::veSolver:  solver = new VarElim (fg);    break;
   }
   Params prevBeliefs = solver->solveQuery ({jointVarIds[0]});
   VarIds observedVids = {jointVars[0]->varId()};
@@ -80,9 +91,9 @@ GroundSolver::getJointByConditioning (
       }
       delete solver;
       switch (solverType) {
-        case GroundSolverType::BP:  solver = new BeliefProp (fg); break;
-        case GroundSolverType::CBP: solver = new CountingBp (fg); break;
-        case GroundSolverType::VE:  solver = new VarElim (fg);    break;
+        case GroundSolverType::bpSolver:  solver = new BeliefProp (fg); break;
+        case GroundSolverType::CbpSolver: solver = new CountingBp (fg); break;
+        case GroundSolverType::veSolver:  solver = new VarElim (fg);    break;
       }
       Params beliefs = solver->solveQuery ({jointVarIds[i]});
       for (size_t k = 0; k < beliefs.size(); k++) {
@@ -104,4 +115,6 @@ GroundSolver::getJointByConditioning (
   delete solver;
   return prevBeliefs;
 }
+
+}  // namespace Horus
 

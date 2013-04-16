@@ -1,8 +1,14 @@
+#include <cassert>
+
+#include <sstream>
+
 #include "LiftedBp.h"
 #include "LiftedOperations.h"
 #include "WeightedBp.h"
 #include "FactorGraph.h"
 
+
+namespace Horus {
 
 LiftedBp::LiftedBp (const ParfactorList& parfactorList)
     : LiftedSolver (parfactorList)
@@ -14,7 +20,7 @@ LiftedBp::LiftedBp (const ParfactorList& parfactorList)
 
 
 
-LiftedBp::~LiftedBp (void)
+LiftedBp::~LiftedBp()
 {
   delete solver_;
   delete fg_;
@@ -27,7 +33,7 @@ LiftedBp::solveQuery (const Grounds& query)
 {
   assert (query.empty() == false);
   Params res;
-  vector<PrvGroup> groups = getQueryGroups (query);
+  std::vector<PrvGroup> groups = getQueryGroups (query);
   if (query.size() == 1) {
     res = solver_->getPosterioriOf (groups[0]);
   } else {
@@ -58,28 +64,29 @@ LiftedBp::solveQuery (const Grounds& query)
 
 
 void
-LiftedBp::printSolverFlags (void) const
+LiftedBp::printSolverFlags() const
 {
-  stringstream ss;
+  std::stringstream ss;
   ss << "lifted bp [" ;
   ss << "bp_msg_schedule=" ;
+  typedef WeightedBp::MsgSchedule MsgSchedule;
   switch (WeightedBp::msgSchedule()) {
-    case MsgSchedule::SEQ_FIXED:    ss << "seq_fixed";    break;
-    case MsgSchedule::SEQ_RANDOM:   ss << "seq_random";   break;
-    case MsgSchedule::PARALLEL:     ss << "parallel";     break;
-    case MsgSchedule::MAX_RESIDUAL: ss << "max_residual"; break;
+    case MsgSchedule::seqFixedSch:    ss << "seq_fixed";    break;
+    case MsgSchedule::seqRandomSch:   ss << "seq_random";   break;
+    case MsgSchedule::parallelSch:    ss << "parallel";     break;
+    case MsgSchedule::maxResidualSch: ss << "max_residual"; break;
   }
   ss << ",bp_max_iter=" << WeightedBp::maxIterations();
   ss << ",bp_accuracy=" << WeightedBp::accuracy();
   ss << ",log_domain=" << Util::toString (Globals::logDomain);
   ss << "]" ;
-  cout << ss.str() << endl;
+  std::cout << ss.str() << std::endl;
 }
 
 
 
 void
-LiftedBp::refineParfactors (void)
+LiftedBp::refineParfactors()
 {
   pfList_ = parfactorList;
   while (iterate() == false);
@@ -93,7 +100,7 @@ LiftedBp::refineParfactors (void)
 
 
 bool
-LiftedBp::iterate (void)
+LiftedBp::iterate()
 {
   ParfactorList::iterator it = pfList_.begin();
   while (it != pfList_.end()) {
@@ -114,10 +121,10 @@ LiftedBp::iterate (void)
 
 
 
-vector<PrvGroup>
+std::vector<PrvGroup>
 LiftedBp::getQueryGroups (const Grounds& query)
 {
-  vector<PrvGroup> queryGroups;
+  std::vector<PrvGroup> queryGroups;
   for (unsigned i = 0; i < query.size(); i++) {
     ParfactorList::const_iterator it = pfList_.begin();
     for (; it != pfList_.end(); ++it) {
@@ -134,12 +141,12 @@ LiftedBp::getQueryGroups (const Grounds& query)
 
 
 void
-LiftedBp::createFactorGraph (void)
+LiftedBp::createFactorGraph()
 {
   fg_ = new FactorGraph();
   ParfactorList::const_iterator it = pfList_.begin();
   for (; it != pfList_.end(); ++it) {
-    vector<PrvGroup> groups = (*it)->getAllGroups();
+    std::vector<PrvGroup> groups = (*it)->getAllGroups();
     VarIds varIds;
     for (size_t i = 0; i < groups.size(); i++) {
       varIds.push_back (groups[i]);
@@ -150,10 +157,10 @@ LiftedBp::createFactorGraph (void)
 
 
 
-vector<vector<unsigned>>
-LiftedBp::getWeights (void) const
+std::vector<std::vector<unsigned>>
+LiftedBp::getWeights() const
 {
-  vector<vector<unsigned>> weights;
+  std::vector<std::vector<unsigned>> weights;
   weights.reserve (pfList_.size());
   ParfactorList::const_iterator it = pfList_.begin();
   for (; it != pfList_.end(); ++it) {
@@ -196,7 +203,7 @@ LiftedBp::getJointByConditioning (
   Grounds obsGrounds = {query[0]};
   for (size_t i = 1; i < query.size(); i++) {
     Params newBeliefs;
-    vector<ObservedFormula> obsFs;
+    std::vector<ObservedFormula> obsFs;
     Ranges obsRanges;
     for (size_t j = 0; j < obsGrounds.size(); j++) {
       obsFs.push_back (ObservedFormula (
@@ -230,4 +237,6 @@ LiftedBp::getJointByConditioning (
   }
   return prevBeliefs;
 }
+
+}  // namespace Horus
 

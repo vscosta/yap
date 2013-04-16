@@ -1,5 +1,5 @@
-#ifndef HORUS_BAYESBALLGRAPH_H
-#define HORUS_BAYESBALLGRAPH_H
+#ifndef YAP_PACKAGES_CLPBN_HORUS_BAYESBALLGRAPH_H_
+#define YAP_PACKAGES_CLPBN_HORUS_BAYESBALLGRAPH_H_
 
 #include <vector>
 #include <unordered_map>
@@ -7,54 +7,55 @@
 #include "Var.h"
 #include "Horus.h"
 
-using namespace std;
 
-class BBNode : public Var
-{
+namespace Horus {
+
+class BBNode : public Var {
   public:
     BBNode (Var* v) : Var (v), visited_(false),
-        markedOnTop_(false), markedOnBottom_(false) { }
+        markedAbove_(false), markedBelow_(false) { }
 
-    const vector<BBNode*>& childs (void) const { return childs_;  }
+    const std::vector<BBNode*>& childs() const { return childs_; }
 
-    vector<BBNode*>& childs (void) { return childs_;  }
+    std::vector<BBNode*>& childs() { return childs_; }
 
-    const vector<BBNode*>& parents (void) const { return parents_; }
+    const std::vector<BBNode*>& parents() const { return parents_; }
 
-    vector<BBNode*>& parents (void) { return parents_; }
+    std::vector<BBNode*>& parents() { return parents_; }
 
     void addParent (BBNode* p) { parents_.push_back (p); }
 
     void addChild (BBNode* c) { childs_.push_back (c); }
 
-    bool isVisited (void) const { return visited_; }
+    bool isVisited() const { return visited_; }
 
-    void setAsVisited (void) { visited_ = true; }
+    void setAsVisited() { visited_ = true; }
 
-    bool isMarkedOnTop (void) const { return markedOnTop_; }
+    bool isMarkedAbove() const { return markedAbove_; }
 
-    void markOnTop (void) { markedOnTop_ = true; }
+    void markAbove() { markedAbove_ = true; }
 
-    bool isMarkedOnBottom (void) const { return markedOnBottom_; }
+    bool isMarkedBelow() const { return markedBelow_; }
 
-    void markOnBottom (void) { markedOnBottom_ = true; }
+    void markBelow() { markedBelow_ = true; }
 
-    void clear (void) { visited_ = markedOnTop_ = markedOnBottom_ = false; }
+    void clear() { visited_ = markedAbove_ = markedBelow_ = false; }
 
   private:
     bool visited_;
-    bool markedOnTop_;
-    bool markedOnBottom_;
+    bool markedAbove_;
+    bool markedBelow_;
 
-    vector<BBNode*> childs_;
-    vector<BBNode*> parents_;
+    std::vector<BBNode*> childs_;
+    std::vector<BBNode*> parents_;
 };
 
 
-class BayesBallGraph
-{
+class BayesBallGraph {
   public:
-    BayesBallGraph (void) { }
+    BayesBallGraph() { }
+
+    bool empty() const { return nodes_.empty(); }
 
     void addNode (BBNode* n);
 
@@ -64,19 +65,18 @@ class BayesBallGraph
 
     BBNode* getNode (VarId vid);
 
-    bool empty (void) const { return nodes_.empty(); }
+    void setIndexes();
 
-    void setIndexes (void);
-
-    void clear (void);
+    void clear();
 
     void exportToGraphViz (const char*);
 
   private:
-    vector<BBNode*> nodes_;
-
-    unordered_map<VarId, BBNode*> varMap_;
+    std::vector<BBNode*>                nodes_;
+    std::unordered_map<VarId, BBNode*>  varMap_;
 };
 
-#endif // HORUS_BAYESBALLGRAPH_H
+}  // namespace Horus
+
+#endif  // YAP_PACKAGES_CLPBN_HORUS_BAYESBALLGRAPH_H_
 

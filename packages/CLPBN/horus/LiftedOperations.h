@@ -1,29 +1,26 @@
-#ifndef HORUS_LIFTEDOPERATIONS_H
-#define HORUS_LIFTEDOPERATIONS_H
+#ifndef YAP_PACKAGES_CLPBN_HORUS_LIFTEDOPERATIONS_H_
+#define YAP_PACKAGES_CLPBN_HORUS_LIFTEDOPERATIONS_H_
 
 #include "ParfactorList.h"
 
-class LiftedOperations
-{
-  public:
-    static void shatterAgainstQuery (
-        ParfactorList& pfList, const Grounds& query);
 
-    static void runWeakBayesBall (
-        ParfactorList& pfList, const Grounds&);
+namespace Horus {
 
-    static void absorveEvidence (
-        ParfactorList& pfList, ObservedFormulas& obsFormulas);
+namespace LiftedOperations {
 
-    static Parfactors countNormalize (Parfactor*, const LogVarSet&);
+void shatterAgainstQuery (ParfactorList& pfList, const Grounds& query);
 
-    static Parfactor calcGroundMultiplication (Parfactor pf);
+void runWeakBayesBall (ParfactorList& pfList, const Grounds& query);
 
-  private:
-    static Parfactors absorve (ObservedFormula&, Parfactor*);
+void absorveEvidence (ParfactorList& pfList, ObservedFormulas&);
 
-    DISALLOW_COPY_AND_ASSIGN (LiftedOperations);
-};
+Parfactors countNormalize (Parfactor*, const LogVarSet&);
 
-#endif // HORUS_LIFTEDOPERATIONS_H
+Parfactor calcGroundMultiplication (Parfactor pf);
+
+}  // namespace LiftedOperations
+
+}  // namespace Horus
+
+#endif  // YAP_PACKAGES_CLPBN_HORUS_LIFTEDOPERATIONS_H_
 

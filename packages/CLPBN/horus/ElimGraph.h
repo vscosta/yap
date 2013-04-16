@@ -1,143 +1,177 @@
-#ifndef HORUS_ELIMGRAPH_H
-#define HORUS_ELIMGRAPH_H
+#ifndef YAP_PACKAGES_CLPBN_HORUS_ELIMGRAPH_H_
+#define YAP_PACKAGES_CLPBN_HORUS_ELIMGRAPH_H_
 
-#include "unordered_map"
+#include <cassert>
+
+#include <vector>
+#include <unordered_map>
 
 #include "FactorGraph.h"
 #include "TinySet.h"
 #include "Horus.h"
 
-using namespace std;
 
-enum ElimHeuristic
-{
-  SEQUENTIAL,
-  MIN_NEIGHBORS,
-  MIN_WEIGHT,
-  MIN_FILL,
-  WEIGHTED_MIN_FILL
-};
+namespace Horus {
 
-
-class EgNode;
-
-typedef TinySet<EgNode*> EGNeighs;
-
-
-class EgNode : public Var
-{
+class ElimGraph {
   public:
-    EgNode (VarId vid, unsigned range) : Var (vid, range) { }
+    enum class ElimHeuristic {
+      sequentialEh,
+      minNeighborsEh,
+      minWeightEh,
+      minFillEh,
+      weightedMinFillEh
+    };
 
-    void addNeighbor (EgNode* n) { neighs_.insert (n);  }
-
-    void removeNeighbor (EgNode* n) { neighs_.remove (n); }
-
-    bool isNeighbor (EgNode* n) const { return neighs_.contains (n); }
-
-    const EGNeighs& neighbors (void) const { return neighs_; }
-
-  private:
-    EGNeighs neighs_;
-};
-
-
-class ElimGraph
-{
-  public:
     ElimGraph (const Factors&);
 
-   ~ElimGraph (void);
+   ~ElimGraph();
 
     VarIds getEliminatingOrder (const VarIds&);
 
-    void print (void) const;
+    void print() const;
 
     void exportToGraphViz (const char*, bool = true,
         const VarIds& = VarIds()) const;
 
     static VarIds getEliminationOrder (const Factors&, VarIds);
 
-    static ElimHeuristic elimHeuristic (void) { return elimHeuristic_; }
+    static ElimHeuristic elimHeuristic() { return elimHeuristic_; }
 
     static void setElimHeuristic (ElimHeuristic eh) { elimHeuristic_ = eh; }
 
   private:
-    void addEdge (EgNode* n1, EgNode* n2)
-    {
-      assert (n1 != n2);
-      n1->addNeighbor (n2);
-      n2->addNeighbor (n1);
-    }
+    class EGNode;
 
-    unsigned getNeighborsCost (const EgNode* n) const
-    {
-      return n->neighbors().size();
-    }
+    typedef TinySet<EGNode*> EGNeighs;
 
-    unsigned getWeightCost (const EgNode* n) const
-    {
-      unsigned cost = 1;
-      const EGNeighs& neighs = n->neighbors();
-      for (size_t i = 0; i < neighs.size(); i++) {
-        cost *= neighs[i]->range();
-      }
-      return cost;
-    }
+    class EGNode : public Var {
+      public:
+        EGNode (VarId vid, unsigned range) : Var (vid, range) { }
 
-    unsigned getFillCost (const EgNode* n) const
-    {
-      unsigned cost = 0;
-      const EGNeighs& neighs = n->neighbors();
-      if (neighs.size() > 0) {
-        for (size_t i = 0; i < neighs.size() - 1; i++) {
-          for (size_t j = i + 1; j < neighs.size(); j++) {
-            if ( ! neighbors (neighs[i], neighs[j])) {
-              cost ++;
-            }
-         }
-       }
-     }
-     return cost;
-   }
+        void addNeighbor (EGNode* n) { neighs_.insert (n);  }
 
-    unsigned getWeightedFillCost (const EgNode* n) const
-    {
-      unsigned cost = 0;
-      const EGNeighs& neighs = n->neighbors();
-      if (neighs.size() > 0) {
-        for (size_t i = 0; i < neighs.size() - 1; i++) {
-          for (size_t j = i + 1; j < neighs.size(); j++) {
-            if ( ! neighbors (neighs[i], neighs[j])) {
-              cost += neighs[i]->range() * neighs[j]->range();
-            }
-          }
-        }
-      }
-      return cost;
-    }
+        void removeNeighbor (EGNode* n) { neighs_.remove (n); }
 
-    bool neighbors (EgNode* n1, EgNode* n2) const
-    {
-      return n1->isNeighbor (n2);
-    }
+        bool isNeighbor (EGNode* n) const { return neighs_.contains (n); }
 
-    void addNode (EgNode*);
+        const EGNeighs& neighbors() const { return neighs_; }
 
-    EgNode* getEgNode (VarId) const;
+      private:
+        EGNeighs neighs_;
+    };
 
-    EgNode* getLowestCostNode (void) const;
+    void addEdge (EGNode* n1, EGNode* n2);
 
-    void connectAllNeighbors (const EgNode*);
+    unsigned getNeighborsCost (const EGNode* n) const;
 
-    vector<EgNode*>                nodes_;
-    TinySet<EgNode*>               unmarked_;
-    unordered_map<VarId, EgNode*>  varMap_;
+    unsigned getWeightCost (const EGNode* n) const;
+
+    unsigned getFillCost (const EGNode* n) const;
+
+    unsigned getWeightedFillCost (const EGNode* n) const;
+
+    bool neighbors (EGNode* n1, EGNode* n2) const;
+
+    void addNode (EGNode*);
+
+    EGNode* getEGNode (VarId) const;
+
+    EGNode* getLowestCostNode() const;
+
+    void connectAllNeighbors (const EGNode*);
+
+    std::vector<EGNode*>                nodes_;
+    EGNeighs                            unmarked_;
+    std::unordered_map<VarId, EGNode*>  varMap_;
 
     static ElimHeuristic elimHeuristic_;
 
     DISALLOW_COPY_AND_ASSIGN (ElimGraph);
 };
 
-#endif // HORUS_ELIMGRAPH_H
+
+
+/* Profiling shows that we should inline the following functions */
+
+
+
+inline void
+ElimGraph::addEdge (EGNode* n1, EGNode* n2)
+{
+  assert (n1 != n2);
+  n1->addNeighbor (n2);
+  n2->addNeighbor (n1);
+}
+
+
+
+inline unsigned
+ElimGraph::getNeighborsCost (const EGNode* n) const
+{
+  return n->neighbors().size();
+}
+
+
+
+inline unsigned
+ElimGraph::getWeightCost (const EGNode* n) const
+{
+  unsigned cost = 1;
+  const EGNeighs& neighs = n->neighbors();
+  for (size_t i = 0; i < neighs.size(); i++) {
+    cost *= neighs[i]->range();
+  }
+  return cost;
+}
+
+
+
+inline unsigned
+ElimGraph::getFillCost (const EGNode* n) const
+{
+  unsigned cost = 0;
+  const EGNeighs& neighs = n->neighbors();
+  if (neighs.size() > 0) {
+    for (size_t i = 0; i < neighs.size() - 1; i++) {
+      for (size_t j = i + 1; j < neighs.size(); j++) {
+        if ( ! neighbors (neighs[i], neighs[j])) {
+          cost ++;
+        }
+      }
+    }
+  }
+  return cost;
+}
+
+
+
+inline unsigned
+ElimGraph::getWeightedFillCost (const EGNode* n) const
+{
+  unsigned cost = 0;
+  const EGNeighs& neighs = n->neighbors();
+  if (neighs.size() > 0) {
+    for (size_t i = 0; i < neighs.size() - 1; i++) {
+      for (size_t j = i + 1; j < neighs.size(); j++) {
+        if ( ! neighbors (neighs[i], neighs[j])) {
+          cost += neighs[i]->range() * neighs[j]->range();
+        }
+      }
+    }
+  }
+  return cost;
+}
+
+
+
+inline bool
+ElimGraph::neighbors (EGNode* n1, EGNode* n2) const
+{
+  return n1->isNeighbor (n2);
+}
+
+}  // namespace Horus
+
+#endif  // YAP_PACKAGES_CLPBN_HORUS_ELIMGRAPH_H_
 
