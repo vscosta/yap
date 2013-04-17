@@ -33,42 +33,42 @@ p_new_udi( USES_REGS1 )
 
   /* get the predicate from the spec, copied from cdmgr.c */
   if (IsVarTerm(spec)) {
-	  Yap_Error(INSTANTIATION_ERROR,spec,"new user index/1");
-	  return FALSE;
+    Yap_Error(INSTANTIATION_ERROR,spec,"new user index/1");
+    return FALSE;
   } else if (!IsApplTerm(spec)) {
-	  Yap_Error(TYPE_ERROR_COMPOUND,spec,"new user index/1");
-	  return FALSE;
+    Yap_Error(TYPE_ERROR_COMPOUND,spec,"new user index/1");
+    return FALSE;
   } else {
-	  Functor fun = FunctorOfTerm(spec);
-	  Term tmod = CurrentModule;
+    Functor fun = FunctorOfTerm(spec);
+    Term tmod = CurrentModule;
 
-	  while (fun == FunctorModule) {
-		  tmod = ArgOfTerm(1,spec);
-		  if (IsVarTerm(tmod) ) {
-			  Yap_Error(INSTANTIATION_ERROR, spec, "new user index/1");
-			  return FALSE;
-		  }
-		  if (!IsAtomTerm(tmod) ) {
-			  Yap_Error(TYPE_ERROR_ATOM, spec, "new user index/1");
-			  return FALSE;
-		  }
-		  spec = ArgOfTerm(2, spec);
-		  fun = FunctorOfTerm(spec);
-	  }
-	  p = RepPredProp(PredPropByFunc(fun, tmod));
+    while (fun == FunctorModule) {
+      tmod = ArgOfTerm(1,spec);
+      if (IsVarTerm(tmod) ) {
+	Yap_Error(INSTANTIATION_ERROR, spec, "new user index/1");
+	return FALSE;
+      }
+      if (!IsAtomTerm(tmod) ) {
+	Yap_Error(TYPE_ERROR_ATOM, spec, "new user index/1");
+	return FALSE;
+      }
+      spec = ArgOfTerm(2, spec);
+      fun = FunctorOfTerm(spec);
+    }
+    p = RepPredProp(PredPropByFunc(fun, tmod));
   }
   if (!p)
-	  return FALSE;
+    return FALSE;
   /* boring, boring, boring! */
   if ((p->PredFlags
-		  & (DynamicPredFlag|LogUpdatePredFlag|UserCPredFlag|CArgsPredFlag|NumberDBPredFlag|AtomDBPredFlag|TestPredFlag|AsmPredFlag|CPredFlag|BinaryPredFlag))
-		  || (p->ModuleOfPred == PROLOG_MODULE)) {
-	  Yap_Error(PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE, spec, "udi/2");
-	  return FALSE;
+       & (DynamicPredFlag|LogUpdatePredFlag|UserCPredFlag|CArgsPredFlag|NumberDBPredFlag|AtomDBPredFlag|TestPredFlag|AsmPredFlag|CPredFlag|BinaryPredFlag))
+      || (p->ModuleOfPred == PROLOG_MODULE)) {
+    Yap_Error(PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE, spec, "udi/2");
+    return FALSE;
   }
   if (p->PredFlags & (DynamicPredFlag|LogUpdatePredFlag|TabledPredFlag)) {
-	  Yap_Error(PERMISSION_ERROR_ACCESS_PRIVATE_PROCEDURE, spec, "udi/2");
-	  return FALSE;
+    Yap_Error(PERMISSION_ERROR_ACCESS_PRIVATE_PROCEDURE, spec, "udi/2");
+    return FALSE;
   }
   /* TODO: remove AtomRTree from atom list */
 

@@ -227,6 +227,9 @@ typedef struct worker_local {
   Functor  FunctorVar_;
 
   UInt  ibnds_[256];
+  void*  exo_base_;
+  UInt  exo_arity_;
+  UInt  exo_arg_;
 
   struct scan_atoms*  search_atoms_;
 } w_local;

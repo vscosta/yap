@@ -216,7 +216,7 @@ fill_hash(UInt bmap, struct index_t *it, UInt bnds[])
 }
 
 static struct index_t *
-add_index(struct index_t **ip, UInt bmap, PredEntry *ap, UInt count, UInt bnds[])
+add_index(struct index_t **ip, UInt bmap, PredEntry *ap, UInt count)
 {
   CACHE_REGS
   UInt ncls = ap->cs.p_code.NOfClauses, j;
@@ -224,6 +224,7 @@ add_index(struct index_t **ip, UInt bmap, PredEntry *ap, UInt count, UInt bnds[]
   struct index_t *i;
   size_t sz;
   yamop *ptr;
+  UInt *bnds = LOCAL_ibnds;
   
   sz =   (CELL)NEXTOP(NEXTOP((yamop*)NULL,lp),lp)+ap->ArityOfPE*(CELL)NEXTOP((yamop *)NULL,x) +(CELL)NEXTOP(NEXTOP((yamop *)NULL,p),l);
   if (!(i = (struct index_t *)Yap_AllocCodeSpace(sizeof(struct index_t)+sz))) {
@@ -278,7 +279,9 @@ add_index(struct index_t **ip, UInt bmap, PredEntry *ap, UInt count, UInt bnds[]
       i->ncollisions = i->nentries = i->ntrys = 0;
       continue;
     }
+#if DEBUG
     fprintf(stderr, "entries=%ld collisions=%ld trys=%ld\n", i->nentries, i->ncollisions, i->ntrys);
+#endif
     if (!i->ntrys && !i->is_key) {
       i->is_key = TRUE;
       if (base != realloc(base, i->hsize*sizeof(BITS32)))
@@ -333,7 +336,12 @@ add_index(struct index_t **ip, UInt bmap, PredEntry *ap, UInt count, UInt bnds[]
   ptr = NEXTOP(ptr, p);
   ptr->opc = Yap_opcode(_Ystop);
   ptr->u.l.l = i->code;
-  Yap_inform_profiler_of_clause((char *)(i->code), (char *)NEXTOP(ptr,l), ap, GPROF_INDEX); 
+  Yap_inform_profiler_of_clause((char *)(i->code), (char *)NEXTOP(ptr,l), ap, GPROF_INDEX);
+  if (ap->PredFlags & UDIPredFlag) {
+    Yap_new_udi_clause( ap, NULL, (Term)ip);
+  } else {
+    i->is_udi = FALSE;
+  }
   return i;
 }
 
@@ -369,11 +377,14 @@ Yap_ExoLookup(PredEntry *ap USES_REGS)
     i = i->next;
   }
   if (!i) {
-    i = add_index(ip, bmap, ap, count, LOCAL_ibnds);
+    i = add_index(ip, bmap, ap, count);
   }
-  if (count)
-    return LOOKUP(i, arity, j0, LOCAL_ibnds);
-  else
+  if (count) {
+    yamop *code = LOOKUP(i, arity, j0, LOCAL_ibnds);
+    if (i->is_udi) 
+      return ((CEnterExoIndex)i->udi_first)(i);
+    else return code;
+  } else
     return i->code;
 }
 

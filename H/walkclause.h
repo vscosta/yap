@@ -218,8 +218,10 @@
       /* instructions type lp */
     case _retry_all_exo:
     case _retry_exo:
+    case _retry_exo_udi:
     case _try_all_exo:
     case _try_exo:
+    case _try_exo_udi:
     case _user_switch:
       pc = NEXTOP(pc,lp);
       break;

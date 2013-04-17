@@ -161,11 +161,13 @@
   AtomLocal = AtomAdjust(AtomLocal);
   AtomLocalSp = AtomAdjust(AtomLocalSp);
   AtomLocalTrie = AtomAdjust(AtomLocalTrie);
+  AtomMax = AtomAdjust(AtomMax);
   AtomMaxArity = AtomAdjust(AtomMaxArity);
   AtomMaxFiles = AtomAdjust(AtomMaxFiles);
   AtomMegaClause = AtomAdjust(AtomMegaClause);
   AtomMetaCall = AtomAdjust(AtomMetaCall);
   AtomMfClause = AtomAdjust(AtomMfClause);
+  AtomMin = AtomAdjust(AtomMin);
   AtomMinus = AtomAdjust(AtomMinus);
   AtomModify = AtomAdjust(AtomModify);
   AtomMultiFile = AtomAdjust(AtomMultiFile);

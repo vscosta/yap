@@ -4285,6 +4285,7 @@ Yap_InitCPreds(void)
   Yap_InitMYDDAS_TopLevelPreds();
 #endif
   Yap_udi_init();
+  Yap_udi_range_init();
 
   Yap_InitSignalCPreds();
   Yap_InitUserCPreds();
