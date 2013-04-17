@@ -118,23 +118,26 @@ ParfactorList::isAllShattered() const
 
 
 
+struct sortByParams {
+  bool operator() (const Parfactor* pf1, const Parfactor* pf2) const
+  {
+    if (pf1->params().size() < pf2->params().size()) {
+      return true;
+    } else if (pf1->params().size() == pf2->params().size() &&
+               pf1->params()        <  pf2->params()) {
+      return true;
+    }
+    return false;
+  }
+};
+
+
+
 void
 ParfactorList::print() const
 {
-  struct sortByParams {
-    bool operator() (const Parfactor* pf1, const Parfactor* pf2)
-    {
-      if (pf1->params().size() < pf2->params().size()) {
-        return true;
-      } else if (pf1->params().size() == pf2->params().size() &&
-                 pf1->params()        <  pf2->params()) {
-        return true;
-      }
-      return false;
-    }
-  };
   Parfactors pfVec (pfList_.begin(), pfList_.end());
-  // vsc  std::sort (pfVec.begin(), pfVec.end(), sortByParams());
+  std::sort (pfVec.begin(), pfVec.end(), sortByParams());
   for (size_t i = 0; i < pfVec.size(); i++) {
     pfVec[i]->print();
     std::cout << std::endl;

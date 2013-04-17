@@ -5436,6 +5436,7 @@ index_ssz(StaticIndex *x, PredEntry *pe)
 
       while (i) {
 	sz = i->size+sz;
+	i = i->next;
       }
       return sz;
     }
