@@ -41,6 +41,7 @@
 
 static int
 compar(const void *ip0, const void *jp0) {
+  CACHE_REGS
   BITS32 *ip = (BITS32 *)ip0, *jp = (BITS32 *)jp0;
   BITS32 *bs = LOCAL_exo_base;
   Int i = bs[LOCAL_exo_arity*(*ip)+LOCAL_exo_arg];
@@ -49,7 +50,7 @@ compar(const void *ip0, const void *jp0) {
 }
 
 static int
-compare(const BITS32 *ip, Int j) {
+compare(const BITS32 *ip, Int j USES_REGS) {
   BITS32 *bs = LOCAL_exo_base;
   Int i = bs[LOCAL_exo_arity*(*ip)+LOCAL_exo_arg];
   /* fprintf(stderr, "%ld-%ld\n", IntOfTerm(i), j); */
@@ -58,7 +59,7 @@ compare(const BITS32 *ip, Int j) {
 
 
 static void
-RangeUDIRefitIndex(struct index_t **ip, UInt b[])
+RangeUDIRefitIndex(struct index_t **ip, UInt b[] USES_REGS)
 {
   size_t sz;
   struct index_t *it = *ip;
@@ -112,7 +113,7 @@ RangeUDIRefitIndex(struct index_t **ip, UInt b[])
 }
 
 static yamop *
-Min(struct index_t *it, BITS32 off)
+Min(struct index_t *it, BITS32 off USES_REGS)
 {
   if (it->links[off]) {
     BITS32 *c = (BITS32 *)it->udi_data;
@@ -123,7 +124,7 @@ Min(struct index_t *it, BITS32 off)
 }
 
 static yamop *
-Max(struct index_t *it, BITS32 off)
+Max(struct index_t *it, BITS32 off USES_REGS)
 {
   if (it->links[off]) {
     BITS32 *c = (BITS32 *)it->udi_data;
@@ -135,7 +136,7 @@ Max(struct index_t *it, BITS32 off)
 }
 
 static yamop *
-Gt(struct index_t *it, Int x, BITS32 off)
+Gt(struct index_t *it, Int x, BITS32 off USES_REGS)
 {
   if (it->links[off]) {
     BITS32 *c = (BITS32 *)it->udi_data;
@@ -149,7 +150,7 @@ Gt(struct index_t *it, Int x, BITS32 off)
     if (n > 8 && FALSE) {
       //      start = binary_search(start,end, x, it);
     } else {
-      while ( pt < end && compare(pt, x) <= 0 ) {
+      while ( pt < end && compare(pt, x PASS_REGS) <= 0 ) {
 	pt++;
       }
     }
@@ -168,7 +169,7 @@ Gt(struct index_t *it, Int x, BITS32 off)
 }
 
 static yamop *
-Lt(struct index_t *it, Int x, BITS32 off)
+Lt(struct index_t *it, Int x, BITS32 off USES_REGS)
 {
   if (it->links[off]) {
     BITS32 *c = (BITS32 *)it->udi_data;
@@ -182,9 +183,9 @@ Lt(struct index_t *it, Int x, BITS32 off)
     if (n > 8 && FALSE) {
       //      start = binary_search(start,end, x, it);
     } else {
-      if (compare(start, x) >= 0)
+      if (compare(start, x PASS_REGS) >= 0)
 	return FAILCODE;
-      while ( pt < end && compare(pt, x) < 0 ) {
+      while ( pt < end && compare(pt, x PASS_REGS) < 0 ) {
 	pt++;
       }
     }
@@ -201,7 +202,7 @@ Lt(struct index_t *it, Int x, BITS32 off)
 }
 
 static yamop *
-Eq(struct index_t *it, Int x, BITS32 off)
+Eq(struct index_t *it, Int x, BITS32 off USES_REGS)
 {
   if (it->links[off]) {
     BITS32 *c = (BITS32 *)it->udi_data;
@@ -215,15 +216,15 @@ Eq(struct index_t *it, Int x, BITS32 off)
     if (n > 8 && FALSE) {
       //      start = binary_search(start,end, x, it);
     } else {
-      Int c;
-      while ( pt < end && (c = compare(pt, x)) < 0 ) {
+      Int c = 0;
+      while ( pt < end && (c = compare(pt, x PASS_REGS)) < 0 ) {
 	pt++;
       }
       if (pt == end || c) 
 	return FAILCODE;
       start = pt;
       pt ++;
-      while ( pt < end && (c = compare(pt, x)) == 0 ) {
+      while ( pt < end && (c = compare(pt, x PASS_REGS)) == 0 ) {
 	pt++;
       }
     }
@@ -240,7 +241,7 @@ Eq(struct index_t *it, Int x, BITS32 off)
 }
 
 static yamop *
-All(struct index_t *it, BITS32 off)
+All(struct index_t *it, BITS32 off USES_REGS)
 {
   if (it->links[off]) {
     BITS32 *c = (BITS32 *)it->udi_data;
@@ -263,7 +264,7 @@ All(struct index_t *it, BITS32 off)
 }
 
 static yamop *
-RangeEnterUDIIndex(struct index_t *it)
+RangeEnterUDIIndex(struct index_t *it USES_REGS)
 {
   Int i = arg_of_interest();
   Term  t = XREGS[i+1], a1;
@@ -286,44 +287,44 @@ RangeEnterUDIIndex(struct index_t *it)
     at  = NameOfFunctor(f);
   }
   if (at == AtomMax) {
-    return Max(it, off);
+    return Max(it, off PASS_REGS);
   } else if (at == AtomMin) {
-    return Min(it, off);
+    return Min(it, off PASS_REGS);
   } else if (at == AtomGT) {
     Term arg = ArgOfTerm(1, a1);
     if (IsVarTerm(arg))
-      return All(it, off);
+      return All(it, off PASS_REGS);
     else if (!IsIntTerm(arg)) {
       Yap_Error(TYPE_ERROR_INTEGER, arg, "data-base constraint");
       return FAILCODE;
     }
-    return Gt(it, IntOfTerm(arg), off);
+    return Gt(it, IntOfTerm(arg), off PASS_REGS);
   } else if (at == AtomLT) {
     Term arg = ArgOfTerm(1, a1);
 
     if (IsVarTerm(arg))
-      return All(it, off);
+      return All(it, off PASS_REGS);
     else if (!IsIntTerm(arg)) {
       Yap_Error(TYPE_ERROR_INTEGER, t, "data-base constraint");
       return FAILCODE;
     }
-    return Lt(it, IntOfTerm(arg), off);
+    return Lt(it, IntOfTerm(arg), off PASS_REGS);
   } else if (at == AtomEQ) {
     Term arg = ArgOfTerm(1, a1);
 
     if (IsVarTerm(arg))
-      return All(it, off);
+      return All(it, off PASS_REGS);
     else if (!IsIntTerm(arg)) {
       Yap_Error(TYPE_ERROR_INTEGER, t, "data-base constraint");
       return FAILCODE;
     }
-    return Eq(it, IntOfTerm(arg), off);
+    return Eq(it, IntOfTerm(arg), off PASS_REGS);
   }
   return FAILCODE;
 }
 
 static int
-RangeRetryUDIIndex(struct index_t *it)
+RangeRetryUDIIndex(struct index_t *it USES_REGS)
 {
   CELL *w = (CELL*)(B+1);
   BITS32 *end = (BITS32 *) w[it->arity+2],
@@ -341,7 +342,7 @@ static struct udi_control_block RangeCB;
 
 typedef struct exo_udi_access_t {
   CRefitExoIndex refit;
-};
+} exo_udi_encaps_t;
 
 static struct exo_udi_access_t ExoCB;
 
@@ -355,18 +356,13 @@ static void *
 RangeUdiInsert (void *control,
                 Term term, int arg, void *data)
 {
+  CACHE_REGS
+
   struct index_t **ip = (struct index_t **)term;
-  (ExoCB.refit)(ip, LOCAL_ibnds);
+  (ExoCB.refit)(ip, LOCAL_ibnds PASS_REGS);
   (*ip)->udi_first = (void *)RangeEnterUDIIndex;
   (*ip)->udi_next = (void *)RangeRetryUDIIndex;
   return control;
-}
-
-static void *
-RangeUdiSearch (void *control,
-                int arg, Yap_UdiCallback callback, void *args)
-{
-  return NULL;
 }
 
 static int RangeUdiDestroy(void *control)
@@ -386,7 +382,7 @@ void Yap_udi_range_init(void) {
 
   cb->init= RangeUdiInit;
   cb->insert=RangeUdiInsert;
-  cb->search=RangeUdiSearch;
+  cb->search=NULL;
   cb->destroy=RangeUdiDestroy;
 
   Yap_UdiRegister(cb);

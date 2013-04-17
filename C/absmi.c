@@ -1143,7 +1143,7 @@ Yap_absmi(int inp)
       {
 	struct index_t *it = (struct index_t *)(PREG->u.lp.l);
 	saveregs();
-	d0 = ((CRetryExoIndex)it->udi_next)(it);
+	d0 = ((CRetryExoIndex)it->udi_next)(it PASS_REGS);
 	setregs();
 #ifdef SHADOW_S
 	SREG = S;

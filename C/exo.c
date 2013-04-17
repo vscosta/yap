@@ -382,7 +382,7 @@ Yap_ExoLookup(PredEntry *ap USES_REGS)
   if (count) {
     yamop *code = LOOKUP(i, arity, j0, LOCAL_ibnds);
     if (i->is_udi) 
-      return ((CEnterExoIndex)i->udi_first)(i);
+      return ((CEnterExoIndex)i->udi_first)(i PASS_REGS);
     else return code;
   } else
     return i->code;

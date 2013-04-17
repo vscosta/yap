@@ -213,9 +213,9 @@ LINK_TO_ADDRESS(struct index_t *it, BITS32  off)
   return it->links+off;
 }
 
-typedef void (*CRefitExoIndex)(struct index_t **ip, UInt b[]);
-typedef yamop *  (*CEnterExoIndex)(struct index_t *it);
-typedef int     (*CRetryExoIndex)(struct index_t *it);
+typedef void (*CRefitExoIndex)(struct index_t **ip, UInt b[] USES_REGS);
+typedef yamop *  (*CEnterExoIndex)(struct index_t *it USES_REGS);
+typedef int     (*CRetryExoIndex)(struct index_t *it USES_REGS);
 
 typedef struct dbterm_list {
   /* a list of dbterms associated with a clause */
