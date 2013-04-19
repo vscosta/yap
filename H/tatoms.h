@@ -320,6 +320,8 @@
 #define AtomLocalSp Yap_heap_regs->AtomLocalSp_
   Atom AtomLocalTrie_;
 #define AtomLocalTrie Yap_heap_regs->AtomLocalTrie_
+  Atom AtomMax_;
+#define AtomMax Yap_heap_regs->AtomMax_
   Atom AtomMaxArity_;
 #define AtomMaxArity Yap_heap_regs->AtomMaxArity_
   Atom AtomMaxFiles_;
@@ -330,6 +332,8 @@
 #define AtomMetaCall Yap_heap_regs->AtomMetaCall_
   Atom AtomMfClause_;
 #define AtomMfClause Yap_heap_regs->AtomMfClause_
+  Atom AtomMin_;
+#define AtomMin Yap_heap_regs->AtomMin_
   Atom AtomMinus_;
 #define AtomMinus Yap_heap_regs->AtomMinus_
   Atom AtomModify_;

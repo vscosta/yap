@@ -990,6 +990,35 @@ Yap_absmi(int inp)
       GONext();
       ENDOp();
 
+      /* check if enough space between trail and codespace */
+      /* try_exo    Pred,Label */
+      Op(try_exo_udi, lp);
+      /* check if enough space between trail and codespace */
+      check_trail(TR);
+      /* I use YREG =to go through the choicepoint. Usually YREG =is in a
+       * register, but sometimes (X86) not. In this case, have a
+       * new register to point at YREG =*/
+      CACHE_Y(YREG);
+      S_YREG--;
+      /* store arguments for procedure */
+      store_at_least_one_arg(PREG->u.lp.p->ArityOfPE);
+      /* store abstract machine registers */
+      store_yaam_regs(NEXTOP(PREG,lp), 0);
+      /* On a try_me, set cut to point at previous choicepoint,
+       * that is, to the B before the cut.
+       */
+      set_cut(S_YREG, B);
+      /* now, install the new YREG =*/
+      B = B_YREG;
+#ifdef YAPOR
+      SCH_set_load(B_YREG);
+#endif	/* YAPOR */
+      PREG = NEXTOP(NEXTOP(PREG, lp),lp);
+      SET_BB(B_YREG);
+      ENDCACHE_Y();
+      GONext();
+      ENDOp();
+
       /* try_udi    Pred,Label */
       Op(try_udi, p);
       /* check if enough space between trail and codespace */
@@ -1066,6 +1095,59 @@ Yap_absmi(int inp)
 	d0 = it->links[offset];
 	((CELL *)(B+1))[it->arity] = (CELL)EXO_OFFSET_TO_ADDRESS(it, d0);
 	SREG = it->cls+it->arity*offset;
+      }
+      if (d0) {
+	/* After retry, cut should be pointing at the parent
+	 * choicepoint for the current B */
+	restore_yaam_regs(PREG);
+	restore_at_least_one_arg(PREG->u.lp.p->ArityOfPE);
+#ifdef FROZEN_STACKS
+	S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);
+	set_cut(S_YREG, B->cp_b);
+#else
+	set_cut(S_YREG, B_YREG->cp_b);
+#endif /* FROZEN_STACKS */
+	SET_BB(B_YREG);
+      } else {
+#ifdef YAPOR
+	if (SCH_top_shared_cp(B)) {
+	  SCH_last_alternative(PREG, B_YREG);
+	  restore_at_least_one_arg(PREG->u.lp.p->ArityOfPE);
+#ifdef FROZEN_STACKS
+	  S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);
+#endif /* FROZEN_STACKS */
+	  set_cut(S_YREG, B->cp_b);
+	} else
+#endif	/* YAPOR */
+	  {
+	    pop_yaam_regs();
+	    pop_at_least_one_arg(PREG->u.lp.p->ArityOfPE);
+	    /* After trust, cut should be pointing at the new top
+	     * choicepoint */
+#ifdef FROZEN_STACKS
+	    S_YREG = (CELL *) PROTECT_FROZEN_B(B_YREG);
+#endif /* FROZEN_STACKS */
+	    set_cut(S_YREG, B);
+	  }
+      }
+      PREG = NEXTOP(PREG, lp);
+      ENDCACHE_Y();
+      ENDD(D0);
+      GONext();
+      ENDOp();
+
+      /* retry_exo_udi    Pred */
+      Op(retry_exo_udi, lp);
+      BEGD(d0);
+      CACHE_Y(B);
+      {
+	struct index_t *it = (struct index_t *)(PREG->u.lp.l);
+	saveregs();
+	d0 = ((CRetryExoIndex)it->udi_next)(it PASS_REGS);
+	setregs();
+#ifdef SHADOW_S
+	SREG = S;
+#endif
       }
       if (d0) {
 	/* After retry, cut should be pointing at the parent

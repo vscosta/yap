@@ -255,8 +255,12 @@ yamop			       *ImportFAILCODE				=NULL
 
 Functor				FunctorVar				=FunctorVar
 
-// exo indexing
+// exo indexingxb
+
 UInt				ibnds[256]				void
+BITS32*				exo_base				=NULL
+UInt				exo_arity				=0
+UInt				exo_arg					=0
 
 // atom completion
 struct scan_atoms*		search_atoms				void

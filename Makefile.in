@@ -243,6 +243,7 @@ C_SOURCES= \
 	$(srcdir)/C/errors.c \
 	$(srcdir)/C/eval.c $(srcdir)/C/exec.c \
 	$(srcdir)/C/exo.c \
+	$(srcdir)/C/exo_udi.c \
 	$(srcdir)/C/globals.c $(srcdir)/C/gmp_support.c \
 	$(srcdir)/C/gprof.c $(srcdir)/C/grow.c \
 	$(srcdir)/C/heapgc.c $(srcdir)/C/index.c	   \
@@ -359,7 +360,7 @@ ENGINE_OBJECTS = \
 	bignum.o bb.o \
 	cdmgr.o cmppreds.o compiler.o computils.o \
 	corout.o cut_c.o dbase.o dlmalloc.o errors.o eval.o \
-	exec.o exo.o globals.o gmp_support.o gprof.o grow.o \
+	exec.o exo.o exo_udi.o globals.o gmp_support.o gprof.o grow.o \
 	heapgc.o index.o init.o  inlines.o \
 	iopreds.o depth_bound.o mavar.o \
 	myddas_mysql.o myddas_odbc.o myddas_shared.o myddas_initialization.o \

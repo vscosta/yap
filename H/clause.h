@@ -166,6 +166,7 @@ typedef struct index_t {
   PredEntry *ap;
   CELL bmap;
   int is_key;
+  int is_udi;
   UInt ncollisions;
   UInt ntrys;
   UInt nentries;
@@ -175,6 +176,7 @@ typedef struct index_t {
   BITS32 *links;
   size_t size;
   yamop *code;
+  void *udi_data, *udi_first, *udi_next;
 } Index_t;
 
 INLINE_ONLY EXTERN inline BITS32 EXO_ADDRESS_TO_OFFSET(struct index_t *it, CELL *ptr);
@@ -211,6 +213,9 @@ LINK_TO_ADDRESS(struct index_t *it, BITS32  off)
   return it->links+off;
 }
 
+typedef void (*CRefitExoIndex)(struct index_t **ip, UInt b[] USES_REGS);
+typedef yamop *  (*CEnterExoIndex)(struct index_t *it USES_REGS);
+typedef int     (*CRetryExoIndex)(struct index_t *it USES_REGS);
 
 typedef struct dbterm_list {
   /* a list of dbterms associated with a clause */

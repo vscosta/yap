@@ -444,7 +444,7 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
       tmpbuf[0] = '\0';
     }
     va_end (ap);
-    fprintf(stderr,"%% ERROR WITHIN ERROR %d: %s\n", tmpbuf, LOCAL_CurrentError);
+    fprintf(stderr,"%% ERROR WITHIN ERROR %d: %s\n", LOCAL_CurrentError, tmpbuf);
     exit(1);
   }
   /* must do this here */

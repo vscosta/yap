@@ -364,10 +364,10 @@ DelAtts(attvar_record *attv, Term oatt USES_REGS)
 static void 
 PutAtt(Int pos, Term atts, Term att USES_REGS)
 {
-  if (IsVarTerm(att) && (CELL *)att > H && (CELL *)att < LCL0) {
+  if (IsVarTerm(att) && VarOfTerm(att) > H && VarOfTerm(att) < LCL0) {
     /* globalise locals */
     Term tnew = MkVarTerm();
-    Bind_NonAtt((CELL *)att, tnew);
+    Bind_NonAtt(VarOfTerm(att), tnew);
     att = tnew;
   }
   MaBind(RepAppl(atts)+pos, att);

@@ -161,11 +161,13 @@
   AtomLocal = Yap_LookupAtom("local");
   AtomLocalSp = Yap_LookupAtom("local_sp");
   AtomLocalTrie = Yap_LookupAtom("local_trie");
+  AtomMax = Yap_LookupAtom("max");
   AtomMaxArity = Yap_LookupAtom("max_arity");
   AtomMaxFiles = Yap_LookupAtom("max_files");
   AtomMegaClause = Yap_FullLookupAtom("$mega_clause");
   AtomMetaCall = Yap_FullLookupAtom("$call");
   AtomMfClause = Yap_FullLookupAtom("$mf_clause");
+  AtomMin = Yap_LookupAtom("min");
   AtomMinus = Yap_LookupAtom("-");
   AtomModify = Yap_LookupAtom("modify");
   AtomMultiFile = Yap_FullLookupAtom("$mf");

@@ -403,6 +403,12 @@
 
 #define LOCAL_ibnds LOCAL->ibnds_
 #define REMOTE_ibnds(wid) REMOTE(wid)->ibnds_
+#define LOCAL_exo_base LOCAL->exo_base_
+#define REMOTE_exo_base(wid) REMOTE(wid)->exo_base_
+#define LOCAL_exo_arity LOCAL->exo_arity_
+#define REMOTE_exo_arity(wid) REMOTE(wid)->exo_arity_
+#define LOCAL_exo_arg LOCAL->exo_arg_
+#define REMOTE_exo_arg(wid) REMOTE(wid)->exo_arg_
 
 #define LOCAL_search_atoms LOCAL->search_atoms_
 #define REMOTE_search_atoms(wid) REMOTE(wid)->search_atoms_
