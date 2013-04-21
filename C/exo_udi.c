@@ -36,8 +36,6 @@
 #define YAP_Atom Atom
 #include <udi.h>
 
-#define arg_of_interest() 0
-
 
 static int
 compar(const void *ip0, const void *jp0) {
@@ -68,7 +66,7 @@ RangeUDIRefitIndex(struct index_t **ip, UInt b[] USES_REGS)
   yamop *code;
 
   /* hard-wired implementation for the range case */
-  Int i = arg_of_interest();
+  Int i = it->udi_arg;
   /* it is bound, use hash */
   if (it->bmap & b[i]) return;
   /* no constraints, nothing to gain */
@@ -79,6 +77,7 @@ RangeUDIRefitIndex(struct index_t **ip, UInt b[] USES_REGS)
   if (!(it->udi_data = malloc(sz)))
     return;
   sorted0 = sorted = (BITS32 *)it->udi_data;
+  sorted++; /* leave an initial hole */
   LOCAL_exo_base = it->cls;
   LOCAL_exo_arity = it->arity;
   LOCAL_exo_arg = i;
@@ -87,21 +86,21 @@ RangeUDIRefitIndex(struct index_t **ip, UInt b[] USES_REGS)
       BITS32 *s0 = sorted;
       BITS32 offset = it->key[i]/arity, offset0 = offset;
       
-      if (offset) {
-	*sorted++ = 0;
-	while (offset) {
-	  *sorted++ = offset;
-	  offset = it->links[offset];
-	}
-	if (sorted-s0 == 2) {
-	  it->links[offset0] = 0;
-	  sorted = s0;
-	} else {
-	  /* number of elements comes first */
-	  *s0 = sorted - (s0+1);
-	  qsort(s0+1, (size_t)*s0, sizeof(BITS32), compar); 
-	  it->links[offset0] = s0-sorted0;
-	}
+      *sorted++ = 0;
+      do {
+	*sorted++ = offset;
+	offset = it->links[offset];
+      } while (offset);
+      //      S = it->cls+it->arity*offset0; Yap_DebugPlWrite(S[1]);
+      // fprintf(stderr, " key[i]=%d offset=%d  %d\n", it->key[i], offset0, (sorted-s0)-1);
+      if (sorted-s0 == 2) {
+	it->links[offset0] = 0;
+	sorted = s0;
+      } else {
+	/* number of elements comes first */
+	*s0 = sorted - (s0+1);
+	qsort(s0+1, (size_t)*s0, sizeof(BITS32), compar); 
+	it->links[offset0] = s0-sorted0;
       }
     }
   }
@@ -144,7 +143,7 @@ Gt(struct index_t *it, Int x, BITS32 off USES_REGS)
 
     LOCAL_exo_base = it->cls;
     LOCAL_exo_arity = it->arity;
-    LOCAL_exo_arg = arg_of_interest();
+    LOCAL_exo_arg = it->udi_arg;
     BITS32 *pt  = c+(it->links[off]+1);
     BITS32 *end  = c+(it->links[off]+(n+2));
     if (n > 8 && FALSE) {
@@ -177,7 +176,7 @@ Lt(struct index_t *it, Int x, BITS32 off USES_REGS)
 
     LOCAL_exo_base = it->cls;
     LOCAL_exo_arity = it->arity;
-    LOCAL_exo_arg = arg_of_interest();
+    LOCAL_exo_arg = it->udi_arg;
     BITS32 *start  = c+(it->links[off]+1), *pt = start+1;
     BITS32 *end  = c+(it->links[off]+(n+2));
     if (n > 8 && FALSE) {
@@ -210,7 +209,7 @@ Eq(struct index_t *it, Int x, BITS32 off USES_REGS)
 
     LOCAL_exo_base = it->cls;
     LOCAL_exo_arity = it->arity;
-    LOCAL_exo_arg = arg_of_interest();
+    LOCAL_exo_arg = it->udi_arg;
     BITS32 *end  = c+(it->links[off]+(n+2));
     BITS32 *start, *pt = c+(it->links[off]+1);
     if (n > 8 && FALSE) {
@@ -249,7 +248,7 @@ All(struct index_t *it, BITS32 off USES_REGS)
 
     LOCAL_exo_base = it->cls;
     LOCAL_exo_arity = it->arity;
-    LOCAL_exo_arg = arg_of_interest();
+    LOCAL_exo_arg = it->udi_arg;
     BITS32 *start  = c+(it->links[off]+1);
     BITS32 *end  = c+(it->links[off]+(n+1));
     S = it->cls+it->arity*start[0];
@@ -266,9 +265,10 @@ All(struct index_t *it, BITS32 off USES_REGS)
 static yamop *
 RangeEnterUDIIndex(struct index_t *it USES_REGS)
 {
-  Int i = arg_of_interest();
+  Int i = it->udi_arg;
   Term  t = XREGS[i+1], a1;
   BITS32 off = EXO_ADDRESS_TO_OFFSET(it, S)/it->arity;
+  //  printf("off=%d it=%p %p---%p\n", off, it, it->cls, S);
   attvar_record *attv;
   Atom at;
 
@@ -359,6 +359,7 @@ RangeUdiInsert (void *control,
   CACHE_REGS
 
   struct index_t **ip = (struct index_t **)term;
+  (*ip)->udi_arg = arg-1;
   (ExoCB.refit)(ip, LOCAL_ibnds PASS_REGS);
   (*ip)->udi_first = (void *)RangeEnterUDIIndex;
   (*ip)->udi_next = (void *)RangeRetryUDIIndex;
