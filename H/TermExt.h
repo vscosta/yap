@@ -371,11 +371,11 @@ IsBigIntTerm (Term t)
 
 #ifdef USE_GMP
 
-Term STD_PROTO (Yap_MkBigIntTerm, (MP_INT *));
-MP_INT *STD_PROTO (Yap_BigIntOfTerm, (Term));
+Term Yap_MkBigIntTerm(MP_INT *);
+MP_INT *Yap_BigIntOfTerm(Term);
 
-Term STD_PROTO (Yap_MkBigRatTerm, (MP_RAT *));
-MP_RAT *STD_PROTO (Yap_BigRatOfTerm, (Term));
+Term Yap_MkBigRatTerm(MP_RAT *);
+MP_RAT *Yap_BigRatOfTerm(Term);
 
 INLINE_ONLY inline EXTERN void MPZ_SET (mpz_t, MP_INT *);
 
@@ -636,11 +636,11 @@ INLINE_ONLY inline EXTERN void *Yap_BlobInfo(Term t)
 
 #ifdef YAP_H
 
-INLINE_ONLY inline EXTERN int STD_PROTO (unify_extension, (Functor, CELL, CELL *, CELL));
+INLINE_ONLY inline EXTERN int unify_extension(Functor, CELL, CELL *, CELL);
 
-EXTERN int STD_PROTO (unify_extension, (Functor, CELL, CELL *, CELL));
+EXTERN int unify_extension(Functor, CELL, CELL *, CELL);
 
-int   STD_PROTO(Yap_gmp_tcmp_big_big,(Term, Term));
+int   Yap_gmp_tcmp_big_big(Term, Term);
 
 INLINE_ONLY inline EXTERN int
 unify_extension (Functor f, CELL d0, CELL * pt0, CELL d1)

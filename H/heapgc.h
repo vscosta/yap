@@ -166,9 +166,9 @@ typedef CELL   *CELL_PTR;
 
 #define ENVSIZE(E) 	EnvSize(((CELL *)E)[E_CP])
 
-void  STD_PROTO(Yap_mark_variable, (CELL *));
-void  STD_PROTO(Yap_mark_external_reference, (CELL *));
-void  STD_PROTO(Yap_inc_mark_variable, (void));
+void  Yap_mark_variable(CELL *);
+void  Yap_mark_external_reference(CELL *);
+void  Yap_inc_mark_variable(void);
 
 
 

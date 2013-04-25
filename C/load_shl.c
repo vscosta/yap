@@ -167,7 +167,7 @@ Yap_ReLoadForeign(StringList ofiles, StringList libs,
 
 /*
 dunno what this one is supposed to do, no load_* defines it
-void	STD_PROTO(ReOpenLoadForeign,(void));
+void	 ReOpenLoadForeign(void);
 */
 
 #endif

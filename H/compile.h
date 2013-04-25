@@ -325,17 +325,17 @@ typedef enum special_label_op_enum {
 #define Two	 2
 
 
-yamop  *STD_PROTO(Yap_assemble,(int,Term,struct pred_entry *,int, struct intermediates *, UInt));
-void	STD_PROTO(Yap_emit,(compiler_vm_op,Int,CELL, struct intermediates *));
-void	STD_PROTO(Yap_emit_3ops,(compiler_vm_op,CELL,CELL,CELL, struct intermediates *));
-void	STD_PROTO(Yap_emit_4ops,(compiler_vm_op,CELL,CELL,CELL,CELL, struct intermediates *));
-CELL   *STD_PROTO(Yap_emit_extra_size,(compiler_vm_op,CELL,int, struct intermediates *));
-char   *STD_PROTO(Yap_AllocCMem,(UInt, struct intermediates *));
-void    STD_PROTO(Yap_ReleaseCMem, (struct intermediates *));
-int	STD_PROTO(Yap_is_a_test_pred,(Term, Term));
-void    STD_PROTO(Yap_bip_name,(Int, char *));
+yamop  *Yap_assemble(int,Term,struct pred_entry *,int, struct intermediates *, UInt);
+void	Yap_emit(compiler_vm_op,Int,CELL, struct intermediates *);
+void	Yap_emit_3ops(compiler_vm_op,CELL,CELL,CELL, struct intermediates *);
+void	Yap_emit_4ops(compiler_vm_op,CELL,CELL,CELL,CELL, struct intermediates *);
+CELL   *Yap_emit_extra_size(compiler_vm_op,CELL,int, struct intermediates *);
+char   *Yap_AllocCMem(UInt, struct intermediates *);
+void    Yap_ReleaseCMem(struct intermediates *);
+int	Yap_is_a_test_pred(Term, Term);
+void    Yap_bip_name(Int, char *);
 #ifdef DEBUG
-void	STD_PROTO(Yap_ShowCode,(struct intermediates *));
+void	Yap_ShowCode(struct intermediates *);
 #endif /* DEBUG */
 
 

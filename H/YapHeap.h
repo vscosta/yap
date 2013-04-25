@@ -90,7 +90,7 @@ typedef struct halt_hook {
   struct halt_hook *next;
 } halt_hook_entry;
 
-int	STD_PROTO(Yap_HaltRegisterHook,(HaltHookFunc, void *));
+int	Yap_HaltRegisterHook(HaltHookFunc, void *);
 
 typedef struct atom_hash_entry {
 #if defined(YAPOR) || defined(THREADS)
@@ -215,12 +215,12 @@ extern struct various_codes *Yap_heap_regs;
 
 
 #if (defined(USE_SYSTEM_MALLOC) && HAVE_MALLINFO)||USE_DL_MALLOC
-UInt STD_PROTO(Yap_givemallinfo, (void));
+UInt Yap_givemallinfo(void);
 #endif
 
-ADDR    STD_PROTO(Yap_ExpandPreAllocCodeSpace, (UInt, void *, int));
+ADDR    Yap_ExpandPreAllocCodeSpace(UInt, void *, int);
 #define Yap_ReleasePreAllocCodeSpace(x)
-ADDR    STD_PROTO(Yap_InitPreAllocCodeSpace, (int));
+ADDR    Yap_InitPreAllocCodeSpace(int);
 
 #include "inline-only.h"
 INLINE_ONLY EXTERN inline ADDR

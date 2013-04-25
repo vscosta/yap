@@ -224,35 +224,35 @@ typedef struct compiler_struct_struct {
   CIntermediates cint;
 } compiler_struct;
 
-STATIC_PROTO(int active_branch, (int, int));
-STATIC_PROTO(void c_var, (Term, Int, unsigned int, unsigned int, compiler_struct *));
-STATIC_PROTO(void reset_vars, (Ventry *));
-STATIC_PROTO(Term optimize_ce, (Term, unsigned int, unsigned int, compiler_struct *));
-STATIC_PROTO(void c_arg, (Int, Term, unsigned int, unsigned int, compiler_struct *));
-STATIC_PROTO(void c_args, (Term, unsigned int, compiler_struct *));
-STATIC_PROTO(void c_eq, (Term, Term, compiler_struct *));
-STATIC_PROTO(void c_test, (Int, Term, compiler_struct *));
-STATIC_PROTO(void c_bifun, (basic_preds, Term, Term, Term, Term, Term, compiler_struct *));
-STATIC_PROTO(void c_goal, (Term, Term, compiler_struct *));
-STATIC_PROTO(void c_body, (Term, Term, compiler_struct *));
-STATIC_PROTO(void c_head, (Term, compiler_struct *));
-STATIC_PROTO(int usesvar, (compiler_vm_op));
-STATIC_PROTO(CELL *init_bvarray, (int, compiler_struct *));
+static int active_branch(int, int);
+static void c_var(Term, Int, unsigned int, unsigned int, compiler_struct *);
+static void reset_vars(Ventry *);
+static Term optimize_ce(Term, unsigned int, unsigned int, compiler_struct *);
+static void c_arg(Int, Term, unsigned int, unsigned int, compiler_struct *);
+static void c_args(Term, unsigned int, compiler_struct *);
+static void c_eq(Term, Term, compiler_struct *);
+static void c_test(Int, Term, compiler_struct *);
+static void c_bifun(basic_preds, Term, Term, Term, Term, Term, compiler_struct *);
+static void c_goal(Term, Term, compiler_struct *);
+static void c_body(Term, Term, compiler_struct *);
+static void c_head(Term, compiler_struct *);
+static int usesvar(compiler_vm_op);
+static CELL *init_bvarray(int, compiler_struct *);
 #ifdef DEBUG
-STATIC_PROTO(void clear_bvarray, (int, CELL *, compiler_struct *));
+static void clear_bvarray(int, CELL *, compiler_struct *);
 #else
-STATIC_PROTO(void clear_bvarray, (int, CELL *));
+static void clear_bvarray(int, CELL *);
 #endif
-STATIC_PROTO(void add_bvarray_op, (PInstr *,CELL *, int, compiler_struct *));
-STATIC_PROTO(void AssignPerm, (PInstr *, compiler_struct *));
-STATIC_PROTO(void CheckUnsafe, (PInstr *, compiler_struct *));
-STATIC_PROTO(void CheckVoids, (compiler_struct *));
-STATIC_PROTO( int checktemp, (Int, Int, compiler_vm_op, compiler_struct *));
-STATIC_PROTO( Int checkreg, (Int, Int, compiler_vm_op, int, compiler_struct *));
-STATIC_PROTO(void c_layout, (compiler_struct *));
-STATIC_PROTO(void c_optimize, (PInstr *));
+static void add_bvarray_op(PInstr *,CELL *, int, compiler_struct *);
+static void AssignPerm(PInstr *, compiler_struct *);
+static void CheckUnsafe(PInstr *, compiler_struct *);
+static void CheckVoids(compiler_struct *);
+static  int checktemp(Int, Int, compiler_vm_op, compiler_struct *);
+static  Int checkreg(Int, Int, compiler_vm_op, int, compiler_struct *);
+static void c_layout(compiler_struct *);
+static void c_optimize(PInstr *);
 #ifdef SFUNC
-STATIC_PROTO(void compile_sf_term, (Term, int));
+static void compile_sf_term(Term, int);
 #endif
 
 static void

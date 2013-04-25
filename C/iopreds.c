@@ -84,12 +84,12 @@ static char SccsId[] = "%W% %G%";
 #endif
 #include "iopreds.h"
 
-STATIC_PROTO (Int p_set_read_error_handler, ( USES_REGS1 ));
-STATIC_PROTO (Int p_get_read_error_handler, ( USES_REGS1 ));
-STATIC_PROTO (Int p_read, ( USES_REGS1 ));
-STATIC_PROTO (Int p_startline, ( USES_REGS1 ));
-STATIC_PROTO (Int p_change_type_of_char, ( USES_REGS1 ));
-STATIC_PROTO (Int p_type_of_char, ( USES_REGS1 ));
+static Int p_set_read_error_handler( USES_REGS1 );
+static Int p_get_read_error_handler( USES_REGS1 );
+static Int p_read( USES_REGS1 );
+static Int p_startline( USES_REGS1 );
+static Int p_change_type_of_char( USES_REGS1 );
+static Int p_type_of_char( USES_REGS1 );
 
 extern Atom Yap_FileName(IOSTREAM *s);
 

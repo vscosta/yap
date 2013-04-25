@@ -78,15 +78,15 @@ typedef struct write_globs {
 #define lastw wglb->lw
 #define last_minus wglb->last_atom_minus
 
-STATIC_PROTO(void wrputn, (Int, struct write_globs *));
-STATIC_PROTO(void wrputf, (Float, struct write_globs *));
-STATIC_PROTO(void wrputref, (CODEADDR, int, struct write_globs *));
-STATIC_PROTO(int legalAtom, (unsigned char *));
-/*STATIC_PROTO(int LeftOpToProtect, (Atom, int));
-  STATIC_PROTO(int RightOpToProtect, (Atom, int));*/
-STATIC_PROTO(wtype AtomIsSymbols, (unsigned char *));
-STATIC_PROTO(void putAtom, (Atom, int, struct write_globs *));
-STATIC_PROTO(void writeTerm, (Term, int, int, int, struct write_globs *, struct rewind_term *));
+static void wrputn(Int, struct write_globs *);
+static void wrputf(Float, struct write_globs *);
+static void wrputref(CODEADDR, int, struct write_globs *);
+static int legalAtom(unsigned char *);
+/*static int LeftOpToProtect(Atom, int);
+  static int RightOpToProtect(Atom, int);*/
+static wtype AtomIsSymbols(unsigned char *);
+static void putAtom(Atom, int, struct write_globs *);
+static void writeTerm(Term, int, int, int, struct write_globs *, struct rewind_term *);
 
 #define wrputc(X,WF)	Sputcode(X,WF)	/* writes a character */
 

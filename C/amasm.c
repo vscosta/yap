@@ -214,73 +214,73 @@ typedef struct clause_info_struct {
   struct pred_entry *CurrentPred;
 } clause_info;
 
-STATIC_PROTO(OPREG Var_Ref, (Ventry *, int));
-STATIC_PROTO(wamreg emit_xreg, (CELL));
-STATIC_PROTO(yslot emit_yreg, (CELL));
-STATIC_PROTO(wamreg emit_x, (CELL));
-STATIC_PROTO(yslot emit_y, (Ventry *));
-STATIC_PROTO(yamop *emit_a, (CELL));
-STATIC_PROTO(CELL *emit_bmlabel, (CELL, struct intermediates *));
-STATIC_PROTO(yamop *emit_ilabel, (CELL, struct intermediates *));
-STATIC_PROTO(Functor emit_f, (CELL));
-STATIC_PROTO(CELL emit_c, (CELL));
-STATIC_PROTO(COUNT emit_count, (CELL));
-STATIC_PROTO(OPCODE emit_op, (op_numbers));
-STATIC_PROTO(yamop *a_cle, (op_numbers, yamop *, int, struct intermediates *));
-STATIC_PROTO(yamop *a_e, (op_numbers, yamop *, int));
-STATIC_PROTO(yamop *a_ue, (op_numbers, op_numbers, yamop *, int));
-STATIC_PROTO(yamop *a_v, (op_numbers, op_numbers, yamop *, int, struct PSEUDO *));
-STATIC_PROTO(yamop *a_uv, (Ventry *,op_numbers, op_numbers, op_numbers, op_numbers, yamop *, int));
-STATIC_PROTO(yamop *a_vr, (op_numbers, op_numbers, yamop *, int, struct intermediates *));
-STATIC_PROTO(yamop *a_rv, (op_numbers, op_numbers, OPREG, yamop *, int, struct PSEUDO *));
-STATIC_PROTO(yamop *a_vv, (op_numbers, op_numbers, yamop *, int, struct intermediates *));
-STATIC_PROTO(yamop *a_glist, (int *, yamop *, int, struct intermediates *));
-STATIC_PROTO(void   a_pair, (CELL *, int, struct intermediates *));
-STATIC_PROTO(yamop *a_f, (CELL, op_numbers, yamop *, int));
-STATIC_PROTO(yamop *a_c, (CELL, op_numbers, yamop *, int));
-STATIC_PROTO(yamop *a_uc, (CELL, op_numbers, op_numbers, yamop *, int));
-STATIC_PROTO(yamop *a_n, (op_numbers, int, yamop *, int));
-STATIC_PROTO(yamop *a_un, (op_numbers, op_numbers, int, yamop *, int));
-STATIC_PROTO(yamop *a_nc, (CELL, op_numbers, int, yamop *, int));
-STATIC_PROTO(yamop *a_unc, (CELL, op_numbers, op_numbers, int, yamop *, int));
-STATIC_PROTO(yamop *a_r, (CELL, op_numbers, yamop *, int));
-STATIC_PROTO(yamop *a_p, (op_numbers, clause_info *, yamop *, int, struct intermediates *));
-STATIC_PROTO(yamop *a_pl, (op_numbers, PredEntry *, yamop *, int));
-STATIC_PROTO(yamop *a_l, (CELL, op_numbers, yamop *, int, struct intermediates *));
-STATIC_PROTO(yamop *a_hx, (op_numbers, union clause_obj *, int, yamop *, int, struct intermediates *));
-STATIC_PROTO(yamop *a_if, (op_numbers, union clause_obj *, int, yamop *, int, struct intermediates *cip));
-STATIC_PROTO(yamop *a_cut, (clause_info *,yamop *, int, struct intermediates *));
+static OPREG Var_Ref(Ventry *, int);
+static wamreg emit_xreg(CELL);
+static yslot emit_yreg(CELL);
+static wamreg emit_x(CELL);
+static yslot emit_y(Ventry *);
+static yamop *emit_a(CELL);
+static CELL *emit_bmlabel(CELL, struct intermediates *);
+static yamop *emit_ilabel(CELL, struct intermediates *);
+static Functor emit_f(CELL);
+static CELL emit_c(CELL);
+static COUNT emit_count(CELL);
+static OPCODE emit_op(op_numbers);
+static yamop *a_cle(op_numbers, yamop *, int, struct intermediates *);
+static yamop *a_e(op_numbers, yamop *, int);
+static yamop *a_ue(op_numbers, op_numbers, yamop *, int);
+static yamop *a_v(op_numbers, op_numbers, yamop *, int, struct PSEUDO *);
+static yamop *a_uv(Ventry *,op_numbers, op_numbers, op_numbers, op_numbers, yamop *, int);
+static yamop *a_vr(op_numbers, op_numbers, yamop *, int, struct intermediates *);
+static yamop *a_rv(op_numbers, op_numbers, OPREG, yamop *, int, struct PSEUDO *);
+static yamop *a_vv(op_numbers, op_numbers, yamop *, int, struct intermediates *);
+static yamop *a_glist(int *, yamop *, int, struct intermediates *);
+static void   a_pair(CELL *, int, struct intermediates *);
+static yamop *a_f(CELL, op_numbers, yamop *, int);
+static yamop *a_c(CELL, op_numbers, yamop *, int);
+static yamop *a_uc(CELL, op_numbers, op_numbers, yamop *, int);
+static yamop *a_n(op_numbers, int, yamop *, int);
+static yamop *a_un(op_numbers, op_numbers, int, yamop *, int);
+static yamop *a_nc(CELL, op_numbers, int, yamop *, int);
+static yamop *a_unc(CELL, op_numbers, op_numbers, int, yamop *, int);
+static yamop *a_r(CELL, op_numbers, yamop *, int);
+static yamop *a_p(op_numbers, clause_info *, yamop *, int, struct intermediates *);
+static yamop *a_pl(op_numbers, PredEntry *, yamop *, int);
+static yamop *a_l(CELL, op_numbers, yamop *, int, struct intermediates *);
+static yamop *a_hx(op_numbers, union clause_obj *, int, yamop *, int, struct intermediates *);
+static yamop *a_if(op_numbers, union clause_obj *, int, yamop *, int, struct intermediates *cip);
+static yamop *a_cut(clause_info *,yamop *, int, struct intermediates *);
 #ifdef YAPOR
-STATIC_PROTO(yamop *a_try, (op_numbers, CELL, CELL, int, int, yamop *, int, struct intermediates *));
-STATIC_PROTO(yamop *a_either, (op_numbers, CELL, CELL, int, yamop *, int, struct intermediates *));
+static yamop *a_try(op_numbers, CELL, CELL, int, int, yamop *, int, struct intermediates *);
+static yamop *a_either(op_numbers, CELL, CELL, int, yamop *, int, struct intermediates *);
 #else
-STATIC_PROTO(yamop *a_try, (op_numbers, CELL, CELL, yamop *, int, struct intermediates *));
-STATIC_PROTO(yamop *a_either, (op_numbers, CELL, CELL, yamop *,  int, struct intermediates *));
+static yamop *a_try(op_numbers, CELL, CELL, yamop *, int, struct intermediates *);
+static yamop *a_either(op_numbers, CELL, CELL, yamop *,  int, struct intermediates *);
 #endif	/* YAPOR */
-STATIC_PROTO(yamop *a_gl, (op_numbers, yamop *, int, struct PSEUDO *, struct intermediates * CACHE_TYPE));
-STATIC_PROTO(yamop *a_bfunc, (CELL, clause_info *, yamop *, int, struct intermediates *));
-STATIC_PROTO(
-COUNT compile_cmp_flags, (char *));
-STATIC_PROTO(yamop *a_igl, (CELL, op_numbers, yamop *, int, struct intermediates *));
-STATIC_PROTO(yamop *a_xigl, (op_numbers, yamop *, int, struct PSEUDO *));
-STATIC_PROTO(yamop *a_ucons, (int *, compiler_vm_op, yamop *, int, struct intermediates *));
-STATIC_PROTO(yamop *a_uvar, (yamop *, int, struct intermediates *));
-STATIC_PROTO(yamop *a_wvar, (yamop *, int, struct intermediates *));
-STATIC_PROTO(yamop *do_pass, (int, yamop **, int, int *, int *,struct intermediates *, UInt CACHE_TYPE));
+static yamop *a_gl(op_numbers, yamop *, int, struct PSEUDO *, struct intermediates * CACHE_TYPE);
+static yamop *a_bfunc(CELL, clause_info *, yamop *, int, struct intermediates *);
+static 
+COUNT compile_cmp_flags(char *);
+static yamop *a_igl(CELL, op_numbers, yamop *, int, struct intermediates *);
+static yamop *a_xigl(op_numbers, yamop *, int, struct PSEUDO *);
+static yamop *a_ucons(int *, compiler_vm_op, yamop *, int, struct intermediates *);
+static yamop *a_uvar(yamop *, int, struct intermediates *);
+static yamop *a_wvar(yamop *, int, struct intermediates *);
+static yamop *do_pass(int, yamop **, int, int *, int *,struct intermediates *, UInt CACHE_TYPE);
 #ifdef DEBUG_OPCODES
-STATIC_PROTO(void DumpOpCodes, (void));
+static void DumpOpCodes(void);
 #endif
 #ifdef SFUNC
-STATIC_PROTO(void a_vsf, (int, yamop *, int, struct PSEUDO *));
-STATIC_PROTO(void a_asf, (int, yamop *, int, struct PSEUDO *));
+static void a_vsf(int, yamop *, int, struct PSEUDO *);
+static void a_asf(int, yamop *, int, struct PSEUDO *);
 #endif
-STATIC_PROTO(yamop *check_alloc, (clause_info *, yamop *, int, struct intermediates *));
-STATIC_PROTO(yamop *a_deallocate, (clause_info *, yamop *, int, struct intermediates *));
-STATIC_PROTO(yamop *a_bmap, (yamop *, int, struct PSEUDO *));
-STATIC_PROTO(void a_fetch_vv, (cmp_op_info *, int, struct intermediates *));
-STATIC_PROTO(void a_fetch_cv, (cmp_op_info *, int, struct intermediates *));
-STATIC_PROTO(void a_fetch_vc, (cmp_op_info *, int, struct intermediates *));
-STATIC_PROTO(yamop *a_f2, (cmp_op_info *, yamop *, int, struct intermediates *));
+static yamop *check_alloc(clause_info *, yamop *, int, struct intermediates *);
+static yamop *a_deallocate(clause_info *, yamop *, int, struct intermediates *);
+static yamop *a_bmap(yamop *, int, struct PSEUDO *);
+static void a_fetch_vv(cmp_op_info *, int, struct intermediates *);
+static void a_fetch_cv(cmp_op_info *, int, struct intermediates *);
+static void a_fetch_vc(cmp_op_info *, int, struct intermediates *);
+static yamop *a_f2(cmp_op_info *, yamop *, int, struct intermediates *);
 
 #define CELLSIZE sizeof(CELL)
 

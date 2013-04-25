@@ -20,14 +20,14 @@
 
 #include "absmi.h"
 
-STD_PROTO(int   Yap_rational_tree_loop, (CELL *, CELL *, CELL **, CELL **));
+int   Yap_rational_tree_loop(CELL *, CELL *, CELL **, CELL **);
 
-STATIC_PROTO(int    OCUnify_complex, (CELL *, CELL *, CELL *));
-STATIC_PROTO(int    OCUnify, (register CELL, register CELL));
-STATIC_PROTO(Int   p_ocunify, ( USES_REGS1 ));
+static int    OCUnify_complex(CELL *, CELL *, CELL *);
+static int    OCUnify(register CELL, register CELL);
+static Int   p_ocunify( USES_REGS1 );
 #ifdef THREADED_CODE
-STATIC_PROTO(int    rtable_hash_op, (OPCODE));
-STATIC_PROTO(void   InitReverseLookupOpcode, (void));
+static int    rtable_hash_op(OPCODE);
+static void   InitReverseLookupOpcode(void);
 #endif
 
 /* support for rational trees and unification with occur checking */

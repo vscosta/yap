@@ -285,75 +285,72 @@ static char     SccsId[] = "%W% %G%";
 #endif
 #include <wchar.h>
 
-STD_PROTO(static Int p_setval, ( USES_REGS1 ));
-STD_PROTO(static Int p_value, ( USES_REGS1 ));
-STD_PROTO(static Int p_values, ( USES_REGS1 ));
+static Int p_setval( USES_REGS1 );
+static Int p_value( USES_REGS1 );
+static Int p_values( USES_REGS1 );
 #ifdef undefined
-STD_PROTO(static CODEADDR *FindAtom, (CODEADDR, int *));
+static CODEADDR *FindAtom(CODEADDR, int *);
 #endif /* undefined */
-STD_PROTO(static Int p_opdec, ( USES_REGS1 ));
-STD_PROTO(static Term get_num, (char * USES_REGS));
-STD_PROTO(static Int p_name, ( USES_REGS1 ));
-STD_PROTO(static Int p_atom_chars, ( USES_REGS1 ));
-STD_PROTO(static Int p_atom_codes, ( USES_REGS1 ));
-STD_PROTO(static Int p_atom_length, ( USES_REGS1 ));
-STD_PROTO(static Int p_atom_split, ( USES_REGS1 ));
-STD_PROTO(static Int p_number_chars, ( USES_REGS1 ));
-STD_PROTO(static Int p_number_codes, ( USES_REGS1 ));
-STD_PROTO(static Int p_univ, ( USES_REGS1 ));
-STD_PROTO(static Int p_abort, ( USES_REGS1 ));
+static Int p_opdec( USES_REGS1 );
+static Term get_num(char * USES_REGS);
+static Int p_name( USES_REGS1 );
+static Int p_atom_chars( USES_REGS1 );
+static Int p_atom_codes( USES_REGS1 );
+static Int p_atom_length( USES_REGS1 );
+static Int p_atom_split( USES_REGS1 );
+static Int p_number_chars( USES_REGS1 );
+static Int p_number_codes( USES_REGS1 );
+static Int p_univ( USES_REGS1 );
+static Int p_abort( USES_REGS1 );
 #ifdef BEAM
-STD_PROTO(Int p_halt, ( USES_REGS1 ));
+Int p_halt( USES_REGS1 );
 #else
-STD_PROTO(static Int p_halt, ( USES_REGS1 ));
+static Int p_halt( USES_REGS1 );
 #endif
-STD_PROTO(static Int init_current_atom, ( USES_REGS1 ));
-STD_PROTO(static Int cont_current_atom, ( USES_REGS1 ));
-STD_PROTO(static Int init_current_predicate, ( USES_REGS1 ));
-STD_PROTO(static Int cont_current_predicate, ( USES_REGS1 ));
-STD_PROTO(static Int init_current_predicate_for_atom, ( USES_REGS1 ));
-STD_PROTO(static Int cont_current_predicate_for_atom, ( USES_REGS1 ));
-STD_PROTO(static OpEntry *NextOp, (OpEntry * CACHE_TYPE));
-STD_PROTO(static Int init_current_op, ( USES_REGS1 ));
-STD_PROTO(static Int cont_current_op, ( USES_REGS1 ));
-STD_PROTO(static Int init_current_atom_op, ( USES_REGS1 ));
-STD_PROTO(static Int cont_current_atom_op, ( USES_REGS1 ));
-#ifdef DEBUG
-STD_PROTO(static Int p_debug, ( USES_REGS1 ));
-#endif
-STD_PROTO(static Int p_flags, ( USES_REGS1 ));
-STD_PROTO(static int AlreadyHidden, (char *));
-STD_PROTO(static Int p_hide, ( USES_REGS1 ));
-STD_PROTO(static Int p_hidden, ( USES_REGS1 ));
-STD_PROTO(static Int p_unhide, ( USES_REGS1 ));
-STD_PROTO(static Int TrailMax, (void));
-STD_PROTO(static Int GlobalMax, (void));
-STD_PROTO(static Int LocalMax, (void));
-STD_PROTO(static Int p_statistics_heap_max, ( USES_REGS1 ));
-STD_PROTO(static Int p_statistics_global_max, ( USES_REGS1 ));
-STD_PROTO(static Int p_statistics_local_max, ( USES_REGS1 ));
-STD_PROTO(static Int p_statistics_heap_info, ( USES_REGS1 ));
-STD_PROTO(static Int p_statistics_stacks_info, ( USES_REGS1 ));
-STD_PROTO(static Int p_statistics_trail_info, ( USES_REGS1 ));
-STD_PROTO(static Term mk_argc_list, ( USES_REGS1 ));
-STD_PROTO(static Int p_argv, ( USES_REGS1 ));
-STD_PROTO(static Int p_cputime, ( USES_REGS1 ));
-STD_PROTO(static Int p_systime, ( USES_REGS1 ));
-STD_PROTO(static Int p_runtime, ( USES_REGS1 ));
-STD_PROTO(static Int p_walltime, ( USES_REGS1 ));
-STD_PROTO(static Int p_access_yap_flags, ( USES_REGS1 ));
-STD_PROTO(static Int p_set_yap_flags, ( USES_REGS1 ));
+static Int init_current_atom( USES_REGS1 );
+static Int cont_current_atom( USES_REGS1 );
+static Int init_current_predicate( USES_REGS1 );
+static Int cont_current_predicate( USES_REGS1 );
+static Int init_current_predicate_for_atom( USES_REGS1 );
+static Int cont_current_predicate_for_atom( USES_REGS1 );
+static OpEntry *NextOp(OpEntry * CACHE_TYPE);
+static Int init_current_op( USES_REGS1 );
+static Int cont_current_op( USES_REGS1 );
+static Int init_current_atom_op( USES_REGS1 );
+static Int cont_current_atom_op( USES_REGS1 );
+static Int p_flags( USES_REGS1 );
+static int AlreadyHidden(char *);
+static Int p_hide( USES_REGS1 );
+static Int p_hidden( USES_REGS1 );
+static Int p_unhide( USES_REGS1 );
+static Int TrailMax(void);
+static Int GlobalMax(void);
+static Int LocalMax(void);
+static Int p_statistics_heap_max( USES_REGS1 );
+static Int p_statistics_global_max( USES_REGS1 );
+static Int p_statistics_local_max( USES_REGS1 );
+static Int p_statistics_heap_info( USES_REGS1 );
+static Int p_statistics_stacks_info( USES_REGS1 );
+static Int p_statistics_trail_info( USES_REGS1 );
+static Term mk_argc_list( USES_REGS1 );
+static Int p_argv( USES_REGS1 );
+static Int p_cputime( USES_REGS1 );
+static Int p_systime( USES_REGS1 );
+static Int p_runtime( USES_REGS1 );
+static Int p_walltime( USES_REGS1 );
+static Int p_access_yap_flags( USES_REGS1 );
+static Int p_set_yap_flags( USES_REGS1 );
 
 #ifdef BEAM
-STD_PROTO(Int use_eam, ( USES_REGS1 ));
-STD_PROTO(Int eager_split, ( USES_REGS1 ));
-STD_PROTO(Int force_wait, ( USES_REGS1 ));
-STD_PROTO(Int commit, ( USES_REGS1 ));
-STD_PROTO(Int skip_while_var, ( USES_REGS1 ));
-STD_PROTO(Int wait_while_var, ( USES_REGS1 ));
-STD_PROTO(Int show_time, ( USES_REGS1 ));
-STD_PROTO(Int start_eam, ( USES_REGS1 ));
-STD_PROTO(Int cont_eam, ( USES_REGS1 ));
+Int use_eam( USES_REGS1 );
+Int eager_split( USES_REGS1 );
+Int force_wait( USES_REGS1 );
+Int commit( USES_REGS1 );
+Int skip_while_var( USES_REGS1 );
+Int wait_while_var( USES_REGS1 );
+Int show_time( USES_REGS1 );
+Int start_eam( USES_REGS1 );
+Int cont_eam( USES_REGS1 );
 
 extern int EAM;
 extern int eam_am(PredEntry*);

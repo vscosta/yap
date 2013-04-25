@@ -26,7 +26,7 @@
 #include "clause.h"
 #include "tracer.h"
 
-STATIC_PROTO(void  send_tracer_message, (char *, char *, Int, char *, CELL *));
+static void  send_tracer_message(char *, char *, Int, char *, CELL *);
 
 static void
 send_tracer_message(char *start, char *name, Int arity, char *mname, CELL *args)

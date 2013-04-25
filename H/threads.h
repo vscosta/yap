@@ -13,13 +13,13 @@ typedef struct thread_attr_struct {
 
 #ifdef THREADS
 
-Int STD_PROTO(Yap_thread_self,(void));
-int STD_PROTO(Yap_get_thread_ref_count,(int));
-void STD_PROTO(Yap_set_thread_ref_count,(int,int));
-CELL STD_PROTO(Yap_thread_create_engine,(thread_attr *));
-Int STD_PROTO(Yap_thread_attach_engine,(int));
-Int STD_PROTO(Yap_thread_detach_engine,(int));
-Int STD_PROTO(Yap_thread_destroy_engine,(int));
+Int Yap_thread_self(void);
+int Yap_get_thread_ref_count(int);
+void Yap_set_thread_ref_count(int,int);
+CELL Yap_thread_create_engine(thread_attr *);
+Int Yap_thread_attach_engine(int);
+Int Yap_thread_detach_engine(int);
+Int Yap_thread_destroy_engine(int);
 
 #endif
 

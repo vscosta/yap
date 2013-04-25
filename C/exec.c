@@ -28,11 +28,11 @@ static char     SccsId[] = "@(#)cdmgr.c	1.1 05/02/98";
 #include "myddas.h"
 #endif
 
-STATIC_PROTO(Int  CallPredicate, (PredEntry *, choiceptr, yamop * CACHE_TYPE));
-STATIC_PROTO(Int  EnterCreepMode, (Term, Term CACHE_TYPE));
-STATIC_PROTO(Int  p_save_cp, ( USES_REGS1 ));
-STATIC_PROTO(Int  p_execute, ( USES_REGS1 ));
-STATIC_PROTO(Int  p_execute0, ( USES_REGS1 ));
+static Int  CallPredicate(PredEntry *, choiceptr, yamop * CACHE_TYPE);
+static Int  EnterCreepMode(Term, Term CACHE_TYPE);
+static Int  p_save_cp( USES_REGS1 );
+static Int  p_execute( USES_REGS1 );
+static Int  p_execute0( USES_REGS1 );
 static int execute_pred(PredEntry *ppe, CELL *pt USES_REGS);
 
 static Term

@@ -59,8 +59,8 @@
 #define my_isupper(C)	( C >= 'A' && C <= 'Z' )
 #define my_islower(C)	( C >= 'a' && C <= 'z' )
 
-STATIC_PROTO(Term float_send, (char *, int));
-STATIC_PROTO(Term get_num, (int *, int *, IOSTREAM *,char *,UInt,int));
+static Term float_send(char *, int);
+static Term get_num(int *, int *, IOSTREAM *,char *,UInt,int);
 
 /* token table with some help from Richard O'Keefe's PD scanner */
 static char chtype0[NUMBER_OF_CHARS+1] =

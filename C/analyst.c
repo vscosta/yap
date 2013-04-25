@@ -31,9 +31,9 @@ static char SccsId[] = "%W% %G%";
 
 
 
-STATIC_PROTO(Int p_reset_op_counters, (void));
-STATIC_PROTO(Int p_show_op_counters, (void));
-STATIC_PROTO(Int p_show_ops_by_group, (void));
+static Int p_reset_op_counters(void);
+static Int p_show_op_counters(void);
+static Int p_show_ops_by_group(void);
 
 static Int 
 p_reset_op_counters()

@@ -285,7 +285,7 @@ Unification Routines
 
 *************************************************************/
 
-INLINE_ONLY inline EXTERN void STD_PROTO(reset_trail,(tr_fr_ptr));
+INLINE_ONLY inline EXTERN void reset_trail(tr_fr_ptr TR0);
 
 INLINE_ONLY inline EXTERN void
 reset_trail(tr_fr_ptr TR0) {
@@ -371,7 +371,7 @@ Int Yap_unify(Term t0, Term t1)
   }
 }
 
-EXTERN Int STD_PROTO(Yap_unify_constant,(Term,Term));
+EXTERN Int Yap_unify_constant(Term a, Term cons);
 
 EXTERN inline Int
 Yap_unify_constant(register Term a, register Term cons)

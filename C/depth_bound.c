@@ -29,8 +29,8 @@ static char     SccsId[] = "%W% %G%";
 
 #include "Yatom.h"
 
-STD_PROTO(static Int p_get_depth_limit, ( USES_REGS1 ));
-STD_PROTO(static Int p_set_depth_limit, ( USES_REGS1 ));
+static Int p_get_depth_limit( USES_REGS1 );
+static Int p_set_depth_limit( USES_REGS1 );
 
 static Int p_get_depth_limit( USES_REGS1 )
 {

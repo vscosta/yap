@@ -1212,7 +1212,7 @@ Yap_StreamPosition(IOSTREAM *st)
   return StreamPosition(st);
 }
 
-IOSTREAM   *STD_PROTO(Yap_Scurin, (void));
+IOSTREAM   *Yap_Scurin(void);
 
 IOSTREAM *
 Yap_Scurin(void)

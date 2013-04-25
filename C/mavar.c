@@ -23,11 +23,11 @@
 #include "YapHeap.h"
 #include "eval.h"
 
-STD_PROTO(static Int p_setarg, ( USES_REGS1 ));
-STD_PROTO(static Int p_create_mutable, ( USES_REGS1 ));
-STD_PROTO(static Int p_get_mutable, ( USES_REGS1 ));
-STD_PROTO(static Int p_update_mutable, ( USES_REGS1 ));
-STD_PROTO(static Int p_is_mutable, ( USES_REGS1 ));
+static Int p_setarg( USES_REGS1 );
+static Int p_create_mutable( USES_REGS1 );
+static Int p_get_mutable( USES_REGS1 );
+static Int p_update_mutable( USES_REGS1 );
+static Int p_is_mutable( USES_REGS1 );
 
 static Int
 p_setarg( USES_REGS1 )

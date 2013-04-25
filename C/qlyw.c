@@ -29,8 +29,8 @@
 
 #include "qly.h"
 
-STATIC_PROTO(void  RestoreEntries, (PropEntry *, int USES_REGS));
-STATIC_PROTO(void  CleanCode, (PredEntry * USES_REGS));
+static void  RestoreEntries(PropEntry *, int USES_REGS);
+static void  CleanCode(PredEntry * USES_REGS);
 
 static void
 GrowAtomTable(void) {

@@ -22,8 +22,8 @@ static char     SccsId[] = "%W% %G%";
 #include "Yatom.h"
 #include "YapHeap.h"
 
-STATIC_PROTO(Int p_current_module, ( USES_REGS1 ));
-STATIC_PROTO(Int p_current_module1, ( USES_REGS1 ));
+static Int p_current_module( USES_REGS1 );
+static Int p_current_module1( USES_REGS1 );
 
 
 inline static ModEntry *

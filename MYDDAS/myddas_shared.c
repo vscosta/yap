@@ -27,24 +27,24 @@
 #include "myddas_statistics.h"
 #endif
 
-STATIC_PROTO(Int c_db_initialize_myddas,( USES_REGS1 ));
-STATIC_PROTO(Int c_db_connection_type,( USES_REGS1 ));
-STATIC_PROTO(Int c_db_add_preds,( USES_REGS1 ));
-STATIC_PROTO(Int c_db_preds_conn_start ,( USES_REGS1 ));
-STATIC_PROTO(Int c_db_preds_conn_continue ,( USES_REGS1 ));
-STATIC_PROTO(Int c_db_connection_start ,( USES_REGS1 ));
-STATIC_PROTO(Int c_db_connection_continue ,( USES_REGS1 ));
-STATIC_PROTO(Int c_db_check_if_exists_pred,( USES_REGS1 ));
-STATIC_PROTO(Int c_db_delete_predicate,( USES_REGS1 ));
-STATIC_PROTO(Int c_db_multi_queries_number,( USES_REGS1 ));
+static Int c_db_initialize_myddas( USES_REGS1 );
+static Int c_db_connection_type( USES_REGS1 );
+static Int c_db_add_preds( USES_REGS1 );
+static Int c_db_preds_conn_start ( USES_REGS1 );
+static Int c_db_preds_conn_continue ( USES_REGS1 );
+static Int c_db_connection_start ( USES_REGS1 );
+static Int c_db_connection_continue ( USES_REGS1 );
+static Int c_db_check_if_exists_pred( USES_REGS1 );
+static Int c_db_delete_predicate( USES_REGS1 );
+static Int c_db_multi_queries_number( USES_REGS1 );
 #ifdef MYDDAS_STATS
-STATIC_PROTO(Int c_db_stats,( USES_REGS1 ));
-STATIC_PROTO(Int c_db_stats_walltime,( USES_REGS1 ));
-STATIC_PROTO(Int c_db_stats_translate,( USES_REGS1 ));
-STATIC_PROTO(Int c_db_stats_time,( USES_REGS1 ));
+static Int c_db_stats( USES_REGS1 );
+static Int c_db_stats_walltime( USES_REGS1 );
+static Int c_db_stats_translate( USES_REGS1 );
+static Int c_db_stats_time( USES_REGS1 );
 #endif 
 #ifdef DEBUG
-STATIC_PROTO(Int c_db_check,( USES_REGS1 ));
+static Int c_db_check( USES_REGS1 );
 #endif
 
 void Yap_InitMYDDAS_SharedPreds(void)

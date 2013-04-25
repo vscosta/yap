@@ -68,11 +68,11 @@ typedef struct jmp_buff_struct {
 	sigjmp_buf JmpBuff;
 } JMPBUFF;
 
-STATIC_PROTO(void GNextToken, ( CACHE_TYPE1 ));
-STATIC_PROTO(void checkfor, (Term, JMPBUFF * CACHE_TYPE));
-STATIC_PROTO(Term ParseArgs, (Atom, JMPBUFF * CACHE_TYPE));
-STATIC_PROTO(Term ParseList, (JMPBUFF * CACHE_TYPE));
-STATIC_PROTO(Term ParseTerm, (int, JMPBUFF * CACHE_TYPE));
+static void GNextToken( CACHE_TYPE1 );
+static void checkfor(Term, JMPBUFF * CACHE_TYPE);
+static Term ParseArgs(Atom, JMPBUFF * CACHE_TYPE);
+static Term ParseList(JMPBUFF * CACHE_TYPE);
+static Term ParseTerm(int, JMPBUFF * CACHE_TYPE);
 
 
 #define TRY(S,P)                               \

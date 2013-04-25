@@ -23,21 +23,21 @@
 #include "cut_c.h"
 #endif
 
-STATIC_PROTO(Int    p_atom, ( USES_REGS1 ));
-STATIC_PROTO(Int    p_atomic, ( USES_REGS1 ));
-STATIC_PROTO(Int    p_integer, ( USES_REGS1 ));
-STATIC_PROTO(Int    p_nonvar, ( USES_REGS1 ));
-STATIC_PROTO(Int    p_number, ( USES_REGS1 ));
-STATIC_PROTO(Int    p_var, ( USES_REGS1 ));
-STATIC_PROTO(Int    p_db_ref, ( USES_REGS1 ));
-STATIC_PROTO(Int    p_primitive, ( USES_REGS1 ));
-STATIC_PROTO(Int    p_compound, ( USES_REGS1 ));
-STATIC_PROTO(Int    p_float, ( USES_REGS1 ));
-STATIC_PROTO(Int    p_equal, ( USES_REGS1 ));
-STATIC_PROTO(Int    p_dif, ( USES_REGS1 ));
-STATIC_PROTO(Int    p_eq, ( USES_REGS1 ));
-STATIC_PROTO(Int    p_arg, ( USES_REGS1 ));
-STATIC_PROTO(Int    p_functor, ( USES_REGS1 ));
+static Int    p_atom( USES_REGS1 );
+static Int    p_atomic( USES_REGS1 );
+static Int    p_integer( USES_REGS1 );
+static Int    p_nonvar( USES_REGS1 );
+static Int    p_number( USES_REGS1 );
+static Int    p_var( USES_REGS1 );
+static Int    p_db_ref( USES_REGS1 );
+static Int    p_primitive( USES_REGS1 );
+static Int    p_compound( USES_REGS1 );
+static Int    p_float( USES_REGS1 );
+static Int    p_equal( USES_REGS1 );
+static Int    p_dif( USES_REGS1 );
+static Int    p_eq( USES_REGS1 );
+static Int    p_arg( USES_REGS1 );
+static Int    p_functor( USES_REGS1 );
 
 
 static Int 

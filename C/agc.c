@@ -32,8 +32,8 @@ static char     SccsId[] = "@(#)agc.c	1.3 3/15/90";
 #define errout GLOBAL_stderr
 #endif
 
-STATIC_PROTO(void  RestoreEntries, (PropEntry *, int USES_REGS));
-STATIC_PROTO(void  CleanCode, (PredEntry * USES_REGS));
+static void  RestoreEntries(PropEntry *, int USES_REGS);
+static void  CleanCode(PredEntry * USES_REGS);
 
 #define AtomMarkedBit 1
 

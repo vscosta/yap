@@ -96,9 +96,9 @@ typedef	struct FREEB {
 /* Operating system and architecture dependent page size */
 extern int Yap_page_size;
 
-void   STD_PROTO(Yap_InitHeap, (void *));
-UInt   STD_PROTO(Yap_ExtendWorkSpaceThroughHole, (UInt));
-void   STD_PROTO(Yap_AllocHole, (UInt, UInt));
+void   Yap_InitHeap(void *);
+UInt   Yap_ExtendWorkSpaceThroughHole(UInt);
+void   Yap_AllocHole(UInt, UInt);
 
 #if USE_MMAP && ! defined(__CYGWIN__)
 

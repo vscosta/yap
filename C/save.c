@@ -85,55 +85,55 @@ void initIO(void);
 
 #endif
 
-STATIC_PROTO(int   myread, (int, char *, Int));
-STATIC_PROTO(Int   mywrite, (int, char *, Int));
-STATIC_PROTO(int   open_file, (char *, int));
-STATIC_PROTO(int   close_file, (void));
-STATIC_PROTO(Int   putout, (CELL));
-STATIC_PROTO(Int   putcellptr, (CELL *));
-STATIC_PROTO(CELL  get_cell, (void));
-STATIC_PROTO(CELL  *get_cellptr, ( /* CELL * */ void));
-STATIC_PROTO(int   put_info, (int, int CACHE_TYPE));
-STATIC_PROTO(int   save_regs, (int CACHE_TYPE));
-STATIC_PROTO(int   save_code_info, (void));
-STATIC_PROTO(int   save_heap, (void));
-STATIC_PROTO(int   save_stacks, (int CACHE_TYPE));
-STATIC_PROTO(int   save_crc, (void));
-STATIC_PROTO(Int   do_save, (int CACHE_TYPE));
-STATIC_PROTO(Int   p_save2, ( CACHE_TYPE1 ));
-STATIC_PROTO(Int   p_save_program, ( CACHE_TYPE1 ));
-STATIC_PROTO(int   check_header, (CELL *, CELL *, CELL *, CELL * CACHE_TYPE));
-STATIC_PROTO(int   get_heap_info, (CACHE_TYPE1));
-STATIC_PROTO(int   get_regs, (int CACHE_TYPE));
-STATIC_PROTO(int   get_insts, (OPCODE []));
-STATIC_PROTO(int   get_hash, (void));
-STATIC_PROTO(int   CopyCode, ( CACHE_TYPE1 ));
-STATIC_PROTO(int   CopyStacks, ( CACHE_TYPE1 ));
-STATIC_PROTO(int   get_coded, (int, OPCODE [] CACHE_TYPE));
-STATIC_PROTO(void  restore_codes, (void));
-STATIC_PROTO(void  RestoreDB, (DBEntry * CACHE_TYPE));
-STATIC_PROTO(void  RestoreDBTerm, (DBTerm *, int CACHE_TYPE));
-STATIC_PROTO(void  CleanClauses, (yamop *, yamop *,PredEntry * CACHE_TYPE));
-STATIC_PROTO(void  rehash, (CELL *, int, int CACHE_TYPE));
-STATIC_PROTO(void  CleanCode, (PredEntry * CACHE_TYPE));
-STATIC_PROTO(void  RestoreEntries, (PropEntry *, int CACHE_TYPE));
-STATIC_PROTO(void  RestoreFreeSpace, ( CACHE_TYPE1 ));
-STATIC_PROTO(void  restore_heap, (void));
+static int   myread(int, char *, Int);
+static Int   mywrite(int, char *, Int);
+static int   open_file(char *, int);
+static int   close_file(void);
+static Int   putout(CELL);
+static Int   putcellptr(CELL *);
+static CELL  get_cell(void);
+static CELL  *get_cellptr( /* CELL * */ void);
+static int   put_info(int, int CACHE_TYPE);
+static int   save_regs(int CACHE_TYPE);
+static int   save_code_info(void);
+static int   save_heap(void);
+static int   save_stacks(int CACHE_TYPE);
+static int   save_crc(void);
+static Int   do_save(int CACHE_TYPE);
+static Int   p_save2( CACHE_TYPE1 );
+static Int   p_save_program( CACHE_TYPE1 );
+static int   check_header(CELL *, CELL *, CELL *, CELL * CACHE_TYPE);
+static int   get_heap_info(CACHE_TYPE1);
+static int   get_regs(int CACHE_TYPE);
+static int   get_insts(OPCODE []);
+static int   get_hash(void);
+static int   CopyCode( CACHE_TYPE1 );
+static int   CopyStacks( CACHE_TYPE1 );
+static int   get_coded(int, OPCODE [] CACHE_TYPE);
+static void  restore_codes(void);
+static void  RestoreDB(DBEntry * CACHE_TYPE);
+static void  RestoreDBTerm(DBTerm *, int CACHE_TYPE);
+static void  CleanClauses(yamop *, yamop *,PredEntry * CACHE_TYPE);
+static void  rehash(CELL *, int, int CACHE_TYPE);
+static void  CleanCode(PredEntry * CACHE_TYPE);
+static void  RestoreEntries(PropEntry *, int CACHE_TYPE);
+static void  RestoreFreeSpace( CACHE_TYPE1 );
+static void  restore_heap(void);
 #ifdef DEBUG_RESTORE3
-STATIC_PROTO(void  ShowAtoms, (void));
-STATIC_PROTO(void  ShowEntries, (PropEntry *));
+static void  ShowAtoms(void);
+static void  ShowEntries(PropEntry *);
 #endif
-STATIC_PROTO(int   OpenRestore, (char *, char *, CELL *, CELL *, CELL *, CELL *, IOSTREAM **));
-STATIC_PROTO(void  CloseRestore, (void));
+static int   OpenRestore(char *, char *, CELL *, CELL *, CELL *, CELL *, IOSTREAM **);
+static void  CloseRestore(void);
 #ifndef _WIN32
-STATIC_PROTO(int  check_opcodes, (OPCODE []));
+static int  check_opcodes(OPCODE []);
 #endif
-STATIC_PROTO(void  RestoreHeap, (OPCODE [] CACHE_TYPE));
-STATIC_PROTO(Int  p_restore, ( CACHE_TYPE1 ));
-STATIC_PROTO(void  restore_heap_regs, ( CACHE_TYPE1 ));
-STATIC_PROTO(void  restore_regs, (int CACHE_TYPE));
+static void  RestoreHeap(OPCODE [] CACHE_TYPE);
+static Int  p_restore( CACHE_TYPE1 );
+static void  restore_heap_regs( CACHE_TYPE1 );
+static void  restore_regs(int CACHE_TYPE);
 #ifdef MACYAP
-STATIC_PROTO(void NewFileInfo, (long, long));
+static void NewFileInfo(long, long);
 extern int      DefVol;
 #endif
 

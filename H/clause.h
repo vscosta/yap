@@ -256,36 +256,36 @@ typedef struct dbterm_list {
 #endif
 
 /* amasm.c */
-wamreg	STD_PROTO(Yap_emit_x,(CELL));
-COUNT   STD_PROTO(Yap_compile_cmp_flags,(PredEntry *));
-void    STD_PROTO(Yap_InitComma,(void));
+wamreg	Yap_emit_x(CELL);
+COUNT   Yap_compile_cmp_flags(PredEntry *);
+void    Yap_InitComma(void);
 
 /* cdmgr.c */
-void	STD_PROTO(Yap_IPred,(PredEntry *, UInt, yamop *));
-int	STD_PROTO(Yap_addclause,(Term,yamop *,int,Term,Term*));
-void	STD_PROTO(Yap_add_logupd_clause,(PredEntry *,LogUpdClause *,int));
-void	STD_PROTO(Yap_kill_iblock,(ClauseUnion *,ClauseUnion *,PredEntry *));
-void	STD_PROTO(Yap_EraseStaticClause,(StaticClause *, Term));
-ClauseUnion *STD_PROTO(Yap_find_owner_index,(yamop *, PredEntry *));
+void	Yap_IPred(PredEntry *, UInt, yamop *);
+int	Yap_addclause(Term,yamop *,int,Term,Term*);
+void	Yap_add_logupd_clause(PredEntry *,LogUpdClause *,int);
+void	Yap_kill_iblock(ClauseUnion *,ClauseUnion *,PredEntry *);
+void	Yap_EraseStaticClause(StaticClause *, Term);
+ClauseUnion *Yap_find_owner_index(yamop *, PredEntry *);
 
 /* dbase.c */
-void	STD_PROTO(Yap_ErCl,(DynamicClause *));
-void	STD_PROTO(Yap_ErLogUpdCl,(LogUpdClause *));
-void    STD_PROTO(Yap_ErLogUpdIndex,(LogUpdIndex *));
-Int	STD_PROTO(Yap_Recordz,(Atom, Term));
+void	Yap_ErCl(DynamicClause *);
+void	Yap_ErLogUpdCl(LogUpdClause *);
+void    Yap_ErLogUpdIndex(LogUpdIndex *);
+Int	Yap_Recordz(Atom, Term);
 
 /* exec.c */
-Term    STD_PROTO(Yap_cp_as_integer,(choiceptr));
+Term    Yap_cp_as_integer(choiceptr);
 
 /* index.c */
-yamop   *STD_PROTO(Yap_PredIsIndexable,(PredEntry *, UInt, yamop *));
-yamop   *STD_PROTO(Yap_ExpandIndex,(PredEntry *, UInt));
-void     STD_PROTO(Yap_CleanUpIndex,(struct logic_upd_index *));
-void     STD_PROTO(Yap_CleanKids,(struct logic_upd_index *));
-void     STD_PROTO(Yap_AddClauseToIndex,(PredEntry *,yamop *,int));
-void     STD_PROTO(Yap_RemoveClauseFromIndex,(PredEntry *,yamop *));
-LogUpdClause  *STD_PROTO(Yap_NthClause,(PredEntry *,Int));
-LogUpdClause  *STD_PROTO(Yap_FollowIndexingCode,(PredEntry *,yamop *, Term *, yamop *,yamop *));
+yamop   *Yap_PredIsIndexable(PredEntry *, UInt, yamop *);
+yamop   *Yap_ExpandIndex(PredEntry *, UInt);
+void     Yap_CleanUpIndex(struct logic_upd_index *);
+void     Yap_CleanKids(struct logic_upd_index *);
+void     Yap_AddClauseToIndex(PredEntry *,yamop *,int);
+void     Yap_RemoveClauseFromIndex(PredEntry *,yamop *);
+LogUpdClause  *Yap_NthClause(PredEntry *,Int);
+LogUpdClause  *Yap_FollowIndexingCode(PredEntry *,yamop *, Term *, yamop *,yamop *);
 
 /* exo.c */
 yamop    *Yap_ExoLookup(PredEntry *ap USES_REGS);
@@ -392,24 +392,24 @@ typedef enum {
   FIND_PRED_FROM_ENV
 } find_pred_type;
 
-Int	        STD_PROTO(Yap_PredForCode,(yamop *, find_pred_type, Atom *, UInt *, Term *));
-PredEntry *STD_PROTO(Yap_PredEntryForCode,(yamop *, find_pred_type, CODEADDR *, CODEADDR *));
-LogUpdClause   *STD_PROTO(Yap_new_ludbe,(Term, PredEntry *, UInt));
-Term            STD_PROTO(Yap_LUInstance,(LogUpdClause *, UInt));
+Int	     Yap_PredForCode(yamop *, find_pred_type, Atom *, UInt *, Term *);
+PredEntry *Yap_PredEntryForCode(yamop *, find_pred_type, CODEADDR *, CODEADDR *);
+LogUpdClause   *Yap_new_ludbe(Term, PredEntry *, UInt);
+Term        Yap_LUInstance(LogUpdClause *, UInt);
 
 /* udi.c */
-void         STD_PROTO(Yap_udi_init,(void));
-int          STD_PROTO(Yap_new_udi_clause,(PredEntry *, yamop *, Term));
-yamop       *STD_PROTO(Yap_udi_search,(PredEntry *));
-void         STD_PROTO(Yap_udi_abolish,(PredEntry *p));
+void         Yap_udi_init(void);
+int          Yap_new_udi_clause(PredEntry *, yamop *, Term);
+yamop       *Yap_udi_search(PredEntry *);
+void         Yap_udi_abolish(PredEntry *p);
 
 #ifdef DEBUG
-void    STD_PROTO(Yap_bug_location,(yamop *));
+void    Yap_bug_location(yamop *);
 #endif
 
 #if  LOW_PROF
-void	STD_PROTO(Yap_InformOfRemoval,(void *));
-void	STD_PROTO(Yap_dump_code_area_for_profiler,(void));
+void	Yap_InformOfRemoval(void *);
+void	Yap_dump_code_area_for_profiler(void);
 #else
 #define	Yap_InformOfRemoval(X)
 #endif

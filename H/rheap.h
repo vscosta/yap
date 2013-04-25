@@ -412,9 +412,9 @@ AdjustSwitchTable__(op_numbers op, yamop *table, COUNT i USES_REGS)
   }
 }
 
-STATIC_PROTO(void  RestoreAtomList, (Atom CACHE_TYPE));
-STATIC_PROTO(void  RestoreAtom, (AtomEntry * CACHE_TYPE));
-STATIC_PROTO(void  RestoreHashPreds, ( CACHE_TYPE1 ));
+static void  RestoreAtomList(Atom CACHE_TYPE);
+static void  RestoreAtom(AtomEntry * CACHE_TYPE);
+static void  RestoreHashPreds( CACHE_TYPE1 );
 
 static void
 RestoreAtoms__( USES_REGS1 )

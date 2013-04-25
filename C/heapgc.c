@@ -35,28 +35,28 @@ static char     SccsId[] = "%W% %G%";
 
 /* global variables for garbage collection */
 
-STATIC_PROTO(Int  p_inform_gc, ( CACHE_TYPE1 ));
-STATIC_PROTO(Int  p_gc, ( CACHE_TYPE1 ));
-STATIC_PROTO(void marking_phase, (tr_fr_ptr, CELL *, yamop * CACHE_TYPE));
-STATIC_PROTO(void compaction_phase, (tr_fr_ptr, CELL *, yamop * CACHE_TYPE));
-STATIC_PROTO(void init_dbtable, (tr_fr_ptr CACHE_TYPE));
-STATIC_PROTO(void mark_external_reference, (CELL * CACHE_TYPE));
-STATIC_PROTO(void mark_db_fixed, (CELL *  CACHE_TYPE));
-STATIC_PROTO(void mark_regs, (tr_fr_ptr CACHE_TYPE));
-STATIC_PROTO(void mark_trail, (tr_fr_ptr, tr_fr_ptr, CELL *, choiceptr CACHE_TYPE));
-STATIC_PROTO(void mark_environments, (CELL *, OPREG, CELL * CACHE_TYPE));
-STATIC_PROTO(void mark_choicepoints, (choiceptr, tr_fr_ptr, int CACHE_TYPE));
-STATIC_PROTO(void into_relocation_chain, (CELL *, CELL * CACHE_TYPE));
-STATIC_PROTO(void sweep_trail, (choiceptr, tr_fr_ptr CACHE_TYPE));
-STATIC_PROTO(void sweep_environments, (CELL *, OPREG, CELL * CACHE_TYPE));
-STATIC_PROTO(void sweep_choicepoints, (choiceptr CACHE_TYPE));
-STATIC_PROTO(void compact_heap, ( CACHE_TYPE1 ));
-STATIC_PROTO(void update_relocation_chain, (CELL *, CELL * CACHE_TYPE));
-STATIC_PROTO(int  is_gc_verbose, (void));
-STATIC_PROTO(int  is_gc_very_verbose, (void));
-STATIC_PROTO(void  LeaveGCMode, ( CACHE_TYPE1 ));
+static Int  p_inform_gc( CACHE_TYPE1 );
+static Int  p_gc( CACHE_TYPE1 );
+static void marking_phase(tr_fr_ptr, CELL *, yamop * CACHE_TYPE);
+static void compaction_phase(tr_fr_ptr, CELL *, yamop * CACHE_TYPE);
+static void init_dbtable(tr_fr_ptr CACHE_TYPE);
+static void mark_external_reference(CELL * CACHE_TYPE);
+static void mark_db_fixed(CELL *  CACHE_TYPE);
+static void mark_regs(tr_fr_ptr CACHE_TYPE);
+static void mark_trail(tr_fr_ptr, tr_fr_ptr, CELL *, choiceptr CACHE_TYPE);
+static void mark_environments(CELL *, OPREG, CELL * CACHE_TYPE);
+static void mark_choicepoints(choiceptr, tr_fr_ptr, int CACHE_TYPE);
+static void into_relocation_chain(CELL *, CELL * CACHE_TYPE);
+static void sweep_trail(choiceptr, tr_fr_ptr CACHE_TYPE);
+static void sweep_environments(CELL *, OPREG, CELL * CACHE_TYPE);
+static void sweep_choicepoints(choiceptr CACHE_TYPE);
+static void compact_heap( CACHE_TYPE1 );
+static void update_relocation_chain(CELL *, CELL * CACHE_TYPE);
+static int  is_gc_verbose(void);
+static int  is_gc_very_verbose(void);
+static void  LeaveGCMode( CACHE_TYPE1 );
 #ifdef EASY_SHUNTING
-STATIC_PROTO(void  set_conditionals, (tr_fr_ptr CACHE_TYPE));
+static void  set_conditionals(tr_fr_ptr CACHE_TYPE);
 #endif /* EASY_SHUNTING */
 
 #include "heapgc.h"
@@ -1064,7 +1064,7 @@ inc_var(CELL *current, CELL *next)
 }
 #endif /* INSTRUMENT_GC */
 
-int	STD_PROTO(vsc_stop,(void));
+int	vsc_stop(void);
 
 int
 vsc_stop(void) {

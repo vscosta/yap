@@ -112,7 +112,7 @@ StreamDesc;
 
 #define ALIASES_BLOCK_SIZE 8
 
-void STD_PROTO (Yap_InitStdStreams, (void));
-Term STD_PROTO (Yap_StreamPosition, (struct io_stream *));
-void STD_PROTO (Yap_InitPlIO, (void));
+void Yap_InitStdStreams(void);
+Term Yap_StreamPosition(struct io_stream *);
+void Yap_InitPlIO(void);
 
