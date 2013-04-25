@@ -186,7 +186,7 @@ void	STD_PROTO(Yap_PrepGoal,(UInt, CELL *, choiceptr USES_REGS));
 
 /* exo.c */
 void	STD_PROTO(Yap_InitExoPreds,(void));
-void    Yap_udi_range_init(void);
+void    Yap_udi_Interval_init(void);
 
 /* foreign.c */
 char   *STD_PROTO(Yap_FindExecutable,(void));

@@ -72,7 +72,7 @@ IntervalUDIRefitIndex(struct index_t **ip, UInt b[] USES_REGS)
   /* no constraints, nothing to gain */
   if (!IsAttVar(VarOfTerm(XREGS[i+1]))) return;
   /* be conservative */
-  sz = sizeof(BITS32)*(it->ntrys+it->nentries*2);
+  sz = sizeof(BITS32)*(it->ntrys+it->nentries);
   /* allocate space */
   if (!(it->udi_data = malloc(sz)))
     return;
