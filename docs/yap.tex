@@ -197,6 +197,7 @@ Subnodes of Library
 * Apply:: SWI-Compatible Apply library.
 * Association Lists:: Binary Tree Implementation of Association Lists.
 * AVL Trees:: Predicates to add and lookup balanced binary  trees.
+* Exo Intervals:: Play with the UDI and exo-compilation
 * Heaps:: Labelled binary tree where the key of each node is less
     than or equal to the keys of its children.
 * Lambda:: Ulrich Neumerkel's Lambda Library
@@ -8698,6 +8699,7 @@ Library, Extensions, Built-ins, Top
 * Block Diagram:: Block Diagrams of Prolog code
 * Cleanup:: Call With registered Cleanup Calls
 * DGraphs:: Directed Graphs Implemented With Red-Black Trees
+* Exo Intervals:: Play with the UDI and exo-compilation
 * Heaps:: Labelled binary tree where the key of each node is less
     than or equal to the keys of its children.
 * LAM:: LAM MPI
@@ -9044,7 +9046,7 @@ have key @var{Key}.
 
 @end table
 
-@node AVL Trees, Heaps, Association Lists, Library
+@node AVL Trees, Exo Intervals, Association Lists, Library
 @section AVL Trees
 @cindex AVL trees
 
@@ -9082,7 +9084,30 @@ Lookup an element with key @var{Key} in the AVL tree
 
 @end table
 
-@node Heaps, Lists, AVL Trees, Library
+@node Exo Intervals, Heaps, AVL Trees, Library
+@section AVL Trees
+@cindex AVL trees
+This package assumes you use UDI exo-indexing, that is:
+@example
+:- udi(diagnoses(exo_interval,?,?)).
+
+:- load_files(db, [consult(exo)]).
+@end example
+It is designed to optimise the following type of queries:
+@example
+?- max(X, diagnoses(X, 9, Y)).
+
+?- min(X, diagnoses(X, 9, 36211117)).
+
+?- X #< Y, min(X, diagnoses(9, X, 36211117)), diagnoses(Y, 9, _).
+@end example
+The first argument gives the time, the second the patient, and the
+third the condition code. The first query should find the last time
+the patient 9 had any code reported, the second looks for the first
+report of code 36211117, and the last searches for reports after this
+one. All queries be bound by constant or log(n) time.
+
+@node Heaps, Lists, Exo Intervals, Library
 @section Heaps
 @cindex heap
 

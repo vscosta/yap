@@ -57,7 +57,7 @@ compare(const BITS32 *ip, Int j USES_REGS) {
 
 
 static void
-RangeUDIRefitIndex(struct index_t **ip, UInt b[] USES_REGS)
+IntervalUDIRefitIndex(struct index_t **ip, UInt b[] USES_REGS)
 {
   size_t sz;
   struct index_t *it = *ip;
@@ -65,7 +65,7 @@ RangeUDIRefitIndex(struct index_t **ip, UInt b[] USES_REGS)
   UInt arity = it->arity;
   yamop *code;
 
-  /* hard-wired implementation for the range case */
+  /* hard-wired implementation for the Interval case */
   Int i = it->udi_arg;
   /* it is bound, use hash */
   if (it->bmap & b[i]) return;
@@ -263,7 +263,7 @@ All(struct index_t *it, BITS32 off USES_REGS)
 }
 
 static yamop *
-RangeEnterUDIIndex(struct index_t *it USES_REGS)
+IntervalEnterUDIIndex(struct index_t *it USES_REGS)
 {
   Int i = it->udi_arg;
   Term  t = XREGS[i+1], a1;
@@ -324,7 +324,7 @@ RangeEnterUDIIndex(struct index_t *it USES_REGS)
 }
 
 static int
-RangeRetryUDIIndex(struct index_t *it USES_REGS)
+IntervalRetryUDIIndex(struct index_t *it USES_REGS)
 {
   CELL *w = (CELL*)(B+1);
   BITS32 *end = (BITS32 *) w[it->arity+2],
@@ -338,7 +338,7 @@ RangeRetryUDIIndex(struct index_t *it USES_REGS)
 }
 
 
-static struct udi_control_block RangeCB;
+static struct udi_control_block IntervalCB;
 
 typedef struct exo_udi_access_t {
   CRefitExoIndex refit;
@@ -347,13 +347,13 @@ typedef struct exo_udi_access_t {
 static struct exo_udi_access_t ExoCB;
 
 static void *
-RangeUdiInit (Term spec, int arg, int arity) {
-  ExoCB.refit = RangeUDIRefitIndex;
+IntervalUdiInit (Term spec, int arg, int arity) {
+  ExoCB.refit = IntervalUDIRefitIndex;
   return (void *)&ExoCB;
 }
 
 static void *
-RangeUdiInsert (void *control,
+IntervalUdiInsert (void *control,
                 Term term, int arg, void *data)
 {
   CACHE_REGS
@@ -361,30 +361,30 @@ RangeUdiInsert (void *control,
   struct index_t **ip = (struct index_t **)term;
   (*ip)->udi_arg = arg-1;
   (ExoCB.refit)(ip, LOCAL_ibnds PASS_REGS);
-  (*ip)->udi_first = (void *)RangeEnterUDIIndex;
-  (*ip)->udi_next = (void *)RangeRetryUDIIndex;
+  (*ip)->udi_first = (void *)IntervalEnterUDIIndex;
+  (*ip)->udi_next = (void *)IntervalRetryUDIIndex;
   return control;
 }
 
-static int RangeUdiDestroy(void *control)
+static int IntervalUdiDestroy(void *control)
 {
   return TRUE;
 }
 
 
 
-void Yap_udi_range_init(void) {
-  UdiControlBlock cb = &RangeCB;
+void Yap_udi_Interval_init(void) {
+  UdiControlBlock cb = &IntervalCB;
 
   memset((void *) cb,0, sizeof(*cb));
 
   /*TODO: ask vitor why this gives a warning*/
-  cb->decl=Yap_LookupAtom("range");
+  cb->decl=Yap_LookupAtom("exo_interval");
 
-  cb->init= RangeUdiInit;
-  cb->insert=RangeUdiInsert;
+  cb->init= IntervalUdiInit;
+  cb->insert=IntervalUdiInsert;
   cb->search=NULL;
-  cb->destroy=RangeUdiDestroy;
+  cb->destroy=IntervalUdiDestroy;
 
   Yap_UdiRegister(cb);
 }

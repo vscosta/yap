@@ -40,6 +40,7 @@ PROGRAMS= \
 	$(srcdir)/dbqueues.yap \
 	$(srcdir)/dbusage.yap \
 	$(srcdir)/dgraphs.yap \
+	$(srcdir)/exo_interval.yap \
 	$(srcdir)/expand_macros.yap \
 	$(srcdir)/gensym.yap \
 	$(srcdir)/hacks.yap \
