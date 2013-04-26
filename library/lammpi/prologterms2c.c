@@ -213,4 +213,4 @@ string2term(char *const ptr,const size_t *size) {
   }
   return t;
 }                                                                                   
-#ndif /* HAVE_MPI_H */
+#endif /* HAVE_MPI_H */
