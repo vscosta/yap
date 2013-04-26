@@ -34,6 +34,8 @@ Comments: This file provides a set of functions to convert a prolog term to a C 
 #include <malloc.h>
 #endif
 
+#if HAVE_MPI_H
+
 #ifdef COMPRESS
 #include "minilzo.h"
 #endif
@@ -211,3 +213,4 @@ string2term(char *const ptr,const size_t *size) {
   }
   return t;
 }                                                                                   
+#ndif /* HAVE_MPI_H */
