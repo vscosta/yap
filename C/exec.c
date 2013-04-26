@@ -1173,6 +1173,7 @@ Yap_PrepGoal(UInt arity, CELL *pt, choiceptr saved_b USES_REGS)
   B->cp_depth = DEPTH;
 #endif /* DEPTH_LIMIT */
   YENV = ASP = (CELL *)B;
+  YENV[E_CB] = (CELL)B;
   HB = H;
   CP = YESCODE;
 }
