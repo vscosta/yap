@@ -11,6 +11,7 @@
   AtomAlarm = AtomAdjust(AtomAlarm);
   AtomAlias = AtomAdjust(AtomAlias);
   AtomAltNot = AtomAdjust(AtomAltNot);
+  AtomAny = AtomAdjust(AtomAny);
   AtomAppend = AtomAdjust(AtomAppend);
   AtomArg = AtomAdjust(AtomArg);
   AtomArray = AtomAdjust(AtomArray);
@@ -311,6 +312,7 @@
   AtomUndefp = AtomAdjust(AtomUndefp);
   AtomUnderflow = AtomAdjust(AtomUnderflow);
   AtomUnificationStack = AtomAdjust(AtomUnificationStack);
+  AtomUnique = AtomAdjust(AtomUnique);
   AtomUnsignedByte = AtomAdjust(AtomUnsignedByte);
   AtomUnsignedChar = AtomAdjust(AtomUnsignedChar);
   AtomUser = AtomAdjust(AtomUser);

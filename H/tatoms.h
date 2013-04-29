@@ -20,6 +20,8 @@
 #define AtomAlias Yap_heap_regs->AtomAlias_
   Atom AtomAltNot_;
 #define AtomAltNot Yap_heap_regs->AtomAltNot_
+  Atom AtomAny_;
+#define AtomAny Yap_heap_regs->AtomAny_
   Atom AtomAppend_;
 #define AtomAppend Yap_heap_regs->AtomAppend_
   Atom AtomArg_;
@@ -620,6 +622,8 @@
 #define AtomUnderflow Yap_heap_regs->AtomUnderflow_
   Atom AtomUnificationStack_;
 #define AtomUnificationStack Yap_heap_regs->AtomUnificationStack_
+  Atom AtomUnique_;
+#define AtomUnique Yap_heap_regs->AtomUnique_
   Atom AtomUnsignedByte_;
 #define AtomUnsignedByte Yap_heap_regs->AtomUnsignedByte_
   Atom AtomUnsignedChar_;
