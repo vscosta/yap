@@ -90,7 +90,7 @@ compare(const BITS32 *ip, Int j USES_REGS) {
      BITS32 *sorted0, *sorted;
 
      /* be conservative */
-     sz = sizeof(BITS32)*(it->ntrys+it->nentries);
+     sz = sizeof(BITS32)*(2*it->ntrys+it->nentries);
      /* allocate space */
      if (!(it->udi_data = malloc(sz)))
        return;

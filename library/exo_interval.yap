@@ -89,6 +89,19 @@ X #=< Y :-
 	  X =< Y
         ).
 
+X #= Y :-
+	( var(X) -> insert_atts(X, i(Y-1,Y+1,_))
+                  ;
+	          ( var(Y) -> insert_atts(Y, i(X-1,X+1,_) ) ; 
+		      true
+		  )
+	      ;
+          var(Y) -> insert_atts(Y, i(X-1,X+Y,_))
+        ;
+	  X =:= Y
+        ).
+
+
 attribute_goals(X) -->
         { get_attr(X, exo_interval, Op) },
         ( { Op = max } -> [max(X)] ;

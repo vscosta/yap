@@ -176,7 +176,8 @@ typedef struct index_t {
   BITS32 *links;
   size_t size;
   yamop *code;
-  void *udi_data, *udi_first, *udi_next;
+  BITS32 *udi_data;
+  void *udi_first, *udi_next;
   UInt udi_arg;
 } Index_t;
 
