@@ -138,6 +138,7 @@ void    Yap_HidePred(struct pred_entry *pe);
 
 /* cmppreds.c */
 Int	Yap_compare_terms(Term,Term);
+Int	Yap_acmp(Term, Term USES_REGS);
 void	Yap_InitCmpPreds(void);
 
 /* compiler.c */

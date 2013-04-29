@@ -599,6 +599,13 @@ a_cmp(Term t1, Term t2 USES_REGS)
   }
 }
 
+Int
+Yap_acmp(Term t1, Term t2 USES_REGS)
+{
+  Int out = a_cmp(t1, t2 PASS_REGS);
+  if (LOCAL_ArithError) { Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage); return FALSE; }
+  return out;
+}
 
 static Int 
 p_acomp( USES_REGS1 )

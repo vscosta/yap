@@ -223,6 +223,136 @@ Yap_ArithError(yap_error_number type, Term where, char *format,...)
   return 0L;
 }
 
+static Int cont_between( USES_REGS1 )
+{
+  Term t1 = EXTRA_CBACK_ARG(3,1);
+  Term t2 = EXTRA_CBACK_ARG(3,2);
+  
+  Yap_unify(ARG3, t1);
+  if (IsIntegerTerm(t1) && (IsIntegerTerm(t2) || IsAtomTerm(t2))) {
+    Int i1;
+    Term tn;
+
+    if (t1 == t2)
+      cut_succeed();
+    i1 = IntegerOfTerm(t1);
+    i1++;
+    tn = MkIntegerTerm(i1);
+    EXTRA_CBACK_ARG(3,1) = MkIntegerTerm(i1);
+    HB = B->cp_h = H;
+    return TRUE;
+  } else {
+    Term t[2];
+    Term tn;
+    Int cmp;
+
+    cmp = Yap_acmp(t1, t2);
+    if (cmp == 0)
+      cut_succeed();
+    t[0] = t1;
+    t[1] = MkIntTerm(1);
+    tn = Eval(Yap_MkApplTerm(FunctorPlus, 2, t));
+    EXTRA_CBACK_ARG(3,1) = tn;
+    HB = B->cp_h = H;
+    return TRUE;
+  }
+}
+
+static Int
+init_between( USES_REGS1 )
+{
+  Term t1 = Deref(ARG1);
+  Term t2 = Deref(ARG2);
+
+  if (IsVarTerm(t1)) {
+    Yap_Error(INSTANTIATION_ERROR, t1, "between/3");
+    return FALSE;
+  }
+  if (IsVarTerm(t2)) {
+    Yap_Error(INSTANTIATION_ERROR, t1, "between/3");
+    return FALSE;
+  }
+  if (!IsIntegerTerm(t1) && 
+      !IsBigIntTerm(t1)) {
+    Yap_Error(TYPE_ERROR_INTEGER, t1, "between/3");
+    return FALSE;
+  }
+  if (!IsIntegerTerm(t2) && 
+      !IsBigIntTerm(t2) &&
+      t2 != MkAtomTerm(AtomInf) &&
+      t2 != MkAtomTerm(AtomInfinity)) {
+    Yap_Error(TYPE_ERROR_INTEGER, t2, "between/3");
+    return FALSE;
+  }
+  if (IsIntegerTerm(t1) && IsIntegerTerm(t2)) {
+    Int i1 = IntegerOfTerm(t1);
+    Int i2 = IntegerOfTerm(t2);
+    Term t3;
+
+    t3 = Deref(ARG3);
+    if (!IsVarTerm(t3)) {
+      if (!IsIntegerTerm(t3)) {
+	if (!IsBigIntTerm(t3)) {
+	  Yap_Error(TYPE_ERROR_INTEGER, t3, "between/3");
+	  return FALSE;
+	}
+	cut_fail();
+      } else {
+	Int i3 = IntegerOfTerm(t3);
+	if (i3 >= i1 && i3 <= i2)
+	  cut_succeed();
+	cut_fail();
+      }
+    }
+    if (i1 > i2) cut_fail();
+    if (i1 == i2) {
+      Yap_unify(ARG3, t1);
+      cut_succeed();
+    }
+  } else if (IsIntegerTerm(t1) && IsAtomTerm(t2)) {
+    Int i1 = IntegerOfTerm(t1);
+    Term t3;
+
+    t3 = Deref(ARG3);
+    if (!IsVarTerm(t3)) {
+      if (!IsIntegerTerm(t3)) {
+	if (!IsBigIntTerm(t3)) {
+	  Yap_Error(TYPE_ERROR_INTEGER, t3, "between/3");
+	  return FALSE;
+	}
+	cut_fail();
+      } else {
+	Int i3 = IntegerOfTerm(t3);
+	if (i3 >= i1)
+	  cut_succeed();
+	cut_fail();
+      }
+    }
+  } else {
+    Term t3 = Deref(ARG3);
+    Int cmp;
+
+    if (!IsVarTerm(t3)) {
+      if (!IsIntegerTerm(t3) && !IsBigIntTerm(t3)) {
+	Yap_Error(TYPE_ERROR_INTEGER, t3, "between/3");
+	return FALSE;
+      }
+      if (Yap_acmp(t3, t1) >= 0 && Yap_acmp(t2,t3) >= 0 && P != FAILCODE)
+	cut_succeed();
+      cut_fail();
+    }
+    cmp = Yap_acmp(t1, t2);
+    if (cmp > 0) cut_fail();
+    if (cmp == 0) {
+      Yap_unify(ARG3, t1);
+      cut_succeed();
+    }
+  }
+  EXTRA_CBACK_ARG(3,1) = t1;
+  EXTRA_CBACK_ARG(3,2) = t2;
+  return cont_between( PASS_REGS1 );
+}
+
 void
 Yap_InitEval(void)
 {
@@ -231,5 +361,6 @@ Yap_InitEval(void)
   Yap_InitUnaryExps();
   Yap_InitBinaryExps();
   Yap_InitCPred("is", 2, p_is, 0L);
+  Yap_InitCPredBack("between", 3, 2, init_between, cont_between, 0);
 }
 

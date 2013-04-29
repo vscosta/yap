@@ -274,6 +274,8 @@
 #define AtomId Yap_heap_regs->AtomId_
   Atom AtomInf_;
 #define AtomInf Yap_heap_regs->AtomInf_
+  Atom AtomInfinity_;
+#define AtomInfinity Yap_heap_regs->AtomInfinity_
   Atom AtomInitGoal_;
 #define AtomInitGoal Yap_heap_regs->AtomInitGoal_
   Atom AtomInitProlog_;

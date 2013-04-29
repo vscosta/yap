@@ -138,6 +138,7 @@
   AtomIOMode = Yap_LookupAtom("io_mode");
   AtomId = Yap_LookupAtom("id");
   AtomInf = Yap_LookupAtom("inf");
+  AtomInfinity = Yap_LookupAtom("infinity");
   AtomInitGoal = Yap_FullLookupAtom("$init_goal");
   AtomInitProlog = Yap_FullLookupAtom("$init_prolog");
   AtomInStackExpansion = Yap_LookupAtom("in stack expansion");
