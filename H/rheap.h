@@ -547,6 +547,15 @@ RestoreDBTerm(DBTerm *dbr, int attachments USES_REGS)
 
 /* Restoring the heap */
 
+static void
+RestoreEmptyWakeups(void)
+{
+  int i;
+  for (i=0; i < MaxEmptyWakeups; i++) {
+    EmptyWakeups[i] = AtomAdjust(EmptyWakeups[i]);
+  }
+}
+
 /* Restores a prolog clause, in its compiled form */
 static void 
 RestoreStaticClause(StaticClause *cl USES_REGS)

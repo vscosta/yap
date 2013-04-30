@@ -2308,8 +2308,12 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose 
 	nargs = rtp->u.OtILl.d->ClPred->ArityOfPE+1;
 	break;
       case _retry_exo:
+      case _retry_exo_udi:
       case _retry_all_exo:
 	nargs = rtp->u.lp.p->ArityOfPE;
+	break;
+      case _retry_udi:
+	nargs = rtp->u.p.p->ArityOfPE;
 	break;
 #ifdef DEBUG
       case _retry_me:
@@ -3227,7 +3231,11 @@ sweep_choicepoints(choiceptr gc_B USES_REGS)
     case _retry4:
       sweep_b(gc_B, 4 PASS_REGS);
       break;
+    case _retry_udi:
+      sweep_b(gc_B, rtp->u.p.p->ArityOfPE PASS_REGS);
+      break;
     case _retry_exo:
+    case _retry_exo_udi:
     case _retry_all_exo:
       sweep_b(gc_B, rtp->u.lp.p->ArityOfPE PASS_REGS);
       break;

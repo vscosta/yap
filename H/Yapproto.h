@@ -102,6 +102,7 @@ void   Yap_InitArrayPreds(void);
 
 /* attvar.c */
 void   Yap_InitAttVarPreds(void);
+void   Yap_MkEmptyWakeUp(Atom mod);
 
 /* bb.c */
 void   Yap_InitBBPreds(void);

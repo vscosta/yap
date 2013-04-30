@@ -1023,6 +1023,11 @@ InitSWIAtoms(void)
 }
 
 static void 
+InitEmptyWakeups(void)
+{
+}
+
+static void 
 InitAtoms(void)
 {
   int i;

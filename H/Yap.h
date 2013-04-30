@@ -542,6 +542,8 @@ typedef enum
   GPROF_NEW_EXPAND_BLOCK
 } gprof_info;
 
+#define MAX_EMPTY_WAKEUPS 16
+
 
 /*************************************************************************************************
                                            prototypes

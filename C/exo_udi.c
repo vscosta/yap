@@ -119,6 +119,8 @@ compare(const BITS32 *ip, Int j USES_REGS) {
 	 }
        }
      }
+     sz = sizeof(BITS32)*(sorted-sorted0);
+     it->udi_data = (BITS32 *)realloc(it->udi_data, sz);
    }
    it->is_udi = i+1;
    code = it->code;
@@ -329,12 +331,12 @@ static int IntervalUdiDestroy(void *control)
 
 void Yap_udi_Interval_init(void) {
   UdiControlBlock cb = &IntervalCB;
-
+  Atom name = Yap_LookupAtom("exo_interval");
   memset((void *) cb,0, sizeof(*cb));
 
   /*TODO: ask vitor why this gives a warning*/
-  cb->decl=Yap_LookupAtom("exo_interval");
-
+  cb->decl= name;
+  Yap_MkEmptyWakeUp(name);
   cb->init= IntervalUdiInit;
   cb->insert=IntervalUdiInsert;
   cb->search=NULL;

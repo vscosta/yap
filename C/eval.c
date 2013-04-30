@@ -229,16 +229,15 @@ static Int cont_between( USES_REGS1 )
   Term t2 = EXTRA_CBACK_ARG(3,2);
   
   Yap_unify(ARG3, t1);
-  if (IsIntegerTerm(t1) && (IsIntegerTerm(t2) || IsAtomTerm(t2))) {
+  if (IsIntegerTerm(t1)) {
     Int i1;
     Term tn;
 
     if (t1 == t2)
       cut_succeed();
     i1 = IntegerOfTerm(t1);
-    i1++;
-    tn = MkIntegerTerm(i1);
-    EXTRA_CBACK_ARG(3,1) = MkIntegerTerm(i1);
+    tn = add_int(i1, 1 PASS_REGS);
+    EXTRA_CBACK_ARG(3,1) = tn;
     HB = B->cp_h = H;
     return TRUE;
   } else {

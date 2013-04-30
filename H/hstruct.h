@@ -298,6 +298,8 @@
   Atom  swi_atoms[N_SWI_ATOMS];
   Functor  swi_functors[N_SWI_FUNCTORS];
   struct swi_reverse_hash  swi_reverse_hash[N_SWI_HASH];
+  Atom  empty_wakeups[MAX_EMPTY_WAKEUPS];
+  int  max_empty_wakeups;
 
   struct PL_blob_t  *swi_blob_types;
   struct AtomEntryStruct  *swi_blobs;
