@@ -79,7 +79,7 @@ compare(const BITS32 *ip, Int j USES_REGS) {
      /* handle ll variables */
      sz = sizeof(BITS32)*(ncls);
      /* allocate space */
-     if (!(it->udi_data = malloc(sz)))
+     if (!(it->udi_data = (BITS32*)Yap_AllocCodeSpace(sz)))
        return;
      sorted = (BITS32*)it->udi_data;
      for (i=0; i< ncls; i++)
@@ -92,7 +92,7 @@ compare(const BITS32 *ip, Int j USES_REGS) {
      /* be conservative */
      sz = sizeof(BITS32)*(2*it->ntrys+it->nentries);
      /* allocate space */
-     if (!(it->udi_data = malloc(sz)))
+     if (!(it->udi_data = (BITS32*)Yap_AllocCodeSpace(sz)))
        return;
      sorted0 = sorted = (BITS32 *)it->udi_data;
      sorted++; /* leave an initial hole */
@@ -120,7 +120,7 @@ compare(const BITS32 *ip, Int j USES_REGS) {
        }
      }
      sz = sizeof(BITS32)*(sorted-sorted0);
-     it->udi_data = (BITS32 *)realloc(it->udi_data, sz);
+     it->udi_data = (BITS32 *)Yap_ReallocCodeSpace((char *)it->udi_data, sz);
    }
    it->is_udi = i+1;
    code = it->code;
