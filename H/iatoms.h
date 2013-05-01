@@ -11,6 +11,7 @@
   AtomAlarm = Yap_FullLookupAtom("$alarm");
   AtomAlias = Yap_LookupAtom("alias");
   AtomAltNot = Yap_LookupAtom("not");
+  AtomAny = Yap_LookupAtom("any");
   AtomAppend = Yap_LookupAtom("append");
   AtomArg = Yap_LookupAtom("arg");
   AtomArray = Yap_FullLookupAtom("$array");
@@ -137,6 +138,7 @@
   AtomIOMode = Yap_LookupAtom("io_mode");
   AtomId = Yap_LookupAtom("id");
   AtomInf = Yap_LookupAtom("inf");
+  AtomInfinity = Yap_LookupAtom("infinity");
   AtomInitGoal = Yap_FullLookupAtom("$init_goal");
   AtomInitProlog = Yap_FullLookupAtom("$init_prolog");
   AtomInStackExpansion = Yap_LookupAtom("in stack expansion");
@@ -311,6 +313,7 @@
   AtomUndefp = Yap_FullLookupAtom("$undefp");
   AtomUnderflow = Yap_LookupAtom("underflow");
   AtomUnificationStack = Yap_LookupAtom("unification_stack");
+  AtomUnique = Yap_LookupAtom("unique");
   AtomUnsignedByte = Yap_LookupAtom("unsigned_byte");
   AtomUnsignedChar = Yap_LookupAtom("unsigned_char");
   AtomUser = Yap_LookupAtom("user");

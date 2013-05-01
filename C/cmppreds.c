@@ -27,20 +27,20 @@ static char     SccsId[] = "%W% %G%";
 #endif
 #include <wchar.h>
 
-STATIC_PROTO(Int compare, (Term, Term));
-STATIC_PROTO(Int p_compare, ( USES_REGS1 ));
-STATIC_PROTO(Int p_acomp, ( USES_REGS1 ));
-STATIC_PROTO(Int a_eq, (Term,Term));
-STATIC_PROTO(Int a_dif, (Term,Term));
-STATIC_PROTO(Int a_gt, (Term, Term));
-STATIC_PROTO(Int a_ge, (Term,Term));
-STATIC_PROTO(Int a_lt, (Term,Term));
-STATIC_PROTO(Int a_le, (Term,Term));
-STATIC_PROTO(Int a_noteq, (Term,Term));
-STATIC_PROTO(Int a_gen_lt, (Term,Term));
-STATIC_PROTO(Int a_gen_le, (Term,Term));
-STATIC_PROTO(Int a_gen_gt, (Term,Term));
-STATIC_PROTO(Int a_gen_ge, (Term,Term));
+static Int compare(Term, Term);
+static Int p_compare( USES_REGS1 );
+static Int p_acomp( USES_REGS1 );
+static Int a_eq(Term,Term);
+static Int a_dif(Term,Term);
+static Int a_gt(Term, Term);
+static Int a_ge(Term,Term);
+static Int a_lt(Term,Term);
+static Int a_le(Term,Term);
+static Int a_noteq(Term,Term);
+static Int a_gen_lt(Term,Term);
+static Int a_gen_le(Term,Term);
+static Int a_gen_gt(Term,Term);
+static Int a_gen_ge(Term,Term);
 
 #define rfloat(X)	( X > 0.0 ? 1 : ( X == 0.0 ? 0 : -1))
 
@@ -599,6 +599,13 @@ a_cmp(Term t1, Term t2 USES_REGS)
   }
 }
 
+Int
+Yap_acmp(Term t1, Term t2 USES_REGS)
+{
+  Int out = a_cmp(t1, t2 PASS_REGS);
+  if (LOCAL_ArithError) { Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage); return FALSE; }
+  return out;
+}
 
 static Int 
 p_acomp( USES_REGS1 )

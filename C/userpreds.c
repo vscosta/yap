@@ -51,26 +51,26 @@ static char     SccsId[] = "%W% %G%";
 /* You should include here the prototypes for all static functions */
 
 #ifdef EUROTRA
-STATIC_PROTO(int p_clean, (void));
-STATIC_PROTO(int p_namelength, (void));
-STATIC_PROTO(int p_getpid, (void));
-STATIC_PROTO(int p_exit, (void));
-STATIC_PROTO(int p_incrcounter, (void));
-STATIC_PROTO(int p_setcounter, (void));
-STATIC_PROTO(int p_trapsignal, (void));
-STATIC_PROTO(int subsumes, (Term, Term));
-STATIC_PROTO(int p_subsumes, (void));
-STATIC_PROTO(int p_grab_tokens, (void));
+static int p_clean(void);
+static int p_namelength(void);
+static int p_getpid(void);
+static int p_exit(void);
+static int p_incrcounter(void);
+static int p_setcounter(void);
+static int p_trapsignal(void);
+static int subsumes(Term, Term);
+static int p_subsumes(void);
+static int p_grab_tokens(void);
 #endif
 #ifdef MACYAP
-STATIC_PROTO(typedef int, (*SignalProc) ());
-STATIC_PROTO(SignalProc skel_signal, (int, SignalProc));
-STATIC_PROTO(int chdir, (char *));
+static typedef int(*SignalProc) ();
+static SignalProc skel_signal(int, SignalProc);
+static int chdir(char *);
 #endif
 
 
 #ifdef SFUNC
-STATIC_PROTO(int p_softfunctor, (void));
+static int p_softfunctor(void);
 #endif				/* SFUNC */
 
 

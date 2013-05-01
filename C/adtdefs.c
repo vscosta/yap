@@ -26,9 +26,8 @@ static char SccsId[] = "%W% %G%";
 #endif
 
 #include "Yap.h"
-ADDR    STD_PROTO(Yap_PreAllocCodeSpace, (void));
-Prop	STD_PROTO(PredPropByFunc,(Functor, Term));
-Prop	STD_PROTO(PredPropByAtom,(Atom, Term));
+static Prop	PredPropByFunc(Functor, Term);
+static Prop	PredPropByAtom(Atom, Term);
 #include "Yatom.h"
 #include "yapio.h"
 #include <stdio.h>

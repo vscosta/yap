@@ -34,7 +34,7 @@ static char     SccsId[] = "%W% %G%.2";
 #endif
 #endif
 
-STD_PROTO(Int p_load_foreign, ( USES_REGS1 ));
+Int p_load_foreign( USES_REGS1 );
 
 Int
 p_load_foreign( USES_REGS1 )

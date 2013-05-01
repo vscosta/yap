@@ -502,10 +502,10 @@ static char     SccsId[] = "%W% %G%";
 #define SET_JLBL(X)
 #endif
 
-UInt STATIC_PROTO(do_index, (ClauseDef *,ClauseDef *,struct intermediates *,UInt,UInt,int,int,CELL *));
-UInt STATIC_PROTO(do_compound_index, (ClauseDef *,ClauseDef *,Term *t,struct intermediates *,UInt,UInt,UInt,UInt,int,int,int,CELL *,int));
-UInt STATIC_PROTO(do_dbref_index, (ClauseDef *,ClauseDef *,Term,struct intermediates *,UInt,UInt,int,int,CELL *));
-UInt STATIC_PROTO(do_blob_index, (ClauseDef *,ClauseDef *,Term,struct intermediates *,UInt,UInt,int,int,CELL *,int));
+static UInt do_index(ClauseDef *,ClauseDef *,struct intermediates *,UInt,UInt,int,int,CELL *);
+static UInt do_compound_index(ClauseDef *,ClauseDef *,Term *t,struct intermediates *,UInt,UInt,UInt,UInt,int,int,int,CELL *,int);
+static UInt do_dbref_index(ClauseDef *,ClauseDef *,Term,struct intermediates *,UInt,UInt,int,int,CELL *);
+static UInt do_blob_index(ClauseDef *,ClauseDef *,Term,struct intermediates *,UInt,UInt,int,int,CELL *,int);
 
 static UInt
 cleanup_sw_on_clauses(CELL larg, UInt sz, OPCODE ecls)

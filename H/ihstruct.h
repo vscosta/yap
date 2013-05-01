@@ -298,6 +298,8 @@
   InitSWIAtoms();
 
 
+  InitEmptyWakeups();
+  MaxEmptyWakeups = 0;
 
   SWI_BlobTypes = NULL;
   SWI_Blobs = NULL;

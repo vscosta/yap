@@ -42,12 +42,12 @@ static int search_for_hidden_shared_work(bitmap stable_busy);
 **      Local inlines      **
 ** ----------------------- */
 
-STD_PROTO(static inline void PUT_NO_WORK_IN_UPPER_NODES, (void));
-STD_PROTO(static inline void PUT_IDLE, (int));
-STD_PROTO(static inline void PUT_BUSY, (int));
-STD_PROTO(static inline void PUT_IN_ROOT_NODE, (int));
-STD_PROTO(static inline void PUT_OUT_ROOT_NODE, (int));
-STD_PROTO(static inline void move_up_to_prune_request, (void));
+static inline void PUT_NO_WORK_IN_UPPER_NODES(void);
+static inline void PUT_IDLE(int);
+static inline void PUT_BUSY(int);
+static inline void PUT_IN_ROOT_NODE(int);
+static inline void PUT_OUT_ROOT_NODE(int);
+static inline void move_up_to_prune_request(void);
 
 
 static inline

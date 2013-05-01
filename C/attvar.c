@@ -119,6 +119,27 @@ AttVarToTerm(CELL *orig)
 }
 
 static int
+IsEmptyWakeUp(Term atts)
+{
+  Atom name = NameOfFunctor(FunctorOfTerm(atts));
+  Atom *pt = EmptyWakeups;
+  int i = 0;
+  while (i < MaxEmptyWakeups) {
+    if (pt[i++] == name) return TRUE;
+  }
+  return FALSE;
+}
+
+void
+Yap_MkEmptyWakeUp(Atom mod)
+{
+  if (MaxEmptyWakeups == MAX_EMPTY_WAKEUPS)
+    Yap_Error(SYSTEM_ERROR, TermNil, "too many modules that do not wake up");
+  EmptyWakeups[MaxEmptyWakeups++] = mod;
+}
+
+
+static int
 TermToAttVar(Term attvar, Term to USES_REGS)
 {
   attvar_record *attv = BuildNewAttVar( PASS_REGS1 );
@@ -164,6 +185,11 @@ WakeAttVar(CELL* pt1, CELL reg2 USES_REGS)
       Bind_NonAtt(VarOfTerm(reg2), (CELL)pt1);
       return;
     }
+  }
+  if (IsEmptyWakeUp(attv->Atts)) {
+    Bind_Global_NonAtt(&(attv->Value), reg2);
+    Bind_Global_NonAtt(&(attv->Done), attv->Value);
+    return;
   }
   if (!IsVarTerm(attv->Value) || !IsUnboundVar(&attv->Value)) {
     /* oops, our goal is on the queue to be woken */

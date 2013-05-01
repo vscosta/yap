@@ -34,9 +34,9 @@ extern int errno;
 #endif
 #endif
 
-STATIC_PROTO(Int  p_compile_array_refs, ( USES_REGS1 ));
-STATIC_PROTO(Int  p_array_refs_compiled, ( USES_REGS1 ));
-STATIC_PROTO(Int  p_sync_mmapped_arrays, ( USES_REGS1 ));
+static Int  p_compile_array_refs( USES_REGS1 );
+static Int  p_array_refs_compiled( USES_REGS1 );
+static Int  p_sync_mmapped_arrays( USES_REGS1 );
 
 /*
  * 
@@ -122,15 +122,15 @@ STATIC_PROTO(Int  p_sync_mmapped_arrays, ( USES_REGS1 ));
  * 
  */
 
-STATIC_PROTO(Int  p_create_array, ( USES_REGS1 ));
-STATIC_PROTO(Int  p_create_mmapped_array, ( USES_REGS1 ));
-STATIC_PROTO(Int  p_array_references, ( USES_REGS1 ));
-STATIC_PROTO(Int  p_create_static_array, ( USES_REGS1 ));
-STATIC_PROTO(Int  p_resize_static_array, ( USES_REGS1 ));
-STATIC_PROTO(Int  p_close_static_array, ( USES_REGS1 ));
-STATIC_PROTO(Int  p_access_array, ( USES_REGS1 ));
-STATIC_PROTO(Int  p_assign_static, ( USES_REGS1 ));
-STATIC_PROTO(Int  p_assign_dynamic, ( USES_REGS1 ));
+static Int  p_create_array( USES_REGS1 );
+static Int  p_create_mmapped_array( USES_REGS1 );
+static Int  p_array_references( USES_REGS1 );
+static Int  p_create_static_array( USES_REGS1 );
+static Int  p_resize_static_array( USES_REGS1 );
+static Int  p_close_static_array( USES_REGS1 );
+static Int  p_access_array( USES_REGS1 );
+static Int  p_assign_static( USES_REGS1 );
+static Int  p_assign_dynamic( USES_REGS1 );
 
 #if HAVE_MMAP
 

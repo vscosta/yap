@@ -41,10 +41,10 @@ Yap_RestartYap ( int flag )
 }
 
 #ifdef DEBUG
-STATIC_PROTO (int hidden, (Atom));
-STATIC_PROTO (int legal_env, (CELL * CACHE_TYPE));
-void STD_PROTO (DumpActiveGoals, ( CACHE_TYPE1 ));
-STATIC_PROTO (void detect_bug_location, (yamop *,find_pred_type,char *, int));
+static int hidden(Atom);
+static int legal_env(CELL * CACHE_TYPE);
+void DumpActiveGoals( CACHE_TYPE1 );
+static void detect_bug_location(yamop *,find_pred_type,char *, int);
 
 #define ONHEAP(ptr) (CellPtr(ptr) >= CellPtr(Yap_HeapBase)  && CellPtr(ptr) < CellPtr(HeapTop))
 

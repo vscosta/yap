@@ -482,11 +482,11 @@ Yap_givemallinfo(void)
 
 #if !USE_DL_MALLOC
 
-STATIC_PROTO(void FreeBlock, (BlockHeader *));
-STATIC_PROTO(BlockHeader *GetBlock, (unsigned long int));
-STATIC_PROTO(char *AllocHeap, (unsigned long int));
-STATIC_PROTO(void RemoveFromFreeList, (BlockHeader *));
-STATIC_PROTO(void AddToFreeList, (BlockHeader *));
+static void FreeBlock(BlockHeader *);
+static BlockHeader *GetBlock(unsigned long int);
+static char *AllocHeap(unsigned long int);
+static void RemoveFromFreeList(BlockHeader *);
+static void AddToFreeList(BlockHeader *);
 
 #define MinHGap   256*K
 
@@ -1273,7 +1273,7 @@ Yap_FreeWorkSpace(void)
 \***********************************************************************/
 
 #ifdef _AIX
-char *STD_PROTO(sbrk, (int));
+char *sbrk(int);
 
 #endif
 

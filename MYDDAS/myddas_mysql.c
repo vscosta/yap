@@ -45,18 +45,18 @@
 
 static Int null_id = 0;
 
-STATIC_PROTO(Int c_db_my_connect,( USES_REGS1 ));
-STATIC_PROTO(Int c_db_my_disconnect,( USES_REGS1 ));
-STATIC_PROTO(Int c_db_my_number_of_fields,( USES_REGS1 ));
-STATIC_PROTO(Int c_db_my_get_attributes_types,( USES_REGS1 ));
-STATIC_PROTO(Int c_db_my_query,( USES_REGS1 ));
-STATIC_PROTO(Int c_db_my_table_write,( USES_REGS1 ));
-STATIC_PROTO(Int c_db_my_row,( USES_REGS1 ));
-STATIC_PROTO(Int c_db_my_row_cut,( USES_REGS1 ));
-STATIC_PROTO(Int c_db_my_get_fields_properties,( USES_REGS1 ));
-STATIC_PROTO(Int c_db_my_get_next_result_set,( USES_REGS1 ));
-STATIC_PROTO(Int c_db_my_get_database,( USES_REGS1 ));
-STATIC_PROTO(Int c_db_my_change_database,( USES_REGS1 ));
+static Int c_db_my_connect( USES_REGS1 );
+static Int c_db_my_disconnect( USES_REGS1 );
+static Int c_db_my_number_of_fields( USES_REGS1 );
+static Int c_db_my_get_attributes_types( USES_REGS1 );
+static Int c_db_my_query( USES_REGS1 );
+static Int c_db_my_table_write( USES_REGS1 );
+static Int c_db_my_row( USES_REGS1 );
+static Int c_db_my_row_cut( USES_REGS1 );
+static Int c_db_my_get_fields_properties( USES_REGS1 );
+static Int c_db_my_get_next_result_set( USES_REGS1 );
+static Int c_db_my_get_database( USES_REGS1 );
+static Int c_db_my_change_database( USES_REGS1 );
 
 void Yap_InitMYDDAS_MySQLPreds(void)
 {

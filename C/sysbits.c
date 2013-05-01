@@ -90,26 +90,26 @@ static char SccsId[] = "%W% %G%";
 #endif
 
 
-STATIC_PROTO (void InitTime, (int));
-STATIC_PROTO (void InitWTime, (void));
-STATIC_PROTO (Int p_sh, ( USES_REGS1 ));
-STATIC_PROTO (Int p_shell, ( USES_REGS1 ));
-STATIC_PROTO (Int p_system, ( USES_REGS1 ));
-STATIC_PROTO (Int p_mv, ( USES_REGS1 ));
-STATIC_PROTO (Int p_dir_sp, ( USES_REGS1 ));
-STATIC_PROTO (void InitRandom, (void));
-STATIC_PROTO (Int p_srandom, ( USES_REGS1 ));
-STATIC_PROTO (Int p_alarm, ( USES_REGS1 ));
-STATIC_PROTO (Int p_getenv, ( USES_REGS1 ));
-STATIC_PROTO (Int p_putenv, ( USES_REGS1 ));
-STATIC_PROTO (void  set_fpu_exceptions, (int));
+static void InitTime(int);
+static void InitWTime(void);
+static Int p_sh( USES_REGS1 );
+static Int p_shell( USES_REGS1 );
+static Int p_system( USES_REGS1 );
+static Int p_mv( USES_REGS1 );
+static Int p_dir_sp( USES_REGS1 );
+static void InitRandom(void);
+static Int p_srandom( USES_REGS1 );
+static Int p_alarm( USES_REGS1 );
+static Int p_getenv( USES_REGS1 );
+static Int p_putenv( USES_REGS1 );
+static void  set_fpu_exceptions(int);
 #ifdef MACYAP
-STATIC_PROTO (int chdir, (char *));
+static int chdir(char *);
 /* #define signal	skel_signal */
 #endif /* MACYAP */
 
 
-STD_PROTO (void exit, (int));
+void exit(int);
 
 #ifdef _WIN32
 void
@@ -1037,7 +1037,7 @@ InitRandom (void)
 #endif
 }
 
-STD_PROTO (extern int rand, (void));
+extern int rand(void);
 
 
 double
@@ -1094,7 +1094,7 @@ p_srandom ( USES_REGS1 )
 
 #endif
 
-STATIC_PROTO (void InitSignals, (void));
+static void InitSignals(void);
 
 #define PLSIG_PREPARED 0x01		/* signal is prepared */
 #define PLSIG_THROW    0x02		/* throw signal(num, name) */
@@ -1239,10 +1239,10 @@ Yap_signal_index(const char *name)
 #include <sys/ucontext.h>
 #endif
 
-STATIC_PROTO (void HandleSIGSEGV, (int, siginfo_t   *, ucontext_t *));
-STATIC_PROTO (void HandleMatherr,  (int, siginfo_t   *, ucontext_t *));
-STATIC_PROTO (void my_signal_info, (int, void (*)(int, siginfo_t  *, ucontext_t *)));
-STATIC_PROTO (void my_signal, (int, void (*)(int, siginfo_t  *, ucontext_t *)));
+static void HandleSIGSEGV(int, siginfo_t   *, ucontext_t *);
+static void HandleMatherr,  (int, siginfo_t   *, ucontext_t *);
+static void my_signal_info(int, void (*)(int, siginfo_t  *, ucontext_t *));
+static void my_signal(int, void (*)(int, siginfo_t  *, ucontext_t *));
 
 /* This routine believes there is a continuous space starting from the
    HeapBase and ending on TrailTop */
@@ -1328,12 +1328,12 @@ my_signal(int sig, void (*handler)(int, siginfo_t *, ucontext_t *))
 
 #elif defined(__linux__)
 
-STATIC_PROTO (RETSIGTYPE HandleMatherr, (int));
+static RETSIGTYPE HandleMatherr(int);
 #if HAVE_SIGSEGV && !defined(THREADS) 
-STATIC_PROTO (RETSIGTYPE HandleSIGSEGV, (int,siginfo_t *,void *));
-STATIC_PROTO (void my_signal_info, (int, void (*)(int,siginfo_t *,void *)));
+static RETSIGTYPE HandleSIGSEGV(int,siginfo_t *,void *);
+static void my_signal_info(int, void (*)(int,siginfo_t *,void *));
 #endif
-STATIC_PROTO (void my_signal, (int, void (*)(int)));
+static void my_signal(int, void (*)(int));
 
 /******** Handling floating point errors *******************/
 
@@ -1457,10 +1457,10 @@ my_signal(int sig, void (*handler)(int))
 
 #else /* if not (defined(__svr4__) || defined(__SVR4)) */
 
-STATIC_PROTO (RETSIGTYPE HandleMatherr, (int));
-STATIC_PROTO (RETSIGTYPE HandleSIGSEGV, (int));
-STATIC_PROTO (void my_signal_info, (int, void (*)(int)));
-STATIC_PROTO (void my_signal, (int, void (*)(int)));
+static RETSIGTYPE HandleMatherr(int);
+static RETSIGTYPE HandleSIGSEGV(int);
+static void my_signal_info(int, void (*)(int));
+static void my_signal(int, void (*)(int));
 
 /******** Handling floating point errors *******************/
 
@@ -3163,7 +3163,7 @@ VaxFixFrame (dummy)
 
 #include <windows.h>
 
-int WINAPI STD_PROTO(win_yap, (HANDLE, DWORD, LPVOID));
+int WINAPI win_yap(HANDLE, DWORD, LPVOID);
 
 int WINAPI win_yap(HANDLE hinst, DWORD reason, LPVOID reserved)
 {
@@ -3184,7 +3184,7 @@ int WINAPI win_yap(HANDLE hinst, DWORD reason, LPVOID reserved)
 
 #if (defined(YAPOR) || defined(THREADS)) && !defined(USE_PTHREAD_LOCKING)
 #ifdef sparc
-void STD_PROTO(rw_lock_voodoo,(void));
+void rw_lock_voodoo(void);
 
 void
 rw_lock_voodoo(void) {

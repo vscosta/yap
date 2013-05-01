@@ -280,74 +280,6 @@ do_not_compile_expressions :- set_value('$c_arith',[]).
 	
 /* Arithmetics					*/
 
-between(I,M,J) :-
-	(
-	 var(I)
-	->
-	 '$do_error'(instantiation_error,between(I,M,J))
-	;
-	 integer(I)
-	->
-	 (
-	  var(M)
-	 ->
-	  '$do_error'(instantiation_error,between(I,M,J))
-	 ;
-	  integer(M)
-	 ->
-	  (
-	   var(J)
-	  ->
-	   I =< M, '$between'(I,M,J)
-	  ;
-	   integer(J)
-	  ->
-	   J >= I, J =< M
-	  ;
-	   '$do_error'(type_error(integer, J),between(I,M,J))
-	   )
-	 ;
-	  M == inf ->
-	  (
-	   var(J)
-	  ->
-	   '$between_inf'(I,J)
-	  ;
-	   integer(J)
-	  ->
-	   J >= I
-	  ;
-	   '$do_error'(type_error(integer, J),between(I,M,J))
-	  )
-	 ;
-	  M == infinity ->
-	  (
-	   var(J)
-	  ->
-	   '$between_inf'(I,J)
-	  ;
-	   integer(J)
-	  ->
-	   J >= I
-	  ;
-	   '$do_error'(type_error(integer, J),between(I,M,J))
-	  )
-	 ;
-	  '$do_error'(type_error(integer, M),between(I,M,J))
-	 )
-	;
-	 '$do_error'(type_error(integer, I),between(I,M,J))		
-	).
-
-'$between'(I,M,I) :- (I == M -> ! ; true ).
-'$between'(I0,I,J) :- I0 < I, 
-	'$plus'(I0, 1, I1),
-	'$between'(I1,I,J).
-
-'$between_inf'(I,I).
-'$between_inf'(I,J) :-
-	'$plus'(I, 1, I1),
-	'$between_inf'(I1,J).
 
 
 % M and N nonnegative integers, N is the successor of M
@@ -403,6 +335,8 @@ succ(M,N) :-
 	nonvar(N),
 	N < 0,
 	'$do_error'(domain_error(not_less_than_zero, N),succ(M,N)).
+
+
 
 plus(X, Y, Z) :-
        (

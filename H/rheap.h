@@ -412,9 +412,9 @@ AdjustSwitchTable__(op_numbers op, yamop *table, COUNT i USES_REGS)
   }
 }
 
-STATIC_PROTO(void  RestoreAtomList, (Atom CACHE_TYPE));
-STATIC_PROTO(void  RestoreAtom, (AtomEntry * CACHE_TYPE));
-STATIC_PROTO(void  RestoreHashPreds, ( CACHE_TYPE1 ));
+static void  RestoreAtomList(Atom CACHE_TYPE);
+static void  RestoreAtom(AtomEntry * CACHE_TYPE);
+static void  RestoreHashPreds( CACHE_TYPE1 );
 
 static void
 RestoreAtoms__( USES_REGS1 )
@@ -546,6 +546,15 @@ RestoreDBTerm(DBTerm *dbr, int attachments USES_REGS)
 }
 
 /* Restoring the heap */
+
+static void
+RestoreEmptyWakeups(void)
+{
+  int i;
+  for (i=0; i < MaxEmptyWakeups; i++) {
+    EmptyWakeups[i] = AtomAdjust(EmptyWakeups[i]);
+  }
+}
 
 /* Restores a prolog clause, in its compiled form */
 static void 

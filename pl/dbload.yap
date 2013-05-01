@@ -21,8 +21,9 @@
 :- dynamic dbloading/6, dbprocess/2.
 
 dbload_from_stream(R, M0, Type) :-
+	repeat,
 	read(R,T),
-	( T = end_of_file -> !, close_dbload(R, Type);
+	( T == end_of_file -> !, close_dbload(R, Type);
 	    dbload_count(T, M0),
 	    fail 
 	).
@@ -166,8 +167,13 @@ load_exofacts.
 
 exodb_add_facts(R, M) :-
 	repeat,
-	catch(read(R,T), _, fail),
-	( T = end_of_file -> !;
+	catch(protected_exodb_add_fact(R, M), _, fail),
+	!.
+
+protected_exodb_add_fact(R, M) :-
+	repeat,
+	read(R,T),
+	( T == end_of_file -> !;
 	    exodb_add_fact(T, M),
 	    fail 
 	).

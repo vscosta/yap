@@ -20,31 +20,6 @@
  */
 
 inline static int
-add_overflow(Int x, Int i, Int j)
-{
-  return ((i & j & ~x) | (~i & ~j & x)) < 0;
-}
-
-inline static Term
-add_int(Int i, Int j USES_REGS)
-{
-  Int x = i+j;
-#if USE_GMP
-  /* Integer overflow, we need to use big integers */
-  Int overflow = (i & j & ~x) | (~i & ~j & x);
-  if (overflow < 0) {
-    return(Yap_gmp_add_ints(i, j));
-  }
-#endif
-#ifdef BEAM
-  RINT(x);
-  return( MkIntegerTerm (x));
-#else
-  RINT(x);
-#endif
-}
-
-inline static int
 sub_overflow(Int x, Int i, Int j)
 {
   return ((i & ~j & ~x) | (~i & j & x)) < 0;

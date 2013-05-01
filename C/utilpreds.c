@@ -32,18 +32,18 @@ typedef struct {
 }              *vcell;
 
 
-STATIC_PROTO(int   copy_complex_term, (CELL *, CELL *, int, int, CELL *, CELL * CACHE_TYPE));
-STATIC_PROTO(CELL  vars_in_complex_term, (CELL *, CELL *, Term CACHE_TYPE));
-STATIC_PROTO(Int   p_non_singletons_in_term, ( USES_REGS1));
-STATIC_PROTO(CELL  non_singletons_in_complex_term, (CELL *, CELL * CACHE_TYPE));
-STATIC_PROTO(Int   p_variables_in_term, ( USES_REGS1 ));
-STATIC_PROTO(Int   ground_complex_term, (CELL *, CELL * CACHE_TYPE));
-STATIC_PROTO(Int   p_ground, ( USES_REGS1 ));
-STATIC_PROTO(Int   p_copy_term, ( USES_REGS1 ));
-STATIC_PROTO(Int   var_in_complex_term, (CELL *, CELL *, Term CACHE_TYPE));
+static int   copy_complex_term(CELL *, CELL *, int, int, CELL *, CELL * CACHE_TYPE);
+static CELL  vars_in_complex_term(CELL *, CELL *, Term CACHE_TYPE);
+static Int   p_non_singletons_in_term( USES_REGS1);
+static CELL  non_singletons_in_complex_term(CELL *, CELL * CACHE_TYPE);
+static Int   p_variables_in_term( USES_REGS1 );
+static Int   ground_complex_term(CELL *, CELL * CACHE_TYPE);
+static Int   p_ground( USES_REGS1 );
+static Int   p_copy_term( USES_REGS1 );
+static Int   var_in_complex_term(CELL *, CELL *, Term CACHE_TYPE);
 
 #ifdef DEBUG
-STATIC_PROTO(Int  p_force_trail_expansion, ( USES_REGS1 ));
+static Int  p_force_trail_expansion( USES_REGS1 );
 #endif /* DEBUG */
 
 static inline void

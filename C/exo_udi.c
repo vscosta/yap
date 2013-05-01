@@ -51,216 +51,205 @@ static int
 compare(const BITS32 *ip, Int j USES_REGS) {
   BITS32 *bs = LOCAL_exo_base;
   Int i = bs[LOCAL_exo_arity*(*ip)+LOCAL_exo_arg];
-  /* fprintf(stderr, "%ld-%ld\n", IntOfTerm(i), j); */
+  //fprintf(stderr, "%ld-%ld\n", IntOfTerm(i), j); 
   return IntOfTerm(i)-j;
-}
+ }
 
 
-static void
-IntervalUDIRefitIndex(struct index_t **ip, UInt b[] USES_REGS)
-{
-  size_t sz;
-  struct index_t *it = *ip;
-  BITS32 *sorted0, *sorted;
-  UInt arity = it->arity;
-  yamop *code;
+ static void
+ IntervalUDIRefitIndex(struct index_t **ip, UInt b[] USES_REGS)
+ {
+   size_t sz;
+   struct index_t *it = *ip;
+   UInt arity = it->arity;
+   yamop *code;
 
-  /* hard-wired implementation for the Interval case */
-  Int i = it->udi_arg;
-  /* it is bound, use hash */
-  if (it->bmap & b[i]) return;
-  /* no constraints, nothing to gain */
-  if (!IsAttVar(VarOfTerm(XREGS[i+1]))) return;
-  /* be conservative */
-  sz = sizeof(BITS32)*(it->ntrys+it->nentries*2);
-  /* allocate space */
-  if (!(it->udi_data = malloc(sz)))
-    return;
-  sorted0 = sorted = (BITS32 *)it->udi_data;
-  sorted++; /* leave an initial hole */
-  LOCAL_exo_base = it->cls;
-  LOCAL_exo_arity = it->arity;
-  LOCAL_exo_arg = i;
-  for (i=0; i < it->hsize; i++) {
-    if (it->key[i]) {
-      BITS32 *s0 = sorted;
-      BITS32 offset = it->key[i]/arity, offset0 = offset;
-      
-      *sorted++ = 0;
-      do {
-	*sorted++ = offset;
-	offset = it->links[offset];
-      } while (offset);
-      //      S = it->cls+it->arity*offset0; Yap_DebugPlWrite(S[1]);
-      // fprintf(stderr, " key[i]=%d offset=%d  %d\n", it->key[i], offset0, (sorted-s0)-1);
-      if (sorted-s0 == 2) {
-	it->links[offset0] = 0;
-	sorted = s0;
-      } else {
-	/* number of elements comes first */
-	*s0 = sorted - (s0+1);
-	qsort(s0+1, (size_t)*s0, sizeof(BITS32), compar); 
-	it->links[offset0] = s0-sorted0;
-      }
-    }
-  }
-  it->is_udi = i+1;
-  code = it->code;
-  code->opc = Yap_opcode(_try_exo_udi);
-  code = NEXTOP(code, lp);
-  code->opc = Yap_opcode(_retry_exo_udi);
-}
+   /* hard-wired implementation for the Interval case */
+   Int i = it->udi_arg;
+   /* it is bound, use hash */
+   if (it->bmap & b[i]) return;
+   /* no constraints, nothing to gain */
+   if (!IsAttVar(VarOfTerm(XREGS[i+1]))) return;
+   LOCAL_exo_base = it->cls;
+   LOCAL_exo_arity = it->arity;
+   LOCAL_exo_arg = i;
+   if (!it->key) {
+     UInt ncls = it->ap->cs.p_code.NOfClauses, i;
+     BITS32 *sorted;
+     /* handle ll variables */
+     sz = sizeof(BITS32)*(ncls);
+     /* allocate space */
+     if (!(it->udi_data = (BITS32*)Yap_AllocCodeSpace(sz)))
+       return;
+     sorted = (BITS32*)it->udi_data;
+     for (i=0; i< ncls; i++)
+       sorted[i] = i;
+     qsort(sorted, (size_t)ncls, sizeof(BITS32), compar); 
+     it->links = NULL;
+   } else {
+     BITS32 *sorted0, *sorted;
 
-static yamop *
-Min(struct index_t *it, BITS32 off USES_REGS)
-{
-  if (it->links[off]) {
-    BITS32 *c = (BITS32 *)it->udi_data;
-    BITS32 f = c[it->links[off]+1];
-    S = it->cls+it->arity*f;
-  }
-  return NEXTOP(NEXTOP(it->code,lp),lp);
-}
+     /* be conservative */
+     sz = sizeof(BITS32)*(2*it->ntrys+it->nentries);
+     /* allocate space */
+     if (!(it->udi_data = (BITS32*)Yap_AllocCodeSpace(sz)))
+       return;
+     sorted0 = sorted = (BITS32 *)it->udi_data;
+     sorted++; /* leave an initial hole */
+     for (i=0; i < it->hsize; i++) {
+       if (it->key[i]) {
+	 BITS32 *s0 = sorted;
+	 BITS32 offset = it->key[i]/arity, offset0 = offset;
 
-static yamop *
-Max(struct index_t *it, BITS32 off USES_REGS)
-{
-  if (it->links[off]) {
-    BITS32 *c = (BITS32 *)it->udi_data;
-    BITS32 n = c[it->links[off]];
-    BITS32 f = c[it->links[off]+n];
-    S = it->cls+it->arity*f;
-  }
-  return NEXTOP(NEXTOP(it->code,lp),lp);
-}
+	 *sorted++ = 0;
+	 do {
+	   *sorted++ = offset;
+	   offset = it->links[offset];
+	 } while (offset);
+	 //      S = it->cls+it->arity*offset0; Yap_DebugPlWrite(S[1]);
+	 // fprintf(stderr, " key[i]=%d offset=%d  %d\n", it->key[i], offset0, (sorted-s0)-1);
+	 if (sorted-s0 == 2) {
+	   it->links[offset0] = 0;
+	   sorted = s0;
+	 } else {
+	   /* number of elements comes first */
+	   *s0 = sorted - (s0+1);
+	   qsort(s0+1, (size_t)*s0, sizeof(BITS32), compar); 
+	   it->links[offset0] = s0-sorted0;
+	 }
+       }
+     }
+     sz = sizeof(BITS32)*(sorted-sorted0);
+     it->udi_data = (BITS32 *)Yap_ReallocCodeSpace((char *)it->udi_data, sz);
+   }
+   it->is_udi = i+1;
+   code = it->code;
+   code->opc = Yap_opcode(_try_exo_udi);
+   code = NEXTOP(code, lp);
+   code->opc = Yap_opcode(_retry_exo_udi);
+ }
 
-static yamop *
-Gt(struct index_t *it, Int x, BITS32 off USES_REGS)
-{
-  if (it->links[off]) {
-    BITS32 *c = (BITS32 *)it->udi_data;
-    BITS32 n = c[it->links[off]];
+ static BITS32 *
+ binary_search(BITS32 *start, BITS32 *end, Int x USES_REGS)
+ {
+   BITS32 *mid;
+   while (start < end) {
+     int cmp;
+     mid = start + (end-start)/2;
+     cmp = compare(mid, x PASS_REGS);
+     if (!cmp)
+       return mid;
+     if (cmp > 0) {
+       end = mid-1;
+     } else
+       start = mid+1;
+   }
+   return start;
+ }
 
-    LOCAL_exo_base = it->cls;
-    LOCAL_exo_arity = it->arity;
-    LOCAL_exo_arg = it->udi_arg;
-    BITS32 *pt  = c+(it->links[off]+1);
-    BITS32 *end  = c+(it->links[off]+(n+2));
-    if (n > 8 && FALSE) {
-      //      start = binary_search(start,end, x, it);
-    } else {
-      while ( pt < end && compare(pt, x PASS_REGS) <= 0 ) {
-	pt++;
-      }
-    }
-    if (pt == end) 
-      return FAILCODE;
-    S = it->cls+it->arity*pt[0];
-    end --;
-    if (pt < end ) {
-      YENV[-2] = (CELL)( pt+1 );
-      YENV[-1] = (CELL)( end );
-      YENV -= 2;
-      return it->code;
-    }
-  }
-  return NEXTOP(NEXTOP(it->code,lp),lp);
-}
+ static yamop *
+Interval(struct index_t *it, Term min, Term max, Term op, BITS32 off USES_REGS)
+ {
+   BITS32 *c;
+   BITS32 n;
+   BITS32 *pt;
+   BITS32 *end;
+   Atom at;
 
-static yamop *
-Lt(struct index_t *it, Int x, BITS32 off USES_REGS)
-{
-  if (it->links[off]) {
-    BITS32 *c = (BITS32 *)it->udi_data;
-    BITS32 n = c[it->links[off]];
+   LOCAL_exo_base = it->cls;
+   LOCAL_exo_arity = it->arity;
+   LOCAL_exo_arg = it->udi_arg;
+   if (!it->links) {
+     c = (BITS32 *)it->udi_data;
+     n = it->nels;
+     pt  = c;
+     end  = c+(n-1);
+   } else if (it->links[off]) {
+     c = (BITS32 *)it->udi_data;
+     n = c[it->links[off]];
+     pt  = c+(it->links[off]+1);
+     end  = c+(it->links[off]+n);
+   } else {
+     return NEXTOP(NEXTOP(it->code,lp),lp);
+   }
 
-    LOCAL_exo_base = it->cls;
-    LOCAL_exo_arity = it->arity;
-    LOCAL_exo_arg = it->udi_arg;
-    BITS32 *start  = c+(it->links[off]+1), *pt = start+1;
-    BITS32 *end  = c+(it->links[off]+(n+2));
-    if (n > 8 && FALSE) {
-      //      start = binary_search(start,end, x, it);
-    } else {
-      if (compare(start, x PASS_REGS) >= 0)
+   if (!IsVarTerm(min)) {
+     Int x;
+     if (!IsIntegerTerm(min)) {
+      min = Yap_Eval(min);
+      if (!IsIntegerTerm(min)) {
+	Yap_Error(TYPE_ERROR_INTEGER, min, "data-base constraint");
 	return FAILCODE;
-      while ( pt < end && compare(pt, x PASS_REGS) < 0 ) {
-	pt++;
       }
-    }
-    S = it->cls+it->arity*start[0];
-    pt --;
-    if ( pt > start ) {
-      YENV[-2] = (CELL)( start+1 );
-      YENV[-1] = (CELL)( pt  );
-      YENV -= 2;
-      return it->code;
-    }
-  }
-  return NEXTOP(NEXTOP(it->code,lp),lp);
-}
+     }
+     x = IntegerOfTerm(min);
+     if (n > 8) {
+       int cmp;
+       pt = binary_search(pt, end, x PASS_REGS);
+       while ( pt < end+1 && (cmp = compare(pt, x PASS_REGS)) <= 0 ) {
+	 if (cmp > 0) break;
+	 pt++;
+       }
+     } else {
+       while ( pt < end+1 && compare(pt, x PASS_REGS) <= 0 ) {
+	 pt++;
+       }
+     }
+     if (pt > end) 
+       return FAILCODE;
+   }
+   if (!IsVarTerm(max)) {
+     Int x;
+     BITS32 *pt1;
+     Int n = end-pt;
 
-static yamop *
-Eq(struct index_t *it, Int x, BITS32 off USES_REGS)
-{
-  if (it->links[off]) {
-    BITS32 *c = (BITS32 *)it->udi_data;
-    BITS32 n = c[it->links[off]];
-
-    LOCAL_exo_base = it->cls;
-    LOCAL_exo_arity = it->arity;
-    LOCAL_exo_arg = it->udi_arg;
-    BITS32 *end  = c+(it->links[off]+(n+2));
-    BITS32 *start, *pt = c+(it->links[off]+1);
-    if (n > 8 && FALSE) {
-      //      start = binary_search(start,end, x, it);
-    } else {
-      Int c = 0;
-      while ( pt < end && (c = compare(pt, x PASS_REGS)) < 0 ) {
-	pt++;
-      }
-      if (pt == end || c) 
+     if (!IsIntegerTerm(max)) {
+      max = Yap_Eval(max);
+      if (!IsIntegerTerm(max)) {
+	Yap_Error(TYPE_ERROR_INTEGER, max, "data-base constraint");
 	return FAILCODE;
-      start = pt;
-      pt ++;
-      while ( pt < end && (c = compare(pt, x PASS_REGS)) == 0 ) {
-	pt++;
       }
-    }
-    S = it->cls+it->arity*start[0];
-    pt --;
-    if ( pt > start ) {
-      YENV[-2] = (CELL)( start+1 );
-      YENV[-1] = (CELL)( pt  );
-      YENV -= 2;
-      return it->code;
-    }
-  }
-  return NEXTOP(NEXTOP(it->code,lp),lp);
-}
-
-static yamop *
-All(struct index_t *it, BITS32 off USES_REGS)
-{
-  if (it->links[off]) {
-    BITS32 *c = (BITS32 *)it->udi_data;
-    BITS32 n = c[it->links[off]];
-
-    LOCAL_exo_base = it->cls;
-    LOCAL_exo_arity = it->arity;
-    LOCAL_exo_arg = it->udi_arg;
-    BITS32 *start  = c+(it->links[off]+1);
-    BITS32 *end  = c+(it->links[off]+(n+1));
-    S = it->cls+it->arity*start[0];
-    if ( end > start ) {
-      YENV[-2] = (CELL)( start+1 );
-      YENV[-1] = (CELL)( end  );
-      YENV -= 2;
-      return it->code;
-    }
-  }
-  return NEXTOP(NEXTOP(it->code,lp),lp);
-}
+     }
+     x = IntegerOfTerm(max);
+     if (n > 8) {
+       int cmp;
+       pt1 = binary_search(pt, end, x PASS_REGS);
+       while ( pt1 >= pt && (cmp = compare(pt1, x PASS_REGS)) >= 0 ) {
+	 if (cmp < 0) break;
+	 pt1--;
+       }
+     } else {
+       pt1 = end;
+       while ( pt1 >= pt && compare(pt1, x PASS_REGS) >= 0 ) {
+	 pt1--;
+       }
+     }
+     if (pt1 < pt) 
+       return FAILCODE;
+     end = pt1;
+   }
+   if (IsVarTerm(op)) {
+     S = it->cls+it->arity*pt[0];
+     if (pt < end ) {
+       YENV[-2] = (CELL)( pt+1 );
+       YENV[-1] = (CELL)( end );
+       YENV -= 2;
+       return it->code;
+     }
+     return NEXTOP(NEXTOP(it->code,lp),lp);
+   }
+   at = AtomOfTerm(op);
+   if (at == AtomAny || at == AtomMin) {
+     S = it->cls+it->arity*pt[0];
+   } else if (at == AtomMax) {
+     S = it->cls+it->arity*end[0];
+   } else if (at == AtomUnique) {
+     if (end-2 > pt)
+       return FAILCODE;
+     S = it->cls+it->arity*pt[0];
+   }
+   return NEXTOP(NEXTOP(it->code,lp),lp);
+ }
 
 static yamop *
 IntervalEnterUDIIndex(struct index_t *it USES_REGS)
@@ -270,57 +259,24 @@ IntervalEnterUDIIndex(struct index_t *it USES_REGS)
   BITS32 off = EXO_ADDRESS_TO_OFFSET(it, S)/it->arity;
   //  printf("off=%d it=%p %p---%p\n", off, it, it->cls, S);
   attvar_record *attv;
-  Atom at;
 
   t = Deref(t);
   if (!IsVarTerm(t))
     return FALSE;
   if(!IsAttVar(VarOfTerm(t)))
-    return FALSE;
+    return Interval(it, MkVarTerm(), MkVarTerm(), MkVarTerm(), off PASS_REGS);
   attv = RepAttVar(VarOfTerm(t));
   t =  attv->Atts;
   a1 = ArgOfTerm(2,t);
-  if (IsAtomTerm(a1)) {
-    at = AtomOfTerm(a1);
+  if (IsVarTerm(a1)) {
+    Yap_Error(INSTANTIATION_ERROR, t, "executing exo_interval constraints");
+    return FAILCODE;
+  } else if (!IsApplTerm(a1)) {
+    Yap_Error(TYPE_ERROR_COMPOUND, a1, "executing exo_interval constraints");
+    return FAILCODE;
   } else {
-    Functor f = FunctorOfTerm(a1);
-    at  = NameOfFunctor(f);
+    return Interval(it, ArgOfTerm(1,a1), ArgOfTerm(2,a1), ArgOfTerm(3,a1), off PASS_REGS);
   }
-  if (at == AtomMax) {
-    return Max(it, off PASS_REGS);
-  } else if (at == AtomMin) {
-    return Min(it, off PASS_REGS);
-  } else if (at == AtomGT) {
-    Term arg = ArgOfTerm(1, a1);
-    if (IsVarTerm(arg))
-      return All(it, off PASS_REGS);
-    else if (!IsIntTerm(arg)) {
-      Yap_Error(TYPE_ERROR_INTEGER, arg, "data-base constraint");
-      return FAILCODE;
-    }
-    return Gt(it, IntOfTerm(arg), off PASS_REGS);
-  } else if (at == AtomLT) {
-    Term arg = ArgOfTerm(1, a1);
-
-    if (IsVarTerm(arg))
-      return All(it, off PASS_REGS);
-    else if (!IsIntTerm(arg)) {
-      Yap_Error(TYPE_ERROR_INTEGER, t, "data-base constraint");
-      return FAILCODE;
-    }
-    return Lt(it, IntOfTerm(arg), off PASS_REGS);
-  } else if (at == AtomEQ) {
-    Term arg = ArgOfTerm(1, a1);
-
-    if (IsVarTerm(arg))
-      return All(it, off PASS_REGS);
-    else if (!IsIntTerm(arg)) {
-      Yap_Error(TYPE_ERROR_INTEGER, t, "data-base constraint");
-      return FAILCODE;
-    }
-    return Eq(it, IntOfTerm(arg), off PASS_REGS);
-  }
-  return FAILCODE;
 }
 
 static int
@@ -328,7 +284,7 @@ IntervalRetryUDIIndex(struct index_t *it USES_REGS)
 {
   CELL *w = (CELL*)(B+1);
   BITS32 *end = (BITS32 *) w[it->arity+2],
-  *pt = (BITS32 *) w[it->arity+1];
+    *pt = (BITS32 *) w[it->arity+1];
   BITS32 f = *pt;
 
   S = it->cls+it->arity*f;
@@ -375,12 +331,12 @@ static int IntervalUdiDestroy(void *control)
 
 void Yap_udi_Interval_init(void) {
   UdiControlBlock cb = &IntervalCB;
-
+  Atom name = Yap_LookupAtom("exo_interval");
   memset((void *) cb,0, sizeof(*cb));
 
   /*TODO: ask vitor why this gives a warning*/
-  cb->decl=Yap_LookupAtom("exo_interval");
-
+  cb->decl= name;
+  Yap_MkEmptyWakeUp(name);
   cb->init= IntervalUdiInit;
   cb->insert=IntervalUdiInsert;
   cb->search=NULL;

@@ -18,36 +18,36 @@
 /* get a def for NULL */
 #include <stdlib.h>
 
-STD_PROTO(static inline void PUT_IN_EXECUTING, (int));
-STD_PROTO(static inline void PUT_OUT_EXECUTING, (int));
-STD_PROTO(static inline void PUT_IN_FINISHED, (int));
+static inline void PUT_IN_EXECUTING(int);
+static inline void PUT_OUT_EXECUTING(int);
+static inline void PUT_IN_FINISHED(int);
 #ifdef TABLING_INNER_CUTS
-STD_PROTO(static inline void PUT_IN_PRUNING, (int));
-STD_PROTO(static inline void PUT_OUT_PRUNING, (int));
+static inline void PUT_IN_PRUNING(int);
+static inline void PUT_OUT_PRUNING(int);
 #endif /* TABLING_INNER_CUTS */
 
-STD_PROTO(static inline void PUT_IN_REQUESTABLE, (int));
-STD_PROTO(static inline void PUT_OUT_REQUESTABLE, (int));
-STD_PROTO(static inline void SCH_update_local_or_tops, (void));
-STD_PROTO(static inline void SCH_refuse_share_request_if_any, (void));
-STD_PROTO(static inline void SCH_set_load, (choiceptr));
-STD_PROTO(static inline void SCH_new_alternative, (yamop *,yamop *));
+static inline void PUT_IN_REQUESTABLE(int);
+static inline void PUT_OUT_REQUESTABLE(int);
+static inline void SCH_update_local_or_tops(void);
+static inline void SCH_refuse_share_request_if_any(void);
+static inline void SCH_set_load(choiceptr);
+static inline void SCH_new_alternative(yamop *,yamop *);
 
-STD_PROTO(static inline void CUT_send_prune_request, (int, choiceptr));
-STD_PROTO(static inline void CUT_reset_prune_request, (void));
+static inline void CUT_send_prune_request(int, choiceptr);
+static inline void CUT_reset_prune_request(void);
 
-STD_PROTO(static inline int CUT_last_worker_left_pending_prune, (or_fr_ptr));
-STD_PROTO(static inline or_fr_ptr CUT_leftmost_or_frame, (void));
+static inline int CUT_last_worker_left_pending_prune(or_fr_ptr);
+static inline or_fr_ptr CUT_leftmost_or_frame(void);
 #ifdef TABLING_INNER_CUTS
-STD_PROTO(static inline or_fr_ptr CUT_leftmost_until, (or_fr_ptr, int));
+static inline or_fr_ptr CUT_leftmost_until(or_fr_ptr, int);
 #endif /* TABLING_INNER_CUTS */
 
-STD_PROTO(static inline void CUT_store_answer, (or_fr_ptr, qg_ans_fr_ptr));
-STD_PROTO(static inline void CUT_store_answers, (or_fr_ptr, qg_sol_fr_ptr));
-STD_PROTO(static inline void CUT_join_answers_in_an_unique_frame, (qg_sol_fr_ptr));
-STD_PROTO(static inline void CUT_free_solution_frame, (qg_sol_fr_ptr));
-STD_PROTO(static inline void CUT_free_solution_frames, (qg_sol_fr_ptr));
-STD_PROTO(static inline qg_sol_fr_ptr CUT_prune_solution_frames, (qg_sol_fr_ptr, int));
+static inline void CUT_store_answer(or_fr_ptr, qg_ans_fr_ptr);
+static inline void CUT_store_answers(or_fr_ptr, qg_sol_fr_ptr);
+static inline void CUT_join_answers_in_an_unique_frame(qg_sol_fr_ptr);
+static inline void CUT_free_solution_frame(qg_sol_fr_ptr);
+static inline void CUT_free_solution_frames(qg_sol_fr_ptr);
+static inline qg_sol_fr_ptr CUT_prune_solution_frames(qg_sol_fr_ptr, int);
 
 
 

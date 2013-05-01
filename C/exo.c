@@ -222,7 +222,7 @@ add_index(struct index_t **ip, UInt bmap, PredEntry *ap, UInt count)
   UInt ncls = ap->cs.p_code.NOfClauses, j;
   CELL *base = NULL;
   struct index_t *i;
-  size_t sz;
+  size_t sz, dsz;
   yamop *ptr;
   UInt *bnds = LOCAL_ibnds;
   
@@ -244,21 +244,22 @@ add_index(struct index_t **ip, UInt bmap, PredEntry *ap, UInt count)
   i->bmap = bmap;
   i->is_key = FALSE;
   i->hsize = 2*ncls;
+  dsz = sizeof(BITS32)*(ncls+i->hsize);
   if (count) {
-    if (!(base = (CELL *)Yap_AllocCodeSpace(sizeof(BITS32)*(ncls+i->hsize)))) {
+    if (!(base = (CELL *)Yap_AllocCodeSpace(dsz))) {
       CACHE_REGS
       save_machine_regs();
-      LOCAL_Error_Size = sizeof(CELL)*(ncls+i->hsize);
+      LOCAL_Error_Size = dsz;
       LOCAL_ErrorMessage = "not enough space to generate indices";
       Yap_FreeCodeSpace((void *)i);
       Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
       return NULL;
     }
-    bzero(base, sizeof(CELL)*(ncls+i->hsize));
+    bzero(base, dsz);
   }
-  i->size = sizeof(CELL)*(ncls+i->hsize)+sz+sizeof(struct index_t);
-  i->key = (CELL *)base;
-  i->links = (CELL *)(base+i->hsize);
+  i->size = sz+dsz+sizeof(struct index_t);
+  i->key = (BITS32 *)base;
+  i->links = (BITS32 *)(base+i->hsize);
   i->ncollisions = i->nentries = i->ntrys = 0;
   i->cls = (CELL *)((ADDR)ap->cs.p_code.FirstClause+2*sizeof(struct index_t *)); 
   *ip = i;
@@ -271,7 +272,7 @@ add_index(struct index_t **ip, UInt bmap, PredEntry *ap, UInt count)
       } else {
 	sz = (ncls+i->hsize)*sizeof(BITS32);
       }
-      if (base != realloc(base, sz))
+      if (base != (CELL *)Yap_ReallocCodeSpace((char *)base, sz))
 	return FALSE;
       bzero(base, sz);
       i->key = (CELL *)base;
@@ -284,7 +285,7 @@ add_index(struct index_t **ip, UInt bmap, PredEntry *ap, UInt count)
 #endif
     if (!i->ntrys && !i->is_key) {
       i->is_key = TRUE;
-      if (base != realloc(base, i->hsize*sizeof(BITS32)))
+      if (base != (CELL *)Yap_ReallocCodeSpace((char *)base, i->hsize*sizeof(BITS32)))
 	return FALSE;
     }
     /* our hash table is just too large */
@@ -296,7 +297,7 @@ add_index(struct index_t **ip, UInt bmap, PredEntry *ap, UInt count)
       } else {
 	sz = (ncls+i->hsize)*sizeof(BITS32);
       }
-      if (base != realloc(base, sz))
+      if (base != (CELL *)Yap_ReallocCodeSpace((char *)base, sz))
 	return FALSE;
       bzero(base, sz);
       i->key = (CELL *)base;
@@ -381,11 +382,16 @@ Yap_ExoLookup(PredEntry *ap USES_REGS)
   }
   if (count) {
     yamop *code = LOOKUP(i, arity, j0, LOCAL_ibnds);
+    if (code == FAILCODE)
+      return code;
     if (i->is_udi) 
       return ((CEnterExoIndex)i->udi_first)(i PASS_REGS);
     else return code;
-  } else
+  } else if(i->is_udi) { 
+    return ((CEnterExoIndex)i->udi_first)(i PASS_REGS);
+  } else {
     return i->code;
+  }
 }
 
 CELL

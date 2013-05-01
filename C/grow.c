@@ -44,30 +44,30 @@ typedef enum {
 
 
 
-STATIC_PROTO(Int p_growheap, ( USES_REGS1 ));
-STATIC_PROTO(Int p_growstack, ( USES_REGS1 ));
-STATIC_PROTO(Int p_inform_trail_overflows, ( USES_REGS1 ));
-STATIC_PROTO(Int p_inform_heap_overflows, ( USES_REGS1 ));
-STATIC_PROTO(Int p_inform_stack_overflows, ( USES_REGS1 ));
+static Int p_growheap( USES_REGS1 );
+static Int p_growstack( USES_REGS1 );
+static Int p_inform_trail_overflows( USES_REGS1 );
+static Int p_inform_heap_overflows( USES_REGS1 );
+static Int p_inform_stack_overflows( USES_REGS1 );
 
 /* #define undf7  */
 /* #define undf5 */
 
-STATIC_PROTO(int growstack, (long CACHE_TYPE));
-STATIC_PROTO(void MoveGlobal, ( CACHE_TYPE1 ));
-STATIC_PROTO(void MoveLocalAndTrail, ( CACHE_TYPE1 ));
-STATIC_PROTO(void SetHeapRegs, (int CACHE_TYPE));
-STATIC_PROTO(void AdjustTrail, (int, int CACHE_TYPE));
-STATIC_PROTO(void AdjustLocal, (int CACHE_TYPE));
-STATIC_PROTO(void AdjustGlobal, (long, int CACHE_TYPE));
-STATIC_PROTO(void AdjustGrowStack, ( CACHE_TYPE1 ));
-STATIC_PROTO(int  static_growheap, (long,int,struct intermediates *,tr_fr_ptr *, TokEntry **, VarEntry ** CACHE_TYPE));
-STATIC_PROTO(void cpcellsd, (CELL *, CELL *, CELL));
-STATIC_PROTO(CELL AdjustAppl, (CELL CACHE_TYPE));
-STATIC_PROTO(CELL AdjustPair, (CELL CACHE_TYPE));
-STATIC_PROTO(void AdjustStacksAndTrail, (long, int CACHE_TYPE));
-STATIC_PROTO(void AdjustRegs, (int CACHE_TYPE));
-STATIC_PROTO(Term AdjustGlobTerm, (Term CACHE_TYPE));
+static int growstack(size_t CACHE_TYPE);
+static void MoveGlobal( CACHE_TYPE1 );
+static void MoveLocalAndTrail( CACHE_TYPE1 );
+static void SetHeapRegs(int CACHE_TYPE);
+static void AdjustTrail(int, int CACHE_TYPE);
+static void AdjustLocal(int CACHE_TYPE);
+static void AdjustGlobal(long, int CACHE_TYPE);
+static void AdjustGrowStack( CACHE_TYPE1 );
+static int  static_growheap(long,int,struct intermediates *,tr_fr_ptr *, TokEntry **, VarEntry ** CACHE_TYPE);
+static void cpcellsd(CELL *, CELL *, CELL);
+static CELL AdjustAppl(CELL CACHE_TYPE);
+static CELL AdjustPair(CELL CACHE_TYPE);
+static void AdjustStacksAndTrail(long, int CACHE_TYPE);
+static void AdjustRegs(int CACHE_TYPE);
+static Term AdjustGlobTerm(Term CACHE_TYPE);
 
 static void
 LeaveGrowMode(prolog_exec_mode grow_mode)
@@ -1500,7 +1500,7 @@ Yap_InsertInGlobal(CELL *where, UInt howmuch)
 
 
 int
-Yap_growstack(long size)
+Yap_growstack(size_t size)
 {
   CACHE_REGS
   int res;
@@ -1616,7 +1616,7 @@ execute_growstack(long size0, int from_trail, int in_parser, tr_fr_ptr *old_trp,
 
 /* Used by do_goal() when we're short of stack space */
 static int
-growstack(long size USES_REGS)
+growstack(size_t size USES_REGS)
 {
   UInt start_growth_time, growth_time;
   int gc_verbose;

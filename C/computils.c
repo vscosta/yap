@@ -67,7 +67,7 @@ static char SccsId[] = "%W% %G%";
 #endif
 
 #ifdef DEBUG
-STATIC_PROTO (void ShowOp, (char *, struct PSEUDO *));
+static void ShowOp(char *, struct PSEUDO *);
 #endif /* DEBUG */
 
 /*

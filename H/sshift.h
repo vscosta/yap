@@ -1120,6 +1120,6 @@ IsGlobal__ (CELL reg USES_REGS)
 }
 
 
-void STD_PROTO (Yap_AdjustStacksAndTrail, (void));
-void STD_PROTO (Yap_AdjustRegs, (int));
+void Yap_AdjustStacksAndTrail(void);
+void Yap_AdjustRegs(int);
 

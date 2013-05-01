@@ -66,7 +66,7 @@
 
 #define YP_FILE		FILE
 
-int     STD_PROTO(YP_putc,(int, int));
+int     YP_putc(int, int);
 
 #else
 
@@ -231,8 +231,8 @@ typedef struct AliasDescS {
 extern char *Yap_chtype;
 
 #include "inline-only.h"
-INLINE_ONLY EXTERN inline int STD_PROTO(chtype,(Int));
-int STD_PROTO(Yap_wide_chtype,(Int));
+INLINE_ONLY EXTERN inline int chtype(Int);
+int Yap_wide_chtype(Int);
 
 INLINE_ONLY EXTERN inline int
 chtype(Int ch)
@@ -247,44 +247,44 @@ chtype(Int ch)
 #define ParserAuxSp LOCAL_ScannerStack
 
 /* routines in parser.c */
-VarEntry STD_PROTO(*Yap_LookupVar,(char *));
-Term STD_PROTO(Yap_VarNames,(VarEntry *,Term));
+VarEntry *Yap_LookupVar(char *);
+Term Yap_VarNames(VarEntry *,Term);
 
 /* routines in scanner.c */
-TokEntry STD_PROTO(*Yap_tokenizer,(struct io_stream *, int, Term *));
-void     STD_PROTO(Yap_clean_tokenizer,(TokEntry *, VarEntry *, VarEntry *,Term));
-Term     STD_PROTO(Yap_scan_num,(struct io_stream *));
-char	 STD_PROTO(*Yap_AllocScannerMemory,(unsigned int));
+TokEntry *Yap_tokenizer(struct io_stream *, int, Term *);
+void     Yap_clean_tokenizer(TokEntry *, VarEntry *, VarEntry *,Term);
+Term     Yap_scan_num(struct io_stream *);
+char	 *Yap_AllocScannerMemory(unsigned int);
 
 /* routines in iopreds.c */
-FILE  *STD_PROTO(Yap_FileDescriptorFromStream,(Term));
-Int   STD_PROTO(Yap_FirstLineInParse,(void));
-int   STD_PROTO(Yap_CheckIOStream,(Term, char *));
+FILE  *Yap_FileDescriptorFromStream(Term);
+Int   Yap_FirstLineInParse(void);
+int   Yap_CheckIOStream(Term, char *);
 #if  defined(YAPOR) || defined(THREADS)
-void  STD_PROTO(Yap_LockStream,(struct io_stream *));
-void  STD_PROTO(Yap_UnLockStream,(struct io_stream *));
+void  Yap_LockStream(struct io_stream *);
+void  Yap_UnLockStream(struct io_stream *);
 #else
 #define Yap_LockStream(X)
 #define Yap_UnLockStream(X)
 #endif
-Int   STD_PROTO(Yap_GetStreamFd,(int));
-void  STD_PROTO(Yap_CloseStreams,(int));
-void  STD_PROTO(Yap_FlushStreams,(void));
-void  STD_PROTO(Yap_CloseStream,(int));
-int   STD_PROTO(Yap_PlGetchar,(void));
-int   STD_PROTO(Yap_PlGetWchar,(void));
-int   STD_PROTO(Yap_PlFGetchar,(void));
-int   STD_PROTO(Yap_GetCharForSIGINT,(void));
-Int   STD_PROTO(Yap_StreamToFileNo,(Term));
-Term  STD_PROTO(Yap_OpenStream,(FILE *,char *,Term,int));
-Term  STD_PROTO(Yap_StringToTerm,(char *,Term *));
+Int   Yap_GetStreamFd(int);
+void  Yap_CloseStreams(int);
+void  Yap_FlushStreams(void);
+void  Yap_CloseStream(int);
+int   Yap_PlGetchar(void);
+int   Yap_PlGetWchar(void);
+int   Yap_PlFGetchar(void);
+int   Yap_GetCharForSIGINT(void);
+Int   Yap_StreamToFileNo(Term);
+Term  Yap_OpenStream(FILE *,char *,Term,int);
+Term  Yap_StringToTerm(char *,Term *);
 char   *Yap_TermToString(Term t, char *s, size_t sz, size_t *length, int *encoding, int flags);
 int     Yap_GetFreeStreamD(void);
 int     Yap_GetFreeStreamDForReading(void);
 
 Term	Yap_WStringToList(wchar_t *);
-Term	STD_PROTO(Yap_WStringToListOfAtoms,(wchar_t *));
-Atom	STD_PROTO(Yap_LookupWideAtom,(wchar_t *));
+Term	Yap_WStringToListOfAtoms(wchar_t *);
+Atom	Yap_LookupWideAtom( wchar_t * );
 
 #define YAP_INPUT_STREAM	0x01
 #define YAP_OUTPUT_STREAM	0x02
@@ -312,9 +312,9 @@ Atom	STD_PROTO(Yap_LookupWideAtom,(wchar_t *));
 
 
 /* grow.c */
-int  STD_PROTO(Yap_growheap_in_parser,   (tr_fr_ptr *, TokEntry **, VarEntry **));
-int  STD_PROTO(Yap_growstack_in_parser,  (tr_fr_ptr *, TokEntry **, VarEntry **));
-int  STD_PROTO(Yap_growtrail_in_parser,  (tr_fr_ptr *, TokEntry **, VarEntry **));
+int  Yap_growheap_in_parser(tr_fr_ptr *, TokEntry **, VarEntry **);
+int  Yap_growstack_in_parser(tr_fr_ptr *, TokEntry **, VarEntry **);
+int  Yap_growtrail_in_parser(tr_fr_ptr *, TokEntry **, VarEntry **);
 
 
 
@@ -324,8 +324,8 @@ int  STD_PROTO(Yap_growtrail_in_parser,  (tr_fr_ptr *, TokEntry **, VarEntry **)
 extern int errno;
 #endif
 
-INLINE_ONLY EXTERN inline UInt STD_PROTO(HashFunction, (unsigned char *));
-INLINE_ONLY EXTERN inline UInt STD_PROTO(WideHashFunction, (wchar_t *));
+INLINE_ONLY EXTERN UInt inline HashFunction(unsigned char *);
+INLINE_ONLY EXTERN UInt inline WideHashFunction(wchar_t *);
 
 INLINE_ONLY EXTERN inline UInt
 HashFunction(unsigned char *CHP)
@@ -346,7 +346,7 @@ HashFunction(unsigned char *CHP)
   */
 }
 
-INLINE_ONLY EXTERN inline UInt
+INLINE_ONLY EXTERN UInt inline
 WideHashFunction(wchar_t *CHP)
 {
   UInt hash = 5381;

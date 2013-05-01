@@ -298,6 +298,8 @@
   RestoreSWIAtoms();
 
 
+  RestoreEmptyWakeups();
+
 
   RestoreSWIBlobTypes();
   RestoreSWIBlobs();

@@ -34,7 +34,7 @@
 #include <sys/times.h>
 
 
-STATIC_PROTO(Int c_db_tl_readline,(void));
+static Int c_db_tl_readline(void);
 
 
 void Yap_InitMYDDAS_TopLevelPreds(void)

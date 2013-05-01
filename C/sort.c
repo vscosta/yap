@@ -28,14 +28,14 @@
 #define M_EVEN  0
 #define M_ODD   1
 
-STATIC_PROTO(Int build_new_list, (CELL *, Term CACHE_TYPE));
-STATIC_PROTO(void simple_mergesort, (CELL *, Int, int));
-STATIC_PROTO(Int compact_mergesort, (CELL *, Int, int));
-STATIC_PROTO(int key_mergesort, (CELL *, Int, int, Functor));
-STATIC_PROTO(void adjust_vector, (CELL *, Int));
-STATIC_PROTO(Int p_sort, ( USES_REGS1 ));
-STATIC_PROTO(Int p_msort, ( USES_REGS1 ));
-STATIC_PROTO(Int p_ksort, ( USES_REGS1 ));
+static Int build_new_list(CELL *, Term CACHE_TYPE);
+static void simple_mergesort(CELL *, Int, int);
+static Int compact_mergesort(CELL *, Int, int);
+static int key_mergesort(CELL *, Int, int, Functor);
+static void adjust_vector(CELL *, Int);
+static Int p_sort( USES_REGS1 );
+static Int p_msort( USES_REGS1 );
+static Int p_ksort( USES_REGS1 );
 
 /* copy to a new list of terms */
 static Int

@@ -9095,11 +9095,11 @@ This package assumes you use UDI exo-indexing, that is:
 @end example
 It is designed to optimise the following type of queries:
 @example
-?- max(X, diagnoses(X, 9, Y)).
+?- max(X, diagnoses(X, 9, Y), X).
 
-?- min(X, diagnoses(X, 9, 36211117)).
+?- min(X, diagnoses(X, 9, 36211117), X).
 
-?- X #< Y, min(X, diagnoses(9, X, 36211117)), diagnoses(Y, 9, _).
+?- X #< Y, min(X, diagnoses(X, 9, 36211117), X ), diagnoses(Y, 9, _).
 @end example
 The first argument gives the time, the second the patient, and the
 third the condition code. The first query should find the last time

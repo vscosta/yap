@@ -62,22 +62,22 @@ static char     SccsId[] = "%W% %G%";
 int  Yap_output_msg = FALSE;
 
 #ifdef MACC
-STATIC_PROTO(void  InTTYLine, (char *));
+static void  InTTYLine(char *);
 #endif
 #endif
-STATIC_PROTO(void  SetOp, (int, int, char *, Term));
-STATIC_PROTO(void  InitOps, (void));
-STATIC_PROTO(void  InitDebug, (void));
+static void  SetOp(int, int, char *, Term);
+static void  InitOps(void);
+static void  InitDebug(void);
 #ifdef CUT_C
-STATIC_PROTO(void  CleanBack, (PredEntry *, CPredicate, CPredicate, CPredicate));
+static void  CleanBack(PredEntry *, CPredicate, CPredicate, CPredicate);
 #else
-STATIC_PROTO(void  CleanBack, (PredEntry *, CPredicate, CPredicate));
+static void  CleanBack(PredEntry *, CPredicate, CPredicate);
 #endif
-STATIC_PROTO(void  InitStdPreds,(void));
-STATIC_PROTO(void  InitFlags, (void));
-STATIC_PROTO(void  InitCodes, (void));
-STATIC_PROTO(void  InitVersion, (void));
-STD_PROTO(void  exit, (int));
+static void  InitStdPreds(void);
+static void  InitFlags(void);
+static void  InitCodes(void);
+static void  InitVersion(void);
+void  exit(int);
 static void InitWorker(int wid);
 
 
@@ -1020,6 +1020,11 @@ InitSWIAtoms(void)
 #include "iswiatoms.h"
   Yap_InitSWIHash();
   ATOM_ = PL_new_atom("");
+}
+
+static void 
+InitEmptyWakeups(void)
+{
 }
 
 static void 

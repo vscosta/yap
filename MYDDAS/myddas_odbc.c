@@ -29,15 +29,15 @@
 
 static Int null_id = 0;
 
-STATIC_PROTO(Int c_db_odbc_connect,( USES_REGS1 ));
-STATIC_PROTO(Int c_db_odbc_disconnect,( USES_REGS1 ));
-STATIC_PROTO(Int c_db_odbc_number_of_fields,( USES_REGS1 ));
-STATIC_PROTO(Int c_db_odbc_get_attributes_types,( USES_REGS1 ));
-STATIC_PROTO(Int c_db_odbc_query,( USES_REGS1 ));
-STATIC_PROTO(Int c_db_odbc_row,( USES_REGS1 ));
-STATIC_PROTO(Int c_db_odbc_row_cut,( USES_REGS1 ));
-STATIC_PROTO(Int c_db_odbc_get_fields_properties,( USES_REGS1 ));
-STATIC_PROTO(Int c_db_odbc_number_of_fields_in_query,( USES_REGS1 ));
+static Int c_db_odbc_connect( USES_REGS1 );
+static Int c_db_odbc_disconnect( USES_REGS1 );
+static Int c_db_odbc_number_of_fields( USES_REGS1 );
+static Int c_db_odbc_get_attributes_types( USES_REGS1 );
+static Int c_db_odbc_query( USES_REGS1 );
+static Int c_db_odbc_row( USES_REGS1 );
+static Int c_db_odbc_row_cut( USES_REGS1 );
+static Int c_db_odbc_get_fields_properties( USES_REGS1 );
+static Int c_db_odbc_number_of_fields_in_query( USES_REGS1 );
 
 static int
 odbc_error(SQLSMALLINT type, SQLHANDLE hdbc, char *msg, char *print)

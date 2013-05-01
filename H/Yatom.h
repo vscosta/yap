@@ -37,7 +37,7 @@ INLINE_ONLY inline EXTERN AtomEntry *RepAtom (Atom a);
 INLINE_ONLY inline EXTERN AtomEntry *
 RepAtom (Atom a)
 {
-  return (AtomEntry *) (AtomBase + Unsigned (a));
+  return (AtomEntry *) (AtomBase + Unsigned (a);
 }
 
 
@@ -487,12 +487,12 @@ typedef enum
 } op_type;
 
 
-OpEntry   *STD_PROTO(Yap_GetOpProp,(Atom, op_type CACHE_TYPE));
+OpEntry   *Yap_GetOpProp(Atom, op_type CACHE_TYPE);
 
-int	STD_PROTO(Yap_IsPrefixOp,(Atom,int *,int *));
-int	STD_PROTO(Yap_IsOp,(Atom));
-int	STD_PROTO(Yap_IsInfixOp,(Atom,int *,int *,int *));
-int	STD_PROTO(Yap_IsPosfixOp,(Atom,int *,int *));
+int	Yap_IsPrefixOp(Atom,int *,int *);
+int	Yap_IsOp(Atom);
+int	Yap_IsInfixOp(Atom,int *,int *,int *);
+int	Yap_IsPosfixOp(Atom,int *,int *);
 
 /* defines related to operator specifications				*/
 #define	MaskPrio  0x0fff
@@ -1440,23 +1440,23 @@ IsBlob (Atom at)
 /* Proto types */
 
 /* cdmgr.c */
-int STD_PROTO (Yap_RemoveIndexation, (PredEntry *));
-void STD_PROTO (Yap_UpdateTimestamps, (PredEntry *));
+int Yap_RemoveIndexation(PredEntry *);
+void Yap_UpdateTimestamps(PredEntry *);
 
 /* dbase.c */
-void STD_PROTO (Yap_ErDBE, (DBRef));
-DBTerm *STD_PROTO (Yap_StoreTermInDB, (Term, int));
-DBTerm *STD_PROTO (Yap_StoreTermInDBPlusExtraSpace, (Term, UInt, UInt *));
-Term STD_PROTO (Yap_FetchTermFromDB, (DBTerm *));
-Term STD_PROTO (Yap_PopTermFromDB, (DBTerm *));
-void STD_PROTO (Yap_ReleaseTermFromDB, (DBTerm *));
+void Yap_ErDBE(DBRef);
+DBTerm *Yap_StoreTermInDB(Term, int);
+DBTerm *Yap_StoreTermInDBPlusExtraSpace(Term, UInt, UInt *);
+Term Yap_FetchTermFromDB(DBTerm *);
+Term Yap_PopTermFromDB(DBTerm *);
+void Yap_ReleaseTermFromDB(DBTerm *);
 
 /* init.c */
-Atom STD_PROTO (Yap_GetOp, (OpEntry *, int *, int));
+Atom Yap_GetOp(OpEntry *, int *, int);
 
 /* vsc: redefined to GetAProp to avoid conflicts with Windows header files */
-Prop STD_PROTO (Yap_GetAProp, (Atom, PropFlags));
-Prop STD_PROTO (Yap_GetAPropHavingLock, (AtomEntry *, PropFlags));
+Prop Yap_GetAProp(Atom, PropFlags);
+Prop Yap_GetAPropHavingLock(AtomEntry *, PropFlags);
 
 typedef enum
 {
@@ -1473,7 +1473,7 @@ typedef enum
 #define  PredHashInitialSize      ((UInt)1039)
 #define  PredHashIncrement        ((UInt)7919)
 
-INLINE_ONLY EXTERN inline UInt STD_PROTO(PRED_HASH, (FunctorEntry *, Term, UInt));
+INLINE_ONLY EXTERN inline UInt PRED_HASH(FunctorEntry *, Term, UInt);
 
 INLINE_ONLY EXTERN inline UInt
 PRED_HASH(FunctorEntry *fe, Term cur_mod, UInt size)
@@ -1481,16 +1481,16 @@ PRED_HASH(FunctorEntry *fe, Term cur_mod, UInt size)
   return (((CELL)fe+cur_mod)>>2) % size;
 }
 
-INLINE_ONLY EXTERN inline Prop STD_PROTO(GetPredPropByFuncAndModHavingLock, (FunctorEntry *, Term));
-INLINE_ONLY EXTERN inline Prop STD_PROTO(PredPropByFuncAndMod, (FunctorEntry *, Term));
-INLINE_ONLY EXTERN inline Prop STD_PROTO(PredPropByAtomAndMod, (Atom, Term));
-INLINE_ONLY EXTERN inline Prop STD_PROTO(GetPredPropByFuncHavingLock, (FunctorEntry *, Term));
+INLINE_ONLY EXTERN inline Prop GetPredPropByFuncAndModHavingLock(FunctorEntry *, Term);
+INLINE_ONLY EXTERN inline Prop PredPropByFuncAndMod(FunctorEntry *, Term);
+INLINE_ONLY EXTERN inline Prop PredPropByAtomAndMod(Atom, Term);
+INLINE_ONLY EXTERN inline Prop GetPredPropByFuncHavingLock(FunctorEntry *, Term);
 
 #ifdef THREADS
 
-Prop STD_PROTO(Yap_NewThreadPred, (struct pred_entry * CACHE_TYPE));
-Prop STD_PROTO(Yap_NewPredPropByFunctor, (Functor, Term));
-INLINE_ONLY EXTERN inline struct pred_entry *STD_PROTO(Yap_GetThreadPred, (struct pred_entry * CACHE_TYPE));
+Prop Yap_NewThreadPred(struct pred_entry * CACHE_TYPE);
+Prop Yap_NewPredPropByFunctor(Functor, Term);
+INLINE_ONLY EXTERN inline struct pred_entry *Yap_GetThreadPred(struct pred_entry * CACHE_TYPE);
 
 INLINE_ONLY EXTERN inline struct pred_entry *
 Yap_GetThreadPred(struct pred_entry *ap USES_REGS)
@@ -1698,7 +1698,7 @@ PredPropByAtomAndMod (Atom at, Term cur_mod)
 #define UNLOCKPE(I,Z)	UNLOCK((Z)->PELock)
 #endif
 
-INLINE_ONLY EXTERN inline void STD_PROTO(AddPropToAtom, (AtomEntry *, PropEntry *p));
+INLINE_ONLY EXTERN inline void AddPropToAtom(AtomEntry *, PropEntry *p);
 
 INLINE_ONLY EXTERN inline void
 AddPropToAtom(AtomEntry *ae, PropEntry *p)
