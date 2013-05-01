@@ -177,6 +177,7 @@ typedef struct index_t {
   size_t size;
   yamop *code;
   void *udi_data, *udi_first, *udi_next;
+  UInt udi_arg;
 } Index_t;
 
 INLINE_ONLY EXTERN inline BITS32 EXO_ADDRESS_TO_OFFSET(struct index_t *it, CELL *ptr);
