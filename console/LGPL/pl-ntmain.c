@@ -30,7 +30,7 @@
 #include "SWI-Prolog.h"
 #include <ctype.h>
 #ifdef _YAP_NOT_INSTALLED_
-#include "LGPL/swi_console/console.h"
+#include "swi/console/console.h"
 #else
 #include "win32/console/console.h"
 #endif
