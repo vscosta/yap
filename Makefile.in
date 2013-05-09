@@ -233,7 +233,7 @@ C_SOURCES= \
 	$(srcdir)/C/agc.c $(srcdir)/C/alloc.c \
 	$(srcdir)/C/amasm.c $(srcdir)/C/analyst.c \
 	$(srcdir)/C/arith0.c $(srcdir)/C/arith1.c $(srcdir)/C/arith2.c \
-	$(srcdir)/C/arrays.c \
+	$(srcdir)/C/arrays.c $(srcdir)/C/atoms.c \
 	$(srcdir)/C/attvar.c $(srcdir)/C/bb.c \
 	$(srcdir)/C/bignum.c \
 	$(srcdir)/C/c_interface.c $(srcdir)/C/cdmgr.c $(srcdir)/C/cmppreds.c \
@@ -356,7 +356,7 @@ IOLIB_OBJECTS=pl-buffer.o pl-codelist.o pl-ctype.o pl-dtoa.o pl-error.o  \
 
 ENGINE_OBJECTS = \
 	agc.o absmi.o adtdefs.o alloc.o amasm.o analyst.o arrays.o \
-	arith0.o arith1.o arith2.o attvar.o \
+	arith0.o arith1.o arith2.o atoms.o attvar.o \
 	bignum.o bb.o \
 	cdmgr.o cmppreds.o compiler.o computils.o \
 	corout.o cut_c.o dbase.o dlmalloc.o errors.o eval.o \
