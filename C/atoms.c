@@ -1924,202 +1924,416 @@ p_atom_number( USES_REGS1 )
   }
 }
 
-/* $sub_atom_extract(A,Bef,Size,After,SubAt).*/
-static Int
-p_sub_atom_extract( USES_REGS1 )
-{
-  Atom at = AtomOfTerm(Deref(ARG1)), nat;
-  Int start = IntegerOfTerm(Deref(ARG2));
-  Int len = IntegerOfTerm(Deref(ARG3));
-  Int leftover;
 
-  if (start < 0)
-    Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,ARG2,"sub_atom/5");
-  if (len < 0)
-    Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,ARG3,"sub_atom/5");
- start:
-  if (IsWideAtom(at)) {
-    wchar_t *s = RepAtom(at)->WStrOfAE;
-    int max = wcslen(s);
-    Int i;
+#define SUB_ATOM_HAS_MIN    1
+#define SUB_ATOM_HAS_SIZE   2
+#define SUB_ATOM_HAS_AFTER  4
+#define SUB_ATOM_HAS_VAL    8
+#define SUB_ATOM_HAS_WIDE  16
 
-    leftover = max-(start+len);
-    if (leftover < 0)
-      return FALSE;
-    for (i=0;i<len;i++) {
-      if ((s+start)[i] > 255) break;
-    }
-    if (i == len) {
-      char *String = Yap_PreAllocCodeSpace();
-      if (String + (len+1024) >= (char *)AuxSp) 
-	goto expand_auxsp;
-      for (i=0;i<len;i++) {
-	String[i] = (s+start)[i];
-      }
-      String[len] = '\0';
-      nat = Yap_LookupAtom(String);    
-    } else {
-      wchar_t *String = (wchar_t *)Yap_PreAllocCodeSpace();
-      if (String + (len+1024) >= (wchar_t *)AuxSp) 
-	goto expand_auxsp;
-      wcsncpy(String, s+start, len);
-      String[len] = '\0';
-      nat = Yap_LookupWideAtom(String);    
-    }
-  } else {
-    char *s = RepAtom(at)->StrOfAE, *String;
-    int max = strlen(s);
-
-    leftover = max-(start+len);
-    if (leftover < 0)
-      return FALSE;
-    String = Yap_PreAllocCodeSpace();
-    if (String + (len+1024) >= (char *)AuxSp) 
-      goto expand_auxsp;
-    strncpy(String, s+start, len);
-    String[len] = '\0';
-    nat = Yap_LookupAtom(String);
-  }
-  return Yap_unify(ARG5,MkAtomTerm(nat)) &&
-    Yap_unify(ARG4,MkIntegerTerm(leftover));
-
- expand_auxsp:
-  {
-    char *String = Yap_ExpandPreAllocCodeSpace(len, NULL, TRUE);
-    if (String + 1024 > (char *)AuxSp) {
-      /* crash in flames */
-      Yap_Error(OUT_OF_AUXSPACE_ERROR, ARG1, "allocating temp space in sub_atom/5");
-      return FALSE;
+static void *
+alloc_tmp_stack(size_t sz) {
+  void *pt = (void *)H;
+  while (H > ASP-(1044+sz/sizeof(CELL))) {
+    if (!Yap_gc(5, ENV, gc_P(P,CP))) {
+      Yap_Error(OUT_OF_STACK_ERROR, TermNil, "sub_atom/5");
+      return(NULL);
     }
   }
-  goto start;
+  return pt;
 }
 
-/* $sub_atom_extract(A,Bef,Size,After,SubAt).*/
-static Int
-cont_sub_atom_fetch( USES_REGS1 )
+static Atom 
+build_new_atom(int mask, wchar_t *wp, char *p, size_t min, size_t len)
 {
-  Atom at = AtomOfTerm(EXTRA_CBACK_ARG(5,1));
-  Atom subatom = AtomOfTerm(EXTRA_CBACK_ARG(5,2));
-  Int offset = IntegerOfTerm(EXTRA_CBACK_ARG(5,3));
-  Int sb = IntegerOfTerm(EXTRA_CBACK_ARG(5,4));
-  Int sz = IntegerOfTerm(EXTRA_CBACK_ARG(5,5));
-
-  if (IsWideAtom(at)) {
-    wchar_t *s = RepAtom(at)->WStrOfAE;
-    wchar_t *ins, *where;
-    Int start, after;
-    Int res;
-
+  Atom nat;
+  if (mask & SUB_ATOM_HAS_WIDE) {
+    wchar_t *src = wp+min;
+    wchar_t *d = alloc_tmp_stack((len+1)*sizeof(wchar_t));
+    if (!d) return NIL;
     
-    if (!IsWideAtom(subatom)) {
-      /* first convert to wchar_t */
-      char *inschars = RepAtom(subatom)->StrOfAE;
-      Int i;
+    wcsncpy(d, src, len);
+    d[len] = '\0';
+    nat = Yap_LookupMaybeWideAtom(d);
+  } else {
+    char *src = p+min;
+    char *d = alloc_tmp_stack((len+1)*sizeof(char));
+    if (!d) return NIL;
+    
+    strncpy(d, src, len);
+    d[len] = '\0';
+    nat = Yap_LookupAtom(d);
+  }
+  return nat;
+}
 
-      if (offset+sz > sb)
-	cut_fail();
-      ins = (wchar_t *)Yap_PreAllocCodeSpace();
-      while ((ins = (wchar_t *)Yap_PreAllocCodeSpace()) + (sz+1) > (wchar_t *)AuxSp) {
-	if (!Yap_ExpandPreAllocCodeSpace(sizeof(wchar_t)*(sz+1), NULL, TRUE)) {
-	  Yap_Error(OUT_OF_AUXSPACE_ERROR, ARG5, "allocating temp space in sub_atom/2");
-	  return FALSE;
+static Int wcsstrcmp(wchar_t *p, char *p2, size_t len)
+{
+  while (len--) {
+    Int d = *p++-*p2++;
+    if (d) return d;
+  }
+  return 0;
+}
+
+static int
+check_sub_atom_at(int min, Atom at, Atom nat)
+{
+  if (IsWideAtom(nat)) {
+    wchar_t *p1, *p2;
+    wchar_t c1;
+    if (!IsWideAtom(at)) return FALSE;
+    p1 = RepAtom(at)->WStrOfAE+min;
+    p2 = RepAtom(nat)->WStrOfAE;
+    while ( (c1 = *p1++) == *p2++ && c1);
+    return c1 == 0;
+  } else {
+    if (IsWideAtom(at)) {
+      wchar_t *p1;
+      char *p2;
+      wchar_t c1;
+      p1 = RepAtom(at)->WStrOfAE+min;
+      p2 = RepAtom(nat)->StrOfAE;
+      while ( (c1 = *p1++) == *p2++ && c1);
+      return c1 == 0;
+    } else {
+      char *p1, *p2;
+      char c1;
+      p1 = RepAtom(at)->StrOfAE+min;
+      p2 = RepAtom(nat)->StrOfAE;
+      while ( (c1 = *p1++) == *p2++ && c1);
+      return c1 == 0;
+    }
+  }
+}
+
+static int
+check_sub_atom_bef(int max, Atom at, Atom nat)
+{
+  if (IsWideAtom(nat)) {
+    wchar_t *p1, *p2;
+    wchar_t c1;
+
+    size_t len = wcslen(RepAtom(nat)->WStrOfAE);
+    int min = max- len;
+    if (min < 0) return FALSE;
+    if (!IsWideAtom(at)) return FALSE;
+    p1 = RepAtom(at)->WStrOfAE+min;
+    p2 = RepAtom(nat)->WStrOfAE;
+    while ( (c1 = *p1++) == *p2++ && c1);
+    return c1 == 0;
+  } else {
+    size_t len = strlen(RepAtom(nat)->StrOfAE);
+    int min = max- len;
+    if (min - len < 0) return FALSE;
+    if (IsWideAtom(at)) {
+      wchar_t *p1;
+      char *p2;
+      wchar_t c1;
+      p1 = RepAtom(at)->WStrOfAE+min;
+      p2 = RepAtom(nat)->StrOfAE;
+      while ( (c1 = *p1++) == *p2++ && c1);
+      return c1 == 0;
+    } else {
+      char *p1, *p2;
+      char c1;
+      p1 = RepAtom(at)->StrOfAE+min;
+      p2 = RepAtom(nat)->StrOfAE;
+      while ( (c1 = *p1++) == *p2++ && c1);
+      return c1 == 0;
+    }
+  }
+}
+
+static Int
+cont_sub_atom( USES_REGS1 )
+{
+  Term tat1= Deref(ARG1);
+  Atom at = AtomOfTerm(tat1);
+  int mask;
+  size_t min, len, after, sz;
+  wchar_t *wp = NULL;
+  char *p = NULL;
+  Atom nat;
+
+  mask = IntegerOfTerm(EXTRA_CBACK_ARG(5,1));
+  min = IntegerOfTerm(EXTRA_CBACK_ARG(5,2));
+  len = IntegerOfTerm(EXTRA_CBACK_ARG(5,3));
+  after = IntegerOfTerm(EXTRA_CBACK_ARG(5,4));
+  sz = IntegerOfTerm(EXTRA_CBACK_ARG(5,5));
+
+  if (mask & SUB_ATOM_HAS_WIDE) {
+    wp = RepAtom(at)->WStrOfAE;
+  } else {
+    p = RepAtom(at)->StrOfAE;
+  }
+  /* we can have one of two cases: A5 bound or unbound */
+  if (mask & SUB_ATOM_HAS_VAL) {
+    int found = FALSE;
+    nat = AtomOfTerm(Deref(ARG5));
+    if (mask & SUB_ATOM_HAS_WIDE) {
+      wp = RepAtom(at)->WStrOfAE;
+      if (IsWideAtom(nat)) {
+	while (!found) {
+	  if (wcsncmp(wp+min, nat->WStrOfAE, len) == 0) {
+	    Yap_unify(ARG2, MkIntegerTerm(min));
+	    Yap_unify(ARG3, MkIntegerTerm(len));
+	    Yap_unify(ARG4, MkIntegerTerm(after));
+	    found = TRUE;
+	    /* found one, check if there is any left */
+	    while (min <= sz-len) {
+	      after--;
+	      min++;
+	      if (wcsncmp(wp+min, nat->WStrOfAE, len) == 0)
+		break;
+	    }
+	  } else {
+	    if (min == sz-len) break;
+	    after--;
+	    min++;
+	  }
+	}
+      } else {
+	while (!found) {
+	  if (wcsstrcmp(wp+min, nat->StrOfAE, len) == 0) {
+	    Yap_unify(ARG2, MkIntegerTerm(min));
+	    Yap_unify(ARG3, MkIntegerTerm(len));
+	    Yap_unify(ARG4, MkIntegerTerm(after));
+	    found = TRUE;
+	    /* found one, check if there is any left */
+	    while (min <= sz-len) {
+	      after--;
+	      min++;
+	      if (wcsstrcmp(wp+min, nat->StrOfAE, len) == 0)
+		break;
+	    }
+	  } else {
+	    if (min == sz-len) break;
+	    after--;
+	    min++;
+	  }
+	} 
+      }     
+    } else {
+      p = RepAtom(at)->StrOfAE;
+      while (!found) {
+	if (strncmp(p+min, nat->StrOfAE, len) == 0) {
+	  Yap_unify(ARG2, MkIntegerTerm(min));
+	  Yap_unify(ARG3, MkIntegerTerm(len));
+	  Yap_unify(ARG4, MkIntegerTerm(after));
+	  found = TRUE;
+	  /* found one, check if there is any left */
+	  while (min <= sz-len) {
+	    after--;
+	    min++;
+	    if (strncmp(p+min, nat->StrOfAE, len) == 0)
+	      break;
+	  }
+	} else {
+	  if (min == sz-len) break;
+	  after--;
+	  min++;
 	}
       }
-      for (i=0;i<=sz;i++)
-	ins[i] = inschars[i];
-    } else {
-      ins = RepAtom(subatom)->WStrOfAE;
     }
-    if (!(where = wcsstr(s+offset, ins))) {
+    if (found) {
+      if (min > sz-len) cut_succeed();
+    } else {
       cut_fail();
     }
-    if (!Yap_unify(EXTRA_CBACK_ARG(5,5), ARG3)) {
-      cut_fail();
-    }
-    start = where-s;
-    after = sb-(start+sz);
-    res = (Yap_unify(MkIntegerTerm(start), ARG2) &&
-	   Yap_unify(MkIntegerTerm(after), ARG4));
-    if (!res) {
-      if (!after) {
-	cut_fail();
-      } else {
-	EXTRA_CBACK_ARG(5,3) = MkIntegerTerm(start+1);
-	return FALSE;
-      }
-    }
-    if (!after) {
-      cut_succeed();
-    } else {
-      EXTRA_CBACK_ARG(5,3) = MkIntegerTerm(start+1);
-      return TRUE;
-    }
+  } else if (mask & SUB_ATOM_HAS_SIZE) {
+    nat = build_new_atom(mask, wp, p, min, len);
+    Yap_unify(ARG2, MkIntegerTerm(min));
+    Yap_unify(ARG4, MkIntegerTerm(after));
+    Yap_unify(ARG5, MkAtomTerm(nat));
+    min++;
+    if (after-- == 0) cut_succeed();
+  } else if (mask & SUB_ATOM_HAS_MIN) {
+    after = sz-(min+len);
+    nat = build_new_atom(mask, wp, p, min, len);
+    Yap_unify(ARG3, MkIntegerTerm(len));
+    Yap_unify(ARG4, MkIntegerTerm(after));
+    Yap_unify(ARG5, MkAtomTerm(nat));
+    len++;
+    if (after-- == 0) cut_succeed();    
+  } else if (mask & SUB_ATOM_HAS_AFTER) {
+    len = sz-(min+after);
+    nat = build_new_atom(mask, wp, p, min, len);
+    Yap_unify(ARG2, MkIntegerTerm(min));
+    Yap_unify(ARG3, MkIntegerTerm(len));
+    Yap_unify(ARG5, MkAtomTerm(nat));
+    min++;
+    if (len-- == 0) cut_succeed();    
   } else {
-    char *s = RepAtom(at)->StrOfAE;
-    char *ins, *where;
-    Int start, after;
-    Int res;
-
-    ins = subatom->StrOfAE;
-    if (offset+sz > sb) {
-      cut_fail();
-    }
-    if (!(where = strstr(s+offset, ins))) {
-      cut_fail();
-    }
-    if (!Yap_unify(EXTRA_CBACK_ARG(5,5), ARG3)) {
-      cut_fail();
-    }
-    start = where-s;
-    after = sb-(start+sz);
-    res = (Yap_unify(MkIntegerTerm(start), ARG2) &&
-	   Yap_unify(MkIntegerTerm(after), ARG4));
-    if (!res) {
-      if (!after) {
-	cut_fail();
-      } else {
-	EXTRA_CBACK_ARG(5,3) = MkIntegerTerm(start+1);
-	return FALSE;
-      }
-    }
-    if (!after) {
-      cut_succeed();
-    } else {
-      EXTRA_CBACK_ARG(5,3) = MkIntegerTerm(start+1);
-      return TRUE;
+    nat = build_new_atom(mask, wp, p, min, len);
+    Yap_unify(ARG2, MkIntegerTerm(min));
+    Yap_unify(ARG3, MkIntegerTerm(len));
+    Yap_unify(ARG4, MkIntegerTerm(after));
+    Yap_unify(ARG5, MkAtomTerm(nat));
+    len++;
+    if (after-- == 0) {
+      if (min == sz) cut_succeed();
+      min++;
+      len = 0;
+      after = sz-min;
     }
   }
+  EXTRA_CBACK_ARG(5,1) = MkIntegerTerm(mask);
+  EXTRA_CBACK_ARG(5,2) = MkIntegerTerm(min);
+  EXTRA_CBACK_ARG(5,3) = MkIntegerTerm(len);
+  EXTRA_CBACK_ARG(5,4) = MkIntegerTerm(after);   
+  EXTRA_CBACK_ARG(5,5) = MkIntegerTerm(sz); 
+  return TRUE;
 }
 
-/* $sub_atom_extract(A,Bef,Size,After,SubAt).*/
 static Int
-init_sub_atom_fetch( USES_REGS1 )
+init_sub_atom( USES_REGS1 )
 {
-  Term tat1, tat2;
-  Atom at1, at2;
+  Term tat1, tbef, tsize, tafter, tout;
+  int mask = 0;
+  size_t min, len, after, sz;
+  wchar_t *wp = NULL;
+  char *p = NULL;
+  int bnds = 0;
+  Atom nat = NIL, at;
 
-  EXTRA_CBACK_ARG(5,1) = tat1 = Deref(ARG1);  
-  EXTRA_CBACK_ARG(5,2) = tat2 = Deref(ARG5);  
+  tat1 = Deref(ARG1);  
+  tbef = Deref(ARG5);  
   EXTRA_CBACK_ARG(5,3) = MkIntegerTerm(0);
-  at1 = AtomOfTerm(tat1);
-  at2 = AtomOfTerm(tat2);
-  if (IsWideAtom(at1)) {
-    EXTRA_CBACK_ARG(5,4) = MkIntegerTerm(wcslen(at1->WStrOfAE));
-    if (IsWideAtom(at2)) {
-      EXTRA_CBACK_ARG(5,5) = MkIntegerTerm(wcslen(at2->WStrOfAE));
-    } else {
-      EXTRA_CBACK_ARG(5,5) = MkIntegerTerm(strlen(at2->StrOfAE));
-    }
+  if (IsVarTerm(tat1)) {
+    Yap_Error(INSTANTIATION_ERROR, tat1, "sub_atom/5: first argument");
+    return FALSE;
+  } else if (!IsAtomTerm(tat1)) {
+    Yap_Error(TYPE_ERROR_ATOM, tat1, "sub_atom/5");
+    return FALSE;
+  }
+  if (IsVarTerm(tbef = Deref(ARG2))) {
+    min = 0;
+  } else if (!IsIntegerTerm(tbef)) {
+    Yap_Error(TYPE_ERROR_INTEGER, tbef, "sub_atom/5");
+    return FALSE;
   } else {
-    EXTRA_CBACK_ARG(5,4) = MkIntegerTerm(strlen(at1->StrOfAE));
-    if (IsWideAtom(at2)) {
-      cut_fail();
+    min = IntegerOfTerm(tbef);
+    mask |= SUB_ATOM_HAS_MIN;
+    bnds++;
+  }
+  if (IsVarTerm(tsize = Deref(ARG3))) {
+    len = 0;
+  } else if (!IsIntegerTerm(tsize)) {
+    Yap_Error(TYPE_ERROR_INTEGER, tsize, "sub_atom/5");
+    return FALSE;
+  } else {
+    len = IntegerOfTerm(tsize);
+    mask |= SUB_ATOM_HAS_SIZE;
+    bnds++;
+  }
+  if (IsVarTerm(tafter = Deref(ARG4))) {
+    after = 0;
+  } else if (!IsIntegerTerm(tafter)) {
+    Yap_Error(TYPE_ERROR_INTEGER, tafter, "sub_atom/5");
+    return FALSE;
+  } else {
+    after = IntegerOfTerm(tafter);
+    mask |= SUB_ATOM_HAS_AFTER;
+    bnds++;
+  }
+  if (!IsVarTerm(tout = Deref(ARG5))) {
+    if (!IsAtomTerm(tout)) {
+      Yap_Error(TYPE_ERROR_ATOM, tout, "sub_atom/5");
+      return FALSE;
     } else {
-      EXTRA_CBACK_ARG(5,5) = MkIntegerTerm(strlen(at2->StrOfAE));
+      mask |= SUB_ATOM_HAS_VAL|SUB_ATOM_HAS_SIZE;
+      nat = AtomOfTerm(tout);
+      if (IsWideAtom(nat)) 
+	len = wcslen(RepAtom(nat)->WStrOfAE);
+      else
+	len = strlen(RepAtom(nat)->StrOfAE);
+      if (!Yap_unify(ARG3, MkIntegerTerm(len)))
+	cut_fail();
+      bnds+=2;
     }
   }
-  return cont_sub_atom_fetch( PASS_REGS1 );
+  at = AtomOfTerm(tat1);
+  if (IsWideAtom(at)) {
+    mask |= SUB_ATOM_HAS_WIDE;
+    wp = RepAtom(at)->WStrOfAE;
+    sz = wcslen(wp);
+  } else {
+    p = RepAtom(at)->StrOfAE; 
+    sz = strlen(p);
+  }
+  /* the problem is deterministic if we have two cases */
+  if (bnds > 1) {
+    int out = FALSE;
+
+    if ((mask & (SUB_ATOM_HAS_MIN|SUB_ATOM_HAS_SIZE)) ==
+	(SUB_ATOM_HAS_MIN|SUB_ATOM_HAS_SIZE)) {
+      if (min+len > sz) cut_fail();
+      if ((after = (sz-(min+len))) < 0) cut_fail();
+      nat = build_new_atom(mask, wp, p, min, len);
+      if (!nat) cut_fail();
+      out = Yap_unify(ARG4,MkIntegerTerm(after)) &&
+	Yap_unify(ARG5, MkAtomTerm(nat));
+    } else if ((mask & (SUB_ATOM_HAS_MIN|SUB_ATOM_HAS_AFTER)) ==
+	       (SUB_ATOM_HAS_MIN|SUB_ATOM_HAS_AFTER)) {
+      if (sz < min+after) cut_fail();
+      len = sz-(min+after);
+      nat = build_new_atom(mask, wp, p, min, len);
+      if (!nat) cut_fail();
+      out = Yap_unify(ARG3,MkIntegerTerm(len)) &&
+	Yap_unify(ARG5, MkAtomTerm(nat));
+    } else if ((mask & (SUB_ATOM_HAS_SIZE|SUB_ATOM_HAS_AFTER)) ==
+	      (SUB_ATOM_HAS_SIZE|SUB_ATOM_HAS_AFTER) ) {
+      if (len+after > sz) cut_fail();
+      min = sz-(len+after);
+      nat = build_new_atom(mask, wp, p, min, len);
+      if (!nat) cut_fail();
+      out = Yap_unify(ARG2,MkIntegerTerm(min)) &&
+	Yap_unify(ARG5, MkAtomTerm(nat));
+    } else if ((mask & (SUB_ATOM_HAS_MIN|SUB_ATOM_HAS_VAL)) ==
+	       (SUB_ATOM_HAS_MIN|SUB_ATOM_HAS_VAL)) {
+      out = check_sub_atom_at(min, at, nat);
+    } else if ((mask & (SUB_ATOM_HAS_AFTER|SUB_ATOM_HAS_VAL)) ==
+	       (SUB_ATOM_HAS_AFTER|SUB_ATOM_HAS_VAL)) {
+      out = check_sub_atom_bef(sz - after, at, nat);
+    } else if ((mask & (SUB_ATOM_HAS_SIZE|SUB_ATOM_HAS_VAL)) ==
+	        (SUB_ATOM_HAS_SIZE|SUB_ATOM_HAS_VAL)) {
+      if (IsWideAtom(nat)) {
+	if (!(mask & SUB_ATOM_HAS_VAL)) {
+	  cut_fail();
+	}
+	/* just check length, they may still be several occurrences :( */
+	out = (wcslen(RepAtom(nat)->WStrOfAE) == len);
+      } else {
+	out = (strlen(RepAtom(nat)->StrOfAE) == len);
+	if (!out) cut_fail();
+      }
+      if (len == sz) {
+	out =  out && 
+	  Yap_unify(ARG1, ARG5) &&
+	  Yap_unify(ARG2, MkIntegerTerm(0)) &&
+	  Yap_unify(ARG4, MkIntegerTerm(0));
+      } else {
+	mask |= SUB_ATOM_HAS_SIZE;
+	min = 0;
+	after = sz-len;
+	goto backtrackable;
+      }
+    }
+    if (out) cut_succeed();
+    cut_fail();
+  } else {
+    if (!(mask & SUB_ATOM_HAS_MIN)) min = 0;
+    if (!(mask & SUB_ATOM_HAS_SIZE)) len = 0;
+    if (!(mask & SUB_ATOM_HAS_AFTER)) after = sz-(len+min);
+  }
+ backtrackable:
+  EXTRA_CBACK_ARG(5,1) = MkIntegerTerm(mask);
+  EXTRA_CBACK_ARG(5,2) = MkIntegerTerm(min);
+  EXTRA_CBACK_ARG(5,3) = MkIntegerTerm(len);
+  EXTRA_CBACK_ARG(5,4) = MkIntegerTerm(after);   
+  EXTRA_CBACK_ARG(5,5) = MkIntegerTerm(sz); 
+  return cont_sub_atom( PASS_REGS1 );
 }
 
 
@@ -2292,7 +2506,7 @@ Yap_InitBackAtoms(void)
   Yap_InitCPredBack("$current_wide_atom", 1, 2, init_current_wide_atom,
 		    cont_current_wide_atom,
 		    SafePredFlag|SyncPredFlag);
-  Yap_InitCPredBack("$sub_atom_fetch", 5, 5, init_sub_atom_fetch, cont_sub_atom_fetch, 0);
+  Yap_InitCPredBack("sub_atom", 5, 5, init_sub_atom, cont_sub_atom, 0);
 
 }
 
@@ -2307,7 +2521,6 @@ Yap_InitAtomPreds(void)
   Yap_InitCPred("atom_codes", 2, p_atom_codes, 0);
   Yap_InitCPred("atom_length", 2, p_atom_length, SafePredFlag);
   Yap_InitCPred("$atom_split", 4, p_atom_split, SafePredFlag);
-  Yap_InitCPred("$sub_atom_extract", 5, p_sub_atom_extract, 0);
   Yap_InitCPred("number_chars", 2, p_number_chars, 0);
   Yap_InitCPred("number_atom", 2, p_number_atom, 0);
   Yap_InitCPred("number_codes", 2, p_number_codes, 0);

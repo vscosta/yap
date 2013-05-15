@@ -100,6 +100,11 @@ void   Yap_InitAnalystPreds(void);
 /* arrays.c */
 void   Yap_InitArrayPreds(void);
 
+/* atoms.c */
+void Yap_InitBackAtoms(void);
+void Yap_InitAtomPreds(void);
+
+
 /* attvar.c */
 void   Yap_InitAttVarPreds(void);
 void   Yap_MkEmptyWakeUp(Atom mod);
