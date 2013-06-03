@@ -13,6 +13,7 @@
 
 
 :- module(maplist, [selectlist/3,
+	            selectlist/4,
 		    checklist/2,
 		    maplist/2,			% :Goal, +List
 		    maplist/3,			% :Goal, ?List1, ?List2
@@ -47,6 +48,7 @@
 
 :- meta_predicate
 	selectlist(2,+,-),
+	selectlist(3,+,+,-),
 	checklist(1,+),
 	maplist(1,+),
 	maplist(2,+,-),
@@ -104,6 +106,15 @@ selectlist(Pred, [In|ListIn], ListOut) :-
 	ListOut = NewListOut
     ),
     selectlist(Pred, ListIn, NewListOut).
+
+selectlist(_, [], [], []).
+selectlist(Pred, [In|ListIn], [In1|ListIn1], ListOut) :-
+    (call(Pred, In, In1) ->
+	ListOut = [In|NewListOut]
+    ;
+	ListOut = NewListOut
+    ),
+    selectlist(Pred, ListIn, ListIn1, NewListOut).
 
 exclude(_, [], []).
 exclude(Pred, [In|ListIn], ListOut) :-
@@ -563,6 +574,29 @@ goal_expansion(selectlist(Meta, ListIn, ListOut), Mod:Goal) :-
 	append_args(HeadPrefix, [[In|Ins], Outs], RecursionHead),
 	append_args(Pred, [In], Apply),
 	append_args(HeadPrefix, [Ins, NOuts], RecursiveCall),
+	compile_aux([
+		     Base,
+		     (RecursionHead :-
+		         (Apply -> Outs = [In|NOuts]; Outs = NOuts),
+			 RecursiveCall)
+		    ], Mod).
+
+goal_expansion(selectlist(Meta, ListIn, ListIn1, ListOut), Mod:Goal) :-
+	goal_expansion_allowed,
+	callable(Meta),
+	prolog_load_context(module, Mod),
+	aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
+	!,
+	% the new goal
+	pred_name(selectlist, 3, Proto, GoalName),
+	append(MetaVars, [ListIn, ListIn1, ListOut], GoalArgs),
+	Goal =.. [GoalName|GoalArgs],
+	% the new predicate declaration
+	HeadPrefix =.. [GoalName|PredVars],	
+	append_args(HeadPrefix, [[], [], []], Base),
+	append_args(HeadPrefix, [[In|Ins], [In1|Ins1], Outs], RecursionHead),
+	append_args(Pred, [In, In1], Apply),
+	append_args(HeadPrefix, [Ins, Ins1, NOuts], RecursiveCall),
 	compile_aux([
 		     Base,
 		     (RecursionHead :-

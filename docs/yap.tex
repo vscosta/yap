@@ -9656,6 +9656,14 @@ elements of @var{ListIn}.
 @cnindex selectlist/3
       Creates @var{ListOut} of all list elements of @var{ListIn} that pass a given test
 
+@item selectlist(:@var{Pred}, +@var{ListIn}, +@var{ListInAux}, ?@var{ListOut})
+@findex selectlist/3
+@snindex selectlist/3
+@cnindex selectlist/3
+      Creates @var{ListOut} of all list elements of @var{ListIn} that
+      pass the given test @var{Pred} using +@var{ListInAux} as an
+      auxiliary element.
+
 @item convlist(:@var{Pred}, +@var{ListIn}, ?@var{ListOut})
 @findex convlist/3
 @snindex convlist/3
