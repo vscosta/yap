@@ -245,12 +245,12 @@ static Int cont_between( USES_REGS1 )
     Term tn;
     Int cmp;
 
-    cmp = Yap_acmp(t1, t2);
+    cmp = Yap_acmp(t1, t2 PASS_REGS);
     if (cmp == 0)
       cut_succeed();
     t[0] = t1;
     t[1] = MkIntTerm(1);
-    tn = Eval(Yap_MkApplTerm(FunctorPlus, 2, t));
+    tn = Eval(Yap_MkApplTerm(FunctorPlus, 2, t) PASS_REGS);
     EXTRA_CBACK_ARG(3,1) = tn;
     HB = B->cp_h = H;
     return TRUE;
@@ -336,11 +336,11 @@ init_between( USES_REGS1 )
 	Yap_Error(TYPE_ERROR_INTEGER, t3, "between/3");
 	return FALSE;
       }
-      if (Yap_acmp(t3, t1) >= 0 && Yap_acmp(t2,t3) >= 0 && P != FAILCODE)
+      if (Yap_acmp(t3, t1 PASS_REGS) >= 0 && Yap_acmp(t2,t3 PASS_REGS) >= 0 && P != FAILCODE)
 	cut_succeed();
       cut_fail();
     }
-    cmp = Yap_acmp(t1, t2);
+    cmp = Yap_acmp(t1, t2 PASS_REGS);
     if (cmp > 0) cut_fail();
     if (cmp == 0) {
       Yap_unify(ARG3, t1);
