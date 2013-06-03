@@ -2487,7 +2487,6 @@ Yap_absmi(int inp)
 
 		  PELOCK(9,ap);
 		  DEC_CLREF_COUNT(cl);
-//		  fprintf(stderr,"%d %p=%lx\n",worker_id, cl, cl->ClRefCount);
 		  erase = (cl->ClFlags & ErasedMask) && !(cl->ClRefCount);
 		  if (erase) {
 		    saveregs();
@@ -7824,6 +7823,24 @@ Yap_absmi(int inp)
 	/* restart index */
 	setregs();
 	UNLOCKPE(17,pe);
+#ifdef DEBUG_LOCK
+	{ PredEntry *ap = pe;
+		  if (ap->ArityOfPE) {
+		    if (   ap->ModuleOfPred != IDB_MODULE)
+		  	  printf("L9 %s\n", AtomName(NameOfFunctor(ap->FunctorOfPred)));
+		    else
+		      {
+			if (ap->PredFlags & NumberDBPredFlag) {
+		  	  printf("L9 %ld\n", ap->src.IndxId);
+			} else if (ap->PredFlags & AtomDBPredFlag) {
+			  printf("L9 %s\n", AtomName((Atom)(ap->FunctorOfPred)));
+			} else {
+		  	  printf("L9 %s\n", AtomName(NameOfFunctor(ap->FunctorOfPred)));
+			}
+		      }
+		  }
+      }
+#endif
  	PREG = pt0;
 #if defined(YAPOR) || defined(THREADS)
 	if (!PP) {

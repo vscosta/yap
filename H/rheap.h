@@ -247,6 +247,7 @@ static char     SccsId[] = "@(#)rheap.c	1.3 3/15/90";
 #define RestoreDBErasedMarker()  RestoreDBErasedMarker__( PASS_REGS1 )
 #define RestoreLogDBErasedMarker()  RestoreLogDBErasedMarker__( PASS_REGS1 )
 #define RestoreForeignCode()	RestoreForeignCode__( PASS_REGS1 )
+#define RestoreEmptyWakeups() RestoreEmptyWakeups__( PASS_REGS1 )
 #define RestoreAtoms() RestoreAtoms__( PASS_REGS1 )
 #define RestoreWideAtoms() RestoreWideAtoms__( PASS_REGS1 )
 #define RestoreSWIBlobs() RestoreSWIBlobs__( PASS_REGS1 )
@@ -548,7 +549,7 @@ RestoreDBTerm(DBTerm *dbr, int attachments USES_REGS)
 /* Restoring the heap */
 
 static void
-RestoreEmptyWakeups(void)
+RestoreEmptyWakeups__( USES_REGS1 )
 {
   int i;
   for (i=0; i < MaxEmptyWakeups; i++) {
