@@ -30,15 +30,15 @@ static char *rcsid = "$Header: /Users/vitor/Yap/yap-cvsbackup/library/mpi/mpi.c,
 #include <string.h>
 #include <mpi.h>
 
-void    STD_PROTO(YAP_Write, (Term, void (*)(int), int));
+void    YAP_Write(Term, void (*)(int), int);
 
-STATIC_PROTO (Int p_mpi_open, ( USES_REGS1 ));
-STATIC_PROTO (Int p_mpi_close, ( USES_REGS1 ));
-STATIC_PROTO (Int p_mpi_send, ( USES_REGS1 ));
-STATIC_PROTO (Int p_mpi_receive, ( USES_REGS1 ));
-STATIC_PROTO (Int p_mpi_bcast3, ( USES_REGS1 ));
-STATIC_PROTO (Int p_mpi_bcast2, ( USES_REGS1 ));
-STATIC_PROTO (Int p_mpi_barrier, ( USES_REGS1 ));
+static Int p_mpi_open( USES_REGS1 );
+static Int p_mpi_close( USES_REGS1 );
+static Int p_mpi_send( USES_REGS1 );
+static Int p_mpi_receive( USES_REGS1 );
+static Int p_mpi_bcast3( USES_REGS1 );
+static Int p_mpi_bcast2( USES_REGS1 );
+static Int p_mpi_barrier( USES_REGS1 );
 
 
 /*
