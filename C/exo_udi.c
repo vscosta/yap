@@ -170,6 +170,34 @@ Interval(struct index_t *it, Term min, Term max, Term op, BITS32 off USES_REGS)
      pt  = c+(it->links[off]+1);
      end  = c+(it->links[off]+n);
    } else {
+     if (!IsVarTerm(min)) {
+       Int x;
+       if (!IsIntegerTerm(min)) {
+	 min = Yap_Eval(min);
+	 if (!IsIntegerTerm(min)) {
+	   Yap_Error(TYPE_ERROR_INTEGER, min, "data-base constraint");
+	   return FAILCODE;
+	 }
+       }
+       x = IntegerOfTerm(min);
+       if (x >= IntegerOfTerm(S[LOCAL_exo_arg])) {
+	 return FAILCODE;
+       }     
+     }
+     if (!IsVarTerm(max)) {
+       Int x;
+       if (!IsIntegerTerm(max)) {
+	 max = Yap_Eval(max);
+	 if (!IsIntegerTerm(max)) {
+	   Yap_Error(TYPE_ERROR_INTEGER, max, "data-base constraint");
+	   return FAILCODE;
+	 }
+       }
+       x = IntegerOfTerm(max);
+       if (x <= IntegerOfTerm(S[LOCAL_exo_arg])) {
+	 return FAILCODE;
+       }     
+     }
      return NEXTOP(NEXTOP(it->code,lp),lp);
    }
 

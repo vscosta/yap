@@ -9,7 +9,10 @@
 :- module(exo_interval,
 	[max/2,
 	 min/2,
+	 max/1,
+	 min/1,
 	 any/2,
+	 any/1,
 	 max/3,
 	 min/3,
 	 any/3,
@@ -40,6 +43,15 @@ max(X, X) :-
 min(X, X) :-
 	insert_atts(X, i(_,_,min)).
 
+max(X) :-
+	insert_atts(X, i(_,_,max)).
+
+any(X) :-
+	insert_atts(X, i(_,_,any)).
+
+min(X) :-
+	insert_atts(X, i(_,_,min)).
+
 
 X #> Y :-
 	( var(X) -> insert_atts(X, i(Y,_,_))
@@ -55,49 +67,24 @@ X #> Y :-
 
 X #>= Y :-
 	( var(X) -> insert_atts(X, i(Y-1,_,_))
-                  ;
-	          ( var(Y) -> insert_atts(Y, i(X+1,_,_) ) ; 
-		      true
-		  )
-	      ;
-          var(Y) -> insert_atts(Y, i(_,X+1,_))
         ;
 	  X >= Y
         ).
 
 X #< Y :-
 	( var(X) -> insert_atts(X, i(_,Y,_))
-                  ;
-	          ( var(Y) -> insert_atts(Y, i(X,_,_) ) ; 
-		      true
-		  )
-	      ;
-	  var(Y) -> insert_atts(Y, i(X,_,_))
         ;
 	  X < Y
         ).
 
 X #=< Y :-
 	( var(X) -> insert_atts(X, i(Y+1,_,_))
-                  ;
-	          ( var(Y) -> insert_atts(Y, i(X-1,_,_) ) ; 
-		      true
-		  )
-	      ;
-          var(Y) -> insert_atts(Y, i(X-1,_,_))
         ;
 	  X =< Y
         ).
 
 X #= Y :-
-	( var(X) -> insert_atts(X, i(Y-1,Y+1,_))
-                  ;
-	          ( var(Y) -> insert_atts(Y, i(X-1,X+1,_) ) ; 
-		      true
-		  )
-	      ;
-          var(Y) -> insert_atts(Y, i(X-1,X+Y,_))
-        ;
+	( var(X) -> insert_atts(X, i(Y-1,Y+1,_)) ;
 	  X =:= Y
         ).
 
@@ -173,5 +160,5 @@ expand_op(A1, A2, A3) :-
 	 A1 == min, A2 = max -> A3 = unique;
 	 A1 == min -> A3 = min;	 A2 == min -> A3 = min;
 	 A1 == max -> A3 = max;	 A2 == max -> A3 = max;
-	 A3 = single
+	 A3 = any
         ).
