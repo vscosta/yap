@@ -1932,7 +1932,7 @@ p_atom_number( USES_REGS1 )
 #define SUB_ATOM_HAS_WIDE  16
 
 static void *
-alloc_tmp_stack(size_t sz) {
+alloc_tmp_stack(size_t sz USES_REGS) {
   void *pt = (void *)H;
   while (H > ASP-(1044+sz/sizeof(CELL))) {
     if (!Yap_gc(5, ENV, gc_P(P,CP))) {
@@ -1944,12 +1944,12 @@ alloc_tmp_stack(size_t sz) {
 }
 
 static Atom 
-build_new_atom(int mask, wchar_t *wp, char *p, size_t min, size_t len)
+build_new_atom(int mask, wchar_t *wp, char *p, size_t min, size_t len USES_REGS)
 {
   Atom nat;
   if (mask & SUB_ATOM_HAS_WIDE) {
     wchar_t *src = wp+min;
-    wchar_t *d = alloc_tmp_stack((len+1)*sizeof(wchar_t));
+    wchar_t *d = alloc_tmp_stack((len+1)*sizeof(wchar_t) PASS_REGS);
     if (!d) return NIL;
     
     wcsncpy(d, src, len);
@@ -1957,7 +1957,7 @@ build_new_atom(int mask, wchar_t *wp, char *p, size_t min, size_t len)
     nat = Yap_LookupMaybeWideAtom(d);
   } else {
     char *src = p+min;
-    char *d = alloc_tmp_stack((len+1)*sizeof(char));
+    char *d = alloc_tmp_stack((len+1)*sizeof(char) PASS_REGS);
     if (!d) return NIL;
     
     strncpy(d, src, len);
@@ -2142,7 +2142,7 @@ cont_sub_atom( USES_REGS1 )
       cut_fail();
     }
   } else if (mask & SUB_ATOM_HAS_SIZE) {
-    nat = build_new_atom(mask, wp, p, min, len);
+    nat = build_new_atom(mask, wp, p, min, len PASS_REGS);
     Yap_unify(ARG2, MkIntegerTerm(min));
     Yap_unify(ARG4, MkIntegerTerm(after));
     Yap_unify(ARG5, MkAtomTerm(nat));
@@ -2150,7 +2150,7 @@ cont_sub_atom( USES_REGS1 )
     if (after-- == 0) cut_succeed();
   } else if (mask & SUB_ATOM_HAS_MIN) {
     after = sz-(min+len);
-    nat = build_new_atom(mask, wp, p, min, len);
+    nat = build_new_atom(mask, wp, p, min, len PASS_REGS);
     Yap_unify(ARG3, MkIntegerTerm(len));
     Yap_unify(ARG4, MkIntegerTerm(after));
     Yap_unify(ARG5, MkAtomTerm(nat));
@@ -2158,14 +2158,14 @@ cont_sub_atom( USES_REGS1 )
     if (after-- == 0) cut_succeed();    
   } else if (mask & SUB_ATOM_HAS_AFTER) {
     len = sz-(min+after);
-    nat = build_new_atom(mask, wp, p, min, len);
+    nat = build_new_atom(mask, wp, p, min, len PASS_REGS);
     Yap_unify(ARG2, MkIntegerTerm(min));
     Yap_unify(ARG3, MkIntegerTerm(len));
     Yap_unify(ARG5, MkAtomTerm(nat));
     min++;
     if (len-- == 0) cut_succeed();    
   } else {
-    nat = build_new_atom(mask, wp, p, min, len);
+    nat = build_new_atom(mask, wp, p, min, len PASS_REGS);
     Yap_unify(ARG2, MkIntegerTerm(min));
     Yap_unify(ARG3, MkIntegerTerm(len));
     Yap_unify(ARG4, MkIntegerTerm(after));
@@ -2270,7 +2270,7 @@ init_sub_atom( USES_REGS1 )
 	(SUB_ATOM_HAS_MIN|SUB_ATOM_HAS_SIZE)) {
       if (min+len > sz) cut_fail();
       if ((after = (sz-(min+len))) < 0) cut_fail();
-      nat = build_new_atom(mask, wp, p, min, len);
+      nat = build_new_atom(mask, wp, p, min, len PASS_REGS);
       if (!nat) cut_fail();
       out = Yap_unify(ARG4,MkIntegerTerm(after)) &&
 	Yap_unify(ARG5, MkAtomTerm(nat));
@@ -2278,7 +2278,7 @@ init_sub_atom( USES_REGS1 )
 	       (SUB_ATOM_HAS_MIN|SUB_ATOM_HAS_AFTER)) {
       if (sz < min+after) cut_fail();
       len = sz-(min+after);
-      nat = build_new_atom(mask, wp, p, min, len);
+      nat = build_new_atom(mask, wp, p, min, len PASS_REGS);
       if (!nat) cut_fail();
       out = Yap_unify(ARG3,MkIntegerTerm(len)) &&
 	Yap_unify(ARG5, MkAtomTerm(nat));
@@ -2286,7 +2286,7 @@ init_sub_atom( USES_REGS1 )
 	      (SUB_ATOM_HAS_SIZE|SUB_ATOM_HAS_AFTER) ) {
       if (len+after > sz) cut_fail();
       min = sz-(len+after);
-      nat = build_new_atom(mask, wp, p, min, len);
+      nat = build_new_atom(mask, wp, p, min, len PASS_REGS);
       if (!nat) cut_fail();
       out = Yap_unify(ARG2,MkIntegerTerm(min)) &&
 	Yap_unify(ARG5, MkAtomTerm(nat));

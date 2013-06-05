@@ -327,6 +327,7 @@ Yap_MkULLIntTerm(YAP_ULONG_LONG n)
     mpz_clear(new);
     return t;
 #else
+    CACHE_REGS
     return MkIntegerTerm(n);
 #endif
 }
