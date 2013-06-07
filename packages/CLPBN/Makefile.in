@@ -40,6 +40,7 @@ CLPBN_EXDIR = $(srcdir)/examples
 
 CLPBN_TOP= \
 	$(srcdir)/clpbn.yap \
+	$(srcdir)/mlns.yap \
 	$(srcdir)/pfl.yap
 
 CLPBN_PROGRAMS= \
