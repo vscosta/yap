@@ -1,10 +1,13 @@
 
 :- use_module(library(mlns)).
 
-mln_domain a(domain).
-mln_domain b(domain).
+mln_domain a(domain), b(domain), c(domain), d(domain), e(domain), f(domain), g(domain).
 
 mln 10:(a(X) ; b(X)).
+
+mln 10:(c(X) , d(X)).
+
+mln 10: (g(X), e(X) -> f(X)).
 
 domain(1).
 domain(2).
