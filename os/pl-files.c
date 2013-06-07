@@ -105,12 +105,13 @@ LastModifiedFile(const char *name, double *tp)
     if ( rc )
     { double t;
 
+      fprintf(stderr, "wt.dwHighDateTime=%ld wt.dwLowDateTime=%ld\n",wt.dwHighDateTime,  wt.dwLowDateTime);
       t  = (double)wt.dwHighDateTime * (4294967296.0 * ntick nano);
       t += (double)wt.dwLowDateTime  * (ntick nano);
       t -= SEC_TO_UNIX_EPOCH;
 
       *tp = t;
-
+      fprintf(stderr, " t=%f\n", t);
       return TRUE;
     }
   }
@@ -126,6 +127,63 @@ LastModifiedFile(const char *name, double *tp)
     return FALSE;
 
   *tp = (double)buf.st_mtime;
+  return TRUE;
+#endif
+}
+
+static int
+LastModifiedFile64(const char *name, int64_t *tp)
+{
+#ifdef __WINDOWS__
+  HANDLE hFile;
+  wchar_t wfile[MAXPATHLEN];
+
+#define nano * 0.000000001
+#define ntick 100.0
+#define SEC_TO_UNIX_EPOCH 11644473600.0
+
+  if ( !_xos_os_filenameW(name, wfile, MAXPATHLEN) )
+    return FALSE;
+
+  if ( (hFile=CreateFileW(wfile,
+			  0,
+			  FILE_SHARE_DELETE|FILE_SHARE_READ|FILE_SHARE_WRITE,
+			  NULL,
+			  OPEN_EXISTING,
+			  FILE_FLAG_BACKUP_SEMANTICS,
+			  NULL)) != INVALID_HANDLE_VALUE )
+  { FILETIME wt;
+    int rc;
+
+    rc = GetFileTime(hFile, NULL, NULL, (FILETIME *)&wt);
+    CloseHandle(hFile);
+
+    if ( rc )
+    {
+      LARGE_INTEGER date, adjust;
+      date.HighPart = wt.dwHighDateTime;
+      date.LowPart = wt.dwLowDateTime;
+
+      adjust.QuadPart = 11644473600000 * 10000;
+      date.QuadPart -= adjust.QuadPart;
+      date.QuadPart /= 10000000;
+
+      *tp = date.QuadPart;
+      return TRUE;
+    }
+  }
+
+  set_posix_error(GetLastError());
+
+  return FALSE;
+#else
+  char tmp[MAXPATHLEN];
+  statstruct buf;
+
+  if ( statfunc(OsPath(name, tmp), &buf) < 0 )
+    return FALSE;
+
+  *tp = (int64_t)buf.st_mtime;
   return TRUE;
 #endif
 }
@@ -594,6 +652,23 @@ PRED_IMPL("time_file", 2, time_file, 0)
 
     if ( LastModifiedFile(fn, &time) )
       return PL_unify_float(A2, time);
+
+    return PL_error(NULL, 0, NULL, ERR_FILE_OPERATION,
+		    ATOM_time, ATOM_file, A1);
+  }
+
+  return FALSE;
+}
+
+static
+PRED_IMPL("time_file64", 2, time_file64, 0)
+{ char *fn;
+
+  if ( PL_get_file_name(A1, &fn, 0) )
+  { int64_t time;
+
+    if ( LastModifiedFile64(fn, &time) )
+      return PL_unify_int64(A2, time);
 
     return PL_error(NULL, 0, NULL, ERR_FILE_OPERATION,
 		    ATOM_time, ATOM_file, A1);
@@ -1119,6 +1194,7 @@ BeginPredDefs(files)
   PRED_DEF("working_directory", 2, working_directory, 0)
   PRED_DEF("access_file", 2, access_file, 0)
   PRED_DEF("time_file", 2, time_file, 0)
+  PRED_DEF("time_file64", 2, time_file64, 0)
   PRED_DEF("size_file", 2, size_file, 0)
   PRED_DEF("read_link", 3, read_link, 0)
   PRED_DEF("exists_file", 1, exists_file, 0)

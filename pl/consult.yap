@@ -561,8 +561,8 @@ prolog_load_context(term_position, '$stream_position'(0,Line,0,0,0)) :-
 	'$file_is_unchanged'(F, R, Age).
 
 '$file_is_unchanged'(F, R, Age) :-
-        time_file(F,CurrentAge),
-         ((CurrentAge = Age ; Age = -1)  -> true; erase(R), fail).
+        time_file64(F,CurrentAge),
+        ( (Age == CurrentAge ; Age = -1)  -> true; erase(R), fail).
 
 
 
@@ -645,7 +645,7 @@ remove_from_path(New) :- '$check_path'(New,Path),
 	Stream \= user_input,
 	'$file_name'(Stream,F),
 	( recorded('$lf_loaded','$lf_loaded'(F,M,_,_),R), erase(R), fail ; true ),
-	time_file(F,Age),
+	time_file64(F,Age),
 	recorda('$lf_loaded','$lf_loaded'(F,M,Age,Reconsult),_),
 	fail.
 '$record_loaded'(_, _, _).
