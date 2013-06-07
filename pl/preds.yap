@@ -490,6 +490,9 @@ retractall(V) :-
 	).
 	
 '$retractall_lu'(T,M) :-
+	'$free_arguments'(T), !,
+	( '$purge_clauses'(T,M), fail ; true ).
+'$retractall_lu'(T,M) :-
 	'$log_update_clause'(T,M,_,R),
 	erase(R),
 	fail.
