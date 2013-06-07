@@ -1,8 +1,8 @@
 
 :- use_module(library(mlns)).
 
-mln_domain(a(domain)).
-mln_domain(b(domain)).
+mln_domain a(domain).
+mln_domain b(domain).
 
 mln 10:(a(X) ; b(X)).
 
