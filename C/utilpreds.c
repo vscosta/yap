@@ -5541,6 +5541,43 @@ p_skip_list4( USES_REGS1 ) {
     Yap_unify(t, ARG4);
 }
 
+static Int
+p_free_arguments( USES_REGS1 )
+{
+  Term t = Deref(ARG1);
+  if (IsVarTerm(t))
+    return FALSE;
+  if (IsAtomTerm(t) || IsIntTerm(t))
+    return TRUE;
+  if (IsPairTerm(t)) {
+    Term th = HeadOfTerm(t);
+    Term tl = TailOfTerm(t);
+    return IsVarTerm(th) && IsVarTerm(tl) && th != tl;
+  } else {
+    Functor f = FunctorOfTerm(t);
+    UInt i, ar;
+    Int ret = TRUE;
+    
+    if (IsExtensionFunctor(f))
+      return TRUE;
+    ar = ArityOfFunctor(f);
+    for (i = 1 ; i <= ar; i++) {
+      Term ta = ArgOfTerm(i, t);
+      Int j;
+
+      ret = IsVarTerm(ta);
+      if (!ret) break;
+      /* stupid quadractic algorithm, but needs no testing for overflows */
+      for (j = 1 ; j < i; j++) {
+	ret = ArgOfTerm(j, t) != ta;
+	if (!ret) break;
+      }
+      if (!ret) break;
+    }
+    return ret;
+  }
+}
+
 void Yap_InitUtilCPreds(void)
 {
   CACHE_REGS
@@ -5565,6 +5602,7 @@ void Yap_InitUtilCPreds(void)
   /* use this carefully */
   Yap_InitCPred("$skip_list", 3, p_skip_list, SafePredFlag|TestPredFlag);
   Yap_InitCPred("$skip_list", 4, p_skip_list4, SafePredFlag|TestPredFlag);
+  Yap_InitCPred("$free_arguments", 1, p_free_arguments, TestPredFlag);
   CurrentModule = TERMS_MODULE;
   Yap_InitCPred("variable_in_term", 2, p_var_in_term, 0);
   Yap_InitCPred("term_hash", 4, p_term_hash, 0);
