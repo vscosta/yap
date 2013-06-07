@@ -1621,14 +1621,6 @@ retract_all(PredEntry *p, int in_use)
     p->OpcodeOfPred = UNDEF_OPCODE;
   }
   p->cs.p_code.TrueCodeOfPred = p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred));
-#if defined(YAPOR) || defined(THREADS)
-  if (p->PredFlags & LogUpdatePredFlag &&
-      !(p->PredFlags & ThreadLocalPredFlag) &&
-      p->ModuleOfPred != IDB_MODULE) {
-    p->OpcodeOfPred = LOCKPRED_OPCODE;
-    p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
-  }
-#endif
   p->StatisticsForPred.NOfEntries = 0;
   p->StatisticsForPred.NOfHeadSuccesses = 0;
   p->StatisticsForPred.NOfRetries = 0;
