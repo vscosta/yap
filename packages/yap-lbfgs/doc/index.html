@@ -1,0 +1,215 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head profile="http://www.w3.org/2005/10/profile">
+    <title>YAP-LBFGS</title>
+    <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1" />
+    <meta http-equiv="language" content="english,en" />
+    <meta name="robots" content="index,follow" />
+    <meta name="revisit-after" content="14 days" />
+    <link rel="stylesheet" title="Main" type="text/css" href="style.css" />
+ </head>
+  <body>
+
+<h1>YAP-LBFGS</h1>
+
+<h2>What is YAP-LBFGS</h2>
+<p>YAP-LBFGS is an interface to call <a href="http://www.chokkan.org/software/liblbfgs/">libLBFGS</a> from within
+YAP. libLBFGS is a C library for Limited-memory
+Broyden-Fletcher-Goldfarb-Shanno (L-BFGS) solving the under-constrained
+minimization problem:</p>
+<p> minimize <span class="math">F(X), X=(x1,x2,..., xN)</span></p>
+<p><a href="http://www.dcc.fc.up.pt/~vsc/Yap/">YAP</a> (Yet Another
+Prolog) is a Prolog interpreter</p>
+<h2>Contact</h2>
+<p>YAP-LBFGS has been developed by Bernd Gutmann (<a
+href="http://www.cs.kuleuven.be/cgi-bin/e-post.pl?epost=bernd.gutmann">email</a>,
+<a href="http://www.cs.kuleuven.be/~bernd/">homepage</a>). In case you publish something using YAP-LBFGS, please give credit to me and to libLBFGS. And if you find YAP-LBFGS useful, or if you find a bug, or if you
+port it to another system, ... please send me an email.</p>
+
+<h2>Download</h2>
+<p>Latest version (25.04.2009) <a href="yap-lbfgs.tgz">yap-lbfgs.tgz</a></p>
+
+<h2>Installation</h2>
+<p>Note: The Make file is currently only working under Mac OS, but with little
+effort it is possible to adapt it to your needs.<br />
+And in case you are a C expert and can produce a better/more general Make file, please let me know.</p>
+<ol>
+  <li>Download and compile <a
+  href="http://www.chokkan.org/software/liblbfgs/">libLBFGS</a>.</li>
+  <li>Download and unpack YAP-LBFGS</li>
+  <li>Edit the Makefile of
+YAP-LBFGS and change the line <span class="code">LIBS= ../lib/lbfgs.o</span> to wherever the
+lbfgs.o file can be found.</li>
+  <li>Execute Make in the YAP-LBFGS folder</li>
+  <li>Run <span class="code">yap -l ex1.pl</span> and run the query
+  <span class="code">:-demo.</span> to see whether everything works fine.</li>
+</ol>
+
+
+<h2>License</h2>
+<p>  YAP-LBFGS is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.</p>
+<p> YAP-LBFGS is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.</p>
+
+<h2>Usage</h2>
+<p>The module lbfgs provides the following predicates after you loaded
+it by <span class="code">:-use_module(lbfgs).</span></p>
+<h3>optimizer_initialize(+N,+Module,+Evaluate,+Progress)</h3>
+<p>Create space to optimize a function with N variables (N has to be
+integer). <span class="code">Module</span> is the name of the module where the call back
+predicates can be found, <span class="code">Evaluate</span> is the call back predicate (arity 3)
+to evaluate the function math <span class="math">F</span>, <span class="code">Progress</span> is the call back predicate invoked
+(arity 8) after every iteration</p>
+<p>Example <span class="code">
+optimizer_initialize(1,user,evaluate,progress)</span></p>
+
+<p>The evaluate call back predicate has to be of the type <span class="code">evaluate(-F,+N,+Step)</span>. It has to calculate the current function value <span class="code">F</span>. <span class="code">N</span> is the size of the parameter vector (the value which was used to initialize LBFGS) and <span class="code">Step</span> is the current state of the line search. The call back predicate can access the current values of <span class="math">x[i]</span> by calling <span class="code">optimizer_get_x(+I,-Xi)</span>. Finally, the call back predicate has to calculate the gradient of <span class="math">F</span> and set its value by calling <span class="code">optimizer_set_g(+I,+Gi)</span> for every <span class="math">1&lt;=I&lt;=N</span>.</p>
+
+<p>The progress call back predicate has to be of the type <span class="code">progress(+F,+X_Norm,+G_Norm,+Step,+N,+Iteration,+LS,-Continue)</span>. It is called after every iteration. The call back predicate can access the current values of X and of the gradient by calling <span class="code">optimizer_get_x(+I,-Xi)</span> and <span class="code">optimizer_get_g(+I,-Gi)</span> respectively. Howver, it must not call the setter predicates for <span class="code">X</span> or <span class="code">G</span>. If it tries to do so, the optimizer will terminate with an error. If <span class="code">Continue</span> is set to 0 (int) the optimization process will continue for one more iteration, any other value will terminate the optimization process.</p>
+
+<h3>optimizer_initialize(+N,+Evaluate,+Progress)</h3>
+<p>The same as before, except that the user module is the default
+value.</p>
+<p>Example <span class="code">
+optimizer_initialize(1,evaluate,progress)</span></p>
+
+<h3>optimizer_run(-F,-Status)</h3>
+<p>Runs the optimization, <span class="code">F</span> is the best (minimal) function value and
+Status (int) is the status code returned by libLBFGS. Anything except
+0 indicates an error, see the <a href="http://www.chokkan.org/software/liblbfgs/group__liblbfgs__api.html#g06fc87d81c62e9abb8790b6e5713c55b">documentation of libLBFGS</a> for the
+meaning.</p>
+
+<h3>optimizer_get_x(+I,-X)</h3>
+<p>Get the current value for <span class="math">x[I]</span>. Only possible when the optimizer is
+initialized or running.</p>
+
+<h3>optimizer_set_x(+I,+X)</h3>
+<p>Set the current value for <span class="math">x[I]</span>. Only possible when the optimizer is
+initialized but not running.</p>
+
+
+<h3>optimizer_get_g(+I,-G)</h3>
+<p>Get the current value for <span class="math">g[I]</span> (the partial derivative of <span class="math">F</span> with respect to <span class="math">x[I]</span>). Only possible when the optimizer is
+initialized or running.</p>
+
+<h3>optimizer_set_g(+I,+G)</h3>
+<p>Set the current value for <span class="math">g[I]</span> (the partial derivative of <span class="math">F</span> with
+respect to <span class="math">x[I]</span>). Can only be called from the evaluate call back predicate.</p>
+
+<h3>  optimizer_finalize/0</h3>
+<p>Clean up the memory.</p>
+
+
+<h3>  optimizer_parameters/0</h3>
+<p>Prints a table with the current parameters. See the <a href="http://www.chokkan.org/software/liblbfgs/structlbfgs__parameter__t.html#_details">documentation
+of libLBFGS</a> for the meaning of each parameter.</p>
+<pre>
+   ?- optimizer_parameters.
+==========================================================================================
+Type      Name               Value          Description                   
+==========================================================================================
+int       m                  6              The number of corrections to approximate the inverse hessian matrix.
+float     epsilon            1e-05          Epsilon for convergence test. 
+int       past               0              Distance for delta-based convergence test.
+float     delta              1e-05          Delta for convergence test.   
+int       max_iterations     0              The maximum number of iterations
+int       linesearch         0              The line search algorithm.    
+int       max_linesearch     40             The maximum number of trials for the line search.
+float     min_step           1e-20          The minimum step of the line search routine.
+float     max_step           1e+20          The maximum step of the line search.
+float     ftol               0.0001         A parameter to control the accuracy of the line search routine.
+float     gtol               0.9            A parameter to control the accuracy of the line search routine.
+float     xtol               1e-16          The machine precision for floating-point values.
+float     orthantwise_c      0.0            Coefficient for the L1 norm of variables
+int       orthantwise_start  0              Start index for computing the L1 norm of the variables.
+int       orthantwise_end    -1             End index for computing the L1 norm of the variables.
+==========================================================================================
+ use optimizer_set_paramater(Name,Value) to change parameters
+ use optimizer_get_parameter(Name,Value) to see current parameters
+ use optimizer_parameters to print this overview
+</pre>
+
+<h3>  optimizer_set_parameter(+Name,+Value)</h3>
+<p>Set the parameter Name to Value. Only possible while the optimizer
+is not running.</p>
+
+<h3>  optimizer_get_parameter(+Name,-Value)</h3>
+<p>Get the current Value for Name</p>
+
+
+<h2>Demo</h2>
+
+<p>The following Prolog program (<span class="code">ex1.pl</span>) searches for minimas of the function
+<span class="math">f(x0)=sin(x0)</span>. In order to do so, it provides the call back
+predicate <span class="code">evaluate</span> which calculates <span class="math">f(x0)</span> and the gradient <span class="math">d/dx0 f=cos(x0)</span>.</p>
+<pre>
+:- use_module(lbfgs).
+
+% This is the call back function which evaluates F and the gradient of F
+evaluate(FX,_N,_Step) :-
+	optimizer_get_x(0,X0),
+	FX is sin(X0),
+	G0 is cos(X0),
+	optimizer_set_g(0,G0).
+
+% This is the call back function which is invoked to report the progress
+% if the last argument is set to anything else than 0, the optimizer will
+% stop right now
+progress(FX,X_Norm,G_Norm,Step,_N,Iteration,Ls,0) :-
+	optimizer_get_x(0,X0),
+	format('~d. Iteration : x0=~4f  f(X)=~4f  |X|=~4f
+                |X\'|=~4f  Step=~4f  Ls=~4f~n',
+                [Iteration,X0,FX,X_Norm,G_Norm,Step,Ls]).
+
+
+
+demo :-
+	format('Optimizing the function f(x0) = sin(x0)~n',[]),
+	optimizer_initialize(1,evaluate,progress),
+
+
+	StartX is random*10,
+	format('We start the search at the random position x0=~5f~2n',[StartX]),
+	optimizer_set_x(0,StartX),
+	
+	optimizer_run(BestF,Status),
+	optimizer_get_x(0,BestX0),
+	optimizer_finalize,
+	format('~2nOptimization done~nWe found a minimum at
+	f(~f)=~f~2nLBFGS Status=~w~n',[BestX0,BestF,Status]).
+</pre>
+<p>The output of this program is something like:</p>
+<pre>
+   ?- demo.
+Optimizing the function f(x0) = sin(x0)
+We start the search at the random position x0=7.24639
+
+1. Iteration : x0=5.0167  f(X)=-0.9541  |X|=5.0167  |X'|=0.2996  Step=3.9057  Ls=3.0000
+2. Iteration : x0=4.7708  f(X)=-0.9983  |X|=4.7708  |X'|=0.0584  Step=0.0998  Ls=2.0000
+3. Iteration : x0=4.7113  f(X)=-1.0000  |X|=4.7113  |X'|=0.0011  Step=1.0000  Ls=1.0000
+4. Iteration : x0=4.7124  f(X)=-1.0000  |X|=4.7124  |X'|=0.0000  Step=1.0000  Ls=1.0000
+
+
+Optimization done
+We found a minimum at f(4.712390)=-1.000000
+
+LBFGS Status=0
+yes
+   ?-
+</pre>
+
+<p><a href="http://www.validome.org/referer">
+<img id="valimg"
+    src="http://www.validome.org/images/set3/valid_xhtml_1_0.gif"
+    alt="Valid XHTML 1.0" width="80" height="15" /></a>
+
+</p>
+
+</body>
+</html>

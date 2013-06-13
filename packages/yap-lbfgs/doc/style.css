@@ -1,0 +1,43 @@
+body {
+    margin:20pt;
+    background-color : #DDDDDD;
+}
+
+h1 {
+    text-align : center;
+    background-color : #FFFFFF;
+}
+
+p {
+    margin-left:22pt;
+}
+
+h2 {
+    border : 1pt;
+    border-style : dashed;
+      background-color : #EEEEEE;
+}
+
+h3 {
+ margin-left : 11pt;
+}
+
+span.code {
+    background-color : #EEEEEE;
+    font-family: courier;
+}
+
+span.math {
+    background-color : #EEEEEE;
+    font-family: courier;
+    padding: 1pt;
+}
+
+pre {
+    background-color: #EEEEEE;
+    margin:22pt;
+} 
+
+#valimg {
+    border: none;
+}

@@ -2530,6 +2530,7 @@ mkdir -p  packages/real
 mkdir -p  packages/semweb
 mkdir -p  packages/sgml
 mkdir -p  packages/xml
+mkdir -p  packages/yap-lbfgs
 mkdir -p  packages/zlib
 mkdir -p  packages/archive
 mkdir -p  swi
@@ -2653,6 +2654,8 @@ if test "$ENABLE_PRISM" = ""; then
 AC_CONFIG_FILES([packages/prism/src/c/Makefile])
 AC_CONFIG_FILES([packages/prism/src/prolog/Makefile])
 fi
+
+AC_CONFIG_FILES([packages/yap-lbfgs/Makefile])
 
 AC_OUTPUT()
 
