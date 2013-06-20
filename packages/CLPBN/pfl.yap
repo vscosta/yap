@@ -11,6 +11,8 @@
 		 factor/6,
 		 skolem/2,
 		 defined_in_factor/2,
+		 defined_in_factor/3,
+		 evidence/2,
 		 get_pfl_cpt/5, % given id and keys,  return new keys and cpt
 		 get_pfl_parameters/3, % given id return par factor parameter
 		 new_pfl_parameters/3, % given id  set new parameters
@@ -77,6 +79,12 @@ user:term_expansion( Goal, [] ) :-
 	(ground(Goal) -> true ; throw(error('non ground evidence',Goal))),
 %	prolog_load_context(module, M),
 	assert(pfl:evidence(Sk,Var)).
+user:term_expansion( Goal, [] ) :-
+	skolem( Goal, Dom),
+	( Dom == [f,t] -> true ; throw(error('evidence for what value?',Goal))),
+	(ground(Goal) -> true ; throw(error('non ground evidence',Goal))),
+%	prolog_load_context(module, M),
+	assert(pfl:evidence(Goal,1)).
 
 Id@N :-
 	generate_entity(0, N, Id, G),
@@ -102,6 +110,15 @@ defined_in_factor(Key, Factor) :-
 	factor(markov, Id, FList, FV, Phi, Constraints),
 	member(Key, FList),
 	Factor = factor(markov, Id, FList, FV, Phi, Constraints).
+
+
+defined_in_factor(Key, Id, 0) :-
+	skolem_in(Key, Id),
+	factor(bayes, Id, [Key|_FList], _FV, _Phi, _Constraints), !.
+defined_in_factor(Key, Id, I) :-
+	skolem_in(Key, Id),
+	factor(markov, Id, FList, _FV, _Phi, _Constraints),
+	nth0(I, FList, Key).
 
 
 generate_entity(N, N, _, _) :- !.
@@ -192,7 +209,6 @@ add_evidence(Sk,Var) :-
 get_pfl_cpt(Id, Keys, Ev, NewKeys, Out) :-
  	factor(_Type,Id,[Key|_],_FV,avg,_Constraints), !,
  	Keys = [Key|Parents],
-	writeln(Key:Parents),
  	avg_factors(Key, Parents, 0.0, Ev, NewKeys, Out).
 get_pfl_cpt(Id, Keys, _, Keys, Out) :-
  	factor(_Type,Id,Keys,_FV,Phi,_Constraints),

@@ -1,20 +1,22 @@
 :- module(mln,
 		[op(1150,fx,mln),
 		 op(1150,fx,mln_domain),
-		 mln_domain/1]).
+		 mln_domain/1,
+		 mln/1,
+		 mln/4,
+		 mln_w/2]).
 
 :- use_module(library(pfl)).
 :- use_module(library(maplist)).
 :- use_module(library(lists)).
 
-:- dynamic mln/1, mln/2, mln_domain/4.
+:- dynamic mln/1, mln/2, mln_domain/4, mln/4, mln_w/2.
 
 user:term_expansion(mln_domain(P),[]) :-
 	expand_domain(P).
 
 user:term_expansion( mln(W: D), pfl:factor(markov,Id,FList,FV,Phi,Constraints)) :-
-	translate_to_factor(W, D, FList, Id, FV, Phi, Constraints),
-	writeln(factor(markov,Id,FList,FV,Phi,Constraints)).
+	translate_to_factor(W, D, FList, Id, FV, Phi, Constraints).
 
 expand_domain((P1,P2)) :- !,
 	expand_domain(P1),
@@ -34,14 +36,17 @@ do_type(NP, Type, I0, I) :-
 translate_to_factor(W, D, Lits, Id, Vs, Phi, Domain) :-
 	W0 is exp(W),
 	(
+	    Do = disj,
 	    disj_to_list(D, LP, [], Lits, [])
 	->
 	    findall(F, weight(LP, W0, 1, F), Phi)
 	;
+	    Do = conj,
 	    conj_to_list(D, LP, [], Lits, [])
 	->
             findall(F, weight(LP, 1, W0, F), Phi)
 	;
+	    Do = disj,
 	    cnf(D, Fs0, []),
 	    clean_cnf(Fs0, Fs)
 	->
@@ -52,11 +57,46 @@ translate_to_factor(W, D, Lits, Id, Vs, Phi, Domain) :-
 	new_mln(Id),
 	maplist(new_skolem(Id), Lits),
 	term_variables(Lits, Vs),
-	create_domain(Lits, Domain).
+	create_domain(Lits, Domain),
+	make_clause(Id, Do, Vs, Domain, Lits, LP, Head), 
+	assert(mln_w(Id, W)), 
+	assert(mln(Id, Do, LP, Head)).
 
+%
+% naive translation of conj/disjunction into Prolog
+%
+make_clause(Id, Do, Vs, Domain, _Lits, Fs, Head) :-
+	Head =.. [mln,Id|Vs],
+	order_body(Do, Fs, Bd0),
+	add_domain(Domain, Bd, once(Bd0)),
+	assert_static(user:(Head :- Bd)).
+
+order_body(disj, Fs, Bd0) :-
+	order_body(Fs, Bd0).
+order_body(conj, Fs, Bd0) :-
+	andder_body(Fs, Bd0),
+
+
+order_body([-G], (\+ G)). 
+order_body([G], (G)). 	
+order_body([-G|Gs], (\+G ; NGs)) :-
+	order_body(Gs, NGs).
+order_body([G|Gs], (G ; NGs)) :-
+	order_body(Gs, NGs).
+
+ander_body([-G], (\+ G)). 
+ander_body([G], (G)). 	
+ander_body([-G|Gs], (\+G , NGs)) :-
+	ander_body(Gs, NGs).
+ander_body([G|Gs], (G , NGs)) :-
+	ander_body(Gs, NGs).
+
+add_domain([G], (G,B0), B0) :- !.
+add_domain([G|Gs], (G,NGs), G0) :-
+	add_domain(Gs, NGs, G0).
 
 new_skolem(Id, Lit) :-
-	pfl:new_skolem(Lit, [t,f]),
+	pfl:new_skolem(Lit, [f,t]),
 	assert(pfl:skolem_in(Lit, Id)).
 
 mln(0).
@@ -148,7 +188,9 @@ create_dgoal(I0, Arity, Lit) -->
         [ TypeG ],
 	create_dgoal(I, Arity, Lit).
 
-
+%
+% very simple, inneficient converter from logic expressions to cnf
+%
 cnf(V) --> { var(V) }, !,
 	[[V]].
 cnf((A->B)) --> !,
@@ -209,4 +251,19 @@ orl([Cs]) -->
 clean_cnf(CNF, NCNF) :-
 	maplist(sort, CNF, CNF1),
 	sort(CNF1, NCNF).
+
+
+%
+% count groundings
+%
+all_true(Id, V) :-
+	mln(Id, _F, _D, Head),
+	nb_create_accumulator(0, Acc),
+	(
+	    call(user:Head),
+	    nb_add_to_accumulator(Acc, 1),
+	    fail
+        ;
+	    nb_accumulator_value(Acc, V)
+        ).
 
