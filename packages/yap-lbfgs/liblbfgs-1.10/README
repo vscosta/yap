@@ -1,8 +1,8 @@
 
            libLBFGS: C library of limited-memory BFGS (L-BFGS)
 
-                                       Copyright (c) 1990, Jorge Nocedal 
-                                 Copyright (c) 2007-2009, Naoaki Okazaki 
+                                       Copyright (c) 1990, Jorge Nocedal
+                                 Copyright (c) 2007-2010, Naoaki Okazaki
 
 =========================================================================
 1. Introduction
@@ -68,4 +68,4 @@ SSE/SSE2 instructions are unavailable on CPUs.
 libLBFGS is distributed under the term of the MIT license.
 Please refer to COPYING file in the distribution.
 
-$Id: README 56 2009-02-28 09:41:21Z naoaki $
+$Id$

@@ -1,4 +1,4 @@
-#
+	#
 # default base directory for YAP installation
 # (EROOT for architecture-dependent files)
 #
@@ -20,7 +20,7 @@ YAPLIBDIR=@libdir@/Yap
 #
 #
 CC=@CC@
-CFLAGS= @SHLIB_CFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I../.. -I$(srcdir)/../../include -I$(srcdir)/liblbfgs-1.7/include
+CFLAGS= @SHLIB_CFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I../.. -I$(srcdir)/../../include -I$(srcdir)/liblbfgs-1.10/include
 LDFLAGS=@LDFLAGS@
 #
 #
@@ -49,8 +49,8 @@ all: $(SOBJS)
 yap_lbfgs.o: $(srcdir)/yap_lbfgs.c
 	$(CC) -c $(CFLAGS) $(srcdir)/yap_lbfgs.c -o yap_lbfgs.o
 
-lbfgs.o: $(srcdir)/liblbfgs-1.7/lib/lbfgs.c
-	$(CC) -c $(CFLAGS) -I $(srcdir)/liblbfgs-1.7/lib $(srcdir)/liblbfgs-1.7/lib/lbfgs.c -o lbfgs.o
+lbfgs.o: $(srcdir)/liblbfgs-1.10/lib/lbfgs.c
+	$(CC) -c $(CFLAGS) -I $(srcdir)/liblbfgs-1.10/lib $(srcdir)/liblbfgs-1.10/lib/lbfgs.c -o lbfgs.o
 
 @DO_SECOND_LD@yap_lbfgs.@SO@: yap_lbfgs.o lbfgs.o
 @DO_SECOND_LD@	@SHLIB_LD@ $(LDFLAGS) -o yap_lbfgs.@SO@ yap_lbfgs.o lbfgs.o @EXTRA_LIBS_FOR_DLLS@

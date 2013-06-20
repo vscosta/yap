@@ -2,7 +2,7 @@
  *      Limited memory BFGS (L-BFGS).
  *
  * Copyright (c) 1990, Jorge Nocedal
- * Copyright (c) 2007,2008,2009 Naoaki Okazaki
+ * Copyright (c) 2007-2010 Naoaki Okazaki
  * All rights reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,7 +24,7 @@
  * THE SOFTWARE.
  */
 
-/* $Id: lbfgs.c 55 2009-02-23 14:51:21Z naoaki $ */
+/* $Id$ */
 
 /*
 This library is a C port of the FORTRAN implementation of Limited-memory
@@ -65,6 +65,7 @@ licence.
 #include <config.h>
 #endif/*HAVE_CONFIG_H*/
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -73,7 +74,6 @@ licence.
 
 #ifdef  _MSC_VER
 #define inline  __inline
-typedef unsigned int uint32_t;
 #endif/*_MSC_VER*/
 
 #if     defined(USE_SSE) && defined(__SSE2__) && LBFGS_FLOAT == 64
@@ -113,7 +113,7 @@ typedef struct tag_iteration_data iteration_data_t;
 static const lbfgs_parameter_t _defparam = {
     6, 1e-5, 0, 1e-5,
     0, LBFGS_LINESEARCH_DEFAULT, 40,
-    1e-20, 1e20, 1e-4, 0.9, 1.0e-16,
+    1e-20, 1e20, 1e-4, 0.9, 0.9, 1.0e-16,
     0.0, 0, -1,
 };
 
@@ -290,7 +290,7 @@ int lbfgs(
     if (n % 8 != 0) {
         return LBFGSERR_INVALID_N_SSE;
     }
-    if (((unsigned short)x & 0x000F) != 0) {
+    if ((uintptr_t)(const void*)x % 16 != 0) {
         return LBFGSERR_INVALID_X_SSE;
     }
 #endif/*defined(USE_SSE)*/
@@ -311,6 +311,12 @@ int lbfgs(
     }
     if (param.ftol < 0.) {
         return LBFGSERR_INVALID_FTOL;
+    }
+    if (param.linesearch == LBFGS_LINESEARCH_BACKTRACKING_WOLFE ||
+        param.linesearch == LBFGS_LINESEARCH_BACKTRACKING_STRONG_WOLFE) {
+        if (param.wolfe <= param.ftol || 1. <= param.wolfe) {
+            return LBFGSERR_INVALID_WOLFE;
+        }
     }
     if (param.gtol < 0.) {
         return LBFGSERR_INVALID_GTOL;
@@ -347,8 +353,9 @@ int lbfgs(
         case LBFGS_LINESEARCH_MORETHUENTE:
             linesearch = line_search_morethuente;
             break;
-        case LBFGS_LINESEARCH_BACKTRACKING:
-        case LBFGS_LINESEARCH_BACKTRACKING_STRONG:
+        case LBFGS_LINESEARCH_BACKTRACKING_ARMIJO:
+        case LBFGS_LINESEARCH_BACKTRACKING_WOLFE:
+        case LBFGS_LINESEARCH_BACKTRACKING_STRONG_WOLFE:
             linesearch = line_search_backtracking;
             break;
         default:
@@ -483,7 +490,7 @@ int lbfgs(
 
         /* Report the progress. */
         if (cd.proc_progress) {
-            if (ret = cd.proc_progress(cd.instance, x, g, fx, xnorm, gnorm, step, cd.n, k, ls)) {
+            if ((ret = cd.proc_progress(cd.instance, x, g, fx, xnorm, gnorm, step, cd.n, k, ls))) {
                 goto lbfgs_exit;
             }
         }
@@ -649,10 +656,10 @@ static int line_search_backtracking(
     const lbfgs_parameter_t *param
     )
 {
-    int ret = 0, count = 0;
-    lbfgsfloatval_t width, dg, norm = 0.;
+    int count = 0;
+    lbfgsfloatval_t width, dg;
     lbfgsfloatval_t finit, dginit = 0., dgtest;
-    const lbfgsfloatval_t wolfe = 0.9, dec = 0.5, inc = 2.1;
+    const lbfgsfloatval_t dec = 0.5, inc = 2.1;
 
     /* Check the input parameters for errors. */
     if (*stp <= 0.) {
@@ -680,26 +687,33 @@ static int line_search_backtracking(
 
         ++count;
 
-        if (*f <= finit + *stp * dgtest) {
-            /* The sufficient decrease condition. */
-
-            if (param->linesearch == LBFGS_LINESEARCH_BACKTRACKING_STRONG) {
-                /* Check the strong Wolfe condition. */
-                vecdot(&dg, g, s, n);
-                if (dg > -wolfe * dginit) {
-                    width = dec;
-                } else if (dg < wolfe * dginit) {
-                    width = inc;
-                } else {
-                    /* Strong Wolfe condition. */
-                    return count;
-                }
-            } else {
-                /* Exit with the loose Wolfe condition. */
-                return count;
-            }
-        } else {
+        if (*f > finit + *stp * dgtest) {
             width = dec;
+        } else {
+            /* The sufficient decrease condition (Armijo condition). */
+            if (param->linesearch == LBFGS_LINESEARCH_BACKTRACKING_ARMIJO) {
+                /* Exit with the Armijo condition. */
+                return count;
+	        }
+
+	        /* Check the Wolfe condition. */
+	        vecdot(&dg, g, s, n);
+	        if (dg < param->wolfe * dginit) {
+    		    width = inc;
+	        } else {
+		        if(param->linesearch == LBFGS_LINESEARCH_BACKTRACKING_WOLFE) {
+		            /* Exit with the regular Wolfe condition. */
+		            return count;
+		        }
+
+		        /* Check the strong Wolfe condition. */
+		        if(dg > -param->wolfe * dginit) {
+		            width = dec;
+		        } else {
+		            /* Exit with the strong Wolfe condition. */
+		            return count;
+		        }
+            }
         }
 
         if (*stp < param->min_step) {
@@ -735,7 +749,7 @@ static int line_search_backtracking_owlqn(
     const lbfgs_parameter_t *param
     )
 {
-    int i, ret = 0, count = 0;
+    int i, count = 0;
     lbfgsfloatval_t width = 0.5, norm = 0.;
     lbfgsfloatval_t finit = *f, dgtest;
 

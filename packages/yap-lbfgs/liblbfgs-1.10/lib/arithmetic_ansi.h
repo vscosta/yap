@@ -1,7 +1,7 @@
 /*
  *      ANSI C implementation of vector operations.
  *
- * Copyright (c) 2007,2008,2009 Naoaki Okazaki
+ * Copyright (c) 2007-2010 Naoaki Okazaki
  * All rights reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -23,7 +23,7 @@
  * THE SOFTWARE.
  */
 
-/* $Id: arithmetic_ansi.h 50 2009-02-16 15:14:23Z naoaki $ */
+/* $Id$ */
 
 #include <stdlib.h>
 #include <memory.h>

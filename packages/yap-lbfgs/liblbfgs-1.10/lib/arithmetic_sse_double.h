@@ -1,7 +1,7 @@
 /*
  *      SSE2 implementation of vector oprations (64bit double).
  *
- * Copyright (c) 2007,2008,2009 Naoaki Okazaki
+ * Copyright (c) 2007-2010 Naoaki Okazaki
  * All rights reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -23,10 +23,12 @@
  * THE SOFTWARE.
  */
 
-/* $Id: arithmetic_sse_double.h 50 2009-02-16 15:14:23Z naoaki $ */
+/* $Id$ */
 
 #include <stdlib.h>
+#ifndef __APPLE__
 #include <malloc.h>
+#endif
 #include <memory.h>
 
 #if     1400 <= _MSC_VER
@@ -39,10 +41,15 @@
 
 inline static void* vecalloc(size_t size)
 {
-#ifdef	_MSC_VER
+#if     defined(_MSC_VER)
     void *memblock = _aligned_malloc(size, 16);
+#elif   defined(__APPLE__)  /* OS X always aligns on 16-byte boundaries */
+    void *memblock = malloc(size);
 #else
-    void *memblock = memalign(16, size);
+    void *memblock = NULL, *p = NULL;
+    if (posix_memalign(&p, 16, size) == 0) {
+        memblock = p;
+    }
 #endif
     if (memblock != NULL) {
         memset(memblock, 0, size);
@@ -192,7 +199,7 @@ inline static void vecfree(void *memblock)
 
 
 
-#if     3 <= __SSE__
+#if     3 <= __SSE__ || defined(__SSE3__)
 /*
     Horizontal add with haddps SSE3 instruction. The work register (rw)
     is unused.
