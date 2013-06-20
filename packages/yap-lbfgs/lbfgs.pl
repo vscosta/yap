@@ -38,8 +38,6 @@
 % :- style_check(single_var).
 
 :- dynamic initialized/0.
-:- dynamic user:'$lbfgs_callback_evaluate'/3.
-:- dynamic user:'$lbfgs_callback_progress'/8.
 
 :- load_foreign_files(['yap_lbfgs'],[],'init_lbfgs_predicates').
 
@@ -63,9 +61,10 @@ optimizer_initialize(N,Module,Call_Evaluate,Call_Progress) :-
 	% the predicates given by the arguments		
 	EvalGoal =.. [Call_Evaluate,E1,E2,E3],
 	ProgressGoal =.. [Call_Progress,P1,P2,P3,P4,P5,P6,P7,P8],
-	assert( (user:'$lbfgs_callback_evaluate'(E1,E2,E3) :- once(call(Module:EvalGoal))) ),
-	assert( (user:'$lbfgs_callback_progress'(P1,P2,P3,P4,P5,P6,P7,P8) :- once(call(Module:ProgressGoal))) ),
-
+	retractall( user:'$lbfgs_callback_evaluate'(_E1,_E2,_E3) ),
+	retractall( user:'$lbfgs_callback_progress'(_P1,_P2,_P3,_P4,_P5,_P6,_P7,_P8) ),
+	assert( (user:'$lbfgs_callback_evaluate'(E1,E2,E3) :- Module:EvalGoal, !) ),
+	assert( (user:'$lbfgs_callback_progress'(P1,P2,P3,P4,P5,P6,P7,P8) :- Module:ProgressGoal, !) ),
 	assert(initialized).
 
 optimizer_finalize :-

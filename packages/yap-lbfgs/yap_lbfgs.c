@@ -39,7 +39,7 @@ lbfgsfloatval_t *g;                           // pointer to the gradient vector 
 lbfgs_parameter_t param;                      // the parameters used for lbfgs
 char buffer [2048];                            // this buffer is used for creating the atoms to call
 
-
+YAP_Functor fcall3, fprogress8, fmod2;
 
 static lbfgsfloatval_t evaluate(
     void *instance,
@@ -49,17 +49,17 @@ static lbfgsfloatval_t evaluate(
     const lbfgsfloatval_t step
     )
 {
-  YAP_Term error;
   YAP_Term call;
   YAP_Bool result;
 
-  if (sprintf(buffer,"'$lbfgs_callback_evaluate'(FX,%i,%f)",n,step)<0) {
-    printf("ERROR: Creating call atom at evaluate function.\n");
-    return 0;
-  }
+  YAP_Term t[3];
 
+  t[0] = YAP_MkVarTerm();
+  t[1] = YAP_MkIntTerm(n);
+  t[2] = YAP_MkFloatTerm(step);
+
+  call = YAP_MkApplTerm(fcall3, 3, t);
   g=g_tmp;  
-  call=YAP_ReadBuffer(buffer,&error);
 
   optimizer_status=OPTIMIZER_STATUS_CB_EVAL;
   result=YAP_CallProlog(call);
@@ -77,7 +77,8 @@ static lbfgsfloatval_t evaluate(
     return (lbfgsfloatval_t) YAP_IntOfTerm(YAP_ArgOfTerm(1,call));
   } 
 
-  printf("ERROR: The evaluate call back function did not return a number as first argument.\n");
+  YAP_ShutdownGoal( TRUE );
+  fprintf(stderr, "ERROR: The evaluate call back function did not return a number as first argument.\n");
   return 0;
 }
 
@@ -94,17 +95,21 @@ static int progress(
     int ls
     )
 {
-  YAP_Term error;
   YAP_Term call;
   YAP_Bool result;
 
-  if (sprintf(buffer,"'$lbfgs_callback_progress'(%f,%f,%f,%f,%i,%i,%i,STOP)",fx,xnorm,gnorm,step,n,k,ls)<0) {
-    printf("ERROR: Creating atom at progress call back.\n");
-    return 1;
-  }
- 
-  
-  call=YAP_ReadBuffer(buffer,&error);
+  YAP_Term t[8];
+  t[0] = YAP_MkFloatTerm(fx);
+  t[1] = YAP_MkFloatTerm(xnorm);
+  t[2] = YAP_MkFloatTerm(gnorm);
+  t[3] = YAP_MkFloatTerm(step);
+  t[4] = YAP_MkIntTerm(n);
+  t[5] = YAP_MkIntTerm(k);
+  t[6] = YAP_MkIntTerm(ls);
+  t[7] = YAP_MkVarTerm();
+
+  call = YAP_MkApplTerm( fprogress8, 8, t);
+
   optimizer_status=OPTIMIZER_STATUS_CB_PROGRESS;
   result=YAP_CallProlog(call);
   optimizer_status=OPTIMIZER_STATUS_RUNNING;
@@ -118,8 +123,9 @@ static int progress(
   if (YAP_IsIntTerm(YAP_ArgOfTerm(8,call))) {
     return YAP_IntOfTerm(YAP_ArgOfTerm(8,call));
   }
-   
-  printf("ERROR: The progress call back function did not return an integer as last argument\n");
+
+  YAP_ShutdownGoal( TRUE );
+  fprintf(stderr, "ERROR: The progress call back function did not return an integer as last argument\n");
   return 1;
 }
 
@@ -276,9 +282,10 @@ static int optimizer_initialize(void) {
 }
 
 static int optimizer_run(void) {
+  int ret = 0;
   YAP_Term t1 = YAP_ARG1;
   YAP_Term t2 = YAP_ARG2;
-  int ret = 0;
+  YAP_Int s1, s2;
   lbfgsfloatval_t fx;
   lbfgsfloatval_t * tmp_x=x;
 
@@ -292,19 +299,20 @@ static int optimizer_run(void) {
     return FALSE;
   }
 
- 
+  
   // both arguments have to be variables
   if (! YAP_IsVarTerm(t1) || ! YAP_IsVarTerm(t2)) {
     return FALSE;
   }
-
+  s1 = YAP_InitSlot(t1);
+  s2 = YAP_InitSlot(t2);
   optimizer_status = OPTIMIZER_STATUS_RUNNING;
   ret = lbfgs(n, x, &fx, evaluate, progress, NULL, &param);
   x=tmp_x;
   optimizer_status = OPTIMIZER_STATUS_INITIALIZED;
 
-  YAP_Unify(t1,YAP_MkFloatTerm(fx));
-  YAP_Unify(t2,YAP_MkIntTerm(ret));
+  YAP_Unify(YAP_GetFromSlot(s1),YAP_MkFloatTerm(fx));
+  YAP_Unify(YAP_GetFromSlot(s2),YAP_MkIntTerm(ret));
 
   return TRUE;
 }
@@ -539,6 +547,10 @@ static int optimizer_get_parameter( void ) {
 
 void init_lbfgs_predicates( void ) 
 { 
+  fcall3 = YAP_MkFunctor(YAP_LookupAtom("$lbfgs_callback_evaluate"), 3);
+  fprogress8 = YAP_MkFunctor(YAP_LookupAtom("$lbfgs_callback_progress"), 8);
+  fmod2 = YAP_MkFunctor(YAP_LookupAtom(":"), 2);
+
   //Initialize the parameters for the L-BFGS optimization.
   lbfgs_parameter_init(&param);
 
