@@ -179,9 +179,13 @@ bind_varnames(term_t varnames ARG_LD)
     Term tv, t2, t1;
 
     if (!IsApplTerm(tl)) return FALSE;
-    if ((f = FunctorOfTerm(tl)) != FunctorEq)
+    if ((f = FunctorOfTerm(tl)) != FunctorEq) {
       return FALSE;
+    }
     t1 = ArgOfTerm(1, tl);
+    if (IsVarTerm(t1)) {
+      return PL_error(NULL, 0, "variable_names", ERR_INSTANTIATION, 0, t1);
+    }
     t2 = ArgOfTerm(2, tl);
     tv = Yap_MkApplTerm(LOCAL_FunctorVar, 1, &t1);
     if (IsVarTerm(t2)) {
