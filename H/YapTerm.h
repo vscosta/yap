@@ -101,10 +101,19 @@ typedef void *Atom;
 
 #endif
 
+
 typedef UInt CELL;
+#if HAVE_STDINT_H
+#include <stdint.h>
+
+typedef uint16_t BITS16;
+typedef int16_t SBITS16;
+typedef uint32_t BITS32;
+#else
 typedef UShort BITS16;
-typedef Short SBITS16;
+typedef Short  SBITS16;
 typedef UInt BITS32;
+#endif
 
 #define WordSize     sizeof(BITS16)
 #define CellSize     sizeof(CELL)
