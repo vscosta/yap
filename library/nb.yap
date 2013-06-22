@@ -16,6 +16,9 @@
 *************************************************************************/
 
 :- module(nb, [
+	       nb_create_accumulator/2,
+	       nb_add_to_accumulator/2,
+	       nb_accumulator_value/2,
 	       nb_queue/1,
 	       nb_queue/2,
 	       nb_queue_close/3,
