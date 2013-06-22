@@ -46,14 +46,147 @@
 #define FNV32_OFFSET 2166136261 
 #define FNV64_OFFSET ((UInt)14695981039346656037)
 
+/*MurmurHash3 from: https://code.google.com/p/smhasher/wiki/MurmurHash3*/
+BITS32 rotl32 ( BITS32, int8_t);
+
+inline BITS32 rotl32 ( BITS32 x, int8_t r )
+{
+  return (x << r) | (x >> (32 - r));
+}
+#define ROTL32(x,y)     rotl32(x,y)
+//-----------------------------------------------------------------------------
+// Finalization mix - force all bits of a hash block to avalanche
+
+BITS32 fmix32 ( BITS32 );
+inline BITS32 fmix32 ( BITS32 h )
+{
+  h ^= h >> 16;
+  h *= 0x85ebca6b;
+  h ^= h >> 13;
+  h *= 0xc2b2ae35;
+  h ^= h >> 16;
+
+  return h;
+}
+//-----------------------------------------------------------------------------
+extern inline BITS32
+HASH_MURMUR3_32 (UInt arity, CELL *cl, UInt bnds[], UInt sz);
+
+extern inline BITS32
+HASH_MURMUR3_32 (UInt arity, CELL *cl, UInt bnds[], UInt sz)
+{
+  UInt hash;
+  UInt  j=0;
+  int len = 0;
+  const BITS32 c1 = 0xcc9e2d51;
+  const BITS32 c2 = 0x1b873593;
+
+  hash = FNV32_OFFSET; /*did not find what seed to use yet*/
+
+  while (j < arity) {
+    if (bnds[j]) {
+      unsigned char *i=(unsigned char*)(cl+j);
+      unsigned char *m=(unsigned char*)(cl+(j+1));
+
+      while (i < m) {
+	BITS32 k1 = i[0];
+
+	k1 *= c1;
+	k1 = ROTL32(k1,15);
+	k1 *= c2;
+    
+	hash ^= k1;
+	hash = ROTL32(hash,13); 
+	hash = hash*5+0xe6546b64;
+        i++;
+	len++;
+      }
+    }
+    j++;
+  }
+
+  //----------
+  // tail not used becouse len is block multiple
+
+  //----------
+  // finalization
+
+  hash ^= len;
+
+  hash = fmix32(hash);
+
+  return hash;
+} 
+
+/*DJB2*/
+#define DJB2_OFFSET 5381 
+
+extern inline BITS32
+HASH_DJB2(UInt arity, CELL *cl, UInt bnds[], UInt sz);
+
+extern inline BITS32
+HASH_DJB2(UInt arity, CELL *cl, UInt bnds[], UInt sz)
+{
+  BITS32 hash;
+  UInt  j=0;
+
+  hash = DJB2_OFFSET;
+  while (j < arity) {
+    if (bnds[j]) {
+      unsigned char *i=(unsigned char*)(cl+j);
+      unsigned char *m=(unsigned char*)(cl+(j+1));
+
+      while (i < m) {
+	BITS32 h5 = hash << 5;
+	hash += h5 + i[0]; /* hash * 33 + i[0] */
+	i++;
+      }
+    }
+    j++;
+  }
+  return hash;
+}
+
+extern inline BITS32
+HASH_RS(UInt arity, CELL *cl, UInt bnds[], UInt sz);
+
+/* RS Hash Function */
+extern inline BITS32
+HASH_RS(UInt arity, CELL *cl, UInt bnds[], UInt sz)
+{
+  UInt hash=0;
+  UInt j=0;
+
+  UInt b = 378551;
+  UInt a = 63689;
+
+  while (j < arity) {
+    if (bnds[j]) {
+      unsigned char *i=(unsigned char*)(cl+j);
+      unsigned char *m=(unsigned char*)(cl+(j+1));
+
+      while (i < m) {
+	hash = hash * a + i[0];
+	a    = a * b;
+	i++;
+      }
+    }
+    j++;
+  }
+  return hash;
+}
+
+extern inline BITS32
+HASH_FVN_1A(UInt arity, CELL *cl, UInt bnds[], UInt sz);
 
 /* Simple hash function:
+   FVN-1A
    first component is the base key.
    hash0 spreads extensions coming from different elements.
    spread over j quadrants.
  */
-static BITS32
-HASH(UInt arity, CELL *cl, UInt bnds[], UInt sz)
+extern inline BITS32
+HASH_FVN_1A(UInt arity, CELL *cl, UInt bnds[], UInt sz)
 {
   UInt hash;
   UInt  j=0;
@@ -74,6 +207,19 @@ HASH(UInt arity, CELL *cl, UInt bnds[], UInt sz)
   }
   return hash;
 }
+
+//#define TEST_HASH_DJB 1 
+
+#if defined TEST_HASH_MURMUR
+# define HASH(...) HASH_MURMUR3_32(__VA_ARGS__)
+#elif defined TEST_HASH_DJB
+# define HASH(...)    HASH_DJB2(__VA_ARGS__)
+#elif defined TEST_HASH_RS
+# define HASH(...) HASH_RS(__VA_ARGS__)
+#else
+/* Default: TEST_HASH_FVN */
+# define HASH(...) HASH_FVN_1A(__VA_ARGS__)
+#endif
 
 static BITS32
 NEXT(UInt hash)
@@ -203,8 +349,8 @@ fill_hash(UInt bmap, struct index_t *it, UInt bnds[])
   }
   for (i=0; i < it->hsize; i++) {
     if (it->key[i]) {
-      UInt offset = it->key[i]/arity;
-      UInt last = it->links[offset];
+      BITS32 offset = it->key[i]/arity;
+      BITS32 last = it->links[offset];
       if (last) {
       /* the chain used to point straight to the last, and the last back to the origibal first */
 	it->links[offset] = it->links[last];
@@ -259,7 +405,7 @@ add_index(struct index_t **ip, UInt bmap, PredEntry *ap, UInt count)
   }
   i->size = sz+dsz+sizeof(struct index_t);
   i->key = (BITS32 *)base;
-  i->links = (BITS32 *)(base+i->hsize);
+  i->links = (BITS32 *)base+i->hsize;
   i->ncollisions = i->nentries = i->ntrys = 0;
   i->cls = (CELL *)((ADDR)ap->cs.p_code.FirstClause+2*sizeof(struct index_t *)); 
   *ip = i;
@@ -275,8 +421,8 @@ add_index(struct index_t **ip, UInt bmap, PredEntry *ap, UInt count)
       if (base != (CELL *)Yap_ReallocCodeSpace((char *)base, sz))
 	return FALSE;
       bzero(base, sz);
-      i->key = (CELL *)base;
-      i->links = (CELL *)(base+i->hsize);
+      i->key = (BITS32 *)base;
+      i->links = (BITS32 *)(base+i->hsize);
       i->ncollisions = i->nentries = i->ntrys = 0;
       continue;
     }
@@ -300,8 +446,8 @@ add_index(struct index_t **ip, UInt bmap, PredEntry *ap, UInt count)
       if (base != (CELL *)Yap_ReallocCodeSpace((char *)base, sz))
 	return FALSE;
       bzero(base, sz);
-      i->key = (CELL *)base;
-      i->links = (CELL *)(base+i->hsize);
+      i->key = (BITS32 *)base;
+      i->links = (BITS32 *)base+i->hsize;
       i->ncollisions = i->nentries = i->ntrys = 0;
     } else {
       break;
@@ -398,8 +544,8 @@ CELL
 Yap_NextExo(choiceptr cptr, struct index_t *it) 
 {
   CACHE_REGS
-  CELL offset = ADDRESS_TO_LINK(it,(CELL *)((CELL *)(B+1))[it->arity]);
-  CELL next = it->links[offset];
+  BITS32 offset = ADDRESS_TO_LINK(it,(BITS32 *)((CELL *)(B+1))[it->arity]);
+  BITS32 next = it->links[offset];
   ((CELL *)(B+1))[it->arity] = (CELL)LINK_TO_ADDRESS(it, next);
   S = it->cls+it->arity*offset;
   return next;
