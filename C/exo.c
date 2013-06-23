@@ -243,8 +243,8 @@ MATCH(CELL *clp, CELL *kvp, UInt arity, UInt bnds[])
 static void
 ADD_TO_TRY_CHAIN(CELL *kvp, CELL *cl, struct index_t *it)
 {
-  BITS32 old = (kvp-it->cls)/it->arity;
-  BITS32 new = (cl-it->cls)/it->arity;
+  BITS32 old = EXO_ADDRESS_TO_OFFSET(it, kvp);
+  BITS32 new = EXO_ADDRESS_TO_OFFSET(it, cl);
   BITS32 *links = it->links;
   BITS32 tmp = links[old]; /* points to the end of the chain */
 
@@ -324,7 +324,7 @@ LOOKUP(struct index_t *it, UInt arity, UInt j, UInt bnds[])
     return FAILCODE;
   } else if (MATCH(kvp, XREGS+1, arity, bnds))  {
     S = kvp;
-    if (!it->is_key && it->links[(S-it->cls)/arity])
+    if (!it->is_key && it->links[EXO_ADDRESS_TO_OFFSET(it, S)])
       return it->code;
     else
       return NEXTOP(NEXTOP(it->code,lp),lp);
@@ -349,10 +349,10 @@ fill_hash(UInt bmap, struct index_t *it, UInt bnds[])
   }
   for (i=0; i < it->hsize; i++) {
     if (it->key[i]) {
-      BITS32 offset = it->key[i]/arity;
+      BITS32 offset = it->key[i];
       BITS32 last = it->links[offset];
       if (last) {
-      /* the chain used to point straight to the last, and the last back to the origibal first */
+      /* the chain used to point straight to the last, and the last back to the original first */
 	it->links[offset] = it->links[last];
 	it->links[last] = 0;
       }
@@ -371,7 +371,7 @@ add_index(struct index_t **ip, UInt bmap, PredEntry *ap, UInt count)
   size_t sz, dsz;
   yamop *ptr;
   UInt *bnds = LOCAL_ibnds;
-  
+
   sz =   (CELL)NEXTOP(NEXTOP((yamop*)NULL,lp),lp)+ap->ArityOfPE*(CELL)NEXTOP((yamop *)NULL,x) +(CELL)NEXTOP(NEXTOP((yamop *)NULL,p),l);
   if (!(i = (struct index_t *)Yap_AllocCodeSpace(sizeof(struct index_t)+sz))) {
     CACHE_REGS
@@ -390,7 +390,7 @@ add_index(struct index_t **ip, UInt bmap, PredEntry *ap, UInt count)
   i->bmap = bmap;
   i->is_key = FALSE;
   i->hsize = 2*ncls;
-  dsz = sizeof(BITS32)*(ncls+i->hsize);
+  dsz = sizeof(BITS32)*(ncls+1+i->hsize);
   if (count) {
     if (!(base = (CELL *)Yap_AllocCodeSpace(dsz))) {
       CACHE_REGS
@@ -408,6 +408,7 @@ add_index(struct index_t **ip, UInt bmap, PredEntry *ap, UInt count)
   i->links = (BITS32 *)base+i->hsize;
   i->ncollisions = i->nentries = i->ntrys = 0;
   i->cls = (CELL *)((ADDR)ap->cs.p_code.FirstClause+2*sizeof(struct index_t *)); 
+  i->bcls= i->cls-i->arity;
   *ip = i;
   while (count) {
     if (!fill_hash(bmap, i, bnds)) {
@@ -416,7 +417,7 @@ add_index(struct index_t **ip, UInt bmap, PredEntry *ap, UInt count)
       if (i->is_key) {
 	sz = i->hsize*sizeof(BITS32);
       } else {
-	sz = (ncls+i->hsize)*sizeof(BITS32);
+	sz = (ncls+1+i->hsize)*sizeof(BITS32);
       }
       if (base != (CELL *)Yap_ReallocCodeSpace((char *)base, sz))
 	return FALSE;
@@ -441,7 +442,7 @@ add_index(struct index_t **ip, UInt bmap, PredEntry *ap, UInt count)
       if (i->is_key) {
 	sz = i->hsize*sizeof(BITS32);
       } else {
-	sz = (ncls+i->hsize)*sizeof(BITS32);
+	sz = (ncls+1+i->hsize)*sizeof(BITS32);
       }
       if (base != (CELL *)Yap_ReallocCodeSpace((char *)base, sz))
 	return FALSE;

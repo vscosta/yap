@@ -41,16 +41,15 @@ static int
 compar(const void *ip0, const void *jp0) {
   CACHE_REGS
   BITS32 *ip = (BITS32 *)ip0, *jp = (BITS32 *)jp0;
-  BITS32 *bs = LOCAL_exo_base;
-  Int i = bs[LOCAL_exo_arity*(*ip)+LOCAL_exo_arg];
-  Int j = bs[LOCAL_exo_arity*(*jp)+LOCAL_exo_arg];
+  Term i = EXO_OFFSET_TO_ADDRESS(LOCAL_exo_it, *ip)[LOCAL_exo_arg];
+  Term j = EXO_OFFSET_TO_ADDRESS(LOCAL_exo_it, *jp)[LOCAL_exo_arg];
+  //fprintf(stderr, "%ld-%ld\n", IntOfTerm(i), IntOfTerm(j)); 
   return IntOfTerm(i)-IntOfTerm(j);
 }
 
 static int
 compare(const BITS32 *ip, Int j USES_REGS) {
-  BITS32 *bs = LOCAL_exo_base;
-  Int i = bs[LOCAL_exo_arity*(*ip)+LOCAL_exo_arg];
+  Term i = EXO_OFFSET_TO_ADDRESS(LOCAL_exo_it, *ip)[LOCAL_exo_arg];
   //fprintf(stderr, "%ld-%ld\n", IntOfTerm(i), j); 
   return IntOfTerm(i)-j;
  }
@@ -61,7 +60,6 @@ compare(const BITS32 *ip, Int j USES_REGS) {
  {
    size_t sz;
    struct index_t *it = *ip;
-   UInt arity = it->arity;
    yamop *code;
 
    /* hard-wired implementation for the Interval case */
@@ -70,7 +68,8 @@ compare(const BITS32 *ip, Int j USES_REGS) {
    if (it->bmap & b[i]) return;
    /* no constraints, nothing to gain */
    if (!IsAttVar(VarOfTerm(XREGS[i+1]))) return;
-   LOCAL_exo_base = it->cls;
+   LOCAL_exo_it = it;
+   LOCAL_exo_base = it->bcls;
    LOCAL_exo_arity = it->arity;
    LOCAL_exo_arg = i;
    if (!it->key) {
@@ -99,14 +98,14 @@ compare(const BITS32 *ip, Int j USES_REGS) {
      for (i=0; i < it->hsize; i++) {
        if (it->key[i]) {
 	 BITS32 *s0 = sorted;
-	 BITS32 offset = it->key[i]/arity, offset0 = offset;
+	 BITS32 offset = it->key[i], offset0 = offset;
 
 	 *sorted++ = 0;
 	 do {
 	   *sorted++ = offset;
 	   offset = it->links[offset];
 	 } while (offset);
-	 //      S = it->cls+it->arity*offset0; Yap_DebugPlWrite(S[1]);
+	 // S = EXO_OFFSET_TO_ADDRESS(it, offset0); Yap_DebugPlWrite(S[0]);
 	 // fprintf(stderr, " key[i]=%d offset=%d  %d\n", it->key[i], offset0, (sorted-s0)-1);
 	 if (sorted-s0 == 2) {
 	   it->links[offset0] = 0;
@@ -116,6 +115,7 @@ compare(const BITS32 *ip, Int j USES_REGS) {
 	   *s0 = sorted - (s0+1);
 	   qsort(s0+1, (size_t)*s0, sizeof(BITS32), compar); 
 	   it->links[offset0] = s0-sorted0;
+	   // fprintf(stderr," %d links %d=%d \n", offset0, s0-sorted0, s0[0]);
 	 }
        }
      }
@@ -156,7 +156,8 @@ Interval(struct index_t *it, Term min, Term max, Term op, BITS32 off USES_REGS)
    BITS32 *end;
    Atom at;
 
-   LOCAL_exo_base = it->cls;
+   LOCAL_exo_it = it;
+   LOCAL_exo_base = it->bcls;
    LOCAL_exo_arity = it->arity;
    LOCAL_exo_arg = it->udi_arg;
    if (!it->links) {
@@ -169,6 +170,7 @@ Interval(struct index_t *it, Term min, Term max, Term op, BITS32 off USES_REGS)
      n = c[it->links[off]];
      pt  = c+(it->links[off]+1);
      end  = c+(it->links[off]+n);
+     // fprintf(stderr," %d links %d=%d \n", off, it->links[off], n);
    } else {
      if (!IsVarTerm(min)) {
        Int x;
@@ -257,7 +259,7 @@ Interval(struct index_t *it, Term min, Term max, Term op, BITS32 off USES_REGS)
      end = pt1;
    }
    if (IsVarTerm(op)) {
-     S = it->cls+it->arity*pt[0];
+     S = EXO_OFFSET_TO_ADDRESS(it, pt[0]);
      if (pt < end ) {
        YENV[-2] = (CELL)( pt+1 );
        YENV[-1] = (CELL)( end );
@@ -268,13 +270,13 @@ Interval(struct index_t *it, Term min, Term max, Term op, BITS32 off USES_REGS)
    }
    at = AtomOfTerm(op);
    if (at == AtomAny || at == AtomMin) {
-     S = it->cls+it->arity*pt[0];
+     S = EXO_OFFSET_TO_ADDRESS(it, pt[0]);
    } else if (at == AtomMax) {
-     S = it->cls+it->arity*end[0];
+     S = EXO_OFFSET_TO_ADDRESS(it, end[0]);
    } else if (at == AtomUnique) {
      if (end-2 > pt)
        return FAILCODE;
-     S = it->cls+it->arity*pt[0];
+     S = EXO_OFFSET_TO_ADDRESS(it, pt[0]);
    }
    return NEXTOP(NEXTOP(it->code,lp),lp);
  }
@@ -284,7 +286,7 @@ IntervalEnterUDIIndex(struct index_t *it USES_REGS)
 {
   Int i = it->udi_arg;
   Term  t = XREGS[i+1], a1;
-  BITS32 off = EXO_ADDRESS_TO_OFFSET(it, S)/it->arity;
+  BITS32 off = EXO_ADDRESS_TO_OFFSET(it, S);
   //  printf("off=%d it=%p %p---%p\n", off, it, it->cls, S);
   attvar_record *attv;
 
@@ -315,7 +317,7 @@ IntervalRetryUDIIndex(struct index_t *it USES_REGS)
     *pt = (BITS32 *) w[it->arity+1];
   BITS32 f = *pt;
 
-  S = it->cls+it->arity*f;
+  S = EXO_OFFSET_TO_ADDRESS(it, f);
   if (pt++ == end) return FALSE;
   w[it->arity+1] = (CELL)pt;
   return TRUE;

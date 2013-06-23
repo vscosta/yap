@@ -403,6 +403,8 @@
 
 #define LOCAL_ibnds LOCAL->ibnds_
 #define REMOTE_ibnds(wid) REMOTE(wid)->ibnds_
+#define LOCAL_exo_it LOCAL->exo_it_
+#define REMOTE_exo_it(wid) REMOTE(wid)->exo_it_
 #define LOCAL_exo_base LOCAL->exo_base_
 #define REMOTE_exo_base(wid) REMOTE(wid)->exo_base_
 #define LOCAL_exo_arity LOCAL->exo_arity_
