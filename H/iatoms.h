@@ -156,6 +156,7 @@
   AtomLT = Yap_LookupAtom("<");
   AtomLastExecuteWithin = Yap_FullLookupAtom("$last_execute_within");
   AtomLeash = Yap_FullLookupAtom("$leash");
+  AtomLeast = Yap_LookupAtom("least");
   AtomLength = Yap_FullLookupAtom("length");
   AtomList = Yap_LookupAtom("list");
   AtomLive = Yap_FullLookupAtom("$live");
@@ -164,14 +165,17 @@
   AtomLocalSp = Yap_LookupAtom("local_sp");
   AtomLocalTrie = Yap_LookupAtom("local_trie");
   AtomMax = Yap_LookupAtom("max");
+  AtomMaximum = Yap_LookupAtom("maximum");
   AtomMaxArity = Yap_LookupAtom("max_arity");
   AtomMaxFiles = Yap_LookupAtom("max_files");
   AtomMegaClause = Yap_FullLookupAtom("$mega_clause");
   AtomMetaCall = Yap_FullLookupAtom("$call");
   AtomMfClause = Yap_FullLookupAtom("$mf_clause");
   AtomMin = Yap_LookupAtom("min");
+  AtomMinimum = Yap_LookupAtom("minimum");
   AtomMinus = Yap_LookupAtom("-");
   AtomModify = Yap_LookupAtom("modify");
+  AtomMost = Yap_LookupAtom("most");
   AtomMultiFile = Yap_FullLookupAtom("$mf");
   AtomMutable = Yap_LookupAtom("mutable");
   AtomMutableVariable = Yap_FullLookupAtom("$mutable_variable");

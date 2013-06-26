@@ -178,6 +178,7 @@ typedef struct index_t {
   yamop *code;
   BITS32 *udi_data;
   void *udi_first, *udi_next;
+  UInt udi_free_args;
   UInt udi_arg;
 } Index_t;
 
