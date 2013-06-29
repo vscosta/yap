@@ -137,7 +137,7 @@ IntervalUDIRefitIndex(struct index_t **ip, UInt b[] USES_REGS)
   /* it is bound, use hash */
   if (it->bmap & b[i]) return;
   /* no constraints, nothing to gain */
-  if (!IsAttVar(VarOfTerm(XREGS[i+1]))) return;
+  //if (!IsAttVar(VarOfTerm(Deref(XREGS[i+1])))) return;
   LOCAL_exo_it = it;
   LOCAL_exo_base = it->bcls;
   LOCAL_exo_arity = it->arity;
@@ -161,9 +161,9 @@ IntervalUDIRefitIndex(struct index_t **ip, UInt b[] USES_REGS)
     
     /* be conservative */
     if (it->udi_free_args)
-      sz = sizeof(BITS32)*(3*it->ntrys+2*it->nentries);
+      sz = sizeof(BITS32)*(3*it->ntrys+3*it->nentries);
     else
-      sz = sizeof(BITS32)*(2*it->ntrys+it->nentries);
+      sz = sizeof(BITS32)*(2*it->ntrys+2*it->nentries);
     /* allocate space */
     if (!(it->udi_data = (BITS32*)Yap_AllocCodeSpace(sz)))
       return;
@@ -364,36 +364,44 @@ Interval(struct index_t *it, Term min, Term max, Term op, BITS32 off USES_REGS)
    } else if (at == AtomMin) {
      Int x0, xe, x;
 
-     x0 = pt-pt0;
-     xe = end-pt0;
-     S = EXO_OFFSET_TO_ADDRESS(it, pt[0]);
-     x = NEXT_DIFFERENT(x0, x0, end0, xe);
-     if (x < xe ) {
-       YENV[-5] = (CELL)( pt0 );  // base for array of pointed pointers
-       YENV[-4] = MkIntegerTerm( x );    // where we are in pt0 array
-       YENV[-3] = MkIntegerTerm( xe );   // our visit will end here 
-       YENV[-2] = MkIntegerTerm( x0 );   // our visit started here
-       YENV[-1] = (CELL)( end0 ); // base for array into pt
-       YENV -= 5;
-       return it->code;
+     if (!(it->udi_free_args)) {
+       S = EXO_OFFSET_TO_ADDRESS(it, pt[0]);
+     } else {
+       x0 = pt-pt0;
+       xe = end-pt0;
+       S = EXO_OFFSET_TO_ADDRESS(it, pt[0]);
+       x = NEXT_DIFFERENT(x0, x0, end0, xe);
+       if (x < xe ) {
+	 YENV[-5] = (CELL)( pt0 );  // base for array of pointed pointers
+	 YENV[-4] = MkIntegerTerm( x );    // where we are in pt0 array
+	 YENV[-3] = MkIntegerTerm( xe );   // our visit will end here 
+	 YENV[-2] = MkIntegerTerm( x0 );   // our visit started here
+	 YENV[-1] = (CELL)( end0 ); // base for array into pt
+	 YENV -= 5;
+	 return it->code;
+       }
      }
      return NEXTOP(NEXTOP(it->code,lp),lp);
    } else if (at == AtomMax) {
      Int x0, xe, x, y;
 
-     x0 = pt-pt0;
-     xe = end-pt0;
-     y = BIGGEST_EL( x0, end0, xe );
-     S = EXO_OFFSET_TO_ADDRESS(it, pt[0]);
-     x = NEXT_DIFFERENT(x0, x0, end0, xe);
-     if (x < xe ) {
-       YENV[-5] = (CELL)( pt0 );  // base for array of pointed pointers
-       YENV[-4] = MkIntegerTerm( -x );    // where we are in pt0 array
-       YENV[-3] = MkIntegerTerm( xe );   // our visit will end here 
-       YENV[-2] = MkIntegerTerm( x0 );   // our visit started here
-       YENV[-1] = (CELL)( end0 ); // base for array into pt
-       YENV -= 5;
-       return it->code;
+     if (!(it->udi_free_args)) {
+       S = EXO_OFFSET_TO_ADDRESS(it, end[0]);
+     } else {
+       x0 = pt-pt0;
+       xe = end-pt0;
+       y = BIGGEST_EL( x0, end0, xe );
+       S = EXO_OFFSET_TO_ADDRESS(it, pt[0]);
+       x = NEXT_DIFFERENT(x0, x0, end0, xe);
+       if (x < xe ) {
+	 YENV[-5] = (CELL)( pt0 );  // base for array of pointed pointers
+	 YENV[-4] = MkIntegerTerm( -x );    // where we are in pt0 array
+	 YENV[-3] = MkIntegerTerm( xe );   // our visit will end here 
+	 YENV[-2] = MkIntegerTerm( x0 );   // our visit started here
+	 YENV[-1] = (CELL)( end0 ); // base for array into pt
+	 YENV -= 5;
+	 return it->code;
+       }
      }
      return NEXTOP(NEXTOP(it->code,lp),lp);
    }

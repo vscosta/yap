@@ -186,13 +186,13 @@ HASH_FVN_1A(UInt arity, CELL *cl, UInt bnds[], UInt sz);
    spread over j quadrants.
  */
 extern inline BITS32
-HASH_FVN_1A(UInt arity, CELL *cl, UInt bnds[], UInt sz)
+HASH_FVN_1A(UInt ar, CELL *cl, UInt bnds[], UInt sz)
 {
   UInt hash;
   UInt  j=0;
 
   hash = FNV32_OFFSET;
-  while (j < arity) {
+  while (j < ar) {
     if (bnds[j]) {
       unsigned char *i=(unsigned char*)(cl+j);
       unsigned char *m=(unsigned char*)(cl+(j+1));
