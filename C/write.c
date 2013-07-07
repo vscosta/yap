@@ -320,7 +320,7 @@ wrputf(Float f, struct write_globs *wglb)	/* writes a float	 */
   ob = protect_open_number(wglb, last_minus, sgn);
 #if THREADS
   /* old style writing */
-  int found_dot = FALSE, found_exp = FALSE;
+  int found_dot = FALSE;
   char            *pt = s;
   int ch;
 
@@ -348,7 +348,6 @@ wrputf(Float f, struct write_globs *wglb)	/* writes a float	 */
         found_dot = TRUE;
         wrputs(".0", stream);
       }
-      found_exp = TRUE;
     default:
       wrputc(ch, stream);
     }
@@ -751,7 +750,6 @@ check_infinite_loop(Term t, struct rewind_term *x, struct write_globs *wglb)
 static void
 write_list(Term t, int direction, int depth, struct write_globs *wglb, struct rewind_term *rwt)
 {
-  CACHE_REGS
   Term ti;
   struct rewind_term nrwt;
   nrwt.parent = rwt;
@@ -975,7 +973,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
 	wrclose_bracket(wglb, TRUE);
       }
     } else if (!wglb->Ignore_ops &&
-	       Arity == 1 &&
+	       ( Arity == 1 || atom == AtomEmptyBrackets || atom == AtomEmptyCurlyBrackets || atom == AtomEmptySquareBrackets) &&
 	       Yap_IsPosfixOp(atom, &op, &lp)) {
       Term  tleft = ArgOfTerm(1, t);
 
@@ -995,7 +993,40 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
       if (bracket_left) {
 	wrclose_bracket(wglb, TRUE);
       }
-      putAtom(atom, wglb->Quote_illegal, wglb);
+      if (Arity > 1) {
+	if (atom == AtomEmptyBrackets) {
+	  wrputc('(', wglb->stream);  
+	} else if (atom == AtomEmptySquareBrackets) {
+	  wrputc('[', wglb->stream);  
+	} else if (atom == AtomEmptyCurlyBrackets) {
+	  wrputc('{', wglb->stream);  
+	}
+	lastw = separator;
+	for (op = 2; op <= Arity; ++op) {
+	  if (op == wglb->MaxArgs) {
+	    wrputc('.', wglb->stream);
+	    wrputc('.', wglb->stream);
+	    wrputc('.', wglb->stream);
+	    break;
+	  }
+	  writeTerm(from_pointer(RepAppl(t)+op, &nrwt, wglb), 999, depth + 1, FALSE, wglb, &nrwt);
+	  restore_from_write(&nrwt, wglb);
+	  if (op != Arity) {
+	    wrputc(',', wglb->stream);
+	    lastw = separator;
+	  }
+	}
+	if (atom == AtomEmptyBrackets) {
+	  wrputc(')', wglb->stream);  
+	} else if (atom == AtomEmptySquareBrackets) {
+	  wrputc(']', wglb->stream);  
+	} else if (atom == AtomEmptyCurlyBrackets) {
+	  wrputc('}', wglb->stream);  
+	}
+ 	lastw = separator;
+      } else {
+	putAtom(atom, wglb->Quote_illegal, wglb);
+      }
       if (op > p) {
 	wrclose_bracket(wglb, TRUE);
       }

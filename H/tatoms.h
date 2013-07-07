@@ -38,6 +38,12 @@
 #define AtomArrow Yap_heap_regs->AtomArrow_
   Atom AtomAssert_;
 #define AtomAssert Yap_heap_regs->AtomAssert_
+  Atom AtomEmptyBrackets_;
+#define AtomEmptyBrackets Yap_heap_regs->AtomEmptyBrackets_
+  Atom AtomEmptySquareBrackets_;
+#define AtomEmptySquareBrackets Yap_heap_regs->AtomEmptySquareBrackets_
+  Atom AtomEmptyCurlyBrackets_;
+#define AtomEmptyCurlyBrackets Yap_heap_regs->AtomEmptyCurlyBrackets_
   Atom AtomAt_;
 #define AtomAt Yap_heap_regs->AtomAt_
   Atom AtomAtom_;

@@ -20,6 +20,9 @@
   AtomArrayType = AtomAdjust(AtomArrayType);
   AtomArrow = AtomAdjust(AtomArrow);
   AtomAssert = AtomAdjust(AtomAssert);
+  AtomEmptyBrackets = AtomAdjust(AtomEmptyBrackets);
+  AtomEmptySquareBrackets = AtomAdjust(AtomEmptySquareBrackets);
+  AtomEmptyCurlyBrackets = AtomAdjust(AtomEmptyCurlyBrackets);
   AtomAt = AtomAdjust(AtomAt);
   AtomAtom = AtomAdjust(AtomAtom);
   AtomAtomic = AtomAdjust(AtomAtomic);

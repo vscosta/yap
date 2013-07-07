@@ -20,6 +20,9 @@
   AtomArrayType = Yap_LookupAtom("array_type");
   AtomArrow = Yap_LookupAtom("->");
   AtomAssert = Yap_LookupAtom(":-");
+  AtomEmptyBrackets = Yap_LookupAtom("()");
+  AtomEmptySquareBrackets = Yap_LookupAtom("[]");
+  AtomEmptyCurlyBrackets = Yap_LookupAtom("{}");
   AtomAt = Yap_LookupAtom("at");
   AtomAtom = Yap_LookupAtom("atom");
   AtomAtomic = Yap_LookupAtom("atomic");

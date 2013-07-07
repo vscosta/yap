@@ -92,11 +92,11 @@
 	  '$do_error'(instantiation_error,G).
  '$check_op_name'(_,_,',',G) :- !,
 	  '$do_error'(permission_error(modify,operator,','),G).
- '$check_op_name'(_,_,'[]',G) :- !,
+'$check_op_name'(_,_,'[]',G) :-  T \= yf, T\= xf, !,
 	  '$do_error'(permission_error(create,operator,'[]'),G).
- '$check_op_name'(_,_,'{}',G) :- !,
+'$check_op_name'(_,_,'{}',G) :- T \= yf, T\= xf, !,
 	  '$do_error'(permission_error(create,operator,'{}'),G).
- '$check_op_name'(P,T,'|',G) :-
+'$check_op_name'(P,T,'|',G) :-
 	 (
 	  integer(P),
 	  P < 1001, P > 0

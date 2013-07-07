@@ -70,7 +70,7 @@ typedef struct jmp_buff_struct {
 
 static void GNextToken( CACHE_TYPE1 );
 static void checkfor(Term, JMPBUFF * CACHE_TYPE);
-static Term ParseArgs(Atom, JMPBUFF * CACHE_TYPE);
+static Term ParseArgs(Atom, Term, JMPBUFF *, Term CACHE_TYPE);
 static Term ParseList(JMPBUFF * CACHE_TYPE);
 static Term ParseTerm(int, JMPBUFF * CACHE_TYPE);
 
@@ -324,7 +324,7 @@ checkfor(Term c, JMPBUFF *FailBuff USES_REGS)
 }
 
 static Term
-ParseArgs(Atom a, JMPBUFF *FailBuff USES_REGS)
+ParseArgs(Atom a, Term close, JMPBUFF *FailBuff, Term arg1 USES_REGS)
 {
   int nargs = 0;
   Term *p, t;
@@ -335,6 +335,27 @@ ParseArgs(Atom a, JMPBUFF *FailBuff USES_REGS)
   
   NextToken;
   p = (Term *) ParserAuxSp;
+  if (arg1) {
+    *p = arg1;
+    nargs++;
+    ParserAuxSp = (char *)(p+1);
+    if (LOCAL_tokptr->Tok == Ord(Ponctuation_tok)
+	&& LOCAL_tokptr->TokInfo == close) {
+
+      func = Yap_MkFunctor(a, 1);
+      if (func == NULL) {
+	LOCAL_ErrorMessage = "Heap Overflow";
+	FAIL;
+      }
+      t = Yap_MkApplTerm(func, nargs, p);
+      if (H > ASP-4096) {
+	LOCAL_ErrorMessage = "Stack Overflow";
+	return TermNil;
+      }  
+      NextToken;
+      return t;
+    }
+  }
   while (1) {
     Term *tp = (Term *)ParserAuxSp;
     if (ParserAuxSp+1 > LOCAL_TrailTop) {
@@ -380,7 +401,7 @@ ParseArgs(Atom a, JMPBUFF *FailBuff USES_REGS)
     return TermNil;
   }  
   /* check for possible overflow against local stack */
-  checkfor((Term) ')', FailBuff PASS_REGS);
+  checkfor(close, FailBuff PASS_REGS);
   return t;
 }
 
@@ -519,7 +540,7 @@ ParseTerm(int prio, JMPBUFF *FailBuff USES_REGS)
     }
     if (LOCAL_tokptr->Tok == Ord(Ponctuation_tok)
 	&& Unsigned(LOCAL_tokptr->TokInfo) == 'l')
-      t = ParseArgs((Atom) t, FailBuff PASS_REGS);
+      t = ParseArgs((Atom) t, (Term)')', FailBuff, 0L PASS_REGS);
     else
       t = MkAtomTerm((Atom)t);
     break;
@@ -708,6 +729,24 @@ ParseTerm(int prio, JMPBUFF *FailBuff USES_REGS)
 	  LOCAL_ErrorMessage = "Stack Overflow";
 	  FAIL;
 	}  
+	curprio = opprio;
+	continue;
+      } else if (Unsigned(LOCAL_tokptr->TokInfo) == '(' &&
+                IsPosfixOp(AtomEmptyBrackets, &opprio, &oplprio PASS_REGS)
+                && opprio <= prio && oplprio >= curprio) {
+	t = ParseArgs(AtomEmptyBrackets, (Term)')', FailBuff, t PASS_REGS);
+	curprio = opprio;
+	continue;
+       } else if (Unsigned(LOCAL_tokptr->TokInfo) == '[' &&
+                IsPosfixOp(AtomEmptySquareBrackets, &opprio, &oplprio PASS_REGS)
+                && opprio <= prio && oplprio >= curprio) {
+	t = ParseArgs(AtomEmptySquareBrackets, (Term)']', FailBuff, t PASS_REGS);
+	curprio = opprio;
+	continue;
+      } else if (Unsigned(LOCAL_tokptr->TokInfo) == '{' &&
+                IsPosfixOp(AtomEmptyCurlyBrackets, &opprio, &oplprio PASS_REGS)
+                && opprio <= prio && oplprio >= curprio) {
+	t = ParseArgs(AtomEmptyCurlyBrackets, (Term)'}', FailBuff, t PASS_REGS);
 	curprio = opprio;
 	continue;
       }
