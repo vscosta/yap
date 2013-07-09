@@ -2004,6 +2004,7 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose 
 #endif /* TABLING */
       op = rtp->opc;
       opnum = Yap_op_from_opcode(op);
+      //      fprintf(stderr, "%s\n", Yap_op_names[opnum]);
 #ifdef TABLING
     }
     if (aux_sg_fr && gc_B == SgFr_gen_cp(aux_sg_fr)) {
@@ -2166,11 +2167,37 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose 
       case _table_answer_resolution:
 	{
 	  CELL *vars_ptr, vars;
-	  init_substitution_pointer(gc_B, vars_ptr, CONS_CP(gc_B)->cp_dep_fr);
-	  vars = *vars_ptr++;
-	  while (vars--) {	
-	    mark_external_reference(vars_ptr PASS_REGS);
-	    vars_ptr++;
+	  dep_fr_ptr dep_fr = CONS_CP(gc_B)->cp_dep_fr;
+	  ans_node_ptr ans_node = DepFr_last_answer(dep_fr);
+	  if (TrNode_child(ans_node)) {
+	    /* unconsumed answers */
+#ifdef MODE_DIRECTED_TABLING
+	    if (IS_ANSWER_INVALID_NODE(TrNode_child(ans_node))) {
+	      ans_node_ptr old_ans_node;
+	      old_ans_node = ans_node;
+	      ans_node = TrNode_child(ans_node);
+	      do {
+		ans_node = TrNode_child(ans_node);
+	      } while (IS_ANSWER_INVALID_NODE(ans_node));
+	      TrNode_child(old_ans_node) = ans_node;
+	    } else
+#endif /* MODE_DIRECTED_TABLING */
+	      ans_node = TrNode_child(ans_node);
+	    if (gc_B == DepFr_leader_cp(dep_fr)) {                                  \
+	      /*  gc_B is a generator-consumer node  */                             \
+	      /* never here if batched scheduling */                             \
+	      TABLING_ERROR_CHECKING(generator_consumer, IS_BATCHED_GEN_CP(gc_B));  \
+	      vars_ptr = (CELL *) (GEN_CP(gc_B) + 1);                               \
+	      vars_ptr += SgFr_arity(GEN_CP(gc_B)->cp_sg_fr);                       \
+	    } else {                                                             \
+	      vars_ptr = (CELL *) (CONS_CP(gc_B) + 1);                              \
+	    }                                                                    \
+
+	    vars = *vars_ptr++;
+	    while (vars--) {	
+	      mark_external_reference(vars_ptr PASS_REGS);
+	      vars_ptr++;
+	    }
 	  }
 	}
 	nargs = 0;
@@ -3113,18 +3140,43 @@ sweep_choicepoints(choiceptr gc_B USES_REGS)
     case _table_answer_resolution:
       {
 	CELL *vars_ptr, vars;
-	sweep_environments(gc_B->cp_env, EnvSize(gc_B->cp_cp), EnvBMap(gc_B->cp_cp) PASS_REGS);
-	init_substitution_pointer(gc_B, vars_ptr, CONS_CP(gc_B)->cp_dep_fr);
-	vars = *vars_ptr++;
-	while (vars--) {	
-	  CELL cp_cell = *vars_ptr;
-	  if (MARKED_PTR(vars_ptr)) {
-	    UNMARK(vars_ptr);
-	    if (HEAP_PTR(cp_cell)) {
-	      into_relocation_chain(vars_ptr, GET_NEXT(cp_cell) PASS_REGS);
-	    }
+	dep_fr_ptr dep_fr = CONS_CP(gc_B)->cp_dep_fr;
+	ans_node_ptr ans_node = DepFr_last_answer(dep_fr);
+	if (TrNode_child(ans_node)) {
+	  /* unconsumed answers */
+#ifdef MODE_DIRECTED_TABLING
+	  if (IS_ANSWER_INVALID_NODE(TrNode_child(ans_node))) {
+	    ans_node_ptr old_ans_node;
+	    old_ans_node = ans_node;
+	    ans_node = TrNode_child(ans_node);
+	    do {
+	      ans_node = TrNode_child(ans_node);
+	    } while (IS_ANSWER_INVALID_NODE(ans_node));
+	    TrNode_child(old_ans_node) = ans_node;
+	  } else
+#endif /* MODE_DIRECTED_TABLING */
+	    ans_node = TrNode_child(ans_node);
+	  if (gc_B == DepFr_leader_cp(dep_fr)) {				\
+	    /*  gc_B is a generator-consumer node  */
+	    /* never here if batched scheduling */
+	    TABLING_ERROR_CHECKING(generator_consumer, IS_BATCHED_GEN_CP(gc_B));
+	    vars_ptr = (CELL *) (GEN_CP(gc_B) + 1);
+	    vars_ptr += SgFr_arity(GEN_CP(gc_B)->cp_sg_fr);
+	  } else {
+	    vars_ptr = (CELL *) (CONS_CP(gc_B) + 1);			\
 	  }
-	  vars_ptr++;
+	  sweep_environments(gc_B->cp_env, EnvSize(gc_B->cp_cp), EnvBMap(gc_B->cp_cp) PASS_REGS);
+	  vars = *vars_ptr++;
+	  while (vars--) {	
+	    CELL cp_cell = *vars_ptr;
+	    if (MARKED_PTR(vars_ptr)) {
+	      UNMARK(vars_ptr);
+	      if (HEAP_PTR(cp_cell)) {
+		into_relocation_chain(vars_ptr, GET_NEXT(cp_cell) PASS_REGS);
+	      }
+	    }
+	    vars_ptr++;
+	  }
 	}
       }
       break;
