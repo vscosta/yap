@@ -1,0 +1,34 @@
+/* SLIPCASE Final CLL -0.461865
+Execution time 100.887000
+setting(epsilon_em,0.0001).
+setting(epsilon_em_fraction,1.0e-5).
+setting(eps,0.0001).
+setting(eps_f,1.0e-5).
+setting(epsilon_sem,2).
+setting(random_restarts_REFnumber,1).
+setting(random_restarts_number,1).
+setting(iterREF,-1).
+setting(iter,-1).
+setting(examples,atoms).
+setting(group,1).
+setting(d,1).
+setting(verbosity,1).
+setting(logzero,log(1.0e-6)).
+setting(initial_clauses_modeh,1).
+setting(max_iter,10).
+setting(max_var,5).
+setting(max_rules,10).
+setting(beamsize,20).
+setting(epsilon_parsing,1.0e-10).
+setting(tabling,off).
+setting(bagof,false).
+setting(depth_bound,false).
+setting(depth,2).
+setting(single_var,false).
+setting(compiling,off).
+*/
+
+advisedby(A,B):0.264403 :-
+	professor(B),
+	student(A).
+
