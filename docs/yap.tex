@@ -4458,6 +4458,20 @@ The following predicates provide counting:
 @cnindex plus/3
     True if @var{Int3} = @var{Int1} + @var{Int2}. At least two of the
     three arguments must be instantiated to integers.
+
+@item isnan(+@var{Float})
+@findex isnan/1
+@snindex isnan/1
+@cnindex isnan/1
+ True if @var{Float} is not a number.
+
+@item isinf(+@var{Float})
+@findex isinf/1
+@snindex isinf/1
+@cnindex isinf/1
+ True if floating point expression @var{Float} evaluates to infinity.
+
+
 @end table
 
 @node I/O, Database, Arithmetic, Top
