@@ -34,7 +34,7 @@ fabrizio.riguzzi@unife.it}
 \texttt{cplint} is distributed in source code in the source code development tree of Yap. It includes Prolog and C files. Download it by following the instruction in \url{http://www.dcc.fc.up.pt/\string ~vsc/Yap/downloads.html}.
 
 \texttt{cplint} requires \href{http://vlsi.colorado.edu/\string ~fabio/CUDD/}{CUDD}.
-You can download CUDD from \url{ftp://vlsi.colorado.edu/pub/cudd-2.4.2.tar.gz}.
+You can download CUDD from \url{ftp://vlsi.colorado.edu/pub/cudd-2.5.0.tar.gz}.
 
 Compile CUDD:
 \begin{enumerate}
@@ -48,7 +48,7 @@ when compiling Yap following the instruction of the \texttt{INSTALL} file in the
 \begin{verbatim}
 configure --enable-cplint=DIR
 \end{verbatim}
-where \verb|DIR| is the directory where CUDD is, i.e., the directory ending with \texttt{cudd-2.4.2}.
+where \verb|DIR| is the directory where CUDD is, i.e., the directory ending with \texttt{cudd-2.5.0}.
 Under Windows, you have to use Cygwin (CUDD does not compile under MinGW), so\\
 \begin{verbatim}
 configure --enable-cplint=DIR --enable-cygwin
@@ -529,6 +529,25 @@ for specifying an output variable of type \texttt{<type>}. or
 \end{verbatim}
 for specifying a constant.
 
+An example of language bias for the UWCSE domain is
+\begin{verbatim}
+output(advisedby/2).
+
+input(student/1).
+input(professor/1).
+....
+
+modeh(*,advisedby(+person,+person)). 
+
+modeb(*,professor(+person)).
+modeb(*,student(+person)).
+modeb(*,sameperson(+person, -person)). 
+modeb(*,sameperson(-person, +person)). 
+modeb(*,samecourse(+course, -course)). 
+modeb(*,samecourse(-course, +course)). 
+....
+\end{verbatim}
+
 \subsection{Parameters}
 In order to set the algorithms' parameters, you have to insert in \texttt{<stem>.l}  commands of the form
 \begin{verbatim}
@@ -601,6 +620,9 @@ and call
 \begin{verbatim}
 ?:- sl(stem).
 \end{verbatim}
+\subsection{Learning Examples}
+The subfolders \verb|em|, \verb|rib| and \verb|slipcase| of the \verb|packages/cplint| folder in Yap git distribution
+contain examples of input and output files for the learning algorithms.
 
 \section{License}
 \label{license}
