@@ -106,7 +106,7 @@ encode([I0, I1, I2|Rest]) --> !,
 	},
 	encode(Rest).
 encode([I0, I1]) --> !,
-	[O0, O1, O2, 0'=],
+	[O0, O1, O2, 0'=], %'
 	{ A is (I0<<16)+(I1<<8),
 	  O00 is (A>>18) /\ 0x3f,
 	  O01 is (A>>12) /\ 0x3f,
