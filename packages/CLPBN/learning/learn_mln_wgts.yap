@@ -152,6 +152,7 @@ optimize :-
 compile :-
 	init_compiler,
 	mln(ParFactor, _Type, _Els, _G),
+	writeln(ParFactor),
 	factor(markov, ParFactor, Ks, _, _Phi, Constraints),
 	maplist(call, Constraints),
 	nth(_L, Ks, VId),

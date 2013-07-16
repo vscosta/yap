@@ -116,7 +116,7 @@ graph_representation([V|Vs], Graph, I0, Keys, TGraph) :-
 	length(Vals,Sz),
 	project_evidence_out([V|Parents],[V|Parents],Table,[Sz|Szs],Variables,NewTable),
 	% all variables are parents
-	propagate2parents(Variables, NewTable, Variables, Graph, Keys),
+	maplist( propagate2parent(NewTable, Variables, Graph, Keys), Variables),
 	graph_representation(Vs, Graph, I0, Keys, TGraph).
 graph_representation([V|Vs], Graph, I0, Keys, [I-IParents|TGraph]) :-
 	I is I0+1,
@@ -129,7 +129,7 @@ graph_representation([V|Vs], Graph, I0, Keys, [I-IParents|TGraph]) :-
 	sort_according_to_indices(NewParents,Keys,SortedNVs,SortedIndices),
 	reorder_CPT(Variables,NewTable,[V|SortedNVs],NewTable2,_),
 	add2graph(V, Vals, NewTable2, SortedIndices, Graph, Keys),
-	propagate2parents(NewParents, NewTable, Variables, Graph,Keys),
+	maplist( propagate2parent(NewTable, Variables, Graph,Keys), NewParents),
 	maplist(parent_index(Keys), NewParents, IVariables0),
 	sort(IVariables0, IParents),
 	arg(I, Graph, var(_,_,_,_,_,_,_,NewTable2,SortedIndices)),
@@ -158,13 +158,11 @@ project_evidence_out([V|Parents],Deps,Table,Szs,NewDeps,NewTable) :-
 project_evidence_out([_Par|Parents],Deps,Table,Szs,NewDeps,NewTable) :-
 	project_evidence_out(Parents,Deps,Table,Szs,NewDeps,NewTable).
 
-propagate2parents([], _, _, _, _).
-propagate2parents([V|NewParents], Table, Variables, Graph, Keys) :-
+propagate2parent(Table, Variables, Graph, Keys, V) :-
 	delete(Variables,V,NVs),
 	sort_according_to_indices(NVs,Keys,SortedNVs,SortedIndices),
 	reorder_CPT(Variables,Table,[V|SortedNVs],NewTable,_),
-	add2graph(V, _, NewTable, SortedIndices, Graph, Keys),
-	propagate2parents(NewParents,Table, Variables, Graph, Keys).
+	add2graph(V, _, NewTable, SortedIndices, Graph, Keys).
 
 add2graph(V, Vals, Table, IParents, Graph, Keys) :-
 	rb_lookup(V, Index, Keys),
@@ -298,14 +296,12 @@ init_chains(I,VarOrder,Len,Graph,[Chain|Chains]) :-
 
 init_chain(VarOrder,Len,Graph,Chain) :-
 	functor(Chain,sample,Len),
-	gen_sample(VarOrder,Graph,Chain).
+	maplist( gen_sample(Graph,Chain), VarOrder).
 
-gen_sample([],_,_) :- !.
-gen_sample([I|Vs],Graph,Chain) :-
-	arg(I,Graph,var(_,I,_,_,Sz,_,_,_,_)),
+gen_sample(Graph, Chain, I) :-
+	arg(I, Graph, var(_,I,_,_,Sz,_,_,_,_)),
 	Pos is integer(random*Sz),
-	arg(I,Chain,Pos),
-	gen_sample(Vs,Graph,Chain).
+	arg(I, Chain, Pos).
 
 
 init_estimates(0,_,_,[]) :- !.

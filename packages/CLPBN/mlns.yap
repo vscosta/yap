@@ -2,6 +2,7 @@
 		[op(1150,fx,mln),
 		 op(1150,fx,mln_domain),
 		 mln_domain/1,
+		 mln_literal/1,
 		 mln/1,
 		 mln/4,
 		 mln_w/2]).
@@ -10,13 +11,21 @@
 :- use_module(library(maplist)).
 :- use_module(library(lists)).
 
-:- dynamic mln/1, mln/2, mln_domain/4, mln/4, mln_w/2.
+:- dynamic mln/1, mln/2, mln_domain/4, mln/4, mln_w/2, mln_domain/5, mln_type_def/1.
 
 user:term_expansion(mln_domain(P),[]) :-
 	expand_domain(P).
 
 user:term_expansion( mln(W: D), pfl:factor(markov,Id,FList,FV,Phi,Constraints)) :-
-	translate_to_factor(W, D, FList, Id, FV, Phi, Constraints).
+	translate_to_factor(W, D, FList, Id, FV, Phi, Constraints), !.
+user:term_expansion( mln(W: D), _) :-
+	throw(error(domain_error(mln,W:D),error)).
+
+user:term_expansion(end_of_file,_) :-
+	mln_domain(TypeG, NP, I0, A, Type),
+	add_mln_domain(TypeG, NP, I0, A, Type),
+	fail.
+user:term_expansion(end_of_file,end_of_file).
 
 expand_domain((P1,P2)) :- !,
 	expand_domain(P1),
@@ -31,7 +40,25 @@ do_type(NP, Type, I0, I) :-
 	I is I0+1,
 	arg(I0, NP, A),
 	TypeG =.. [Type, A],
+	assert(mln_domain(TypeG, NP, I0, A, Type)),
 	assert(mln_domain(I0, NP, TypeG, A)).
+
+add_mln_domain(TypeG, NP, I0, A, _) :-
+	mln_type_def(TypeG), !,
+	functor(NP, G, Ar),
+	functor(NNP, G, Ar),
+	arg(I0, NNP, A),
+	assert_static(user:(TypeG :- NNP)).
+add_mln_domain(TypeG, _NP, _I0, _A, _) :-
+	predicate_property(user:TypeG, _), !.
+add_mln_domain(TypeG, NP, I0, A, Type) :-
+	assert(mln_type_def(TypeG)), !,
+	functor(NP, G, Ar),
+	functor(NNP, G, Ar),
+	arg(I0, NNP, A),
+	table(user:Type/1),
+	assert_static(user:(TypeG :- NNP)).
+	
 
 translate_to_factor(W, D, Lits, Id, Vs, Phi, Domain) :-
 	W0 is exp(W),
@@ -128,8 +155,8 @@ disj_to_list2((C1+C2), L1, L10, L, L0) :-
 	disj_to_list2(C2, L1I, L10, LI, L0).
 disj_to_list2((_C1,_C2), _L1, _L10, _L, _L0) :- !, fail.
 disj_to_list2((_C1*_C2), _L1, _L10, _L, _L0) :- !, fail.
-disj_to_list2((\+ C), [(-C)|L1], L1, [C|L], L) :- literal(C), !.
-disj_to_list2((- C), [(-C)|L1], L1, [C|L], L) :- literal(C), !.
+disj_to_list2((\+ C), [(-C)|L1], L1, [C|L], L) :- !.
+disj_to_list2((- C), [(-C)|L1], L1, [C|L], L) :- !.
 disj_to_list2(C, [C|L1], L1, [C|L], L).
 
 conj_to_list((C1,C2), L1, L10, L, L0) :-
@@ -151,8 +178,8 @@ conj_to_list2((C1*C2), L1, L10, L, L0) :-
 	!,
 	conj_to_list2(C1, L1, L1I, L, LI),
 	conj_to_list2(C2, L1I, L10, LI, L0).
-conj_to_list2((\+ C), [(C)|L1], L1, [C|L], L) :- literal(C), !.
-conj_to_list2((- C), [(C)|L1], L1, [C|L], L) :- literal(C), !.
+conj_to_list2((\+ C), [(C)|L1], L1, [C|L], L) :-  !.
+conj_to_list2((- C), [(C)|L1], L1, [C|L], L) :- !.
 conj_to_list2(C, [-C|L1], L1, [C|L], L).
 
 remove_not(-G, G) :- !.
