@@ -221,6 +221,30 @@ scan_dims(int ndims, YAP_Term tl, int dims[MAX_DIMS])
 }
 
 static int
+scan_dims_args(int ndims, YAP_Term tl, int dims[MAX_DIMS])
+{
+  int i;
+
+  for (i = 0; i < ndims; i++) {
+    YAP_Term th;
+    int d;
+
+    th = YAP_ArgOfTerm(2+i, tl);
+    if (!YAP_IsIntTerm(th)) {
+      /* ERROR */
+      return FALSE;
+    }
+    d = YAP_IntOfTerm(th);
+    if (d < 0) {
+      /* ERROR */
+      return FALSE;
+    }
+    dims[i] = d;
+  }
+  return TRUE;
+}
+
+static int
 cp_int_matrix(YAP_Term tl,YAP_Term matrix)
 {
   int *mat = (int *)YAP_BlobOfTerm(matrix);
@@ -608,6 +632,44 @@ matrix_set(void)
 }
 
 static int
+matrix_set2(void)
+{
+  int dims[MAX_DIMS], *mat;
+  YAP_Term tf, t = YAP_ARG1;
+ 
+  mat = (int *)YAP_BlobOfTerm(YAP_ArgOfTerm(1,t));
+  if (!mat) {
+    /* Error */
+    return FALSE;
+  }
+  if (!scan_dims_args(mat[MAT_NDIMS], t, dims)) {
+    /* Error */
+    return FALSE;
+  }
+  tf = YAP_ARG2;
+  if (mat[MAT_TYPE] == INT_MATRIX) {
+    if (YAP_IsIntTerm(tf)) {
+      matrix_long_set(mat, dims, YAP_IntOfTerm(tf));
+    } else if (YAP_IsFloatTerm(tf)) {
+      matrix_long_set(mat, dims, YAP_FloatOfTerm(tf));
+    } else {
+      /* Error */
+      return FALSE;
+    }
+  } else {
+    if (YAP_IsIntTerm(tf)) {
+      matrix_float_set(mat, dims, YAP_IntOfTerm(tf));
+    } else if (YAP_IsFloatTerm(tf)) {
+      matrix_float_set(mat, dims, YAP_FloatOfTerm(tf));
+    } else {
+      /* Error */
+      return FALSE;
+    }
+  }
+  return TRUE;
+}
+
+static int
 matrix_set_all(void)
 {
   int *mat;
@@ -696,6 +758,25 @@ do_matrix_access(void)
   }
   tf = matrix_access(mat, dims);
   return YAP_Unify(tf, YAP_ARG3);
+}
+
+static int
+do_matrix_access2(void)
+{
+  int dims[MAX_DIMS], *mat;
+  YAP_Term tf, t = YAP_ARG1;
+  
+  mat = (int *)YAP_BlobOfTerm(YAP_ArgOfTerm(1, t));
+  if (!mat) {
+    /* Error */
+    return FALSE;
+  }
+  if (!scan_dims_args(mat[MAT_NDIMS], t, dims)) {
+    /* Error */
+    return FALSE;
+  }
+  tf = matrix_access(mat, dims);
+  return YAP_Unify(tf, YAP_ARG2);
 }
 
 static int
@@ -2989,9 +3070,11 @@ init_matrix(void)
   YAP_UserCPredicate("new_floats_matrix", new_floats_matrix, 4);
   YAP_UserCPredicate("new_floats_matrix_set", new_floats_matrix_set, 4);
   YAP_UserCPredicate("matrix_set", matrix_set, 3);
+  YAP_UserCPredicate("matrix_set", matrix_set2, 2);
   YAP_UserCPredicate("matrix_set_all", matrix_set_all, 2);
   YAP_UserCPredicate("matrix_add", matrix_add, 3);
   YAP_UserCPredicate("matrix_get", do_matrix_access, 3);
+  YAP_UserCPredicate("matrix_get", do_matrix_access2, 2);
   YAP_UserCPredicate("matrix_inc", do_matrix_inc, 2);
   YAP_UserCPredicate("matrix_dec", do_matrix_dec, 2);
   YAP_UserCPredicate("matrix_inc", do_matrix_inc2, 3);

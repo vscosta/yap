@@ -991,7 +991,7 @@ Yap_absmi(int inp)
       ENDOp();
 
       /* check if enough space between trail and codespace */
-      /* try_exo    Pred,Label */
+      /* try_exo_udi    Pred,Label */
       Op(try_exo_udi, lp);
       /* check if enough space between trail and codespace */
       check_trail(TR);
