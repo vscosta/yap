@@ -122,7 +122,7 @@ compare(const BITS32 *ip, Int j USES_REGS) {
      sz = sizeof(BITS32)*(sorted-sorted0);
      it->udi_data = (BITS32 *)Yap_ReallocCodeSpace((char *)it->udi_data, sz);
    }
-   it->is_udi = i+1;
+   it->is_udi = TRUE;
    code = it->code;
    code->opc = Yap_opcode(_try_exo_udi);
    code = NEXTOP(code, lp);
