@@ -2,7 +2,7 @@
 
 EMBLEM and SLIPCASE
 
-Copyright (c) 2011, Fabrizio Riguzzi and Elena Bellodi
+Copyright (c) 2013, Fabrizio Riguzzi and Elena Bellodi
 
 This package uses the library cudd, see http://vlsi.colorado.edu/~fabio/CUDD/
 for the relative license.
@@ -41,24 +41,18 @@ typedef struct
 
 tablerow * table;
 
-static variable * vars;
 static variable ** vars_ex;
-static int * bVar2mVar;
 static int ** bVar2mVar_ex;
 static double * sigma;
 static double ***eta;
 static double ***eta_temp;
 static double **arrayprob;
 static int *rules;
-static DdManager *mgr;
 static DdManager **mgr_ex;
-static int *nVars;
 static int *nVars_ex;
 static int nRules;
-double * probs;
 double * nodes_probs_ex;
 double ** probs_ex;
-static int * boolVars;
 static int * boolVars_ex; 
 tablerow * nodesB;
 tablerow * nodesF;
@@ -75,13 +69,13 @@ static int init(void);
 static int end(void);
 static int EM(void);
 static int Q(void);
-double ProbPath(DdNode *node, int comp_par);
+double ProbPath(DdNode *node, int comp_par, int nex);
 static int rec_deref(void);
 int indexMvar(DdNode *node);
-void Forward(DdNode *node);
+void Forward(DdNode *node, int nex);
 void GetForward(DdNode *node, double ForwProbPath);
-void UpdateForward(DdNode * node);
-double GetOutsideExpe(DdNode *root,double ex_prob);
+void UpdateForward(DdNode * node, int nex);
+double GetOutsideExpe(DdNode *root,double ex_prob, int nex);
 void Maximization(void);
 static double Expectation(DdNode **nodes_ex, int lenNodes);
 void init_my_predicates(void);
@@ -133,33 +127,27 @@ static int init(void)
 
 static int init_bdd(void)  
 {
-  mgr=Cudd_Init(0,0,UNIQUE_SLOTS,CACHE_SLOTS,5120);
-  Cudd_AutodynEnable(mgr, CUDD_REORDER_GROUP_SIFT);
-  Cudd_SetMaxCacheHard(mgr, 0);
-  Cudd_SetLooseUpTo(mgr, 0);
-  Cudd_SetMinHit(mgr, 15);
   mgr_ex=(DdManager **) realloc(mgr_ex, (ex+1)* sizeof(DdManager *)); 
-  mgr_ex[ex]=mgr;
-  
+  mgr_ex[ex]=Cudd_Init(0,0,UNIQUE_SLOTS,CACHE_SLOTS,5120);
+  Cudd_AutodynEnable(mgr_ex[ex], CUDD_REORDER_GROUP_SIFT);
+  Cudd_SetMaxCacheHard(mgr_ex[ex], 0);
+  Cudd_SetLooseUpTo(mgr_ex[ex], 0);
+  Cudd_SetMinHit(mgr_ex[ex], 15);
+
   bVar2mVar_ex=(int **) realloc(bVar2mVar_ex, (ex+1)* sizeof(int *));
   bVar2mVar_ex[ex]=NULL;
-  bVar2mVar=bVar2mVar_ex[ex];
 
   vars_ex=(variable **) realloc(vars_ex, (ex+1)* sizeof(variable *));
   vars_ex[ex]=NULL;
-  vars=vars_ex[ex];
   
   nVars_ex=(int *) realloc(nVars_ex, (ex+1)* sizeof(int ));
-  nVars=nVars_ex+ex;
-  *nVars=0;
+  nVars_ex[ex]=0;
 
   probs_ex=(double **) realloc(probs_ex, (ex+1)* sizeof(double *)); 
   probs_ex[ex]=NULL;
-  probs=probs_ex[ex];
   
   boolVars_ex=(int *) realloc(boolVars_ex, (ex+1)* sizeof(int ));
-  boolVars=boolVars_ex+ex;
-  *boolVars=0;
+  boolVars_ex[ex]=0;
 
   return 1;
 }
@@ -167,9 +155,6 @@ static int init_bdd(void)
 static int end_bdd(void)
 {
 
-  bVar2mVar_ex[ex]=bVar2mVar;
-  probs_ex[ex]=probs;
-  vars_ex[ex]=vars;
   ex=ex+1;
   return 1;
 }
@@ -184,33 +169,31 @@ static int init_test(void)
   nRules=YAP_IntOfTerm(arg1);
 
 
-  mgr=Cudd_Init(0,0,UNIQUE_SLOTS,CACHE_SLOTS,0);
-  Cudd_AutodynEnable(mgr, CUDD_REORDER_GROUP_SIFT);
-  Cudd_SetMaxCacheHard(mgr, 1024*1024*1024);
-  Cudd_SetLooseUpTo(mgr, 1024*1024*512);
-  rules= (int *) malloc(nRules * sizeof(int));  
+  mgr_ex[ex]=Cudd_Init(0,0,UNIQUE_SLOTS,CACHE_SLOTS,0);
+  Cudd_AutodynEnable(mgr_ex[ex], CUDD_REORDER_GROUP_SIFT);
+  Cudd_SetMaxCacheHard(mgr_ex[ex], 1024*1024*1024);
+  Cudd_SetLooseUpTo(mgr_ex[ex], 1024*1024*512);
+  rules= (int *) malloc(nRules * sizeof(int));
   
-  bVar2mVar=NULL;
-  probs=NULL;  
-  vars=NULL;
+  bVar2mVar_ex[ex]=NULL;
+  probs_ex[ex]=NULL;
+  vars_ex[ex]=NULL;
   
-  nVars=(int *) malloc(sizeof(int ));
-  *nVars=0;
+  nVars_ex[ex]=0;
   
-  boolVars=(int *) malloc(sizeof(int ));
-  *boolVars=0;
+  boolVars_ex[ex]=0;
   
   return 1;
 }
 
 static int end_test(void)
 {
-  free(bVar2mVar);
-  free(vars);
-  free(nVars);
-  free(boolVars);
-  Cudd_Quit(mgr);
-  free(probs);
+  free(bVar2mVar_ex[ex]);
+  free(vars_ex[ex]);
+  free(nVars_ex+ex);
+  free(boolVars_ex+ex);
+  Cudd_Quit(mgr_ex[ex]);
+  free(probs_ex[ex]);
   free(rules);
   return 1;
 }
@@ -221,21 +204,16 @@ static double Expectation(DdNode **nodes_ex,int lenNodes)
 {
   int i;
   double rootProb,CLL=0;
-  
+
   for(i=0;i<lenNodes;i++)  
   {
     if (!Cudd_IsConstant(nodes_ex[i]))
     {
-      mgr=mgr_ex[i];
-      probs=probs_ex[i];
-      boolVars=boolVars_ex+i;
-      nodesB=init_table(*boolVars);
-      nodesF=init_table(*boolVars);
-      bVar2mVar=bVar2mVar_ex[i];
-      vars=vars_ex[i];
+      nodesB=init_table(boolVars_ex[i]);
+      nodesF=init_table(boolVars_ex[i]);
       
-      Forward(nodes_ex[i]);
-      rootProb=GetOutsideExpe(nodes_ex[i],example_prob[i]);
+      Forward(nodes_ex[i],i);
+      rootProb=GetOutsideExpe(nodes_ex[i],example_prob[i],i);
 
       if (rootProb<=0.0)
         CLL = CLL + LOGZERO*example_prob[i];
@@ -243,8 +221,8 @@ static double Expectation(DdNode **nodes_ex,int lenNodes)
         CLL = CLL + log(rootProb)*example_prob[i];
       
       nodes_probs_ex[i]=rootProb;
-      destroy_table(nodesB,*boolVars);
-      destroy_table(nodesF,*boolVars);
+      destroy_table(nodesB,boolVars_ex[i]);
+      destroy_table(nodesF,boolVars_ex[i]);
     }
     else
       if (nodes_ex[i]==Cudd_ReadLogicZero(mgr_ex[i]))
@@ -307,13 +285,13 @@ static int ret_prob(void)
 
   if (!Cudd_IsConstant(node))
   {
-    table=init_table(*boolVars);
+    table=init_table(boolVars_ex[ex]);
     out=YAP_MkFloatTerm(Prob(node,0));
-    destroy_table(table,*boolVars);
+    destroy_table(table,boolVars_ex[ex]);
   }
   else
   {
-    if (node==Cudd_ReadOne(mgr))
+    if (node==Cudd_ReadOne(mgr_ex[ex]))
       out=YAP_MkFloatTerm(1.0);
     else  
       out=YAP_MkFloatTerm(0.0);
@@ -347,10 +325,6 @@ so that it is not recomputed
   else
   {
     nodekey=Cudd_Regular(node);
-/*    if (comp)
-      nodekey=Cudd_Complement(nodefw);
-    else
-      nodekey=nodefw;*/
     value_p=get_value(table,nodekey);
     if (value_p!=NULL)
       return *value_p;
@@ -358,15 +332,15 @@ so that it is not recomputed
     {
       index=Cudd_NodeReadIndex(node);  //Returns the index of the node. The node pointer can be either regular or complemented.
       //The index field holds the name of the variable that labels the node. The index of a variable is a permanent attribute that reflects the order of creation.
-      p=probs[index];
+      p=probs_ex[ex][index];
       T = Cudd_T(node);
       F = Cudd_E(node);
       pf=Prob(F,comp);
       pt=Prob(T,comp);
       BChild0=pf*(1-p);
       BChild1=pt*p;
-      mVarIndex=bVar2mVar[index];
-      v=vars[mVarIndex];  
+      mVarIndex=bVar2mVar_ex[ex][index];
+      v=vars_ex[ex][mVarIndex];
       pos=index-v.firstBoolVar;
       res=BChild0+BChild1;
       add_node(table,nodekey,res);
@@ -390,29 +364,30 @@ static int add_var(void)
   arg2=YAP_ARG2;
   arg3=YAP_ARG3; 
   arg4=YAP_ARG4;
-  *nVars=*nVars+1;
-  vars=(variable *) realloc(vars,*nVars * sizeof(variable));
-  v=&vars[*nVars-1];
+  nVars_ex[ex]=nVars_ex[ex]+1;
+  vars_ex[ex]=(variable *) realloc(vars_ex[ex],nVars_ex[ex] * sizeof(variable));
+
+  v=&vars_ex[ex][nVars_ex[ex]-1];
   v->nVal=YAP_IntOfTerm(arg1);
   v->nRule=YAP_IntOfTerm(arg3);
-  v->firstBoolVar=*boolVars;
-  probs=(double *) realloc(probs,(((*boolVars+v->nVal-1)* sizeof(double))));
-  bVar2mVar=(int *) realloc(bVar2mVar,((*boolVars+v->nVal-1)* sizeof(int)));
+  v->firstBoolVar=boolVars_ex[ex];
+  probs_ex[ex]=(double *) realloc(probs_ex[ex],(((boolVars_ex[ex]+v->nVal-1)* sizeof(double))));
+  bVar2mVar_ex[ex]=(int *) realloc(bVar2mVar_ex[ex],((boolVars_ex[ex]+v->nVal-1)* sizeof(int)));
   probTerm=arg2; 
   p0=1;
   for (i=0;i<v->nVal-1;i++)
   {
-    node=Cudd_bddIthVar(mgr,*boolVars+i);
+    node=Cudd_bddIthVar(mgr_ex[ex],boolVars_ex[ex]+i);
     p=YAP_FloatOfTerm(YAP_HeadOfTerm(probTerm));
-    bVar2mVar[*boolVars+i]=*nVars-1;
-    probs[*boolVars+i]=p/p0;
+    bVar2mVar_ex[ex][boolVars_ex[ex]+i]=nVars_ex[ex]-1;
+    probs_ex[ex][boolVars_ex[ex]+i]=p/p0;
     probTerm_temp=YAP_TailOfTerm(probTerm);
     probTerm=probTerm_temp;
     p0=p0*(1-p/p0);
   }
-  *boolVars=*boolVars+v->nVal-1;
+  boolVars_ex[ex]=boolVars_ex[ex]+v->nVal-1;
   rules[v->nRule]= v->nVal; 
-  out=YAP_MkIntTerm((YAP_Int)* nVars-1);
+  out=YAP_MkIntTerm((YAP_Int) nVars_ex[ex]-1);
   return YAP_Unify(out,arg4);
 }
 
@@ -425,30 +400,30 @@ static int equality(void)
   variable v;
   DdNode * node, * tmp,*var;
 
-  arg1=YAP_ARG1; //var 
-  arg2=YAP_ARG2; //value
-  arg3=YAP_ARG3; //node
+  arg1=YAP_ARG1;
+  arg2=YAP_ARG2;
+  arg3=YAP_ARG3;
   varIndex=YAP_IntOfTerm(arg1);
   value=YAP_IntOfTerm(arg2);
-  v=vars[varIndex];
+  v=vars_ex[ex][varIndex];
   i=v.firstBoolVar;
-  tmp=Cudd_ReadOne(mgr);
+  tmp=Cudd_ReadOne(mgr_ex[ex]);
   Cudd_Ref(tmp);
   node=NULL;
   for (i=v.firstBoolVar;i<v.firstBoolVar+value;i++)
   {
-    var=Cudd_bddIthVar(mgr,i);
-    node=Cudd_bddAnd(mgr,tmp,Cudd_Not(var));
+    var=Cudd_bddIthVar(mgr_ex[ex],i);
+    node=Cudd_bddAnd(mgr_ex[ex],tmp,Cudd_Not(var));
     Cudd_Ref(node);
-    Cudd_RecursiveDeref(mgr,tmp);
+    Cudd_RecursiveDeref(mgr_ex[ex],tmp);
     tmp=node;
   }
   if (!(value==v.nVal-1))
   {
-    var=Cudd_bddIthVar(mgr,v.firstBoolVar+value);
-    node=Cudd_bddAnd(mgr,tmp,var);
+    var=Cudd_bddIthVar(mgr_ex[ex],v.firstBoolVar+value);
+    node=Cudd_bddAnd(mgr_ex[ex],tmp,var);
     Cudd_Ref(node);
-    Cudd_RecursiveDeref(mgr,tmp);
+    Cudd_RecursiveDeref(mgr_ex[ex],tmp);
   }
   out=YAP_MkIntTerm((YAP_Int) node);
   return(YAP_Unify(out,arg3));
@@ -460,7 +435,7 @@ static int one(void)
   DdNode * node;
 
   arg=YAP_ARG1;
-  node =  Cudd_ReadOne(mgr);
+  node =  Cudd_ReadOne(mgr_ex[ex]);
   Cudd_Ref(node);
   out=YAP_MkIntTerm((YAP_Int) node);
   return(YAP_Unify(out,arg));
@@ -472,7 +447,7 @@ static int zero(void)
   DdNode * node;
 
   arg=YAP_ARG1;
-  node = Cudd_ReadLogicZero(mgr);
+  node = Cudd_ReadLogicZero(mgr_ex[ex]);
   Cudd_Ref(node);
   out=YAP_MkIntTerm((YAP_Int) node);
   return(YAP_Unify(out,arg));
@@ -501,7 +476,7 @@ static int and(void)
   arg3=YAP_ARG3;
   node1=(DdNode *)YAP_IntOfTerm(arg1);
   node2=(DdNode *)YAP_IntOfTerm(arg2);
-  nodeout=Cudd_bddAnd(mgr,node1,node2);
+  nodeout=Cudd_bddAnd(mgr_ex[ex],node1,node2);
   Cudd_Ref(nodeout);
   out=YAP_MkIntTerm((YAP_Int) nodeout);
   return(YAP_Unify(out,arg3));
@@ -517,7 +492,7 @@ static int or(void)
   arg3=YAP_ARG3;
   node1=(DdNode *)YAP_IntOfTerm(arg1);
   node2=(DdNode *)YAP_IntOfTerm(arg2);
-  nodeout=Cudd_bddOr(mgr,node1,node2);
+  nodeout=Cudd_bddOr(mgr_ex[ex],node1,node2);
   Cudd_Ref(nodeout);
   out=YAP_MkIntTerm((YAP_Int) nodeout);
   return(YAP_Unify(out,arg3));
@@ -531,7 +506,7 @@ static int garbage_collect(void)
   arg1=YAP_ARG1;
   arg2=YAP_ARG2;
   clearCache=YAP_IntOfTerm(arg1);
-  nodes=(YAP_Int)cuddGarbageCollect(mgr,clearCache);
+  nodes=(YAP_Int)cuddGarbageCollect(mgr_ex[ex],clearCache);
   out=YAP_MkIntTerm(nodes);
   return(YAP_Unify(out,arg2));
 }
@@ -544,7 +519,7 @@ static int bdd_to_add(void)
   arg1=YAP_ARG1;
   arg2=YAP_ARG2;
   node1=(DdNode *)YAP_IntOfTerm(arg1);
-  node2= Cudd_BddToAdd(mgr,node1);
+  node2= Cudd_BddToAdd(mgr_ex[ex],node1);
   out=YAP_MkIntTerm((YAP_Int) node2);
   return(YAP_Unify(out,arg2));
 }
@@ -564,11 +539,11 @@ static int create_dot(void)
   arg2=YAP_ARG2;
 
   YAP_StringToBuffer(arg2,filename,1000);
-  inames= (char **) malloc(sizeof(char *)*(*boolVars));
+  inames= (char **) malloc(sizeof(char *)*(boolVars_ex[ex]));
   index=0;
-  for (i=0;i<*nVars;i++)
+  for (i=0;i<nVars_ex[ex];i++)
   {
-    v=vars[i];
+    v=vars_ex[ex][i];
     for (b=0;b<v.nVal-1;b++)
     {  
       inames[b+index]=(char *) malloc(sizeof(char)*20);
@@ -583,12 +558,12 @@ static int create_dot(void)
   }
   array[0]=(DdNode *)YAP_IntOfTerm(arg1);
   file = open_file(filename, "w");
-  Cudd_DumpDot(mgr,1,array,inames,onames,file);
+  Cudd_DumpDot(mgr_ex[ex],1,array,inames,onames,file);
   fclose(file);
   index=0;
-  for (i=0;i<*nVars;i++)
+  for (i=0;i<nVars_ex[ex];i++)
   {
-    v=vars[i];
+    v=vars_ex[ex][i];
     for (b=0;b<v.nVal-1;b++)
     {  
       free(inames[b+index]);
@@ -607,13 +582,13 @@ static int rec_deref(void)
 
   arg1=YAP_ARG1;
   node=(DdNode *) YAP_IntOfTerm(arg1);
-  Cudd_RecursiveDeref(mgr, node);
+  Cudd_RecursiveDeref(mgr_ex[ex], node);
   return 1;
 }
 
 
 
-double ProbPath(DdNode *node,int comp_par)
+double ProbPath(DdNode *node,int comp_par, int nex)
 {
   int index,mVarIndex,comp,pos,position,boolVarIndex;
   variable v;
@@ -622,7 +597,7 @@ double ProbPath(DdNode *node,int comp_par)
   double * value_p,** eta_rule;
   DdNode *nodekey,*T,*F;
 
-  comp=Cudd_IsComplement(node);   
+  comp=Cudd_IsComplement(node);
   comp=(comp && !comp_par) ||(!comp && comp_par);
   if (Cudd_IsConstant(node))
   {
@@ -647,42 +622,42 @@ double ProbPath(DdNode *node,int comp_par)
     else
     {
       index=Cudd_NodeReadIndex(node);
-      p=probs[index];
+      p=probs_ex[nex][index];
       T = Cudd_T(node);
       F = Cudd_E(node);
-      pf=ProbPath(F,comp);
-      pt=ProbPath(T,comp);
+      pf=ProbPath(F,comp,nex);
+      pt=ProbPath(T,comp,nex);
       BChild0=pf*(1-p);
       BChild1=pt*p;
       value_p=get_value(nodesF,nodekey);
       e0 = (*value_p)*BChild0; 
       e1 = (*value_p)*BChild1; 
-      mVarIndex=bVar2mVar[index];
-      v=vars[mVarIndex];  
+      mVarIndex=bVar2mVar_ex[nex][index];
+      v=vars_ex[nex][mVarIndex];
       pos=index-v.firstBoolVar;
       eta_rule=eta_temp[v.nRule];
       eta_rule[pos][0]=eta_rule[pos][0]+e0;
       eta_rule[pos][1]=eta_rule[pos][1]+e1;
       res=BChild0+BChild1;
       add_node(nodesB,nodekey,res);
-      position=Cudd_ReadPerm(mgr,index);
+      position=Cudd_ReadPerm(mgr_ex[nex],index);
       position=position+1;
-      boolVarIndex=Cudd_ReadInvPerm(mgr,position);  //Returns the index of the variable currently in the i-th position of the order. 
-      if (position<*boolVars)
+      boolVarIndex=Cudd_ReadInvPerm(mgr_ex[nex],position);//Returns the index of the variable currently in the i-th position of the order. 
+      if (position<boolVars_ex[nex])
       {
         sigma[position]=sigma[position]+e0+e1;
       }
       if(!Cudd_IsConstant(T))
       {
         index=Cudd_NodeReadIndex(T);  
-        position=Cudd_ReadPerm(mgr,index);
+        position=Cudd_ReadPerm(mgr_ex[nex],index);
         sigma[position]=sigma[position]-e1;
       }
       
       if(!Cudd_IsConstant(F))
       {
         index=Cudd_NodeReadIndex(F);
-        position=Cudd_ReadPerm(mgr,index);
+        position=Cudd_ReadPerm(mgr_ex[nex],index);
         sigma[position]=sigma[position]-e0;
       }
     
@@ -694,29 +669,29 @@ double ProbPath(DdNode *node,int comp_par)
 
 
 
-void Forward(DdNode *root)
+void Forward(DdNode *root, int nex)
 {
   int i,j;
 
-  if (*boolVars)
+  if (boolVars_ex[nex])
   {
-    nodesToVisit= (DdNode ***)malloc(sizeof(DdNode **)* *boolVars);
-    NnodesToVisit= (int *)malloc(sizeof(int)* *boolVars);
-    nodesToVisit[0]=(DdNode **)malloc(sizeof(DdNode *)); 
+    nodesToVisit= (DdNode ***)malloc(sizeof(DdNode **)* boolVars_ex[nex]);
+    NnodesToVisit= (int *)malloc(sizeof(int)* boolVars_ex[nex]);
+    nodesToVisit[0]=(DdNode **)malloc(sizeof(DdNode *));
     nodesToVisit[0][0]=root;
     NnodesToVisit[0]=1;
-    for(i=1;i<*boolVars;i++)
+    for(i=1;i<boolVars_ex[nex];i++)
     {
       nodesToVisit[i]=NULL;
       NnodesToVisit[i]=0;
     }
     add_node(nodesF,Cudd_Regular(root),1);
-    for(i=0;i<*boolVars;i++)
+    for(i=0;i<boolVars_ex[nex];i++)
     {
       for(j=0;j<NnodesToVisit[i];j++)
-      UpdateForward(nodesToVisit[i][j]);
+      UpdateForward(nodesToVisit[i][j],nex);
     }
-    for(i=0;i<*boolVars;i++)
+    for(i=0;i<boolVars_ex[nex];i++)
     {
       free(nodesToVisit[i]);
     }
@@ -729,7 +704,7 @@ void Forward(DdNode *root)
   }
 }
 
-void UpdateForward(DdNode *node)
+void UpdateForward(DdNode *node, int nex)
 {
   int index,position,mVarIndex;
   DdNode *T,*E,*nodereg;
@@ -743,9 +718,9 @@ void UpdateForward(DdNode *node)
   else
   {
     index=Cudd_NodeReadIndex(node);
-    mVarIndex=bVar2mVar[index];
-    v=vars[mVarIndex];
-    p=probs[index];
+    mVarIndex=bVar2mVar_ex[nex][index];
+    v=vars_ex[nex][mVarIndex];
+    p=probs_ex[nex][index];
     nodereg=Cudd_Regular(node);
     value_p=get_value(nodesF,nodereg);
     if (value_p== NULL)
@@ -768,7 +743,7 @@ void UpdateForward(DdNode *node)
         {
           add_or_replace_node(nodesF,Cudd_Regular(T),*value_p*p);
           index=Cudd_NodeReadIndex(T);
-          position=Cudd_ReadPerm(mgr,index);
+          position=Cudd_ReadPerm(mgr_ex[nex],index);
           nodesToVisit[position]=(DdNode **)realloc(nodesToVisit[position],
 	    (NnodesToVisit[position]+1)* sizeof(DdNode *));
           nodesToVisit[position][NnodesToVisit[position]]=T;
@@ -787,7 +762,7 @@ void UpdateForward(DdNode *node)
         {
           add_or_replace_node(nodesF,Cudd_Regular(E),*value_p*(1-p));
           index=Cudd_NodeReadIndex(E);
-          position=Cudd_ReadPerm(mgr,index);
+          position=Cudd_ReadPerm(mgr_ex[nex],index);
           nodesToVisit[position]=(DdNode **)realloc(nodesToVisit[position],
 	    (NnodesToVisit[position]+1)* sizeof(DdNode *));
           nodesToVisit[position][NnodesToVisit[position]]=E;
@@ -805,22 +780,22 @@ int indexMvar(DdNode * node)
   int index,mVarIndex;
 
   index=Cudd_NodeReadIndex(node);
-  mVarIndex=bVar2mVar[index];
+  mVarIndex=bVar2mVar_ex[ex][index];
   return mVarIndex;
 }
 
 
 
-double GetOutsideExpe(DdNode *root,double ex_prob)  
+double GetOutsideExpe(DdNode *root,double ex_prob, int nex)
 {
   int i,j,mVarIndex,bVarIndex;
   double **eta_rule;
   double theta,rootProb, T=0;
 
 
-  sigma=(double *)malloc(*boolVars * sizeof(double));
+  sigma=(double *)malloc(boolVars_ex[nex] * sizeof(double));
 
-  for (j=0; j<*boolVars; j++)
+  for (j=0; j<boolVars_ex[nex]; j++)
   {
     sigma[j]=0;
   }
@@ -832,23 +807,23 @@ double GetOutsideExpe(DdNode *root,double ex_prob)
       eta_temp[j][i][1]=0;
     }
   }
-  rootProb=ProbPath(root,0);
+  rootProb=ProbPath(root,0,nex);
   if (rootProb>0.0)
   {
-    for (j=0; j<*boolVars; j++)
+    for (j=0; j<boolVars_ex[nex]; j++)
     {
       T += sigma[j];
-      bVarIndex=Cudd_ReadInvPerm(mgr,j);
+      bVarIndex=Cudd_ReadInvPerm(mgr_ex[nex],j);
       if (bVarIndex==-1)  
       {
         bVarIndex=j;
       }
 
-      mVarIndex=bVar2mVar[bVarIndex];
-      eta_rule=eta_temp[vars[mVarIndex].nRule];
-      for (i=0; i<vars[mVarIndex].nVal-1;i++)
+      mVarIndex=bVar2mVar_ex[nex][bVarIndex];
+      eta_rule=eta_temp[vars_ex[nex][mVarIndex].nRule];
+      for (i=0; i<vars_ex[nex][mVarIndex].nVal-1;i++)
       {
-        theta=probs[bVarIndex];
+        theta=probs_ex[nex][bVarIndex];
         eta_rule[i][0]=eta_rule[i][0]+T*(1-theta);
         eta_rule[i][1]=eta_rule[i][1]+T*theta;
       }   
@@ -872,7 +847,7 @@ void Maximization(void)
 {
   int r,i,j,e;
   double sum=0;
-  double *probs_rule,**eta_rule;  
+  double *probs_rule,**eta_rule;
 
   for (r=0;r<nRules;r++)
   {
@@ -885,23 +860,19 @@ void Maximization(void)
         arrayprob[r][i]=0;
       }
       else 
-        arrayprob[r][i]=eta_rule[i][1]/sum;    
+        arrayprob[r][i]=eta_rule[i][1]/sum;
     }
   }
 
   for(e=0;e<ex;e++)
   {
-    nVars=nVars_ex+e;
-    probs=probs_ex[e];
-    vars=vars_ex[e];
-
-    for (j=0;j<*nVars;j++)
+    for (j=0;j<nVars_ex[e];j++)
     {
-      r=vars[j].nRule;
+      r=vars_ex[e][j].nRule;
       probs_rule=arrayprob[r];
       for(i=0;i<rules[r]-1;i++)
       {    
-        probs[vars[j].firstBoolVar+i]=probs_rule[i];     
+        probs_ex[e][vars_ex[e][j].firstBoolVar+i]=probs_rule[i];
       }
     }
   }
@@ -935,17 +906,14 @@ static int randomize(void)
   }
   for(e=0;e<ex;e++)
   {
-    nVars=nVars_ex+e;
-    probs=probs_ex[e];
-    vars=vars_ex[e];
-    for (j=0; j<*nVars; j++)
+    for (j=0; j<nVars_ex[e]; j++)
     {
-      rule=vars[j].nRule;
+      rule=vars_ex[e][j].nRule;
       theta=Theta_rules[rule];
       p0=1;
-      for (i=0; i<vars[j].nVal-1;i++)  
+      for (i=0; i<vars_ex[e][j].nVal-1;i++)
       {    
-        probs[vars[j].firstBoolVar+i]=theta[i]/p0;
+        probs_ex[e][vars_ex[e][j].firstBoolVar+i]=theta[i]/p0;
         p0=p0*(1-theta[i]/p0);
       }
     }
@@ -1009,7 +977,7 @@ static int EM(void)
     cycle++;
     for (r=0;r<nRules;r++)
     {
-      for (i=0;i<rules[r]-1;i++)  
+      for (i=0;i<rules[r]-1;i++)
       {
         eta_rule=eta[r];
         eta_rule[i][0]=0;
@@ -1027,13 +995,13 @@ static int EM(void)
   {
     tail=YAP_TermNil();
     p0=1;
-    for (i=0;i<rules[r]-1;i++)  
+    for (i=0;i<rules[r]-1;i++)
     {
       p=arrayprob[r][i]*p0;
       tail=YAP_MkPairTerm(YAP_MkFloatTerm(p),tail);
-      p0=p0*(1-arrayprob[r][i]); 
+      p0=p0*(1-arrayprob[r][i]);
     }
-    tail=YAP_MkPairTerm(YAP_MkFloatTerm(p0),tail);  
+    tail=YAP_MkPairTerm(YAP_MkFloatTerm(p0),tail);
     ruleTerm=YAP_MkIntTerm(r);
     compoundTerm=YAP_MkPairTerm(ruleTerm,YAP_MkPairTerm(tail,YAP_TermNil()));
     out2=YAP_MkPairTerm(compoundTerm,out2);
@@ -1046,6 +1014,7 @@ static int EM(void)
 
   return (YAP_Unify(out2,arg7));
 }
+
 
 static int Q(void)
 {
@@ -1091,14 +1060,14 @@ static int Q(void)
   for (r=0; r<nRules; r++)
   {
     tail=YAP_TermNil();
-    eta_rule=eta[r];    
-    for (i=0;i<rules[r]-1;i++)  
+    eta_rule=eta[r];
+    for (i=0;i<rules[r]-1;i++)
     {
       p0=eta_rule[i][0];
       p1=eta_rule[i][1];
       term=YAP_MkPairTerm(YAP_MkFloatTerm(p0),
         YAP_MkPairTerm(YAP_MkFloatTerm(p1),YAP_TermNil()));
-      tail=YAP_MkPairTerm(term,tail);    
+      tail=YAP_MkPairTerm(term,tail);
     }
 
     ruleTerm=YAP_MkIntTerm(r);

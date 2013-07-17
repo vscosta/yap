@@ -227,6 +227,7 @@ static void InitWorker(int wid) {
   REMOTE_FunctorVar(wid) = FunctorVar;
 
 
+  REMOTE_exo_it(wid) = NULL;
   REMOTE_exo_base(wid) = NULL;
   REMOTE_exo_arity(wid) = 0;
   REMOTE_exo_arg(wid) = 0;

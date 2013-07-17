@@ -1025,7 +1025,7 @@ p_nb_linkval( USES_REGS1 )
 static Int
 p_nb_create_accumulator( USES_REGS1 )
 {
-  Term t = Deref(ARG1), acct, to;
+  Term t = Deref(ARG1), acct, to, t2;
   CELL *destp;
 
   if (IsVarTerm(t)) {
@@ -1043,6 +1043,10 @@ p_nb_create_accumulator( USES_REGS1 )
   to = CopyTermToArena(t, LOCAL_GlobalArena, TRUE, TRUE, 2, &LOCAL_GlobalArena, garena_overflow_size(ArenaPt(LOCAL_GlobalArena) PASS_REGS) PASS_REGS);
   if (to == 0L)
     return FALSE;
+  t2 = Deref(ARG2);
+  if (IsVarTerm(t2)) {
+    return Yap_unify(t2, Yap_MkApplTerm(FunctorGNumber,1,&to) );
+  }
   destp = RepAppl(Deref(ARG2));
   destp[1] = to;
   return TRUE;
@@ -1083,7 +1087,7 @@ p_nb_add_to_accumulator( USES_REGS1 )
       /* forget it if it was something else */
       destp[1] = new;
     } else {
-      /* long, do we have spapce or not ?? */
+      /* long, do we have space or not ?? */
       if (IsLongIntTerm(t0)) {
 	CELL *target = RepAppl(t0);
 	CELL *source = RepAppl(new);
@@ -1130,7 +1134,7 @@ p_nb_add_to_accumulator( USES_REGS1 )
 static Int
 p_nb_accumulator_value( USES_REGS1 )
 {
-  Term t = Deref(ARG1), to;
+  Term t = Deref(ARG1);
   Functor f;
 
   if (IsVarTerm(t)) {
@@ -1145,8 +1149,7 @@ p_nb_accumulator_value( USES_REGS1 )
   if (f != FunctorGNumber) {
     return FALSE;
   }
-  to = Yap_CopyTerm(RepAppl(t)[1]);
-  return Yap_unify(to, ARG2);
+  return Yap_unify(ArgOfTerm(1,t), ARG2);
 }
 
 

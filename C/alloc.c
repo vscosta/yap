@@ -159,7 +159,7 @@ Yap_AllocCodeSpace(size_t size)
 }
 
 static inline char *
-call_realloc(char *p, unsigned long int size)
+call_realloc(char *p, size_t size)
 {
   CACHE_REGS
   char *out;

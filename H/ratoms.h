@@ -20,6 +20,9 @@
   AtomArrayType = AtomAdjust(AtomArrayType);
   AtomArrow = AtomAdjust(AtomArrow);
   AtomAssert = AtomAdjust(AtomAssert);
+  AtomEmptyBrackets = AtomAdjust(AtomEmptyBrackets);
+  AtomEmptySquareBrackets = AtomAdjust(AtomEmptySquareBrackets);
+  AtomEmptyCurlyBrackets = AtomAdjust(AtomEmptyCurlyBrackets);
   AtomAt = AtomAdjust(AtomAt);
   AtomAtom = AtomAdjust(AtomAtom);
   AtomAtomic = AtomAdjust(AtomAtomic);
@@ -156,6 +159,7 @@
   AtomLT = AtomAdjust(AtomLT);
   AtomLastExecuteWithin = AtomAdjust(AtomLastExecuteWithin);
   AtomLeash = AtomAdjust(AtomLeash);
+  AtomLeast = AtomAdjust(AtomLeast);
   AtomLength = AtomAdjust(AtomLength);
   AtomList = AtomAdjust(AtomList);
   AtomLive = AtomAdjust(AtomLive);
@@ -164,14 +168,17 @@
   AtomLocalSp = AtomAdjust(AtomLocalSp);
   AtomLocalTrie = AtomAdjust(AtomLocalTrie);
   AtomMax = AtomAdjust(AtomMax);
+  AtomMaximum = AtomAdjust(AtomMaximum);
   AtomMaxArity = AtomAdjust(AtomMaxArity);
   AtomMaxFiles = AtomAdjust(AtomMaxFiles);
   AtomMegaClause = AtomAdjust(AtomMegaClause);
   AtomMetaCall = AtomAdjust(AtomMetaCall);
   AtomMfClause = AtomAdjust(AtomMfClause);
   AtomMin = AtomAdjust(AtomMin);
+  AtomMinimum = AtomAdjust(AtomMinimum);
   AtomMinus = AtomAdjust(AtomMinus);
   AtomModify = AtomAdjust(AtomModify);
+  AtomMost = AtomAdjust(AtomMost);
   AtomMultiFile = AtomAdjust(AtomMultiFile);
   AtomMutable = AtomAdjust(AtomMutable);
   AtomMutableVariable = AtomAdjust(AtomMutableVariable);

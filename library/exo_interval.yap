@@ -9,13 +9,12 @@
 :- module(exo_interval,
 	[max/2,
 	 min/2,
+	 any/2,
 	 max/1,
 	 min/1,
-	 any/2,
+	 maximum/1,
+	 minimum/1,
 	 any/1,
-	 max/3,
-	 min/3,
-	 any/3,
 	 (#<)/2,
 	 (#>)/2,
 	 (#=<)/2,
@@ -27,24 +26,21 @@
 	 op(700, xfx, (#=<)),
 	 op(700, xfx, (#=))]).
 
-:- meta_predicate max(?,0,?), min(?,0,?), any(?,0,?).
+:- meta_predicate max(?,0), min(?,0), any(?,0).
 
-max(X, G, X) :-
+max(X, G) :-
 	insert_atts(X, i(_,_,max)),
 	call(G).
 
-min(X, G, X) :-
+min(X, G) :-
 	insert_atts(X, i(_,_,min)),
 	call(G).
 
-max(X, X) :-
-	insert_atts(X, i(_,_,max)).
-
-min(X, X) :-
-	insert_atts(X, i(_,_,min)).
-
 max(X) :-
 	insert_atts(X, i(_,_,max)).
+
+maximum(X) :-
+	insert_atts(X, i(_,_,maximum)).
 
 any(X) :-
 	insert_atts(X, i(_,_,any)).
@@ -52,6 +48,11 @@ any(X) :-
 min(X) :-
 	insert_atts(X, i(_,_,min)).
 
+minimum(X) :-
+	insert_atts(X, i(_,_,minimum)).
+
+least(X) :-
+	insert_atts(X, i(_,_,least)).
 
 X #> Y :-
 	( var(X) -> insert_atts(X, i(Y,_,_))

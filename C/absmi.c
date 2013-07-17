@@ -968,7 +968,7 @@ Yap_absmi(int inp)
       CACHE_Y(YREG);
       { 
 	struct index_t *i = (struct index_t *)(PREG->u.lp.l);
-	S_YREG[-1] = (CELL)EXO_OFFSET_TO_ADDRESS(i,i->links[(CELL)(SREG-i->cls)/i->arity]);
+	S_YREG[-1] = (CELL)LINK_TO_ADDRESS(i,i->links[EXO_ADDRESS_TO_OFFSET(i, SREG)]);
       }
       S_YREG--;
       /* store arguments for procedure */
@@ -991,7 +991,7 @@ Yap_absmi(int inp)
       ENDOp();
 
       /* check if enough space between trail and codespace */
-      /* try_exo    Pred,Label */
+      /* try_exo_udi    Pred,Label */
       Op(try_exo_udi, lp);
       /* check if enough space between trail and codespace */
       check_trail(TR);
@@ -1091,10 +1091,10 @@ Yap_absmi(int inp)
       CACHE_Y(B);
       {
 	struct index_t *it = (struct index_t *)(PREG->u.lp.l);
-	CELL offset = EXO_ADDRESS_TO_OFFSET(it,(CELL *)((CELL *)(B+1))[it->arity]);
+	BITS32 offset = ADDRESS_TO_LINK(it,(BITS32 *)((CELL *)(B+1))[it->arity]);
 	d0 = it->links[offset];
-	((CELL *)(B+1))[it->arity] = (CELL)EXO_OFFSET_TO_ADDRESS(it, d0);
-	SREG = it->cls+it->arity*offset;
+	((CELL *)(B+1))[it->arity] = (CELL)LINK_TO_ADDRESS(it, d0);
+	SREG = EXO_OFFSET_TO_ADDRESS(it, offset);
       }
       if (d0) {
 	/* After retry, cut should be pointing at the parent

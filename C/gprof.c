@@ -102,8 +102,9 @@ typedef greg_t context_reg;
 
 #else
 
-#define CONTEXT_PC NULL
-#define CONTEXT_BP NULL
+#ifdef LOW_PROF
+#undef LOW_PROF
+#endif
 
 #endif
 

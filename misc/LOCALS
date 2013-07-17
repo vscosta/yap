@@ -255,10 +255,11 @@ yamop			       *ImportFAILCODE				=NULL
 
 Functor				FunctorVar				=FunctorVar
 
-// exo indexingxb
+// exo indexing
 
 UInt				ibnds[256]				void
-BITS32*				exo_base				=NULL
+struct index_t*			exo_it					=NULL
+CELL*				exo_base				=NULL
 UInt				exo_arity				=0
 UInt				exo_arg					=0
 

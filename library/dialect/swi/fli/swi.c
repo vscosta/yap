@@ -2265,8 +2265,8 @@ PL_discard_foreign_frame(fid_t f)
   LOCAL_execution = env->old;
   ASP = LCL0-CurSlot;
   B = B->cp_b;
-  EX = NULL;
-  LOCAL_BallTerm = EX;
+  //LOCAL_BallTerm = EX;
+  //EX = NULL;
   free(env);
 }
 
@@ -2331,7 +2331,7 @@ X_API void PL_close_query(qid_t qi)
 {
   CACHE_REGS
   EX = NULL;
-  if (EX && !(qi->flags & (PL_Q_CATCH_EXCEPTION|PL_Q_PASS_EXCEPTION))) {
+  if (EX && !(qi->flags & (PL_Q_CATCH_EXCEPTION))) {
     EX = NULL;
   }
   /* need to implement backtracking here */

@@ -31,10 +31,10 @@ fabrizio.riguzzi@unife.it}
 \texttt{cplint} is a suite of programs for reasoning with ICL \cite{DBLP:journals/ai/Poole97}, LPADs \cite{VenVer03-TR,VenVer04-ICLP04-IC} and CP-logic programs \cite{VenDenBru-JELIA06,DBLP:journals/tplp/VennekensDB09}. It contains programs both for inference and learning.
 
 \section{Installation}
-\texttt{cplint} is distributed in source code in the source code development tree of Yap. It includes Prolog and C files. Download it by following the instruction in \url{http://www.ncc.up.pt/~vsc/Yap/downloads.html}.
+\texttt{cplint} is distributed in source code in the source code development tree of Yap. It includes Prolog and C files. Download it by following the instruction in \url{http://www.dcc.fc.up.pt/\string ~vsc/Yap/downloads.html}.
 
-\texttt{cplint} requires \href{http://vlsi.colorado.edu/~fabio/CUDD/}{CUDD}.
-You can download CUDD from \url{ftp://vlsi.colorado.edu/pub/cudd-2.4.2.tar.gz}.
+\texttt{cplint} requires \href{http://vlsi.colorado.edu/\string ~fabio/CUDD/}{CUDD}.
+You can download CUDD from \url{ftp://vlsi.colorado.edu/pub/cudd-2.5.0.tar.gz}.
 
 Compile CUDD:
 \begin{enumerate}
@@ -48,7 +48,7 @@ when compiling Yap following the instruction of the \texttt{INSTALL} file in the
 \begin{verbatim}
 configure --enable-cplint=DIR
 \end{verbatim}
-where \verb|DIR| is the directory where CUDD is, i.e., the directory ending with \texttt{cudd-2.4.2}.
+where \verb|DIR| is the directory where CUDD is, i.e., the directory ending with \texttt{cudd-2.5.0}.
 Under Windows, you have to use Cygwin (CUDD does not compile under MinGW), so\\
 \begin{verbatim}
 configure --enable-cplint=DIR --enable-cygwin
@@ -114,7 +114,7 @@ average/2
 \end{verbatim}
 that, given a list of numbers, computes its arithmetic mean.
 
-The syntax of ICL program is the one used by the  \href{http://www.cs.ubc.ca/~poole/aibook/code/ailog/ailog2.html}{AILog 2} system.
+The syntax of ICL program is the one used by the  \href{http://www.cs.ubc.ca/\string ~poole/aibook/code/ailog/ailog2.html}{AILog 2} system.
 \section{Inference}
 \texttt{cplint} contains various modules for answering queries.
 
@@ -143,7 +143,7 @@ It is also able to deal with extensions of LPADs and CP-logic: the clause bodies
 \item \texttt{montecarlo.pl} performs  Monte Carlo \cite{BraRig10-ILP10-IC}
 \item \texttt{mcintyre.pl}: implements the algorithm MCINTYRE (Monte Carlo INference wiTh Yap REcord) \cite{Rig11-CILC11-NC}
 \end{itemize}
-\item \texttt{approx/exact.pl} as \texttt{lpadsld.pl} but uses  SimplecuddLPADs, a modification of the \href{www.cs.kuleuven.be/~theo/tools/simplecudd.html}{Simplecudd} instead of the \texttt{cplint} library for building BDDs and computing the probability.
+\item \texttt{approx/exact.pl} as \texttt{lpadsld.pl} but uses  SimplecuddLPADs, a modification of the \href{http://dtai.cs.kuleuven.be/problog/download.html}{Simplecudd} instead of the \texttt{cplint} library for building BDDs and computing the probability.
 \end{itemize}
 
 These modules answer queries using the definition of the semantics of LPADs and CP-logic:
@@ -268,7 +268,7 @@ Variables: [(2,[X=2,X1=1]),(2,[X=1,X1=0]),(1,[])]
 		In the example above variable \texttt{X0} corresponds to clause \texttt{2} with the substitutions \texttt{X=2,X1=1},
 		variable \texttt{X1} corresponds to clause \texttt{2} with the substitutions \texttt{X=1,X1=0} and
 		variable \texttt{X2} corresponds to clause \texttt{1} with the empty substitution.
-		You can view the graph with  \href{www.graphviz.org}{\texttt{graphviz}} using the
+		You can view the graph with  \href{http://www.graphviz.org}{\texttt{graphviz}} using the
 		command
 \begin{verbatim}
 dotty cpl.dot &
@@ -504,7 +504,7 @@ unseen(<predicate>/<arity>).
 \end{verbatim}
 
 For SLIPCASE, you have to specify the language bias by means of mode declarations in the style of 
-\href{http://www.doc.ic.ac.uk/~shm/progol.html}{Progol}.
+\href{http://www.doc.ic.ac.uk/\string ~shm/progol.html}{Progol}.
 \begin{verbatim}
 modeh(<recall>,<predicate>(<arg1>,...).
 \end{verbatim}
@@ -528,6 +528,25 @@ for specifying an output variable of type \texttt{<type>}. or
 <constant>
 \end{verbatim}
 for specifying a constant.
+
+An example of language bias for the UWCSE domain is
+\begin{verbatim}
+output(advisedby/2).
+
+input(student/1).
+input(professor/1).
+....
+
+modeh(*,advisedby(+person,+person)). 
+
+modeb(*,professor(+person)).
+modeb(*,student(+person)).
+modeb(*,sameperson(+person, -person)). 
+modeb(*,sameperson(-person, +person)). 
+modeb(*,samecourse(+course, -course)). 
+modeb(*,samecourse(-course, +course)). 
+....
+\end{verbatim}
 
 \subsection{Parameters}
 In order to set the algorithms' parameters, you have to insert in \texttt{<stem>.l}  commands of the form
@@ -601,6 +620,9 @@ and call
 \begin{verbatim}
 ?:- sl(stem).
 \end{verbatim}
+\subsection{Learning Examples}
+The subfolders \verb|em|, \verb|rib| and \verb|slipcase| of the \verb|packages/cplint| folder in Yap git distribution
+contain examples of input and output files for the learning algorithms.
 
 \section{License}
 \label{license}
@@ -610,10 +632,10 @@ and call
 \texttt{cplint}, as Yap, follows the Artistic License 2.0 that you can find in Yap CVS root dir. The copyright is by Fabrizio Riguzzi.
 \vspace{3mm}
 
-The modules in the approx subdirectory use SimplecuddLPADs, a modification of the \href{www.cs.kuleuven.be/~theo/tools/simplecudd.html}{Simplecudd} library whose copyright is by Katholieke Universiteit Leuven  and that follows the Artistic License 2.0.
+The modules in the approx subdirectory use SimplecuddLPADs, a modification of the \href{http://dtai.cs.kuleuven.be/problog/download.html}{Simplecudd} library whose copyright is by Katholieke Universiteit Leuven  and that follows the Artistic License 2.0.
 \vspace{3mm}
 
-Some modules use the library \href{http://vlsi.colorado.edu/~fabio/}{CUDD} for manipulating BDDs that is included in glu.
+Some modules use the library \href{http://vlsi.colorado.edu/\string ~fabio/}{CUDD} for manipulating BDDs that is included in glu.
 For the use of CUDD, the following license must be accepted:
 
 \vspace{3mm}
@@ -654,7 +676,7 @@ ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
 \texttt{lpad.pl}, \texttt{semlpad.pl} and \texttt{cpl.pl} are based on the SLG system
-by \href{http://engr.smu.edu/~wchen/}{Weidong Chen} and \href{http://www.cs.sunysb.edu/~warren/}{David Scott Warren},  
+by Weidong Chen and \href{http://www.cs.sunysb.edu/\string ~warren/}{David Scott Warren},  
 Copyright (C) 1993 Southern Methodist University, 1993 SUNY at Stony Brook, see the file COYPRIGHT\_SLG for detailed information on this copyright.
 
 \bibliographystyle{plain}

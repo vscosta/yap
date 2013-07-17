@@ -38,6 +38,12 @@
 #define AtomArrow Yap_heap_regs->AtomArrow_
   Atom AtomAssert_;
 #define AtomAssert Yap_heap_regs->AtomAssert_
+  Atom AtomEmptyBrackets_;
+#define AtomEmptyBrackets Yap_heap_regs->AtomEmptyBrackets_
+  Atom AtomEmptySquareBrackets_;
+#define AtomEmptySquareBrackets Yap_heap_regs->AtomEmptySquareBrackets_
+  Atom AtomEmptyCurlyBrackets_;
+#define AtomEmptyCurlyBrackets Yap_heap_regs->AtomEmptyCurlyBrackets_
   Atom AtomAt_;
 #define AtomAt Yap_heap_regs->AtomAt_
   Atom AtomAtom_;
@@ -310,6 +316,8 @@
 #define AtomLastExecuteWithin Yap_heap_regs->AtomLastExecuteWithin_
   Atom AtomLeash_;
 #define AtomLeash Yap_heap_regs->AtomLeash_
+  Atom AtomLeast_;
+#define AtomLeast Yap_heap_regs->AtomLeast_
   Atom AtomLength_;
 #define AtomLength Yap_heap_regs->AtomLength_
   Atom AtomList_;
@@ -326,6 +334,8 @@
 #define AtomLocalTrie Yap_heap_regs->AtomLocalTrie_
   Atom AtomMax_;
 #define AtomMax Yap_heap_regs->AtomMax_
+  Atom AtomMaximum_;
+#define AtomMaximum Yap_heap_regs->AtomMaximum_
   Atom AtomMaxArity_;
 #define AtomMaxArity Yap_heap_regs->AtomMaxArity_
   Atom AtomMaxFiles_;
@@ -338,10 +348,14 @@
 #define AtomMfClause Yap_heap_regs->AtomMfClause_
   Atom AtomMin_;
 #define AtomMin Yap_heap_regs->AtomMin_
+  Atom AtomMinimum_;
+#define AtomMinimum Yap_heap_regs->AtomMinimum_
   Atom AtomMinus_;
 #define AtomMinus Yap_heap_regs->AtomMinus_
   Atom AtomModify_;
 #define AtomModify Yap_heap_regs->AtomModify_
+  Atom AtomMost_;
+#define AtomMost Yap_heap_regs->AtomMost_
   Atom AtomMultiFile_;
 #define AtomMultiFile Yap_heap_regs->AtomMultiFile_
   Atom AtomMutable_;

@@ -162,7 +162,7 @@ process_arg(Sk, Id, _I) -->
 	  % if :: been used before for this skolem
 	  % just keep on using it,
 	  % otherwise, assume it is t,f
-	  ( \+ \+ skolem(Sk,_D) -> true ; new_skolem(Sk,[t,f]) ),
+	  ( \+ \+ skolem(Sk,_D) -> true ; new_skolem(Sk,[f,t]) ),
 	  assert(skolem_in(Sk, Id))
 	},
 	[Sk].

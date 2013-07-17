@@ -1521,7 +1521,7 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat, UInt extra_size, struc
        * for the number of links 
        */
       flag = DBComplex;
-      CodeAbs += CellPtr(dbg->lr) - CellPtr(dbg->LinkAr);
+      CodeAbs += (NOfLinks+(sizeof(CELL)/sizeof(BITS32)-1))/(sizeof(CELL)/sizeof(BITS32));
       if ((CELL *)((char *)ntp0+(CELL)CodeAbs) > AuxSp) {
 	LOCAL_Error_Size = (UInt)DBLength(CodeAbs);
 	LOCAL_Error_TYPE = OUT_OF_AUXSPACE_ERROR;
