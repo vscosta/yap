@@ -851,7 +851,7 @@ opinfo("p_nonvar_x",[body,ifthenelse]).
 opinfo("p_nonvar_y",[body,ifthenelse]).
 opinfo("save_b_x",[body,new("x")]).
 opinfo("save_b_y",[body,new("y")]).
-opinfo("ensure_space",[body]).
+opinfo("ensure_space",[]).
 opinfo("write_x_loc",[body]).
 opinfo("write_x_var",[body,new("x")]).
 opinfo("write_y_var",[body,new("y")]).

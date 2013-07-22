@@ -6,6 +6,9 @@
   while (TRUE) {
     op_numbers op = Yap_op_from_opcode(cl->opc);
     switch (op) {
+    case _ensure_space:
+      cl = NEXTOP(cl,Osbpa);
+      break;
     case _native_me:
       cl = NEXTOP(cl,aFlp);
       break;
