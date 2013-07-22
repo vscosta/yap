@@ -144,15 +144,15 @@ AllocCMem (UInt size, struct intermediates *cip)
   }
 #else
   char *p;
-  p = cip->freep;
-  cip->freep += size;
   if (ASP <= CellPtr (cip->freep) + 256) {
     CACHE_REGS
     LOCAL_Error_Size = 256+((char *)cip->freep - (char *)H);
     save_machine_regs();
     siglongjmp(cip->CompilerBotch, OUT_OF_STACK_BOTCH);
-  }
-  return (p);
+  } 
+  p = cip->freep;
+  cip->freep += size;
+  return p;
 #endif
 }
 
