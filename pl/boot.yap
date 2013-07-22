@@ -219,7 +219,8 @@ true :- true.
 	get_value('$top_level_goal',GA), GA \= [], !,
 	set_value('$top_level_goal',[]),
 	'$run_atom_goal'(GA),
-	( '$pred_exists'(halt(_), user) -> halt(0) ; '$halt'(0) ).
+	'$nb_getval'('$break',BreakLevel,fail),
+	( BreakLevel \= 0 -> true ; '$pred_exists'(halt(_), user) -> halt(0) ; '$halt'(0) ).
 '$enter_top_level' :-
 	'$run_toplevel_hooks',
 	prompt1(' ?- '),
@@ -229,7 +230,8 @@ true :- true.
 	nb_setval('$debug_run',off),
 	nb_setval('$debug_jump',off),
 	'$command'(Command,Varnames,_Pos,top),
-	( '$pred_exists'(halt(_), user) -> halt(0) ; '$halt'(0) ).
+	'$nb_getval'('$break',BreakLevel,fail),
+	( BreakLevel \= 0 -> true ; '$pred_exists'(halt(_), user) -> halt(0) ; '$halt'(0) ).
 
 
  '$erase_sets' :- 
