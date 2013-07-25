@@ -4459,6 +4459,15 @@ The following predicates provide counting:
     True if @var{Int3} = @var{Int1} + @var{Int2}. At least two of the
     three arguments must be instantiated to integers.
 
+@item logsum(+@var{Log1}, +@var{Log2}, -@var{Out} )
+@findex logsum/3
+@snindex logsum/3
+@cnindex logsum/3
+ True if @var{Log1} is the logarithm of the positive number @var{A1},
+ @var{Log2} is the logarithm of the positive number @var{A2}, and
+ @var{Out} is the logarithm of the sum of the numbers @var{A1} and
+ @var{A2}. Useful in probability computation.
+
 @item isnan(+@var{Float})
 @findex isnan/1
 @snindex isnan/1
