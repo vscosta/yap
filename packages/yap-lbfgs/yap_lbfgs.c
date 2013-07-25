@@ -51,6 +51,7 @@ static lbfgsfloatval_t evaluate(
 {
   YAP_Term call;
   YAP_Bool result;
+  YAP_Int s1;
 
   YAP_Term t[3];
 
@@ -61,6 +62,8 @@ static lbfgsfloatval_t evaluate(
   call = YAP_MkApplTerm(fcall3, 3, t);
   g=g_tmp;  
 
+  
+  s1 = YAP_InitSlot(call);
   optimizer_status=OPTIMIZER_STATUS_CB_EVAL;
   result=YAP_CallProlog(call);
   optimizer_status=OPTIMIZER_STATUS_RUNNING;
@@ -71,6 +74,7 @@ static lbfgsfloatval_t evaluate(
     return FALSE;
   }
 
+  call = YAP_GetFromSlot( s1 );
   if (YAP_IsFloatTerm(YAP_ArgOfTerm(1,call))) {
     return (lbfgsfloatval_t) YAP_FloatOfTerm(YAP_ArgOfTerm(1,call));
   } else if (YAP_IsIntTerm(YAP_ArgOfTerm(1,call))) {
