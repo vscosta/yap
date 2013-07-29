@@ -184,7 +184,7 @@ new_skolem(Sk, D) :-
 	functor(Sk, N, A),
 	functor(NSk, N, A),
 	% [f,t] is special for evidence
-	( D = [f,t] -> assert((evidence(NSk, 1) :- call(user:NSk))) ; true ),
+	( D = [f,t] -> assert((evidence(NSk, 1) :- user:NSk)) ; true ),
 	interface_predicate(NSk),
 	assert(skolem(NSk, D)).
 
