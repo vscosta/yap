@@ -91,9 +91,9 @@ optimizer_parameters :-
 	optimizer_get_parameter(orthantwise_start,Orthantwise_Start),
 	optimizer_get_parameter(orthantwise_end,Orthantwise_End),
 
-	format('==========================================================================================~n',[]),
+	format('/******************************************************************************************~n',[]),
 	print_param('Name','Value','Description','Type'),
-	format('==========================================================================================~n',[]),
+	format('******************************************************************************************~n',[]),
 	print_param(m,M,'The number of corrections to approximate the inverse hessian matrix.',int),
 	print_param(epsilon,Epsilon,'Epsilon for convergence test.',float),
 	print_param(past,Past,'Distance for delta-based convergence test.',int),
@@ -109,7 +109,7 @@ optimizer_parameters :-
 	print_param(orthantwise_c,Orthantwise_C,'Coefficient for the L1 norm of variables',float),
 	print_param(orthantwise_start,Orthantwise_Start,'Start index for computing the L1 norm of the variables.',int),
 	print_param(orthantwise_end,Orthantwise_End,'End index for computing the L1 norm of the variables.',int),
-	format('==========================================================================================~n',[]),
+	format('******************************************************************************************/~n',[]),
 	format(' use optimizer_set_paramater(Name,Value) to change parameters~n',[]),
 	format(' use optimizer_get_parameter(Name,Value) to see current parameters~n',[]),
 	format(' use optimizer_parameters to print this overview~2n',[]).
