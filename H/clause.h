@@ -168,6 +168,7 @@ typedef struct index_t {
   int is_key;
   int is_udi;
   UInt ncollisions;
+  UInt max_col_count;
   UInt ntrys;
   UInt nentries;
   UInt hsize;
