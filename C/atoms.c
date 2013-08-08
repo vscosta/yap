@@ -2313,6 +2313,8 @@ init_sub_atom( USES_REGS1 )
 	  Yap_unify(ARG1, ARG5) &&
 	  Yap_unify(ARG2, MkIntegerTerm(0)) &&
 	  Yap_unify(ARG4, MkIntegerTerm(0));
+      } else if (len > sz) {
+	cut_fail();
       } else {
 	mask |= SUB_ATOM_HAS_SIZE;
 	min = 0;
