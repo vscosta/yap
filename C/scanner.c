@@ -283,13 +283,7 @@ read_quoted_char(int *scan_nextp, IOSTREAM *inp_stream)
   ch = getchrq(inp_stream);
   switch (ch) {
   case 10:
-    do {
-      ch = getchrq(inp_stream);
-      if (ch == '\\') goto restart;
-      if (chtype(ch) != BS || ch == 10) {
-	return ch;
-      }
-    } while (TRUE);
+    return 0;
   case 'a':
     return '\a';
   case 'b':
@@ -364,12 +358,7 @@ read_quoted_char(int *scan_nextp, IOSTREAM *inp_stream)
   case 'v':
     return '\v';
   case 'z':         /* Prolog end-of-file */
-    if (yap_flags[CHARACTER_ESCAPE_FLAG] == ISO_CHARACTER_ESCAPES) {
-      return send_error_message("invalid escape sequence \\z");
-    } else
-      return -1;
-  case '\\':
-    return '\\';
+    return send_error_message("invalid escape sequence \\z");
   case '\'':
     return '\'';
   case '"':
@@ -486,16 +475,7 @@ read_quoted_char(int *scan_nextp, IOSTREAM *inp_stream)
     /* accept sequence. Note that the ISO standard does not
        consider this sequence legal, whereas SICStus would
        eat up the escape sequence. */
-    if (yap_flags[CHARACTER_ESCAPE_FLAG] == ISO_CHARACTER_ESCAPES) {
-      return send_error_message("invalid escape sequence");
-    } else {
-      /* sicstus */
-      if (chtype(ch) == SL) {
-	goto restart;
-      } else {
-	return ch;
-      }
-    }
+    return send_error_message("invalid escape sequence");
   }
 }
 	    
@@ -1142,8 +1122,9 @@ Yap_tokenizer(IOSTREAM *inp_stream, int store_comments, Term *tposp)
 	  ch = getchrq(inp_stream);
 	} else if (ch == '\\' && yap_flags[CHARACTER_ESCAPE_FLAG] != CPROLOG_CHARACTER_ESCAPES) {
 	  int scan_next = TRUE;
-	  ch = read_quoted_char(&scan_next, inp_stream);
-	  add_ch_to_buff(ch);
+	  if ((ch = read_quoted_char(&scan_next, inp_stream))) {
+	    add_ch_to_buff(ch);
+	  }
 	  if (scan_next) {
 	    ch = getchrq(inp_stream);
 	  }
