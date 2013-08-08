@@ -1825,7 +1825,7 @@ static Term vars_in_complex_term(register CELL *pt0, register CELL *pt0_end, Ter
     Term t2 = Deref(inp);
     if (IsVarTerm(t2)) {
       RESET_VARIABLE(H-1);
-      Yap_unify((CELL)(H-1),ARG2);
+      Yap_unify((CELL)(H-1),inp);
     } else {
       H[-1] = t2;		/* don't need to trail */
     }
@@ -2140,7 +2140,7 @@ static Term attvars_in_complex_term(register CELL *pt0, register CELL *pt0_end, 
     Term t2 = Deref(inp);
     if (IsVarTerm(t2)) {
       RESET_VARIABLE(H-1);
-      Yap_unify((CELL)(H-1),ARG2);
+      Yap_unify((CELL)(H-1), t2);
     } else {
       H[-1] = t2;		/* don't need to trail */
     }
