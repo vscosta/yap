@@ -69,10 +69,10 @@ inline BITS32 fmix32 ( BITS32 h )
   return h;
 }
 //-----------------------------------------------------------------------------
-extern inline BITS32
+INLINE_ONLY inline BITS32
 HASH_MURMUR3_32 (UInt arity, CELL *cl, UInt bnds[], UInt sz);
 
-extern inline BITS32
+INLINE_ONLY inline BITS32
 HASH_MURMUR3_32 (UInt arity, CELL *cl, UInt bnds[], UInt sz)
 {
   UInt hash;
@@ -121,10 +121,10 @@ HASH_MURMUR3_32 (UInt arity, CELL *cl, UInt bnds[], UInt sz)
 /*DJB2*/
 #define DJB2_OFFSET 5381 
 
-extern inline BITS32
+INLINE_ONLY inline BITS32
 HASH_DJB2(UInt arity, CELL *cl, UInt bnds[], UInt sz);
 
-extern inline BITS32
+INLINE_ONLY inline BITS32
 HASH_DJB2(UInt arity, CELL *cl, UInt bnds[], UInt sz)
 {
   BITS32 hash;
@@ -147,11 +147,11 @@ HASH_DJB2(UInt arity, CELL *cl, UInt bnds[], UInt sz)
   return hash;
 }
 
-extern inline BITS32
+INLINE_ONLY inline BITS32
 HASH_RS(UInt arity, CELL *cl, UInt bnds[], UInt sz);
 
 /* RS Hash Function */
-extern inline BITS32
+INLINE_ONLY inline BITS32
 HASH_RS(UInt arity, CELL *cl, UInt bnds[], UInt sz)
 {
   UInt hash=0;
@@ -176,7 +176,7 @@ HASH_RS(UInt arity, CELL *cl, UInt bnds[], UInt sz)
   return hash;
 }
 
-extern inline BITS32
+INLINE_ONLY inline BITS32
 HASH_FVN_1A(UInt arity, CELL *cl, UInt bnds[], UInt sz);
 
 /* Simple hash function:
@@ -185,7 +185,7 @@ HASH_FVN_1A(UInt arity, CELL *cl, UInt bnds[], UInt sz);
    hash0 spreads extensions coming from different elements.
    spread over j quadrants.
  */
-extern inline BITS32
+INLINE_ONLY inline BITS32
 HASH_FVN_1A(UInt arity, CELL *cl, UInt bnds[], UInt sz)
 {
   UInt hash;
