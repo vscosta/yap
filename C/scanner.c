@@ -284,6 +284,8 @@ read_quoted_char(int *scan_nextp, IOSTREAM *inp_stream)
   switch (ch) {
   case 10:
     return 0;
+  case '\\':
+    return '\\';
   case 'a':
     return '\a';
   case 'b':
