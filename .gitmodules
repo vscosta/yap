@@ -1,48 +1,48 @@
 [submodule "packages/chr"]
 	path = packages/chr
-	url = git://yap.git.sourceforge.net/gitroot/yap/chr
+	url = git://git.code.sf.net/p/yap/chr
 [submodule "packages/clpqr"]
 	path = packages/clpqr
-	url = git://yap.git.sourceforge.net/gitroot/yap/clpqr
+	url = git://git.code.sf.net/p/yap/clpqr
 [submodule "packages/jpl"]
 	path = packages/jpl
-	url = git://yap.git.sourceforge.net/gitroot/yap/jpl
+	url = git://git.code.sf.net/p/yap/jpl
 [submodule "packages/zlib"]
 	path = packages/zlib
-	url = git://yap.git.sourceforge.net/gitroot/yap/zlib
+	url = git://git.code.sf.net/p/yap/zlib
 [submodule "packages/http"]
 	path = packages/http
-	url = git://yap.git.sourceforge.net/gitroot/yap/http
+	url = git://git.code.sf.net/p/yap/http
 [submodule "packages/clib"]
 	path = packages/clib
-	url = git://yap.git.sourceforge.net/gitroot/yap/clib
+	url = git://git.code.sf.net/p/yap/clib
 [submodule "packages/sgml"]
 	path = packages/sgml
-	url = git://yap.git.sourceforge.net/gitroot/yap/sgml
+	url = git://git.code.sf.net/p/yap/sgml
 [submodule "packages/RDF"]
 	path = packages/RDF
-	url = git://yap.git.sourceforge.net/gitroot/yap/RDF
+	url = git://git.code.sf.net/p/yap/RDF
 [submodule "packages/semweb"]
 	path = packages/semweb
-	url = git://yap.git.sourceforge.net/gitroot/yap/semweb
+	url = git://git.code.sf.net/p/yap/semweb
 [submodule "packages/plunit"]
 	path = packages/plunit
-	url = git://yap.git.sourceforge.net/gitroot/yap/plunit
+	url = git://git.code.sf.net/p/yap/plunit
 [submodule "packages/R"]
 	path = packages/R
-	url = git://yap.git.sourceforge.net/gitroot/yap/R
+	url = git://git.code.sf.net/p/yap/R
 [submodule "packages/pldoc"]
 	path = packages/pldoc
-	url = git://yap.git.sourceforge.net/gitroot/yap/pldoc
+	url = git://git.code.sf.net/p/yap/pldoc
 [submodule "packages/real"]
 	path = packages/real
-	url = git://www.swi-prolog.org/home/pl/git/packages/real.git
+	url = vsc://www.swi-prolog.org/home/pl/git/packages/real.git
 [submodule "packages/archive"]
 	path = packages/archive
-	url = git://yap.git.sourceforge.net/gitroot/yap/archive
+	url = git://git.code.sf.net/p/yap/archive
 [submodule "packages/odbc"]
 	path = packages/odbc
-	url = git://yap.git.sourceforge.net/gitroot/yap/odbc
+	url = git://git.code.sf.net/p/yap/odbc
 [submodule "packages/udi"]
 	path = packages/udi
 	url = https://github.com/davidvaz/yap-udi-indexers.git
