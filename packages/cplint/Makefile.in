@@ -147,7 +147,8 @@ CPLINT_DOCS=\
 CPLINT_LEARNING_PROGRAMS=\
 	$(CPLINT_SRCDIR)/em \
 	$(CPLINT_SRCDIR)/rib \
-	$(CPLINT_SRCDIR)/slipcase
+	$(CPLINT_SRCDIR)/slipcase \
+	$(CPLINT_SRCDIR)/slipcover
 	
 
 all: $(SOBJS)
@@ -181,6 +182,7 @@ install: all
 	cp $(CPLINT_SRCDIR)/em/*.pl $(DESTDIR)$(SHAREDIR)/cplint/
 	cp $(CPLINT_SRCDIR)/rib/*.pl $(DESTDIR)$(SHAREDIR)/cplint/
 	cp $(CPLINT_SRCDIR)/slipcase/*.pl $(DESTDIR)$(SHAREDIR)/cplint/
+	cp $(CPLINT_SRCDIR)/slipcover/*.pl $(DESTDIR)$(SHAREDIR)/cplint/
 	$(INSTALL_PROGRAM) slipcase/bddem.so $(DESTDIR)$(YAPLIBDIR)
 
 installcheck: 
