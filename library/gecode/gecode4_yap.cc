@@ -525,7 +525,7 @@ extern "C"
     opt.threads = threads;
     opt.c_d = c_d;
     opt.a_d = a_d;
-    opt.cutoff = cutoff;
+    opt.cutoff = cutoff = NULL;
     opt.nogoods_limit = nogoods_limit;
     opt.clone = clone;
     opt.stop = NULL;

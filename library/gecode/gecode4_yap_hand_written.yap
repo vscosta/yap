@@ -567,7 +567,7 @@ reify(Space,BVar,Mode,R) :-
 	gecode_new_reify(Space_,BVar_,Mode_,R_),
 	R = 'Reify'(R_).
 
-gecode_search_options_init(search_options(0,1.0,8,2,'RM_NONE',0,0,0)).
+gecode_search_options_init(search_options(0,1.0,8,2,'RM_NONE',0,1,0)).
 gecode_search_options_offset(restart,1).
 gecode_search_options_offset(threads,2).
 gecode_search_options_offset(c_d    ,3).
