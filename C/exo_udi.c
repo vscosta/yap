@@ -47,30 +47,47 @@ compar(const void *ip0, const void *jp0) {
   return IntOfTerm(i)-IntOfTerm(j);
 }
 
+static Int
+cmp_extra_args(CELL *si, CELL *sj, struct index_t *it)
+{
+  UInt m = it->udi_free_args;
+  UInt m0 = 1, x;
+  
+  for (x=0; x< it->arity; x++) {
+    if (m0 & m) {
+      if (si[x] != sj[x]) {
+	if (IsIntTerm(si[x]))
+	  return IntOfTerm(si[x])-IntOfTerm(sj[x]);
+	return AtomOfTerm(si[x])-AtomOfTerm(sj[x]);
+      }
+      m -= m0;
+      if (m == 0)
+	return 0;
+    }
+    m0 <<= 1;
+  }
+  return 0;
+}
+
+static int
+compar2(const void *ip0, const void *jp0) {
+  CACHE_REGS
+  BITS32 *ip = (BITS32 *)ip0, *jp = (BITS32 *)jp0;
+  struct index_t *it = LOCAL_exo_it;
+  Term* si = EXO_OFFSET_TO_ADDRESS(it, *ip);
+  Term* sj = EXO_OFFSET_TO_ADDRESS(it, *jp);
+  int cmp = cmp_extra_args(si, sj, it);
+  if (cmp)
+    return cmp;
+  return IntOfTerm(si[LOCAL_exo_arg])-IntOfTerm(sj[LOCAL_exo_arg]);
+}
+
 static int
 compare(const BITS32 *ip, Int j USES_REGS) {
   Term i = EXO_OFFSET_TO_ADDRESS(LOCAL_exo_it, *ip)[LOCAL_exo_arg];
   //fprintf(stderr, "%ld-%ld\n", IntOfTerm(i), j); 
   return IntOfTerm(i)-j;
- }
-
-static int
-same_free(BITS32 i, BITS32 j, struct index_t *it) {
-  CELL *ip = EXO_OFFSET_TO_ADDRESS(it, i);
-  CELL *jp = EXO_OFFSET_TO_ADDRESS(it, j);
-  UInt m = it->udi_free_args, m0 = 1, x;
-  for (x=0; x< it->arity; x++) {
-    if (m0 & m) {
-      if (ip[x] != jp[x])
-	return FALSE;
-      m -= m0;
-      if (!m)
-	return TRUE;
-    }
-    m0 <<= 1;
-  }
-  return TRUE;
- }
+}
 
 static UInt free_args(UInt b[], UInt arity, UInt i) {
   UInt j;
@@ -83,46 +100,94 @@ static UInt free_args(UInt b[], UInt arity, UInt i) {
   return rc;
 }
 
-static void
-chain(BITS32 *p0, BITS32 *el, BITS32 n, struct index_t *it) {
-  UInt i;
+static BITS32*
+NEXT_DIFFERENT(BITS32 *pt0, BITS32 *pte, struct index_t *it)
+{
+  Term* si = EXO_OFFSET_TO_ADDRESS(it, pt0[0]);
+  Term* sj;
 
-  for (i=0; i<n; i++) {
-    UInt j, k = i;
-    if (p0[i])
-      continue;
-    p0[i] = i;
-    for (j=i+1; j<n; j++) {
-      if (same_free(el[i], el[j], it)) {
-	p0[j] = k;
-	k = j;
-      }
-    }
-  }
+  do {
+    pt0++;
+    if (pt0 == pte)
+      return NULL;
+    sj = EXO_OFFSET_TO_ADDRESS(it, *pt0);
+  } while (!cmp_extra_args(si, sj, it));
+  return pt0;
 }
 
-static Int
-NEXT_DIFFERENT(Int x0, Int x, BITS32 *p, Int xe)
+static BITS32*
+PREV_DIFFERENT(BITS32 *pt0, BITS32 *pte, struct index_t *it)
 {
-  while (x <= xe) {
-    x++;
-    if (p[x] < x0 || p[x] >= x) 
-      return x;
-  }
-  return x;
+  Term* si = EXO_OFFSET_TO_ADDRESS(it, pt0[0]);
+  Term* sj;
+
+  do {
+    pt0--;
+    if (pt0 == pte)
+      return NULL;
+    sj = EXO_OFFSET_TO_ADDRESS(it, *pt0);
+  } while (!cmp_extra_args(si, sj, it));
+  return pt0;
 }
 
-static Int
-BIGGEST_EL(Int x0, BITS32 *p, Int xe)
+static BITS32*
+NEXT_MIN(BITS32 *pt0, BITS32 *pte, Term tmin, Term tmax, struct index_t *it)
 {
-  Int x = x0; 
+  Term* si = EXO_OFFSET_TO_ADDRESS(it, pt0[0]);
+  int do_min, do_max;
+  Int min = 0, max = 0;
 
-  while (x <= xe) {
-    if (p[x] == x0) 
-      x0 = x;
-    x++;
+  if (IsVarTerm(tmin)) {
+    do_min = FALSE;
+  } else {
+    do_min = TRUE;
+    min = IntOfTerm(tmin);
   }
-  return x0;
+  if (IsVarTerm(tmax)) {
+    do_max = FALSE;
+  } else {
+    do_max = TRUE;
+    max = IntOfTerm(tmax);
+  }
+
+  while ((do_min && IntOfTerm(si[it->udi_arg]) < min) ||
+	 (do_max && IntOfTerm(si[it->udi_arg]) > max)) {
+    pt0++;
+    if (pt0 == pte)
+      return NULL;
+    si = EXO_OFFSET_TO_ADDRESS(it, *pt0);
+  }
+  return pt0;
+}
+
+static BITS32*
+NEXT_MAX(BITS32 *pt0, BITS32 *pte, Term tmin, Term tmax, struct index_t *it)
+{
+  Term* si = EXO_OFFSET_TO_ADDRESS(it, pt0[0]);
+  int do_min, do_max;
+  Int min = 0, max = 0;
+
+  if (IsVarTerm(tmin)) {
+    do_min = FALSE;
+  } else {
+    do_min = TRUE;
+    min = IntOfTerm(tmin);
+  }
+  if (IsVarTerm(tmax)) {
+    do_max = FALSE;
+  } else {
+    do_max = TRUE;
+    max = IntOfTerm(tmax);
+  }
+
+  while ((do_min && IntOfTerm(si[it->udi_arg]) < min) ||
+	 (do_max && IntOfTerm(si[it->udi_arg]) > max)) {
+    pt0--;
+    if (pt0 == pte)
+      return NULL;
+    si = EXO_OFFSET_TO_ADDRESS(it, *pt0);
+  }
+  return pt0;
 }
 
 static void
@@ -161,11 +226,11 @@ IntervalUDIRefitIndex(struct index_t **ip, UInt b[] USES_REGS)
     
     /* be conservative */
     if (it->udi_free_args)
-      sz = sizeof(BITS32)*(3*it->ntrys+3*it->nentries);
+      sz = sizeof(BITS32)*(2*it->ntrys+3*it->nentries);
     else
-      sz = sizeof(BITS32)*(2*it->ntrys+2*it->nentries);
+      sz = sizeof(BITS32)*(it->ntrys+2*it->nentries);
     /* allocate space */
-    if (!(it->udi_data = (BITS32*)Yap_AllocCodeSpace(sz)))
+    if (!(it->udi_data = (BITS32*)malloc(sz)))
       return;
     sorted0 = sorted = (BITS32 *)it->udi_data;
     sorted++; /* leave an initial hole */
@@ -189,18 +254,16 @@ IntervalUDIRefitIndex(struct index_t **ip, UInt b[] USES_REGS)
 	  *s0 = sorted - (s0+1);
 	  qsort(s0+1, (size_t)*s0, sizeof(BITS32), compar); 
 	  it->links[offset0] = s0-sorted0;
-	  // fprintf(stderr," %d links %d=%d \n", offset0, s0-sorted0, s0[0]);
 	  if (it->udi_free_args) {
-	    bzero(sorted, sizeof(BITS32)*(*s0));
-	    /* chain elements with same unbound vars together */
-	    chain(sorted, s0+1, *s0, it);
+	    memcpy(sorted, s0+1, sizeof(BITS32)*(*s0));
+	    qsort(sorted, (size_t)*s0, sizeof(BITS32), compar2); 
 	    sorted += *s0;
 	  }
 	}
       }
     }
     sz = sizeof(BITS32)*(sorted-sorted0);
-    it->udi_data = (BITS32 *)Yap_ReallocCodeSpace((char *)it->udi_data, sz);
+    it->udi_data = (BITS32 *)realloc((char *)it->udi_data, sz);
   }
   it->is_udi = i+1;
   code = it->code;
@@ -362,43 +425,48 @@ Interval(struct index_t *it, Term min, Term max, Term op, BITS32 off USES_REGS)
        return FAILCODE;
      S = EXO_OFFSET_TO_ADDRESS(it, pt[0]);
    } else if (at == AtomMin) {
-     Int x0, xe, x;
-
-     if (!(it->udi_free_args)) {
+     S = EXO_OFFSET_TO_ADDRESS(it, pt[0]);
+     if (it->udi_free_args) {
+       BITS32 *ptn;
+       pt  = c+(it->links[off]+n+1);
+       end = pt+n;
+       pt = NEXT_MIN(pt, end, min, max, it);
+       if (!pt)
+	 return FAILCODE;
        S = EXO_OFFSET_TO_ADDRESS(it, pt[0]);
-     } else {
-       x0 = pt-pt0;
-       xe = end-pt0;
-       S = EXO_OFFSET_TO_ADDRESS(it, pt[0]);
-       x = NEXT_DIFFERENT(x0, x0, end0, xe);
-       if (x < xe ) {
-	 YENV[-5] = (CELL)( pt0 );  // base for array of pointed pointers
-	 YENV[-4] = MkIntegerTerm( x );    // where we are in pt0 array
-	 YENV[-3] = MkIntegerTerm( xe );   // our visit will end here 
-	 YENV[-2] = MkIntegerTerm( x0 );   // our visit started here
-	 YENV[-1] = (CELL)( end0 ); // base for array into pt
+       ptn = NEXT_DIFFERENT(pt, end, it);
+       if (ptn) 
+	 ptn = NEXT_MIN(ptn, end, min, max, it);
+       if ( ptn ) {
+	 YENV[-1] = min;    // what we are doing
+	 YENV[-2] = max;    // what we are doing
+	 YENV[-3] = (CELL) end;    // what we are doing
+	 YENV[-4] = MkAtomTerm(AtomMin);    // what we are doing
+	 YENV[-5] = (CELL)( ptn );    // where we are in pt0 array
 	 YENV -= 5;
 	 return it->code;
        }
      }
      return NEXTOP(NEXTOP(it->code,lp),lp);
    } else if (at == AtomMax) {
-     Int x0, xe, x, y;
-
-     if (!(it->udi_free_args)) {
-       S = EXO_OFFSET_TO_ADDRESS(it, end[0]);
-     } else {
-       x0 = pt-pt0;
-       xe = end-pt0;
-       y = BIGGEST_EL( x0, end0, xe );
+     S = EXO_OFFSET_TO_ADDRESS(it, pt[0]);
+     if (it->udi_free_args) {
+       BITS32 *ptn;
+       end  = c+(it->links[off]+n);
+       pt = end+n;
+       pt = NEXT_MAX(pt, end, min, max, it);
+       if (!pt)
+	 return FAILCODE;
        S = EXO_OFFSET_TO_ADDRESS(it, pt[0]);
-       x = NEXT_DIFFERENT(x0, x0, end0, xe);
-       if (x < xe ) {
-	 YENV[-5] = (CELL)( pt0 );  // base for array of pointed pointers
-	 YENV[-4] = MkIntegerTerm( -x );    // where we are in pt0 array
-	 YENV[-3] = MkIntegerTerm( xe );   // our visit will end here 
-	 YENV[-2] = MkIntegerTerm( x0 );   // our visit started here
-	 YENV[-1] = (CELL)( end0 ); // base for array into pt
+       ptn = PREV_DIFFERENT(pt, end, it);
+       if (ptn) 
+	 ptn = NEXT_MAX(ptn, end, min, max, it);
+       if ( ptn ) {
+	 YENV[-1] = min;    // what we are doing
+	 YENV[-2] = max;    // what we are doing
+	 YENV[-3] = (CELL) end;    // what we are doing
+	 YENV[-4] = MkAtomTerm(AtomMax);    // what we are doing
+	 YENV[-5] = (CELL)( ptn );    // where we are in pt0 array
 	 YENV -= 5;
 	 return it->code;
        }
@@ -450,28 +518,25 @@ IntervalRetryUDIIndex(struct index_t *it USES_REGS)
     w[1] = (CELL)pt;
   } else {
     BITS32 *pt0 = (BITS32 *)w[1];
-    Int x = IntegerOfTerm( w[2] );
-    Int xe = IntegerOfTerm( w[3] );
-    Int x0 = IntegerOfTerm( w[4] );
-    BITS32 *base = (BITS32 *)w[5];
-    if ( x > 0) {
-      //Yap_DebugPlWrite( EXO_OFFSET_TO_ADDRESS(it, el[i])[1] ); fprintf(stderr,"\n");
-      S = EXO_OFFSET_TO_ADDRESS(it, pt0[x]);
-      //fprintf(stderr,"S=%p x=%d/%d %d %d %p %p \n", S, x, base[x], x0, xe, pt0, base);
-      x = NEXT_DIFFERENT(x0, x, base, xe);
-      if (x > xe) return FALSE;
-      w[2] = MkIntegerTerm(x);
+    BITS32 *pte = (BITS32 *)w[3];
+    Atom what = AtomOfTerm(w[2]);
+    Term min = w[5];
+    Term max = w[4];
+
+    S = EXO_OFFSET_TO_ADDRESS(it, pt0[0]);
+    if ( what == AtomMin ) {
+      pt0 = NEXT_DIFFERENT(pt0, pte, it);
+      if (pt0) 
+	pt0 = NEXT_MIN(pt0, pte, min, max, it); 
     } else {
-      x = -x;
-      //Yap_DebugPlWrite( EXO_OFFSET_TO_ADDRESS(it, el[i])[1] ); fprintf(stderr,"\n");
-      S = EXO_OFFSET_TO_ADDRESS(it, pt0[BIGGEST_EL(x, base, xe) ]);
-      x = NEXT_DIFFERENT(x0, x, base, xe);
-      // fprintf(stderr,"S=%p x=%d/%d %d %d %p %p \n", S, x, base[x], x0, xe, pt0, base);
-      if (x > xe) {
-	return FALSE;
-      }
-      w[2] = MkIntegerTerm(-x);
+      pt0 = PREV_DIFFERENT(pt0, pte, it);
+      if (pt0) 
+	pt0 = NEXT_MAX(pt0, pte, min, max, it); 
     }
+    if (!pt0) {
+      return FALSE;
+    }
+    w[1] = (CELL)pt0;
   }
   return TRUE;
 }

@@ -727,6 +727,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
       /* first thing, store a link to the list before we move on */
       *StoPoint++ = AbsAppl(CodeMax);
       /* next, postpone analysis to the rest of the current list */
+      CheckVisitOverflow();
 #ifdef RATIONAL_TREES
       to_visit[0] = pt0+1;
       to_visit[1] = pt0_end;
@@ -742,7 +743,6 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 	to_visit += 3;
       }
 #endif
-      CheckVisitOverflow();
       d0 = ArityOfFunctor(f);
       pt0 = ap2+1;
       pt0_end = ap2 + d0;

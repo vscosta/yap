@@ -1556,6 +1556,7 @@ mark_environments(CELL_PTR gc_ENV, OPREG size, CELL *pvbmap USES_REGS)
     Int bmap = 0;
     int currv = 0;
 
+    //    printf("MARK %p--%p\n", gc_ENV, gc_ENV-size);
 #ifdef DEBUG
     if (size <  0 || size > 512)
       fprintf(GLOBAL_stderr,"OOPS in GC: env size for %p is " UInt_FORMAT "\n", gc_ENV, (CELL)size);
@@ -2007,6 +2008,7 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose 
       //      fprintf(stderr, "%s\n", Yap_op_names[opnum]);
 #ifdef TABLING
     }
+    // printf("MARK CP %p (%d)\n", gc_B, opnum);
     if (aux_sg_fr && gc_B == SgFr_gen_cp(aux_sg_fr)) {
       aux_sg_fr = SgFr_next(aux_sg_fr);
     }
@@ -2046,18 +2048,22 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose 
       /* choicepoint with arguments */
       register CELL_PTR        saved_reg;
       OPREG nargs;
-	  
+
+      //printf("gc_B=%p %ld\n", gc_B, opnum);
       if (opnum == _Nstop)
 	mark_environments((CELL_PTR) gc_B->cp_env,
 			  EnvSizeInCells,
 			  NULL PASS_REGS);
-      else if (opnum != _trust_fail)
+      else if (opnum != _trust_fail) {
+	Int mark = TRUE;
 #ifdef DETERMINISTIC_TABLING
-	if (!IS_DET_GEN_CP(gc_B))
+	mark &= !IS_DET_GEN_CP(gc_B);
 #endif /* DETERMINISTIC_TABLING */
+	if (mark)
 	  mark_environments((CELL_PTR) gc_B->cp_env,
 			    EnvSize((yamop *) (gc_B->cp_cp)),
 			    EnvBMap((yamop *) (gc_B->cp_cp)) PASS_REGS);
+      }
       /* extended choice point */
     restart_cp:
       switch (opnum) {
@@ -2169,10 +2175,10 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose 
 	  CELL *vars_ptr, vars;
 	  dep_fr_ptr dep_fr = CONS_CP(gc_B)->cp_dep_fr;
 	  ans_node_ptr ans_node = DepFr_last_answer(dep_fr);
-	  if (TrNode_child(ans_node)) {
+	  if (TRUE || TrNode_child(ans_node)) {
 	    /* unconsumed answers */
 #ifdef MODE_DIRECTED_TABLING
-	    if (IS_ANSWER_INVALID_NODE(TrNode_child(ans_node))) {
+	    if (TrNode_child(ans_node) && IS_ANSWER_INVALID_NODE(TrNode_child(ans_node))) {
 	      ans_node_ptr old_ans_node;
 	      old_ans_node = ans_node;
 	      ans_node = TrNode_child(ans_node);
@@ -2183,15 +2189,15 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose 
 	    } else
 #endif /* MODE_DIRECTED_TABLING */
 	      ans_node = TrNode_child(ans_node);
-	    if (gc_B == DepFr_leader_cp(dep_fr)) {                                  \
-	      /*  gc_B is a generator-consumer node  */                             \
-	      /* never here if batched scheduling */                             \
-	      TABLING_ERROR_CHECKING(generator_consumer, IS_BATCHED_GEN_CP(gc_B));  \
-	      vars_ptr = (CELL *) (GEN_CP(gc_B) + 1);                               \
-	      vars_ptr += SgFr_arity(GEN_CP(gc_B)->cp_sg_fr);                       \
-	    } else {                                                             \
-	      vars_ptr = (CELL *) (CONS_CP(gc_B) + 1);                              \
-	    }                                                                    \
+	    if (gc_B == DepFr_leader_cp(dep_fr)) { 
+	      /*  gc_B is a generator-consumer node  */                       
+	      /* never here if batched scheduling */                          
+	      TABLING_ERROR_CHECKING(generator_consumer, IS_BATCHED_GEN_CP(gc_B));
+	      vars_ptr = (CELL *) (GEN_CP(gc_B) + 1);                               
+	      vars_ptr += SgFr_arity(GEN_CP(gc_B)->cp_sg_fr);                       
+	    } else {                                                             
+	      vars_ptr = (CELL *) (CONS_CP(gc_B) + 1);                              
+	    }                                                                    
 
 	    vars = *vars_ptr++;
 	    while (vars--) {	
@@ -2867,6 +2873,7 @@ sweep_environments(CELL_PTR gc_ENV, OPREG size, CELL *pvbmap USES_REGS)
     Int bmap = 0;
     int currv = 0;
 
+    // printf("SWEEP %p--%p\n", gc_ENV, gc_ENV-size);
 
     /* for each saved variable */
 
@@ -3142,10 +3149,10 @@ sweep_choicepoints(choiceptr gc_B USES_REGS)
 	CELL *vars_ptr, vars;
 	dep_fr_ptr dep_fr = CONS_CP(gc_B)->cp_dep_fr;
 	ans_node_ptr ans_node = DepFr_last_answer(dep_fr);
-	if (TrNode_child(ans_node)) {
+	if (TRUE || TrNode_child(ans_node)) {
 	  /* unconsumed answers */
 #ifdef MODE_DIRECTED_TABLING
-	  if (IS_ANSWER_INVALID_NODE(TrNode_child(ans_node))) {
+	  if (TrNode_child(ans_node) && IS_ANSWER_INVALID_NODE(TrNode_child(ans_node))) {
 	    ans_node_ptr old_ans_node;
 	    old_ans_node = ans_node;
 	    ans_node = TrNode_child(ans_node);

@@ -30,7 +30,7 @@
 #define OPTIMIZER_STATUS_CB_EVAL     3
 #define OPTIMIZER_STATUS_CB_PROGRESS 4
 
-
+void init_lbfgs_predicates( void ) ;
 
 int optimizer_status=OPTIMIZER_STATUS_NONE;   // the internal state
 int n;                                        // the size of the parameter vector
@@ -50,7 +50,9 @@ static lbfgsfloatval_t evaluate(
     )
 {
   YAP_Term call;
+  YAP_Term a1;
   YAP_Bool result;
+  YAP_Int s1;
 
   YAP_Term t[3];
 
@@ -61,6 +63,8 @@ static lbfgsfloatval_t evaluate(
   call = YAP_MkApplTerm(fcall3, 3, t);
   g=g_tmp;  
 
+  
+  s1 = YAP_InitSlot(call);
   optimizer_status=OPTIMIZER_STATUS_CB_EVAL;
   result=YAP_CallProlog(call);
   optimizer_status=OPTIMIZER_STATUS_RUNNING;
@@ -71,11 +75,16 @@ static lbfgsfloatval_t evaluate(
     return FALSE;
   }
 
-  if (YAP_IsFloatTerm(YAP_ArgOfTerm(1,call))) {
-    return (lbfgsfloatval_t) YAP_FloatOfTerm(YAP_ArgOfTerm(1,call));
-  } else if (YAP_IsIntTerm(YAP_ArgOfTerm(1,call))) {
-    return (lbfgsfloatval_t) YAP_IntOfTerm(YAP_ArgOfTerm(1,call));
-  } 
+  call = YAP_GetFromSlot( s1 );
+
+  a1 = YAP_ArgOfTerm(1,call);
+  if (YAP_IsFloatTerm(a1)) {
+      YAP_ShutdownGoal( TRUE );
+      return (lbfgsfloatval_t) YAP_FloatOfTerm(a1);
+  } else if (YAP_IsIntTerm(a1)) {
+    YAP_ShutdownGoal( TRUE );
+    return (lbfgsfloatval_t) YAP_IntOfTerm(a1);
+  }
 
   YAP_ShutdownGoal( TRUE );
   fprintf(stderr, "ERROR: The evaluate call back function did not return a number as first argument.\n");

@@ -45,12 +45,12 @@ SOBJS=gecode_yap.@SO@
 GECODE_VERSION = @GECODE_VERSION@
 DISJUNCTOR = -DDISJUNCTOR
 GECODE_LIBS = @GECODE_EXTRALIBS@ 
-
+GECODE_MAJOR = @GECODE_MAJOR@
 all: $(SOBJS) gecode.yap
 
 gecode_yap.o: \
-	$(srcdir)/gecode_yap.cc \
-	$(srcdir)/gecode-common.icc \
+	$(srcdir)/gecode$(GECODE_MAJOR)_yap.cc \
+	$(srcdir)/gecode$(GECODE_MAJOR)-common.icc \
 	$(srcdir)/$(GECODE_VERSION)/gecode_yap_cc_impl_auto_generated.icc \
 	$(srcdir)/$(GECODE_VERSION)/gecode_yap_cc_init_auto_generated.icc \
 	$(srcdir)/$(GECODE_VERSION)/gecode_yap_cc_forward_auto_generated.icc \
@@ -61,7 +61,7 @@ gecode_yap.o: \
 @DO_SECOND_LD@gecode_yap.@SO@: gecode_yap.o
 @DO_SECOND_LD@	@SHLIB_CXX_LD@ -o gecode_yap.@SO@ gecode_yap.o $(LDFLAGS) $(GECODE_LIBS) @EXTRA_LIBS_FOR_DLLS@
 
-gecode.yap: $(srcdir)/gecode_yap_hand_written.yap $(srcdir)/$(GECODE_VERSION)/gecode_yap_auto_generated.yap
+gecode.yap: $(srcdir)/gecode$(GECODE_MAJOR)_yap_hand_written.yap $(srcdir)/$(GECODE_VERSION)/gecode_yap_auto_generated.yap
 	cat $^ > $@
 
 .PHONY: all clean install

@@ -159,11 +159,13 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 	'$handle_multiple'(F,A,NM), 
 	fail.
 '$check_term'(_, T,_,_,M) :-
-	once(( 
+	( 
 	    get_value('$syntaxcheckdiscontiguous',on)
+	->
+	       true
 	;
 	    get_value('$syntaxcheckmultiple',on)
-	)),
+	),
 	nb_getval('$consulting_file',File),
 	'$xtract_head'(T,M,NM,_,F,A),
 	\+ (

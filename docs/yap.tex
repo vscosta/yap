@@ -4458,6 +4458,29 @@ The following predicates provide counting:
 @cnindex plus/3
     True if @var{Int3} = @var{Int1} + @var{Int2}. At least two of the
     three arguments must be instantiated to integers.
+
+@item logsum(+@var{Log1}, +@var{Log2}, -@var{Out} )
+@findex logsum/3
+@snindex logsum/3
+@cnindex logsum/3
+ True if @var{Log1} is the logarithm of the positive number @var{A1},
+ @var{Log2} is the logarithm of the positive number @var{A2}, and
+ @var{Out} is the logarithm of the sum of the numbers @var{A1} and
+ @var{A2}. Useful in probability computation.
+
+@item isnan(+@var{Float})
+@findex isnan/1
+@snindex isnan/1
+@cnindex isnan/1
+ True if @var{Float} is not a number.
+
+@item isinf(+@var{Float})
+@findex isinf/1
+@snindex isinf/1
+@cnindex isinf/1
+ True if floating point expression @var{Float} evaluates to infinity.
+
+
 @end table
 
 @node I/O, Database, Arithmetic, Top
@@ -9962,6 +9985,13 @@ Unify @var{Elems} with the list including all the elements in @var{Matrix}.
 Unify @var{Elem} with the element of @var{Matrix} at position
 @var{Position}.
 
+@item matrix_get(+@var{Matrix}[+@var{Position}],-@var{Elem})
+@findex matrix_get/2
+@snindex matrix_get/2
+@cnindex matrix_get/2
+
+Unify @var{Elem} with the element @var{Matrix}[@var{Position}].
+
 @item matrix_set(+@var{Matrix},+@var{Position},+@var{Elem})
 @findex matrix_set/3
 @snindex matrix_set/3
@@ -9969,6 +9999,13 @@ Unify @var{Elem} with the element of @var{Matrix} at position
 
 Set the element of @var{Matrix} at position
 @var{Position} to  @var{Elem}.
+
+@item matrix_set(+@var{Matrix}[+@var{Position}],+@var{Elem})
+@findex matrix_set/2
+@snindex matrix_set/2
+@cnindex matrix_set/2
+
+Set the element of @var{Matrix}[@var{Position}] to  @var{Elem}.
 
 @item matrix_set_all(+@var{Matrix},+@var{Elem})
 @findex matrix_set_all/2

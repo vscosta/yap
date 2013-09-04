@@ -167,16 +167,24 @@ process_arg(Sk, Id, _I) -->
 	},
 	[Sk].
 
+%
+% redefinition
+%
 new_skolem(Sk, D) :-
 	copy_term(Sk, Sk1),
 	skolem(Sk1, D1),
 	functor(Sk1, N, A),
-	functor(Sk , N, A),
-	!,
+	functor(Sk , N, A), !,
 	( D1 = D -> true ; throw(pfl(permission_error(redefining_domain(Sk),D:D1)))).
+%
+%
+% create interface and skolem descriptor
+%
 new_skolem(Sk, D) :-
 	functor(Sk, N, A),
 	functor(NSk, N, A),
+	% [f,t] is special for evidence
+	( D = [f,t] -> assert((evidence(NSk, 1) :- user:NSk)) ; true ),
 	interface_predicate(NSk),
 	assert(skolem(NSk, D)).
 

@@ -69,10 +69,10 @@ inline BITS32 fmix32 ( BITS32 h )
   return h;
 }
 //-----------------------------------------------------------------------------
-extern inline BITS32
+INLINE_ONLY inline BITS32
 HASH_MURMUR3_32 (UInt arity, CELL *cl, UInt bnds[], UInt sz);
 
-extern inline BITS32
+INLINE_ONLY inline BITS32
 HASH_MURMUR3_32 (UInt arity, CELL *cl, UInt bnds[], UInt sz)
 {
   UInt hash;
@@ -121,10 +121,10 @@ HASH_MURMUR3_32 (UInt arity, CELL *cl, UInt bnds[], UInt sz)
 /*DJB2*/
 #define DJB2_OFFSET 5381 
 
-extern inline BITS32
+INLINE_ONLY inline BITS32
 HASH_DJB2(UInt arity, CELL *cl, UInt bnds[], UInt sz);
 
-extern inline BITS32
+INLINE_ONLY inline BITS32
 HASH_DJB2(UInt arity, CELL *cl, UInt bnds[], UInt sz)
 {
   BITS32 hash;
@@ -147,11 +147,11 @@ HASH_DJB2(UInt arity, CELL *cl, UInt bnds[], UInt sz)
   return hash;
 }
 
-extern inline BITS32
+INLINE_ONLY inline BITS32
 HASH_RS(UInt arity, CELL *cl, UInt bnds[], UInt sz);
 
 /* RS Hash Function */
-extern inline BITS32
+INLINE_ONLY inline BITS32
 HASH_RS(UInt arity, CELL *cl, UInt bnds[], UInt sz)
 {
   UInt hash=0;
@@ -176,7 +176,7 @@ HASH_RS(UInt arity, CELL *cl, UInt bnds[], UInt sz)
   return hash;
 }
 
-extern inline BITS32
+INLINE_ONLY inline BITS32
 HASH_FVN_1A(UInt arity, CELL *cl, UInt bnds[], UInt sz);
 
 /* Simple hash function:
@@ -185,14 +185,14 @@ HASH_FVN_1A(UInt arity, CELL *cl, UInt bnds[], UInt sz);
    hash0 spreads extensions coming from different elements.
    spread over j quadrants.
  */
-extern inline BITS32
-HASH_FVN_1A(UInt ar, CELL *cl, UInt bnds[], UInt sz)
+INLINE_ONLY inline BITS32
+HASH_FVN_1A(UInt arity, CELL *cl, UInt bnds[], UInt sz)
 {
   UInt hash;
   UInt  j=0;
 
   hash = FNV32_OFFSET;
-  while (j < ar) {
+  while (j < arity) {
     if (bnds[j]) {
       unsigned char *i=(unsigned char*)(cl+j);
       unsigned char *m=(unsigned char*)(cl+(j+1));
@@ -219,12 +219,18 @@ HASH_FVN_1A(UInt ar, CELL *cl, UInt bnds[], UInt sz)
 #else
 /* Default: TEST_HASH_FVN */
 # define HASH(...) HASH_FVN_1A(__VA_ARGS__)
+# define HASH1(...) HASH_MURMUR3_32(__VA_ARGS__)
 #endif
 
 static BITS32
-NEXT(UInt hash)
+NEXT(UInt arity, CELL *cl, UInt bnds[], UInt sz, BITS32 hash)
 {
-  return (hash*997);
+  int i = 0;
+  BITS32 hash1;
+
+  while (bnds[i]==0) i++;
+  hash1 = HASH1(arity, cl, bnds, sz);
+  return (hash +  hash1 +cl[i]);
 }
 
 /* search for matching elements */
@@ -289,6 +295,8 @@ INSERT(CELL *cl, struct index_t *it, UInt arity, UInt base, UInt bnds[])
     /* simple case, new entry */
     it->nentries++;
     it->key[hash % it->hsize ] = EXO_ADDRESS_TO_OFFSET(it, cl);
+    if (coll_count > it -> max_col_count)
+      it->max_col_count = coll_count;
     return TRUE;
   } else if (MATCH(kvp, cl, arity, bnds))  {
     it->ntrys++;
@@ -296,11 +304,9 @@ INSERT(CELL *cl, struct index_t *it, UInt arity, UInt base, UInt bnds[])
     return TRUE;
   } else {
     coll_count++;
-    if (coll_count == 32)
-      return FALSE;
     it->ncollisions++;
     //  printf("#");
-    hash =  NEXT(hash);
+    hash =  NEXT(arity, cl, bnds, it->hsize, hash);
     //if (exo_write) printf("N=%ld\n", hash);
     goto next;
   }
@@ -330,7 +336,7 @@ LOOKUP(struct index_t *it, UInt arity, UInt j, UInt bnds[])
       return NEXTOP(NEXTOP(it->code,lp),lp);
   } else {
     /* collision */
-    hash =  NEXT(hash);
+    hash =  NEXT(arity, XREGS+1, bnds, it->hsize, hash);
     goto next;
   }
 }
@@ -409,6 +415,9 @@ add_index(struct index_t **ip, UInt bmap, PredEntry *ap, UInt count)
   i->ncollisions = i->nentries = i->ntrys = 0;
   i->cls = (CELL *)((ADDR)ap->cs.p_code.FirstClause+2*sizeof(struct index_t *)); 
   i->bcls= i->cls-i->arity;
+  i->udi_free_args = 0;
+  i->is_udi = FALSE;
+  i->udi_arg = 0;
   *ip = i;
   while (count) {
     if (!fill_hash(bmap, i, bnds)) {
@@ -428,7 +437,7 @@ add_index(struct index_t **ip, UInt bmap, PredEntry *ap, UInt count)
       continue;
     }
 #if DEBUG
-    fprintf(stderr, "entries=%ld collisions=%ld trys=%ld\n", i->nentries, i->ncollisions, i->ntrys);
+    fprintf(stderr, "entries=%ld collisions=%ld (max=%ld) trys=%ld\n", i->nentries, i->ncollisions,  i->max_col_count, i->ntrys);
 #endif
     if (!i->ntrys && !i->is_key) {
       i->is_key = TRUE;
@@ -533,7 +542,8 @@ Yap_ExoLookup(PredEntry *ap USES_REGS)
       return code;
     if (i->is_udi) 
       return ((CEnterExoIndex)i->udi_first)(i PASS_REGS);
-    else return code;
+    else 
+      return code;
   } else if(i->is_udi) { 
     return ((CEnterExoIndex)i->udi_first)(i PASS_REGS);
   } else {

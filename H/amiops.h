@@ -100,24 +100,6 @@ A contains the address of the variable that is to be trailed
 
 #define RESET_VARIABLE(V)       (*(CELL *)(V) = Unsigned(V))
 
-#if SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
-
-INLINE_ONLY EXTERN inline void
-AlignGlobalForDouble( USES_REGS1 );
-
-INLINE_ONLY EXTERN inline void
-AlignGlobalForDouble( USES_REGS1 )
-{
-  /* Force Alignment for floats. Note that garbage collector may
-     break the alignment; */
-  if (!DOUBLE_ALIGNED(H)) {
-    RESET_VARIABLE(H);
-    H++;
-  }
-}
-
-#endif
-
 #ifdef TABLING
 
 #define DO_TRAIL(TERM, VAL)      \
