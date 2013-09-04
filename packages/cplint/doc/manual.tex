@@ -626,7 +626,9 @@ If set to \verb|atoms|, a BDD is built for the conjunction of a group of atoms f
 \item \verb|max_iter_structure| (values: integer, default value: 1, valid for SLIPCOVER): 
 maximum  number of theory search iterations
 \item \verb|background_clauses| (values: integer, default value: 50, valid for SLIPCOVER): 
- maximum numbers of background clauses. 
+ maximum numbers of background clauses
+\item \verb|maxdepth_var| (values: integer, default value: 2, valid for SLIPCOVER): maximum depth of
+variables in clauses (as defined in \cite{DBLP:journals/ai/Cohen95}).
 \end{itemize}
 \subsection{Commands}
 To execute CEM, load \texttt{em.pl} with

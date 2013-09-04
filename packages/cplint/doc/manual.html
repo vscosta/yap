@@ -7,7 +7,7 @@
 <meta name="originator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)"> 
 <!-- html --> 
 <meta name="src" content="manual.tex"> 
-<meta name="date" content="2013-09-04 21:08:00"> 
+<meta name="date" content="2013-09-04 21:32:00"> 
 <link rel="stylesheet" type="text/css" href="manual.css"> 
 </head><body 
 >
@@ -27,12 +27,12 @@ class="cmr-12">September 4, 2013</span></div>
  id="x1-10001"></a>Introduction</h3>
 <!--l. 31--><p class="noindent" ><span 
 class="cmtt-10">cplint </span>is a suite of programs for reasoning with ICL <span class="cite">[<a 
-href="#XDBLP:journals/ai/Poole97">14</a>]</span>, LPADs <span class="cite">[<a 
-href="#XVenVer03-TR">23</a>,&#x00A0;<a 
-href="#XVenVer04-ICLP04-IC">24</a>]</span> and
+href="#XDBLP:journals/ai/Poole97">15</a>]</span>, LPADs <span class="cite">[<a 
+href="#XVenVer03-TR">24</a>,&#x00A0;<a 
+href="#XVenVer04-ICLP04-IC">25</a>]</span> and
 CP-logic programs <span class="cite">[<a 
-href="#XVenDenBru-JELIA06">21</a>,&#x00A0;<a 
-href="#XDBLP:journals/tplp/VennekensDB09">22</a>]</span>. It contains programs both for inference and
+href="#XVenDenBru-JELIA06">22</a>,&#x00A0;<a 
+href="#XDBLP:journals/tplp/VennekensDB09">23</a>]</span>. It contains programs both for inference and
 learning.
 <!--l. 33--><p class="noindent" >
    <h3 class="sectionHead"><span class="titlemark">2   </span> <a 
@@ -121,7 +121,7 @@ h1:1&#x00A0;:-&#x00A0;b1,...,bm,\+&#x00A0;c1,...,\+&#x00A0;cl.
 </div>
 <!--l. 83--><p class="nopar" >
 <!--l. 85--><p class="indent" >   The coin example of <span class="cite">[<a 
-href="#XVenVer04-ICLP04-IC">24</a>]</span> is represented as (see file <span 
+href="#XVenVer04-ICLP04-IC">25</a>]</span> is represented as (see file <span 
 class="cmtt-10">coin.cpl</span>)
 
    <div class="verbatim" id="verbatim-7">
@@ -169,13 +169,13 @@ class="cmtt-10">cplint </span>contains various modules for answering queries.
      <ul class="itemize1">
      <li class="itemize"><span 
 class="cmtt-10">lpadsld.pl</span>: uses the top-down procedure described in in <span class="cite">[<a 
-href="#XRig-AIIA07-IC">15</a>]</span> and <span class="cite">[<a 
-href="#XRig-RCRA07-IC">16</a>]</span>. It
+href="#XRig-AIIA07-IC">16</a>]</span> and <span class="cite">[<a 
+href="#XRig-RCRA07-IC">17</a>]</span>. It
      is based on SLDNF resolution and is an adaptation of the interpreter for
      ProbLog <span class="cite">[<a 
-href="#XDBLP:conf/ijcai/RaedtKT07">10</a>]</span>.
+href="#XDBLP:conf/ijcai/RaedtKT07">11</a>]</span>.
      <!--l. 130--><p class="noindent" >It was proved correct <span class="cite">[<a 
-href="#XRig-RCRA07-IC">16</a>]</span> with respect to the semantics of LPADs for
+href="#XRig-RCRA07-IC">17</a>]</span> with respect to the semantics of LPADs for
      range restricted acyclic programs <span class="cite">[<a 
 href="#XDBLP:journals/ngc/AptB91">1</a>]</span> without function symbols.
      <!--l. 132--><p class="noindent" >It is also able to deal with extensions of LPADs and CP-logic: the clause
@@ -188,8 +188,8 @@ class="cmtt-10">setof </span>or <span
 class="cmtt-10">bagof </span>operator.
      These  extended  features  have  been  introduced  in  order  to  represent
      CLP(BN) <span class="cite">[<a 
-href="#XSanPagQaz03-UAI-IC">20</a>]</span> programs and PRM models <span class="cite">[<a 
-href="#XGetoor+al:JMLR02">13</a>]</span>: <span 
+href="#XSanPagQaz03-UAI-IC">21</a>]</span> programs and PRM models <span class="cite">[<a 
+href="#XGetoor+al:JMLR02">14</a>]</span>: <span 
 class="cmtt-10">setof </span>and <span 
 class="cmtt-10">bagof </span>allow to
      express dependency of an attribute from an aggregate function of another
@@ -199,7 +199,7 @@ class="cmtt-10">bagof </span>allow to
      </li>
      <li class="itemize"><span 
 class="cmtt-10">picl.pl</span>: performs inference on ICL programs <span class="cite">[<a 
-href="#XRig09-LJIGPL-IJ">17</a>]</span>
+href="#XRig09-LJIGPL-IJ">18</a>]</span>
      </li>
      <li class="itemize"><span 
 class="cmtt-10">lpad.pl</span>: uses a top-down procedure based on SLG resolution <span class="cite">[<a 
@@ -238,7 +238,7 @@ href="#XBraRig10-ILP10-IC">8</a>]</span>
          <li class="itemize"><span 
 class="cmtt-10">mcintyre.pl</span>: implements the algorithm MCINTYRE (Monte Carlo
          INference wiTh Yap REcord) <span class="cite">[<a 
-href="#XRig11-CILC11-NC">18</a>]</span></li></ul>
+href="#XRig11-CILC11-NC">19</a>]</span></li></ul>
      </li>
      <li class="itemize"><span 
 class="cmtt-10">approx/exact.pl </span>as <span 
@@ -276,7 +276,7 @@ class="cmmi-10">P</span>, i.e.,
      sufficient causation, independent causation, no deus ex machina events
      and temporal precedence. It uses the definition of the semantics given in
      <span class="cite">[<a 
-href="#XDBLP:journals/tplp/VennekensDB09">22</a>]</span>.</li></ul>
+href="#XDBLP:journals/tplp/VennekensDB09">23</a>]</span>.</li></ul>
 <!--l. 159--><p class="noindent" >
    <h4 class="subsectionHead"><span class="titlemark">4.1   </span> <a 
  id="x1-50004.1"></a>Commands</h4>
@@ -827,44 +827,44 @@ class="cmtt-10">examples</span>:
          <li class="itemize"><span 
 class="cmtt-10">alarm.cpl</span>: representation of the Bayesian network in Figure 2 of
          <span class="cite">[<a 
-href="#XVenVer04-ICLP04-IC">24</a>]</span>.
+href="#XVenVer04-ICLP04-IC">25</a>]</span>.
          </li>
          <li class="itemize"><span 
 class="cmtt-10">coin.cpl</span>: coin example from <span class="cite">[<a 
-href="#XVenVer04-ICLP04-IC">24</a>]</span>.
+href="#XVenVer04-ICLP04-IC">25</a>]</span>.
          </li>
          <li class="itemize"><span 
 class="cmtt-10">coin2.cpl</span>: coin example with two coins.
          </li>
          <li class="itemize"><span 
 class="cmtt-10">dice.cpl</span>: dice example from <span class="cite">[<a 
-href="#XVenVer04-ICLP04-IC">24</a>]</span>.
+href="#XVenVer04-ICLP04-IC">25</a>]</span>.
 
          </li>
          <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">twosideddice.cpl,</span><span 
 class="cmtt-10">&#x00A0;threesideddice.cpl</span></span></span> game with idealized dice
          with two or three sides. Used in the experiments in <span class="cite">[<a 
-href="#XRig-RCRA07-IC">16</a>]</span>.
+href="#XRig-RCRA07-IC">17</a>]</span>.
          </li>
          <li class="itemize"><span 
 class="cmtt-10">ex.cpl</span>: first example in <span class="cite">[<a 
-href="#XRig-RCRA07-IC">16</a>]</span>.
+href="#XRig-RCRA07-IC">17</a>]</span>.
          </li>
          <li class="itemize"><span 
 class="cmtt-10">exapprox.cpl</span>:  example  showing  the  problems  of  approximate
          inference (see <span class="cite">[<a 
-href="#XRig-RCRA07-IC">16</a>]</span>).
+href="#XRig-RCRA07-IC">17</a>]</span>).
          </li>
          <li class="itemize"><span 
 class="cmtt-10">exrange.cpl</span>:  example  showing  the  problems  with  non  range
          restricted programs (see <span class="cite">[<a 
-href="#XRig-RCRA07-IC">16</a>]</span>).
+href="#XRig-RCRA07-IC">17</a>]</span>).
          </li>
          <li class="itemize"><span 
 class="cmtt-10">female.cpl</span>: example showing the dependence of probabilities in the
          head from variables in the body (from <span class="cite">[<a 
-href="#XVenVer04-ICLP04-IC">24</a>]</span>).
+href="#XVenVer04-ICLP04-IC">25</a>]</span>).
          </li>
          <li class="itemize"><span 
 class="cmtt-10">mendel.cpl, mendels.cpl</span>:  programs  describing  the  Mendelian
@@ -875,7 +875,7 @@ href="#XBlo04-ILP04WIP-IC">7</a>]</span>.
 class="cmtt-10">paper_ref.cpl,</span><span 
 class="cmtt-10">&#x00A0;paper_ref_simple.cpl</span></span></span>: paper citations examples,
          showing reference uncertainty, inspired by <span class="cite">[<a 
-href="#XGetoor+al:JMLR02">13</a>]</span>.
+href="#XGetoor+al:JMLR02">14</a>]</span>.
          </li>
          <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">paper_ref_not.cpl</span></span></span>: paper citations example showing that negation
@@ -895,13 +895,13 @@ class="cmtt-10">school.cpl</span>.
          </li>
          <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">student.cpl</span></span></span>: student example from Figure 1.3 of <span class="cite">[<a 
-href="#XGetFri01-BC">12</a>]</span>.
+href="#XGetFri01-BC">13</a>]</span>.
          </li>
          <li class="itemize"><span 
 class="cmtt-10">win.cpl, light.cpl, trigger.cpl, throws.cpl, hiv.cpl,</span><br 
 class="newline" /> <span 
 class="cmtt-10">invalid.cpl</span>: programs taken from <span class="cite">[<a 
-href="#XDBLP:journals/tplp/VennekensDB09">22</a>]</span>. <span 
+href="#XDBLP:journals/tplp/VennekensDB09">23</a>]</span>. <span 
 class="cmtt-10">invalid.cpl </span>is an example
          of a program that is invalid but sound.</li></ul>
      <!--l. 432--><p class="noindent" >The files <span 
@@ -922,11 +922,11 @@ class="cmtt-10">cplint </span>contains the following learning algorithms:
 class="cmtt-10">cplint </span>EM): an implementation of EM for learning parameters
      that is based on <span 
 class="cmtt-10">lpadsld.pl </span><span class="cite">[<a 
-href="#XRigDiM11-ML-IJ">19</a>]</span>
+href="#XRigDiM11-ML-IJ">20</a>]</span>
      </li>
      <li class="itemize">RIB  (Relational  Information  Bottleneck):  an  algorithm  for  learning
      parameters based on the Information Bottleneck <span class="cite">[<a 
-href="#XRigDiM11-ML-IJ">19</a>]</span>
+href="#XRigDiM11-ML-IJ">20</a>]</span>
      </li>
      <li class="itemize">EMBLEM  (EM  over  Bdds  for  probabilistic  Logic  programs  Efficient
      Mining): an implementation of EM for learning parameters that computes
@@ -1253,7 +1253,7 @@ class="cmtt-10">logsize_fraction</span></span></span> times its maximum
 class="cmsy-10">|</span><span 
 class="cmmi-10">CH,T</span><span 
 class="cmsy-10">|</span>, see <span class="cite">[<a 
-href="#XDBLP:journals/jmlr/ElidanF05">11</a>]</span>)
+href="#XDBLP:journals/jmlr/ElidanF05">12</a>]</span>)
      </li>
      <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">delta</span></span></span> (values: negative integer, default value -10, valid for RIB): value
@@ -1263,7 +1263,7 @@ class="cmtt-10">delta</span></span></span> (values: negative integer, default va
 class="cmtt-10">epsilon_fraction</span></span></span> (values:  integer,  default  value  100,  valid  for  RIB):
      in  the  computation  of  the  step,  the  value  of  <span 
 class="cmmi-10">&#x03F5; </span>of  <span class="cite">[<a 
-href="#XDBLP:journals/jmlr/ElidanF05">11</a>]</span>  is  obtained  as
+href="#XDBLP:journals/jmlr/ElidanF05">12</a>]</span>  is  obtained  as
      log <span 
 class="cmsy-10">|</span><span 
 class="cmmi-10">CH,T</span><span 
@@ -1334,69 +1334,74 @@ class="cmtt-10">max_iter_structure</span></span></span>  (values:   integer,   d
      </li>
      <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">background_clauses</span></span></span>  (values:   integer,   default   value:   50,   valid   for
-     SLIPCOVER): maximum numbers of background clauses.</li></ul>
-<!--l. 631--><p class="noindent" >
+     SLIPCOVER): maximum numbers of background clauses
+     </li>
+     <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">maxdepth_var</span></span></span> (values: integer, default value: 2, valid for SLIPCOVER):
+     maximum depth of variables in clauses (as defined in <span class="cite">[<a 
+href="#XDBLP:journals/ai/Cohen95">10</a>]</span>).</li></ul>
+<!--l. 633--><p class="noindent" >
    <h4 class="subsectionHead"><span class="titlemark">5.3   </span> <a 
  id="x1-130005.3"></a>Commands</h4>
-<!--l. 632--><p class="noindent" >To execute CEM, load <span 
+<!--l. 634--><p class="noindent" >To execute CEM, load <span 
 class="cmtt-10">em.pl </span>with
 
    <div class="verbatim" id="verbatim-54">
 ?:-&#x00A0;use_module(library(&#8217;cplint/em&#8217;)).
 </div>
-<!--l. 635--><p class="nopar" > and call:
+<!--l. 637--><p class="nopar" > and call:
 
    <div class="verbatim" id="verbatim-55">
 ?:-&#x00A0;em(stem).
 </div>
-<!--l. 639--><p class="nopar" > To execute RIB, load <span 
+<!--l. 641--><p class="nopar" > To execute RIB, load <span 
 class="cmtt-10">rib.pl </span>with
 
    <div class="verbatim" id="verbatim-56">
 ?:-&#x00A0;use_module(library(&#8217;cplint/rib&#8217;)).
 </div>
-<!--l. 643--><p class="nopar" > and call:
+<!--l. 645--><p class="nopar" > and call:
 
    <div class="verbatim" id="verbatim-57">
 ?:-&#x00A0;ib_par(stem).
 </div>
-<!--l. 647--><p class="nopar" > To execute EMBLEM, load <span 
+<!--l. 649--><p class="nopar" > To execute EMBLEM, load <span 
 class="cmtt-10">slipcase.pl </span>with
 
    <div class="verbatim" id="verbatim-58">
 ?:-&#x00A0;use_module(library(&#8217;cplint/slipcase&#8217;)).
 </div>
-<!--l. 651--><p class="nopar" > and call
+<!--l. 653--><p class="nopar" > and call
 
    <div class="verbatim" id="verbatim-59">
 ?:-&#x00A0;em(stem).
 </div>
-<!--l. 655--><p class="nopar" > To execute SLIPCASE, load <span 
+<!--l. 657--><p class="nopar" > To execute SLIPCASE, load <span 
 class="cmtt-10">slipcase.pl </span>with
 
    <div class="verbatim" id="verbatim-60">
 ?:-&#x00A0;use_module(library(&#8217;cplint/slipcase&#8217;)).
 </div>
-<!--l. 659--><p class="nopar" > and call
+<!--l. 661--><p class="nopar" > and call
 
    <div class="verbatim" id="verbatim-61">
 ?:-&#x00A0;sl(stem).
 </div>
-<!--l. 663--><p class="nopar" > To execute SLIPCOVER, load <span 
+<!--l. 665--><p class="nopar" > To execute SLIPCOVER, load <span 
 class="cmtt-10">slipcover.pl </span>with
 
    <div class="verbatim" id="verbatim-62">
 ?:-&#x00A0;use_module(library(&#8217;cplint/slipcover&#8217;)).
 </div>
-<!--l. 667--><p class="nopar" > and call
+<!--l. 669--><p class="nopar" > and call
 
    <div class="verbatim" id="verbatim-63">
 ?:-&#x00A0;sl(stem).
 </div>
-<!--l. 671--><p class="nopar" >
+<!--l. 673--><p class="nopar" >
    <h4 class="subsectionHead"><span class="titlemark">5.4   </span> <a 
  id="x1-140005.4"></a>Learning Examples</h4>
-<!--l. 673--><p class="noindent" >The subfolders <span class="obeylines-h"><span class="verb"><span 
+<!--l. 675--><p class="noindent" >The subfolders <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">em</span></span></span>, <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">rib</span></span></span>, <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">slipcase</span></span></span> and <span class="obeylines-h"><span class="verb"><span 
@@ -1404,22 +1409,22 @@ class="cmtt-10">slipcover</span></span></span> of the <span class="obeylines-h">
 class="cmtt-10">packages/cplint</span></span></span> folder in
 Yap git distribution contain examples of input and output files for the learning
 algorithms.
-<!--l. 676--><p class="noindent" >
+<!--l. 678--><p class="noindent" >
    <h3 class="sectionHead"><span class="titlemark">6   </span> <a 
  id="x1-150006"></a>License</h3>
-<!--l. 681--><p class="noindent" ><span 
+<!--l. 683--><p class="noindent" ><span 
 class="cmtt-10">cplint</span>, as Yap, follows the Artistic License 2.0 that you can find in Yap CVS root
 dir. The copyright is by Fabrizio Riguzzi.
-<!--l. 684--><p class="indent" >   The modules in the approx subdirectory use SimplecuddLPADs, a modification of
+<!--l. 686--><p class="indent" >   The modules in the approx subdirectory use SimplecuddLPADs, a modification of
 the <a 
 href="http://dtai.cs.kuleuven.be/problog/download.html" > Simplecudd </a> library whose copyright is by Katholieke Universiteit Leuven and
 that follows the Artistic License 2.0.
-<!--l. 687--><p class="indent" >   Some modules use the library <a 
+<!--l. 689--><p class="indent" >   Some modules use the library <a 
 href="http://vlsi.colorado.edu/~fabio/" > CUDD </a> for manipulating BDDs that is included in
 glu. For the use of CUDD, the following license must be accepted:
-<!--l. 692--><p class="indent" >   Copyright (c) 1995-2004, Regents of the University of Colorado
-<!--l. 694--><p class="indent" >   All rights reserved.
-<!--l. 696--><p class="indent" >   Redistribution and use in source and binary forms, with or without modification,
+<!--l. 694--><p class="indent" >   Copyright (c) 1995-2004, Regents of the University of Colorado
+<!--l. 696--><p class="indent" >   All rights reserved.
+<!--l. 698--><p class="indent" >   Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:
      <ul class="itemize1">
      <li class="itemize">Redistributions of source code must retain the above copyright notice, this
@@ -1433,7 +1438,7 @@ are permitted provided that the following conditions are met:
      contributors may be used to endorse or promote products derived from
      this software without specific prior written permission.</li></ul>
 
-<!--l. 713--><p class="noindent" >THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS <br 
+<!--l. 715--><p class="noindent" >THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS <br 
 class="newline" />AND CONTRIBUTORS &#8221;AS IS&#8221; AND ANY EXPRESS OR IMPLIED
 WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
@@ -1447,7 +1452,7 @@ class="newline" />AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-<!--l. 727--><p class="indent" >   <span 
+<!--l. 729--><p class="indent" >   <span 
 class="cmtt-10">lpad.pl</span>, <span 
 class="cmtt-10">semlpad.pl </span>and <span 
 class="cmtt-10">cpl.pl </span>are based on the SLG system by Weidong
@@ -1534,29 +1539,36 @@ class="cmti-10">Journal of the ACM</span>, 43(1):20&#8211;74, 1996.
     </p>
     <p class="bibitem" ><span class="biblabel">
  [10]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
+ id="XDBLP:journals/ai/Cohen95"></a>William&#x00A0;W. Cohen.  Pac-learning non-recursive prolog clauses.  <span 
+class="cmti-10">Artif.</span>
+    <span 
+class="cmti-10">Intell.</span>, 79(1):1&#8211;38, 1995.
+    </p>
+    <p class="bibitem" ><span class="biblabel">
+ [11]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
  id="XDBLP:conf/ijcai/RaedtKT07"></a>L.&#x00A0;De&#x00A0;Raedt, A.&#x00A0;Kimmig, and H.&#x00A0;Toivonen. ProbLog: A probabilistic
     Prolog  and  its  application  in  link  discovery.    In  <span 
 class="cmti-10">International  Joint</span>
     <span 
 class="cmti-10">Conference on Artificial Intelligence</span>, pages 2462&#8211;2467, 2007.
-    </p>
-    <p class="bibitem" ><span class="biblabel">
- [11]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
- id="XDBLP:journals/jmlr/ElidanF05"></a>G.&#x00A0;Elidan and N.&#x00A0;Friedman.  Learning hidden variable networks: The
-    information bottleneck approach.  <span 
-class="cmti-10">Journal of Machine Learning Research</span>,
-    6:81&#8211;127, 2005.
 
     </p>
     <p class="bibitem" ><span class="biblabel">
  [12]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
+ id="XDBLP:journals/jmlr/ElidanF05"></a>G.&#x00A0;Elidan and N.&#x00A0;Friedman.  Learning hidden variable networks: The
+    information bottleneck approach.  <span 
+class="cmti-10">Journal of Machine Learning Research</span>,
+    6:81&#8211;127, 2005.
+    </p>
+    <p class="bibitem" ><span class="biblabel">
+ [13]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
  id="XGetFri01-BC"></a>L.&#x00A0;Getoor,   N.&#x00A0;Friedman,   D.&#x00A0;Koller,   and   A.&#x00A0;Pfeffer.      Learning
     probabilistic relational models. In Saso Dzeroski and Nada Lavrac, editors,
     <span 
 class="cmti-10">Relational Data Mining</span>. Springer-Verlag, Berlin, 2001.
     </p>
     <p class="bibitem" ><span class="biblabel">
- [13]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
+ [14]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
  id="XGetoor+al:JMLR02"></a>L.&#x00A0;Getoor,   N.&#x00A0;Friedman,   D.&#x00A0;Koller,   and   B.&#x00A0;Taskar.      Learning
     probabilistic models of relational structure.  <span 
 class="cmti-10">Journal of Machine Learning</span>
@@ -1564,13 +1576,13 @@ class="cmti-10">Journal of Machine Learning</span>
 class="cmti-10">Research</span>, 3:679&#8211;707, December 2002.
     </p>
     <p class="bibitem" ><span class="biblabel">
- [14]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
+ [15]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
  id="XDBLP:journals/ai/Poole97"></a>David Poole. The independent choice logic for modelling multiple agents
     under uncertainty. <span 
 class="cmti-10">Artificial Intelligence</span>, 94(1-2):7&#8211;56, 1997.
     </p>
     <p class="bibitem" ><span class="biblabel">
- [15]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
+ [16]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
  id="XRig-AIIA07-IC"></a>Fabrizio Riguzzi.  A top down interpreter for LPAD and CP-logic.  In
     <span 
 class="cmti-10">Congress of the Italian Association for Artificial Intelligence</span>, volume 4733
@@ -1578,7 +1590,7 @@ class="cmti-10">Congress of the Italian Association for Artificial Intelligence<
 class="cmti-10">LNAI</span>, pages 109&#8211;120. Springer, 2007.
     </p>
     <p class="bibitem" ><span class="biblabel">
- [16]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
+ [17]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
  id="XRig-RCRA07-IC"></a>Fabrizio  Riguzzi.   A  top  down  interpreter  for  LPAD  and  CP-logic.
     In <span 
 class="cmti-10">Proceedings of the 14th RCRA workshop Experimental Evaluation of</span>
@@ -1586,13 +1598,13 @@ class="cmti-10">Proceedings of the 14th RCRA workshop Experimental Evaluation of
 class="cmti-10">Algorithms for Solving Problems with Combinatorial Explosion</span>, 2007.
     </p>
     <p class="bibitem" ><span class="biblabel">
- [17]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
+ [18]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
  id="XRig09-LJIGPL-IJ"></a>Fabrizio Riguzzi. Extended semantics and inference for the Independent
     Choice Logic. <span 
 class="cmti-10">Logic Journal of the IGPL</span>, 17(6):589&#8211;629, 2009.
     </p>
     <p class="bibitem" ><span class="biblabel">
- [18]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
+ [19]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
  id="XRig11-CILC11-NC"></a>Fabrizio  Riguzzi.     MCINTYRE:  A  Monte  Carlo  algorithm  for
     probabilistic  logic  programming.    In  <span 
 class="cmti-10">Proceedings  of  the  26th  Italian</span>
@@ -1600,17 +1612,17 @@ class="cmti-10">Proceedings  of  the  26th  Italian</span>
 class="cmti-10">Conference  on  Computational  Logic  (CILC2011),  Pescara,  Italy,  31</span>
     <span 
 class="cmti-10">August-2 September, 2011</span>, 2011.
-    </p>
-    <p class="bibitem" ><span class="biblabel">
- [19]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
- id="XRigDiM11-ML-IJ"></a>Fabrizio  Riguzzi  and  Nicola&#x00A0;Di  Mauro.   Applying  the  information
-    bottleneck to statistical relational learning.  <span 
-class="cmti-10">Machine Learning</span>, 2011.  To
-    appear.
 
     </p>
     <p class="bibitem" ><span class="biblabel">
  [20]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
+ id="XRigDiM11-ML-IJ"></a>Fabrizio  Riguzzi  and  Nicola&#x00A0;Di  Mauro.   Applying  the  information
+    bottleneck to statistical relational learning.  <span 
+class="cmti-10">Machine Learning</span>, 2011.  To
+    appear.
+    </p>
+    <p class="bibitem" ><span class="biblabel">
+ [21]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
  id="XSanPagQaz03-UAI-IC"></a>V.&#x00A0;Santos&#x00A0;Costa,  D.&#x00A0;Page,  M.&#x00A0;Qazi,  and  J.&#x00A0;Cussens.    CLP(<span 
 class="cmsy-10"><img 
 src="cmsy10-42.png" alt="B" class="10x-x-42" /><img 
@@ -1621,7 +1633,7 @@ class="cmti-10">Uncertainty</span>
 class="cmti-10">in Artificial Intelligence</span>. Morgan Kaufmann, 2003.
     </p>
     <p class="bibitem" ><span class="biblabel">
- [21]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
+ [22]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
  id="XVenDenBru-JELIA06"></a>J.&#x00A0;Vennekens, M.&#x00A0;Denecker, and M.&#x00A0;Bruynooghe. Representing causal
     information  about  a  probabilistic  process.   In  <span 
 class="cmti-10">Proceedings  of  the  10th</span>
@@ -1630,19 +1642,19 @@ class="cmti-10">European Conference on Logics in Artificial Intelligence</span>,
     September 2006.
     </p>
     <p class="bibitem" ><span class="biblabel">
- [22]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
+ [23]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
  id="XDBLP:journals/tplp/VennekensDB09"></a>J.&#x00A0;Vennekens,  Marc  Denecker,  and  Maurice  Bruynooghe.   CP-logic:
     A  language  of  causal  probabilistic  events  and  its  relation  to  logic
     programming. <span 
 class="cmti-10">Theory Pract. Log. Program.</span>, 9(3):245&#8211;308, 2009.
     </p>
     <p class="bibitem" ><span class="biblabel">
- [23]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
+ [24]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
  id="XVenVer03-TR"></a>J.&#x00A0;Vennekens  and  S.&#x00A0;Verbaeten.    Logic  programs  with  annotated
     disjunctions. Technical Report CW386, K. U. Leuven, 2003.
     </p>
     <p class="bibitem" ><span class="biblabel">
- [24]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
+ [25]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
  id="XVenVer04-ICLP04-IC"></a>J.&#x00A0;Vennekens,  S.&#x00A0;Verbaeten,  and  M.&#x00A0;Bruynooghe.   Logic  programs
     with  annotated  disjunctions.     In  <span 
 class="cmti-10">International  Conference  on  Logic</span>
