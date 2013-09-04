@@ -195,6 +195,9 @@ class PredGenerator(DeclsLoader):
             "VarBranchOptions",
             "ValBranchOptions",
             "TieBreakVarBranch<IntVarBranch>",
+            "TieBreak<IntVarBranch>",
+            "TieBreak<FloatVarBranch>",
+            "TieBreak<SetVarBranch>",
             "TieBreakVarBranchOptions",
             "TieBreakVarBranch<SetVarBranch>")
 
@@ -616,16 +619,21 @@ class CCDescriptor(object):
         print "{"
         i = 1
         args = []
+        has_space = False
         for t in self.argtypes:
             v = "X%d" % i
             a = "YAP_ARG%d" % i
             if t=="Space":
                 v = "*space"
                 print "  GenericSpace* space = gecode_Space_from_term(%s);" % a
+                has_space = True
             else:
                 extra = ""
-                if t in ("IntVar","BoolVar","SetVar","IntVarArgs","BoolVarArgs","SetVarArgs"):
+                if t in ("IntVar","BoolVar","SetVar","FloatVar","IntVarArgs","BoolVarArgs","SetVarArgs","FloatVarArgs"):
                     extra = "space,"
+                    if has_space == False:
+                        print "  GenericSpace* space = gecode_Space_from_term(%s);" % a
+                        has_space = True
                 print "  %s %s = gecode_%s_from_term(%s%s);" % (t,v,t,extra,a)
             args.append(v)
             i += 1

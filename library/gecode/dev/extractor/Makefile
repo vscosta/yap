@@ -9,6 +9,8 @@ all: $(PROTOTYPES) $(ENUMS)
 $(PROTOTYPES): % : xml/namespaceGecode.xml extract-prototypes.xsl
 	cat notice.hh > $@ || { rm -f $@; exit 1; }
 	xsltproc extract-prototypes.xsl $<  \
+	| grep EXPORT \
+	| grep -v Symmetry \
 	| sed 's/Gecode:://g' \
 	| sed 's/< /</g' \
 	| sed 's/ >/>/g' \
@@ -16,6 +18,7 @@ $(PROTOTYPES): % : xml/namespaceGecode.xml extract-prototypes.xsl
 	| sed 's/, /,/g' \
 	| sed 's/forceinline //g' \
 	| sed 's/GECODE_INT_EXPORT //g' \
+	| sed 's/GECODE_FLOAT_EXPORT //g' \
 	| sed 's/GECODE_SET_EXPORT //g' \
 	| grep -v '*' | sort >> $@ || { rm -f $@; exit 1; }
 

@@ -133,6 +133,8 @@ return 0;
      ;;
    esac
 fi
+GECODE_MAJOR=`echo $GECODE_VERSION| sed 's/\(^.\).*/\1/'`
+AC_SUBST(GECODE_MAJOR)
 
 AC_ARG_ENABLE(tabling,
 	[ --enable-tabling           support tabling ],
