@@ -599,6 +599,17 @@ extern "C"
     return YAP_Unify(ivar, y_i);
   }
 
+  static int gecode_new_floatvar_from_bounds(void)
+  {
+    YAP_Term ivar = YAP_ARG1;
+    GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
+    double lo = YAP_FloatOfTerm(YAP_ARG3);
+    double hi = YAP_FloatOfTerm(YAP_ARG4);
+    int i = space->new_fvar(lo, hi);
+    YAP_Term y_i = YAP_MkIntTerm(i);
+    return YAP_Unify(ivar, y_i);
+  }
+
   static int
   gecode_list_length(YAP_Term l)
   {
@@ -1707,6 +1718,8 @@ extern "C"
 		       gecode_new_intvar_from_bounds, 4);
     YAP_UserCPredicate("gecode_new_intvar_from_intset",
 		       gecode_new_intvar_from_intset, 3);
+    YAP_UserCPredicate("gecode_new_floatvar_from_bounds",
+		       gecode_new_floatvar_from_bounds, 4);
     YAP_UserCPredicate("gecode_new_boolvar", gecode_new_boolvar, 2);
     YAP_UserCPredicate("gecode_new_setvar_1", gecode_new_setvar_1, 8);
     YAP_UserCPredicate("gecode_new_setvar_2", gecode_new_setvar_2, 7);

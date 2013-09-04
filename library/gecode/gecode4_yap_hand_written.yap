@@ -410,6 +410,14 @@ new_intvar(IVar, Space, IntSet) :- !,
 	gecode_new_intvar_from_intset(Idx,Space_,L),
 	IVar='IntVar'(Idx,-1).
 
+new_floatvar(FVar, Space, Lo, Hi) :- !,
+	assert_var(IVar),
+	assert_is_Space_or_Clause(Space,Space_),
+	assert_float(Lo),
+	assert_float(Hi),
+	gecode_new_floatvar_from_bounds(Idx,Space_,Lo,Hi),
+	FVar='FloatVar'(Idx,-1).
+
 new_boolvar(BVar, Space) :- !,
 	assert_var(BVar),
 	assert_is_Space_or_Clause(Space,Space_),
