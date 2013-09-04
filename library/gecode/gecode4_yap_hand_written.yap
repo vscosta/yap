@@ -43,9 +43,9 @@ is_IntVarBranch_('IntVarBranch'(I,K),N) :-
     integer(K),
     nb_getval(gecode_space_use_keep_index,B),
     (B=true -> N=K ; N=I).
-is_FloatVar_('IntVar'(I,K),N) :-
-    float(I),
-    float(K),
+is_FloatVar_('FloatVar'(I,K),N) :-
+    integer(I),
+    integer(K),
     nb_getval(gecode_space_use_keep_index,B),
     (B=true -> N=K ; N=I).
 is_BoolVar_('BoolVar'(I,K),N) :-
@@ -144,6 +144,8 @@ assert_var(X,Y) :-
 	var(X) -> X=Y; throw(gecode_error(expected(var))).
 assert_is_int(X,Y) :-
 	integer(X) -> X=Y ; throw(gecode_error(expected(int))).
+assert_is_float(X,Y) :-
+	float(X) -> X=Y ; throw(gecode_error(expected(int))).
 assert_is_Space(X,Y) :-
 	is_Space(X,Y) -> true ; throw(gecode_error(expected(space))).
 assert_is_IntSet(X,Y) :-
@@ -173,6 +175,7 @@ assert_is_ReifyMode(X,Y) :-
 
 assert_var(X) :- assert_var(X,_).
 assert_is_int(X) :- assert_is_int(X,_).
+assert_is_float(X) :- assert_is_float(X,_).
 assert_is_Space(X) :- assert_is_Space(X,_).
 assert_is_IntSet(X) :- assert_is_IntSet(X,_).
 assert_is_IntVar(X) :- assert_is_IntVar(X,_).
