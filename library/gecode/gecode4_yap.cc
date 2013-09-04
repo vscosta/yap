@@ -454,6 +454,8 @@ extern "C"
   static YAP_opaque_tag_t gecode_engine_tag;
   static YAP_opaque_handler_t gecode_engine_handler;
 
+  static RestartMode gecode_RestartMode_from_term(YAP_Term t);
+
   static int gecode_new_engine(void)
   {
     YAP_Term arg1 = YAP_ARG1;
@@ -463,10 +465,70 @@ extern "C"
     double threads = YAP_FloatOfTerm(YAP_ArgOfTerm(2, arg3));
     unsigned int c_d = YAP_IntOfTerm(YAP_ArgOfTerm(3, arg3));
     unsigned int a_d = YAP_IntOfTerm(YAP_ArgOfTerm(4, arg3));
+    unsigned int nogoods_limit = YAP_IntOfTerm(YAP_ArgOfTerm(6, arg3));
+    bool clone = ( YAP_IntOfTerm(YAP_ArgOfTerm(7, arg3)) == 0 ?  FALSE : TRUE );
+    RestartMode md;
+    YAP_Term t = YAP_ArgOfTerm(5, arg3);
+    if (YAP_IsAtomTerm(t)) {
+      md = gecode_RestartMode_from_term(t);
+    } else if (YAP_IsApplTerm(t)) {
+      md = gecode_RestartMode_from_term(YAP_MkAtomTerm(YAP_NameOfFunctor(YAP_FunctorOfTerm(t))));
+    } else {
+      cerr << "bad engine cutoff option" << endl; exit(1);
+    }
+    Search::Cutoff* cutoff;
+    YAP_Term t_s, t_b;
+    switch (md) {
+    case RM_CONSTANT:
+      YAP_Term t_a;
+      if (YAP_ArityOfFunctor(YAP_FunctorOfTerm(t)) == 1 &&
+	  YAP_IsIntTerm(t_a = YAP_ArgOfTerm(1,t))) {
+	unsigned long int a = YAP_IntOfTerm(t_a); 
+	cutoff = Search::Cutoff::constant(a);
+      } else {
+	cerr << "bad parameter for constant" << endl; exit(1);
+      }
+      break;
+    case RM_GEOMETRIC:
+      if (YAP_ArityOfFunctor(YAP_FunctorOfTerm(t)) == 2 &&
+	  YAP_IsIntTerm(t_s = YAP_ArgOfTerm(1,t)) &&
+	  YAP_IsIntTerm(t_b = YAP_ArgOfTerm(2,t))) {
+	unsigned long int s = YAP_IntOfTerm(t_s); 
+	unsigned long int b = YAP_IntOfTerm(t_b); 
+	cutoff = Search::Cutoff::geometric(s,b);
+      } else {
+	cerr << "bad parameter for geometric" << endl; exit(1);
+      }
+      break;
+    case RM_LUBY:
+      if (YAP_ArityOfFunctor(YAP_FunctorOfTerm(t)) == 1 &&
+	  YAP_IsIntTerm(t_s = YAP_ArgOfTerm(1,t))) {
+	unsigned long int s = YAP_IntOfTerm(t_s); 
+	cutoff = Search::Cutoff::luby(s);
+      } else {
+	cerr << "bad parameter for luby" << endl; exit(1);
+      }
+      break;
+    case RM_LINEAR:
+      if (YAP_ArityOfFunctor(YAP_FunctorOfTerm(t)) == 1 &&
+	  YAP_IsIntTerm(t_s = YAP_ArgOfTerm(1,t))) {
+	unsigned long int s = YAP_IntOfTerm(t_s); 
+	cutoff = Search::Cutoff::linear(s);
+      } else {
+	cerr << "bad parameter for linear" << endl; exit(1);
+      }
+      break;
+    default:
+      cutoff = NULL;
+    }
     Search::Options opt;
     opt.threads = threads;
     opt.c_d = c_d;
     opt.a_d = a_d;
+    opt.cutoff = cutoff;
+    opt.nogoods_limit = nogoods_limit;
+    opt.clone = clone;
+    opt.stop = NULL;
     GenericSpace* space = gecode_Space_from_term(arg1);
     GenericEngine* engine = space->new_engine(restart,opt);
     YAP_Term y_engine =

@@ -567,11 +567,15 @@ reify(Space,BVar,Mode,R) :-
 	gecode_new_reify(Space_,BVar_,Mode_,R_),
 	R = 'Reify'(R_).
 
-gecode_search_options_init(search_options(0,1.0,8,2)).
+gecode_search_options_init(search_options(0,1.0,8,2,'RM_NONE',0,0,0)).
 gecode_search_options_offset(restart,1).
 gecode_search_options_offset(threads,2).
 gecode_search_options_offset(c_d    ,3).
 gecode_search_options_offset(a_d    ,4).
+gecode_search_options_offset(cutoff, 5).
+gecode_search_options_offset(nogoods_limit, 6).
+gecode_search_options_offset(clone, 7).
+gecode_search_options_offset(stop, 8). % unimplemented
 
 gecode_search_option_set(O,V,R) :-
     gecode_search_options_offset(O,I),
@@ -601,6 +605,18 @@ gecode_search_options_process1(a_d=N,R) :- !,
     (integer(N) -> V=N
     ; throw(bad_search_option_value(a_d=N))),
     gecode_search_option_set(a_d,V,R).
+gecode_search_options_process1(cutoff=C,R) :- !,
+    (is_RestartMode(C,C_) -> V=C_
+    ; throw(bad_search_option_value(cutoff=C))),
+    gecode_search_option_set(cutoff,C_,R).
+gecode_search_options_process1(nogoods_limit=N,R) :- !,
+    (integer(N), N >= 0 -> V=N
+    ; throw(bad_search_option_value(nogoods_limit=N))),
+    gecode_search_option_set(nogoods_limit,N,R).
+gecode_search_options_process1(clone=N,R) :- !,
+    ((N == 0 ; N == 1)-> V=N
+    ; throw(bad_search_option_value(clone=N))),
+    gecode_search_option_set(clone,N,R).
 gecode_search_options_process1(O,_) :-
     throw(gecode_error(unrecognized_search_option(O))).
 
