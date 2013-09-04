@@ -218,9 +218,21 @@ CpFloatUnaligned(CELL *ptr)
 
 #if SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
 
-INLINE_ONLY inline EXTERN void AlignGlobalForDouble( USES_REGS1 );
-
 #define DOUBLE_ALIGNED(ADDR) ((CELL)(ADDR) & 0x4)
+
+INLINE_ONLY EXTERN inline void
+AlignGlobalForDouble( USES_REGS1 );
+
+INLINE_ONLY EXTERN inline void
+AlignGlobalForDouble( USES_REGS1 )
+{
+  /* Force Alignment for floats. Note that garbage collector may
+     break the alignment; */
+  if (!DOUBLE_ALIGNED(H)) {
+    RESET_VARIABLE(H);
+    H++;
+  }
+}
 
 #ifdef i386
 INLINE_ONLY inline EXTERN Float

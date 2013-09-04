@@ -165,6 +165,8 @@ VarOfTerm (Term t)
 
 #ifdef YAPOR_SBA
 
+#define RESET_VARIABLE(V)       (*(CELL *)(V) = 0)
+
 INLINE_ONLY inline EXTERN Term MkVarTerm__ ( USES_REGS1 );
 
 INLINE_ONLY inline EXTERN Term
@@ -185,6 +187,8 @@ IsUnboundVar (Term * t)
 
 
 #else
+
+#define RESET_VARIABLE(V)       (*(CELL *)(V) = Unsigned(V))
 
 INLINE_ONLY inline EXTERN Term MkVarTerm__ ( USES_REGS1 );
 
