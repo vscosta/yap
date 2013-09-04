@@ -439,7 +439,8 @@ The files \texttt{*.uni} that are present for some of the examples are used  by 
 \item CEM (\texttt{cplint} EM): an implementation of EM for learning parameters that is based on \texttt{lpadsld.pl} \cite{RigDiM11-ML-IJ}
 \item RIB (Relational Information Bottleneck): an algorithm for learning parameters based on the Information Bottleneck \cite{RigDiM11-ML-IJ}
 \item EMBLEM (EM over Bdds for probabilistic Logic programs Efficient Mining): an implementation of EM for learning parameters that computes expectations directly on BDDs \cite{BelRig11-IDA,BelRig11-CILC11-NC,BelRig11-TR}
-\item SLIPCASE (Structure LearnIng of ProbabilistiC logic progrAmS with Em over bdds): an algorithm for learning the structure of program that is based on EMBLEM \cite{BelRig11-ILP11-IC}
+\item SLIPCASE (Structure LearnIng of ProbabilistiC logic progrAmS with Em over bdds): an algorithm for learning the structure of programs by searching directly the theory space \cite{BelRig11-ILP11-IC}
+\item SLIPCOVER (Structure LearnIng of Probabilistic logic programs by searChing OVER the clause space): an algorithm for learning the structure of programs by searching the clause space and the theory space separatery \cite{BelRig13-TPLP-IJ}
 \end{itemize}
 
 \subsection{Input}
@@ -448,7 +449,7 @@ To execute the learning algorithms, prepare four files in the same folder:
 \item \texttt{<stem>.kb}: contains the example interpretations 
 \item \texttt{<stem>.bg}: contains the background knowledge, i.e., knowledge valid for all interpretations
 \item \texttt{<stem>.l}: contains language bias information
-\item \texttt{<stem>.cpl}: contains the LPAD for you which you want to learn the parameters or the initial LPAD for SLIPCASE
+\item \texttt{<stem>.cpl}: contains the LPAD for you which you want to learn the parameters or the initial LPAD for SLIPCASE. For SLIPCOVER, this file should be absent
 \end{itemize}
 where \texttt{<stem>} is your dataset name. Examples of these files can be found in the dataset pages.
 
@@ -503,7 +504,7 @@ For RIB, if there are unseen predicates, i.e., predicates that are present in th
 unseen(<predicate>/<arity>).
 \end{verbatim}
 
-For SLIPCASE, you have to specify the language bias by means of mode declarations in the style of 
+For SLIPCASE and SLIPCOVER, you have to specify the language bias by means of mode declarations in the style of 
 \href{http://www.doc.ic.ac.uk/\string ~shm/progol.html}{Progol}.
 \begin{verbatim}
 modeh(<recall>,<predicate>(<arg1>,...).
@@ -529,6 +530,16 @@ for specifying an output variable of type \texttt{<type>}. or
 \end{verbatim}
 for specifying a constant.
 
+SLIPCOVER also allows the arguments
+\begin{verbatim}
+#<type>
+\end{verbatim}
+for specifying an argument which should be replaced by a constant of type \texttt{<type>} in the bottom clause but should not be used for replacing input variables of the following literals or 
+\begin{verbatim}
+-#<type>
+\end{verbatim}
+for specifying an argument which should be replaced by a constant of type \texttt{<type>} in the bottom clause and that should be used for replacing input variables of the following literals. \verb|#| and \verb|-#| differ only in the creation of the bottom clause.
+
 An example of language bias for the UWCSE domain is
 \begin{verbatim}
 output(advisedby/2).
@@ -547,6 +558,31 @@ modeb(*,samecourse(+course, -course)).
 modeb(*,samecourse(-course, +course)). 
 ....
 \end{verbatim}
+SLIPCOVER also requires facts for the \verb|determination/2| predicate that indicate which predicates can appear in the body of clauses. 
+For example
+\begin{verbatim}
+determination(professor/1,student/1).
+determination(student/1,hasposition/2).
+\end{verbatim}
+state that \verb|student/1| can appear in the body of clauses for \verb|professor/1| and that \verb|hasposition/2| can appear in 
+the body of clauses for \verb|student/1|.
+
+SLIPCOVER also allows mode declarations of the form
+\begin{verbatim}
+modeh(<r>,[<s1>,...,<sn>],[<a1>,...,<an>],[<P1/Ar1>,...,<Pk/Ark>]). 
+\end{verbatim}
+These mode declarations are used to generate clauses with more than two head atoms. In them, \verb|<s1>,...,<sn>| are schemas,  \verb|<a1>,...,<an>| are atoms such that \verb|<ai>| is obtained from $\verb|<si>|$ by replacing placemarkers with variables, 
+\verb|<Pi/Ari>| are the predicates admitted in the body. \verb|<a1>,...,<an>| are used to indicate which variables should be shared by the atoms in the head.
+An example of such a mode declaration is
+\begin{verbatim}
+modeh(*,
+  [advisedby(+person,+person),tempadvisedby(+person,+person)],
+  [advisedby(A,B),tempadvisedby(A,B)],
+  [professor/1,student/1,hasposition/2,inphase/2,
+	  publication/2,taughtby/3,ta/3,courselevel/2,yearsinprogram/2]).
+\end{verbatim}
+
+
 
 \subsection{Parameters}
 In order to set the algorithms' parameters, you have to insert in \texttt{<stem>.l}  commands of the form
@@ -556,20 +592,17 @@ In order to set the algorithms' parameters, you have to insert in \texttt{<stem>
 The available parameters are:
 \begin{itemize}
 \item \verb|depth| (values: integer or \verb|inf|, default value: 3): depth of derivations if  \verb|depth_bound|  is set to \verb|true|
-\item \verb|single_var| (values: \verb|{true,false}|, default value: \verb|false|, valid for CEM, EMBLEM and SLIPCASE): if set to \verb|true|, there is a random variable for each clauses, instead of a separate random variable for each grounding of a clause
+\item \verb|single_var| (values: \verb|{true,false}|, default value: \verb|false|, valid for CEM, EMBLEM, SLIPCASE and SLIPCOVER): if set to \verb|true|, there is a random variable for each clauses, instead of a separate random variable for each grounding of a clause
 \item \verb|sample_size| (values: integer, default value: 1000): total number of examples in case in which the models in the \verb|.kb| file contain a \verb|prob(P).| fact. In that case, one model corresponds to \verb|sample_size*P| examples
-\item \verb|epsilon_em| (values: real, default value: 0.1, valid for CEM, EMBLEM and SLIPCASE): if the difference in the log likelihood in two successive EM iteration is smaller
+\item \verb|epsilon_em| (values: real, default value: 0.1, valid for CEM, EMBLEM, SLIPCASE and SLIPCOVER): if the difference in the log likelihood in two successive EM iteration is smaller
 than \verb|epsilon_em|, then EM stops 
-\item \verb|epsilon_em_fraction| (values: real, default value: 0.01, valid for CEM, EMBLEM and SLIPCASE): if the difference in the log likelihood in two successive EM iteration is smaller
+\item \verb|epsilon_em_fraction| (values: real, default value: 0.01, valid for CEM, EMBLEM, SLIPCASE and SLIPCOVER): if the difference in the log likelihood in two successive EM iteration is smaller
 than \verb|epsilon_em_fraction|*(-current log likelihood), then EM stops
-\item \verb|iter| (values: integer, defualt value: 1, valid for EMBLEM and SLIPCASE): maximum number of iteration of EM parameter learning. If set to -1, no maximum number of iterations is imposed
-\item \verb|iterREF| (values: integer, defualt value: 1, valid for  SLIPCASE):
+\item \verb|iter| (values: integer, defualt value: 1, valid for EMBLEM, SLIPCASE and SLIPCOVER): maximum number of iteration of EM parameter learning. If set to -1, no maximum number of iterations is imposed
+\item \verb|iterREF| (values: integer, defualt value: 1, valid for  SLIPCASE and SLIPCOVER):
  maximum number of iteration of EM parameter learning for refinements. If set to -1, no maximum number of iterations is imposed.
-
-\item \verb|random_restarts_number| (values: integer, default value: 1, valid for CEM, EMBLEM and SLIPCASE): number of random restarts of EM learning
-\item \verb|random_restarts_REFnumber| (values: integer, default value: 1, valid for  SLIPCASE): number of random restarts of EM learning for refinements
-
-
+\item \verb|random_restarts_number| (values: integer, default value: 1, valid for CEM, EMBLEM, SLIPCASE and SLIPCOVER): number of random restarts of EM learning
+\item \verb|random_restarts_REFnumber| (values: integer, default value: 1, valid for  SLIPCASE and SLIPCOVER): number of random restarts of EM learning for refinements
 \item \verb|setrand| (values: rand(integer,integer,integer)): seed for the random functions, see Yap manual for allowed values
 \item \verb|minimal_step| (values: [0,1], default value: 0.005, valid for RIB): minimal increment of $\gamma$
 \item \verb|maximal_step| (values: [0,1], default value: 0.1, valid for RIB): maximal increment of $\gamma$
@@ -577,15 +610,25 @@ than \verb|epsilon_em_fraction|*(-current log likelihood), then EM stops
 \item \verb|delta| (values: negative integer, default value -10, valid for RIB): value assigned to $\log 0$
 \item \verb|epsilon_fraction| (values: integer, default value 100, valid for RIB): in the computation of the step, the value of $\epsilon$ of \cite{DBLP:journals/jmlr/ElidanF05} is obtained as $\log |CH,T|\times$\verb|epsilon_fraction|
 \item \verb|max_rules| (values: integer, default value: 6000, valid for RIB and SLIPCASE): maximum number of ground rules. Used to set the size of arrays for storing internal statistics. Can be increased as much as memory allows.
-\item \verb|logzero| (values: negative real, default value $\log(0.000001)$, valid for SLIPCASE): value assigned to $\log 0$
+\item \verb|logzero| (values: negative real, default value $\log(0.000001)$, valid for SLIPCASE and SLIPCOVER): value assigned to $\log 0$
 \item \verb|examples| (values: \verb|atoms|,\verb|interpretations|, default value \verb|atoms|, valid for SLIPCASE): determines how BDDs are built: if set to \verb|interpretations|, a BDD for the conjunction of all the atoms for the target predicates in each interpretations is built. 
 If set to \verb|atoms|, a BDD is built for the conjunction of a group of atoms for the target predicates in each interpretations. The number of atoms in each group is determined by the parameter \verb|group|
 \item \verb|group| (values: integer, default value: 1, valid for SLIPCASE): number of target atoms in the groups that are used to build BDDs
-\item \verb|nax_iter| (values: integer, default value: 10, valid for SLIPCASE): number of interations of beam search
-\item \verb|max_var| (values: integer, default value: 1, valid for SLIPCASE): maximum number of distinct variables in a clause
+\item \verb|nax_iter| (values: integer, default value: 10, valid for SLIPCASE and SLIPCOVER): number of interations of beam search
+\item \verb|max_var| (values: integer, default value: 1, valid for SLIPCASE and SLIPCOVER): maximum number of distinct variables in a clause
 \item \verb|verbosity| (values: integer in [1,3], default value: 1): level of verbosity of the algorithms
-\item \verb|beamsize|  (values: integer, default value: 20, valid for SLIPCASE): size of the beam in SLIPCASE
- 
+\item \verb|beamsize|  (values: integer, default value: 20, valid for SLIPCASE and SLIPCOVER): size of the beam 
+\item \verb|megaex_bottom| (values: integer, default value: 1, valid for SLIPCOVER): number of mega-examples on which to build the bottom clauses
+\item \verb|initial_clauses_per_megaex| (values: integer, default value: 1, valid for SLIPCOVER): 
+ number of bottom clauses to build for each mega-example
+\item \verb|d| (values: integer, default value: 10000, valid for SLIPCOVER): 
+ number of saturation steps when building the bottom clause
+\item \verb|max_iter_structure| (values: integer, default value: 1, valid for SLIPCOVER): 
+maximum  number of theory search iterations
+\item \verb|background_clauses| (values: integer, default value: 50, valid for SLIPCOVER): 
+ maximum numbers of background clauses
+\item \verb|maxdepth_var| (values: integer, default value: 2, valid for SLIPCOVER): maximum depth of
+variables in clauses (as defined in \cite{DBLP:journals/ai/Cohen95}).
 \end{itemize}
 \subsection{Commands}
 To execute CEM, load \texttt{em.pl} with
@@ -620,8 +663,16 @@ and call
 \begin{verbatim}
 ?:- sl(stem).
 \end{verbatim}
+To execute SLIPCOVER, load \texttt{slipcover.pl} with
+\begin{verbatim}
+?:- use_module(library('cplint/slipcover')).
+\end{verbatim}
+and call
+\begin{verbatim}
+?:- sl(stem).
+\end{verbatim}
 \subsection{Learning Examples}
-The subfolders \verb|em|, \verb|rib| and \verb|slipcase| of the \verb|packages/cplint| folder in Yap git distribution
+The subfolders \verb|em|, \verb|rib|, \verb|slipcase| and \verb|slipcover| of the \verb|packages/cplint| folder in Yap git distribution
 contain examples of input and output files for the learning algorithms.
 
 \section{License}
