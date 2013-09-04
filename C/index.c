@@ -4545,7 +4545,7 @@ remove_dirty_clauses_from_index(yamop *header)
     endop = Yap_opcode(_count_trust_logical);
   else if (ap->PredFlags & ProfiledPredFlag)
     endop = Yap_opcode(_profiled_trust_logical);
-  while ((cl = curp->u.OtaLl.d)->ClFlags & ErasedMask) {
+  while ((cl = curp->u.OtaLl.d) && (cl->ClFlags & ErasedMask)) {
     yamop *ocurp = curp;
 
     header->u.Illss.e--;
