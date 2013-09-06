@@ -260,6 +260,7 @@ read_int_overflow(const char *s, Int base, Int val, int sign)
   mpz_clear(new);
   return t;
 #else
+  CACHE_REGS
   /* try to scan it as a float */
   return MkIntegerTerm(val);
 #endif    
