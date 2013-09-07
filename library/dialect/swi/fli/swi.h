@@ -48,7 +48,7 @@ typedef struct open_query_struct {
   YAP_Term *g;
   PredEntry *pe;
   yamop *p, *cp;
-  Int slots, b;
+  Int slots, b, envp, asp;
   jmp_buf env;
   int flags;
   YAP_dogoalinfo h;
