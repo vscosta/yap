@@ -168,33 +168,49 @@ static int init_test(void)
   arg1=YAP_ARG1;
   nRules=YAP_IntOfTerm(arg1);
 
-
-  mgr_ex[ex]=Cudd_Init(0,0,UNIQUE_SLOTS,CACHE_SLOTS,0);
+  ex=0;
+  mgr_ex=(DdManager **) malloc((ex+1)* sizeof(DdManager *));
+  mgr_ex[ex]=Cudd_Init(0,0,UNIQUE_SLOTS,CACHE_SLOTS,5120);
   Cudd_AutodynEnable(mgr_ex[ex], CUDD_REORDER_GROUP_SIFT);
-  Cudd_SetMaxCacheHard(mgr_ex[ex], 1024*1024*1024);
-  Cudd_SetLooseUpTo(mgr_ex[ex], 1024*1024*512);
-  rules= (int *) malloc(nRules * sizeof(int));
-  
+  Cudd_SetMaxCacheHard(mgr_ex[ex], 0);
+  Cudd_SetLooseUpTo(mgr_ex[ex], 0);
+  Cudd_SetMinHit(mgr_ex[ex], 15);
+
+  bVar2mVar_ex=(int **) malloc((ex+1)* sizeof(int *));
   bVar2mVar_ex[ex]=NULL;
-  probs_ex[ex]=NULL;
+
+  vars_ex=(variable **) malloc((ex+1)* sizeof(variable *));
   vars_ex[ex]=NULL;
-  
+
+  nVars_ex=(int *) malloc((ex+1)* sizeof(int ));
   nVars_ex[ex]=0;
-  
+
+  probs_ex=(double **) malloc((ex+1)* sizeof(double *));
+  probs_ex[ex]=NULL;
+
+  boolVars_ex=(int *) malloc((ex+1)* sizeof(int ));
   boolVars_ex[ex]=0;
-  
+
+  rules= (int *) malloc(nRules * sizeof(int));
+
   return 1;
+
 }
 
 static int end_test(void)
 {
   free(bVar2mVar_ex[ex]);
   free(vars_ex[ex]);
-  free(nVars_ex+ex);
-  free(boolVars_ex+ex);
   Cudd_Quit(mgr_ex[ex]);
   free(probs_ex[ex]);
   free(rules);
+  free(mgr_ex);
+  free(bVar2mVar_ex);
+  free(vars_ex);
+  free(probs_ex);
+  free(nVars_ex);
+  free(boolVars_ex);
+
   return 1;
 }
 
@@ -226,7 +242,12 @@ static double Expectation(DdNode **nodes_ex,int lenNodes)
     }
     else
       if (nodes_ex[i]==Cudd_ReadLogicZero(mgr_ex[i]))
+      {
         CLL=CLL+LOGZERO*example_prob[i];
+	nodes_probs_ex[i]=0.0;
+      }
+      else
+        nodes_probs_ex[i]=1.0;
   }
   return CLL;
 }
@@ -250,7 +271,6 @@ static int end(void)
   free(probs_ex);
   free(nVars_ex);
   free(boolVars_ex);
-  free(nodes_probs_ex);
   for (r=0;r<nRules;r++)
   {
     for (i=0;i<rules[r]-1;i++)
@@ -928,8 +948,8 @@ static int randomize(void)
 
 static int EM(void)
 {
-  YAP_Term arg1,arg2,arg3,arg4,arg5,arg6,arg7,
-    out1,out2,nodesTerm,ruleTerm,tail,pair,compoundTerm;
+  YAP_Term arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,
+    out1,out2,out3,nodesTerm,ruleTerm,tail,pair,compoundTerm;
   DdNode * node1,**nodes_ex;
   int r,lenNodes,i,iter;
   long iter1;
@@ -945,6 +965,7 @@ static int EM(void)
   arg5=YAP_ARG5;
   arg6=YAP_ARG6;
   arg7=YAP_ARG7;
+  arg8=YAP_ARG8;
 
   nodesTerm=arg1; 
   ea=YAP_FloatOfTerm(arg2);
@@ -1006,11 +1027,18 @@ static int EM(void)
     compoundTerm=YAP_MkPairTerm(ruleTerm,YAP_MkPairTerm(tail,YAP_TermNil()));
     out2=YAP_MkPairTerm(compoundTerm,out2);
   }
+  out3= YAP_TermNil();
+  for (i=0;i<lenNodes;i++)
+  {
+    out3=YAP_MkPairTerm(YAP_MkFloatTerm(nodes_probs_ex[i]),out3);
+  }
+  YAP_Unify(out3,arg8);
 
   out1=YAP_MkFloatTerm(CLL1);
   YAP_Unify(out1,arg6);
   free(nodes_ex);
   free(example_prob);
+  free(nodes_probs_ex);
 
   return (YAP_Unify(out2,arg7));
 }
@@ -1128,6 +1156,8 @@ static int dag_size(void)
 void init_my_predicates()
 /* function required by YAP for intitializing the predicates defined by a C function*/
 {
+  srand(10);
+
   YAP_UserCPredicate("init",init,2);
   YAP_UserCPredicate("init_bdd",init_bdd,0);
   YAP_UserCPredicate("end",end,0);
@@ -1143,7 +1173,7 @@ void init_my_predicates()
   YAP_UserCPredicate("init_test",init_test,1);
   YAP_UserCPredicate("end_test",end_test,0);
   YAP_UserCPredicate("ret_prob",ret_prob,2);
-  YAP_UserCPredicate("em",EM,7);
+  YAP_UserCPredicate("em",EM,8);
   YAP_UserCPredicate("q",Q,4);
   YAP_UserCPredicate("randomize",randomize,0);
   YAP_UserCPredicate("deref",rec_deref,1);

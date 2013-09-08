@@ -1,8 +1,8 @@
 /*
 
-EMBLEM and SLIPCASE
+SLIPCOVER
 
-Copyright (c) 2011, Fabrizio Riguzzi and Elena Bellodi
+Copyright (c) 2013, Fabrizio Riguzzi and Elena Bellodi
 
 */
 :-use_module(library(lists)).
@@ -49,7 +49,8 @@ setting(specialization,bottom).
 /* allowed values: mode,bottom */
 
 setting(seed,rand(10,1231,30322)).  
-
+setting(score,ll).
+/* allowed values: ll aucpr */
 
 sl(File):-
   setting(seed,Seed),
@@ -631,9 +632,9 @@ get_bdd_group([H|T],T1,Gmax,G1,BDD0,BDD,CE,[H|LE0],LE):-
   get_bdd_group(T,T1,G,G1,BDD2,BDD,CE,LE0,LE).
   
 /* EM start */
-random_restarts(0,_Nodes,CLL,CLL,Par,Par,_LE):-!.
+random_restarts(0,_Nodes,Score,Score,Par,Par,_LE):-!.
 
-random_restarts(N,Nodes,CLL0,CLL,Par0,Par,LE):-
+random_restarts(N,Nodes,Score0,Score,Par0,Par,LE):-
   setting(verbosity,Ver),
   (Ver>2->
     setting(random_restarts_number,NMax),
@@ -648,24 +649,24 @@ random_restarts(N,Nodes,CLL0,CLL,Par0,Par,LE):-
   setting(epsilon_em_fraction,ER),
   length(Nodes,L),
   setting(iter,Iter),
-  em(Nodes,EA,ER,L,Iter,CLLR,Par1),  
+  em(Nodes,EA,ER,L,Iter,CLL,Par1,ExP),  
+  score(LE,ExP,CLL,ScoreR),
   setting(verbosity,Ver),
   (Ver>2->
-    format("Random_restart: CLL ~f~n",[CLLR])
+    format("Random_restart: Score ~f~n",[ScoreR])
   ;
     true
   ),
   N1 is N-1,
-  (CLLR>CLL0->     
-    random_restarts(N1,Nodes,CLLR,CLL,Par1,Par,LE)
+  (ScoreR>Score0->     
+    random_restarts(N1,Nodes,ScoreR,Score,Par1,Par,LE)
   ;
-    random_restarts(N1,Nodes,CLL0,CLL,Par0,Par,LE)
+    random_restarts(N1,Nodes,Score0,Score,Par0,Par,LE)
   ).
 
+random_restarts_ref(0,_Nodes,Score,Score,Par,Par,_LE):-!.
 
-random_restarts_ref(0,_Nodes,CLL,CLL,Par,Par,_LE):-!.
-
-random_restarts_ref(N,Nodes,CLL0,CLL,Par0,Par,LE):-
+random_restarts_ref(N,Nodes,Score0,Score,Par0,Par,LE):-
   setting(verbosity,Ver),
   (Ver>2->
     setting(random_restarts_REFnumber,NMax),
@@ -679,19 +680,129 @@ random_restarts_ref(N,Nodes,CLL0,CLL,Par0,Par,LE):-
   setting(epsilon_em_fraction,ER),
   length(Nodes,L),
   setting(iterREF,Iter),
-  em(Nodes,EA,ER,L,Iter,CLLR,Par1),  
+  em(Nodes,EA,ER,L,Iter,CLLR,Par1,ExP),  
+  score(LE,ExP,CLLR,ScoreR),
   setting(verbosity,Ver),
   (Ver>2->
-    format("Random_restart: CLL ~f~n",[CLLR])
+    format("Random_restart: Score ~f~n",[ScoreR])
   ;
     true
   ),
   N1 is N-1,
-  (CLLR>CLL0->  
-    random_restarts_ref(N1,Nodes,CLLR,CLL,Par1,Par,LE)
+  (ScoreR>Score0->  
+    random_restarts_ref(N1,Nodes,ScoreR,Score,Par1,Par,LE)
   ;
-    random_restarts_ref(N1,Nodes,CLL0,CLL,Par0,Par,LE)
+    random_restarts_ref(N1,Nodes,Score0,Score,Par0,Par,LE)
   ).
+
+
+score(_LE,_ExP,CLL,CLL):-
+  setting(score,ll),!.
+
+score(LE,ExP,_CLL,Score):-
+  compute_prob(LE,ExP,LPU,0,Pos,0,Neg),
+  keysort(LPU,LPO),
+  reverse(LPO,LP),
+  compute_aucpr(LP,Pos,Neg,Score).
+
+
+compute_prob([],[],[],Pos,Pos,Neg,Neg).
+
+compute_prob([\+ HE|TE],[HP|TP],[P- (\+ HE)|T],Pos0,Pos,Neg0,Neg):-!,
+  P is 1-HP,
+  Neg1 is Neg0+1,
+  compute_prob(TE,TP,T,Pos0,Pos,Neg1,Neg).
+
+compute_prob([ HE|TE],[HP|TP],[HP-  HE|T],Pos0,Pos,Neg0,Neg):-
+  Pos1 is Pos0+1,
+  compute_prob(TE,TP,T,Pos1,Pos,Neg0,Neg).
+
+
+compute_aucpr(L,Pos,Neg,A):-
+  L=[P_0-E|TL],
+  (E= (\+ _ )->
+    FP=1,
+    TP=0,
+    FN=Pos,
+    TN is Neg -1
+  ;
+    FP=0,
+    TP=1,
+    FN is Pos -1,
+    TN=Neg
+  ),
+  compute_curve_points(TL,P_0,TP,FP,FN,TN,Points),
+  Points=[R0-P0|_TPoints],
+  (R0=:=0,P0=:=0->
+    Flag=true
+  ;
+    Flag=false
+  ),
+  area(Points,Flag,Pos,0,0,0,A).
+
+compute_curve_points([],_P0,TP,FP,_FN,_TN,[1.0-Prec]):-!,
+  Prec is TP/(TP+FP).
+
+compute_curve_points([P- (\+ _)|T],P0,TP,FP,FN,TN,Pr):-!,
+  (P<P0->
+    Prec is TP/(TP+FP),
+    Rec is TP/(TP+FN),
+    Pr=[Rec-Prec|Pr1],
+    P1=P
+  ;
+    Pr=Pr1,
+    P1=P0
+  ),
+  FP1 is FP+1,
+  TN1 is TN-1,
+  compute_curve_points(T,P1,TP,FP1,FN,TN1,Pr1).
+
+compute_curve_points([P- _|T],P0,TP,FP,FN,TN,Pr):-!,
+  (P<P0->
+    Prec is TP/(TP+FP),
+    Rec is TP/(TP+FN),
+    Pr=[Rec-Prec|Pr1],
+    P1=P
+  ;
+    Pr=Pr1,
+    P1=P0
+  ),
+  TP1 is TP+1,
+  FN1 is FN-1,
+  compute_curve_points(T,P1,TP1,FP,FN1,TN,Pr1).
+
+area([],_Flag,_Pos,_TPA,_FPA,A,A).
+
+area([R0-P0|T],Flag,Pos,TPA,FPA,A0,A):-
+ TPB is R0*Pos,
+  (TPB=:=0->
+    A1=A0,
+    FPB=0
+  ;
+    R_1 is TPA/Pos,
+    (TPA=:=0->
+      (Flag=false->
+        P_1=P0
+      ;
+        P_1=0.0
+      )
+    ;
+      P_1 is TPA/(TPA+FPA)
+    ),
+    FPB is TPB*(1-P0)/P0,
+    N is TPB-TPA+0.5,
+    interpolate(1,N,Pos,R_1,P_1,TPA,FPA,TPB,FPB,A0,A1)
+  ),
+  area(T,Flag,Pos,TPB,FPB,A1,A).
+
+interpolate(I,N,_Pos,_R0,_P0,_TPA,_FPA,_TPB,_FPB,A,A):-I>N,!.
+
+interpolate(I,N,Pos,R0,P0,TPA,FPA,TPB,FPB,A0,A):-
+  R is (TPA+I)/Pos,
+  P is (TPA+I)/(TPA+I+FPA+(FPB-FPA)/(TPB-TPA)*I),
+  A1 is A0+(R-R0)*(P+P0)/2,
+  I1 is I+1,
+  interpolate(I1,N,Pos,R,P,TPA,FPA,TPB,FPB,A1,A).
 
 
 randomize([],[]):-!.
