@@ -1556,7 +1556,7 @@ mark_environments(CELL_PTR gc_ENV, OPREG size, CELL *pvbmap USES_REGS)
     Int bmap = 0;
     int currv = 0;
 
-    //    printf("MARK %p--%p\n", gc_ENV, gc_ENV-size);
+    // printf("MARK %p--%p\n", gc_ENV, gc_ENV-size);
 #ifdef DEBUG
     if (size <  0 || size > 512)
       fprintf(GLOBAL_stderr,"OOPS in GC: env size for %p is " UInt_FORMAT "\n", gc_ENV, (CELL)size);

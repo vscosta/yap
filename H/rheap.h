@@ -775,6 +775,8 @@ RestoreEnvInst(yamop start[2], yamop **instp, op_numbers opc, PredEntry *pred)
   ipc->opc = Yap_opcode(_call);
   ipc->u.Osbpp.p = pred;
   ipc->u.Osbpp.p0 = pred;
+  ipc->u.Osbpp.bmap = NULL;
+  ipc->u.Osbpp.s = -Signed(RealEnvSize);
   ipc = NEXTOP(ipc, Osbpp);
   ipc->opc = Yap_opcode(opc);
   *instp = ipc;
