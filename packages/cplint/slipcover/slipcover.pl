@@ -648,7 +648,7 @@ random_restarts(N,Nodes,CLL0,CLL,Par0,Par,LE):-
   setting(epsilon_em_fraction,ER),
   length(Nodes,L),
   setting(iter,Iter),
-  em(Nodes,EA,ER,L,Iter,CLLR,Par1),  
+  em(Nodes,EA,ER,L,Iter,CLLR,Par1,_ExP),  
   setting(verbosity,Ver),
   (Ver>2->
     format("Random_restart: CLL ~f~n",[CLLR])
@@ -679,7 +679,7 @@ random_restarts_ref(N,Nodes,CLL0,CLL,Par0,Par,LE):-
   setting(epsilon_em_fraction,ER),
   length(Nodes,L),
   setting(iterREF,Iter),
-  em(Nodes,EA,ER,L,Iter,CLLR,Par1),  
+  em(Nodes,EA,ER,L,Iter,CLLR,Par1,_ExP),  
   setting(verbosity,Ver),
   (Ver>2->
     format("Random_restart: CLL ~f~n",[CLLR])

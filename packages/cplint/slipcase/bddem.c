@@ -242,7 +242,12 @@ static double Expectation(DdNode **nodes_ex,int lenNodes)
     }
     else
       if (nodes_ex[i]==Cudd_ReadLogicZero(mgr_ex[i]))
+      {
         CLL=CLL+LOGZERO*example_prob[i];
+	nodes_probs_ex[i]=0.0;
+      }
+      else
+        nodes_probs_ex[i]=1.0;
   }
   return CLL;
 }
@@ -266,7 +271,6 @@ static int end(void)
   free(probs_ex);
   free(nVars_ex);
   free(boolVars_ex);
-  free(nodes_probs_ex);
   for (r=0;r<nRules;r++)
   {
     for (i=0;i<rules[r]-1;i++)
@@ -944,8 +948,8 @@ static int randomize(void)
 
 static int EM(void)
 {
-  YAP_Term arg1,arg2,arg3,arg4,arg5,arg6,arg7,
-    out1,out2,nodesTerm,ruleTerm,tail,pair,compoundTerm;
+  YAP_Term arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,
+    out1,out2,out3,nodesTerm,ruleTerm,tail,pair,compoundTerm;
   DdNode * node1,**nodes_ex;
   int r,lenNodes,i,iter;
   long iter1;
@@ -961,6 +965,7 @@ static int EM(void)
   arg5=YAP_ARG5;
   arg6=YAP_ARG6;
   arg7=YAP_ARG7;
+  arg8=YAP_ARG8;
 
   nodesTerm=arg1; 
   ea=YAP_FloatOfTerm(arg2);
@@ -1022,11 +1027,18 @@ static int EM(void)
     compoundTerm=YAP_MkPairTerm(ruleTerm,YAP_MkPairTerm(tail,YAP_TermNil()));
     out2=YAP_MkPairTerm(compoundTerm,out2);
   }
+  out3= YAP_TermNil();
+  for (i=0;i<lenNodes;i++)
+  {
+    out3=YAP_MkPairTerm(YAP_MkFloatTerm(nodes_probs_ex[i]),out3);
+  }
+  YAP_Unify(out3,arg8);
 
   out1=YAP_MkFloatTerm(CLL1);
   YAP_Unify(out1,arg6);
   free(nodes_ex);
   free(example_prob);
+  free(nodes_probs_ex);
 
   return (YAP_Unify(out2,arg7));
 }
@@ -1144,6 +1156,8 @@ static int dag_size(void)
 void init_my_predicates()
 /* function required by YAP for intitializing the predicates defined by a C function*/
 {
+  srand(10);
+
   YAP_UserCPredicate("init",init,2);
   YAP_UserCPredicate("init_bdd",init_bdd,0);
   YAP_UserCPredicate("end",end,0);
@@ -1159,7 +1173,7 @@ void init_my_predicates()
   YAP_UserCPredicate("init_test",init_test,1);
   YAP_UserCPredicate("end_test",end_test,0);
   YAP_UserCPredicate("ret_prob",ret_prob,2);
-  YAP_UserCPredicate("em",EM,7);
+  YAP_UserCPredicate("em",EM,8);
   YAP_UserCPredicate("q",Q,4);
   YAP_UserCPredicate("randomize",randomize,0);
   YAP_UserCPredicate("deref",rec_deref,1);
