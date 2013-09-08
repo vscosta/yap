@@ -168,33 +168,49 @@ static int init_test(void)
   arg1=YAP_ARG1;
   nRules=YAP_IntOfTerm(arg1);
 
-
-  mgr_ex[ex]=Cudd_Init(0,0,UNIQUE_SLOTS,CACHE_SLOTS,0);
+  ex=0;
+  mgr_ex=(DdManager **) malloc((ex+1)* sizeof(DdManager *));
+  mgr_ex[ex]=Cudd_Init(0,0,UNIQUE_SLOTS,CACHE_SLOTS,5120);
   Cudd_AutodynEnable(mgr_ex[ex], CUDD_REORDER_GROUP_SIFT);
-  Cudd_SetMaxCacheHard(mgr_ex[ex], 1024*1024*1024);
-  Cudd_SetLooseUpTo(mgr_ex[ex], 1024*1024*512);
-  rules= (int *) malloc(nRules * sizeof(int));
-  
+  Cudd_SetMaxCacheHard(mgr_ex[ex], 0);
+  Cudd_SetLooseUpTo(mgr_ex[ex], 0);
+  Cudd_SetMinHit(mgr_ex[ex], 15);
+
+  bVar2mVar_ex=(int **) malloc((ex+1)* sizeof(int *));
   bVar2mVar_ex[ex]=NULL;
-  probs_ex[ex]=NULL;
+
+  vars_ex=(variable **) malloc((ex+1)* sizeof(variable *));
   vars_ex[ex]=NULL;
-  
+
+  nVars_ex=(int *) malloc((ex+1)* sizeof(int ));
   nVars_ex[ex]=0;
-  
+
+  probs_ex=(double **) malloc((ex+1)* sizeof(double *));
+  probs_ex[ex]=NULL;
+
+  boolVars_ex=(int *) malloc((ex+1)* sizeof(int ));
   boolVars_ex[ex]=0;
-  
+
+  rules= (int *) malloc(nRules * sizeof(int));
+
   return 1;
+
 }
 
 static int end_test(void)
 {
   free(bVar2mVar_ex[ex]);
   free(vars_ex[ex]);
-  free(nVars_ex+ex);
-  free(boolVars_ex+ex);
   Cudd_Quit(mgr_ex[ex]);
   free(probs_ex[ex]);
   free(rules);
+  free(mgr_ex);
+  free(bVar2mVar_ex);
+  free(vars_ex);
+  free(probs_ex);
+  free(nVars_ex);
+  free(boolVars_ex);
+
   return 1;
 }
 
