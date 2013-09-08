@@ -2187,6 +2187,8 @@ PL_open_foreign_frame(void)
   new->p = P;
   new->flags = 0;
   new->b = (CELL)(LCL0-(CELL*)B);
+  new->envp = (CELL)(LCL0-ENV);
+  new->asp = (CELL)(LCL0-ASP);
   new->slots = CurSlot;
   LOCAL_execution = new;
   { 
@@ -2215,7 +2217,8 @@ PL_close_foreign_frame(fid_t f)
   P = env->p;
   CurSlot = env->slots;
   B = (choiceptr)(LCL0-env->b);
-  ASP = (CELL *)(LCL0-CurSlot);
+  ENV = (CELL *)(LCL0-env->envp);
+  ASP = (CELL *)(LCL0-env->asp);
   EX = NULL;
   LOCAL_BallTerm = EX;
   LOCAL_execution = env->old;
@@ -2256,14 +2259,15 @@ PL_discard_foreign_frame(fid_t f)
     if (!env0)
       return;
   }
-  CurSlot = env->slots;
   while (B->cp_b != (choiceptr)(LCL0-env->b))
     B = B->cp_b;
   backtrack();
+  CurSlot = env->slots;
+  ENV = (CELL *)(LCL0-env->envp);
   CP = env->cp;
   P = env->p;
   LOCAL_execution = env->old;
-  ASP = LCL0-CurSlot;
+  ASP = LCL0-env->asp;
   B = B->cp_b;
   //LOCAL_BallTerm = EX;
   //EX = NULL;

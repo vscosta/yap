@@ -43,9 +43,9 @@ is_IntVarBranch_('IntVarBranch'(I,K),N) :-
     integer(K),
     nb_getval(gecode_space_use_keep_index,B),
     (B=true -> N=K ; N=I).
-is_FloatVar_('IntVar'(I,K),N) :-
-    float(I),
-    float(K),
+is_FloatVar_('FloatVar'(I,K),N) :-
+    integer(I),
+    integer(K),
     nb_getval(gecode_space_use_keep_index,B),
     (B=true -> N=K ; N=I).
 is_BoolVar_('BoolVar'(I,K),N) :-
@@ -144,6 +144,8 @@ assert_var(X,Y) :-
 	var(X) -> X=Y; throw(gecode_error(expected(var))).
 assert_is_int(X,Y) :-
 	integer(X) -> X=Y ; throw(gecode_error(expected(int))).
+assert_is_float(X,Y) :-
+	float(X) -> X=Y ; throw(gecode_error(expected(int))).
 assert_is_Space(X,Y) :-
 	is_Space(X,Y) -> true ; throw(gecode_error(expected(space))).
 assert_is_IntSet(X,Y) :-
@@ -173,6 +175,7 @@ assert_is_ReifyMode(X,Y) :-
 
 assert_var(X) :- assert_var(X,_).
 assert_is_int(X) :- assert_is_int(X,_).
+assert_is_float(X) :- assert_is_float(X,_).
 assert_is_Space(X) :- assert_is_Space(X,_).
 assert_is_IntSet(X) :- assert_is_IntSet(X,_).
 assert_is_IntVar(X) :- assert_is_IntVar(X,_).
@@ -410,6 +413,14 @@ new_intvar(IVar, Space, IntSet) :- !,
 	gecode_new_intvar_from_intset(Idx,Space_,L),
 	IVar='IntVar'(Idx,-1).
 
+new_floatvar(FVar, Space, Lo, Hi) :- !,
+	assert_var(IVar),
+	assert_is_Space_or_Clause(Space,Space_),
+	assert_float(Lo),
+	assert_float(Hi),
+	gecode_new_floatvar_from_bounds(Idx,Space_,Lo,Hi),
+	FVar='FloatVar'(Idx,-1).
+
 new_boolvar(BVar, Space) :- !,
 	assert_var(BVar),
 	assert_is_Space_or_Clause(Space,Space_),
@@ -556,11 +567,15 @@ reify(Space,BVar,Mode,R) :-
 	gecode_new_reify(Space_,BVar_,Mode_,R_),
 	R = 'Reify'(R_).
 
-gecode_search_options_init(search_options(0,1.0,8,2)).
+gecode_search_options_init(search_options(0,1.0,8,2,'RM_NONE',0,1,0)).
 gecode_search_options_offset(restart,1).
 gecode_search_options_offset(threads,2).
 gecode_search_options_offset(c_d    ,3).
 gecode_search_options_offset(a_d    ,4).
+gecode_search_options_offset(cutoff, 5).
+gecode_search_options_offset(nogoods_limit, 6).
+gecode_search_options_offset(clone, 7).
+gecode_search_options_offset(stop, 8). % unimplemented
 
 gecode_search_option_set(O,V,R) :-
     gecode_search_options_offset(O,I),
@@ -590,6 +605,18 @@ gecode_search_options_process1(a_d=N,R) :- !,
     (integer(N) -> V=N
     ; throw(bad_search_option_value(a_d=N))),
     gecode_search_option_set(a_d,V,R).
+gecode_search_options_process1(cutoff=C,R) :- !,
+    (is_RestartMode(C,C_) -> V=C_
+    ; throw(bad_search_option_value(cutoff=C))),
+    gecode_search_option_set(cutoff,C_,R).
+gecode_search_options_process1(nogoods_limit=N,R) :- !,
+    (integer(N), N >= 0 -> V=N
+    ; throw(bad_search_option_value(nogoods_limit=N))),
+    gecode_search_option_set(nogoods_limit,N,R).
+gecode_search_options_process1(clone=N,R) :- !,
+    ((N == 0 ; N == 1)-> V=N
+    ; throw(bad_search_option_value(clone=N))),
+    gecode_search_option_set(clone,N,R).
 gecode_search_options_process1(O,_) :-
     throw(gecode_error(unrecognized_search_option(O))).
 
