@@ -2291,6 +2291,8 @@ X_API qid_t PL_open_query(module_t ctx, int flags, predicate_t p, term_t t0)
     new->cp = CP;
     new->p = P;
     new->b = (CELL)(LCL0-(CELL*)B);
+    new->envp = (CELL)(LCL0-ENV);
+    new->asp = (CELL)(LCL0-ASP);
     new->slots = CurSlot;
     new->flags = 0;
     LOCAL_execution = new;

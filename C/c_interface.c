@@ -2289,8 +2289,9 @@ YAP_EnterGoal(PredEntry *pe, Term *ptr, YAP_dogoalinfo *dgi)
   BACKUP_MACHINE_REGS();
   dgi->p = P;
   dgi->cp = CP;
-  P = pe->CodeOfPred;
+  // ensure our current ENV receives current P.
   Yap_PrepGoal(pe->ArityOfPE, ptr, B PASS_REGS);
+  P = pe->CodeOfPred;
   dgi->b = LCL0-(CELL*)B;
   out = run_emulator(dgi PASS_REGS);
   RECOVER_MACHINE_REGS();
