@@ -20,7 +20,7 @@
 :- use_module(library(maplist)).
 
 % 5 people want to have a photograph together, but they have preferences.
-photo(Ex, Solution,Amount) :-
+photo(Ex, People, Amount) :-
 	db(Ex, People, Preferences),
 	length(People, Len),
 	Len0 is Len-1,
@@ -29,10 +29,10 @@ photo(Ex, Solution,Amount) :-
 	% Bools are the satisfied constraints
 	maplist(preferences, Preferences, Bools),
 	length(Preferences, PLen),
-	Sum in 0..PLen,
-	Bools #= Sum,
+	Amount in 0..PLen,
+	sum( Bools, #= , Amount ),
 	% add all satisfied constraints
-	maximize(Sum),
+	maximize(Amount),
 	labeling([], People).
 
 %reification, use with care
