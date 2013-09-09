@@ -86,16 +86,16 @@ sl(File):-
   ),
 %  write('Initial theory'),nl,
 %  write_rules(R1,user_output),
-  learn_struct(DB,R1,R2,CLL2), 
-  learn_params(DB,R2,R,CLL),  
+  learn_struct(DB,R1,R2,Score2), 
+  learn_params(DB,R2,R,Score),  
   statistics(walltime,[_,WT]),
   WTS is WT/1000,
-  format("~nRefinement CLL  ~f - CLL after EMBLEM ~f~n",[CLL2,CLL]),
+  format("~nRefinement score  ~f - score after EMBLEM ~f~n",[Score2,Score]),
   format("Total execution time ~f~n~n",[WTS]),
   write_rules(R,user_output),
   listing(setting/2),
   open(FileOut,write,Stream),
-  format(Stream,'/* SLIPCASE Final CLL ~f~n',[CLL]),
+  format(Stream,'/* SLIPCOVER Final score ~f~n',[Score]),
   format(Stream,'Execution time ~f~n',[WTS]),
   tell(Stream),
   listing(setting/2),
@@ -111,7 +111,7 @@ gen_fixed([(H,B,BL)|T],[rule(R,H,B,BL)|T1]):-
   get_next_rule_number(R), 
   gen_fixed(T,T1).
 
-learn_struct_only(DB,R1,R,CLL):-   %+R1:initial theory of the form [rule(NR,[h],[b]],...], -R:final theory of the same form, -CLL
+learn_struct_only(DB,R1,R,Score):-   %+R1:initial theory of the form [rule(NR,[h],[b]],...], -R:final theory of the same form, -CLL
   format("Clause search~n~n",[]),
   setting(max_iter,M),
   setting(depth_bound,DepthB),
@@ -126,7 +126,7 @@ learn_struct_only(DB,R1,R,CLL):-   %+R1:initial theory of the form [rule(NR,[h],
   set(depth_bound,DepthB),
   format("Theory search~n~n",[]),
   setting(max_iter_structure,MS),
-  cycle_structure(TCL,[HCL],S,-inf,DB,R2,CLL,MS),
+  cycle_structure(TCL,[HCL],S,-inf,DB,R2,Score,MS),
   format("Best target theory~n~n",[]),
   write_rules(R2,user_output),
   length(BG,NBG),
@@ -135,7 +135,7 @@ learn_struct_only(DB,R1,R,CLL):-   %+R1:initial theory of the form [rule(NR,[h],
   append(R2,BG2,R).
 
 
-learn_struct(DB,R1,R,CLL):-   %+R1:initial theory of the form [rule(NR,[h],[b]],...], -R:final theory of the same form, -CLL
+learn_struct(DB,R1,R,Score):-   %+R1:initial theory of the form [rule(NR,[h],[b]],...], -R:final theory of the same form, -CLL
   format("Clause search~n~n",[]),
   setting(max_iter,M),
   setting(depth_bound,DepthB),
@@ -150,7 +150,7 @@ learn_struct(DB,R1,R,CLL):-   %+R1:initial theory of the form [rule(NR,[h],[b]],
   set(depth_bound,DepthB),
   format("Theory search~n~n",[]),
   setting(max_iter_structure,MS),
-  cycle_structure(TCL,[HCL],S,-inf,DB,R2,CLL,MS),
+  cycle_structure(TCL,[HCL],S,-inf,DB,R2,Score,MS),
   format("Best target theory~n~n",[]),
   write_rules(R2,user_output),
   setting(background_clauses,NBG1),
@@ -183,7 +183,7 @@ cycle_structure([(RH,_CLL)|RT],R0,S0,SP0,DB,R,S,M):-
   format("Theory iteration ~d",[M]),nl,nl,
   write('Already scored, updated refinement'),nl,
   write_rules(R3,user_output), 
-  write('Score (CLL) '),write(Score),nl,nl,nl,
+  write('Score '),write(Score),nl,nl,nl,
   (Score>S0->
     R4=R3,
     S4=Score,
@@ -196,7 +196,7 @@ cycle_structure([(RH,_CLL)|RT],R0,S0,SP0,DB,R,S,M):-
   M1 is M-1,
   cycle_structure(RT,R4,S4,SP1,DB,R,S,M1). 
 
-cycle_structure([(RH,_CLL)|RT],R0,S0,SP0,DB,R,S,M):-
+cycle_structure([(RH,_Score)|RT],R0,S0,SP0,DB,R,S,M):-
   format("Theory iteration ~d",[M]),nl,nl,
   generate_clauses([RH|R0],R2,0,[],Th1),
   format("Initial theory~n~n",[]),
@@ -218,17 +218,17 @@ cycle_structure([(RH,_CLL)|RT],R0,S0,SP0,DB,R,S,M):-
   ),
   setting(random_restarts_number,N),
   format("~nInitial CLL ~f~n~n",[CLL0]),
-  random_restarts(N,Nodes,CLL0,CLL,initial,Par,LE),   %output:CLL,Par
-  format("CLL after EMBLEM = ~f~n",[CLL]),
+  random_restarts(N,Nodes,CLL0,Score,initial,Par,LE),   %output:CLL,Par
+  format("Score after EMBLEM = ~f~n",[Score]),
   retract_all(Th1),
   retract_all(R2),!,
   end,  
   update_theory(R2,Par,R3), 
   write('updated Theory'),nl,
   write_rules(R3,user_output),   %definite rules without probabilities in the head are not written
-  (CLL>S0->
+  (Score>S0->
     R4=R3,
-    S4=CLL,
+    S4=Score,
     SP1=S0,
     write('New best score'),nl
   ;
@@ -236,7 +236,7 @@ cycle_structure([(RH,_CLL)|RT],R0,S0,SP0,DB,R,S,M):-
     S4=S0,
     SP1=SP0
   ),
-  store_refinement([RH|R0],R3,CLL),
+  store_refinement([RH|R0],R3,Score),
   M1 is M-1,
   cycle_structure(RT,R4,S4,SP1,DB,R,S,M1). 
 
@@ -259,15 +259,15 @@ em(File):-
   set(compiling,off),
   set(verbosity,3),
   statistics(walltime,[_,_]),      
-  learn_params(DB,R0,R,CLL),
+  learn_params(DB,R0,R,Score),
   statistics(walltime,[_,CT]),
   CTS is CT/1000,
-  format("EM: Final CLL ~f~n",[CLL]),
+  format("EM: Final score ~f~n",[Score]),
   format("Execution time ~f~n~n",[CTS]),
   write_rules(R,user_output),
   listing(setting/2),
   open(FileOut,write,Stream),
-  format(Stream,'/* EMBLEM Final CLL ~f~n',[CLL]),
+  format(Stream,'/* EMBLEM Final score ~f~n',[Score]),
   format(Stream,'Execution time ~f~n',[CTS]),
   tell(Stream),
   listing(setting/2),
@@ -277,7 +277,7 @@ em(File):-
   write_rules(R,Stream1),
   close(Stream1).
 
-learn_params(DB,R0,R,CLL):-  %Parameter Learning
+learn_params(DB,R0,R,Score):-  %Parameter Learning
   generate_clauses(R0,R1,0,[],Th0), 
   assert_all(Th0),
   assert_all(R1),!,
@@ -295,7 +295,7 @@ learn_params(DB,R0,R,CLL):-  %Parameter Learning
    derive_bdd_nodes(DB,NEx,[],Nodes,0,_CLL0),!      
   ),
   setting(random_restarts_number,N),
-  random_restarts(N,Nodes,-inf,CLL,initial,Par,LE),  %computes new parameters Par
+  random_restarts(N,Nodes,-inf,Score,initial,Par,LE),  %computes new parameters Par
   end,
   retract_all(Th0),
   retract_all(R1),!,
@@ -368,7 +368,7 @@ score_clause_refinements([R1|T],Nrev,NRef,DB,NB0,NB,CL0,CL,CLBG0,CLBG):-  %scans
   format('Score ref.  ~d of ~d~n',[Nrev,NRef]),
   write('Already scored, updated refinement'),nl,
   write_rules([R3],user_output), 
-  write('Score (CLL) '),write(Score),nl,nl,nl,
+  write('Score '),write(Score),nl,nl,nl,
   setting(beamsize,BS),
   insert_in_order(NB0,(R3,Score),BS,NB1),
   Nrev1 is Nrev+1,  
@@ -396,12 +396,11 @@ score_clause_refinements([R1|T],Nrev,NRef,DB,NB0,NB,CL0,CL,CLBG0,CLBG):-
   ),
   format("Initial CLL ~f~n",[CLL0]),
   setting(random_restarts_REFnumber,N),
-  random_restarts_ref(N,Nodes,CLL0,CLL,initial,Par,LE),  
+  random_restarts_ref(N,Nodes,CLL0,Score,initial,Par,LE),  
   end,
   update_theory([R2],Par,[R3]),
   write('Updated refinement'),nl,
   write_rules([R3],user_output), 
-  Score = CLL,  
   write('Score (CLL) '),write(Score),nl,nl,nl,
   retract_all(Th1),
   retract_all([R2]),!,
