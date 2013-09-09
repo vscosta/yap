@@ -1,4 +1,4 @@
-:- module(ge_clpfd, [
+:- module(clpfd, [
                   op(760, yfx, #<==>),
                   op(750, xfy, #==>),
                   op(750, yfx, #<==),
@@ -21,16 +21,17 @@
                   (#=<)/2,
                   (#=)/2,
                   (#\=)/2,
-/*                  (#\)/1,
                   (#<==>)/2,
                   (#==>)/2,
                   (#<==)/2,
+                  (#\)/1,
                   (#\/)/2,
-                  (#/\)/2, */
+                  (#/\)/2,
                   in/2 ,
                   ins/2,
                   all_different/1,
-                  all_distinct/1, /*
+                  all_distinct/1,
+                  all_distinct/2, /*
                   sum/3,
                   scalar_product/4,
                   tuples_in/2, */
@@ -74,6 +75,7 @@ constraint( in(_, _) ). %2,
 constraint( ins(_, _) ). %2,
 constraint( all_different(_) ). %1,
 constraint( all_distinct(_) ). %1,
+constraint( all_distinct(_,_) ). %1,
 constraint( sum(_, _, _) ). %3,
 constraint( scalar_product(_, _, _, _) ). %4,
 constraint( tuples_in(_, _) ). %2,
@@ -108,35 +110,62 @@ process_constraints(B, B, _Env).
 %	process_constraint(B, NB, Space).
 
 ( A #= B) :-
-	get_home(Space-Map),
-	linear(A, 1, As, Bs, CAs, CBs, 0, A0, Space-Map),
-	linear(B, -1, Bs, [], CBs, [], A0, B0, Space-Map),
-	Space += linear(CAs, As, 'IRT_EQ', B0).
+	get_home(Env),
+	post( (A #= B), Env, _).
 ( A #\= B) :-
-	get_home(Space-Map),
-	linear(A, 1, As, Bs, CAs, CBs, 0, A0, Space-Map),
-	linear(B, -1, Bs, [], CBs, [], A0, B0, Space-Map),
-	Space += linear(CAs, As, 'IRT_NQ', B0).
+	get_home(Env),
+	post( (A #\= B), Env, _).
 ( A #< B) :-
-	get_home(Space-Map),
-	linear(A, 1, As, Bs, CAs, CBs, 0, A0, Space-Map),
-	linear(B, -1, Bs, [], CBs, [], A0, B0, Space-Map),
-	Space += linear(CAs, As, 'IRT_LE', B0).
+	get_home(Env),
+	post( (A #< B), Env, _).
 ( A #> B) :-
-	get_home(Space-Map),
-	linear(A, 1, As, Bs, CAs, CBs, 0, A0, Space-Map),
-	linear(B, -1, Bs, [], CBs, [], A0, B0, Space-Map),
-	Space += linear(CAs, As, 'IRT_GT', B0).
+	get_home(Env),
+	post( (A #< B), Env, _).
 ( A #=< B) :-
-	get_home(Space-Map),
-	linear(A, 1, As, Bs, CAs, CBs, 0, A0, Space-Map),
-	linear(B, -1, Bs, [], CBs, [], A0, B0, Space-Map),
-	Space += linear(CAs, As, 'IRT_LQ', B0).
+	get_home(Env),
+	post( (A #=< B), Env, _).
 ( A #>= B) :-
+	get_home(Env),
+	post( (A #> B), Env, _).
+( A #<==> Bool) :-
 	get_home(Space-Map),
-	linear(A, 1, As, Bs, CAs, CBs, 0, A0, Space-Map),
-	linear(B, -1, Bs, [], CBs, [], A0, B0, Space-Map),
-	Space += linear(CAs, As, 'IRT_GQ', B0).
+	Bool := boolvar(Space),
+	Space += reify(Bool, 'RM_EQV', R),
+	post(A, Space-Map, R).
+( A #==> Bool) :-
+	get_home(Space-Map),
+	Bool := boolvar(Space),
+	Space += reify(Bool, 'RM_IMP', R),
+	post(A, Space-Map, R).
+( A #<== Bool) :-
+	get_home(Space-Map),
+	Bool := boolvar(Space),
+	Space += reify(Bool, 'RM_PMI', R),
+	post(A, Space-Map, R).
+'#\\'(A) :-
+	get_home(Space-Map),
+	B := boolvar(Space),
+	Space += reify(B, 'RM_EQV', R),
+	Space += rel(B, 'BOT_EQV', 0),
+	post(A, Space-Map, R).
+( A1 #\/ A2 ) :-
+	get_home(Space-Map),
+	B1 := boolvar(Space),
+	B2 := boolvar(Space),
+	Space += reify(B1, 'RM_EQV', R1),
+	Space += reify(B2, 'RM_EQV', R2),
+	post(A1, Space-Map, R1),
+	post(A2, Space-Map, R2),
+	Space += rel(B1, B2, 'BOT_OR', 1).
+( A1 #/\ A2 ) :-
+	get_home(Space-Map),
+	B1 := boolvar(Space),
+	B2 := boolvar(Space),
+	Space += reify(B1, 'RM_EQV', R1),
+	Space += reify(B2, 'RM_EQV', R2),
+	post(A1, Space-Map, R1),
+	post(A2, Space-Map, R2),
+	Space += rel(B1, B2, 'BOT_AND', 1).
 ( X in A..B) :-
 	get_home(Space-Map),
 	m(X, NX, A, B, Map),
@@ -147,28 +176,95 @@ process_constraints(B, B, _Env).
 	length(Xs, N),
 	NXs := intvars(Space, N, A, B).
 all_different( Xs ) :-
-	get_home(Space-Map),
-	maplist(ll(Map), Xs, NXs),
-	Space += distinct(NXs).
+	get_home(Env),
+	post( all_different( Xs ), Env, _ ).
 all_distinct( Xs ) :-
-	get_home(Space-Map),
-	maplist(ll(Map), Xs, NXs),
-	Space += distinct(NXs).
+	get_home(Env),
+	post( all_distinct( Xs ), Env, _ ).
+all_distinct( Cs, Xs ) :-
+	get_home(Env),
+	post( all_distinct( Cs, Xs ), Env, _ ).
 labeling(_Opts, Xs) :-
 	get_home(Space-Map),
 	maplist(ll(Map), Xs, NXs),
 	Space += branch(NXs, 'INT_VAR_SIZE_MIN', 'INT_VAL_MIN').
 
+
+post( (A #= B), Space-Map, Reify):-
+	linear(A, 1, As, Bs, CAs, CBs, 0, A0, Space-Map),
+	linear(B, -1, Bs, [], CBs, [], A0, B0, Space-Map),
+	(var(Reify) ->
+	    Space += linear(CAs, As, 'IRT_EQ', B0);
+	    Space += linear(CAs, As, 'IRT_EQ', B0, Reify)
+	).
+post( (A #\= B), Space-Map, Reify):-
+	linear(A, 1, As, Bs, CAs, CBs, 0, A0, Space-Map),
+	linear(B, -1, Bs, [], CBs, [], A0, B0, Space-Map),
+	(var(Reify) ->
+	    Space += linear(CAs, As, 'IRT_NQ', B0);
+	    Space += linear(CAs, As, 'IRT_NQ', B0, Reify)
+	).
+post( (A #>B), Space-Map, Reify):-
+	linear(A, 1, As, Bs, CAs, CBs, 0, A0, Space-Map),
+	linear(B, -1, Bs, [], CBs, [], A0, B0, Space-Map),
+	(var(Reify) ->
+	    Space += linear(CAs, As, 'IRT_NQ', B0);
+	    Space += linear(CAs, As, 'IRT_NQ', B0, Reify)
+	).
+post( (A #>=B), Space-Map, Reify):-
+	linear(A, 1, As, Bs, CAs, CBs, 0, A0, Space-Map),
+	linear(B, -1, Bs, [], CBs, [], A0, B0, Space-Map),
+	(var(Reify) ->
+	    Space += linear(CAs, As, 'IRT_GQ', B0);
+	    Space += linear(CAs, As, 'IRT_GQ', B0, Reify)
+	).
+post( (A #<B), Space-Map, Reify):-
+	linear(A, 1, As, Bs, CAs, CBs, 0, A0, Space-Map),
+	linear(B, -1, Bs, [], CBs, [], A0, B0, Space-Map),
+	(var(Reify) ->
+	    Space += linear(CAs, As, 'IRT_LE', B0);
+	    Space += linear(CAs, As, 'IRT_LE', B0, Reify)
+	).
+post( (A #=<B), Space-Map, Reify):-
+	linear(A, 1, As, Bs, CAs, CBs, 0, A0, Space-Map),
+	linear(B, -1, Bs, [], CBs, [], A0, B0, Space-Map),
+	(var(Reify) ->
+	    Space += linear(CAs, As, 'IRT_LQ', B0);
+	    Space += linear(CAs, As, 'IRT_LQ', B0, Reify)
+	).
+post( all_different( Xs ), Space-Map, Reify) :-
+	maplist(ll(Map), Xs, NXs),
+	(var(Reify) ->
+	    Space += distinct(NXs)
+	;
+	    throw(error(domain(not_reifiable),all_different( Xs )))
+	).
+post( all_distinct( Xs ), Space-Map, Reify) :-
+	maplist(ll(Map), Xs, NXs),
+	(var(Reify) ->
+	    Space += distinct(NXs)
+	;
+	    throw(error(domain(not_reifiable),all_distinct( Xs )))
+	).
+post( all_distinct( Cs , Xs ), Space-Map, Reify) :-
+	maplist(ll(Map), Xs, NXs),
+	(var(Reify) ->
+	    Space += distinct(Cs,NXs)
+	;
+	    throw(error(domain(not_reifiable),all_distinct( Cs , Xs )))
+	).
+
+
 linear(V, C, [A|As], As, [C|CAs], CAs, I, I, _-Map) :- 
 	var(V), !,
 	l(V, A, Map).
-linear(A+B, C, As, Bs, CAs, CBs, I, IF, Space) :-
-	linear(A, C, As, A1s, CAs, CA1s, I, I1, Space),
-	linear(B, C, A1s, Bs, CA1s, CBs, I1, IF, Space).
-linear(A-B, C, As, Bs, CAs, CBs, I, IF, Space) :-
+linear(A+B, C, As, Bs, CAs, CBs, I, IF, Env) :-
+	linear(A, C, As, A1s, CAs, CA1s, I, I1, Env),
+	linear(B, C, A1s, Bs, CA1s, CBs, I1, IF, Env).
+linear(A-B, C, As, Bs, CAs, CBs, I, IF, Env) :-
 	NC is -C,
-	linear(A, C, As, A1s, CAs, CA1s, I, I1, Space),
-	linear(B, NC, A1s, Bs, CA1s, CBs, I1, IF, Space).
+	linear(A, C, As, A1s, CAs, CA1s, I, I1, Env),
+	linear(B, NC, A1s, Bs, CA1s, CBs, I1, IF, Env).
 linear(A, C, As, As, CAs, CAs, I, IF, _) :-
 	integer(A), !,
 	IF is I-C*A.
@@ -176,16 +272,63 @@ linear(A, C, As, As, CAs, CAs, I, IF, _) :-
 	ground(A),
 	catch( (B is eval(A)), _, fail ), !,
 	IF is I-C*B.
-linear(C1*B, C, As, Bs, CAs, CBs, I, IF, Space) :-
+linear(C1*B, C, As, Bs, CAs, CBs, I, IF, Env) :-
 	integer(C1), !,
 	NC is C*C1,
-	linear(B, NC, As, Bs, CAs, CBs, I, IF, Space).
-linear(B*C1, C, As, Bs, CAs, CBs, I, IF, Space) :-
+	linear(B, NC, As, Bs, CAs, CBs, I, IF, Env).
+linear(B*C1, C, As, Bs, CAs, CBs, I, IF, Env) :-
 	integer(C1), !,
 	NC is C*C1,
-	linear(B, NC, As, Bs, CAs, CBs, I, IF, Space).
+	linear(B, NC, As, Bs, CAs, CBs, I, IF, Env).
+linear(AC, C, [V|Bs], Bs, [C|CBs], CBs, I, I, Env) :-
+	arith(AC),
+	equality(AC, V, Env).
 
-user:term_expansion( ( H :- B), (H :- (ge_clpfd:init_gecode(Space, Me), NB, ge_clpfd:close_gecode(Space, Vs, Me)) ) ) :-
+equality(abs(V), NV, Env) :-
+	( var(V) -> VA = V ; equality(V, VA, Env) ),
+	new_abs(VA, NV, Env).
+equality(V1+V2, NV, Env) :-
+	( var(V1) -> V1A = V1 ; equality(V1, V1A, Env) ),
+	( var(V2) -> V2A = V2 ; equality(V2, V2A, Env) ),
+	new_plus(V1A, V2A, NV, ENV).
+equality(V1-V2, NV, Env) :-
+	( var(V1) -> V1A = V1 ; equality(V1, V1A, Env) ),
+	( var(V2) -> V2A = V2 ; equality(V2, V2A, Env) ),
+	new_minus(V1A, V2A, NV, ENV).
+
+new_abs( V, NV, Space-Map) :-
+	l(V, X, Min0, Max0, Map),
+	( Min0 < 0 ->
+	    ( Max0 < 0 -> Min is -Max0, Max is -Min0 ;
+		Min = 0 , Max is max( -Min, Max ) )
+	    ;
+	    Min = Min0, Max = Max0
+	),
+	NX := intvar(Space, Min, Max),
+	m(NV, NX, Min, Max, Map),
+	Space += abs(X, NX).
+
+new_minus( V1, V2, NV, Space-Map) :-
+	l(V1, X1, Min1, Max1, Map),
+	l(V2, X2, Min2, Max2, Map),
+	Min is Min1-Max2,
+	Max is Max1-Min2,
+	NX := intvar(Space, Min, Max),
+	m(NV, NX, Min, Max, Map),
+	Space += linear([1,-1], [X1,X2], NX).
+
+new_plus( V1, V2, NV, Space-Map) :-
+	l(V1, X1, Min1, Max1, Map),
+	l(V2, X2, Min2, Max2, Map),
+	Min is Min1+Min2,
+	Max is Max1+Max2,
+	NX := intvar(Space, Min, Max),
+	m(NV, NX, Min, Max, Map),
+	Space += linear([1,1], [X1,X2], NX).
+
+	
+
+user:term_expansion( ( H :- B), (H :- (clpfd:init_gecode(Space, Me), NB, clpfd:close_gecode(Space, Vs, Me)) ) ) :-
 	process_constraints(B, NB, Env),
 	term_variables(H, Vs),
 	nonvar( Env ), !,
@@ -230,4 +373,12 @@ l(NV, OV, [_|Vs]) :-
 
 ll(Map, X, Y) :-
 	l(X, Y, Map).
+
+l(NV, OV, _, _, Vs) :-
+	var(Vs), !,
+	fail.
+l(NV, OV, A, B, [v(V, OV, A, B)|_Vs]) :-
+	V == NV, !.
+l(NV, O, A, BV, [_|Vs]) :-
+	l(NV, OV, A, B, Vs).
 
