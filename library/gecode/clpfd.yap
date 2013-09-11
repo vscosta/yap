@@ -34,12 +34,12 @@
                   all_distinct/2,
 		  maximize/1,
                   sum/3,
+                  lex_chain/1,
                   scalar_product/4, /*
                   tuples_in/2, */
                   labeling/2 /*,
                   label/1,
                   indomain/1,
-                  lex_chain/1,
                   serialized/2,
                   global_cardinality/2,
                   global_cardinality/3,
@@ -194,6 +194,9 @@ all_distinct( Cs, Xs ) :-
 scalar_product( Cs, Vs, Rels, X ) :-
 	get_home(Env),
 	post( scalar_product( Cs, Vs, Rels, X ), Env, _ ).
+lex_chain( Cs ) :-
+	get_home(Env),
+	post( rel( Cs, '#=<' ), Env, _ ).
 
 labeling(_Opts, Xs) :-
 	get_home(Space-Map),
@@ -245,6 +248,12 @@ post( rel( sum(L), Op, Out), Space-Map, Reify):-
 	 Space += linear(IL, GOP, IOut, Reify)
 	).
 % [A,B,C,D] #< 3
+post( rel( A, Op), Space-Map, Reify):-
+	checklist( var, A ),  !,
+	maplist(ll(Map), A, IL ),
+	gecode_arith_op( Op, GOP ),
+	(var(Reify) ->	Space += rel(IL, GOP) ;
+	    Space += rel(IL, GOP, IB) ).
 post( rel( A, Op, B), Space-Map, Reify):-
 	checklist( var, A ), 
 	( var(B) -> l(B, IB, Map) ; integer(B) -> IB = B ), !,
@@ -327,7 +336,7 @@ post( all_distinct( Cs , Xs ), Space-Map, Reify) :-
 
 gecode_arith_op( (#=) , 'IRT_EQ' ).
 gecode_arith_op( (#\=) , 'IRT_NQ' ).
-gecode_arith_op( (#>) , 'IRT_GE' ).
+gecode_arith_op( (#>) , 'IRT_GR' ).
 gecode_arith_op( (#>=) , 'IRT_GQ' ).
 gecode_arith_op( (#<) , 'IRT_LE' ).
 gecode_arith_op( (#=<) , 'IRT_LQ' ).
