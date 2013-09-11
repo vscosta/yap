@@ -250,8 +250,8 @@ post( rel( A, Op, B), Space-Map, Reify):-
 	( var(B) -> l(B, IB, Map) ; integer(B) -> IB = B ), !,
 	maplist(ll(Map), A, IL ),
 	gecode_arith_op( Op, GOP ),
-	(var(Reify) ->	Space += rel(IA, GOP, IB) ;
-	    Space += rel(IA, GOP, IB, Reify) ).
+	(var(Reify) ->	Space += rel(IL, GOP, IB) ;
+	    Space += rel(IL, GOP, IB, Reify) ).
 post( rel(A, Op, B), Space-Map, Reify):-
 	( nonvar(A), ( A = _+_ ; A = _-_ ) ; 
 	  nonvar(B), ( B = _ + _ ; B = _-_) ), !,
@@ -276,7 +276,7 @@ post( rel(A, Op, B), Space-Map, Reify):-
 	equality(A1, NA1,  Space-Map),
 	in_c(NA1, VA1,  Space-Map), !,
 	equality(B, B1,  Space-Map),
-	out_c(Name, VA1, B1,  Space-Map, Reify).
+	out_c(Name, VA1, B1,  Op, Space-Map, Reify).
 post( rel(A, Op, B), Space-Map, Reify):-
 	nonvar(A),
 	arith(A, Name),
@@ -286,7 +286,7 @@ post( rel(A, Op, B), Space-Map, Reify):-
 	equality(A2, NA2,  Space-Map),
 	in_c(NA2, VA2,  Space-Map),
 	equality(B, B1,  Space-Map),
-	out_c(Name, VA1, VA2, B1,  Space-Map, Reify).
+	out_c(Name, VA1, VA2, B1,  Op, Space-Map, Reify).
 post( scalar_product(Cs, L, Op, Out), Space-Map, Reify):-
 	var(Out), !,
 	maplist(ll(Map), [Out|L], [IOut|IL] ),
@@ -409,63 +409,74 @@ equality(min( V1 , V2), NV, Env) :-
 	new_arith( (min), V1A, V2A, NV, Env).
 
 % abs(X) #= 3
-out_c(Name, A1, B,  Space-Map, Reify) :-
+out_c(Name, A1, B,  Op, Space-Map, Reify) :-
 	integer(B), !,
 	new_arith( Name, A1, NB, Space-Map),
+	gecode_arith_op( Op, BOP ),
 	l(NB, IB, Map),
 	( var(Reify) -> 
-	    Space += rel(IB, 'IRT_EQ', B)
+	    Space += rel(IB, BOP, B)
 	;
-	    Space += rel(IB, 'IRT_EQ', B, Reify)
+	    Space += rel(IB, BOP, B, Reify)
 	).
 % abs(X) #= Cin[..]
-out_c(Name, A1, B,  Space-Map, Reify) :-
+out_c(Name, A1, B,  (#=), Space-Map, Reify) :-
 	var(Reify),
 	l(B, IB, Map), !,
 	l(A1, IA1, Map),
 	G =.. [Name, IA1, IB],
 	Space += G.
-% abs(X) #= Cin[..] <=>
-out_c(Name, A1, B,  Space-Map, Reify) :-
-	nonvar(Reify),
+% abs(X) #= NEW
+out_c(Name, A1, B,  (#=), Space-Map, Reify) :-
+	var(Reify), !,
+	new_arith( Name, A1, B, Space-Map).
+% abs(X) #> NEW
+out_c(Name, A1, B,  Op, Space-Map, Reify) :-
 	l(B, IB0, Map), !,
 	new_arith( Name, A1, NB, Space-Map),
 	l(NB, IB, Map),
-	Space += rel(IB, 'IRT_EQ', IB0, Reify).
-% abs(X) #= NEW
-out_c(Name, A1, B,  Space-Map, Reify) :-
-	var(Reify), !,
-	new_arith( Name, A1, B, Space-Map).
+	gecode_arith_op( Op, BOP ),
+	(
+	    nonvar(Reify) ->
+	    Space += rel(IB, BOP, IB0)
+	;
+	    Space += rel(IB, BOP, IB0, Reify)
+	).
 
 % X*Y #= 3
-out_c(Name, A1, A2, B,  Space-Map, Reify) :-
+out_c(Name, A1, A2, B, Op, Space-Map, Reify) :-
 	integer(B), !,
 	new_arith( Name, A1, A2, NB, Space-Map),
 	l(NB, IB, Map),
+	gecode_arith_op( Op, BOP ),
 	( var(Reify) -> 
-	    Space += rel(IB, 'IRT_EQ', B)
+	    Space += rel(IB, BOP, B)
 	;
-	    Space += rel(IB, 'IRT_EQ', B, Reify)
+	    Space += rel(IB, BOP, B, Reify)
 	).
 % X*Y #= Cin[..]
-out_c(Name, A1, A2, B,  Space-Map, Reify) :-
+out_c(Name, A1, A2, B,  (#=), Space-Map, Reify) :-
 	var(Reify),
 	l(B, IB, Map), !,
 	l(A1, IA1, Map),
 	l(A2, IA2, Map),
 	G =.. [Name, IA1, IA2, IB],
 	Space += G.
+% abs(X) #= NEW, cannot be reified
+out_c(Name, A1, A2, B,  (#=), Space-Map, Reify) :-
+	var(Reify), !,
+	new_arith( Name, A1, A2, B, Space-Map).
 % min(X,Y) #= Cin[..] <=>
 out_c(Name, A1, A2, B,  Space-Map, Reify) :-
-	nonvar(Reify),
 	l(B, IB0, Map), !,
 	new_arith( Name, A1, A2, NB, Space-Map),
 	l(NB, IB, Map),
-	Space += rel(IB, 'IRT_EQ', IB0, Reify).
-% abs(X) #= NEW, cannot be reified
-out_c(Name, A1, A2, B,  Space-Map, Reify) :-
-	var(Reify), !,
-	new_arith( Name, A1, A2, B, Space-Map).
+	gecode_arith_op( Op, BOP ),
+	( var(Reify) ->
+	    Space += rel(IB, BOP, IB0)
+	;
+	    Space += rel(IB, BOP, IB0, Reify)
+	).
 
 new_arith( abs, V, NV, Space-Map) :-
 	l(V, X, Min0, Max0, Map),
