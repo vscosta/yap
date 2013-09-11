@@ -21,25 +21,25 @@
 
 % 5 people want to have a photograph together, but they have preferences.
 photo(Ex, People, Amount) :-
-	db(Ex, People, Preferences),
+	ex(Ex, People, Preferences),
 	length(People, Len),
 	Len0 is Len-1,
 	People ins 0..Len0,
 	all_distinct(People),
 	% Bools are the satisfied constraints
-	maplist(preferences, Preferences, Bools),
+	maplist(preference_satisfied, Preferences, Bools),
 	length(Preferences, PLen),
 	Amount in 0..PLen,
-	sum( Bools, #= , Amount ),
+	sum( Bools ) #= Amount,
 	% add all satisfied constraints
 	maximize(Amount),
 	labeling([], People).
 
 %reification, use with care
-preferences(X-Y, B) :-
+preference_satisfied(X-Y, B) :-
 	abs(X - Y) #= 1 #<==> B.
 
-db(s,[Alice,Bob,Carl,Deb,Evan], [Alice-Carl,
+ex(s,[Alice,Bob,Carl,Deb,Evan], [Alice-Carl,
 		Carl-Deb,
 		Deb-Alice,
 		Evan-Alice,
@@ -48,7 +48,7 @@ db(s,[Alice,Bob,Carl,Deb,Evan], [Alice-Carl,
 		Deb-Evan,
 		Evan-Bob]).
 
-db(l,[Betty,Chris,Donald,Fred,Gary,Mary,Paul,Peter,Susan],
+ex(l,[Betty,Chris,Donald,Fred,Gary,Mary,Paul,Peter,Susan],
 	[Betty-Donald,
 	 Betty-Gary,
 	 Betty-Peter,

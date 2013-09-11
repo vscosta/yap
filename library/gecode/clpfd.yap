@@ -33,8 +33,8 @@
                   all_distinct/1,
                   all_distinct/2,
 		  maximize/1,
-                  sum/3, /*
-                  scalar_product/4,
+                  sum/3,
+                  scalar_product/4, /*
                   tuples_in/2, */
                   labeling/2 /*,
                   label/1,
@@ -112,25 +112,25 @@ process_constraints(B, B, _Env).
 
 ( A #= B) :-
 	get_home(Env),
-	post( (A #= B), Env, _).
+	post( rel(A,  (#=),  B), Env, _).
 ( A #\= B) :-
 	get_home(Env),
-	post( (A #\= B), Env, _).
+	post( rel(A,  (#\=),  B), Env, _).
 ( A #< B) :-
 	get_home(Env),
-	post( (A #< B), Env, _).
+	post( rel(A,  (#<),  B), Env, _).
 ( A #> B) :-
 	get_home(Env),
-	post( (A #< B), Env, _).
+	post( rel(A,  (#>),  B), Env, _).
 ( A #=< B) :-
 	get_home(Env),
-	post( (A #=< B), Env, _).
+	post( rel(A,  (#=<),  B), Env, _).
 ( A #>= B) :-
 	get_home(Env),
-	post( (A #> B), Env, _).
+	post( rel(A,  (#>=),  B), Env, _).
 sum( L, Op, V) :-
 	get_home( Env ),
-	post( sum(L, Op, V), Env, _).
+	post( rel(sum(L), Op, V), Env, _).
 ( A #<==> VBool) :-
 	get_home(Space-Map),
 	Bool := boolvar(Space),
@@ -191,70 +191,117 @@ all_distinct( Xs ) :-
 all_distinct( Cs, Xs ) :-
 	get_home(Env),
 	post( all_distinct( Cs, Xs ), Env, _ ).
+scalar_product( Cs, Vs, Rels, X ) :-
+	get_home(Env),
+	post( scalar_product( Cs, Vs, Rels, X ), Env, _ ).
+
 labeling(_Opts, Xs) :-
 	get_home(Space-Map),
 	maplist(ll(Map), Xs, NXs),
 	Space += branch(NXs, 'INT_VAR_SIZE_MIN', 'INT_VAL_MIN').
+
 maximize(V) :-
 	get_home(Space-Map),
 	l(V, I, Map),
 	Space += maximize(I).
 
-post( (A #= B), Space-Map, Reify):-
-	integer(B),
-	linear(A, 1, [NA], [], [1], [], B, A0, Space-Map), !,
-	(var(Reify) ->
-	    Space += rel(NA, 'IRT_EQ', A0);
-	 Space += rel(NA, 'IRT_EQ', A0, Reify)
-	).
-post( (A #= B), Space-Map, Reify):-
-	linear(A, 1, As, Bs, CAs, CBs, 0, A0, Space-Map),
-	linear(B, -1, Bs, [], CBs, [], A0, B0, Space-Map),
-	(var(Reify) ->
-	    Space += linear(CAs, As, 'IRT_EQ', B0);
-	    Space += linear(CAs, As, 'IRT_EQ', B0, Reify)
-	).
-post( (A #\= B), Space-Map, Reify):-
-	linear(A, 1, As, Bs, CAs, CBs, 0, A0, Space-Map),
-	linear(B, -1, Bs, [], CBs, [], A0, B0, Space-Map),
-	(var(Reify) ->
-	    Space += linear(CAs, As, 'IRT_NQ', B0);
-	    Space += linear(CAs, As, 'IRT_NQ', B0, Reify)
-	).
-post( (A #>B), Space-Map, Reify):-
-	linear(A, 1, As, Bs, CAs, CBs, 0, A0, Space-Map),
-	linear(B, -1, Bs, [], CBs, [], A0, B0, Space-Map),
-	(var(Reify) ->
-	    Space += linear(CAs, As, 'IRT_GE', B0);
-	    Space += linear(CAs, As, 'IRT_GE', B0, Reify)
-	).
-post( (A #>=B), Space-Map, Reify):-
-	linear(A, 1, As, Bs, CAs, CBs, 0, A0, Space-Map),
-	linear(B, -1, Bs, [], CBs, [], A0, B0, Space-Map),
-	(var(Reify) ->
-	    Space += linear(CAs, As, 'IRT_GQ', B0);
-	    Space += linear(CAs, As, 'IRT_GQ', B0, Reify)
-	).
-post( (A #<B), Space-Map, Reify):-
-	linear(A, 1, As, Bs, CAs, CBs, 0, A0, Space-Map),
-	linear(B, -1, Bs, [], CBs, [], A0, B0, Space-Map),
-	(var(Reify) ->
-	    Space += linear(CAs, As, 'IRT_LE', B0);
-	    Space += linear(CAs, As, 'IRT_LE', B0, Reify)
-	).
-post( (A #=<B), Space-Map, Reify):-
-	linear(A, 1, As, Bs, CAs, CBs, 0, A0, Space-Map),
-	linear(B, -1, Bs, [], CBs, [], A0, B0, Space-Map),
-	(var(Reify) ->
-	    Space += linear(CAs, As, 'IRT_LQ', B0);
-	    Space += linear(CAs, As, 'IRT_LQ', B0, Reify)
-	).
-post( sum(L, Op, Out), Space-Map, Reify):-
+post( ( A #= B), Env, Reify) :-
+	post( rel( A, (#=), B), Env, Reify).
+post( ( A #\= B), Env, Reify) :-
+	post( rel( A, (#\=), B), Env, Reify).
+post( ( A #> B), Env, Reify) :-
+	post( rel( A, (#>), B), Env, Reify).
+post( ( A #< B), Env, Reify) :-
+	post( rel( A, (#<), B), Env, Reify).
+post( ( A #>= B), Env, Reify) :-
+	post( rel( A, (#>=), B), Env, Reify).
+post( ( A #=< B), Env, Reify) :-
+	post( rel( A, (#=<), B), Env, Reify).
+% X #< Y 
+% X #< 2
+post( rel( A, Op, B), Space-Map, Reify):-
+	var(A),
+	( var(B) -> l(B, IB, Map) ; integer(B) -> IB = B ), !,
+	l(A, IA, Map),
+	gecode_arith_op( Op, GOP ),
+	(var(Reify) ->	Space += rel(IA, GOP, IB) ;
+	    Space += rel(IA, GOP, IB, Reify) ).
+% 2 #\= B
+post( rel( A, Op, B), Space-Map, Reify):-
+	var(B), integer(A), !,
+	l(B, IB, Map),
+	gecode_arith_op( Op, GOP ),
+	(var(Reify) ->	Space += rel(A, GOP, IB) ;
+	    Space += rel(A, GOP, IB, Reify) ).
+% sum([A,B,C]) #= X
+post( rel( sum(L), Op, Out), Space-Map, Reify):-
+	checklist( var, L ), 
+	( var(Out) -> l(Out, IOut, Map) ; integer(Out) -> IOut = Out ), !,
+	var(Out), !,
 	maplist(ll(Map), [Out|L], [IOut|IL] ),
 	gecode_arith_op( Op, GOP ),
 	(var(Reify) ->
 	    Space += linear(IL, GOP, IOut);
 	 Space += linear(IL, GOP, IOut, Reify)
+	).
+% [A,B,C,D] #< 3
+post( rel( A, Op, B), Space-Map, Reify):-
+	checklist( var, A ), 
+	( var(B) -> l(B, IB, Map) ; integer(B) -> IB = B ), !,
+	maplist(ll(Map), A, IL ),
+	gecode_arith_op( Op, GOP ),
+	(var(Reify) ->	Space += rel(IA, GOP, IB) ;
+	    Space += rel(IA, GOP, IB, Reify) ).
+post( rel(A, Op, B), Space-Map, Reify):-
+	( nonvar(A), ( A = _+_ ; A = _-_ ) ; 
+	  nonvar(B), ( B = _ + _ ; B = _-_) ), !,
+	linearize(A, 1, As, Bs, CAs, CBs, 0, A0, Space-Map),
+	linearize(B, -1, Bs, [], CBs, [], A0, B0, Space-Map),
+	gecode_arith_op( Op, GOP ),
+	(var(Reify) ->
+	    ( checklist(is_one, CAs) ->
+		Space += linear(As, GOP, B0);
+		Space += linear(CAs, As, GOP, B0) 
+	    )
+	    ;
+	    ( checklist(is_one, CAs) ->
+		Space += linear(As, GOP, B0, Reify);
+		Space += linear(CAs, As, GOP, B0, Reify) 
+	    )
+	).
+post( rel(A, Op, B), Space-Map, Reify):-
+	nonvar(A),
+	arith(A, Name),
+	A =.. [_Op,A1], !, 
+	equality(A1, NA1,  Space-Map),
+	in_c(NA1, VA1,  Space-Map), !,
+	equality(B, B1,  Space-Map),
+	out_c(Name, VA1, B1,  Space-Map, Reify).
+post( rel(A, Op, B), Space-Map, Reify):-
+	nonvar(A),
+	arith(A, Name),
+	A =.. [_Op,A1,A2], !, 
+	equality(A1, NA1,  Space-Map),
+	in_c(NA1, VA1,  Space-Map),
+	equality(A2, NA2,  Space-Map),
+	in_c(NA2, VA2,  Space-Map),
+	equality(B, B1,  Space-Map),
+	out_c(Name, VA1, VA2, B1,  Space-Map, Reify).
+post( scalar_product(Cs, L, Op, Out), Space-Map, Reify):-
+	var(Out), !,
+	maplist(ll(Map), [Out|L], [IOut|IL] ),
+	gecode_arith_op( Op, GOP ),
+	(var(Reify) ->
+	    Space += linear(Cs, IL, GOP, IOut);
+	    Space += linear(Cs, IL, GOP, IOut, Reify)
+	).
+post( scalar_product(Cs, L, Op, Out), Space-Map, Reify):-
+	integer(Out), !,
+	maplist(ll(Map), L, IL ),
+	gecode_arith_op( Op, GOP ),
+	(var(Reify) ->
+	    Space += linear(Cs, IL, GOP, Out);
+	    Space += linear(Cs, IL, GOP, Out, Reify)
 	).
 post( all_different( Xs ), Space-Map, Reify) :-
 	maplist(ll(Map), Xs, NXs),
@@ -285,54 +332,142 @@ gecode_arith_op( (#>=) , 'IRT_GQ' ).
 gecode_arith_op( (#<) , 'IRT_LE' ).
 gecode_arith_op( (#=<) , 'IRT_LQ' ).
 
-linear(V, C, [A|As], As, [C|CAs], CAs, I, I, _-Map) :- 
+linearize(V, C, [A|As], As, [C|CAs], CAs, I, I, _-Map) :- 
 	var(V), !,
 	l(V, A, Map).
-linear(A+B, C, As, Bs, CAs, CBs, I, IF, Env) :-
-	linear(A, C, As, A1s, CAs, CA1s, I, I1, Env),
-	linear(B, C, A1s, Bs, CA1s, CBs, I1, IF, Env).
-linear(A-B, C, As, Bs, CAs, CBs, I, IF, Env) :-
+linearize(A+B, C, As, Bs, CAs, CBs, I, IF, Env) :-
+	linearize(A, C, As, A1s, CAs, CA1s, I, I1, Env),
+	linearize(B, C, A1s, Bs, CA1s, CBs, I1, IF, Env).
+linearize(A-B, C, As, Bs, CAs, CBs, I, IF, Env) :-
 	NC is -C,
-	linear(A, C, As, A1s, CAs, CA1s, I, I1, Env),
-	linear(B, NC, A1s, Bs, CA1s, CBs, I1, IF, Env).
-linear(A, C, As, As, CAs, CAs, I, IF, _) :-
+	linearize(A, C, As, A1s, CAs, CA1s, I, I1, Env),
+	linearize(B, NC, A1s, Bs, CA1s, CBs, I1, IF, Env).
+linearize(A, C, As, As, CAs, CAs, I, IF, _) :-
 	integer(A), !,
 	IF is I-C*A.
-linear(A, C, As, As, CAs, CAs, I, IF, _) :-
+linearize(A, C, As, As, CAs, CAs, I, IF, _) :-
 	ground(A),
 	catch( (B is eval(A)), _, fail ), !,
 	IF is I-C*B.
-linear(C1*B, C, As, Bs, CAs, CBs, I, IF, Env) :-
+linearize(C1*B, C, As, Bs, CAs, CBs, I, IF, Env) :-
 	integer(C1), !,
 	NC is C*C1,
-	linear(B, NC, As, Bs, CAs, CBs, I, IF, Env).
-linear(B*C1, C, As, Bs, CAs, CBs, I, IF, Env) :-
+	linearize(B, NC, As, Bs, CAs, CBs, I, IF, Env).
+linearize(B*C1, C, As, Bs, CAs, CBs, I, IF, Env) :-
 	integer(C1), !,
 	NC is C*C1,
-	linear(B, NC, As, Bs, CAs, CBs, I, IF, Env).
-linear(AC, C, [A|Bs], Bs, [C|CBs], CBs, I, I, Env) :-
-	arith(AC),
+	linearize(B, NC, As, Bs, CAs, CBs, I, IF, Env).
+linearize(AC, C, [A|Bs], Bs, [C|CBs], CBs, I, I, Env) :-
+	arith(AC, _),
 	equality(AC, V, Env),
 	Env = _-Map,
 	l(V, A, Map).
 
-arith(abs(_)).
-arith(_ + _).
-arith(_ - _).
+arith(abs(_), abs).
+arith(min(_,_), min).
+arith(max(_,_), max).
+arith((_ * _), times).
+arith((_ / _), div).
+arith((_ mod _), mod).
 
+% replace abs(min(A,B)-max(A,B)) by
+%    min(A,B,A1), max(A,B,A2), linear([1,-1],[A1,B1],=,A3), abs(A3,AN)
+equality(V, V, _Env) :-
+	var( V ), !.
+equality(V, V, _Env) :-
+	integer( V ), !.
 equality(abs(V), NV, Env) :-
-	( var(V) -> VA = V ; equality(V, VA, Env) ),
-	new_abs(VA, NV, Env).
+	equality(V, VA, Env),
+	new_arith(abs, VA, NV, Env).
 equality(V1+V2, NV, Env) :-
-	( var(V1) -> V1A = V1 ; equality(V1, V1A, Env) ),
-	( var(V2) -> V2A = V2 ; equality(V2, V2A, Env) ),
-	new_plus(V1A, V2A, NV, ENV).
+	equality(V1, V1A, Env),
+	equality(V2, V2A, Env),
+	new_arith( plus, V1A, V2A, NV, Env).
 equality(V1-V2, NV, Env) :-
-	( var(V1) -> V1A = V1 ; equality(V1, V1A, Env) ),
-	( var(V2) -> V2A = V2 ; equality(V2, V2A, Env) ),
-	new_minus(V1A, V2A, NV, Env).
+	equality(V1, V1A, Env),
+	equality(V2, V2A, Env),
+	new_arith( minus, V1A, V2A, NV, Env).
+equality(V1*V2, NV, Env) :-
+	equality(V1, V1A, Env),
+	equality(V2, V2A, Env),
+	new_arith( times, V1A, V2A, NV, Env).
+equality(V1/V2, NV, Env) :-
+	equality(V1, V1A, Env),
+	equality(V2, V2A, Env),
+	new_arith( div, V1A, V2A, NV, Env).
+equality(V1 mod V2, NV, Env) :-
+	equality(V1, V1A, Env),
+	equality(V2, V2A, Env),
+	new_arith( (mod), V1A, V2A, NV, Env).
+equality(max( V1 , V2), NV, Env) :-
+	equality(V1, V1A, Env),
+	equality(V2, V2A, Env),
+	new_arith( (max), V1A, V2A, NV, Env).
+equality(min( V1 , V2), NV, Env) :-
+	equality(V1, V1A, Env),
+	equality(V2, V2A, Env),
+	new_arith( (min), V1A, V2A, NV, Env).
 
-new_abs( V, NV, Space-Map) :-
+% abs(X) #= 3
+out_c(Name, A1, B,  Space-Map, Reify) :-
+	integer(B), !,
+	new_arith( Name, A1, NB, Space-Map),
+	l(NB, IB, Map),
+	( var(Reify) -> 
+	    Space += rel(IB, 'IRT_EQ', B)
+	;
+	    Space += rel(IB, 'IRT_EQ', B, Reify)
+	).
+% abs(X) #= Cin[..]
+out_c(Name, A1, B,  Space-Map, Reify) :-
+	var(Reify),
+	l(B, IB, Map), !,
+	l(A1, IA1, Map),
+	G =.. [Name, IA1, IB],
+	Space += G.
+% abs(X) #= Cin[..] <=>
+out_c(Name, A1, B,  Space-Map, Reify) :-
+	nonvar(Reify),
+	l(B, IB0, Map), !,
+	new_arith( Name, A1, NB, Space-Map),
+	l(NB, IB, Map),
+	Space += rel(IB, 'IRT_EQ', IB0, Reify).
+% abs(X) #= NEW
+out_c(Name, A1, B,  Space-Map, Reify) :-
+	var(Reify), !,
+	new_arith( Name, A1, B, Space-Map).
+
+% X*Y #= 3
+out_c(Name, A1, A2, B,  Space-Map, Reify) :-
+	integer(B), !,
+	new_arith( Name, A1, A2, NB, Space-Map),
+	l(NB, IB, Map),
+	( var(Reify) -> 
+	    Space += rel(IB, 'IRT_EQ', B)
+	;
+	    Space += rel(IB, 'IRT_EQ', B, Reify)
+	).
+% X*Y #= Cin[..]
+out_c(Name, A1, A2, B,  Space-Map, Reify) :-
+	var(Reify),
+	l(B, IB, Map), !,
+	l(A1, IA1, Map),
+	l(A2, IA2, Map),
+	G =.. [Name, IA1, IA2, IB],
+	Space += G.
+% min(X,Y) #= Cin[..] <=>
+out_c(Name, A1, A2, B,  Space-Map, Reify) :-
+	nonvar(Reify),
+	l(B, IB0, Map), !,
+	new_arith( Name, A1, A2, NB, Space-Map),
+	l(NB, IB, Map),
+	Space += rel(IB, 'IRT_EQ', IB0, Reify).
+% abs(X) #= NEW, cannot be reified
+out_c(Name, A1, A2, B,  Space-Map, Reify) :-
+	var(Reify), !,
+	new_arith( Name, A1, A2, B, Space-Map).
+
+new_arith( abs, V, NV, Space-Map) :-
 	l(V, X, Min0, Max0, Map),
 	( Min0 < 0 ->
 	    ( Max0 < 0 -> Min is -Max0, Max is -Min0 ;
@@ -344,7 +479,7 @@ new_abs( V, NV, Space-Map) :-
 	m(NV, NX, Min, Max, Map),
 	Space += abs(X, NX).
 
-new_minus( V1, V2, NV, Space-Map) :-
+new_arith( minus, V1, V2, NV, Space-Map) :-
 	l(V1, X1, Min1, Max1, Map),
 	l(V2, X2, Min2, Max2, Map),
 	Min is Min1-Max2,
@@ -353,7 +488,7 @@ new_minus( V1, V2, NV, Space-Map) :-
 	m(NV, NX, Min, Max, Map),
 	Space += linear([1,-1], [X1,X2], 'IRT_EQ', NX).
 
-new_plus( V1, V2, NV, Space-Map) :-
+new_arith( plua, V1, V2, NV, Space-Map) :-
 	l(V1, X1, Min1, Max1, Map),
 	l(V2, X2, Min2, Max2, Map),
 	Min is Min1+Min2,
@@ -362,6 +497,76 @@ new_plus( V1, V2, NV, Space-Map) :-
 	m(NV, NX, Min, Max, Map),
 	Space += linear([1,1], [X1,X2], 'IRT_EQ', NX).
 
+new_arith( min, V1, V2, NV, Space-Map) :-
+	l(V1, X1, Min1, Max1, Map),
+	l(V2, X2, Min2, Max2, Map),
+	Min is min(Min1,Min2),
+	Max is min(Max1,Max2),
+	NX := intvar(Space, Min, Max),
+	m(NV, NX, Min, Max, Map),
+	Space += min(X1, X2, NX).
+
+new_arith( max, V1, V2, NV, Space-Map) :-
+	l(V1, X1, Min1, Max1, Map),
+	l(V2, X2, Min2, Max2, Map),
+	Min is max(Min1,Min2),
+	Max is max(Max1,Max2),
+	NX := intvar(Space, Min, Max),
+	m(NV, NX, Min, Max, Map),
+	Space += max(X1, X2, NX).
+
+new_arith( times, V1, V2, NV, Space-Map) :-
+	l(V1, X1, Min1, Max1, Map),
+	l(V2, X2, Min2, Max2, Map),
+	min_times(Min1,Min2,Max1,Max2,Min),
+	max_times(Min1,Min2,Max1,Max2,Max),
+	NX := intvar(Space, Min, Max),
+	m(NV, NX, Min, Max, Map),
+	Space += times(X1, X2, NX).
+
+new_arith( (div), V1, V2, NV, Space-Map) :-
+	l(V1, X1, Min1, Max1, Map),
+	l(V2, X2, Min2, Max2, Map),
+	min_div(Min1,Min2,Max1,Max2,Min),
+	max_div(Min1,Min2,Max1,Max2,Max),
+	NX := intvar(Space, Min, Max),
+	m(NV, NX, Min, Max, Map),
+	Space += div(X1, X2, NX).
+
+new_arith( (mod), V1, V2, NV, Space-Map) :-
+	l(V1, X1, _Min1, Max1, Map),
+	l(V2, X2, Min2, Max2, Map),
+	Min is 0,
+	Max is min(abs(Max1), Max2-1),
+	NX := intvar(Space, Min, Max),
+	m(NV, NX, Min, Max, Map),
+	Space += mod(X1, X2, NX).
+
+
+min_times(Min1,Min2,Max1,Max2,Min) :-
+	Min is min(Min1*Min2, min(Min1*Max2, min(Max1*Min2, Max1*Max2))).
+
+max_times(Min1,Min2,Max1,Max2,Max) :-
+	Max is max(Min1*Min2, max(Min1*Max2, max(Max1*Min2, Max1*Max2))).
+
+min_div(Min1,Min20,Max1,Max20,Min) :-
+	( Min20 == 0 -> Min2 = 1 ; Min2 = Min20),
+	( Max20 == 0 -> Max2 = -1; Max2 = Max20),
+	Min is min(Min1 div Min2, min(Min1 div Max2, min(Max1 div Min2, Max1 div Max2))).
+
+max_div(Min1,Min20,Max1,Max20,Max) :-
+	( Min20 == 0 -> Min2 = 1 ; Min2 = Min20),
+	( Max20 == 0 -> Max2 = -1; Max2 = Max20),
+	Max is max(Min1 div Min2, max(Min1 div Max2, max(Max1 div Min2, Max1 div Max2))).
+
+in_c(A, A,  _y) :-
+	var(A), !.
+in_c(C, A, Space-Map) :-
+	integer(C), 
+	Min is C-1,
+	NX := intvar(Space, Min, C),
+	m(A, NX, Min, C, Map),
+	Space += rel(NX, 'IRT_EQ', C).
 
 user:term_expansion( ( H :- B), (H :- (clpfd:init_gecode(Space, Me), NB, clpfd:close_gecode(Space, Vs, Me)) ) ) :-
 	process_constraints(B, NB, Env),
@@ -416,4 +621,6 @@ l(NV, OV, A, B, [v(V, OV, A, B)|_Vs]) :-
 	V == NV, !.
 l(NV, OV, A, B, [_|Vs]) :-
 	l(NV, OV, A, B, Vs).
+
+is_one(1).
 
