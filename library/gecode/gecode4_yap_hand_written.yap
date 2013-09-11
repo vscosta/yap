@@ -118,6 +118,10 @@ is_IntSetArgs_([H|T],[H2|T2]) :- is_IntSet(H,H2), is_IntSetArgs(T,T2).
 is_IntSetArgs(X,Y) :- nonvar(X), is_IntSetArgs_(X,Y).
 is_IntSetArgs(X) :- \+ \+ is_IntSetArgs(X,_).
 
+is_TupleSet_('TupleSet'(L),L).
+is_TupleSet(X,Y) :- nonvar(X), is_TupleSet_(X,Y).
+is_TupleSet(X) :- is_TupleSet(X,_).
+
 new_intset(X,I,J) :- intset(X,I,J).
 new_intset(X,L) :- intset(X,L).
 
@@ -150,6 +154,8 @@ assert_is_Space(X,Y) :-
 	is_Space(X,Y) -> true ; throw(gecode_error(expected(space))).
 assert_is_IntSet(X,Y) :-
 	is_IntSet(X,Y) -> true ; throw(gecode_error(expected(intset))).
+assert_is_TupleSet(X,Y) :-
+	is_TupleSet(X,Y) -> true ; throw(gecode_error(expected(tupleset))).
 assert_is_IntVar(X,Y) :-
 	is_IntVar(X,Y) -> true ; throw(gecode_error(expected(intvar))).
 assert_is_BoolVar(X,Y) :-
@@ -539,6 +545,11 @@ new_setvar(SVar,Space,X1,X2) :-
 	assert_is_IntSet(X2,X2_),
 	gecode_new_setvar_12(Idx,Space_,X1_,X2_),
 	SVar='SetVar'(Idx,-1).
+
+new_tuple_set( List, X1 ) :-
+	gecode_new_tuple_set(List, X1_),
+	X1 = 'TupleSet'(X1_, -1).
+	
 
 minimize(Space,IVar) :-
 	assert_is_Space(Space,Space_),

@@ -168,6 +168,12 @@ extern "C"
     return * (SetAssign*) YAP_OpaqueObjectFromTerm(t);
   }
 
+  static inline TupleSet&
+  gecode_TupleSet_from_term(YAP_Term t)
+  {
+    return *(TupleSet *) YAP_IntOfTerm(t);
+  }
+
   static inline FloatNum
   gecode_FloatNum_from_term(YAP_Term t)
   {
@@ -1569,6 +1575,55 @@ extern "C"
     return YAP_Unify(YAP_ARG4, term);
   }
 
+  static YAP_opaque_tag_t gecode_tupleset_tag;
+  static YAP_opaque_handler_t gecode_tupleset_handler;
+
+  static int gecode_tupleset_fail_handler(void* p)
+  {
+    //delete *(GenericSpace**)p;
+    return TRUE;
+  }
+
+  static int
+  gecode_tupleset_write_handler
+  (void *stream_, YAP_opaque_tag_t type, void *p, int flags)
+  {
+    IOSTREAM* stream = (IOSTREAM*) stream_;
+    Sfprintf(stream,"<tupleset %p>", p);
+    return TRUE;
+  }
+
+  static YAP_Term gecode_term_from_tupleset(TupleSet& r)
+  {
+    YAP_Term term =
+      YAP_NewOpaqueObject(gecode_tupleset_tag, sizeof(TupleSet *));
+    TupleSet *ptr =
+      (TupleSet*) YAP_OpaqueObjectFromTerm(term);
+    *ptr = r;
+    return term;
+  }
+
+  static int gecode_new_tupleset(void)
+  {
+    TupleSet ts;
+    YAP_Term t = YAP_ARG1;
+    while (YAP_IsPairTerm( t ) ) {
+      YAP_Term l = YAP_HeadOfTerm(t);
+      int n = gecode_list_length(l);
+      int i = 0;
+      IntArgs is(n);
+      while (YAP_IsPairTerm( l ) ) {
+	YAP_Term ll = YAP_HeadOfTerm(l);
+	is[i++] = YAP_IntOfTerm(ll);
+	l = YAP_TailOfTerm(l);
+      }
+      ts.add(is);
+      t = YAP_TailOfTerm(t);
+    }
+    ts.finalize();
+    return YAP_Unify(YAP_ARG2, gecode_term_from_tupleset( ts ));
+  }
+
   void gecode_init(void)
   {
     { YAP_Atom X= YAP_LookupAtom("true");
@@ -1758,6 +1813,11 @@ extern "C"
     gecode_reify_handler.write_handler = gecode_reify_write_handler;
     gecode_reify_tag = YAP_NewOpaqueType(&gecode_reify_handler);
     YAP_UserCPredicate("gecode_new_reify", gecode_new_reify, 4);
+    // TupleSet reifications
+    gecode_tupleset_handler.fail_handler = gecode_tupleset_fail_handler;
+    gecode_tupleset_handler.write_handler = gecode_tupleset_write_handler;
+    gecode_tupleset_tag = YAP_NewOpaqueType(&gecode_tupleset_handler);
+    YAP_UserCPredicate("gecode_new_tupleset", gecode_new_tupleset, 4);
 #ifdef DISJUNCTOR
     // opaque disjunctors and clauses
     gecode_disjunctor_handler.write_handler = gecode_disjunctor_write_handler;
@@ -1848,5 +1908,8 @@ extern "C"
     YAP_UserCPredicate("gecode_floatvar_max", gecode_floatvar_max, 3);
     YAP_UserCPredicate("gecode_floatvar_med", gecode_floatvar_med, 3);
     YAP_UserCPredicate("gecode_floatvar_size", gecode_floatvar_size, 3);
+    // TupleSets
+    YAP_UserCPredicate("gecode_new_tupleset", gecode_new_tupleset, 2);
+
   }
 }
