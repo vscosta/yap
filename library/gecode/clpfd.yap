@@ -35,6 +35,10 @@
 		  maximize/1,
                   sum/3,
                   lex_chain/1,
+		  minimum/2,
+		  min/2,
+		  maximum/2,
+		  max/2,
                   scalar_product/4, /*
                   tuples_in/2, */
                   labeling/2 /*,
@@ -79,6 +83,10 @@ constraint( all_distinct(_) ). %1,
 constraint( all_distinct(_,_) ). %1,
 constraint( sum(_, _, _) ). %3,
 constraint( scalar_product(_, _, _, _) ). %4,
+constraint( min(_, _) ). %2,
+constraint( minimum(_, _) ). %2,
+constraint( max(_, _) ). %2,
+constraint( maximum(_, _) ). %2,
 constraint( tuples_in(_, _) ). %2,
 constraint( labeling(_, _) ). %2,
 constraint( label(_) ). %1,
@@ -197,6 +205,18 @@ scalar_product( Cs, Vs, Rels, X ) :-
 lex_chain( Cs ) :-
 	get_home(Env),
 	post( rel( Cs, '#=<' ), Env, _ ).
+minimum( V, Xs ) :-
+	get_home(Env),
+	post( rel( min(Xs), (#=), V ), Env, _ ).
+min( Xs, V ) :-
+	get_home(Env),
+	post( rel( min(Xs), (#=), V ), Env, _ ).
+maximum( V, Xs ) :-
+	get_home(Env),
+	post( rel( max(Xs), (#=), V ), Env, _ ).
+max( Xs, V ) :-
+	get_home(Env),
+	post( rel( max(Xs), (#=), V ), Env, _ ).
 
 labeling(_Opts, Xs) :-
 	get_home(Space-Map),
@@ -248,12 +268,19 @@ post( rel( sum(L), Op, Out), Space-Map, Reify):-
 	 Space += linear(IL, GOP, IOut, Reify)
 	).
 % [A,B,C,D] #< 3
-post( rel( A, Op), Space-Map, Reify):-
+post( rel( A, Op ), Space-Map, Reify):-
 	checklist( var, A ),  !,
 	maplist(ll(Map), A, IL ),
 	gecode_arith_op( Op, GOP ),
 	(var(Reify) ->	Space += rel(IL, GOP) ;
 	    Space += rel(IL, GOP, IB) ).
+post( rel( A, Op, B), Space-Map, Reify):-
+	var( A ), !,  
+	( var(B) -> l(B, IB, Map) ; integer(B) -> IB = B ), !,
+	l(A, IA, Map), 
+	gecode_arith_op( Op, GOP ),
+	(var(Reify) ->	Space += rel(IA, GOP, IB) ;
+	    Space += rel(IA, GOP, IB, Reify) ).
 post( rel( A, Op, B), Space-Map, Reify):-
 	checklist( var, A ), 
 	( var(B) -> l(B, IB, Map) ; integer(B) -> IB = B ), !,
@@ -278,6 +305,16 @@ post( rel(A, Op, B), Space-Map, Reify):-
 		Space += linear(CAs, As, GOP, B0, Reify) 
 	    )
 	).
+post( rel(A, Op, B), Space-Map, Reify):-
+	nonvar(A),
+	arith(A, Name),
+	A =.. [_Op,A1], 
+	is_list(A1), !,
+	( _Op = min -> true ; _Op = max  ),
+	maplist(equality_l( Space-Map),  A1, NA1),
+	maplist(in_c_l( Space-Map), NA1, VA1),
+	equality(B, B1,  Space-Map),
+	out_c(Name, VA1, B1,  Op, Space-Map, Reify).
 post( rel(A, Op, B), Space-Map, Reify):-
 	nonvar(A),
 	arith(A, Name),
@@ -334,11 +371,11 @@ post( all_distinct( Cs , Xs ), Space-Map, Reify) :-
 	    throw(error(domain(not_reifiable),all_distinct( Cs , Xs )))
 	).
 
-gecode_arith_op( (#=) , 'IRT_EQ' ).
+gecode_arith_op( (#=)  , 'IRT_EQ' ).
 gecode_arith_op( (#\=) , 'IRT_NQ' ).
-gecode_arith_op( (#>) , 'IRT_GR' ).
+gecode_arith_op( (#>)  , 'IRT_GR' ).
 gecode_arith_op( (#>=) , 'IRT_GQ' ).
-gecode_arith_op( (#<) , 'IRT_LE' ).
+gecode_arith_op( (#<)  , 'IRT_LE' ).
 gecode_arith_op( (#=<) , 'IRT_LQ' ).
 
 linearize(V, C, [A|As], As, [C|CAs], CAs, I, I, _-Map) :- 
@@ -373,6 +410,8 @@ linearize(AC, C, [A|Bs], Bs, [C|CBs], CBs, I, I, Env) :-
 	l(V, A, Map).
 
 arith(abs(_), abs).
+arith(min(_), min).
+arith(max(_), max).
 arith(min(_,_), min).
 arith(max(_,_), max).
 arith((_ * _), times).
@@ -388,6 +427,12 @@ equality(V, V, _Env) :-
 equality(abs(V), NV, Env) :-
 	equality(V, VA, Env),
 	new_arith(abs, VA, NV, Env).
+equality(min(V), NV, Env) :-
+	maplist( equality_l(Env), V, VA ),
+	new_arith(min, VA, NV, Env).
+equality(max(V), NV, Env) :-
+	maplist( equality_l(Env), V, VA ),
+	new_arith(max, VA, NV, Env).
 equality(V1+V2, NV, Env) :-
 	equality(V1, V1A, Env),
 	equality(V2, V2A, Env),
@@ -416,6 +461,9 @@ equality(min( V1 , V2), NV, Env) :-
 	equality(V1, V1A, Env),
 	equality(V2, V2A, Env),
 	new_arith( (min), V1A, V2A, NV, Env).
+
+equality_l(Env, V0, V) :-
+	equality(V0, V, Env).
 
 % abs(X) #= 3
 out_c(Name, A1, B,  Op, Space-Map, Reify) :-
@@ -499,6 +547,24 @@ new_arith( abs, V, NV, Space-Map) :-
 	m(NV, NX, Min, Max, Map),
 	Space += abs(X, NX).
 
+new_arith( min, V, NV, Space-Map) :-
+	V = [V1|RV],
+	l(V1, X1, Min0, Max0, Map),
+	foldl2( min_l(Map), RV, Max0, Max, Min0, Min),
+	NX := intvar(Space, Min, Max),
+	m(NV, NX, Min, Max, Map),
+	maplist(ll(Map), V, X),
+	Space += min(X, NX).
+
+new_arith( max, V, NV, Space-Map) :-
+	V = [V1|RV],
+	l(V1, X, Min0, Max0, Map),
+	foldl2( max_l(Map), RV, Max0, Max, Min0, Min),
+	NX := intvar(Space, Min, Max),
+	m(NV, NX, Min, Max, Map),
+	maplist(ll(Map), V, X),
+	Space += min(X, NX).
+
 new_arith( minus, V1, V2, NV, Space-Map) :-
 	l(V1, X1, Min1, Max1, Map),
 	l(V2, X2, Min2, Max2, Map),
@@ -579,6 +645,16 @@ max_div(Min1,Min20,Max1,Max20,Max) :-
 	( Max20 == 0 -> Max2 = -1; Max2 = Max20),
 	Max is max(Min1 div Min2, max(Min1 div Max2, max(Max1 div Min2, Max1 div Max2))).
 
+min_l(Map, V, Min0, Min, Max0, Max) :-
+	l(V, _, Min1, Max1, Map),
+	Min is min(Min0, Min1),
+	Max is min(Max0, Max1).
+
+max_l(Map, V, Min0, Min, Max0, Max) :-
+	l(V, _, Min1, Max1, Map),
+	Min is max(Min0, Min1),
+	Max is max(Max0, Max1).
+
 in_c(A, A,  _y) :-
 	var(A), !.
 in_c(C, A, Space-Map) :-
@@ -587,6 +663,9 @@ in_c(C, A, Space-Map) :-
 	NX := intvar(Space, Min, C),
 	m(A, NX, Min, C, Map),
 	Space += rel(NX, 'IRT_EQ', C).
+
+in_c_l(Env, V, IV) :-
+	in_c(V, IV, Env).
 
 user:term_expansion( ( H :- B), (H :- (clpfd:init_gecode(Space, Me), NB, clpfd:close_gecode(Space, Vs, Me)) ) ) :-
 	process_constraints(B, NB, Env),

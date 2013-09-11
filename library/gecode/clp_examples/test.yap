@@ -22,3 +22,12 @@ test3(A) :-
 	lex_chain(A),
 	all_different(A),
 	labeling([], [X,Y,Z]).
+test4(A) :-
+	A = [X,Y,Z],
+	A ins 1..4,
+	Y #> 2,
+	Z #> 3,
+	lex_chain(A),
+	min(A, 1),
+	all_different(A),
+	labeling([], [X,Y,Z]).
