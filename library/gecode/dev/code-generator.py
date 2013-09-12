@@ -190,8 +190,7 @@ class DeclsLoader(object):
 
 class PredGenerator(DeclsLoader):
 
-    OMIT = ("DFA",              # NOT YET SUPPORTED!!!
-            "VarBranchOptions",
+    OMIT = ("VarBranchOptions",
             "ValBranchOptions",
             "TieBreakVarBranch<IntVarBranch>",
             "TieBreak<IntVarBranch>",

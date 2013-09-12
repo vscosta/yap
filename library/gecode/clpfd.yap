@@ -39,7 +39,12 @@
 		  min/2,
 		  maximum/2,
 		  max/2,
-                  scalar_product/4, /*
+                  scalar_product/4,
+		  extensional_constraint/2,
+		  in_relation/2,
+		  dfa/4,
+		  in_dfa/2,
+		  in_dfa/4, /*
                   tuples_in/2, */
                   labeling/2 /*,
                   label/1,
@@ -87,6 +92,9 @@ constraint( min(_, _) ). %2,
 constraint( minimum(_, _) ). %2,
 constraint( max(_, _) ). %2,
 constraint( maximum(_, _) ). %2,
+constraint( in_relation(_, _) ). %2,
+constraint( in_dfa(_, _) ). %2,
+constraint( in_dfa(_, _, _, _) ). %2,
 constraint( tuples_in(_, _) ). %2,
 constraint( labeling(_, _) ). %2,
 constraint( label(_) ). %1,
@@ -217,6 +225,15 @@ maximum( V, Xs ) :-
 max( Xs, V ) :-
 	get_home(Env),
 	post( rel( max(Xs), (#=), V ), Env, _ ).
+in_relation( Xs, Rel ) :-
+	get_home(Env),
+	post(in_tupleset(Xs, Rel), Env, _ ).
+in_dfa( Xs, Rel ) :-
+	get_home(Env),
+	post(in_dfa(Xs, Rel), Env, _ ).
+in_dfa( Xs, S0, Ts, Fs ) :-
+	get_home(Env),
+	post(in_dfa(Xs, S0, Ts, Fs), Env, _ ).
 
 labeling(_Opts, Xs) :-
 	get_home(Space-Map),
@@ -227,6 +244,12 @@ maximize(V) :-
 	get_home(Space-Map),
 	l(V, I, Map),
 	Space += maximize(I).
+
+extensional_constraint( Tuples, TupleSet) :-
+	TupleSet := tupleset( Tuples ).
+
+dfa( S0, Transitions, Finals, DFA) :-
+	DFA := dfa( S0, Transitions, Finals ).
 
 post( ( A #= B), Env, Reify) :-
 	post( rel( A, (#=), B), Env, Reify).
@@ -369,6 +392,37 @@ post( all_distinct( Cs , Xs ), Space-Map, Reify) :-
 	    Space += distinct(Cs,NXs)
 	;
 	    throw(error(domain(not_reifiable),all_distinct( Cs , Xs )))
+	).
+post(in_tupleset(Xs, Tuples), Space-Map, Reify) :-
+	is_list( Tuples ), !,
+	TS := tupleset( Tuples ),
+	maplist(ll(Map), Xs, IXs),
+	(var(Reify) ->
+	    Space += extensional(IXs, TS)
+	;
+	    throw(error(domain(not_reifiable),in_relation(Xs, Tuples)))
+	).
+post(in_tupleset(Xs, TS), Space-Map, Reify) :-
+	maplist(ll(Map), Xs, IXs),
+	(var(Reify) ->
+	    Space += extensional(IXs, TS)
+	;
+	    throw(error(domain(not_reifiable),in_relation(Xs, Tuples)))
+	).
+post(in_dfa(Xs, S0, Trs, Fs), Space-Map, Reify) :-
+	TS := dfa( S0, Trs, Fs ),
+	maplist(ll(Map), Xs, IXs),
+	(var(Reify) ->
+	    Space += extensional(IXs, TS)
+	;
+	    throw(error(domain(not_reifiable),in_dfa(Xs, Tuples)))
+	).
+post(in_dfa(Xs, TS), Space-Map, Reify) :-
+	maplist(ll(Map), Xs, IXs),
+	(var(Reify) ->
+	    Space += extensional(IXs, TS)
+	;
+	    throw(error(domain(not_reifiable),in_dfa(Xs, Tuples)))
 	).
 
 gecode_arith_op( (#=)  , 'IRT_EQ' ).
