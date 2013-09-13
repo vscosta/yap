@@ -762,6 +762,10 @@
 #define FunctorDot8 Yap_heap_regs->FunctorDot8_
   Functor FunctorDot9_;
 #define FunctorDot9 Yap_heap_regs->FunctorDot9_
+  Functor FunctorEmptySquareBrackets_;
+#define FunctorEmptySquareBrackets Yap_heap_regs->FunctorEmptySquareBrackets_
+  Functor FunctorEmptyCurlyBrackets_;
+#define FunctorEmptyCurlyBrackets Yap_heap_regs->FunctorEmptyCurlyBrackets_
   Functor FunctorEq_;
 #define FunctorEq Yap_heap_regs->FunctorEq_
   Functor FunctorError_;

@@ -69,8 +69,8 @@ typedef struct jmp_buff_struct {
 } JMPBUFF;
 
 static void GNextToken( CACHE_TYPE1 );
-static void checkfor(Term, JMPBUFF * CACHE_TYPE);
-static Term ParseArgs(Atom, Term, JMPBUFF *, Term CACHE_TYPE);
+static void checkfor(wchar_t, JMPBUFF * CACHE_TYPE);
+static Term ParseArgs(Atom, wchar_t, JMPBUFF *, Term CACHE_TYPE);
 static Term ParseList(JMPBUFF * CACHE_TYPE);
 static Term ParseTerm(int, JMPBUFF * CACHE_TYPE);
 
@@ -315,16 +315,16 @@ GNextToken( USES_REGS1 )
 }
 
 inline static void
-checkfor(Term c, JMPBUFF *FailBuff USES_REGS)
+checkfor(wchar_t c, JMPBUFF *FailBuff USES_REGS)
 {
   if (LOCAL_tokptr->Tok != Ord(Ponctuation_tok)
-      || LOCAL_tokptr->TokInfo != c)
+      || LOCAL_tokptr->TokInfo != (Term)c)
     FAIL;
   NextToken;
 }
 
 static Term
-ParseArgs(Atom a, Term close, JMPBUFF *FailBuff, Term arg1 USES_REGS)
+ParseArgs(Atom a, wchar_t close, JMPBUFF *FailBuff, Term arg1 USES_REGS)
 {
   int nargs = 0;
   Term *p, t;
@@ -405,6 +405,18 @@ ParseArgs(Atom a, Term close, JMPBUFF *FailBuff, Term arg1 USES_REGS)
   return t;
 }
 
+static Term MakeAccessor( Term t, Functor f )
+{
+  UInt arity = ArityOfFunctor(FunctorOfTerm(t)), i;
+  Term tf[2], tl= TermNil;
+  
+  tf[1] = ArgOfTerm(1, t);
+  for (i = arity; i > 1; i--) {
+    tl = MkPairTerm(ArgOfTerm(i, t), tl);
+  }
+  tf[0] = tl;
+  return Yap_MkApplTerm( f, 2, tf );
+}
 
 static Term
 ParseList(JMPBUFF *FailBuff USES_REGS)
@@ -540,7 +552,7 @@ ParseTerm(int prio, JMPBUFF *FailBuff USES_REGS)
     }
     if (LOCAL_tokptr->Tok == Ord(Ponctuation_tok)
 	&& Unsigned(LOCAL_tokptr->TokInfo) == 'l')
-      t = ParseArgs((Atom) t, (Term)')', FailBuff, 0L PASS_REGS);
+      t = ParseArgs((Atom) t, ')', FailBuff, 0L PASS_REGS);
     else
       t = MkAtomTerm((Atom)t);
     break;
@@ -606,7 +618,7 @@ ParseTerm(int prio, JMPBUFF *FailBuff USES_REGS)
     case 'l':	/* non solo ( */
       NextToken;
       t = ParseTerm(1200, FailBuff PASS_REGS);
-      checkfor((Term) ')', FailBuff PASS_REGS);
+      checkfor(')', FailBuff PASS_REGS);
       break;
     case '[':
       NextToken;
@@ -617,7 +629,7 @@ ParseTerm(int prio, JMPBUFF *FailBuff USES_REGS)
 	break;
       }
       t = ParseList(FailBuff PASS_REGS);
-      checkfor((Term) ']', FailBuff PASS_REGS);
+      checkfor(']', FailBuff PASS_REGS);
       break;
     case '{':
       NextToken;
@@ -634,7 +646,7 @@ ParseTerm(int prio, JMPBUFF *FailBuff USES_REGS)
 	LOCAL_ErrorMessage = "Stack Overflow";
 	FAIL;
       }  
-      checkfor((Term) '}', FailBuff PASS_REGS);
+      checkfor('}', FailBuff PASS_REGS);
       break;
     default:
       FAIL;
@@ -734,19 +746,21 @@ ParseTerm(int prio, JMPBUFF *FailBuff USES_REGS)
       } else if (Unsigned(LOCAL_tokptr->TokInfo) == '(' &&
                 IsPosfixOp(AtomEmptyBrackets, &opprio, &oplprio PASS_REGS)
                 && opprio <= prio && oplprio >= curprio) {
-	t = ParseArgs(AtomEmptyBrackets, (Term)')', FailBuff, t PASS_REGS);
+	t = ParseArgs(AtomEmptyBrackets, ')', FailBuff, t PASS_REGS);
 	curprio = opprio;
 	continue;
        } else if (Unsigned(LOCAL_tokptr->TokInfo) == '[' &&
                 IsPosfixOp(AtomEmptySquareBrackets, &opprio, &oplprio PASS_REGS)
                 && opprio <= prio && oplprio >= curprio) {
-	t = ParseArgs(AtomEmptySquareBrackets, (Term)']', FailBuff, t PASS_REGS);
+	t = ParseArgs(AtomEmptySquareBrackets, ']', FailBuff, t PASS_REGS);
+	t = MakeAccessor(t, FunctorEmptySquareBrackets);
 	curprio = opprio;
 	continue;
       } else if (Unsigned(LOCAL_tokptr->TokInfo) == '{' &&
                 IsPosfixOp(AtomEmptyCurlyBrackets, &opprio, &oplprio PASS_REGS)
                 && opprio <= prio && oplprio >= curprio) {
-	t = ParseArgs(AtomEmptyCurlyBrackets, (Term)'}', FailBuff, t PASS_REGS);
+	t = ParseArgs(AtomEmptyCurlyBrackets, '}', FailBuff, t PASS_REGS);
+	t = MakeAccessor(t, FunctorEmptyCurlyBrackets);
 	curprio = opprio;
 	continue;
       }

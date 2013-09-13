@@ -382,6 +382,8 @@
   FunctorDot7 = Yap_MkFunctor(AtomDot,7);
   FunctorDot8 = Yap_MkFunctor(AtomDot,8);
   FunctorDot9 = Yap_MkFunctor(AtomDot,9);
+  FunctorEmptySquareBrackets = Yap_MkFunctor(AtomEmptySquareBrackets,2);
+  FunctorEmptyCurlyBrackets = Yap_MkFunctor(AtomEmptyCurlyBrackets,2);
   FunctorEq = Yap_MkFunctor(AtomEq,2);
   FunctorError = Yap_MkFunctor(AtomError,2);
   FunctorEvaluationError = Yap_MkFunctor(AtomEvaluationError,1);
