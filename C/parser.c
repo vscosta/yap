@@ -405,7 +405,7 @@ ParseArgs(Atom a, wchar_t close, JMPBUFF *FailBuff, Term arg1 USES_REGS)
   return t;
 }
 
-static Term MakeAccessor( Term t, Functor f )
+static Term MakeAccessor( Term t, Functor f USES_REGS )
 {
   UInt arity = ArityOfFunctor(FunctorOfTerm(t)), i;
   Term tf[2], tl= TermNil;
@@ -753,14 +753,14 @@ ParseTerm(int prio, JMPBUFF *FailBuff USES_REGS)
                 IsPosfixOp(AtomEmptySquareBrackets, &opprio, &oplprio PASS_REGS)
                 && opprio <= prio && oplprio >= curprio) {
 	t = ParseArgs(AtomEmptySquareBrackets, ']', FailBuff, t PASS_REGS);
-	t = MakeAccessor(t, FunctorEmptySquareBrackets);
+	t = MakeAccessor(t, FunctorEmptySquareBrackets PASS_REGS);
 	curprio = opprio;
 	continue;
       } else if (Unsigned(LOCAL_tokptr->TokInfo) == '{' &&
                 IsPosfixOp(AtomEmptyCurlyBrackets, &opprio, &oplprio PASS_REGS)
                 && opprio <= prio && oplprio >= curprio) {
 	t = ParseArgs(AtomEmptyCurlyBrackets, '}', FailBuff, t PASS_REGS);
-	t = MakeAccessor(t, FunctorEmptyCurlyBrackets);
+	t = MakeAccessor(t, FunctorEmptyCurlyBrackets PASS_REGS);
 	curprio = opprio;
 	continue;
       }
