@@ -94,15 +94,24 @@ store_specs(int new_worker_id, UInt ssize, UInt tsize, UInt sysize, Term *tpgoal
   REMOTE_ThreadHandle(new_worker_id).ssize = ssize;
   REMOTE_ThreadHandle(new_worker_id).tsize = tsize;
   REMOTE_ThreadHandle(new_worker_id).sysize = sysize;
-  REMOTE_c_input_stream(new_worker_id) = LOCAL_c_input_stream;
-  REMOTE_c_output_stream(new_worker_id) = LOCAL_c_output_stream;
-  REMOTE_c_error_stream(new_worker_id) = LOCAL_c_error_stream;
+
+  if ((REGSTORE *)pthread_getspecific(Yap_yaamregs_key)) {
+    REMOTE_c_input_stream(new_worker_id) = LOCAL_c_input_stream;
+    REMOTE_c_output_stream(new_worker_id) = LOCAL_c_output_stream;
+    REMOTE_c_error_stream(new_worker_id) = LOCAL_c_error_stream;
+  } else {
+    // thread is created by a thread that has never run Prolog
+    REMOTE_c_input_stream(new_worker_id) = REMOTE_c_input_stream(0);
+    REMOTE_c_output_stream(new_worker_id) = REMOTE_c_output_stream(0);
+    REMOTE_c_error_stream(new_worker_id) = REMOTE_c_error_stream(0);
+  }
   pm = (ssize + tsize)*1024;
   if (!(REMOTE_ThreadHandle(new_worker_id).stack_address = malloc(pm))) {
     return FALSE;
   }
   REMOTE_ThreadHandle(new_worker_id).tgoal =
-    Yap_StoreTermInDB(Deref(*tpgoal),7);
+    Yap_StoreTermInDB(Deref(*tpgoal), 7);
+        
   REMOTE_ThreadHandle(new_worker_id).cmod =
     CurrentModule;
   tdetach = Deref(*tpdetach);

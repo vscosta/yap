@@ -1155,6 +1155,14 @@ Yap_InitThread(int new_id)
     if (!(new_s = (struct worker_local *)calloc(sizeof(struct worker_local), 1)))
       return FALSE;
     Yap_local[new_id] = new_s;
+    if (!((REGSTORE *)pthread_getspecific(Yap_yaamregs_key))) {
+      REGSTORE *rs = (REGSTORE *)calloc(sizeof(REGSTORE),1);
+      pthread_setspecific(Yap_yaamregs_key, (const void *)rs);
+      REMOTE_ThreadHandle(new_id).default_yaam_regs = rs;
+      REMOTE_ThreadHandle(new_id).current_yaam_regs = REMOTE_ThreadHandle(new_id).default_yaam_regs;
+      rs->worker_id_ = new_id;
+      rs->worker_local_ = REMOTE(new_id);
+    }
   }
   InitWorker(new_id);
   return TRUE;
