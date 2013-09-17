@@ -431,8 +431,8 @@ x=[x 1.0]
 y=[y 0.0]
 k=convhull(x,y)
 plot(x(k),y(k),'r-',x,y,'--b+')
-A = polyarea(x,y)~n~n
-save area_roc.csv  A -ascii -append
+%A = polyarea(x,y)~n~n
+%save area_roc.csv  A -ascii -append
 ",
   []).
 
@@ -462,8 +462,8 @@ set(gca,'YLim',[0.0 1.0])
 rec=[0.0  rec 1.0];
 prec=[0.0 prec 0.0];
 plot(rec,prec,'--*k')
-A=polyarea(rec,prec)
-save area_pr.csv  A -ascii -append
+%A=polyarea(rec,prec)
+%save area_pr.csv  A -ascii -append
 ~n~n",
   []).
 	

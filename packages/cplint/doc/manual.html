@@ -7,7 +7,7 @@
 <meta name="originator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)"> 
 <!-- html --> 
 <meta name="src" content="manual.tex"> 
-<meta name="date" content="2013-09-17 13:02:00"> 
+<meta name="date" content="2013-09-17 14:09:00"> 
 <link rel="stylesheet" type="text/css" href="manual.css"> 
 </head><body 
 >
@@ -1349,7 +1349,7 @@ class="cmtt-10">ll</span></span></span>,  valid  for  SLIPCOVER):
      determines the score function for refinement: if set to <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">ll</span></span></span>, log likelihood is
      used, if set to <span class="obeylines-h"><span class="verb"><span 
-class="cmtt-10">aucpr</span></span></span>, the area under the precision-recall curve is used.</li></ul>
+class="cmtt-10">aucpr</span></span></span>, the area under the Precision-Recall curve is used.</li></ul>
 
 <!--l. 635--><p class="noindent" >
    <h4 class="subsectionHead"><span class="titlemark">5.3   </span> <a 
@@ -1410,21 +1410,22 @@ class="cmtt-10">slipcover.pl </span>with
 ?:-&#x00A0;sl(stem).
 </div>
 <!--l. 675--><p class="nopar" >
+<!--l. 678--><p class="noindent" >
    <h4 class="subsectionHead"><span class="titlemark">5.4   </span> <a 
  id="x1-140005.4"></a>Testing</h4>
-<!--l. 677--><p class="noindent" >To test the theories learned, load <span 
+<!--l. 679--><p class="noindent" >To test the theories learned, load <span 
 class="cmtt-10">test.pl </span>with
 
    <div class="verbatim" id="verbatim-64">
 ?:-&#x00A0;use_module(library(&#8217;cplint/test&#8217;)).
 </div>
-<!--l. 680--><p class="nopar" > and call
+<!--l. 682--><p class="nopar" > and call
 
    <div class="verbatim" id="verbatim-65">
 ?:-&#x00A0;main([&#x003C;stem_fold1&#x003E;,...,&#x003C;stem_foldn&#x003E;],[&#x003C;testing_set_fold1&#x003E;,...,
 &#x00A0;<br />&#x00A0;&#x00A0;&#x003C;testing_set_foldn&#x003E;]).
 </div>
-<!--l. 685--><p class="nopar" > For example, if you want to test the theory in <span class="obeylines-h"><span class="verb"><span 
+<!--l. 687--><p class="nopar" > For example, if you want to test the theory in <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">ai_train.rules</span></span></span> on the set <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">ai.kb</span></span></span>,
 you can call
@@ -1432,7 +1433,7 @@ you can call
    <div class="verbatim" id="verbatim-66">
 ?:-&#x00A0;main([ai_train],[ai]).
 </div>
-<!--l. 689--><p class="nopar" > The testing program has the following parameter:
+<!--l. 691--><p class="nopar" > The testing program has the following parameter:
      <ul class="itemize1">
      <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">neg_ex</span></span></span> (values: <span class="obeylines-h"><span class="verb"><span 
@@ -1450,10 +1451,26 @@ class="cmtt-10">cw</span></span></span>, the negative examples are generated
      predicates that are not positive examples. The set of all atoms is obtained
      by collecting the set of constants for each type of the arguments of the
      target predicate.</li></ul>
-<!--l. 696--><p class="noindent" >
+<!--l. 697--><p class="noindent" >The testing program produces the following output in the current folder:
+     <ul class="itemize1">
+     <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">cll.pl</span></span></span>: for each fold, the list of examples orderd by their probability of
+     being true
+     </li>
+     <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">areas.csv</span></span></span>: the areas under the Precision-Recall curve and the Receiver
+     Operating Characteristic curve
+     </li>
+     <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">curve_roc.m</span></span></span>:   a   Matlab   file   for   plotting   the   Receiver   Operating
+     Characteristic curve
+     </li>
+     <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">curve_pr.m</span></span></span>: a Matlab file for plotting the Precision-Recall curve</li></ul>
+<!--l. 706--><p class="noindent" >
    <h4 class="subsectionHead"><span class="titlemark">5.5   </span> <a 
  id="x1-150005.5"></a>Learning Examples</h4>
-<!--l. 697--><p class="noindent" >The subfolders <span class="obeylines-h"><span class="verb"><span 
+<!--l. 707--><p class="noindent" >The subfolders <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">em</span></span></span>, <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">rib</span></span></span>, <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">slipcase</span></span></span> and <span class="obeylines-h"><span class="verb"><span 
@@ -1461,27 +1478,27 @@ class="cmtt-10">slipcover</span></span></span> of the <span class="obeylines-h">
 class="cmtt-10">packages/cplint</span></span></span> folder in
 Yap git distribution contain examples of input and output files for the learning
 algorithms.
-<!--l. 700--><p class="noindent" >
+<!--l. 710--><p class="noindent" >
    <h3 class="sectionHead"><span class="titlemark">6   </span> <a 
  id="x1-160006"></a>License</h3>
-<!--l. 705--><p class="noindent" ><span 
+<!--l. 715--><p class="noindent" ><span 
 class="cmtt-10">cplint</span>, as Yap, follows the Artistic License 2.0 that you can find in Yap CVS root
 dir. The copyright is by Fabrizio Riguzzi.
-<!--l. 708--><p class="indent" >   The modules in the approx subdirectory use SimplecuddLPADs, a modification of
+
+<!--l. 718--><p class="indent" >   The modules in the approx subdirectory use SimplecuddLPADs, a modification of
 the <a 
 href="http://dtai.cs.kuleuven.be/problog/download.html" > Simplecudd </a> library whose copyright is by Katholieke Universiteit Leuven and
 that follows the Artistic License 2.0.
-<!--l. 711--><p class="indent" >   Some modules use the library <a 
+<!--l. 721--><p class="indent" >   Some modules use the library <a 
 href="http://vlsi.colorado.edu/~fabio/" > CUDD </a> for manipulating BDDs that is included in
 glu. For the use of CUDD, the following license must be accepted:
-<!--l. 716--><p class="indent" >   Copyright (c) 1995-2004, Regents of the University of Colorado
-<!--l. 718--><p class="indent" >   All rights reserved.
-<!--l. 720--><p class="indent" >   Redistribution and use in source and binary forms, with or without modification,
+<!--l. 726--><p class="indent" >   Copyright (c) 1995-2004, Regents of the University of Colorado
+<!--l. 728--><p class="indent" >   All rights reserved.
+<!--l. 730--><p class="indent" >   Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:
      <ul class="itemize1">
      <li class="itemize">Redistributions of source code must retain the above copyright notice, this
      list of conditions and the following disclaimer.
-
      </li>
      <li class="itemize">Redistributions in binary form must reproduce the above copyright notice,
      this list of conditions and the following disclaimer in the documentation
@@ -1490,7 +1507,7 @@ are permitted provided that the following conditions are met:
      <li class="itemize">Neither  the  name  of  the  University  of  Colorado  nor  the  names  of  its
      contributors may be used to endorse or promote products derived from
      this software without specific prior written permission.</li></ul>
-<!--l. 737--><p class="noindent" >THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS <br 
+<!--l. 747--><p class="noindent" >THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS <br 
 class="newline" />AND CONTRIBUTORS &#8221;AS IS&#8221; AND ANY EXPRESS OR IMPLIED
 WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
@@ -1504,7 +1521,7 @@ class="newline" />AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-<!--l. 751--><p class="indent" >   <span 
+<!--l. 761--><p class="indent" >   <span 
 class="cmtt-10">lpad.pl</span>, <span 
 class="cmtt-10">semlpad.pl </span>and <span 
 class="cmtt-10">cpl.pl </span>are based on the SLG system by Weidong
@@ -1512,6 +1529,7 @@ Chen and <a
 href="http://www.cs.sunysb.edu/~warren/" > David Scott Warren </a>, Copyright (C) 1993 Southern Methodist University,
 1993 SUNY at Stony Brook, see the file COYPRIGHT_SLG for detailed information
 on this copyright.
+
 <!--l. 1--><p class="noindent" >
    <h3 class="likesectionHead"><a 
  id="x1-170006"></a>References</h3>
@@ -1532,7 +1550,6 @@ class="cmti-10">Proceedings  of  the  26th  Italian</span>
 class="cmti-10">Conference on Computational Logic (CILC2011), Pescara, Italy, 31 August</span>
     <span 
 class="cmti-10">31-2 September, 2011</span>, 2011.
-
     </p>
     <p class="bibitem" ><span class="biblabel">
   [3]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
@@ -1571,6 +1588,7 @@ class="cmti-10">Programming</span>, 2013.
 class="cmti-10">Inductive Logic Programming (ILP 2004), Work in Progress</span>
     <span 
 class="cmti-10">Track</span>, 2004.
+
     </p>
     <p class="bibitem" ><span class="biblabel">
   [8]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
@@ -1589,7 +1607,6 @@ class="cmti-10">LNCS</span>, pages 30&#8211;37. Springer, 2011.
     delaying for general logic programs. <span 
 class="cmti-10">Journal of the ACM</span>, 43(1):20&#8211;74, 1996.
     </p>
-
     <p class="bibitem" ><span class="biblabel">
  [10]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
  id="XDBLP:journals/ai/Cohen95"></a>William&#x00A0;W. Cohen.  Pac-learning non-recursive prolog clauses.  <span 
@@ -1632,6 +1649,7 @@ class="cmti-10">Research</span>, 3:679&#8211;707, December 2002.
  id="XDBLP:journals/ai/Poole97"></a>David Poole. The independent choice logic for modelling multiple agents
     under uncertainty. <span 
 class="cmti-10">Artificial Intelligence</span>, 94(1-2):7&#8211;56, 1997.
+
     </p>
     <p class="bibitem" ><span class="biblabel">
  [16]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
@@ -1648,7 +1666,6 @@ class="cmti-10">LNAI</span>, pages 109&#8211;120. Springer, 2007.
 class="cmti-10">Proceedings of the 14th RCRA workshop Experimental Evaluation of</span>
     <span 
 class="cmti-10">Algorithms for Solving Problems with Combinatorial Explosion</span>, 2007.
-
     </p>
     <p class="bibitem" ><span class="biblabel">
  [18]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
@@ -1693,6 +1710,7 @@ class="cmti-10">Proceedings  of  the  10th</span>
 class="cmti-10">European Conference on Logics in Artificial Intelligence</span>, LNAI. Springer,
     September 2006.
     </p>
+
     <p class="bibitem" ><span class="biblabel">
  [23]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
  id="XDBLP:journals/tplp/VennekensDB09"></a>J.&#x00A0;Vennekens,  Marc  Denecker,  and  Maurice  Bruynooghe.   CP-logic:
@@ -1713,7 +1731,6 @@ class="cmti-10">International  Conference  on  Logic</span>
     <span 
 class="cmti-10">Programming</span>, volume 3131 of <span 
 class="cmti-10">LNCS</span>, pages 195&#8211;209. Springer, 2004.
-
 </p>
     </div>
     
