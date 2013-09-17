@@ -2428,6 +2428,7 @@ Yap_absmi(int inp)
 		  goto failloop;	
 		} else if (*pt1 == (CELL)FunctorBigInt) {
 		  Yap_CleanOpaqueVariable(pt1);
+		  goto failloop;
 		}	       	  
 	      }  
 #ifdef FROZEN_STACKS  /* TRAIL */
