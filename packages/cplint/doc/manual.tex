@@ -629,6 +629,8 @@ maximum  number of theory search iterations
  maximum numbers of background clauses
 \item \verb|maxdepth_var| (values: integer, default value: 2, valid for SLIPCOVER): maximum depth of
 variables in clauses (as defined in \cite{DBLP:journals/ai/Cohen95}).
+\item \verb|score| (values: \verb|ll|, \verb|aucpr|, default value \verb|ll|, valid for SLIPCOVER): determines the score function for refinement: if set to \verb|ll|, log likelihood is used, if set to \verb|aucpr|, the area under the 
+precision-recall curve is used. 
 \end{itemize}
 \subsection{Commands}
 To execute CEM, load \texttt{em.pl} with
@@ -671,6 +673,26 @@ and call
 \begin{verbatim}
 ?:- sl(stem).
 \end{verbatim}
+\subsection{Testing}
+To test the theories learned, load \texttt{test.pl} with 
+\begin{verbatim}
+?:- use_module(library('cplint/test')).
+\end{verbatim}
+and call
+\begin{verbatim}
+?:- main([<stem_fold1>,...,<stem_foldn>],[<testing_set_fold1>,...,
+  <testing_set_foldn>]).
+\end{verbatim}
+For example, if you want to test the theory in \verb|ai_train.rules| on the set \verb|ai.kb|, you can call
+\begin{verbatim}
+?:- main([ai_train],[ai]).
+\end{verbatim}
+The testing program has the following parameter:
+\begin{itemize}
+\item \verb|neg_ex| (values:  \verb|given|, \verb|cw|, default value: \verb|cw|): if  set to \verb|given|, the negative examples
+are taken from \verb|<testing_set_foldi>.kb|, i.e., those example \verb|ex| stored as \verb|neg(ex)|; if set to \verb|cw|, the negative examples are generated according to the closed world assumption, i.e., all atoms for target predicates that are not positive examples. The set of all atoms is obtained by collecting the set of constants for each type of the arguments of the target predicate.
+\end{itemize}
+
 \subsection{Learning Examples}
 The subfolders \verb|em|, \verb|rib|, \verb|slipcase| and \verb|slipcover| of the \verb|packages/cplint| folder in Yap git distribution
 contain examples of input and output files for the learning algorithms.
