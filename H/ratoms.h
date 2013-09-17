@@ -382,6 +382,8 @@
   FunctorDot7 = FuncAdjust(FunctorDot7);
   FunctorDot8 = FuncAdjust(FunctorDot8);
   FunctorDot9 = FuncAdjust(FunctorDot9);
+  FunctorEmptySquareBrackets = FuncAdjust(FunctorEmptySquareBrackets);
+  FunctorEmptyCurlyBrackets = FuncAdjust(FunctorEmptyCurlyBrackets);
   FunctorEq = FuncAdjust(FunctorEq);
   FunctorError = FuncAdjust(FunctorError);
   FunctorEvaluationError = FuncAdjust(FunctorEvaluationError);

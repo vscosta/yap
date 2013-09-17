@@ -168,6 +168,18 @@ extern "C"
     return * (SetAssign*) YAP_OpaqueObjectFromTerm(t);
   }
 
+  static inline TupleSet&
+  gecode_TupleSet_from_term(YAP_Term t)
+  {
+    return *(TupleSet *) YAP_OpaqueObjectFromTerm(t);
+  }
+
+  static inline DFA&
+  gecode_DFA_from_term(YAP_Term t)
+  {
+    return *(DFA *) YAP_OpaqueObjectFromTerm(t);
+  }
+
   static inline FloatNum
   gecode_FloatNum_from_term(YAP_Term t)
   {
@@ -1569,6 +1581,111 @@ extern "C"
     return YAP_Unify(YAP_ARG4, term);
   }
 
+  static YAP_opaque_tag_t gecode_tupleset_tag;
+  static YAP_opaque_handler_t gecode_tupleset_handler;
+
+  static int gecode_tupleset_fail_handler(void* p)
+  {
+    return TRUE;
+  }
+
+  static int
+  gecode_tupleset_write_handler
+  (void *stream_, YAP_opaque_tag_t type, void *p, int flags)
+  {
+    IOSTREAM* stream = (IOSTREAM*) stream_;
+    Sfprintf(stream,"<tupleset %p>", p);
+    return TRUE;
+  }
+
+  static int gecode_new_tupleset(void)
+  {
+    YAP_Term term =
+      YAP_NewOpaqueObject(gecode_tupleset_tag, sizeof(TupleSet));
+    TupleSet *ts = new (YAP_OpaqueObjectFromTerm(term)) TupleSet;
+    YAP_Term t = YAP_ARG1;
+    while (YAP_IsPairTerm( t ) ) {
+      YAP_Term l = YAP_HeadOfTerm(t);
+      int n = gecode_list_length(l);
+      int i = 0;
+      IntArgs is(n);
+      while (YAP_IsPairTerm( l ) ) {
+	YAP_Term ll = YAP_HeadOfTerm(l);
+	if (!YAP_IsIntTerm(ll)) {
+	    cerr << "non-integer on tuple set" << endl; exit(1);
+	}
+	is[i++] = YAP_IntOfTerm(ll);
+	l = YAP_TailOfTerm(l);
+      }
+      ts->add(is);
+      if (l != YAP_TermNil()) {
+	  cerr << "non-list on tuple set" << endl; exit(1);
+      }
+      t = YAP_TailOfTerm(t);
+    }
+    if (t != YAP_TermNil()) {
+      cerr << "non-list on tuple set" << endl; exit(1);
+    }
+    ts->finalize();
+    return YAP_Unify(YAP_ARG2, term);
+  }
+
+  static YAP_opaque_tag_t gecode_dfa_tag;
+  static YAP_opaque_handler_t gecode_dfa_handler;
+
+  static int gecode_dfa_fail_handler(void* p)
+  {
+    return TRUE;
+  }
+
+  static int
+  gecode_dfa_write_handler
+  (void *stream_, YAP_opaque_tag_t type, void *p, int flags)
+  {
+    IOSTREAM* stream = (IOSTREAM*) stream_;
+    Sfprintf(stream,"<dfa %p>", p);
+    return TRUE;
+  }
+
+  static int gecode_new_dfa(void)
+  {
+    YAP_Term term =
+      YAP_NewOpaqueObject(gecode_dfa_tag, sizeof(DFA));
+    //    DFA ts = new (YAP_OpaqueObjectFromTerm(term)) DFA;
+    YAP_Term t2 = YAP_ARG2;
+    int s0 = YAP_IntOfTerm(t2);
+    YAP_Term t3 = YAP_ARG3;
+    int n = gecode_list_length(t3), i=0;
+    DFA::Transition t[n];
+    while (YAP_IsPairTerm( t3 ) ) {
+      YAP_Term tt = YAP_HeadOfTerm(t3);
+      int is, sy, os;
+      is = YAP_IntOfTerm(YAP_ArgOfTerm(1,tt));
+      sy = YAP_IntOfTerm(YAP_ArgOfTerm(2,tt));
+      os = YAP_IntOfTerm(YAP_ArgOfTerm(3,tt));
+      t[i++] = DFA::Transition(is, sy, os);
+      t3 = YAP_TailOfTerm(t3);
+    }
+    if (t3 != YAP_TermNil()) {
+      cerr << "non-list on DFA" << endl; exit(1);
+    }
+    YAP_Term t4 = YAP_ARG4;
+    n = gecode_list_length(t4)+1;
+    i=0;
+    int s[n];
+    s[n-1] = -1;
+    while (YAP_IsPairTerm( t4 ) ) {
+      YAP_Term tt = YAP_HeadOfTerm(t4);
+      s[i++] = YAP_IntOfTerm(tt);
+      t4 = YAP_TailOfTerm(t4);
+    }
+    if (t4 != YAP_TermNil()) {
+      cerr << "non-list on DFA" << endl; exit(1);
+    }
+    new (YAP_OpaqueObjectFromTerm(term)) DFA(s0, t, s);
+    return YAP_Unify(YAP_ARG1, term);
+  }
+
   void gecode_init(void)
   {
     { YAP_Atom X= YAP_LookupAtom("true");
@@ -1758,6 +1875,16 @@ extern "C"
     gecode_reify_handler.write_handler = gecode_reify_write_handler;
     gecode_reify_tag = YAP_NewOpaqueType(&gecode_reify_handler);
     YAP_UserCPredicate("gecode_new_reify", gecode_new_reify, 4);
+    // Opaque TupleSet
+    gecode_tupleset_handler.fail_handler = gecode_tupleset_fail_handler;
+    gecode_tupleset_handler.write_handler = gecode_tupleset_write_handler;
+    gecode_tupleset_tag = YAP_NewOpaqueType(&gecode_tupleset_handler);
+    YAP_UserCPredicate("gecode_new_tupleset", gecode_new_tupleset, 2);
+    // Opaque DFA
+    gecode_dfa_handler.fail_handler = gecode_dfa_fail_handler;
+    gecode_dfa_handler.write_handler = gecode_dfa_write_handler;
+    gecode_dfa_tag = YAP_NewOpaqueType(&gecode_dfa_handler);
+    YAP_UserCPredicate("gecode_new_dfa", gecode_new_dfa, 4);
 #ifdef DISJUNCTOR
     // opaque disjunctors and clauses
     gecode_disjunctor_handler.write_handler = gecode_disjunctor_write_handler;

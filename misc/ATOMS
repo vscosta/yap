@@ -387,6 +387,8 @@ F	Dot6			Dot		6
 F	Dot7			Dot		7
 F	Dot8			Dot		8
 F	Dot9			Dot		9
+F	EmptySquareBrackets	EmptySquareBrackets	2
+F	EmptyCurlyBrackets	EmptyCurlyBrackets	2
 F	Eq			Eq		2
 F	Error			Error		2
 F	EvaluationError		EvaluationError	1

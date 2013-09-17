@@ -72,5 +72,7 @@ clean:
 install: all
 	mkdir -p $(DESTDIR)$(YAPLIBDIR)
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
+	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/gecode
 	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR)
 	$(INSTALL) gecode.yap $(DESTDIR)$(SHAREDIR)/Yap
+	$(INSTALL) $(srcdir)/clpfd.yap $(DESTDIR)$(SHAREDIR)/Yap/gecode

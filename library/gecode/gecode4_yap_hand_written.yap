@@ -118,6 +118,14 @@ is_IntSetArgs_([H|T],[H2|T2]) :- is_IntSet(H,H2), is_IntSetArgs(T,T2).
 is_IntSetArgs(X,Y) :- nonvar(X), is_IntSetArgs_(X,Y).
 is_IntSetArgs(X) :- \+ \+ is_IntSetArgs(X,_).
 
+is_TupleSet_('TupleSet'(TS),TS).
+is_TupleSet(X,Y) :- nonvar(X), is_TupleSet_(X,Y).
+is_TupleSet(X) :- is_TupleSet(X,_).
+
+is_DFA_('DFA'(TS),TS).
+is_DFA(X,Y) :- nonvar(X), is_DFA_(X,Y).
+is_DFA(X) :- is_DFA(X,_).
+
 new_intset(X,I,J) :- intset(X,I,J).
 new_intset(X,L) :- intset(X,L).
 
@@ -150,6 +158,10 @@ assert_is_Space(X,Y) :-
 	is_Space(X,Y) -> true ; throw(gecode_error(expected(space))).
 assert_is_IntSet(X,Y) :-
 	is_IntSet(X,Y) -> true ; throw(gecode_error(expected(intset))).
+assert_is_TupleSet(X,Y) :-
+	is_TupleSet(X,Y) -> true ; throw(gecode_error(expected(tupleset))).
+assert_is_DFA(X,Y) :-
+	is_DFA(X,Y) -> true ; throw(gecode_error(expected(dfa))).
 assert_is_IntVar(X,Y) :-
 	is_IntVar(X,Y) -> true ; throw(gecode_error(expected(intvar))).
 assert_is_BoolVar(X,Y) :-
@@ -540,6 +552,15 @@ new_setvar(SVar,Space,X1,X2) :-
 	gecode_new_setvar_12(Idx,Space_,X1_,X2_),
 	SVar='SetVar'(Idx,-1).
 
+new_tupleset( TupleSet, List  ) :-
+	gecode_new_tupleset(List, TupleSet_),
+	TupleSet = 'TupleSet'(TupleSet_).
+	
+new_dfa( DFA, S0,  List, Finals  ) :-
+	gecode_new_dfa(DFA_, S0, List, Finals),
+	DFA = 'DFA'(DFA_).
+	
+
 minimize(Space,IVar) :-
 	assert_is_Space(Space,Space_),
 	assert_is_IntVar(IVar,IVar_),
@@ -926,6 +947,8 @@ keep_list_(_, X) :-
 (X := setvars(Space,N,X1,X2,X3,X4)) :- !, new_setvars_(X,Space,N,X1,X2,X3,X4).
 (X := setvars(Space,N,X1,X2,X3)) :- !, new_setvars_(X,Space,N,X1,X2,X3).
 (X := setvars(Space,N,X1,X2)) :- !, new_setvars_(X,Space,N,X1,X2).
+(X := tupleset(Set)) :- !, new_tupleset(X, Set).
+(X := dfa(S0, Transitions, Finals)) :- !, new_dfa(X, S0, Transitions, Finals).
 
 (X := min(Space,Var)) :- !, get_min(X,Space,Var).
 (X := max(Space,Var)) :- !, get_max(X,Space,Var).
@@ -1013,7 +1036,8 @@ keep_list_(_, X) :-
 (Space += element(X1,X2,X3,X4,X5)) :- !, element(Space,X1,X2,X3,X4,X5).
 (Space += element(X1,X2,X3,X4,X5,X6)) :- !, element(Space,X1,X2,X3,X4,X5,X6).
 (Space += element(X1,X2,X3,X4,X5,X6,X7)) :- !, element(Space,X1,X2,X3,X4,X5,X6,X7).
-(Space += linear(X1,X2,X3)) :- !, linear(Space,X1,X2,X3).
+(Space += extensional(X1,X2)) :- !, extensional(Space,X1,X2).
+(Space += extensional(X1,X2,X3)) :- !, extensional(Space,X1,X2,X3).
 (Space += linear(X1,X2,X3,X4)) :- !, linear(Space,X1,X2,X3,X4).
 (Space += linear(X1,X2,X3,X4,X5)) :- !, linear(Space,X1,X2,X3,X4,X5).
 (Space += linear(X1,X2,X3,X4,X5,X6)) :- !, linear(Space,X1,X2,X3,X4,X5,X6).

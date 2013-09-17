@@ -1306,9 +1306,18 @@ Yap_tokenizer(IOSTREAM *inp_stream, int store_comments, Term *tposp)
       och = ch;
       ch = getchr(inp_stream);
       t->TokInfo = och;
-      if (t->TokInfo == '(' && !solo_flag) {
-	t->TokInfo = 'l';
-	solo_flag = TRUE;
+      if (och == '(')  {
+	while (chtype(ch) == BS) {  ch = getchr(inp_stream); };
+	if (ch == ')') {
+	  t->TokInfo = Unsigned(AtomEmptyBrackets);
+	  t->Tok = Ord(kind = Name_tok);
+	  ch = getchr(inp_stream);
+	  solo_flag = FALSE;
+	  break;
+	} else if (!solo_flag) {
+	  t->TokInfo = 'l';
+	  solo_flag = TRUE;
+	}
       } else if (och == '[')  {
 	while (chtype(ch) == BS) {  ch = getchr(inp_stream); };
 	if (ch == ']') {

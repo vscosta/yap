@@ -37,6 +37,8 @@ load_files(Files,Opts) :-
 	'$process_lf_opts'(Opts,Silent,InfLevel,Expand,Changed,CompilationMode,Imports,Stream,Encoding,SkipUnixComments,CompMode,Reconsult,Files,Call),
 	'$check_use_module'(Call,UseModule),
         '$current_module'(M0),
+	% make sure we can run consult
+	'$init_system',
 	'$lf'(Files,M0,Call,InfLevel,Expand,Changed,CompilationMode,Imports,Stream,Encoding,SkipUnixComments,CompMode,Reconsult,UseModule),
 	'$close_lf'(Silent).
 
