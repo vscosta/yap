@@ -109,14 +109,15 @@ rhs(A, A) :- atom(A), !.
 rhs(RHS, RHS) :- number(RHS), !.
 rhs(RHS, RHS) :- opaque(RHS), !.
 rhs(RHS, RHS) :- RHS = m(_, _, _, _), !.
-rhs([RHS|RHSs], [NRHS|NRHSs]) :-
-	maplist(rhs, [RHS|RHSs], [NRHS|NRHSs]).
 rhs(matrix(List, Opts), RHS) :-
 	rhs( List, A1),
 	new_matrix(A1, Opts, RHS).
 rhs(matrix(List), RHS) :-
 	rhs( List, A1),
 	new_matrix(A1, [], RHS).
+rhs(matrix(List, Opt1), RHS) :-
+	rhs( List, A1),
+	new_matrix(A1, Opt1, RHS).
 rhs(matrix(List, Opt1, Opt2), RHS) :-
 	rhs( List, A1),
 	new_matrix(A1, [Opt1, Opt2], RHS).
@@ -150,9 +151,18 @@ rhs(length(RHS), Size) :- !,
 rhs(size(RHS), Size) :- !,
 	rhs(RHS, X1),
 	matrix_size( X1, Size ).
-rhs(as_list(RHS), List) :- !,
+rhs(max(RHS), Size) :- !,
+	rhs(RHS, X1),
+	matrix_max( X1, Size ).
+rhs(min(RHS), Size) :- !,
+	rhs(RHS, X1),
+	matrix_min( X1, Size ).
+rhs(list(RHS), List) :- !,
 	rhs(RHS, X1),
 	matrix_to_list( X1, List ).
+rhs(A=B, NA=NB) :- !,
+	rhs(A, NA),
+	rhs(B, NB).
 rhs('[]'(Args, RHS), Val) :- !,
 	rhs(RHS, X1),
 	matrix_dims( X1, Dims ),
@@ -168,6 +178,13 @@ rhs('..'(I, J), [I1|Is]) :- !,
 	rhs(I, I1),
 	rhs(J, J1),
 	once( foldl(inc, Is, I1, J1) ).
+rhs([H|T], [NH|NT]) :- !,
+	rhs(H, NH),
+	rhs(T, NT).
+rhs(':'(I, J), [I1|Is]) :- !,
+	rhs(I, I1),
+	rhs(J, J1),
+	once( foldl(inc, Is, I1, J1) ).
 
 set_lhs(V, R) :- var(V), !, V = R.
 set_lhs(V, R) :- number(V), !, V = R.
@@ -178,18 +195,21 @@ set_lhs(V, R) :- V = '[]'(Indx, M), !,
 % ranges of arguments
 %
 index(Range, V, M, Indx) :- var(V), !,
-	index(Range, O..(M-1), Indx).
+	index(Range, 0..(M-1), M, Indx).
 index(Range, '*', M, Indx) :- !,
-	index(Range, O..(M-1), Indx).
+	index(Range, 0..(M-1), M, Indx).
 index(Range, Exp, M, Indx) :- !,
 	index(Exp, M, Indx0),
 	( integer(Indx0) -> Indx = Indx0 ;
 	  Indx0 = [Indx] -> true ;
-	  Indx = Indx, Range = range ).
+	  Indx0 = Indx, Range = range ).
 
 
 index(I, _M, I ) :- integer(I), !.
-index(I..J, _M, O ) :- !,
+index(I..J, _M, [I|O] ) :- !,
+	I1 is I, J1 is J,
+	once( foldl(inc, O, I1, J1) ).
+index(I:J, _M, [I|O] ) :- !,
 	I1 is I, J1 is J,
 	once( foldl(inc, O, I1, J1) ).
 index(I+J, _M, O ) :-
@@ -212,6 +232,10 @@ index(I rem J, _M, O ) :-
 	index(I, M, I1),
 	index(J, M, J1),
 	O is I rem J.
+index(I, M, NI ) :-
+	maplist(indx(M), I, NI).
+
+indx(M, I, NI) :- index(I, M, NI).
 
 add_index(I1, J1, O) :-
 	integer(I1),
@@ -292,8 +316,22 @@ matrix_get( Mat, Pos, El) :-
 	( opaque(Mat) -> matrixn_get( Mat, Pos, El ) ;
 	    m_get(Mat, Pos, El)  ).
 
-matrix_get_range( Mat, Pos, El) :-
-	writeln(Pos).
+matrix_get_range( Mat, Pos, Els) :-
+	slice(Pos, Keys),
+	maplist( matrix_get(Mat), Keys, Els).
+
+slice([], [[]]).
+slice([[H|T]|Extra], Els) :- !,
+	slice(Extra, Els0), 
+	foldl(add_index_prefix( Els0 ), [H|T], Els, [] ).
+slice([H|Extra], Els) :- !,
+	slice(Extra, Els0), 
+	add_index_prefix( Els0 , H, Els, [] ).
+
+add_index_prefix( [] , _H ) --> [].
+add_index_prefix( [L|Els0] , H ) --> [[H|L]],
+	add_index_prefix( Els0 , H ).
+
 
 matrix_set( Mat, Pos, El) :-
 	( opaque(Mat) -> matrixn_set( Mat, Pos, El ) ;
@@ -503,6 +541,3 @@ iterate( V in A..B, Cont, GlobalVars, Goal, Vs, Bs) :-
 	).
 
 	 
-numbers(I0..I1, [I0|Vals]) :-
-	( I0 =< I1 -> Vals = [I0|MVals], I01 is I0+1, generator(I01..I1, MVals) ;
-	    Vals = [] ).
