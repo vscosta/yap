@@ -391,6 +391,24 @@ p_has_bignums( USES_REGS1 )
 }
 
 static Int 
+p_is_opaque( USES_REGS1 )
+{
+  Term t = Deref(ARG1);
+  if (IsVarTerm(t))
+    return FALSE;
+  if (IsApplTerm(t)) {
+    Functor f = FunctorOfTerm(t);
+    CELL *pt;
+
+    if (f != FunctorBigInt)
+      return FALSE;
+    pt = RepAppl(t);
+    return (  pt[1] != BIG_RATIONAL || pt[1] != BIG_INT );
+  }
+  return FALSE;
+}
+
+static Int 
 p_is_rational( USES_REGS1 )
 {
   Term t = Deref(ARG1);
@@ -594,5 +612,6 @@ Yap_InitBigNums(void)
   Yap_InitCPred("$bignum", 1, p_is_bignum, SafePredFlag);
   Yap_InitCPred("rational", 3, p_rational, 0);
   Yap_InitCPred("rational", 1, p_is_rational, SafePredFlag);
+  Yap_InitCPred("opaque", 1, p_is_opaque, SafePredFlag);
   Yap_InitCPred("nb_set_bit", 2, p_nb_set_bit, SafePredFlag);
 }
