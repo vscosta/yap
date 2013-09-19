@@ -38,7 +38,11 @@ typedef enum {
   */
 
 :- module( matrix,
-	   [
+	   [op(100, yf, []),
+            (<==)/2, op(500, xfx, '<=='),
+	    op(700, xfx, in),
+	    op(700, xfx, ins),
+            op(450, xfx, ..), % should bind more tightly than \/
 	    matrix_new/3,
 	    matrix_new/4,
 	    matrix_new_set/4,
@@ -92,6 +96,161 @@ typedef enum {
 
 :- load_foreign_files([matrix], [], init_matrix).
 
+:- use_module(library(maplist)).
+:- use_module(library(lists)).
+
+( LHS <== RHS ) :-
+	rhs(RHS, R),
+	set_lhs( LHS, R).
+
+rhs(RHS, RHS) :- var(RHS), !.
+% base case
+rhs(A, A) :- atom(A), !.
+rhs(RHS, RHS) :- number(RHS), !.
+rhs(RHS, RHS) :- opaque(RHS), !.
+rhs(RHS, RHS) :- RHS = m(_, _, _, _), !.
+rhs([RHS|RHSs], [NRHS|NRHSs]) :-
+	maplist(rhs, [RHS|RHSs], [NRHS|NRHSs]).
+rhs(matrix(List, Opts), RHS) :-
+	rhs( List, A1),
+	new_matrix(A1, Opts, RHS).
+rhs(matrix(List), RHS) :-
+	rhs( List, A1),
+	new_matrix(A1, [], RHS).
+rhs(matrix(List, Opt1, Opt2), RHS) :-
+	rhs( List, A1),
+	new_matrix(A1, [Opt1, Opt2], RHS).
+rhs(matrix(List, Opt1, Opt2, Opt3), RHS) :-
+	rhs( List, A1),
+	new_matrix(A1, [Opt1, Opt2, Opt3], RHS).
+rhs(matrix(List, Opt1, Opt2, Opt3, Opt4), RHS) :-
+	rhs( List, A1),
+	new_matrix(A1, [Opt1, Opt2, Opt3, Opt4], RHS).
+rhs(matrix(List, Opt1, Opt2, Opt3, Opt4, Opt5), RHS) :-
+	rhs( List, A1),
+	new_matrix(A1, [Opt1, Opt2, Opt3, Opt4, Opt5], RHS).
+rhs(dim(RHS), Dims) :- !,
+	rhs(RHS, X1),
+	matrix_dims( X1, Dims ).
+rhs(dims(RHS), Dims) :- !,
+	rhs(RHS, X1),
+	matrix_dims( X1, Dims ).
+rhs(dims(RHS), Dims) :- !,
+	rhs(RHS, X1),
+	matrix_dims( X1, Dims ).
+rhs(nrow(RHS), NRow) :- !,
+	rhs(RHS, X1),
+	matrix_dims( X1, [NRow,_] ).
+rhs(ncol(RHS), NCol) :- !,
+	rhs(RHS, X1),
+	matrix_dims( X1, [_,NCol] ).
+rhs(length(RHS), Size) :- !,
+	rhs(RHS, X1),
+	matrix_size( X1, Size ).
+rhs(size(RHS), Size) :- !,
+	rhs(RHS, X1),
+	matrix_size( X1, Size ).
+rhs(as_list(RHS), List) :- !,
+	rhs(RHS, X1),
+	matrix_to_list( X1, List ).
+rhs('[]'(Args, RHS), Val) :- !,
+	rhs(RHS, X1),
+	matrix_dims( X1, Dims ),
+	maplist( index(Range), Args, Dims, NArgs),
+	(
+	 var(Range)
+	->
+	  matrix_get( X1, NArgs, Val )
+	;
+	  matrix_get_range( X1, NArgs, Val )
+	).
+rhs('..'(I, J), [I1|Is]) :- !,
+	rhs(I, I1),
+	rhs(J, J1),
+	once( foldl(inc, Is, I1, J1) ).
+
+set_lhs(V, R) :- var(V), !, V = R.
+set_lhs(V, R) :- number(V), !, V = R.
+set_lhs(V, R) :- V = '[]'(Indx, M), !, 
+	matrix_set( M, Indx, R).
+
+%
+% ranges of arguments
+%
+index(Range, V, M, Indx) :- var(V), !,
+	index(Range, O..(M-1), Indx).
+index(Range, '*', M, Indx) :- !,
+	index(Range, O..(M-1), Indx).
+index(Range, Exp, M, Indx) :- !,
+	index(Exp, M, Indx0),
+	( integer(Indx0) -> Indx = Indx0 ;
+	  Indx0 = [Indx] -> true ;
+	  Indx = Indx, Range = range ).
+
+
+index(I, _M, I ) :- integer(I), !.
+index(I..J, _M, O ) :- !,
+	I1 is I, J1 is J,
+	once( foldl(inc, O, I1, J1) ).
+index(I+J, _M, O ) :-
+	index(I, M, I1),
+	index(J, M, J1),
+	add_index(I1, J1, O).
+index(I-J, _M, O ) :-
+	index(I, M, I1),
+	index(J, M, J1),
+	add_index(I1, J1, O).
+index(I*J, _M, O ) :-
+	index(I, M, I1),
+	index(J, M, J1),
+	O is I*J.
+index(I div J, _M, O ) :-
+	index(I, M, I1),
+	index(J, M, J1),
+	O is I div J.
+index(I rem J, _M, O ) :-
+	index(I, M, I1),
+	index(J, M, J1),
+	O is I rem J.
+
+add_index(I1, J1, O) :-
+	integer(I1),
+	integer(J1), !,
+	O is I1+J1.
+add_index(I1, J1, O) :-
+	integer(I1), !,
+	maplist(plus(I1), J1, O).
+add_index(I1, J1, O) :-
+	integer(J1), !,
+	maplist(plus(J1), I1, O).
+add_index(I1, J1, O) :-
+	ord_union(I1, J1, O).
+
+sub_index(I1, J1, O) :-
+	integer(I1),
+	integer(J1), !,
+	O is I1-J1.
+sub_index(I1, J1, O) :-
+	integer(I1), !,
+	maplist(rminus(I1), J1, O).
+sub_index(I1, J1, O) :-
+	integer(J1), !,
+	maplist(minus(J1), I1, O).
+sub_index(I1, J1, O) :-
+	ord_subtract(I1, J1, O).
+
+minus(X, Y, Z) :- Z is X-Y.
+
+rminus(X, Y, Z) :- Z is Y-X.
+
+%
+% three types of matrix: integers, floats and general terms.
+%
+
+matrix_new(terms,Dims, m(Dims, NDims, Size, Matrix) ) :-
+	length(Dims,NDims),
+	foldl(size, Dims, 1, Size),
+	functor( Matrix, c, Size).
 matrix_new(ints,Dims,Matrix) :-
 	length(Dims,NDims),
 	new_ints_matrix_set(NDims, Dims, 0, Matrix).
@@ -100,6 +259,11 @@ matrix_new(floats,Dims,Matrix) :-
 	new_floats_matrix_set(NDims, Dims, 0.0, Matrix).
 
 
+matrix_new(terms, Dims, Data, m(Dims, NDims, Size, Matrix) ) :-
+	length(Dims,NDims),
+	foldl(size, Dims, 1, Size),
+	functor( Matrix, c, Size),
+	Matrix =.. [c|Data].
 matrix_new(ints,Dims,Data,Matrix) :-
 	length(Dims,NDims),
 	new_ints_matrix(NDims, Dims, Data, Matrix).
@@ -107,6 +271,33 @@ matrix_new(floats,Dims,Data,Matrix) :-
 	length(Dims,NDims),
 	new_floats_matrix(NDims, Dims, Data, Matrix).
 
+
+matrix_dims( Mat, Dims) :-
+	( opaque(Mat) -> matrixn_dims( Mat, Dims ) ;
+	    Mat = m( Dims, _, _, _) ).
+
+matrix_ndims( Mat, NDims) :-
+	( opaque(Mat) -> matrixn_ndims( Mat, NDims ) ;
+	    Mat = m( _, NDims, _, _) ).
+
+matrix_size( Mat, Size) :-
+	( opaque(Mat) -> matrixn_size( Mat, Size ) ;
+	    Mat = m( _, _, Size, _) ).
+
+matrix_to_list( Mat, ToList) :-
+	( opaque(Mat) -> matrixn_to_list( Mat, ToList ) ;
+	    Mat = m( _, _, _, M), M=.. [_|ToList] ).
+
+matrix_get( Mat, Pos, El) :-
+	( opaque(Mat) -> matrixn_get( Mat, Pos, El ) ;
+	    m_get(Mat, Pos, El)  ).
+
+matrix_get_range( Mat, Pos, El) :-
+	writeln(Pos).
+
+matrix_set( Mat, Pos, El) :-
+	( opaque(Mat) -> matrixn_set( Mat, Pos, El ) ;
+	    m_set(Mat, Pos, El)  ).
 
 matrix_new_set(ints,Dims,Elem,Matrix) :-
 	length(Dims,NDims),
@@ -117,10 +308,33 @@ matrix_new_set(floats,Dims,Elem,Matrix) :-
 
 
 matrix_type(Matrix,Type) :-
-	matrix_type_as_number(Matrix, 0), !,
-	Type = ints.
-matrix_type(_,floats).
+	( matrix_type_as_number(Matrix, 0) -> Type = ints ;
+	  opaque( Matrix ) -> Type = floats ;
+	  Type = terms ).
 
+matrix_arg_to_offset(M, Index, Offset) :-
+	( opaque(M) -> matrixn_arg_to_offset( M, Index, Offset ) ;
+	    M = m(Dims, _, Size, _) -> foldl2(indx, Index, Dims, Size, _, 0, Offset)  ).	
+	
+matrix_offset_to_arg(M, Offset, Index) :-
+	( opaque(M) -> matrixn_offset_to_arg( M, Offset, Index ) ;
+	    M = m(Dims, _, Size, _) -> foldl2(offset, Index, Dims, Size, _, Offset, _)  ).	
+	
+matrix_max(M, Max) :-
+	( opaque(M) -> matrixn_max( M, Max ) ;
+	    M = m(_, _, _, M) -> fail ).
+	
+matrix_maxarg(M, Max) :-
+	( opaque(M) -> matrixn_maxarg( M, Max ) ;
+	    M = m(Dims, _, Size, _) -> fail  ).	
+	
+matrix_min(M, Min) :-
+	( opaque(M) -> matrixn_min( M, Min ) ;
+	    M = m(_, _, _, M) -> fail ).
+	
+matrix_minarg(M, Min) :-
+	( opaque(M) -> matrixn_minarg( M, Min ) ;
+	    M = m(Dims, _, Size, _) -> fail  ).	
 	
 matrix_agg_lines(M1,+,NM) :-
 	do_matrix_agg_lines(M1,0,NM).
@@ -163,4 +377,132 @@ matrix_op_to_cols(M1,M2,+,NM) :-
 matrix_transpose(M1,M2) :-
 	matrix_shuffle(M1,[1,0],M2).
 
+size(N0, N1, N2) :-
+	N2 is N0*N1.
 
+% use 1 to get access to matrix
+m_get(m(Dims, _, Sz, M), Indx, V) :-
+	foldl2(indx, Indx, Dims, Sz, _, 1, Offset),
+	arg(Offset, M, V).
+
+m_set(m(Dims, _, Sz, M), Indx, V) :-
+	foldl2(indx, Indx, Dims, Sz, _, 1, Offset),
+	nb_setarg(Offset, M, V).
+
+indx( I, Dim, BlkSz, NBlkSz, I0, IF) :-
+	NBlkSz is BlkSz div Dim,
+	IF is I*NBlkSz + I0.
+
+offset( I, Dim, BlkSz, NBlkSz, I0, IF) :-
+	NBlkSz is BlkSz div Dim,
+	I is I0 div NBlkSz,
+	IF is I0 rem NBlkSz.
+
+inc(I1, I, I1) :-
+	I1 is I+1.
+
+new_matrix(M0, Opts0, M) :-
+	opaque(M), !,
+	matrix_to_list(M0, L),
+	new_matrix(L, Opts0, M).
+new_matrix(m(_,_,_,C), Opts0, M) :- !,
+	C =..[_|L],
+	new_matrix(L, Opts0, M).
+new_matrix(C, Opts0, M) :-
+	functor(C, c, _), !,
+	C =..[_|L],
+	new_matrix(L, Opts0, M).
+new_matrix(List, Opts0, M) :-
+	foldl2(el_list(MDims), List, Flat, [], 0, Dim),  !,
+	fix_opts(Opts0, Opts),
+	foldl2(process_new_opt, Opts, Type, TypeF, [Dim|MDims], Dims),
+	( var(TypeF) -> guess_type( Flat, Type ) ; true ),
+	matrix_new( Type, Dims, Flat, M).	
+new_matrix([H|List], Opts0, M) :-
+	length( [H|List], Size),
+	fix_opts(Opts0, Opts),
+	foldl2(process_new_opt, Opts, Type, TypeF, [Size], Dims),
+	( var(TypeF) -> guess_type( [H|List], Type ) ; true ),
+	matrix_new( Type, Dims, [H|List], M).
+
+fix_opts(V, _) :-
+	var(V), !,
+	throw(error(instantiation_error, V)).
+fix_opts(A=B, [A=B]).
+fix_opts(A, A) :-
+	is_list(A), !.
+fix_opts(V, _) :-
+	var(V), !,
+	throw(error(domain_error(options=V), new_matrix)).
+
+guess_type( List, Type ) :-
+	maplist( integer, List), !,
+	Type = ints.
+guess_type( List, Type ) :-
+	maplist( number, List), !,
+	Type = floats.
+guess_type( _List, terms ).
+
+process_new_opt(dim=Dim, Type, Type, _, Dim) :- !.
+process_new_opt(type=Type, _, Type, Dim, Dim) :- !.
+process_new_opt(Opt, _, Type, Dim, Dim) :-
+	throw(error(domain_error(opt=Opt), new_matrix)).
+
+el_list(_, V, _Els, _NEls, _I0, _I1) :- 
+	var(V), !,
+	fail.
+el_list([N|Extra], El, Els, NEls, I0, I1) :- 
+	foldl2(el_list(Extra), El, Els, NEls, 0, N), !,
+	I1 is I0+1.
+el_list([N], El, Els, NEls, I0, I1) :- 
+	El = [_|_],
+	length(El, N),
+	append(El, NEls, Els),
+	I1 is I0+1.
+
+foreach( Domain, Locals, Goal) :-
+	global_variables( V, Locals, Goal, GlobalVars ),
+	iterate( Domain, [], GlobalVars, Goal, [], [] ).
+
+global_variables( Vs, Locals, Goal, GlobalVars ) :-
+	term_variables( [V|Locals], Pars ),
+	term_variables( Goal, GVs, Pars),
+	foldl( del, Pars, GVs, GlobalVars ).
+
+del(Ps, Vs, RVs ) :-
+	foldl(delv, Ps, Vs, RVs).
+
+delv( V, [V1|Vs], Vs) :- V == V1, !.
+delv( V, [_|Vs], NVs) :-
+	delv( V, Vs, NVs).
+
+iterate( [], [], GlobalVars, Goal, Vs, Bs ) :-
+	  copy_term(t(Vs, Goal, GlobalVars), t(Bs, G, GlobalVars) ),
+	  once( G ).	
+iterate( [], [H|Cont], GlobalVars, Goal, Vs, Bs ) :-
+	iterate(H, Cont, GlobalVars, Goal, Vs, Bs ).
+iterate( [H|L], Cont, GlobalVars, Goal, Vs, Bs ) :- !,
+	append(L, Cont, LCont),
+	iterate(H, LCont, GlobalVars, Goal, Vs, Bs ).
+iterate( [] ins _A .. _B, Cont, GlobalVars, Goal ) :- !,
+	iterate(Cont, [], GlobalVars, Goal, Vs, Bs ).
+iterate( [V|Ps] ins A..B, Cont, GlobalVars, Goal, Vs, Bs  ) :-
+	eval(A, NA),
+	eval(B, NB),
+	( NA >= NB ->  iterate( Cont, [], GlobalVars, Goal, [V|Vs], [B|Bs] ) ;
+	  A1 is NA+1,
+	  iterate( Ps ins A1..NB, GlobalVars, Goal, [V|Vs], [A|Bs] )
+	).
+iterate( V in A..B, Cont, GlobalVars, Goal, Vs, Bs) :-
+	var(V),
+	eval(A, NA),
+	eval(B, NB),
+	( NA >= NB -> iterate( Cont, [], GlobalVars, Goal, [V|Vs], [B|Bs] ) ;
+	  A1 is NA+1,
+	  iterate( V in A1..NB, Cont, GlobalVars, Goal, [V|Vs], [B|Bs] ) 
+	).
+
+	 
+numbers(I0..I1, [I0|Vals]) :-
+	( I0 =< I1 -> Vals = [I0|MVals], I01 is I0+1, generator(I01..I1, MVals) ;
+	    Vals = [] ).

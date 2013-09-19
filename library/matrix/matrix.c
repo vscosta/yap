@@ -918,7 +918,7 @@ matrix_type(void)
   
   mat = (int *)YAP_BlobOfTerm(YAP_ARG1);
   if (!mat) {
-    /* Error */
+    /* not an error, it may be called on a term matrix */
     return FALSE;
   }
   if (mat[MAT_TYPE] == INT_MATRIX) {
@@ -3069,27 +3069,27 @@ init_matrix(void)
   YAP_UserCPredicate("new_ints_matrix_set", new_ints_matrix_set, 4);
   YAP_UserCPredicate("new_floats_matrix", new_floats_matrix, 4);
   YAP_UserCPredicate("new_floats_matrix_set", new_floats_matrix_set, 4);
-  YAP_UserCPredicate("matrix_set", matrix_set, 3);
+  YAP_UserCPredicate("matrixn_set", matrix_set, 3);
   YAP_UserCPredicate("matrix_set", matrix_set2, 2);
   YAP_UserCPredicate("matrix_set_all", matrix_set_all, 2);
   YAP_UserCPredicate("matrix_add", matrix_add, 3);
-  YAP_UserCPredicate("matrix_get", do_matrix_access, 3);
-  YAP_UserCPredicate("matrix_get", do_matrix_access2, 2);
+  YAP_UserCPredicate("matrixn_get", do_matrix_access, 3);
+  YAP_UserCPredicate("matrixn_get", do_matrix_access2, 2);
   YAP_UserCPredicate("matrix_inc", do_matrix_inc, 2);
   YAP_UserCPredicate("matrix_dec", do_matrix_dec, 2);
   YAP_UserCPredicate("matrix_inc", do_matrix_inc2, 3);
   YAP_UserCPredicate("matrix_dec", do_matrix_dec2, 3);
-  YAP_UserCPredicate("matrix_to_list", matrix_to_list, 2);
-  YAP_UserCPredicate("matrix_dims", matrix_dims, 2);
-  YAP_UserCPredicate("matrix_ndims", matrix_ndims, 2);
-  YAP_UserCPredicate("matrix_size", matrix_size, 2);
+  YAP_UserCPredicate("matrixn_to_list", matrix_to_list, 2);
+  YAP_UserCPredicate("matrixn_dims", matrix_dims, 2);
+  YAP_UserCPredicate("matrixn_ndims", matrix_ndims, 2);
+  YAP_UserCPredicate("matrixn_size", matrix_size, 2);
   YAP_UserCPredicate("matrix_type_as_number", matrix_type, 2);
-  YAP_UserCPredicate("matrix_arg_to_offset", matrix_arg_to_offset, 3);
-  YAP_UserCPredicate("matrix_offset_to_arg", matrix_offset_to_arg, 3);
-  YAP_UserCPredicate("matrix_max", matrix_max, 2);
-  YAP_UserCPredicate("matrix_maxarg", matrix_maxarg, 2);
-  YAP_UserCPredicate("matrix_min", matrix_min, 2);
-  YAP_UserCPredicate("matrix_minarg", matrix_minarg, 2);
+  YAP_UserCPredicate("matrixn_arg_to_offset", matrix_arg_to_offset, 3);
+  YAP_UserCPredicate("matrixn_offset_to_arg", matrix_offset_to_arg, 3);
+  YAP_UserCPredicate("matrixn_max", matrix_max, 2);
+  YAP_UserCPredicate("matrixn_maxarg", matrix_maxarg, 2);
+  YAP_UserCPredicate("matrixn_min", matrix_min, 2);
+  YAP_UserCPredicate("matrixn_minarg", matrix_minarg, 2);
   YAP_UserCPredicate("matrix_sum", matrix_sum, 2);
   YAP_UserCPredicate("matrix_shuffle", matrix_transpose, 3);
   YAP_UserCPredicate("matrix_expand", matrix_expand, 3);
