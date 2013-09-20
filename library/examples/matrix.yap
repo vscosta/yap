@@ -52,8 +52,28 @@ step(X,Y,Z,I,J) :-
 	foldl(addprod, Xs, Ys, 0, P), % scalar product
 	Z[I,J] <== P.
 
+step(X,Y,Z,I,J,S0,SF) :-
+	Xs <== X[I,_],
+	Ys <== Y[_,J],
+	foldl(addprod, Xs, Ys, 0, P), % scalar product
+	SF is S0+P,
+	Z[I,J] <== P.
+
 addprod(X, Y, S0, S) :-
 	S is S0+X*Y.
 
+t7 :-
+	t7(10).
+
+t7(Len) :-
+	LenSq is Len*Len,
+	Len1 is Len-1,
+	numbers(1, LenSq, L),
+	X <== matrix(L, [dim=[Len,Len]]),
+	Y <== matrix(L, [dim=[Len,Len]]),
+	Z <== matrix(L, [dim=[Len,Len]]),
+	writeln('product:'),
+	foreach([I in 0..Len1, J in 0..Len1], step(X,Y,Z,I,J) , 0, O),
+	writeln(O).
 
 

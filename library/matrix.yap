@@ -92,12 +92,13 @@ typedef enum {
 	    matrix_get/2,
 	    matrix_set/2,
 	    foreach/2,
+	    foreach/4,
 	    op(100, fy, '[]')
 	    ]).
 
 :- load_foreign_files([matrix], [], init_matrix).
 
-:- meta_predicate foreach(+,:).
+:- meta_predicate foreach(+,0), foreach(+,2, +, -).
 
 :- use_module(library(maplist)).
 :- use_module(library(lists)).
@@ -508,6 +509,13 @@ foreach( Domain, Goal ) :-
 	global_variables( Domain, [], Goal, GlobalVars ),
 	iterate( Domain, [], GlobalVars, Goal, [], [] ).
 
+foreach( Domain, M:(Locals^Goal), Inp, Out) :- !,
+	global_variables( Domain, Locals, Goal, GlobalVars ),
+	iterate( Domain, [], GlobalVars, M:Goal, [], [], Inp, Out).
+foreach( Domain, Goal, Inp, Out ) :-
+	global_variables( Domain, [], Goal, GlobalVars ),
+	iterate( Domain, [], GlobalVars, Goal, [], [], Inp, Out ).
+
 global_variables( Domain, Locals, Goal, GlobalVars ) :-
 	term_variables( Domain+Locals, Pars ),
 	term_variables( Goal, DGVs, Pars),
@@ -544,6 +552,34 @@ iterate( V in A..B, Cont, GlobalVars, Goal, Vs, Bs) :-
 	  A1 is NA+1,
 	  iterate( Cont, [], GlobalVars, Goal, [V|Vs], [NA|Bs] ),
 	  iterate( V in A1..NB, Cont, GlobalVars, Goal, Vs, Bs ) 
+	).
+
+iterate( [], [], GlobalVars, Goal, Vs, Bs, Inp, Out ) :-
+	  copy_term(t(Vs, Goal, GlobalVars), t(Bs, G, GlobalVars) ),
+	  once( call(G, Inp, Out) ).	
+iterate( [], [H|Cont], GlobalVars, Goal, Vs, Bs, Inp, Out ) :-
+	iterate(H, Cont, GlobalVars, Goal, Vs, Bs, Inp, Out ).
+iterate( [H|L], Cont, GlobalVars, Goal, Vs, Bs, Inp, Out ) :- !,
+	append(L, Cont, LCont),
+	iterate(H, LCont, GlobalVars, Goal, Vs, Bs, Inp, Out ).
+iterate( [] ins _A .. _B, Cont, GlobalVars, Goal, Inp, Out ) :- !,
+	iterate(Cont, [], GlobalVars, Goal, Vs, Bs, Inp, Out ).
+iterate( [V|Ps] ins A..B, Cont, GlobalVars, Goal, Vs, Bs, Inp, Out  ) :-
+	eval(A, Vs, Bs, NA),
+	eval(B, Vs, Bs, NB),
+	( NA > NB ->  Inp = Out ;
+	  A1 is NA+1,
+	  iterate( Cont, [], GlobalVars, Goal, [V|Vs], [NA|Bs], Inp, Mid ),
+	  iterate( Ps ins A1..NB, GlobalVars, Goal, [V|Vs], [NA|Bs], Mid, Out )
+	).
+iterate( V in A..B, Cont, GlobalVars, Goal, Vs, Bs, Inp, Out) :-
+	var(V),
+	eval(A, Vs, Bs, NA),
+	eval(B, Vs, Bs, NB),
+	( NA > NB -> Inp = Out ;
+	  A1 is NA+1,
+	  iterate( Cont, [], GlobalVars, Goal, [V|Vs], [NA|Bs], Inp, Mid ),
+	  iterate( V in A1..NB, Cont, GlobalVars, Goal, Vs, Bs, Mid, Out ) 
 	).
 
 	 
