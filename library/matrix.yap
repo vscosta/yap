@@ -91,10 +91,13 @@ typedef enum {
 	    matrix_column/3,
 	    matrix_get/2,
 	    matrix_set/2,
+	    foreach/2,
 	    op(100, fy, '[]')
 	    ]).
 
 :- load_foreign_files([matrix], [], init_matrix).
+
+:- meta_predicate foreach(+,:).
 
 :- use_module(library(maplist)).
 :- use_module(library(lists)).
@@ -498,20 +501,21 @@ el_list([N], El, Els, NEls, I0, I1) :-
 	append(El, NEls, Els),
 	I1 is I0+1.
 
-foreach( Domain, Locals, Goal) :-
-	global_variables( V, Locals, Goal, GlobalVars ),
+foreach( Domain, M:(Locals^Goal)) :- !,
+	global_variables( Domain, Locals, Goal, GlobalVars ),
+	iterate( Domain, [], GlobalVars, M:Goal, [], [] ).
+foreach( Domain, Goal ) :-
+	global_variables( Domain, [], Goal, GlobalVars ),
 	iterate( Domain, [], GlobalVars, Goal, [], [] ).
 
-global_variables( Vs, Locals, Goal, GlobalVars ) :-
-	term_variables( [V|Locals], Pars ),
-	term_variables( Goal, GVs, Pars),
-	foldl( del, Pars, GVs, GlobalVars ).
-
-del(Ps, Vs, RVs ) :-
-	foldl(delv, Ps, Vs, RVs).
+global_variables( Domain, Locals, Goal, GlobalVars ) :-
+	term_variables( Domain+Locals, Pars ),
+	term_variables( Goal, DGVs, Pars),
+	sort( DGVs, GVs ),
+	foldl( delv, Pars, GVs, GlobalVars ).
 
 delv( V, [V1|Vs], Vs) :- V == V1, !.
-delv( V, [_|Vs], NVs) :-
+delv( V, [V1|Vs], [V1|NVs]) :-
 	delv( V, Vs, NVs).
 
 iterate( [], [], GlobalVars, Goal, Vs, Bs ) :-
@@ -525,19 +529,26 @@ iterate( [H|L], Cont, GlobalVars, Goal, Vs, Bs ) :- !,
 iterate( [] ins _A .. _B, Cont, GlobalVars, Goal ) :- !,
 	iterate(Cont, [], GlobalVars, Goal, Vs, Bs ).
 iterate( [V|Ps] ins A..B, Cont, GlobalVars, Goal, Vs, Bs  ) :-
-	eval(A, NA),
-	eval(B, NB),
-	( NA >= NB ->  iterate( Cont, [], GlobalVars, Goal, [V|Vs], [B|Bs] ) ;
+	eval(A, Vs, Bs, NA),
+	eval(B, Vs, Bs, NB),
+	( NA > NB ->  true ;
 	  A1 is NA+1,
-	  iterate( Ps ins A1..NB, GlobalVars, Goal, [V|Vs], [A|Bs] )
+	  iterate( Cont, [], GlobalVars, Goal, [V|Vs], [NA|Bs] ),
+	  iterate( Ps ins A1..NB, GlobalVars, Goal, [V|Vs], [NA|Bs] )
 	).
 iterate( V in A..B, Cont, GlobalVars, Goal, Vs, Bs) :-
 	var(V),
-	eval(A, NA),
-	eval(B, NB),
-	( NA >= NB -> iterate( Cont, [], GlobalVars, Goal, [V|Vs], [B|Bs] ) ;
+	eval(A, Vs, Bs, NA),
+	eval(B, Vs, Bs, NB),
+	( NA > NB -> true ;
 	  A1 is NA+1,
-	  iterate( V in A1..NB, Cont, GlobalVars, Goal, [V|Vs], [B|Bs] ) 
+	  iterate( Cont, [], GlobalVars, Goal, [V|Vs], [NA|Bs] ),
+	  iterate( V in A1..NB, Cont, GlobalVars, Goal, Vs, Bs ) 
 	).
 
 	 
+eval(I, _Vs, _Bs, I) :- integer(I), !.
+eval(I, Vs, Bs, NI) :-
+	copy_term(I+Vs, IA+Bs),
+	NI <== IA.
+
