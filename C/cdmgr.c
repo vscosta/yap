@@ -5087,6 +5087,7 @@ fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr
       }
       P = code;
     }
+    UNLOCKPE(45,pe);
     return TRUE;
   }
   rtn = Yap_MkStaticRefTerm(cl);
@@ -5129,6 +5130,7 @@ fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr
 
     if (!(pe->PredFlags & SourcePredFlag)) {
       rtn = Yap_MkStaticRefTerm(cl);
+      UNLOCKPE(45,pe);
       return Yap_unify(tr, rtn);
     }
     while ((t = Yap_FetchTermFromDB(cl->usc.ClSource)) == 0L) {
@@ -5137,6 +5139,7 @@ fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr
 	  LOCAL_Error_TYPE = YAP_NO_ERROR;
 	  if (!Yap_growglobal(NULL)) {
 	    Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, LOCAL_ErrorMessage);
+	    UNLOCKPE(45,pe);
 	    return FALSE;
 	  }
 	} else {
@@ -5146,6 +5149,7 @@ fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr
 	  ARG7 = tr;
 	  if (!Yap_gc(7, ENV, gc_P(P,CP))) {
 	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
+	    UNLOCKPE(45,pe);
 	    return FALSE;
 	  }
 	  th = ARG5;
@@ -5159,6 +5163,7 @@ fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr
 	ARG8 = tr;
 	if (!Yap_gcl(LOCAL_Error_Size, 8, ENV, CP)) {
 	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
+	  UNLOCKPE(45,pe);
 	  return FALSE;
 	}
 	th = ARG6;
