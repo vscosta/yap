@@ -38,11 +38,6 @@ is_IntVar_('IntVar'(I,K),N) :-
     integer(K),
     nb_getval(gecode_space_use_keep_index,B),
     (B=true -> N=K ; N=I).
-is_IntVarBranch_('IntVarBranch'(I,K),N) :- 
-    integer(I),
-    integer(K),
-    nb_getval(gecode_space_use_keep_index,B),
-    (B=true -> N=K ; N=I).
 is_FloatVar_('FloatVar'(I,K),N) :-
     integer(I),
     integer(K),
@@ -63,10 +58,8 @@ is_IntVar(X,I) :- nonvar(X), is_IntVar_(X,I).
 is_BoolVar(X,I) :- nonvar(X), is_BoolVar_(X,I).
 is_FloatVar(X,I) :- nonvar(X), is_FloatVar_(X,I).
 is_SetVar(X,I) :- nonvar(X), is_SetVar_(X,I).
-is_IntVarBranch(X,I) :- nonvar(X), is_IntVarBranch_(X,I).
 
 is_IntVar(X) :- is_IntVar(X,_).
-is_IntVarBranch(X) :- is_IntVarBranch(X,_).
 is_BoolVar(X) :- is_BoolVar(X,_).
 is_FloatVar(X) :- is_FloatVar(X,_).
 is_SetVar(X) :- is_SetVar(X,_).
@@ -367,42 +360,42 @@ is_Reify(X) :- is_Reify(X,_).
 
 %% AUTOGENERATE ALL VARIANTS LATER!
 
-new_intvars([], Space, Lo, Hi).
+new_intvars([], _Space, _Lo, _Hi).
 new_intvars([IVar|IVars], Space, Lo, Hi) :-
 	new_intvar(IVar, Space, Lo, Hi),
 	new_intvars(IVars, Space, Lo, Hi).
 
-new_intvars([], Space, IntSet).
+new_intvars([], _Space, _IntSet).
 new_intvars([IVar|IVars], Space, IntSet) :-
 	new_intvar(IVar, Space, IntSet),
 	new_intvars(IVars, Space, IntSet).
 
-new_boolvars([], Space).
+new_boolvars([], _Space).
 new_boolvars([BVar|BVars], Space) :-
 	new_boolvar(BVar, Space),
 	new_boolvars(BVars, Space).
 
-new_setvars([], Space, X1, X2, X3, X4, X5, X6).
+new_setvars([], _Space, _X1, _X2, _X3, _X4, _X5, _X6).
 new_setvars([SVar|SVars], Space, X1, X2, X3, X4, X5, X6) :-
 	new_setvar(SVar, Space, X1, X2, X3, X4, X5, X6),
 	new_setvars(SVars, Space, X1, X2, X3, X4, X5, X6).
 
-new_setvars([], Space, X1, X2, X3, X4, X5).
+new_setvars([], _Space, _X1, _X2, _X3, _X4, _X5).
 new_setvars([SVar|SVars], Space, X1, X2, X3, X4, X5) :-
 	new_setvar(SVar, Space, X1, X2, X3, X4, X5),
 	new_setvars(SVars, Space, X1, X2, X3, X4, X5).
 
-new_setvars([], Space, X1, X2, X3, X4).
+new_setvars([], _Space, _X1, _X2, _X3, _X4).
 new_setvars([SVar|SVars], Space, X1, X2, X3, X4) :-
 	new_setvar(SVar, Space, X1, X2, X3, X4),
 	new_setvars(SVars, Space, X1, X2, X3, X4).
 
-new_setvars([], Space, X1, X2, X3).
+new_setvars([], _Space, _X1, _X2, _X3).
 new_setvars([SVar|SVars], Space, X1, X2, X3) :-
 	new_setvar(SVar, Space, X1, X2, X3),
 	new_setvars(SVars, Space, X1, X2, X3).
 
-new_setvars([], Space, X1, X2).
+new_setvars([], _Space, _X1, _X2).
 new_setvars([SVar|SVars], Space, X1, X2) :-
 	new_setvar(SVar, Space, X1, X2),
 	new_setvars(SVars, Space, X1, X2).
@@ -426,7 +419,7 @@ new_intvar(IVar, Space, IntSet) :- !,
 	IVar='IntVar'(Idx,-1).
 
 new_floatvar(FVar, Space, Lo, Hi) :- !,
-	assert_var(IVar),
+	assert_var(FVar),
 	assert_is_Space_or_Clause(Space,Space_),
 	assert_float(Lo),
 	assert_float(Hi),
@@ -463,7 +456,7 @@ new_setvar(SVar, Space, GlbMin, GlbMax, LubMin, LubMax, CardMin, CardMax) :-
 	assert_integer(LubMax),
 	assert_integer(CardMin),
 	assert_integer(CardMax),
-	gecode_new_setvar(Idx, Space_, GlbMin, GlbMax, LubMib, LubMax, CardMin, CardMax),
+	gecode_new_setvar(Idx, Space_, GlbMin, GlbMax, LubMin, LubMax, CardMin, CardMax),
 	SVar='SetVar'(Idx,-1).
 
 %% 5 arguments
@@ -606,10 +599,10 @@ gecode_search_options_from_alist(L,R) :-
     gecode_search_options_init(R),
     gecode_search_options_process_alist(L,R).
 
-gecode_search_options_process_alist([],R).
-gecode_search_options_process_alist([H|T],R) :- !,
-    gecode_search_options_process1(H,R),
-    gecode_search_options_process_alist(T,R).
+gecode_search_options_process_alist([], _R).
+gecode_search_options_process_alist([H|T], R) :- !,
+    gecode_search_options_process1(H, R),
+    gecode_search_options_process_alist(T, R).
 
 gecode_search_options_process1(restart,R) :- !,
     gecode_search_option_set(restart,1,R).
@@ -629,15 +622,15 @@ gecode_search_options_process1(a_d=N,R) :- !,
 gecode_search_options_process1(cutoff=C,R) :- !,
     (is_RestartMode(C,C_) -> V=C_
     ; throw(bad_search_option_value(cutoff=C))),
-    gecode_search_option_set(cutoff,C_,R).
+    gecode_search_option_set(cutoff,V,R).
 gecode_search_options_process1(nogoods_limit=N,R) :- !,
     (integer(N), N >= 0 -> V=N
     ; throw(bad_search_option_value(nogoods_limit=N))),
-    gecode_search_option_set(nogoods_limit,N,R).
+    gecode_search_option_set(nogoods_limit,V,R).
 gecode_search_options_process1(clone=N,R) :- !,
     ((N == 0 ; N == 1)-> V=N
     ; throw(bad_search_option_value(clone=N))),
-    gecode_search_option_set(clone,N,R).
+    gecode_search_option_set(clone,V,R).
 gecode_search_options_process1(O,_) :-
     throw(gecode_error(unrecognized_search_option(O))).
 
@@ -655,7 +648,7 @@ search(Space, Solution, Alist) :-
 
 %% INSPECTING VARIABLES
 
-get_for_vars([],Space,[],F).
+get_for_vars([],_Space,[],_F).
 get_for_vars([V|Vs],Space,[V2|V2s],F) :-
 	call_with_args(F,V,Space,V2),
 	get_for_vars(Vs,Space,V2s,F).
@@ -920,7 +913,7 @@ keep_(Space, Var) :-
 	   ; throw(gecode_error(variable_already_kept(Var))))
 	; keep_list_(Space,Var)))).
 
-keep_list_(Space, []) :- !.
+keep_list_(_Space, []) :- !.
 keep_list_(Space, [H|T]) :- !,
     keep_(Space,H), keep_list_(Space,T).
 keep_list_(_, X) :-

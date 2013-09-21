@@ -1,4 +1,5 @@
 :- module(clpfd, [
+		  op(100, yf, []),            
                   op(760, yfx, #<==>),
                   op(750, xfy, #==>),
                   op(750, yfx, #<==),
@@ -68,6 +69,7 @@
 
 :- use_module(library(gecode)).
 :- use_module(library(maplist)).
+:- reexport(library(matrix), [(<==)/2, for/2, for/4]).
 
 constraint( (_ #> _) ).
 constraint( (_ #< _) ).
@@ -128,111 +130,156 @@ process_constraints(B, B, _Env).
 
 ( A #= B) :-
 	get_home(Env),
-	post( rel(A,  (#=),  B), Env, _).
+	check(A, NA),
+	check(B, NB),
+	post( rel(NA,  (#=),  NB), Env, _).
 ( A #\= B) :-
 	get_home(Env),
-	post( rel(A,  (#\=),  B), Env, _).
+	check(A, NA),
+	check(B, NB),
+	post( rel(NA,  (#\=),  NB), Env, _).
 ( A #< B) :-
 	get_home(Env),
-	post( rel(A,  (#<),  B), Env, _).
+	check(A, NA),
+	check(B, NB),
+	post( rel(NA,  (#<),  NB), Env, _).
 ( A #> B) :-
 	get_home(Env),
-	post( rel(A,  (#>),  B), Env, _).
+	check(A, NA),
+	check(B, NB),
+	post( rel(NA,  (#>),  NB), Env, _).
 ( A #=< B) :-
 	get_home(Env),
-	post( rel(A,  (#=<),  B), Env, _).
+	check(A, NA),
+	check(B, NB),
+	post( rel(NA,  (#=<),  NB), Env, _).
 ( A #>= B) :-
 	get_home(Env),
-	post( rel(A,  (#>=),  B), Env, _).
+	check(A, NA),
+	check(B, NB),
+	post( rel(NA,  (#>=),  NB), Env, _).
 sum( L, Op, V) :-
 	get_home( Env ),
-	post( rel(sum(L), Op, V), Env, _).
+	check(L, NL),
+	check(V, NV),
+	post( rel(sum(NL), Op, NV), Env, _).
 ( A #<==> VBool) :-
 	get_home(Space-Map),
+	check(A, NA),
+	check(VBool, NVBool),
 	Bool := boolvar(Space),
-	m( VBool, Bool, 0, 1, Map),
+	m( NVBool, Bool, 0, 1, Map),
 	Space += reify(Bool, 'RM_EQV', R),
-	post(A, Space-Map, R).
+	post(NA, Space-Map, R).
 ( A #==> VBool) :-
 	get_home(Space-Map),
+	check(A, NA),
+	check(VBool, NVBool),
 	Bool := boolvar(Space),
-	m( VBool, Bool, 0, 1, Map),
+	m( NVBool, Bool, 0, 1, Map),
 	Space += reify(Bool, 'RM_IMP', R),
-	post(A, Space-Map, R).
+	post(NA, Space-Map, R).
 ( A #<== VBool) :-
 	get_home(Space-Map),
+	check(A, NA),
+	check(VBool, NVBool),
 	Bool := boolvar(Space),
-	m( VBool, Bool, 0, 1, Map),
+	m( NVBool, Bool, 0, 1, Map),
 	Space += reify(Bool, 'RM_PMI', R),
-	post(A, Space-Map, R).
+	post(NA, Space-Map, R).
 '#\\'(A) :-
 	get_home(Space-Map),
+	check(A, NA),
 	B := boolvar(Space),
 	Space += reify(B, 'RM_EQV', R),
 	Space += rel(B, 'BOT_EQV', 0),
-	post(A, Space-Map, R).
+	post(NA, Space-Map, R).
 ( A1 #\/ A2 ) :-
 	get_home(Space-Map),
+	check(A1, NA1),
+	check(A2, NA2),
 	B1 := boolvar(Space),
 	B2 := boolvar(Space),
 	Space += reify(B1, 'RM_EQV', R1),
 	Space += reify(B2, 'RM_EQV', R2),
-	post(A1, Space-Map, R1),
-	post(A2, Space-Map, R2),
+	post(NA1, Space-Map, R1),
+	post(NA2, Space-Map, R2),
 	Space += rel(B1, B2, 'BOT_OR', 1).
 ( A1 #/\ A2 ) :-
 	get_home(Space-Map),
+	check(A1, NA1),
+	check(A2, NA2),
 	B1 := boolvar(Space),
 	B2 := boolvar(Space),
 	Space += reify(B1, 'RM_EQV', R1),
 	Space += reify(B2, 'RM_EQV', R2),
-	post(A1, Space-Map, R1),
-	post(A2, Space-Map, R2),
+	post(NA1, Space-Map, R1),
+	post(NA2, Space-Map, R2),
 	Space += rel(B1, B2, 'BOT_AND', 1).
 ( X in A..B) :-
 	get_home(Space-Map),
-	m(X, NX, A, B, Map),
-	NX := intvar(Space, A, B).
+	check(A, NA),
+	check(B, NB),
+	m(X, NX, NA, NB, Map),
+	NX := intvar(Space, NA, NB).
 ( Xs ins A..B) :-
 	get_home(Space-Map),
-	maplist(lm(A, B, Map), Xs, NXs),
+ 	check(A, NA),
+	check(B, NB),
+	maplist(lm(NA, NB, Map), Xs, NXs),
 	length(Xs, N),
-	NXs := intvars(Space, N, A, B).
+	NXs := intvars(Space, N, NA, NB).
 all_different( Xs ) :-
 	get_home(Env),
-	post( all_different( Xs ), Env, _ ).
+	check(Xs, NXs),
+	post( all_different( NXs ), Env, _ ).
 all_distinct( Xs ) :-
 	get_home(Env),
-	post( all_distinct( Xs ), Env, _ ).
+	check(Xs, NXs),
+	post( all_distinct( NXs ), Env, _ ).
 all_distinct( Cs, Xs ) :-
 	get_home(Env),
-	post( all_distinct( Cs, Xs ), Env, _ ).
+	check(Xs, NXs),
+	post( all_distinct( Cs, NXs ), Env, _ ).
 scalar_product( Cs, Vs, Rels, X ) :-
 	get_home(Env),
-	post( scalar_product( Cs, Vs, Rels, X ), Env, _ ).
+	check(Vs, NVs),
+	post( scalar_product( Cs, NVs, Rels, X ), Env, _ ).
 lex_chain( Cs ) :-
 	get_home(Env),
-	post( rel( Cs, '#=<' ), Env, _ ).
+	check(Cs, NCs),
+	post( rel( NCs, '#=<' ), Env, _ ).
 minimum( V, Xs ) :-
 	get_home(Env),
-	post( rel( min(Xs), (#=), V ), Env, _ ).
+	check(Xs, NXs),
+	check(V, NV),
+	post( rel( min(NXs), (#=), NV ), Env, _ ).
 min( Xs, V ) :-
 	get_home(Env),
-	post( rel( min(Xs), (#=), V ), Env, _ ).
+	check(Xs, NXs),
+	check(V, NV),
+	post( rel( min(NXs), (#=), NV ), Env, _ ).
 maximum( V, Xs ) :-
 	get_home(Env),
-	post( rel( max(Xs), (#=), V ), Env, _ ).
+	check(Xs, NXs),
+	check(V, NV),
+	post( rel( max(NXs), (#=), NV ), Env, _ ).
 max( Xs, V ) :-
 	get_home(Env),
-	post( rel( max(Xs), (#=), V ), Env, _ ).
+	check(Xs, NXs),
+	check(V, NV),
+	post( rel( max(NXs), (#=), NV ), Env, _ ).
 in_relation( Xs, Rel ) :-
 	get_home(Env),
-	post(in_tupleset(Xs, Rel), Env, _ ).
+	check(Xs, NXs),
+	post(in_tupleset(NXs, Rel), Env, _ ).
 in_dfa( Xs, Rel ) :-
 	get_home(Env),
-	post(in_dfa(Xs, Rel), Env, _ ).
+	check(Xs, NXs),
+	post(in_dfa(NXs, Rel), Env, _ ).
 in_dfa( Xs, S0, Ts, Fs ) :-
 	get_home(Env),
+	check(NXs, NXs),
 	post(in_dfa(Xs, S0, Ts, Fs), Env, _ ).
 
 labeling(_Opts, Xs) :-
@@ -250,6 +297,14 @@ extensional_constraint( Tuples, TupleSet) :-
 
 dfa( S0, Transitions, Finals, DFA) :-
 	DFA := dfa( S0, Transitions, Finals ).
+
+
+check(V, NV) :-
+	( var(V) -> V = NV ;
+	  number(V) -> V = NV ;
+	  is_list(V) -> maplist(check, V, NV) ;
+	  V = '[]'(Indx, Mat) -> NV <== '[]'(Indx, Mat) ;
+	  arith(V, _) -> V =.. [C|L], maplist(check, L, NL), NV =.. [C|NL] ).
 
 post( ( A #= B), Env, Reify) :-
 	post( rel( A, (#=), B), Env, Reify).
@@ -272,6 +327,12 @@ post( rel( A, Op, B), Space-Map, Reify):-
 	gecode_arith_op( Op, GOP ),
 	(var(Reify) ->	Space += rel(IA, GOP, IB) ;
 	    Space += rel(IA, GOP, IB, Reify) ).
+
+post( rel( A, Op), Space-Map, Reify):-
+	( var( A ) -> l(A, IA, Map) ; checklist( var, A ) -> maplist(ll(Map), A, IA ) ),
+	gecode_arith_op( Op, GOP ),
+	(var(Reify) ->	Space += rel(IA, GOP) ;
+	    Space += rel(IA, GOP, Reify) ).
 % 2 #\= B
 post( rel( A, Op, B), Space-Map, Reify):-
 	var(B), integer(A), !,
@@ -291,15 +352,16 @@ post( rel( sum(L), Op, Out), Space-Map, Reify):-
 	 Space += linear(IL, GOP, IOut, Reify)
 	).
 % [A,B,C,D] #< 3
-post( rel( A, Op ), Space-Map, Reify):-
+post( rel( A, Op, B ), Space-Map, Reify):-
 	checklist( var, A ),  !,
+	( var(B) -> l(B, IB, Map) ; integer(B) -> IB = B ), !,
 	maplist(ll(Map), A, IL ),
 	gecode_arith_op( Op, GOP ),
 	(var(Reify) ->	Space += rel(IL, GOP) ;
 	    Space += rel(IL, GOP, IB) ).
 post( rel( A, Op, B), Space-Map, Reify):-
 	var( A ), !,  
-	( var(B) -> l(B, IB, Map) ; integer(B) -> IB = B ), !,
+	( var(B) -> l(B, IB, Map) ; integer(B) -> IB = B ),
 	l(A, IA, Map), 
 	gecode_arith_op( Op, GOP ),
 	(var(Reify) ->	Space += rel(IA, GOP, IB) ;
@@ -407,7 +469,7 @@ post(in_tupleset(Xs, TS), Space-Map, Reify) :-
 	(var(Reify) ->
 	    Space += extensional(IXs, TS)
 	;
-	    throw(error(domain(not_reifiable),in_relation(Xs, Tuples)))
+	    throw(error(domain(not_reifiable),in_relation(Xs, TS)))
 	).
 post(in_dfa(Xs, S0, Trs, Fs), Space-Map, Reify) :-
 	TS := dfa( S0, Trs, Fs ),
@@ -415,14 +477,14 @@ post(in_dfa(Xs, S0, Trs, Fs), Space-Map, Reify) :-
 	(var(Reify) ->
 	    Space += extensional(IXs, TS)
 	;
-	    throw(error(domain(not_reifiable),in_dfa(Xs, Tuples)))
+	    throw(error(domain(not_reifiable),in_dfa(Xs, S0, Trs, Fs)))
 	).
 post(in_dfa(Xs, TS), Space-Map, Reify) :-
 	maplist(ll(Map), Xs, IXs),
 	(var(Reify) ->
 	    Space += extensional(IXs, TS)
 	;
-	    throw(error(domain(not_reifiable),in_dfa(Xs, Tuples)))
+	    throw(error(domain(not_reifiable),in_dfa(Xs, TS)))
 	).
 
 gecode_arith_op( (#=)  , 'IRT_EQ' ).
@@ -578,7 +640,7 @@ out_c(Name, A1, A2, B,  (#=), Space-Map, Reify) :-
 	var(Reify), !,
 	new_arith( Name, A1, A2, B, Space-Map).
 % min(X,Y) #= Cin[..] <=>
-out_c(Name, A1, A2, B,  Space-Map, Reify) :-
+out_c(Name, A1, A2, B, Op, Space-Map, Reify) :-
 	l(B, IB0, Map), !,
 	new_arith( Name, A1, A2, NB, Space-Map),
 	l(NB, IB, Map),
@@ -603,7 +665,7 @@ new_arith( abs, V, NV, Space-Map) :-
 
 new_arith( min, V, NV, Space-Map) :-
 	V = [V1|RV],
-	l(V1, X1, Min0, Max0, Map),
+	l(V1, _X1, Min0, Max0, Map),
 	foldl2( min_l(Map), RV, Max0, Max, Min0, Min),
 	NX := intvar(Space, Min, Max),
 	m(NV, NX, Min, Max, Map),
@@ -612,7 +674,7 @@ new_arith( min, V, NV, Space-Map) :-
 
 new_arith( max, V, NV, Space-Map) :-
 	V = [V1|RV],
-	l(V1, X, Min0, Max0, Map),
+	l(V1, _X1, Min0, Max0, Map),
 	foldl2( max_l(Map), RV, Max0, Max, Min0, Min),
 	NX := intvar(Space, Min, Max),
 	m(NV, NX, Min, Max, Map),
@@ -628,7 +690,7 @@ new_arith( minus, V1, V2, NV, Space-Map) :-
 	m(NV, NX, Min, Max, Map),
 	Space += linear([1,-1], [X1,X2], 'IRT_EQ', NX).
 
-new_arith( plua, V1, V2, NV, Space-Map) :-
+new_arith( plus, V1, V2, NV, Space-Map) :-
 	l(V1, X1, Min1, Max1, Map),
 	l(V2, X2, Min2, Max2, Map),
 	Min is Min1+Min2,
@@ -675,7 +737,7 @@ new_arith( (div), V1, V2, NV, Space-Map) :-
 
 new_arith( (mod), V1, V2, NV, Space-Map) :-
 	l(V1, X1, _Min1, Max1, Map),
-	l(V2, X2, Min2, Max2, Map),
+	l(V2, X2, _Min2, Max2, Map),
 	Min is 0,
 	Max is min(abs(Max1), Max2-1),
 	NX := intvar(Space, Min, Max),
@@ -756,7 +818,7 @@ m(NV, OV, NA, NB, [_|Vs]) :-
 lm(A, B, Map, X, Y) :-
 	m(X, Y, A, B, Map).
 
-l(NV, OV, Vs) :-
+l(_NV, _OV, Vs) :-
 	var(Vs), !,
 	fail.
 l(NV, OV, [v(V, OV, _A, _B)|_Vs]) :-
@@ -767,7 +829,7 @@ l(NV, OV, [_|Vs]) :-
 ll(Map, X, Y) :-
 	l(X, Y, Map).
 
-l(NV, OV, _, _, Vs) :-
+l(_NV, _OV, _, _, Vs) :-
 	var(Vs), !,
 	fail.
 l(NV, OV, A, B, [v(V, OV, A, B)|_Vs]) :-

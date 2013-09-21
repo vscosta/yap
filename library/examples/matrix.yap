@@ -32,7 +32,7 @@ t5 :-
 	numbers(1, 100, L),
 	X <== matrix(L, [dim=[10,10]]),
 	writeln('diagonal:'),
-	foreach([I in 0..9, J in I..I], Y^(Y <== X[I,J], writeln(Y) ) ).
+	for([I in 0..9, J in I..I], Y^(Y <== X[I,J], writeln(Y) ) ).
 t6 :-
 	Len = 10,
 	LenSq is Len*Len,
@@ -42,7 +42,7 @@ t6 :-
 	Y <== matrix(L, [dim=[Len,Len]]),
 	Z <== matrix(L, [dim=[Len,Len]]),
 	writeln('product:'),
-	foreach([I in 0..Len1, J in 0..Len1], step(X,Y,Z,I,J) ),
+	for([I in 0..Len1, J in 0..Len1], step(X,Y,Z,I,J) ),
 	O <== list(Z),
 	writeln(O).
 
@@ -73,7 +73,17 @@ t7(Len) :-
 	Y <== matrix(L, [dim=[Len,Len]]),
 	Z <== matrix(L, [dim=[Len,Len]]),
 	writeln('product:'),
-	foreach([I in 0..Len1, J in 0..Len1], step(X,Y,Z,I,J) , 0, O),
+	for([I in 0..Len1, J in 0..Len1], step(X,Y,Z,I,J) , 0, O),
 	writeln(O).
+
+t8 :-
+	Len is 2*3*4*5,
+	L <== 1..Len,
+	X <== matrix(L, [dim=[5,4,3,2]]),
+	writeln('list:'),
+	OL <== list( X ),
+	LL <== lists( X ),
+	writeln(OL),
+	writeln(LL).
 
 
