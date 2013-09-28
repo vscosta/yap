@@ -20,8 +20,6 @@
 		    maplist/4,			% :Goal, ?List1, ?List2, ?List
 		    maplist/5,			% :Goal, ?List1, ?List2, ?List3, List4
 		    convlist/3,
-		    mapargs/3,
-		    sumargs/4,
 		    mapnodes/3,
 		    checknodes/2,
 		    sumlist/4,
@@ -33,6 +31,7 @@
 		    foldl/4,			% :Pred, +List, ?V0, ?V
 		    foldl2/6,			% :Pred, +List, ?V0, ?V, ?W0, ?W
 		    foldl2/7,			% :Pred, +List1, ?List2, ?V0, ?V, ?W0, ?W
+		    foldl2/8,			% :Pred, +List1, ?List2, ?List3, ?V0, ?V, ?W0, ?W
 		    foldl3/8,			% :Pred, +List, ?V0, ?V, ?W0, ?W
 		    foldl4/10,			% :Pred, +List, ?V0, ?V, ?W0, ?W, ...
 		    foldl/5,			% :Pred, +List1, +List2, ?V0, ?V
@@ -73,6 +72,7 @@
 	foldl(3, +, +, -),
 	foldl2(5, +, +, -, +, -),
 	foldl2(6, +, ?, +, -, +, -),
+	foldl2(6, +, ?, ?, +, -, +, -),
 	foldl3(5, +, +, -, +, -, +, -),
 	foldl4(7, +, +, -, +, -, +, -, +, -),
 	foldl(4, +, +, +, -),
@@ -83,7 +83,7 @@
 	scanl(5, +, +, +, +, -),
 	scanl(6, +, +, +, +, +, -).
 	
-	
+:- use_module(library(maputils)).
 :- use_module(library(lists), [append/3]).
 :- use_module(library(charsio), [format_to_chars/3, read_from_chars/2]).
 :- use_module(library(error), [must_be/2]).
@@ -370,10 +370,18 @@ foldl2_([H|T], Goal, V0, V, W0, W) :-
 foldl2(Goal, List1, List2, V0, V, W0, W) :-
 	foldl2_(List1, List2, Goal, V0, V, W0, W).
 
-foldl2_([], [], _, V, V, W, W).
+foldl2_([], [], [], V, V, W, W).
 foldl2_([H1|T1], [H2|T2], Goal, V0, V, W0, W) :-
 	call(Goal, H1, H2, V0, V1, W0, W1),
 	foldl2_(T1, T2, Goal, V1, V, W1, W).
+
+foldl2(Goal, List1, List2, List3, V0, V, W0, W) :-
+	foldl2_(List1, List2, List3, Goal, V0, V, W0, W).
+
+foldl2_([], [], [], [], V, V, W, W).
+foldl2_([H1|T1], [H2|T2], [H3|T3], Goal, V0, V, W0, W) :-
+	call(Goal, H1, H2, H3, V0, V1, W0, W1),
+	foldl2_(T1, T2, T3, Goal, V1, V, W1, W).
 
 
 foldl3(Goal, List, V0, V, W0, W, X0, X) :-
@@ -448,10 +456,6 @@ scanl_([H1|T1], [H2|T2], [H3|T3], [H4|T4], Goal, V, [VH|VT]) :-
 	call(Goal, H1, H2, H3, H4, V, VH),
 	scanl_(T1, T2, T3, T4, Goal, VH, VT).
 
-
-:- dynamic number_of_expansions/1.
-
-number_of_expansions(0).
 
 goal_expansion(checklist(Meta, List), Mod:Goal) :-
 	goal_expansion_allowed,
@@ -863,6 +867,27 @@ goal_expansion(foldl2(Meta, List1, List2, AccIn, AccOut, W0, W), Mod:Goal) :-
 		     (RecursionHead :- Apply, RecursiveCall)
 		    ], Mod).
 
+goal_expansion(foldl2(Meta, List1, List2, List3, AccIn, AccOut, W0, W), Mod:Goal) :-
+	goal_expansion_allowed,
+	callable(Meta),
+	prolog_load_context(module, Mod),
+	aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
+	!,
+	% the new goal
+	pred_name(foldl2, 7, Proto, GoalName),
+	append(MetaVars, [List1, List2, List3, AccIn, AccOut, W0, W], GoalArgs),
+	Goal =.. [GoalName|GoalArgs],
+	% the new predicate declaration
+	HeadPrefix =.. [GoalName|PredVars],	
+	append_args(HeadPrefix, [[], [], [], Acc, Acc, W, W], Base),
+	append_args(HeadPrefix, [[In1|Ins1], [In2|Ins2], [In3|Ins3], Acc1, Acc2, W1, W2], RecursionHead),
+	append_args(Pred, [In1, In2, In3, Acc1, Acc3, W1, W3], Apply),
+	append_args(HeadPrefix, [Ins1, Ins2, Ins3, Acc3, Acc2, W3, W2], RecursiveCall),
+	compile_aux([
+		     Base,
+		     (RecursionHead :- Apply, RecursiveCall)
+		    ], Mod).
+
 goal_expansion(foldl3(Meta, List, AccIn, AccOut, W0, W, X0, X), Mod:Goal) :-
 	goal_expansion_allowed,
 	callable(Meta),
@@ -1052,80 +1077,4 @@ user:goal_expansion(phrase(NT,Xs0,Xs), Mod, NewGoal) :-
 	).
 :- hide('$translate_rule').
 */
-
-%%%%%%%%%%%%%%%%%%%%
-% utilities
-%%%%%%%%%%%%%%%%%%%%
-
-compile_aux([Clause|Clauses], Module) :-
-	% compile the predicat declaration if needed
-	( Clause = (Head :- _)
-	; Clause = Head ),
-	!,
-	functor(Head, F, N),
-	( current_predicate(Module:F/N)
-	->
-	    true
-	;
-%	    format("*** Creating auxiliary predicate ~q~n", [F/N]),
-%	    checklist(portray_clause, [Clause|Clauses]),
-	    compile_term([Clause|Clauses], Module)
-	).
-
-compile_term([], _).
-compile_term([Clause|Clauses], Module) :-
-	assert_static(Module:Clause),
-	compile_term(Clauses, Module).
-
-append_args(Term, Args, NewTerm) :-
-	Term =.. [Meta|OldArgs],
-	append(OldArgs, Args, GoalArgs),
-	NewTerm =.. [Meta|GoalArgs].
-
-aux_preds(Meta, _, _, _, _) :-
-	var(Meta), !,
-	fail.
-aux_preds(_:Meta, MetaVars, Pred, PredVars, Proto) :- !,
-	aux_preds(Meta, MetaVars, Pred, PredVars, Proto).
-aux_preds(Meta, MetaVars, Pred, PredVars, Proto) :-
-	Meta =.. [F|Args],
-	aux_args(Args, MetaVars, PredArgs, PredVars, ProtoArgs),
-	Pred =.. [F|PredArgs],
-	Proto =.. [F|ProtoArgs].
-
-aux_args([], [], [], [], []).
-aux_args([Arg|Args], MVars, [Arg|PArgs], PVars, [Arg|ProtoArgs]) :-
-	ground(Arg), !,
-	aux_args(Args, MVars, PArgs, PVars, ProtoArgs).
-aux_args([Arg|Args], [Arg|MVars], [PVar|PArgs], [PVar|PVars], ['_'|ProtoArgs]) :-
-	aux_args(Args, MVars, PArgs, PVars, ProtoArgs).
-
-pred_name(Macro, Arity, _ , Name) :-
-	transformation_id(Id),
-	atomic_concat(['$$$__Auxiliary_predicate__ for ',Macro,'/',Arity,'    ',Id], Name).
-
-transformation_id(Id) :-
-	retract(number_of_expansions(Id)),
-	Id1 is Id+1,
-	assert(number_of_expansions(Id1)).
-
-harmless_dcgexception(instantiation_error).	% ex: phrase(([1],x:X,[3]),L)
-harmless_dcgexception(type_error(callable,_)).	% ex: phrase(27,L)
-
-
-%%	contains_illegal_dcgnt(+Term) is semidet.
-%
-%	True if Term contains a non-terminal   we cannot deal with using
-%	goal-expansion. The test is too general approximation, but safe.
-
-contains_illegal_dcgnt(NT) :-
-	sub_term(I, NT),
-	nonvar(I),
-	( I = ! ; I = phrase(_,_,_) ), !.
-%	write(contains_illegal_nt(NT)),		% JW: we do not want to write
-%	nl.
-
-goal_expansion_allowed :-
-	once( prolog_load_context(_, _) ), % make sure we are compiling.
-	\+ current_prolog_flag(xref, true).
 
