@@ -1,4 +1,6 @@
 
+:- style_check(all).
+
 :- use_module(library(matrix)).
 :- use_module(library(maplist)).
 
@@ -46,17 +48,11 @@ t6 :-
 	O <== list(Z),
 	writeln(O).
 
+% core step of matrix multiplication: row I per column J
 step(X,Y,Z,I,J) :-
-	Xs <== X[I,_],
-	Ys <== Y[_,J],
-	foldl(addprod, Xs, Ys, 0, P), % scalar product
-	Z[I,J] <== P.
-
-step(X,Y,Z,I,J,S0,SF) :-
-	Xs <== X[I,_],
-	Ys <== Y[_,J],
-	foldl(addprod, Xs, Ys, 0, P), % scalar product
-	SF is S0+P,
+	Xs <== X[I,_], % row I
+	Ys <== Y[_,J], % col J
+	foldl(addprod, Xs, Ys, 0, P), % scalar product, fold accumulates the result in two last arguments
 	Z[I,J] <== P.
 
 addprod(X, Y, S0, S) :-
@@ -76,6 +72,15 @@ t7(Len) :-
 	for([I in 0..Len1, J in 0..Len1], step(X,Y,Z,I,J) , 0, O),
 	writeln(O).
 
+% core step of matrix multiplication: row I per column J
+step(X,Y,Z,I,J,S0,SF) :-
+	Xs <== X[I,_], % row I
+	Ys <== Y[_,J], % col J
+	foldl(addprod, Xs, Ys, 0, P), % scalar product, fold accumulates the result
+	SF is S0+P, % total sum (checksum)
+	Z[I,J] <== P.
+
+
 t8 :-
 	Len is 2*3*4*5,
 	L <== 1..Len,
@@ -87,3 +92,48 @@ t8 :-
 	writeln(LL).
 
 
+t9 :-
+	N1 = 1,
+	X = array[0..N1,0..N1] of [1,2,3,4],
+	Z = array[0..N1,0..N1] of _,
+	for([I in 0..N1, J in I..N1], Z[I,J] <== X[I,J] - X[J,I]),
+	O <== list(Z),
+	writeln(O).
+
+t10 :-
+	N1 = 1,
+	X = array[0..N1,0..N1] of 1:4,
+	O <== list(X-2),
+	writeln(O),
+	O1 <== list(X)+2,
+	writeln(O1),
+	O2 <== list(X-X),
+	writeln(O2).
+
+t11 :-
+	N = 3,
+	X = array[1..N,1..N] of 1:9,
+	O <== X[1,1],
+	writeln(O),
+	O1 <== X[2,_],
+	writeln(O1),
+	O2 <== X[_,2],
+	writeln(O2).
+
+t12 :-
+	N = 8,
+	N2 is N*N,
+	X = array[N,N] of 1:N2,
+	N1 is N-1,
+	for([I in 0..N1, J in 0..N1], plus(X[I,J]), 0, AccF),
+	writeln(sum=AccF).
+
+ t13 :-
+	N = 2,
+	N2 is N*N,
+	X = array[1..N,1..N] of 1:N2,
+	Y = array[1..N,1..N] of _,
+	Y[1,_] <== X[_,1],
+	L <== list(Y),
+	writeln(out=L).
+	 
