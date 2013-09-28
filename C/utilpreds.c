@@ -5578,6 +5578,39 @@ p_free_arguments( USES_REGS1 )
   }
 }
 
+static Int
+p_freshen_variables( USES_REGS1 )
+{
+  Term t = Deref(ARG1);
+  Functor f = FunctorOfTerm(t);
+  UInt arity = ArityOfFunctor(f), i;
+  Term tn = Yap_MkNewApplTerm(f, arity);
+  CELL *src = RepAppl(t)+1;
+  CELL *targ = RepAppl(tn)+1;
+  for (i=0; i< arity; i++) {
+    RESET_VARIABLE(targ);
+    *VarOfTerm(*src) = (CELL)targ;
+    targ++;
+    src++;
+  }
+  return TRUE;
+}
+
+static Int
+p_reset_variables( USES_REGS1 )
+{
+  Term t = Deref(ARG1);
+  Functor f = FunctorOfTerm(t);
+  UInt arity = ArityOfFunctor(f), i;
+  CELL *src = RepAppl(t)+1;
+
+  for (i=0; i< arity; i++) {
+    RESET_VARIABLE(VarOfTerm(*src));
+    src++;
+  }
+  return TRUE;
+}
+
 void Yap_InitUtilCPreds(void)
 {
   CACHE_REGS
@@ -5615,6 +5648,8 @@ void Yap_InitUtilCPreds(void)
   Yap_InitCPred("export_term", 3, p_export_term, 0);
   Yap_InitCPred("kill_exported_term", 1, p_kill_exported_term, SafePredFlag);
   Yap_InitCPred("import_term", 2, p_import_term, 0);
+  Yap_InitCPred("freshen_variables", 1, p_freshen_variables, 0);
+  Yap_InitCPred("reset_variables", 1, p_reset_variables, 0);
   CurrentModule = cm;
 #ifdef DEBUG
   Yap_InitCPred("$force_trail_expansion", 1, p_force_trail_expansion, SafePredFlag);
