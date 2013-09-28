@@ -111,9 +111,13 @@ store_specs(int new_worker_id, UInt ssize, UInt tsize, UInt sysize, Term *tpgoal
   }
   REMOTE_ThreadHandle(new_worker_id).tgoal =
     Yap_StoreTermInDB(Deref(*tpgoal), 7);
-        
-  REMOTE_ThreadHandle(new_worker_id).cmod =
-    CurrentModule;
+      
+  if (CurrentModule) {
+    REMOTE_ThreadHandle(new_worker_id).cmod =
+      CurrentModule;
+  } else {
+    REMOTE_ThreadHandle(new_worker_id).cmod = USER_MODULE;
+  }
   tdetach = Deref(*tpdetach);
   if (IsVarTerm(tdetach)){
     REMOTE_ThreadHandle(new_worker_id).tdetach =  
