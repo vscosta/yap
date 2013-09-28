@@ -275,6 +275,12 @@ writebig(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, stru
     else
       wrputc('"',wglb->stream);
     return;
+  } else if (big_tag == ARRAY_INT || big_tag == ARRAY_FLOAT) {
+    wrputc('{', wglb->stream);
+    wrputs("...", wglb->stream);
+    wrputc('}', wglb->stream);
+    lastw = separator;
+    return;
   } else if (big_tag >= USER_BLOB_START && big_tag < USER_BLOB_END) {
     Opaque_CallOnWrite f;
     CELL blob_info;
@@ -283,6 +289,7 @@ writebig(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, stru
     if (GLOBAL_OpaqueHandlers &&
 	(f= GLOBAL_OpaqueHandlers[blob_info].write_handler)) {
       (f)(wglb->stream, big_tag, ExternalBlobFromTerm(t), 0);
+      return;
     }
   }
   wrputs("0",wglb->stream);

@@ -894,7 +894,7 @@ Yap_BuildMegaClause(PredEntry *ap)
   ap->cs.p_code.FirstClause =
     ap->cs.p_code.LastClause =
     mcl->ClCode;
-  ap->PredFlags |= MegaClausePredFlag|SourcePredFlag;
+  ap->PredFlags |= MegaClausePredFlag;
   Yap_inform_profiler_of_clause(mcl, (char *)mcl+required, ap, GPROF_MEGA);
 }
 
@@ -6044,7 +6044,7 @@ p_dbload_get_space( USES_REGS1 )
   ap->cs.p_code.FirstClause =
     ap->cs.p_code.LastClause =
     mcl->ClCode;
-  ap->PredFlags |= (MegaClausePredFlag|SourcePredFlag);
+  ap->PredFlags |= (MegaClausePredFlag);
   ap->cs.p_code.NOfClauses = ncls;
   if (ap->PredFlags & (SpiedPredFlag|CountPredFlag|ProfiledPredFlag)) {
     ap->OpcodeOfPred = Yap_opcode(_spy_pred);
