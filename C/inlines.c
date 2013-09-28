@@ -96,10 +96,13 @@ p_integer( USES_REGS1 )
 	Functor f0 = FunctorOfTerm(d0);
 	if (IsExtensionFunctor(f0)) {
 	  switch ((CELL)f0) {
-	  case (CELL)FunctorLongInt:
-#ifdef USE_GMP
 	  case (CELL)FunctorBigInt:
-#endif
+	    { CELL *pt = RepAppl(d0);
+	      if (  pt[1] != BIG_RATIONAL || pt[1] != BIG_INT ) {
+		return FALSE;
+	      }
+	    }
+	  case (CELL)FunctorLongInt:
 	    return(TRUE);
 	  default:
 	    return(FALSE);
@@ -131,11 +134,14 @@ p_number( USES_REGS1 )
 	Functor f0 = FunctorOfTerm(d0);
 	if (IsExtensionFunctor(f0)) {
 	  switch ((CELL)f0) {
+	  case (CELL)FunctorBigInt:
+	    { CELL *pt = RepAppl(d0);
+	      if (  pt[1] != BIG_RATIONAL || pt[1] != BIG_INT ) {
+		return FALSE;
+	      }
+	    }
 	  case (CELL)FunctorLongInt:
 	  case (CELL)FunctorDouble:
-#ifdef USE_GMP
-	  case (CELL)FunctorBigInt:
-#endif
 	    return(TRUE);
 	  default:
 	    return(FALSE);

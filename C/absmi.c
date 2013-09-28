@@ -9050,8 +9050,14 @@ Yap_absmi(int inp)
 	Functor f0 = FunctorOfTerm(d0);
 	if (IsExtensionFunctor(f0)) {
 	  switch ((CELL)f0) {
-	  case (CELL)FunctorLongInt:
 	  case (CELL)FunctorBigInt:
+	    { CELL *pt = RepAppl(d0);
+	      if (  pt[1] != BIG_RATIONAL || pt[1] != BIG_INT ) {
+		PREG = PREG->u.xl.F;
+		GONext();
+	      }
+	    }
+	  case (CELL)FunctorLongInt:
 	    PREG = NEXTOP(PREG, xl);
 	    GONext();
 	  default:
@@ -9087,10 +9093,14 @@ Yap_absmi(int inp)
 	Functor f0 = FunctorOfTerm(d0);
 	if (IsExtensionFunctor(f0)) {
 	  switch ((CELL)f0) {
-	  case (CELL)FunctorLongInt:
-#ifdef USE_GMP
 	  case (CELL)FunctorBigInt:
-#endif
+	    { CELL *pt = RepAppl(d0);
+	      if (  pt[1] != BIG_RATIONAL || pt[1] != BIG_INT ) {
+		PREG = PREG->u.yl.F;
+		GONext();
+	      }
+	    }
+	  case (CELL)FunctorLongInt:
 	    PREG = NEXTOP(PREG, yl);
 	    GONext();
 	  default:
@@ -9156,11 +9166,15 @@ Yap_absmi(int inp)
 	Functor f0 = FunctorOfTerm(d0);
 	if (IsExtensionFunctor(f0)) {
 	  switch ((CELL)f0) {
+	  case (CELL)FunctorBigInt:
+	    { CELL *pt = RepAppl(d0);
+	      if (  pt[1] != BIG_RATIONAL || pt[1] != BIG_INT ) {
+		PREG = PREG->u.xl.F;
+		GONext();
+	      }
+	    }
 	  case (CELL)FunctorLongInt:
 	  case (CELL)FunctorDouble:
-#ifdef USE_GMP
-	  case (CELL)FunctorBigInt:
-#endif
 	    PREG = NEXTOP(PREG, xl);
 	    GONext();
 	  default:
@@ -9197,11 +9211,15 @@ Yap_absmi(int inp)
 	Functor f0 = FunctorOfTerm(d0);
 	if (IsExtensionFunctor(f0)) {
 	  switch ((CELL)f0) {
+	  case (CELL)FunctorBigInt:
+	    { CELL *pt = RepAppl(d0);
+	      if (  pt[1] != BIG_RATIONAL || pt[1] != BIG_INT ) {
+		PREG = PREG->u.yl.F;
+		GONext();
+	      }
+	    }
 	  case (CELL)FunctorLongInt:
 	  case (CELL)FunctorDouble:
-#ifdef USE_GMP
-	  case (CELL)FunctorBigInt:
-#endif
 	    PREG = NEXTOP(PREG, yl);
 	    GONext();
 	  default:
@@ -9210,7 +9228,7 @@ Yap_absmi(int inp)
 	  } 
 	}
       }
-      PREG = PREG->u.xl.F;
+      PREG = PREG->u.yl.F;
       GONext();
 
       derefa_body(d0, pt0, number_y_unk, number_y_nvar);
