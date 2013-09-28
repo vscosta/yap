@@ -50,7 +50,9 @@ PROGRAMS= \
 	$(srcdir)/lists.yap \
 	$(srcdir)/nb.yap \
 	$(srcdir)/ordsets.yap \
+	$(srcdir)/mapargs.yap \
 	$(srcdir)/maplist.yap \
+	$(srcdir)/maputils.yap \
 	$(srcdir)/matlab.yap \
 	$(srcdir)/matrix.yap \
 	$(srcdir)/prandom.yap \

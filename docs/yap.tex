@@ -204,6 +204,7 @@ Subnodes of Library
 * DBUsage:: Information bout data base usage.
 * LineUtilities:: Line Manipulation Utilities
 * Lists:: List Manipulation
+* MapArgs:: Apply on Arguments of Compound Terms.
 * MapList:: SWI-Compatible Apply library.
 * matrix:: Matrix Objects
 * MATLAB:: Matlab Interface
@@ -8730,6 +8731,7 @@ Library, Extensions, Built-ins, Top
 * DBUsage:: Information bout data base usage.
 * Lists:: List Manipulation
 * LineUtilities:: Line Manipulation Utilities
+* MapArgs:: Apply on Arguments of Compound Terms.
 * MapList:: SWI-Compatible Apply library.
 * matrix:: Matrix Objects
 * MATLAB:: Matlab Interface
@@ -9460,7 +9462,7 @@ unification using @code{memberchk/2}. The complexity is
 See @code{ord_subtract/3}.
 @end table
 
-@node LineUtilities, MapList, Lists, Library
+@node LineUtilities, MapArgs, Lists, Library
 @section Line Manipulation Utilities
 @cindex Line Utilities Library
 
@@ -9619,7 +9621,95 @@ Same as @code{file_filter/3}, but before starting the filter execute
 
 
 
-@node MapList, matrix, LineUtilities, Library
+@node MapArgs, MapList, LineUtilities, Library
+@section Maplist
+@cindex macros
+
+This library provides a set of utilities for applying a predicate to
+all sub-terms of a term. They allow to
+easily perform the most common do-loop constructs in Prolog. To avoid
+performance degradation due to @code{apply/2}, each call creates an
+equivalent Prolog program, without meta-calls, which is executed by
+the Prolog engine instead. 
+
+@table @code
+@item mapargs(+@var{Pred}, +@var{TermIn})
+@findex mapargs/2
+@snindex mapargs/2
+@cnindex mapargs/2
+      Applies the predicate @var{Pred} to all
+      arguments of @var{TermIn}
+
+@item mapargs(+@var{Pred}, +@var{TermIn}, ?@var{TermOut})
+@findex mapargs/3
+@snindex mapargs/3
+@cnindex mapargs/3
+      Creates @var{TermOut} by applying the predicate @var{Pred} to all
+      arguments of @var{TermIn}
+
+@item mapargs(+@var{Pred}, +@var{TermIn}, ?@var{TermOut1}, ?@var{TermOut2})
+@findex mapargs/4
+@snindex mapargs/4
+@cnindex mapargs/4
+      Creates  @var{TermOut1}  and @var{TermOut2} by applying the predicate @var{Pred} to all
+      arguments of @var{TermIn}
+
+@item mapargs(+@var{Pred}, +@var{TermIn}, ?@var{TermOut1},
+      ?@var{TermOut2}, ?@var{TermOut3})
+@findex mapargs/5
+@snindex mapargs/5
+@cnindex mapargs/5
+      Creates  @var{TermOut1}, @var{TermOut2} and  @var{TermOut3} by applying the predicate @var{Pred} to all
+      arguments of @var{TermIn}
+
+@item mapargs(+@var{Pred}, +@var{TermIn}, ?@var{TermOut1},
+      ?@var{TermOut2}, ?@var{TermOut3}, ?@var{TermOut4})
+@findex mapargs/6
+@snindex mapargs/6
+@cnindex mapargs/6
+      Creates  @var{TermOut1}, @var{TermOut2}, @var{TermOut3} and  @var{TermOut4} by applying the predicate @var{Pred} to all
+      arguments of @var{TermIn}
+
+
+@item foldargs(+@var{Pred}, +@var{Term}, ?@var{AccIn}, ?@var{AccOut})
+@findex foldargs/4
+@snindex foldargs/4
+@cnindex foldargs/4
+  Calls the predicate @var{Pred} on all arguments of @var{Term} and
+collects a  result in @var{Accumulator}
+
+@item foldargs(+@var{Pred}, +@var{Term}, +@var{Term1}, ?@var{AccIn}, ?@var{AccOut})
+@findex foldargs/5
+@snindex foldargs/5
+@cnindex foldargs/5
+  Calls the predicate @var{Pred} on all arguments of @var{Term} and @var{Term1} and
+collects a  result in @var{Accumulator}
+
+@item foldargs(+@var{Pred}, +@var{Term}, +@var{Term1}, +@var{Term2}, ?@var{AccIn}, ?@var{AccOut})
+@findex foldargs/6
+@snindex foldargs/6
+@cnindex foldargs/6
+  Calls the predicate @var{Pred} on all arguments of @var{Term}, +@var{Term1} and @var{Term2} and
+collects a  result in @var{Accumulator}
+
+@item foldargs(+@var{Pred}, +@var{Term}, +@var{Term1}, +@var{Term2}, +@var{Term3}, ?@var{AccIn}, ?@var{AccOut})
+@findex foldargs/7
+@snindex foldargs/7
+@cnindex foldargs/7
+  Calls the predicate @var{Pred} on all arguments of @var{Term}, +@var{Term1}, +@var{Term2} and @var{Term3} and
+collects a  result in @var{Accumulator}
+
+@item sumargs(+@var{Pred}, +@var{Term}, ?@var{AccIn}, ?@var{AccOut})
+@findex sumargs/4
+@snindex sumargs/4
+@cnindex sumargs/4
+  Calls the predicate @var{Pred} on all arguments of @var{Term} and
+collects a  result in @var{Accumulator} (uses reverse order than foldargs).
+
+@end table
+
+
+@node MapList, matrix, MapArgs, Library
 @section Maplist
 @cindex macros
 
@@ -9742,7 +9832,14 @@ applying the predicate @var{Pred} to all list elements on which
 @findex foldl2/7
 @snindex foldl2/7
 @cnindex foldl2/7
-      Calls @var{Pred} on all elements of @code{List} and collects a result in
+      Calls @var{Pred} on all elements of @var{List}  and @var{List1}  and collects a result in
+@var{X} and @var{Y}.
+
+@item foldl2(:@var{Pred}, +@var{List}, ?@var{List1}, ?@var{List2}, ?@var{X0}, ?@var{X}, ?@var{Y0}, ?@var{Y})
+@findex foldl2/8
+@snindex foldl2/8
+@cnindex foldl2/8
+      Calls @var{Pred} on all elements of @var{List}, @var{List1}  and @var{List2}  and collects a result in
 @var{X} and @var{Y}.
 
 @item foldl3(:@var{Pred}, +@var{List1}, ?@var{List2}, ?@var{X0},
@@ -9795,20 +9892,6 @@ result in @var{X}, @var{Y}, @var{Z} and @var{W}.
 @snindex scanl/7
 @cnindex scanl/7
          Left scan of  list.  
-
-@item mapargs(+@var{Pred}, ?@var{TermIn}, ?@var{TermOut})
-@findex mapargs/3
-@snindex mapargs/3
-@cnindex mapargs/3
-      Creates @var{TermOut} by applying the predicate @var{Pred} to all
-      arguments of @var{TermIn}
-
-@item sumargs(+@var{Pred}, +@var{Term}, ?@var{AccIn}, ?@var{AccOut})
-@findex sumargs/4
-@snindex sumargs/4
-@cnindex sumargs/4
-  Calls the predicate @var{Pred} on all arguments of @var{Term} and
-collects a  result in @var{Accumulator}
 
 @item mapnodes(+@var{Pred}, +@var{TermIn}, ?@var{TermOut}) 
 @findex mapnodes/3
@@ -9902,12 +9985,148 @@ This package provides a fast implementation of multi-dimensional
 matrices of integers and floats. In contrast to dynamic arrays, these
 matrices are multi-dimensional and compact. In contrast to static
 arrays. these arrays are allocated in the stack. Matrices are available
-by loading the library @code{library(matrix)}.
+by loading the library @code{library(matrix)}. They are multimensional
+objects of type:@itemize
+ @item @t{terms}: Prolog terms
+@item  @t{ints}: bounded integers, represented as an opaque term. The
+maximum integer depends on hardware, but should be obtained from the
+natural size of the machine.
+@item  @t{floats}: floating-poiny numbers, represented as an opaque term.
+@end itemize
 
-Notice that the functionality in this library is only partial. Please
+Matrix elements can be accessed through the @code{matrix_get/2}
+predicate or through an @t{R}-inspired access notation (that uses the ciao
+style extension to @code{[]}.  Examples include:
+
+@table @code
+@item @var{E} <== @var{X}[2,3]
+Access the second row, third column of matrix @t{X}. Indices start from
+@code{0},
+@item @var{L} <== @var{X}[2,_]
+Access all the second row, the output is a list ofe elements.
+@item @var{L} <== @var{X}[2..4,_]
+Access all the second, thrd and fourth rows, the output is a list of elements.
+@item @var{L} <== @var{X}[2..4+3,_]
+Access all the fifth, sixth and eight rows, the output is a list of elements.
+@end table
+
+The matrix library also supports a B-Prolog/ECliPSe inspired @code{for} operator to iterate over
+elements of a matrix:
+
+@table @code
+@item for(I in 0..N1, X[I] <== Y[I])
+Copies a vector, element by element.
+@item for([I in 0..N1, J in I..N1], Z[I,J] <== X[I,J] - X[I,J])
+The lower-triangular matrix @var{Z} is the difference between the
+lower-triangular and upper-triangular parts of @var{X}.
+@item for([I in 0..N1, J in 0..N1], plus(X[I,J]), 0, Sum)
+Add all elements of a matrix by using @var{Sum} as an accumulator.
+@end table
+
+Notice that the library does not support all known matrix operations. Please
 contact the YAP maintainers if you require extra functionality.
 
 @table @code
+
+@item @var{X} = array[@var{Dim1},...,@var{Dimn}] of @var{Objects}
+@findex of/2
+@snindex of/2
+@cnindex of/2
+The @code{of/2} operator can be used to create a new array of
+@var{Objects}. The objects supported are:
+
+@table @code
+@item Unbound Variable
+create an array of free variables
+@item ints 
+create an array of integers
+@item floats 
+create an array of floating-point numbers
+@item @var{I}:@var{J}
+create an array with integers from @var{I} to @var{J}
+@item [..]
+create an array from the values in a list
+ @end table
+
+The dimensions can be given as an integer, and the matrix will be
+indexed @code{C}-style from  @code{0..(@var{Max}-1)}, or can be given
+as  an interval @code{@var{Base}..@var{Limit}}. In the latter case,
+matrices of integers and of floating-point numbers should have the same
+@var{Base} on every dimension.
+
+@item ?@var{LHS} <== @var{RHS}
+@findex <==/2
+@snindex <==/2
+@cnindex <==/2
+General matrix assignment operation. It evaluates the right-hand side
+and then acts different according to the
+left-hand side and to the matrix:
+@itemize
+@item if @var{LHS} is part of an integer or floating-point matrix,
+perform non-backtrackable assignment.
+@item other unify left-hand side and right-hand size.
+@end itemize
+
+The right-hand side supports the following operators: 
+@table @code
+@item []/2
+written as @var{M}[@var{Offset}]: obtain an element or list of elements
+of matrix @var{M} at offset @var{Offset}.
+@item matrix/1
+create a vector from a list
+@item matrix/2
+create a matrix from a list. Oprions are:
+@table @code
+@item dim=
+a list of dimensiona
+@item type=
+integers, floating-point or terms
+@item base=
+a list of base offsets per dimension (all must be the same for arrays of
+integers and floating-points
+@end table
+@item matrix/3
+create matrix giving two options
+@item dim/1
+list with matrix dimensions
+@item nrow/1
+number of rows in bi-dimensional matrix
+@item ncol/1
+number of columns in bi-dimensional matrix
+@item length/1
+size of a matrix
+@item size/1
+size of a matrix
+@item max/1
+maximum element of a numeric matrix
+@item maxarg/1
+argument of maximum element of a numeric matrix
+@item min/1
+minimum element of a numeric matrix
+@item minarg/1
+argument of minimum element of a numeric matrix
+@item list/1
+represent matrix as a list
+@item lists/2
+represent matrix as list of embedded lists
+@item ../2
+@var{I}..@var{J} generates a list with all integers from @var{I} to
+@var{J}, included.
+@item +/2
+add two numbers, add two matrices element-by-element, or add a number to
+all elements of a matrix or list
+@item -/2 
+subtract two numbers, subtract two matrices or lists element-by-element, or subtract a number from
+all elements of a matrix or list
+@item */2 
+multiply two numbers, multiply two matrices or lists element-by-element, or multiply a number from
+all elements of a matrix or list
+@item log/1 
+natural logarithm of a number, matrix or list
+@item exp/1 
+natural exponentiation of a number, matrix or list
+@end table
+
 
 @item matrix_new(+@var{Type},+@var{Dims},-@var{Matrix})
 @findex matrix_new/3
@@ -10143,7 +10362,7 @@ and @var{Matrix2}. Currently, only addition (@code{+}) is supported.
 
 @var{Result} is the result of applying @var{Op} to all elements of
 @var{Matrix1}, with @var{Operand} as the second argument. Currently,
-only addition (@code{+}), multiplication (@code{+}), and division
+only addition (@code{+}), multiplication (@code{*}), and division
 (@code{/}) are supported.
 
 @item matrix_op_to_lines(+@var{Matrix1},+@var{Lines},+@var{Op},-@var{Result})
