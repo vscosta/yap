@@ -973,7 +973,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
 	wrclose_bracket(wglb, TRUE);
       }
     } else if (!wglb->Ignore_ops &&
-	       ( Arity == 1 || atom == AtomEmptyBrackets || atom == AtomEmptyCurlyBrackets || atom == AtomEmptySquareBrackets) &&
+	       ( Arity == 1 || ((atom == AtomEmptyBrackets || atom == AtomEmptyCurlyBrackets || atom == AtomEmptySquareBrackets) && !IsVarTerm(ArgOfTerm(1, t)))) &&
 	       Yap_IsPosfixOp(atom, &op, &lp)) {
       Term  tleft = ArgOfTerm(1, t);
 
