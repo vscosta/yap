@@ -7,6 +7,7 @@
                   op(730, yfx, #\),
                   op(720, yfx, #/\),
                   op(710,  fy, #\),
+                  op(705, xfx, where),
                   op(700, xfx, #>),
                   op(700, xfx, #<),
                   op(700, xfx, #>=),
@@ -34,6 +35,7 @@
                   all_distinct/1,
                   all_distinct/2,
 		  maximize/1,
+		  minimize/1,
                   sum/3,
                   lex_chain/1,
 		  minimum/2,
@@ -69,7 +71,17 @@
 
 :- use_module(library(gecode)).
 :- use_module(library(maplist)).
-:- reexport(library(matrix), [(<==)/2, for/2, for/4]).
+:- reexport(library(matrix), [(<==)/2, for/2, for/4, of/2]).
+
+% build array of constraints
+%
+matrix:array_extension(_.._ , clpfd:build).
+
+build( I..J, _, Size, L) :-
+	length( L, Size ),
+	L ins I..J.
+
+matrix:rhs_opaque(X) :- constraint(X).
 
 constraint( (_ #> _) ).
 constraint( (_ #< _) ).
@@ -117,7 +129,6 @@ constraint( fd_inf(_, _) ). %2,
 constraint( fd_sup(_, _) ). %2,
 constraint( fd_size(_, _) ). %2,
 constraint( fd_dom(_, _) ). %2
-
 
 
 process_constraints((B0,B1), (NB0, NB1), Env) :-
@@ -284,13 +295,20 @@ in_dfa( Xs, S0, Ts, Fs ) :-
 
 labeling(_Opts, Xs) :-
 	get_home(Space-Map),
-	maplist(ll(Map), Xs, NXs),
-	Space += branch(NXs, 'INT_VAR_SIZE_MIN', 'INT_VAL_MIN').
+	check( Xs, X1s ),
+	( X1s == [] -> true ;
+	  maplist(ll(Map), X1s, NXs),
+	  Space += branch(NXs, 'INT_VAR_SIZE_MIN', 'INT_VAL_MIN') ).
 
 maximize(V) :-
 	get_home(Space-Map),
 	l(V, I, Map),
 	Space += maximize(I).
+
+minimize(V) :-
+	get_home(Space-Map),
+	l(V, I, Map),
+	Space += minimize(I).
 
 extensional_constraint( Tuples, TupleSet) :-
 	TupleSet := tupleset( Tuples ).
@@ -303,7 +321,11 @@ check(V, NV) :-
 	( var(V) -> V = NV ;
 	  number(V) -> V = NV ;
 	  is_list(V) -> maplist(check, V, NV) ;
+	  V = sum(_,_) -> V = NV ;
 	  V = '[]'(Indx, Mat) -> NV <== '[]'(Indx, Mat) ;
+	  V = '$matrix'(_, _, _, _, C) -> C =.. [_|L], maplist(check, L, NV)  ;
+	  V = A+B -> check(A,NA), check(B, NB), NV = NB+NA ;
+	  V = A-B -> check(A,NA), check(B, NB), NV = NB-NA ;
 	  arith(V, _) -> V =.. [C|L], maplist(check, L, NL), NV =.. [C|NL] ).
 
 post( ( A #= B), Env, Reify) :-
@@ -318,6 +340,12 @@ post( ( A #>= B), Env, Reify) :-
 	post( rel( A, (#>=), B), Env, Reify).
 post( ( A #=< B), Env, Reify) :-
 	post( rel( A, (#=<), B), Env, Reify).
+% [X,Y,Z] #<
+post( rel( A, Op), Space-Map, Reify):-
+	( var( A ) -> l(A, IA, Map) ; checklist( var, A ) -> maplist(ll(Map), A, IA ) ),
+	gecode_arith_op( Op, GOP ),
+	(var(Reify) ->	Space += rel(IA, GOP) ;
+	    Space += rel(IA, GOP, Reify) ).
 % X #< Y 
 % X #< 2
 post( rel( A, Op, B), Space-Map, Reify):-
@@ -328,11 +356,6 @@ post( rel( A, Op, B), Space-Map, Reify):-
 	(var(Reify) ->	Space += rel(IA, GOP, IB) ;
 	    Space += rel(IA, GOP, IB, Reify) ).
 
-post( rel( A, Op), Space-Map, Reify):-
-	( var( A ) -> l(A, IA, Map) ; checklist( var, A ) -> maplist(ll(Map), A, IA ) ),
-	gecode_arith_op( Op, GOP ),
-	(var(Reify) ->	Space += rel(IA, GOP) ;
-	    Space += rel(IA, GOP, Reify) ).
 % 2 #\= B
 post( rel( A, Op, B), Space-Map, Reify):-
 	var(B), integer(A), !,
@@ -340,6 +363,7 @@ post( rel( A, Op, B), Space-Map, Reify):-
 	gecode_arith_op( Op, GOP ),
 	(var(Reify) ->	Space += rel(A, GOP, IB) ;
 	    Space += rel(A, GOP, IB, Reify) ).
+
 % sum([A,B,C]) #= X
 post( rel( sum(L), Op, Out), Space-Map, Reify):-
 	checklist( var, L ), 
@@ -350,6 +374,40 @@ post( rel( sum(L), Op, Out), Space-Map, Reify):-
 	(var(Reify) ->
 	    Space += linear(IL, GOP, IOut);
 	 Space += linear(IL, GOP, IOut, Reify)
+	).
+% X #= sum([A,B,C])
+post( rel( Out, Op, sum(L)), Space-Map, Reify):-
+	checklist( var, L ), 
+	( var(Out) -> l(Out, IOut, Map) ; integer(Out) -> IOut = Out ), !,
+	var(Out), !,
+	maplist(ll(Map), [Out|L], [IOut|IL] ),
+	gecode_arith_op( Op, GOP ),
+	(var(Reify) ->
+	    Space += linear(IL, GOP, IOut);
+	 Space += linear(IL, GOP, IOut, Reify)
+	).
+
+
+% sum([I in 0..N-1, M[I]]) #= X
+post( rel( sum(For, Cond), Op, Out), Space-Map, Reify):-
+	( var(Out) -> l(Out, IOut, Map) ; integer(Out) -> IOut = Out ), !,
+	cond2list( For, Cond, Cs, L),
+	maplist(ll(Map), [Out|L], [IOut|IL] ),
+	gecode_arith_op( Op, GOP ),
+	(L = [] -> true ;
+	 var(Reify) ->
+	    Space += linear(Cs, IL, GOP, IOut);
+	 Space += linear(Cs, IL, GOP, IOut, Reify)
+	).
+post( rel( Out, Op, sum(For, Cond)), Space-Map, Reify):-
+	( var(Out) -> l(Out, IOut, Map) ; integer(Out) -> IOut = Out ), !,
+	cond2list( For, Cond, Cs, L),
+	maplist(ll(Map), [Out|L], [IOut|IL] ),
+	gecode_arith_op( Op, GOP ),
+	(L = [] -> true ;
+	 var(Reify) ->
+	    Space += linear(Cs, IL, GOP, IOut);
+	 Space += linear(Cs, IL, GOP, IOut, Reify)
 	).
 % [A,B,C,D] #< 3
 post( rel( A, Op, B ), Space-Map, Reify):-
@@ -374,7 +432,7 @@ post( rel( A, Op, B), Space-Map, Reify):-
 	(var(Reify) ->	Space += rel(IL, GOP, IB) ;
 	    Space += rel(IL, GOP, IB, Reify) ).
 post( rel(A, Op, B), Space-Map, Reify):-
-	( nonvar(A), ( A = _+_ ; A = _-_ ) ; 
+	( nonvar(A), ( A = _+_ ; A = _-_  ) ; 
 	  nonvar(B), ( B = _ + _ ; B = _-_) ), !,
 	linearize(A, 1, As, Bs, CAs, CBs, 0, A0, Space-Map),
 	linearize(B, -1, Bs, [], CBs, [], A0, B0, Space-Map),
@@ -532,7 +590,6 @@ arith(min(_,_), min).
 arith(max(_,_), max).
 arith((_ * _), times).
 arith((_ / _), div).
-arith((_ mod _), mod).
 
 % replace abs(min(A,B)-max(A,B)) by
 %    min(A,B,A1), max(A,B,A2), linear([1,-1],[A1,B1],=,A3), abs(A3,AN)
@@ -808,6 +865,17 @@ intvar(Map, V) :-
 
 get_home(Home) :-
 	b_getval(gecode_space, Home).
+
+cond2list((List where Goal), El, Cs, Vs) :- !,
+	for( List, add_el(Goal, El), ([])-([]), Cs-Vs ).
+cond2list(List, El, Cs, Vs) :- !,
+	for( List, add_el(true, El), ([])-([]), Cs-Vs ).
+
+add_el(G0, El, Cs-Vs, [C|Cs]-[V|Vs]) :-
+	call(G0), !,
+	E <== El,
+	( var(E) -> C = 1, E = V ; E = C*V, integer(C), var(V) -> true ; E = V*C, integer(C), var(V) ).
+add_el(_G0, _El, Cs-Vs, Cs-Vs).
 
 m(NV, OV, NA, NB, Vs) :-
 	var(Vs), !,
