@@ -9408,14 +9408,14 @@ in a more CLP like style. It requires
 Several example programs are available with the distribution.
 
 Integer variables are declared as:
-@table @node
-@var{V} in @var{A}..@var{B}
+@table @code
+@item @var{V} in @var{A}..@var{B}
 declares an integer variable @var{V} with range @var{A} to @var{B}.
-@var{Vs} ins @var{A}..@var{B}
+@item @var{Vs} ins @var{A}..@var{B}
 declares a set of integer variabless @var{Vs} with range @var{A} to @var{B}.
-@boolvar{@var{V}} 
+@item boolvar(@var{V})
 declares a  boolean variable.
-@boolvars{@var{Vs}} 
+@item boolvars(@var{Vs})
 declares a set of  boolean variable.
 @end table
 
@@ -9530,8 +9530,8 @@ Note that not all constraints may be reifiable.
 @item element(@var{X}, @var{Vs}    )
 @var{X} is an element of list @var{Vs}
 
-@item clause(@var{Type}, @var{Ps} , @var{Ns}, , @var{V}     )
-If @var{Type} is @code{and} it is the conjunction of boolen variables
+@item clause(@var{Type}, @var{Ps} , @var{Ns}, @var{V}     )
+If @var{Type} is @code{and} it is the conjunction of boolean variables
 @var{Ps} and the negation of boolean variables @var{Ns} and must have
 result @var{V}. If @var{Type} is @code{or} it is a disjunction.
 
