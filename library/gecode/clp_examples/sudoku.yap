@@ -13,7 +13,7 @@ sudoku( Ex ) :-
 %
 % gecode constraints
 %
-problem(Ex, Els) :- ex(Ex, Exs),
+problem(Ex, Els) :- 
 	length(Els, 81),
 	Els ins 1..9,
 	M <== matrix( Els, [dim=[9,9]] ),
@@ -24,8 +24,8 @@ problem(Ex, Els) :- ex(Ex, Exs),
 	% select squares
 	foreach( [I,J] ins 0..2 ,
            all_different(M[I*3+(0..2),J*3+(0..2)]) ),
-	ex(Ex, Exs),
-	maplist( bound, Els, Exs),
+	ex(Ex, Els),
+%	maplist( bound, Els, Exs),
 	labeling( [], Els ).
 
 

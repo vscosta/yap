@@ -295,7 +295,8 @@ in_dfa( Xs, S0, Ts, Fs ) :-
 
 labeling(_Opts, Xs) :-
 	get_home(Space-Map),
-	check( Xs, X1s ),
+	term_variables(Xs, Vs),
+	check( Vs, X1s ),
 	( X1s == [] -> true ;
 	  maplist(ll(Map), X1s, NXs),
 	  Space += branch(NXs, 'INT_VAR_SIZE_MIN', 'INT_VAL_MIN') ).
@@ -856,6 +857,7 @@ init_gecode(Space, old) :-
 	nb_current(gecode_space, Space), nonvar(Space), !.
 init_gecode(Space-Map, new) :-
 	Space := space,
+	b_setval(gecode_done, false),
 	b_setval(gecode_space, Space-Map).
 
 close_gecode(_Space, _Vs, old) :- !.
@@ -864,6 +866,7 @@ close_gecode(Space-Map, Vs0, new) :-
 	selectlist(intvar(Map), Vs, CVs),
 	maplist(ll(Map), CVs, IVs),
 	SolSpace := search(Space),
+	b_setval(gecode_done, true),
 	CVs := val(SolSpace,IVs).
 
 intvar(Map, V) :-
@@ -883,15 +886,46 @@ add_el(G0, El, Cs-Vs, [C|Cs]-[V|Vs]) :-
 	( var(E) -> C = 1, E = V ; E = C*V, integer(C), var(V) -> true ; E = V*C, integer(C), var(V) ).
 add_el(_G0, _El, Cs-Vs, Cs-Vs).
 
+%       An attributed variable with attribute value Domain has been
+%       assigned the value Y
+
+attr_unify_hook(_, _) :-
+	b_getval(gecode_done, true), !.
+attr_unify_hook(v(IV1,_,_), Y) :-
+        (   get_attr(Y, clpfd, v(IV2,_,_))
+        ->
+	    nb_getval(gecode_space, Space-_),
+	    ( IV1 == IV2 -> true ;
+	    Space += rel(IV1, 'IRT_EQ', IV2) )
+        ;   var(Y)
+        ->  true
+        ;   integer(Y) ->
+	    nb_getval(gecode_space, Space-_),
+	    Space += rel(IV1, 'IRT_EQ', Y)
+        ).
+
+%       Translate attributes from this module to residual goals
+
+attribute_goals(X) -->
+        { get_attr(X, clpfd, v(_,A,B)) },
+        [X in A..B].
+
+m(X, Y, A, B, _Map) :-
+	put_attr(X, clpfd, v(Y, A, B)).
+/*
 m(NV, OV, NA, NB, Vs) :-
 	var(Vs), !,
 	Vs = [v(NV,OV,NA,NB)|_].
 m(NV, OV, NA, NB, [_|Vs]) :-
 	m(NV, OV, NA, NB, Vs).
+*/
 
 lm(A, B, Map, X, Y) :-
 	m(X, Y, A, B, Map).
 
+l(V, IV, _) :-
+	get_attr(V, clpfd, v(IV, _, _)).
+/*
 l(_NV, _OV, Vs) :-
 	var(Vs), !,
 	fail.
@@ -899,10 +933,15 @@ l(NV, OV, [v(V, OV, _A, _B)|_Vs]) :-
 	V == NV, !.
 l(NV, OV, [_|Vs]) :-
 	l(NV, OV, Vs).
-
+*/
+  
 ll(Map, X, Y) :-
 	l(X, Y, Map).
 
+l(V, IV, A, B, _) :-
+	get_attr(V, clpfd, v(IV, A, B)).
+
+/*
 l(_NV, _OV, _, _, Vs) :-
 	var(Vs), !,
 	fail.
@@ -910,6 +949,7 @@ l(NV, OV, A, B, [v(V, OV, A, B)|_Vs]) :-
 	V == NV, !.
 l(NV, OV, A, B, [_|Vs]) :-
 	l(NV, OV, A, B, Vs).
+*/
 
 is_one(1).
 
