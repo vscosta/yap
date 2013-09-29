@@ -34,7 +34,7 @@ t5 :-
 	numbers(1, 100, L),
 	X <== matrix(L, [dim=[10,10]]),
 	writeln('diagonal:'),
-	for([I in 0..9, J in I..I], Y^(Y <== X[I,J], writeln(Y) ) ).
+	foreach([I in 0..9, J in I..I], Y^(Y <== X[I,J], writeln(Y) ) ).
 t6 :-
 	Len = 10,
 	LenSq is Len*Len,
@@ -44,7 +44,7 @@ t6 :-
 	Y <== matrix(L, [dim=[Len,Len]]),
 	Z <== matrix(L, [dim=[Len,Len]]),
 	writeln('product:'),
-	for([I in 0..Len1, J in 0..Len1], step(X,Y,Z,I,J) ),
+	foreach([I in 0..Len1, J in 0..Len1], step(X,Y,Z,I,J) ),
 	O <== list(Z),
 	writeln(O).
 
@@ -69,7 +69,7 @@ t7(Len) :-
 	Y <== matrix(L, [dim=[Len,Len]]),
 	Z <== matrix(L, [dim=[Len,Len]]),
 	writeln('product:'),
-	for([I in 0..Len1, J in 0..Len1], step(X,Y,Z,I,J) , 0, O),
+	foreach([I in 0..Len1, J in 0..Len1], step(X,Y,Z,I,J) , 0, O),
 	writeln(O).
 
 % core step of matrix multiplication: row I per column J
@@ -96,7 +96,7 @@ t9 :-
 	N1 = 1,
 	X = array[0..N1,0..N1] of [1,2,3,4],
 	Z = array[0..N1,0..N1] of _,
-	for([I in 0..N1, J in I..N1], Z[I,J] <== X[I,J] - X[J,I]),
+	foreach([I in 0..N1, J in I..N1], Z[I,J] <== X[I,J] - X[J,I]),
 	O <== list(Z),
 	writeln(O).
 
@@ -125,7 +125,7 @@ t12 :-
 	N2 is N*N,
 	X = array[N,N] of 1:N2,
 	N1 is N-1,
-	for([I in 0..N1, J in 0..N1], plus(X[I,J]), 0, AccF),
+	foreach([I in 0..N1, J in 0..N1], plus(X[I,J]), 0, AccF),
 	writeln(sum=AccF).
 
  t13 :-

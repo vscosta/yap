@@ -198,6 +198,7 @@ Subnodes of Library
 * Association Lists:: Binary Tree Implementation of Association Lists.
 * AVL Trees:: Predicates to add and lookup balanced binary  trees.
 * Exo Intervals:: Play with the UDI and exo-compilation
+* Gecode: Interface to the gecode constraint library
 * Heaps:: Labelled binary tree where the key of each node is less
     than or equal to the keys of its children.
 * Lambda:: Ulrich Neumerkel's Lambda Library
@@ -252,6 +253,10 @@ Subnodes of Attributes
 Subnodes of SWI-Prolog
 * Invoking Predicates on all Members of a List :: maplist and friends
 * SWI-Prolog Global Variables :: Emulating SWI-like attributed variables
+
+Subnodes of Gecode
+* The Gecode Interface:: calling gecode from YAP
+* Gecode and ClP(FD) :: using gecode in a CLP(FD) style
 
 @c Subnodes of CLP(Q,R)
 @c * Introduction to CLPQ:: The CLP(Q,R) System
@@ -8724,6 +8729,7 @@ Library, Extensions, Built-ins, Top
 * Cleanup:: Call With registered Cleanup Calls
 * DGraphs:: Directed Graphs Implemented With Red-Black Trees
 * Exo Intervals:: Play with the UDI and exo-compilation
+* Gecode: Interface to the gecode constraint library
 * Heaps:: Labelled binary tree where the key of each node is less
     than or equal to the keys of its children.
 * LAM:: LAM MPI
@@ -9109,10 +9115,16 @@ Lookup an element with key @var{Key} in the AVL tree
 
 @end table
 
-@node Exo Intervals, Heaps, AVL Trees, Library
-@section AVL Trees
-@cindex AVL trees
-This package assumes you use UDI exo-indexing, that is:
+@node Exo Intervals, Gecode, AVL Trees, Library
+@section Exo Intervals
+@cindex Indexing Numeric Intervals in Exo-predicates
+This package assumes you use exo-compilation, that is, that you loaded
+the pedicate using the @code{exo} option to @code{load_files/2}, In this
+case, YAP includes a package for improved search on  intervals of
+integers.
+
+The package is activated by @code{udi} declarations that state what is
+the argument of interest:
 @example
 :- udi(diagnoses(exo_interval,?,?)).
 
@@ -9130,9 +9142,407 @@ The first argument gives the time, the second the patient, and the
 third the condition code. The first query should find the last time
 the patient 9 had any code reported, the second looks for the first
 report of code 36211117, and the last searches for reports after this
-one. All queries be bound by constant or log(n) time.
+one. All queries run in  constant or log(n) time.
 
-@node Heaps, Lists, Exo Intervals, Library
+@node Gecode, Heaps, Exo intervals, Library
+@section Gecode Interface
+@cindex gecode
+
+The gecode library intreface was designed and implemented by Denis
+Duchier, with recent work by Vítor Santos Costa to port it to version 4
+of gecode and to have an higher level interface,
+
+@menu
+* The Gecode Interface:: calling gecode from YAP
+* Gecode and ClP(FD) :: using gecode in a CLP(FD) style
+@end menu
+
+@node The Gecode Interface, ,Gecode and ClP(FD), Gecode
+@subsection The Gecode Interface
+
+This text is due to Denys Duchier. The gecode interface requires
+@example
+:- use_module(library(gecode)).
+@end example
+Several example programs are available with the distribution.
+
+@table @code
+@item CREATING A SPACE
+
+A space is gecodes data representation for a store of constraints:
+@example
+    Space := space
+@end example
+
+
+@item CREATING VARIABLES
+
+Unlike in Gecode, variable objects are not bound to a specific Space.  Each one
+actually contains an index with which it is possible to access a Space-bound
+Gecode variable.  Variables can be created using the following expressions:
+
+@example
+   IVar := intvar(Space,SPEC...)
+   BVar := boolvar(Space)
+   SVar := setvar(Space,SPEC...)
+@end example
+
+where SPEC... is the same as in Gecode.  For creating lists of variables use
+the following variants:
+
+@example
+   IVars := intvars(Space,N,SPEC...)
+   BVars := boolvars(Space,N,SPEC...)
+   SVars := setvars(Space,N,SPEC...)
+@end example
+
+where N is the number of variables to create (just like for XXXVarArray in
+Gecode).  Sometimes an IntSet is necessary:
+
+@example
+   ISet := intset([SPEC...])
+@end example
+
+where each SPEC is either an integer or a pair (I,J) of integers.  An IntSet
+describes a set of ints by providing either intervals, or integers (which stand
+for an interval of themselves).  It might be tempting to simply represent an
+IntSet as a list of specs, but this would be ambiguous with IntArgs which,
+here, are represented as lists of ints.
+
+@example
+   Space += keep(Var)
+   Space += keep(Vars)
+@end example
+
+Variables can be marked as "kept".  In this case, only such variables will be
+explicitly copied during search.  This could bring substantial benefits in
+memory usage.  Of course, in a solution, you can then only look at variables
+that have been "kept".  If no variable is marked as "kept", then they are all
+kept.  Thus marking variables as "kept" is purely an optimization.
+
+
+@item CONSTRAINTS AND BRANCHINGS
+
+all constraint and branching posting functions are available just like in
+Gecode.  Wherever a XXXArgs or YYYSharedArray is expected, simply use a list.
+At present, there is no support for minimodel-like constraint posting.
+Constraints and branchings are added to a space using:
+
+@example
+    Space += CONSTRAINT
+    Space += BRANCHING
+@end example
+
+For example:
+
+@example
+    Space += rel(X,'IRT_EQ',Y)
+@end example
+
+
+arrays of variables are represented by lists of variables, and constants are
+represented by atoms with the same name as the Gecode constant
+(e.g. 'INT_VAR_SIZE_MIN').
+
+@item SEARCHING FOR SOLUTIONS
+
+@example
+    SolSpace := search(Space)
+@end example
+
+
+This is a backtrackable predicate that enumerates all solution spaces
+(SolSpace).  It may also take options:
+
+@example
+    SolSpace := search(Space,Options)
+@end example
+
+
+Options is a list whose elements maybe:
+
+@table @code
+@item restart
+    to select the Restart search engine
+@item threads=N
+    to activate the parallel search engine and control the number of
+    workers (see Gecode doc)
+@item c_d=N
+    to set the commit distance for recomputation
+@item a_d=N
+    to set the adaptive distance for recomputation
+
+@end table
+
+@item EXTRACTING INFO FROM A SOLUTION
+
+An advantage of non Space-bound variables, is that you can use them both to
+post constraints in the original space AND to consult their values in
+solutions.  Below are methods for looking up information about variables.  Each
+of these methods can either take a variable as argument, or a list of
+variables, and returns resp. either a value, or a list of values:
+
+@example
+    Val := assigned(Space,X)
+
+    Val := min(Space,X)
+    Val := max(Space,X)
+    Val := med(Space,X)
+    Val := val(Space,X)
+    Val := size(Space,X)
+    Val := width(Space,X)
+    Val := regret_min(Space,X)
+    Val := regret_max(Space,X)
+
+    Val := glbSize(Space,V)
+    Val := lubSize(Space,V)
+    Val := unknownSize(Space,V)
+    Val := cardMin(Space,V)
+    Val := cardMax(Space,V)
+    Val := lubMin(Space,V)
+    Val := lubMax(Space,V)
+    Val := glbMin(Space,V)
+    Val := glbMax(Space,V)
+    Val := glb_ranges(Space,V)
+    Val := lub_ranges(Space,V)
+    Val := unknown_ranges(Space,V)
+    Val := glb_values(Space,V)
+    Val := lub_values(Space,V)
+    Val := unknown_values(Space,V)
+ @end example
+
+@item DISJUNCTORS
+
+
+Disjunctors provide support for disjunctions of clauses, where each clause is a
+conjunction of constraints:
+
+@example
+    C1 or C2 or ... or Cn
+@end example
+
+
+Each clause is executed "speculatively": this means it does not affect the main
+space.  When a clause becomes failed, it is discarded.  When only one clause
+remains, it is committed: this means that it now affects the main space.
+
+Example:
+
+Consider the problem where either X=Y=0 or X=Y+(1 or 2) for variable X and Y
+that take values in 0..3.
+
+@example
+    Space := space,
+    [X,Y] := intvars(Space,2,0,3),
+@end example
+
+First, we must create a disjunctor as a manager for our 2 clauses:
+
+@example
+    Disj := disjunctor(Space),
+@end example
+
+We can now create our first clause:
+
+@example
+    C1 := clause(Disj),
+@end example
+
+
+This clause wants to constrain X and Y to 0.  However, since it must be
+executed "speculatively", it must operate on new variables X1 and Y1 that
+shadow X and Y:
+
+@example
+    [X1,Y1] := intvars(C1,2,0,3),
+    C1 += forward([X,Y],[X1,Y1]),
+@end example
+
+The forward(...) stipulation indicates which global variable is shadowed by
+which clause-local variable.  Now we can post the speculative clause-local
+constraints for X=Y=0:
+
+@example
+    C1 += rel(X1,'IRT_EQ',0),
+    C1 += rel(Y1,'IRT_EQ',0),
+@end example
+
+We now create the second clause which uses X2 and Y2 to shadow X and Y:
+
+@example
+    C2 := clause(Disj),
+    [X2,Y2] := intvars(C2,2,0,3),
+    C2 += forward([X,Y],[X2,Y2]),
+@end example
+
+However, this clause also needs a clause-local variable Z2 taking values 1 or
+2 in order to post the clause-local constraint X2=Y2+Z2:
+
+@example
+    Z2 := intvar(C2,1,2),
+    C2 += linear([-1,1,1],[X2,Y2,Z2],'IRT_EQ',0),
+@end example
+
+Finally, we can branch and search:
+
+@example
+    Space += branch([X,Y],'INT_VAR_SIZE_MIN','INT_VAL_MIN'),
+    SolSpace := search(Space),
+@end example
+
+and lookup values of variables in each solution:
+
+@example
+    [X_,Y_] := val(SolSpace,[X,Y]).
+@end example
+
+@end table
+
+@node Gecode and ClP(FD), The Gecode Interface, , Gecode
+@subsection Programming Finite Domain Constraints in YAP/Gecode
+The gecode/clp(fd) interface is designed to use the GECODE functionality
+in a more CLP like style. It requires
+@example
+:- use_module(library(gecode/clpfd)).
+@end example
+Several example programs are available with the distribution.
+
+Constraints supported are:
+@table @code
+@item @var{X} #= @var{Y}
+equality
+@item @var{X} #\= @var{Y}
+disequality
+@item @var{X} #> @var{Y}
+larger
+@item @var{X} #>= @var{Y}
+larger or equal
+@item @var{X} #=< @var{Y}
+smaller
+@item @var{X} #< @var{Y}
+smaller or equal
+
+Arguments to this constraint may be an arithmetic expression with @t{+},
+@t{-}, @t{*}, integer division @t{/}, @t{min}, @t{max}, @t{sum}, and
+@t{abs}. The @t{sum} constraint allows  a two argument version using the
+@code{where} conditional, in Zinc style. 
+
+The send more money equation may be written as:
+@example
+          1000*S + 100*E + 10*N + D +
+          1000*M + 100*O + 10*R + E #=
+10000*M + 1000*O + 100*N + 10*E + Y,
+@end example
+
+This example uses @code{where} to select from
+column @var{I} the elements that have value under @var{M}:
+@example
+OutFlow[I] #= sum(J in 1..N where D[J,I]<M, X[J,I])
+@end example
+@item all_different(@var{Vs})
+@item all_distinct(@var{Vs})
+@item all_different(@var{Cs}, @var{Vs})
+@item all_distinct(@var{Cs}, @var{Vs})
+ verifies whether all elements of a list are different. In the second
+case, tests if all the sums between a list of constants and a list of
+variables are different.
+
+This is a formulation of the queens problem that uses both versions of @code{all_different}:
+@example
+queens(N, Queens) :-
+    length(Queens, N),
+    Queens ins 1..N,
+    all_distinct(Queens),
+    foldl(inc, Queens, Inc, 0, _), % [0, 1, 2, .... ]
+    foldl(dec, Queens, Dec, 0, _), % [0, -1, -2, ... ]
+    all_distinct(Inc,Queens),
+    all_distinct(Dec,Queens),
+    labeling([], Queens).
+
+inc(_, I0, I0, I) :-
+    I is I0+1.
+
+dec(_, I0, I0, I) :-
+    I is I0-1.
+@end example
+
+
+The next example uses @code{all_different/1} and the functionality of the matrix package to verify that all squares in
+sudoku have a different value:
+@example
+    foreach( [I,J] ins 0..2 ,
+           all_different(M[I*3+(0..2),J*3+(0..2)]) ),
+@end example
+
+@item @var{X} #<==> @var{B}
+reified equivalence
+@item @var{X} #==> @var{B}
+reified implication
+@item @var{X} #< @var{B}
+reified implication 
+
+As an example. consider finding out the people who wanted to sit
+next to a friend and that are are actually sitting together:
+@example
+preference_satisfied(X-Y, B) :-
+    abs(X - Y) #= 1 #<==> B.
+@end example
+Note that not all constraints may be reifiable.
+
+@item DFA
+the interface allows creating and manipulation deterministic finite
+automata. A DFA has a set of states, represented as integers
+and is initialised with an initial state, a set of transitions from the
+first to the last argument emitting the middle argument, and a final
+state.
+
+The swedish-drinkers protocol is represented as follows:
+@example
+    A = [X,Y,Z],
+    dfa( 0, [t(0,0,0),t(0,1,1),t(1,0,0),t(-1,0,0)], [0], C),
+    in_dfa( A, C ),
+@end example
+This code will enumeratae the valid tuples of three emissions.
+
+@item extensional constraints
+Constraints can also be represented as lists of tuples. 
+
+The previous example
+would be written as:
+@example
+    extensional_constraint([[0,0,0],[0,1,0],[1,0,0]], C),
+    in_relation( A, C ),
+@end example
+
+@item minimum(@var{X}, @var{Vs})
+@item min(@var{X}, @var{Vs})
+First Argument is the least element of a list.
+
+@item maximum(@var{X}, @var{Vs})
+@item max(@var{X}, @var{Vs})
+First Argument is the greatest element of a list.
+
+@item lex_order(@var{Vs)})
+All elements must be ordered.
+
+@end table
+
+The following predicates control search:
+@table @code
+@item labeling(@var{Opts}, @var{Xs})
+performs labeling, currently options are not supported.
+
+@item maximize(@var{V})
+maximise variable @var{V}
+
+@item minimize(@t{V}) 
+minimise variable @var{V}
+
+@end table
+
+
+
+@node Heaps, Lists, Gecode, Library
 @section Heaps
 @cindex heap
 
@@ -9865,13 +10275,13 @@ result in @var{X}, @var{Y}, @var{Z} and @var{W}.
 @snindex scanl/4
 @cnindex scanl/4
          Left scan of  list.  The  scanl   family  of  higher  order list
-	operations is defined by:
+    operations is defined by:
 
 @example
-	  scanl(P, [X11,...,X1n], ..., [Xm1,...,Xmn], V0, [V0,V1,...,Vn]) :-
-		P(X11, ..., Xm1, V0, V1),
-		...
-	        P(X1n, ..., Xmn, Vn-1, Vn).
+      scanl(P, [X11,...,X1n], ..., [Xm1,...,Xmn], V0, [V0,V1,...,Vn]) :-
+        P(X11, ..., Xm1, V0, V1),
+        ...
+            P(X1n, ..., Xmn, Vn-1, Vn).
 @end example
 
 
@@ -10010,16 +10420,16 @@ Access all the second, thrd and fourth rows, the output is a list of elements.
 Access all the fifth, sixth and eight rows, the output is a list of elements.
 @end table
 
-The matrix library also supports a B-Prolog/ECliPSe inspired @code{for} operator to iterate over
+The matrix library also supports a B-Prolog/ECliPSe inspired @code{foreach} ITerator to iterate over
 elements of a matrix:
 
 @table @code
-@item for(I in 0..N1, X[I] <== Y[I])
+@item foreach(I in 0..N1, X[I] <== Y[I])
 Copies a vector, element by element.
-@item for([I in 0..N1, J in I..N1], Z[I,J] <== X[I,J] - X[I,J])
+@item foreach([I in 0..N1, J in I..N1], Z[I,J] <== X[I,J] - X[I,J])
 The lower-triangular matrix @var{Z} is the difference between the
 lower-triangular and upper-triangular parts of @var{X}.
-@item for([I in 0..N1, J in 0..N1], plus(X[I,J]), 0, Sum)
+@item foreach([I in 0..N1, J in 0..N1], plus(X[I,J]), 0, Sum)
 Add all elements of a matrix by using @var{Sum} as an accumulator.
 @end table
 
@@ -10127,6 +10537,30 @@ natural logarithm of a number, matrix or list
 natural exponentiation of a number, matrix or list
 @end table
 
+@item foreach(@var{Sequence}, @var{Goal})
+@findex foreach/2
+@snindex foreach/2
+@cnindex foreach/2
+Deterministic iterator. The ranges are given by @var{Sequence} that is either @code{@var{I} in
+@var{M}..@var{N}}, or of the form @code{[@var{I},@var{J}] ins
+@var{M}..@var{N}}, or a list of the above conditions. 
+
+Variables in the goal are assumed to be global, ie, share a single value
+in the execution. The exceptions are the iteration indices. Moreover, if
+the goal is of the form @code{@var{Locals}^@var{G}} all variables
+occurring in @var{Locals} are marked as local. As an example:
+@example
+foreach([I,J] ins 1..N, A^(A <==M[I,J], N[I] <== N[I] + A*A) )
+@end example
+the variables @var{I}, @var{J} and @var{A} are duplicated for every
+call (local), whereas the matrices @var{M} and @var{N} are shared
+throughout the execution (global).
+
+@item foreach(@var{Sequence}, @var{Goal}, @var{Acc0}, @var{AccF})
+@findex foreach/4
+@snindex foreach/4
+@cnindex foreach/4
+Deterministic iterator with accumulator style arguments.
 
 @item matrix_new(+@var{Type},+@var{Dims},-@var{Matrix})
 @findex matrix_new/3
@@ -10140,9 +10574,9 @@ The matrix will be initialised to zeros.
 @example
 ?- matrix_new(ints,[2,3],Matrix).
 
-Matrix = 0
+Matrix = {..}
 @end example
-Notice that currently YAP will always write a matrix as @code{0}.
+Notice that currently YAP will always write a matrix of numbers as @code{{..}}.
 
 @item matrix_new(+@var{Type},+@var{Dims},+@var{List},-@var{Matrix})
 @findex matrix_new/4
@@ -11129,15 +11563,15 @@ ended by a blank line:
 
 @example
 read_header_data(Stream, Header) :-
-	read_line_to_codes(Stream, Header, Tail),
-	read_header_data(Header, Stream, Tail).
+    read_line_to_codes(Stream, Header, Tail),
+    read_header_data(Header, Stream, Tail).
 
 read_header_data("\r\n", _, _) :- !.
 read_header_data("\n", _, _) :- !.
 read_header_data("", _, _) :- !.
 read_header_data(_, Stream, Tail) :-
-	read_line_to_codes(Stream, Tail, NewTail),
-	read_header_data(Tail, Stream, NewTail).
+    read_line_to_codes(Stream, Tail, NewTail),
+    read_header_data(Tail, Stream, NewTail).
 @end example
 
 @item read_stream_to_codes(+@var{Stream}, -@var{Codes})
@@ -11328,7 +11762,7 @@ for all @var{Var0}. Assumes keys are not repeated.
 @findex rb_fold/4
 @snindex rb_fold/4
 @cnindex rb_fold/4
-	For all nodes @var{Key} in the tree @var{T}, if the value
+    For all nodes @var{Key} in the tree @var{T}, if the value
 associated with key @var{Key} is @var{V} in tree @var{T}, if
 @code{call(G,V,Acc1,Acc2)} holds, then if @var{VL} is value of the
 previous node in inorder, @code{call(G,VL,_,Acc0)} must hold, and if
@@ -11339,7 +11773,7 @@ previous node in inorder, @code{call(G,VL,_,Acc0)} must hold, and if
 @findex rb_key_fold/4
 @snindex rb_key_fold/4
 @cnindex rb_key_fold/4
-	For all nodes @var{Key} in the tree @var{T}, if the value
+    For all nodes @var{Key} in the tree @var{T}, if the value
 associated with key @var{Key} is @var{V} in tree @var{T}, if
 @code{call(G,Key,V,Acc1,Acc2)} holds, then if @var{VL} is value of the
 previous node in inorder, @code{call(G,KeyL,VL,_,Acc0)} must hold, and if
@@ -12506,17 +12940,17 @@ the stream as needed.
 
 @example
 term_in_file(Term, File) :-
-	setup_call_cleanup(open(File, read, In),
-			   term_in_stream(Term, In),
-			   close(In) ).
+    setup_call_cleanup(open(File, read, In),
+               term_in_stream(Term, In),
+               close(In) ).
 
 term_in_stream(Term, In) :-
-	repeat,
-	read(In, T),
-	(   T == end_of_file
-	->  !, fail
-	;   T = Term
-	).
+    repeat,
+    read(In, T),
+    (   T == end_of_file
+    ->  !, fail
+    ;   T = Term
+    ).
 @end example
 
 Note that it is impossible to implement this predicate in Prolog other than
@@ -13818,40 +14252,40 @@ incomplete finite domain reasoner.
 
 @example
 :- module(domain,
-	  [ domain/2			% Var, ?Domain
-	  ]).
+      [ domain/2            % Var, ?Domain
+      ]).
 :- use_module(library(ordsets)).
 
 domain(X, Dom) :-
-	var(Dom), !,
-	get_attr(X, domain, Dom).
+    var(Dom), !,
+    get_attr(X, domain, Dom).
 domain(X, List) :-
-	list_to_ord_set(List, Domain),
-	put_attr(Y, domain, Domain),
-	X = Y.
+    list_to_ord_set(List, Domain),
+    put_attr(Y, domain, Domain),
+    X = Y.
 
-%	An attributed variable with attribute value Domain has been
-%	assigned the value Y
+%    An attributed variable with attribute value Domain has been
+%    assigned the value Y
 
 attr_unify_hook(Domain, Y) :-
-	(   get_attr(Y, domain, Dom2)
-	->  ord_intersection(Domain, Dom2, NewDomain),
-	    (   NewDomain == []
-	    ->	fail
-	    ;	NewDomain = [Value]
-	    ->	Y = Value
-	    ;	put_attr(Y, domain, NewDomain)
-	    )
-	;   var(Y)
-	->  put_attr( Y, domain, Domain )
-	;   ord_memberchk(Y, Domain)
-	).
+    (   get_attr(Y, domain, Dom2)
+    ->  ord_intersection(Domain, Dom2, NewDomain),
+        (   NewDomain == []
+        ->    fail
+        ;    NewDomain = [Value]
+        ->    Y = Value
+        ;    put_attr(Y, domain, NewDomain)
+        )
+    ;   var(Y)
+    ->  put_attr( Y, domain, Domain )
+    ;   ord_memberchk(Y, Domain)
+    ).
 
-%	Translate attributes from this module to residual goals
+%    Translate attributes from this module to residual goals
 
 attribute_goals(X) -->
-	@{ get_attr(X, domain, List) @},
-	[domain(X, List)].
+    @{ get_attr(X, domain, List) @},
+    [domain(X, List)].
 @end example
 
 
@@ -15559,9 +15993,9 @@ can seriously harm performance with many threads waiting on the same
 queue as all-but-the-winner perform a useless scan of the queue. If
 there is only one waiting thread or all waiting threads wait with an
 unbound variable an arbitrary thread is restarted to scan the queue.
-@comment	\footnote{See the documentation for the POSIX thread functions
-@comment		  pthread_cond_signal() v.s.\ pthread_cond_broadcastt()
-@comment		  for background information.}
+@comment    \footnote{See the documentation for the POSIX thread functions
+@comment          pthread_cond_signal() v.s.\ pthread_cond_broadcastt()
+@comment          for background information.}
 
 @item thread_get_message(?@var{Term})
 @findex thread_get_message/1
@@ -15641,30 +16075,30 @@ no means to tell when all work is done. This must be realised using
 additional synchronisation.
 
 @example
-%	create_workers(+Id, +N)
-%	
-%	Create a pool with given Id and number of workers.
+%    create_workers(+Id, +N)
+%    
+%    Create a pool with given Id and number of workers.
 
 create_workers(Id, N) :-
-	message_queue_create(Id),
-	forall(between(1, N, _),
-	       thread_create(do_work(Id), _, [])).
+    message_queue_create(Id),
+    forall(between(1, N, _),
+           thread_create(do_work(Id), _, [])).
 
 do_work(Id) :-
-	repeat,
-	  thread_get_message(Id, Goal),
-	  (   catch(Goal, E, print_message(error, E))
-	  ->  true
-	  ;   print_message(error, goal_failed(Goal, worker(Id)))
-	  ),
-	fail.
+    repeat,
+      thread_get_message(Id, Goal),
+      (   catch(Goal, E, print_message(error, E))
+      ->  true
+      ;   print_message(error, goal_failed(Goal, worker(Id)))
+      ),
+    fail.
 
-%	work(+Id, +Goal)
-%	
-%	Post work to be done by the pool
+%    work(+Id, +Goal)
+%    
+%    Post work to be done by the pool
 
 work(Id, Goal) :-
-	thread_send_message(Id, Goal).
+    thread_send_message(Id, Goal).
 @end example
 
 @node Signalling Threads, Threads and Dynamic Predicates,Message Queues, Thread Communication
@@ -15747,7 +16181,7 @@ empty clause-list.
 
 @example
 :- thread_local
-	foo/1.
+    foo/1.
 
 foo(gnat).
 @end example
@@ -15779,13 +16213,13 @@ Here is how to realise a correct update:
 
 @example
 :- initialization
-	mutex_create(addressbook).
+    mutex_create(addressbook).
 
 change_address(Id, Address) :-
-	mutex_lock(addressbook),
-	retractall(address(Id, _)),
-	asserta(address(Id, Address)),
-	mutex_unlock(addressbook).
+    mutex_lock(addressbook),
+    retractall(address(Id, _)),
+    asserta(address(Id, Address)),
+    mutex_unlock(addressbook).
 @end example
 
 

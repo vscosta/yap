@@ -1031,6 +1031,7 @@ keep_list_(_, X) :-
 (Space += element(X1,X2,X3,X4,X5,X6,X7)) :- !, element(Space,X1,X2,X3,X4,X5,X6,X7).
 (Space += extensional(X1,X2)) :- !, extensional(Space,X1,X2).
 (Space += extensional(X1,X2,X3)) :- !, extensional(Space,X1,X2,X3).
+(Space += linear(X1,X2,X3)) :- !, linear(Space,X1,X2,X3).
 (Space += linear(X1,X2,X3,X4)) :- !, linear(Space,X1,X2,X3,X4).
 (Space += linear(X1,X2,X3,X4,X5)) :- !, linear(Space,X1,X2,X3,X4,X5).
 (Space += linear(X1,X2,X3,X4,X5,X6)) :- !, linear(Space,X1,X2,X3,X4,X5,X6).

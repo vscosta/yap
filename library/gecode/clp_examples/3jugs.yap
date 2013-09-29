@@ -48,7 +48,7 @@ problem(Z, X, InFlow, OutFlow, N) :-
 	
 
 % constraint 
-	for(I in 1..N,
+	foreach(I in 1..N,
 	    ( I == Start ->
 	      RHS[I] <== 1 ;
 	      I == End ->
@@ -58,21 +58,21 @@ problem(Z, X, InFlow, OutFlow, N) :-
 
 
     % must be larger than 0??
-   for( [I in 1..N, J in 1..N],
+   foreach( [I in 1..N, J in 1..N],
 	( D[J,I] = M ->
 	  X[J,I] #= 0 ;
 	  true )
       ),
 				% outflow constraint
-   for(I in 1..N,
+   foreach(I in 1..N,
        OutFlow[I] #= sum(J in 1..N where D[J,I]<M, X[J,I])
       ),
    % inflow constraint
-  for(J in 1..N,
+  foreach(J in 1..N,
       InFlow[J] #= sum(I in 1..N where D[J,I]<M, X[J,I])
      ),
    % inflow = outflow
-  for(I in 1..N,  OutFlow[I]-InFlow[I]#=RHS[I]),
+  foreach(I in 1..N,  OutFlow[I]-InFlow[I]#=RHS[I]),
 
   % labeling
   labeling( [], X).
@@ -118,7 +118,7 @@ out(Cost, Ts, Ins, Out, N) :-
 	format('Inputs  =', []), maplist(out, InsL), nl,
 	format('Outputs =', []), maplist(out, OutL), nl,
 	format('transitions =~n', []),
-	for(I in 1..N, outl(Ts[_,I]) ).
+	foreach(I in 1..N, outl(Ts[_,I]) ).
 
 outl( X ) :-
 	L <== X, % evaluate matrix notation to Prolog lists.

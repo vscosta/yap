@@ -18,11 +18,11 @@ problem(Ex, Els) :- ex(Ex, Exs),
 	Els ins 1..9,
 	M <== matrix( Els, [dim=[9,9]] ),
 	% select rows
-	for( I in 0..8 , all_different(M[I,*]) ),
+	foreach( I in 0..8 , all_different(M[I,*]) ),
 	% select cols
-	for( J in 0..8,  all_different(M[*,J]) ),
+	foreach( J in 0..8,  all_different(M[*,J]) ),
 	% select squares
-	for( [I,J] ins 0..2 ,
+	foreach( [I,J] ins 0..2 ,
            all_different(M[I*3+(0..2),J*3+(0..2)]) ),
 	ex(Ex, Exs),
 	maplist( bound, Els, Exs),
@@ -39,12 +39,12 @@ bound(El, X) :-
 %
 output(Els) :-
 	M <== matrix( Els, [dim=[9,9]] ),
-	for( I in 0..2 , output(M, I) ),
+	foreach( I in 0..2 , output(M, I) ),
 	output_line.
 
 output(M, I) :-
 	output_line,
-	for( J in 0..2 , output_row(M, J+I*3) ).
+	foreach( J in 0..2 , output_row(M, J+I*3) ).
 
 output_row( M, Row ) :-
 	L <== M[Row,_],

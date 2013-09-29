@@ -93,8 +93,8 @@ typedef enum {
 	    matrix_column/3,
 	    matrix_get/2,
 	    matrix_set/2,
-	    for/2,
-	    for/4,
+	    foreach/2,
+	    foreach/4,
 	    op(100, fy, '[]')
 	    ]).
 
@@ -102,7 +102,7 @@ typedef enum {
 
 :- multifile rhs_opaque/1, array_extension/2.
 
-:- meta_predicate for(+,0), for(+,2, +, -).
+:- meta_predicate foreach(+,0), foreach(+,2, +, -).
 
 :- use_module(library(maplist)).
 :- use_module(library(mapargs)).
@@ -341,12 +341,12 @@ zdiv(X, Y, Z) :- (X == 0 -> Z = 0 ; X == 0.0 -> Z = 0.0 ; Z is X / Y ).
 mplus(I1, I2, V) :-
 	number(I1) ->
 	  ( number(I2) -> V is I1+I2 ;
-	    '$matrix'(I2) -> matrix_op_to_all(I1, +, I2, V) ;
+	    matrix(I2) -> matrix_op_to_all(I1, +, I2, V) ;
 	    is_list(I2) ->  maplist(plus(I1), I2, V) ;
 	    V = I1+I2 ) ;
 	 matrix(I1) ->
 	    ( number(I2) -> matrix_op_to_all(I1, +, I2, V) ;
-	      '$matrix'(I2) ->  matrix_op(I1, I2, +, V) ;
+	      matrix(I2) ->  matrix_op(I1, I2, +, V) ;
 	      V = I1+I2 ) ;
 	 is_list(I1) ->
 	    ( number(I2) -> maplist(plus(I2), I1, V) ;
@@ -443,13 +443,13 @@ matrix_to_list( Mat, ToList) :-
 matrix_to_lists( Mat, ToList) :-
 	matrix_dims( Mat, [D|Dims] ),
 	D1 is D-1,
-	for( I in 0..D1, matrix_slicer( Dims, Mat, [I|L]-L), ToList, [] ).
+	foreach( I in 0..D1, matrix_slicer( Dims, Mat, [I|L]-L), ToList, [] ).
 
 matrix_slicer( [_], M, Pos-[_], [O|L0], L0) :- !,
 	O <== '[]'(Pos,M).
 matrix_slicer( [D|Dims], M, Pos-[I|L], [O|L0], L0) :-
 	D1 is D-1,
-	for( I in 0..D1 , L^matrix_slicer( Dims, M, Pos-L), O, [] ).
+	foreach( I in 0..D1 , L^matrix_slicer( Dims, M, Pos-L), O, [] ).
 
 matrix_get( Mat, Pos, El) :-
 	( opaque(Mat) -> matrixn_get( Mat, Pos, El ) ;
@@ -737,25 +737,25 @@ el_list([N], El, Els, NEls, I0, I1) :-
 	append(El, NEls, Els),
 	I1 is I0+1.
 
-for( Domain, Goal) :-
+foreach( Domain, Goal) :-
 	strip_module(Goal, M, Locals^NG), !,
 	term_variables(Domain+Locals, LocalVarsL),
 	LocalVars =.. [vs|LocalVarsL],
 	iterate( Domain, [], LocalVars, M:NG, [], [] ),
 	terms:reset_variables( LocalVars ).
-for( Domain, Goal ) :-
+foreach( Domain, Goal ) :-
 	strip_module(Goal, M, NG),
 	term_variables(Domain, LocalVarsL),
 	LocalVars =.. [vs|LocalVarsL],
 	iterate( Domain, [], LocalVars, M:NG, [], [] ),
 	terms:reset_variables( LocalVars ).
 
-for( Domain, Goal, Inp, Out) :-
+foreach( Domain, Goal, Inp, Out) :-
 	strip_module(Goal, M, Locals^NG), !,
 	term_variables(Domain+Locals, LocalVarsL),
 	LocalVars =.. [vs|LocalVarsL],
 	iterate( Domain, [], LocalVars, M:NG, [], [], Inp, Out).
-for( Domain, Goal, Inp, Out ) :-
+foreach( Domain, Goal, Inp, Out ) :-
 	strip_module(Goal, M, NG),
 	term_variables(Domain, LocalVarsL),
 	LocalVars =.. [vs|LocalVarsL],
