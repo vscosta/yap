@@ -9407,6 +9407,19 @@ in a more CLP like style. It requires
 @end example
 Several example programs are available with the distribution.
 
+Integer variables are declared as:
+@table @node
+@var{V} in @var{A}..@var{B}
+declares an integer variable @var{V} with range @var{A} to @var{B}.
+@var{Vs} ins @var{A}..@var{B}
+declares a set of integer variabless @var{Vs} with range @var{A} to @var{B}.
+@boolvar{@var{V}} 
+declares a  boolean variable.
+@boolvars{@var{Vs}} 
+declares a set of  boolean variable.
+@end table
+
+
 Constraints supported are:
 @table @code
 @item @var{X} #= @var{Y}
@@ -9423,8 +9436,10 @@ smaller
 smaller or equal
 
 Arguments to this constraint may be an arithmetic expression with @t{+},
-@t{-}, @t{*}, integer division @t{/}, @t{min}, @t{max}, @t{sum}, and
-@t{abs}. The @t{sum} constraint allows  a two argument version using the
+@t{-}, @t{*}, integer division @t{/}, @t{min}, @t{max}, @t{sum},
+@t{count}, and
+@t{abs}. Boolean variables support conjunction (/\), disjunction (\/),
+implication (=>), equivalence (<=>), and xor. The @t{sum} constraint allows  a two argument version using the
 @code{where} conditional, in Zinc style. 
 
 The send more money equation may be written as:
@@ -9439,7 +9454,11 @@ column @var{I} the elements that have value under @var{M}:
 @example
 OutFlow[I] #= sum(J in 1..N where D[J,I]<M, X[J,I])
 @end example
-@item all_different(@var{Vs})
+
+The @t{count} constraint counts the number of elements that match a
+certain constant or variable (integer sets are not available).
+
+@item all_different(@var{Vs}    )
 @item all_distinct(@var{Vs})
 @item all_different(@var{Cs}, @var{Vs})
 @item all_distinct(@var{Cs}, @var{Vs})
@@ -9474,6 +9493,25 @@ sudoku have a different value:
            all_different(M[I*3+(0..2),J*3+(0..2)]) ),
 @end example
 
+@item scalar_product(+@var{Cs}, +@var{Vs}, +@var{Rel}, ?@var{V}    )
+
+The product of constant @var{Cs} by @var{Vs} must be in relation
+@var{Rel} with @var{V} .
+
+@item @var{X} #= 
+all elements of @var{X}  must take the same value
+@item @var{X} #\= 
+not all elements of @var{X}  take the same value
+@item @var{X} #> 
+elements of @var{X}  must be increasing
+@item @var{X} #>= 
+elements of @var{X}  must be increasinga or equal
+@item @var{X} #=< 
+elements of @var{X}  must be decreasing
+@item @var{X} #< 
+elements of @var{X}  must be decreasing or equal
+
+
 @item @var{X} #<==> @var{B}
 reified equivalence
 @item @var{X} #==> @var{B}
@@ -9488,6 +9526,14 @@ preference_satisfied(X-Y, B) :-
     abs(X - Y) #= 1 #<==> B.
 @end example
 Note that not all constraints may be reifiable.
+
+@item element(@var{X}, @var{Vs}    )
+@var{X} is an element of list @var{Vs}
+
+@item clause(@var{Type}, @var{Ps} , @var{Ns}, , @var{V}     )
+If @var{Type} is @code{and} it is the conjunction of boolen variables
+@var{Ps} and the negation of boolean variables @var{Ns} and must have
+result @var{V}. If @var{Type} is @code{or} it is a disjunction.
 
 @item DFA
 the interface allows creating and manipulation deterministic finite
@@ -9530,7 +9576,35 @@ All elements must be ordered.
 The following predicates control search:
 @table @code
 @item labeling(@var{Opts}, @var{Xs})
-performs labeling, currently options are not supported.
+performs labeling, several variable and value selection options are
+available. The defaults are @code{min} and @code{min_step}.
+
+Variable selection options are as follows:
+@table @code
+@item leftmost
+choose the first variable
+@item min
+choose one of the variables with smallest minimum value
+@item max
+choose one of the variables with greatest maximum value
+@item ff
+choose one of the most constrained variables, that is, with the smallest
+domain.
+@end table
+
+Given that we selected a variable, the values chosen for branching may
+be:
+@table @code
+@item min_step
+smallest value
+ @item max_step
+ largest value
+ @item bisect
+ median
+ @item enum
+ all value starting from the minimum.
+@end table
+
 
 @item maximize(@var{V})
 maximise variable @var{V}
