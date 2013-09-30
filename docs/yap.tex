@@ -197,6 +197,7 @@ Subnodes of Library
 * Apply:: SWI-Compatible Apply library.
 * Association Lists:: Binary Tree Implementation of Association Lists.
 * AVL Trees:: Predicates to add and lookup balanced binary  trees.
+* BDDs:: Predicates to manipulate BDDs using the CUDD libraries
 * Exo Intervals:: Play with the UDI and exo-compilation
 * Gecode: Interface to the gecode constraint library
 * Heaps:: Labelled binary tree where the key of each node is less
@@ -8725,6 +8726,7 @@ Library, Extensions, Built-ins, Top
 * Apply:: SWI-Compatible Apply library.
 * Association Lists:: Binary Tree Implementation of Association Lists.
 * AVL Trees:: Predicates to add and lookup balanced binary  trees.
+* BDDs:: Predicates to manipulate BDDs using the CUDD libraries
 * Block Diagram:: Block Diagrams of Prolog code
 * Cleanup:: Call With registered Cleanup Calls
 * DGraphs:: Directed Graphs Implemented With Red-Black Trees
@@ -13875,7 +13877,7 @@ Further discussions
 at @url{http://www.complang.tuwien.ac.at/ulrich/Prolog-inedit/ISO-Hiord}.
 
 
-@node LAM, Block Diagram, Lambda, Library
+@node LAM, BDDs, Lambda, Library
 @section LAM
 @cindex lam
 
@@ -14073,12 +14075,166 @@ are released.
 
 @end table
 
-@node Block Diagram, , LAM, Library
+@node BDDs, Block Diagram, LAM, Library
+@section Binary Decision Diagrams and Friends
+@cindex BDDs
+
+This library provides an interface to the BDD package CUDD. It requires
+CUDD compiled as a dynamic library. In Linux this is available out of
+box in Fedora, but can easily be ported to other Linux
+distributions. CUDD is available in the ports OSX package, and in
+cygwin. To use it, call @code{:-use_module(library(block_diagram))}.
+
+The following predicates construct a BDD:
+@table @code
+@item bbd_new(?@var{Exp}, -@var{BddHandle})
+@findex bdd_new/2
+create a new BDD from the logical expression @var{Exp}. The expression
+may include:
+@table @code
+@item  Logical Variables:
+a leaf-node can be a logical variable.
+@item Constants 0 and 1
+a leaf-node can also be one of these two constants.
+@item or(@var{X}, @var{Y}), @var{X} \/ @var{Y}, @var{X} + @var{Y}
+disjunction
+@item and(@var{X}, @var{Y}), @var{X} /\ @var{Y}, @var{X} * @var{Y}
+conjunction
+@item nand(@var{X}, @var{Y})
+negated conjunction@
+@item nor(@var{X}, @var{Y})
+negated disjunction
+@item xor(@var{X}, @var{Y})
+exclusive or
+@item not(@var{X}), -@var{X}
+negation
+@end table
+
+@item bdd_from_list(?@var{List}, -@var{BddHandle})
+Convert a @var{List} of logical expressions of the form above into a BDD
+accessible through @var{BddHandle}.
+
+@item mtbdd_new(?@var{Exp}, -@var{BddHandle})
+@findex mtbdd_new/2
+create a new algebraic decision diagram (ADD) from the logical
+expression @var{Exp}. The expression may include:
+@table @code
+@item  Logical Variables:
+a leaf-node can be a logical variable, or @emph{parameter}.
+@item Number
+a leaf-node can also be any number
+@item  @var{X} * @var{Y}
+product
+@item @var{X} + @var{Y}
+sum
+@item @var{X} - @var{Y}
+subtraction
+@item or(@var{X}, @var{Y}), @var{X} \/ @var{Y}
+logical or
+@end table
+
+@item bdd_tree(+@var{BDDHandle}, @var{Term})
+@findex bdd_tree/2
+Convert the BDD or ADD represented by @var{BDDHandle} to a Prolog term
+of the form @code{bdd(@var{Dir}, @var{Nodes}, @var{Vars})} or @code{
+mtbdd(@var{Nodes}, @var{Vars})}, respectively. The arguments are:
+@itemize
+@item
+ @var{Dir} direction of the BDD, usually 1
+@item
+ @var{Nodes} list of nodes in the BDD or ADD. 
+
+In a BDD nodes may be @t{pp} (both terminals are positive) or @t{pn}
+ (right-hand-side is negative), and have four arguments: a logical
+ variable that will be bound to the value of the node, the logical
+ variable corresponding to the node, a logical variable, a 0 or a 1 with
+ the value of the left-hand side, and a logical variable, a 0 or a 1
+ with the right-hand side.
+
+@item 
+@var{Vars} are the free variables in the original BDD, or the parameters of the BDD/ADD.
+@end itemize
+As an example, the BDD for the expression @code{X+(Y+X)*(-Z)} becomes:
+@example
+bdd(1,[pn(N2,X,1,N1),pp(N1,Y,N0,1),pn(N0,Z,1,1)],vs(X,Y,Z))
+@end example
+
+@item bdd_eval(+@var{BDDHandle}, @var{Val})
+@findex bdd_eval/2
+Unify @var{Val} with the value of the logical expression compiled in
+@var{BDDHandle} given an assignment to its  variables.
+@example
+bdd_new(X+(Y+X)*(-Z), BDD), 
+[X,Y,Z] = [0,0,0], 
+bdd_eval(BDD, V), 
+writeln(V).
+@end example
+would write 0 in the standard output stream.
+
+The  Prolog code equivalent to @t{bdd_eval/2} is:
+@example
+    Tree = bdd(1, T, _Vs),
+    reverse(T, RT),
+    foldl(eval_bdd, RT, _, V).
+
+eval_bdd(pp(P,X,L,R), _, P) :-
+    P is ( X/\L ) \/ ( (1-X) /\ R ).
+eval_bdd(pn(P,X,L,R), _, P) :-
+    P is ( X/\L ) \/ ( (1-X) /\ (1-R) ).
+@end example
+First, the nodes are reversed to implement bottom-up evaluation. Then,
+we use the @code{foldl} list manipulation predicate to walk every node,
+computing the disjunction of the two cases and binding the output
+variable. The top node gives the full expression value. Notice that
+@code{(1-@var{X})}  implements negation.
+
+@item bdd_size(+@var{BDDHandle}, -@var{Size})
+@findex bdd_size/2
+Unify @var{Size} with the number of nodes in @var{BDDHandle}.
+
+@item bdd_print(+@var{BDDHandle}, +@var{File})
+@findex bdd_print/2
+Output bdd @var{BDDHandle} as a dot file to @var{File}.
+
+@item bdd_to_probability_sum_product(+@var{BDDHandle}, -@var{Prob})
+@findex bdd_to_probability_sum_product/2
+Each node in a BDD is given a probability @var{Pi}. The total
+probability of a corresponding sum-product network is @var{Prob}.
+
+@item bdd_to_probability_sum_product(+@var{BDDHandle}, -@var{Probs}, -@var{Prob})
+@findex bdd_to_probability_sum_product/3
+Each node in a BDD is given a probability @var{Pi}. The total
+probability of a corresponding sum-product network is @var{Prob}, and
+the probabilities of the inner nodes are @var{Probs}.
+
+In Prolog, this predicate would correspond to computing the value of a
+BDD. The input variables will be bound to probabilities, eg
+@code{[@var{X},@var{Y},@var{Z}] = [0.3.0.7,0.1]}, and the previous
+@code{eval_bdd} would operate over real numbers:
+
+@example
+    Tree = bdd(1, T, _Vs),
+    reverse(T, RT),
+    foldl(eval_prob, RT, _, V).
+
+eval_prob(pp(P,X,L,R), _, P) :-
+    P is  X * L +  (1-X) * R.
+eval_prob(pn(P,X,L,R), _, P) :-
+    P is  X * L + (1-X) * (1-R).
+@end example
+@item bdd_close(@var{BDDHandle})
+@findex bdd_close/1
+close the BDD and release any resources it holds.
+
+@end table
+
+@node Block Diagram, , BDDs, Library
 @section Block Diagram
 @cindex Block Diagram
 
-This library provides a way of visualizing a prolog program using modules with blocks.
-To use it use: @code{:-use_module(library(block_diagram))}.
+This library provides a way of visualizing a prolog program using
+modules with blocks.  To use it use:
+@code{:-use_module(library(block_diagram))}.
 @table @code
 @item make_diagram(+inputfilename, +ouputfilename)
 @findex make_diagram/2
