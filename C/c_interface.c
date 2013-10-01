@@ -3242,7 +3242,7 @@ YAP_Reset(void)
 {
   CACHE_REGS
   int res = TRUE;
-#ifndef THREADS
+#if !defined(YAPOR) && !defined(THREADS)
   int worker_id = 0;
 #endif
   BACKUP_MACHINE_REGS();
