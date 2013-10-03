@@ -887,7 +887,11 @@ InitStdPreds(void)
   Yap_InitCPreds();
   Yap_InitBackCPreds();
   BACKUP_MACHINE_REGS();
+#if YAPOR
+  Yap_InitYaamRegs( worker_id );
+#else
   Yap_InitYaamRegs( 0 );
+#endif
 
 #if HAVE_MPE
   Yap_InitMPE ();
