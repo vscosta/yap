@@ -93,6 +93,8 @@ typedef double YAP_Float;
 #define FALSE	0
 #endif
 
+#include "YapError.h"
+
 #endif
 
 typedef enum {
