@@ -148,6 +148,7 @@ HEADERS = \
 	$(srcdir)/H/sshift.h \
 	$(srcdir)/H/Yap.h \
 	$(srcdir)/H/Yatom.h \
+	$(srcdir)/include/YapError.h \
 	$(srcdir)/H/YapHeap.h \
 	$(srcdir)/H/Regs.h \
 	$(srcdir)/H/Yapproto.h \
