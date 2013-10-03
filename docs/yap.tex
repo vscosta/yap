@@ -884,12 +884,12 @@ All the arguments and flags are optional and have the following meaning:
 @item -?
 print a short error message.
 @item -s@var{Size}
-allocate @var{Size} K bytes for local and global stacks. The user may
+allocate @var{Size} KBytes for local and global stacks. The user may
  specify @t{M} bytes.
 @item -h@var{Size}
-allocate @var{Size} K bytes for heap and auxiliary stacks
+allocate @var{Size} KBytes for heap and auxiliary stacks
 @item -t@var{Size}
-allocate @var{Size} K bytes for the trail stack
+allocate @var{Size} KBytes for the trail stack
 @item -L@var{Size} 
 SWI-compatible option to allocate @var{Size} K bytes for local and global stacks, the local stack
  cannot be expanded. To avoid confusion with the load option, @var{Size}
@@ -14083,7 +14083,7 @@ This library provides an interface to the BDD package CUDD. It requires
 CUDD compiled as a dynamic library. In Linux this is available out of
 box in Fedora, but can easily be ported to other Linux
 distributions. CUDD is available in the ports OSX package, and in
-cygwin. To use it, call @code{:-use_module(library(block_diagram))}.
+cygwin. To use it, call @code{:-use_module(library(bdd))}.
 
 The following predicates construct a BDD:
 @table @code

@@ -26,6 +26,7 @@ static YAP_Functor FunctorDollarVar,
   FunctorLAnd, 
   FunctorLOr, 
   FunctorNot, 
+  FunctorMinus1, 
   FunctorXor, 
   FunctorNand,
   FunctorNor,
@@ -90,12 +91,17 @@ term_to_cudd(DdManager *manager, YAP_Term t)
     if (f == FunctorDollarVar) {
       int i = YAP_IntOfTerm(YAP_ArgOfTerm(1,t));
       DdNode *var = Cudd_bddIthVar(manager,i);
+      if (!var)
+	return NULL;
       Cudd_Ref(var);
       return var;
     } else if (f == FunctorAnd || f == FunctorLAnd || f == FunctorTimes) {
       DdNode *x1 = term_to_cudd(manager, YAP_ArgOfTerm(1, t));
       DdNode *x2 = term_to_cudd(manager, YAP_ArgOfTerm(2, t));
-      DdNode *tmp = cudd_and(manager, x1, x2);
+      DdNode *tmp;
+      if (!x1 || !x2)
+	return NULL;
+      tmp = cudd_and(manager, x1, x2);
       Cudd_RecursiveDeref(manager,x1);
       Cudd_RecursiveDeref(manager,x2);
       return tmp;
@@ -105,7 +111,10 @@ term_to_cudd(DdManager *manager, YAP_Term t)
 	YAP_Int refs = YAP_IntOfTerm(YAP_ArgOfTerm(1, t)), i;
 	DdNode *x1 = term_to_cudd(manager, YAP_ArgOfTerm(3, t));
 	DdNode *x2 = term_to_cudd(manager, YAP_ArgOfTerm(4, t));
-	DdNode *tmp = cudd_and(manager, x1, x2);
+	DdNode *tmp;
+	if (!x1 || !x2)
+	  return NULL;
+	tmp = cudd_and(manager, x1, x2);
 	for (i=0 ; i < refs; i++) {
 	  Cudd_Ref(tmp);
 	}
@@ -124,14 +133,20 @@ term_to_cudd(DdManager *manager, YAP_Term t)
     } else if (f == FunctorOr || f == FunctorLOr || f == FunctorPlus) {
       DdNode *x1 = term_to_cudd(manager, YAP_ArgOfTerm(1, t));
       DdNode *x2 = term_to_cudd(manager, YAP_ArgOfTerm(2, t));
-      DdNode *tmp = cudd_or(manager, x1, x2);
+      DdNode *tmp;
+      if (!x1 || !x2)
+	return NULL;
+      tmp = cudd_or(manager, x1, x2);
       Cudd_RecursiveDeref(manager,x1);
       Cudd_RecursiveDeref(manager,x2);
       return tmp;
     } else if (f == FunctorXor) {
       DdNode *x1 = term_to_cudd(manager, YAP_ArgOfTerm(1, t));
       DdNode *x2 = term_to_cudd(manager, YAP_ArgOfTerm(2, t));
-      DdNode *tmp = cudd_xor(manager, x1, x2);
+      DdNode *tmp;
+      if (!x1 || !x2)
+	return NULL;
+      tmp = cudd_xor(manager, x1, x2);
       Cudd_RecursiveDeref(manager,x1);
       Cudd_RecursiveDeref(manager,x2);
       return tmp;
@@ -141,7 +156,10 @@ term_to_cudd(DdManager *manager, YAP_Term t)
 	YAP_Int refs = YAP_IntOfTerm(YAP_ArgOfTerm(1, t)), i;
 	DdNode *x1 = term_to_cudd(manager, YAP_ArgOfTerm(3, t));
 	DdNode *x2 = term_to_cudd(manager, YAP_ArgOfTerm(4, t));
-	DdNode *tmp = cudd_or(manager, x1, x2);
+	DdNode *tmp;
+	if (!x1 || !x2)
+	  return NULL;
+	tmp = cudd_or(manager, x1, x2);
 	for (i=0 ; i < refs; i++) {
 	  Cudd_Ref(tmp);
 	}
@@ -155,20 +173,30 @@ term_to_cudd(DdManager *manager, YAP_Term t)
     } else if (f == FunctorNor) {
       DdNode *x1 = term_to_cudd(manager, YAP_ArgOfTerm(1, t));
       DdNode *x2 = term_to_cudd(manager, YAP_ArgOfTerm(2, t));
-      DdNode *tmp = cudd_nor(manager, x1, x2);
+      DdNode *tmp;
+      if (!x1 || !x2)
+	return NULL;
+      tmp = cudd_nor(manager, x1, x2);
       Cudd_RecursiveDeref(manager,x1);
       Cudd_RecursiveDeref(manager,x2);
       return tmp;
     } else if (f == FunctorNand) {
       DdNode *x1 = term_to_cudd(manager, YAP_ArgOfTerm(1, t));
       DdNode *x2 = term_to_cudd(manager, YAP_ArgOfTerm(2, t));
+      if (!x1 || !x2)
+	return NULL;
       DdNode *tmp = cudd_nand(manager, x1, x2);
       Cudd_RecursiveDeref(manager,x1);
       Cudd_RecursiveDeref(manager,x2);
       return tmp;
-    } else if (f == FunctorNot) {
+    } else if (f == FunctorNot || FunctorMinus1) {
       DdNode *x1 = term_to_cudd(manager, YAP_ArgOfTerm(1, t));
+      if (!x1)
+	return NULL;
       return Cudd_Not(x1);
+    } else {
+      YAP_Error(DOMAIN_ERROR_OUT_OF_RANGE, t, "unsupported operator in CUDD");
+      return NULL;
     }
   } else if (YAP_IsIntTerm(t)) {
     YAP_Int i = YAP_IntOfTerm(t);
@@ -176,15 +204,25 @@ term_to_cudd(DdManager *manager, YAP_Term t)
       return Cudd_ReadLogicZero(manager);
     else if (i==1)
       return Cudd_ReadOne(manager);
+    else {
+      YAP_Error(DOMAIN_ERROR_OUT_OF_RANGE, t, "unsupported number in CUDD");
+      return NULL;
+    }  
   } else if (YAP_IsFloatTerm(t)) {
     YAP_Int i = YAP_FloatOfTerm(t);
     if (i == 0.0)
       return Cudd_ReadLogicZero(manager);
     else if (i==1.0)
       return Cudd_ReadOne(manager);
-  } else if (YAP_IsVarTerm(t)) {
-    fprintf(stderr,"Unbound Variable should not be input argument to BDD\n");
+    else {
+      YAP_Error(DOMAIN_ERROR_OUT_OF_RANGE, t, "unsupported number in CUDD");
+      return NULL;
+    }  
+   } else if (YAP_IsVarTerm(t)) {
+    YAP_Error(INSTANTIATION_ERROR, t, "unsupported unbound term in CUDD");
+    return NULL;
   }
+  YAP_Error(DOMAIN_ERROR_OUT_OF_RANGE, t, "unsupported number in CUDD");
   return NULL;
 }
 
@@ -203,6 +241,8 @@ p_term_to_cudd(void)
     manager = (DdManager *)YAP_IntOfTerm(YAP_ARG2);
   }
   t = term_to_cudd(manager, YAP_ARG1);
+  if (!t)
+    return FALSE;
   return 
     YAP_Unify(YAP_ARG3, YAP_MkIntTerm((YAP_Int)t));    
 }
@@ -749,9 +789,14 @@ p_cudd_print(void)
   DdManager *manager = (DdManager *)YAP_IntOfTerm(YAP_ARG1);
   DdNode *n0 = (DdNode *)YAP_IntOfTerm(YAP_ARG2);
   const char *s = YAP_AtomName(YAP_AtomOfTerm(YAP_ARG3));
-  FILE *f = fopen(s, "w");
+  FILE *f;
+  if (!strcmp(s, "user_output")) f = stdout;
+  else if (!strcmp(s, "user_error")) f = stderr;
+  else if (!strcmp(s, "user")) f = stdout;
+  else f = fopen(s, "w");
   Cudd_DumpDot(manager, 1, &n0, NULL, NULL, f);
-  fclose(f);
+  if (f != stdout && f != stderr)
+    fclose(f);
   return TRUE;
 }
 
@@ -792,6 +837,7 @@ init_cudd(void)
   FunctorTimes4 = YAP_MkFunctor(YAP_LookupAtom("*"), 4);
   FunctorPlus4 = YAP_MkFunctor(YAP_LookupAtom("+"), 4);
   FunctorNot = YAP_MkFunctor(YAP_LookupAtom("not"), 1);
+  FunctorMinus1 = YAP_MkFunctor(YAP_LookupAtom("-"), 1);
   FunctorOutPos = YAP_MkFunctor(YAP_LookupAtom("pp"), 4);
   FunctorOutNeg = YAP_MkFunctor(YAP_LookupAtom("pn"), 4);
   FunctorOutAdd = YAP_MkFunctor(YAP_LookupAtom("add"), 4);

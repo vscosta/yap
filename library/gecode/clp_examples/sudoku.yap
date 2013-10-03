@@ -18,9 +18,9 @@ problem(Ex, Els) :-
 	Els ins 1..9,
 	M <== matrix( Els, [dim=[9,9]] ),
 	% select rows
-	foreach( I in 0..8 , all_different(M[I,*]) ),
+	foreach( I in 0..8 , all_different(M[I,_]) ),
 	% select cols
-	foreach( J in 0..8,  all_different(M[*,J]) ),
+	foreach( J in 0..8,  all_different(M[_,J]) ),
 	% select squares
 	foreach( [I,J] ins 0..2 ,
            all_different(M[I*3+(0..2),J*3+(0..2)]) ),

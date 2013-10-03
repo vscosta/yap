@@ -16,6 +16,8 @@
 
 :- use_module(library(lists)).
 
+:- use_module(library(maplist)).
+
 :- use_module(library(rbtrees)).
 
 :- use_module(library(simpbool)).
@@ -25,6 +27,8 @@ tell_warning :-
 
 :- catch(load_foreign_files([cudd], [], init_cudd),_,fail) -> true ; tell_warning.
 
+
+% create a new BDD from a tree.
 bdd_new(T, Bdd) :-
 	term_variables(T, Vars),
 	bdd_new(T, Vars, Bdd).
@@ -34,6 +38,7 @@ bdd_new(T, Vars, cudd(M,X,VS,TrueVars)) :-
 	VS =.. [vs|TrueVars],
 	findall(Manager-Cudd, set_bdd(T, VS, Manager, Cudd), [M-X]).
 
+% create a new BDD from a list.
 bdd_from_list(List, Vars, cudd(M,X,VS,TrueVars)) :-
 	term_variables(Vars, TrueVars),
 	VS =.. [vs|TrueVars],
@@ -76,7 +81,7 @@ add_variables([V|Vs], RB0, RR0, M, RBF, RRF) :-
 
 
 writeln_list([]).
-writeln_list(B.Bindings) :-
+writeln_list([B|Bindings]) :-
 	writeln(B),
 	writeln_list(Bindings).
 
@@ -130,13 +135,11 @@ bdd_eval(add(M, X, Vars, _), Val) :-
 mtbdd_eval(add(M,X, Vars, _), Val) :-
 	add_eval(M, X, Vars, Val).
 
-bdd_tree(cudd(M, X, Vars, _Vs), bdd(Dir, Tree, Vars)) :-
-	cudd_to_term(M, X, Vars, Dir, Tree).
+% get the BDD as a Prolog list from the CUDD C object
+bdd_tree(cudd(M, X, Vars, _Vs), bdd(Dir, List, Vars)) :-
+	cudd_to_term(M, X, Vars, Dir, List).
 bdd_tree(add(M, X, Vars, _), mtbdd(Tree, Vars)) :-
 	add_to_term(M, X, Vars, Tree).
-
-mtbdd_tree(add(M,X,Vars, _), mtbdd(Dir, Tree, Vars)) :-
-	add_to_term(M, X, Vars, Dir, Tree).
 
 bdd_to_probability_sum_product(cudd(M,X,_,Probs), Prob) :-
 	cudd_to_probability_sum_product(M, X, Probs, Prob).
