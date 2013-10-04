@@ -3053,7 +3053,7 @@ YAP_Init(YAP_init_args *yap_init)
 	In the SBA we cannot just happily inherit registers
 	from the other workers
       */
-      Yap_InitYaamRegs( 0 );
+      Yap_InitYaamRegs( worker_id );
 #endif /* YAPOR_COPY || YAPOR_SBA */
 #ifndef YAPOR_THREADS
       Yap_InitPreAllocCodeSpace( 0 );

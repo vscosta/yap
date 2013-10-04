@@ -4263,6 +4263,10 @@ Yap_gc(Int predarity, CELL *current_env, yamop *nextop)
 {
   CACHE_REGS
   int res;
+#if YAPOR_COPY
+  fprintf(stderr, "\n\n***** Trying to call the garbage collector in YAPOR/copying ****\n\n\n");
+  exit( 1 );
+#endif
   LOCAL_PrologMode |= GCMode;
   res=call_gc(4096, predarity, current_env, nextop PASS_REGS);
   LeaveGCMode( PASS_REGS1 );

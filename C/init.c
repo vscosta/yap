@@ -887,11 +887,7 @@ InitStdPreds(void)
   Yap_InitCPreds();
   Yap_InitBackCPreds();
   BACKUP_MACHINE_REGS();
-#if YAPOR
-  Yap_InitYaamRegs( worker_id );
-#else
   Yap_InitYaamRegs( 0 );
-#endif
 
 #if HAVE_MPE
   Yap_InitMPE ();
@@ -1322,7 +1318,7 @@ Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts, UInt max_table_s
   else
     Atts = AdjustPageSize(Atts * K);
   Atts /= (K);
-#if defined(YAPOR) || defined(THREADS)
+#if defined(THREADS) || defined(YAPOR)
   worker_id = 0;
 #endif /* YAPOR || THREADS */
 #ifdef YAPOR
