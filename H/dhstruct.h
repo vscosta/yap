@@ -298,6 +298,9 @@
 #define SWI_Atoms Yap_heap_regs->swi_atoms
 #define SWI_Functors Yap_heap_regs->swi_functors
 #define SWI_ReverseHash Yap_heap_regs->swi_reverse_hash
+
+#define AtomTranslations Yap_heap_regs->atom_translations
+#define MaxAtomTranslations Yap_heap_regs->max_atom_translations
 #define EmptyWakeups Yap_heap_regs->empty_wakeups
 #define MaxEmptyWakeups Yap_heap_regs->max_empty_wakeups
 

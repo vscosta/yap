@@ -1176,6 +1176,30 @@ Yap_PutValue(Atom a, Term v)
   WRITE_UNLOCK(p->VRWLock);
 }
 
+void
+Yap_PutAtomTranslation(Atom a, Int i)
+{
+  AtomEntry *ae = RepAtom(a);
+  Prop p0;
+  TranslationEntry *p;
+
+  WRITE_LOCK(ae->ARWLock);
+  p0 = GetAPropHavingLock(ae, TranslationProperty);
+  if (p0 == NIL) {
+    p = (TranslationEntry *) Yap_AllocAtomSpace(sizeof(TranslationEntry));
+    if (p == NULL) {
+      WRITE_UNLOCK(ae->ARWLock);
+      return;
+    }
+    p->KindOfPE = TranslationProperty;
+    p->Translation = i;
+    AddPropToAtom(RepAtom(a), (PropEntry *)p);
+  }
+  /* take care that the lock for the property will be inited even
+     if someone else searches for the property */
+  WRITE_UNLOCK(ae->ARWLock);
+}
+
 Term
 Yap_StringToList(char *s)
 {

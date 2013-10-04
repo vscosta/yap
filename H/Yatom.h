@@ -191,6 +191,8 @@ IsFunctorProperty (int flags)
 	bb 00	functor entry 
 	ff df	sparse functor
 	ff ex	arithmetic property
+	ff f4   translation
+	ff f5   blob
 	ff f6   hold
 	ff f7   array
 	ff f8   wide atom
@@ -1175,16 +1177,90 @@ AbsHoldProp (HoldEntry * p)
 
 
 #endif
+
 #define	HoldProperty  0xfff6
+
+/*		translation property entry structure				*/
+typedef struct translation_entry
+{
+  Prop NextOfPE;		/* used to chain properties             */
+  PropFlags KindOfPE;		/* kind of property                     */
+  Int  Translation;		/* used to hash the atom as an integer; */
+}  TranslationEntry;
+
+#if USE_OFFSETS_IN_PROPS
+
+INLINE_ONLY inline EXTERN TranslationEntry *RepTranslationProp (Prop p);
+
+INLINE_ONLY inline EXTERN TranslationEntry *
+RepTranslationProp (Prop p)
+{
+  return (TranslationEntry *) (AtomBase + Unsigned (p));
+}
+
+
+
+INLINE_ONLY inline EXTERN Prop AbsTranslationProp (TranslationEntry * p);
+
+INLINE_ONLY inline EXTERN Prop
+AbsTranslationProp (TranslationEntry * p)
+{
+  return (Prop) (Addr (p) - AtomBase);
+}
+
+
+#else
+
+INLINE_ONLY inline EXTERN TranslationEntry *RepTranslationProp (Prop p);
+
+INLINE_ONLY inline EXTERN TranslationEntry *
+RepTranslationProp (Prop p)
+{
+  return (TranslationEntry *) (p);
+}
+
+
+
+INLINE_ONLY inline EXTERN Prop AbsTranslationProp (TranslationEntry * p);
+
+INLINE_ONLY inline EXTERN Prop
+AbsTranslationProp (TranslationEntry * p)
+{
+  return (Prop) (p);
+}
+
+
+#endif
+#define	TranslationProperty  0xfff4
+
+void Yap_PutAtomTranslation(Atom a, Int i);
+
+/* get translation prop for atom;               */
+static inline TranslationEntry *
+Yap_GetTranslationProp(Atom at)
+{
+  Prop p0;
+  AtomEntry *ae = RepAtom(at);
+  TranslationEntry *p;
+
+  READ_LOCK(ae->ARWLock);
+  p = RepTranslationProp(p0 = ae->PropsOfAE);
+  while (p0 && p->KindOfPE != TranslationProperty)
+    p = RepTranslationProp(p0 = p->NextOfPE);
+  READ_UNLOCK(ae->ARWLock);
+  if (p0 == NIL) return NULL;
+  return p;
+}
+
 
 /* only unary and binary expressions are acceptable */
 
-INLINE_ONLY inline EXTERN PropFlags IsHoldProperty (int);
+INLINE_ONLY inline EXTERN PropFlags IsTranslationProperty (int);
 
 INLINE_ONLY inline EXTERN PropFlags
-IsHoldProperty (int flags)
+IsTranslationProperty (int flags)
 {
-  return (PropFlags) ((flags == HoldProperty));
+  return (PropFlags) ((flags == TranslationProperty));
 }
 
 

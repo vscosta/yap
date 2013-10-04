@@ -298,6 +298,9 @@
   InitSWIAtoms();
 
 
+
+
+  MaxAtomTranslations = 2*N_SWI_ATOMS;
   InitEmptyWakeups();
   MaxEmptyWakeups = 0;
 

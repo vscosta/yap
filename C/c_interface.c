@@ -567,6 +567,8 @@ X_API size_t   YAP_ExportTerm(Term, char *, size_t);
 X_API size_t   YAP_SizeOfExportedTerm(char *);
 X_API Term     YAP_ImportTerm(char *);
 X_API int      YAP_RequiresExtraStack(size_t);
+X_API Int      YAP_AtomToInt(Atom At);
+X_API Atom     YAP_IntToAtom(Int i);
 
 static UInt
 current_arity(void)
@@ -4140,3 +4142,21 @@ YAP_RequiresExtraStack(size_t sz) {
   RECOVER_H();
   return TRUE;
 }
+
+X_API Int
+YAP_AtomToInt(Atom At)
+{
+  TranslationEntry *te = Yap_GetTranslationProp(At);
+  if (te != NIL) return te->Translation;
+  SWI_Atoms[AtomTranslations] = At;
+  Yap_PutAtomTranslation(At, AtomTranslations);
+  AtomTranslations++;
+  return AtomTranslations-1;
+}
+
+X_API Atom
+YAP_IntToAtom(Int i)
+{
+  return SWI_Atoms[i];
+}
+

@@ -100,10 +100,10 @@ void
 Yap_InitSWIHash(void)
 {
   int i, j;
-  memset(SWI_ReverseHash, 0, N_SWI_HASH*sizeof(swi_rev_hash));
   for (i=0; i < N_SWI_ATOMS; i++) {
-    add_to_hash(i, (ADDR)SWI_Atoms[i]);
+    Yap_PutAtomTranslation( SWI_Atoms[i], i );
   }
+  AtomTranslations = N_SWI_ATOMS;
   for (j=0; j < N_SWI_FUNCTORS; j++) {
     add_to_hash(j, (ADDR)SWI_Functors[j]);
   }

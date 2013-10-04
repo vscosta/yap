@@ -295,9 +295,12 @@
 
   struct record_list  *yap_records;
 
-  Atom  swi_atoms[N_SWI_ATOMS];
+  Atom  swi_atoms[2*N_SWI_ATOMS];
   Functor  swi_functors[N_SWI_FUNCTORS];
   struct swi_reverse_hash  swi_reverse_hash[N_SWI_HASH];
+
+  Int  atom_translations;
+  Int  max_atom_translations;
   Atom  empty_wakeups[MAX_EMPTY_WAKEUPS];
   int  max_empty_wakeups;
 

@@ -703,6 +703,8 @@ ENABLE_HTTP
 ENABLE_CLPQR
 ENABLE_CLIB
 ENABLE_CHR
+CUDA_LDFLAGS
+CUDA_CPPFLAGS
 NO_BUILTIN_REGEXP
 YAP_EXTRAS
 SONAMEFLAG
@@ -5000,12 +5002,33 @@ if test "${with_junit+set}" = set; then :
 fi
 
 
-$as_echo "#define MinHeapSpace (1000*SIZEOF_INT_P)" >>confdefs.h
+if test "$orparallelism" = no
+then
+  $as_echo "#define MinHeapSpace (1000*SIZEOF_INT_P)" >>confdefs.h
 
-$as_echo "#define MinStackSpace (300*SIZEOF_INT_P)" >>confdefs.h
+  $as_echo "#define MinStackSpace (300*SIZEOF_INT_P)" >>confdefs.h
 
-$as_echo "#define MinTrailSpace ( 48*SIZEOF_INT_P)" >>confdefs.h
+  $as_echo "#define MinTrailSpace ( 48*SIZEOF_INT_P)" >>confdefs.h
 
+  $as_echo "#define MAX_WORKERS 1" >>confdefs.h
+
+else
+  $as_echo "#define MinHeapSpace (2000*SIZEOF_INT_P)" >>confdefs.h
+
+  $as_echo "#define MinStackSpace (600*SIZEOF_INT_P)" >>confdefs.h
+
+  $as_echo "#define MinTrailSpace (100*SIZEOF_INT_P)" >>confdefs.h
+
+  cat >>confdefs.h <<_ACEOF
+#define MAX_WORKERS $yap_cv_max_workers
+_ACEOF
+
+  if test "$orparallelism" = copy -o "$orparallelism" = yes
+  then
+    use_malloc="no"
+  fi
+  tabling="no"
+fi
 
 cat >>confdefs.h <<_ACEOF
 #define DefHeapSpace $yap_cv_heap_space
@@ -5023,22 +5046,6 @@ _ACEOF
 
 
 
-
-if test "$orparallelism" = no
-then
-  $as_echo "#define MAX_WORKERS 1" >>confdefs.h
-
-else
-  cat >>confdefs.h <<_ACEOF
-#define MAX_WORKERS $yap_cv_max_workers
-_ACEOF
-
-  if test "$orparallelism" = copy -o "$orparallelism" = yes
-  then
-    use_malloc="no"
-  fi
-  tabling="no"
-fi
 
 if test "$threads" = no
 then
@@ -5143,6 +5150,11 @@ else
   fi
   ENABLE_CUDD=""
 fi
+
+CUDA_LDFLAGS=""
+CUDA_CPPFLAGS=""
+
+
 
 if test "$use_condor" = yes
 then
@@ -9809,6 +9821,8 @@ CMDEXT=sh
 
 
 
+
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for gcc threaded code" >&5
 $as_echo_n "checking for gcc threaded code... " >&6; }
 if ${yap_cv_threaded_code+:} false; then :
@@ -11335,6 +11349,7 @@ mkdir -p  packages/clpqr
 mkdir -p  packages/cplint
 mkdir -p  packages/cplint/approx
 mkdir -p  packages/cplint/approx/simplecuddLPADs
+mkdir -p  packages/cuda
 mkdir -p  packages/http
 mkdir -p  packages/jpl
 mkdir -p  packages/jpl/src
@@ -11545,6 +11560,9 @@ ac_config_files="$ac_config_files packages/prism/src/prolog/Makefile"
 fi
 
 ac_config_files="$ac_config_files packages/yap-lbfgs/Makefile"
+
+
+ac_config_files="$ac_config_files packages/cuda/Makefile"
 
 
 cat >confcache <<\_ACEOF
@@ -12295,6 +12313,7 @@ do
     "packages/prism/src/c/Makefile") CONFIG_FILES="$CONFIG_FILES packages/prism/src/c/Makefile" ;;
     "packages/prism/src/prolog/Makefile") CONFIG_FILES="$CONFIG_FILES packages/prism/src/prolog/Makefile" ;;
     "packages/yap-lbfgs/Makefile") CONFIG_FILES="$CONFIG_FILES packages/yap-lbfgs/Makefile" ;;
+    "packages/cuda/Makefile") CONFIG_FILES="$CONFIG_FILES packages/cuda/Makefile" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac

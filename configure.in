@@ -467,9 +467,23 @@ AC_ARG_WITH(junit, [  --with-junit=PATH	  Specify location of the junit JAR file
 			;;
 	     esac])
 
-AC_DEFINE(MinHeapSpace, (1000*SIZEOF_INT_P))
-AC_DEFINE(MinStackSpace,(300*SIZEOF_INT_P)) 
-AC_DEFINE(MinTrailSpace,( 48*SIZEOF_INT_P))
+if test "$orparallelism" = no
+then
+  AC_DEFINE(MinHeapSpace, (1000*SIZEOF_INT_P))
+  AC_DEFINE(MinStackSpace,(300*SIZEOF_INT_P)) 
+  AC_DEFINE(MinTrailSpace,( 48*SIZEOF_INT_P))
+  AC_DEFINE(MAX_WORKERS,1)
+else
+  AC_DEFINE(MinHeapSpace, (2000*SIZEOF_INT_P))
+  AC_DEFINE(MinStackSpace,(600*SIZEOF_INT_P)) 
+  AC_DEFINE(MinTrailSpace,(100*SIZEOF_INT_P))
+  AC_DEFINE_UNQUOTED(MAX_WORKERS,$yap_cv_max_workers)
+  if test "$orparallelism" = copy -o "$orparallelism" = yes
+  then
+    use_malloc="no"
+  fi
+  tabling="no"
+fi
 
 AC_DEFINE_UNQUOTED(DefHeapSpace,$yap_cv_heap_space)
 AC_DEFINE_UNQUOTED(DefStackSpace,$yap_cv_stack_space)
@@ -478,18 +492,6 @@ AC_DEFINE_UNQUOTED(DefTrailSpace,$yap_cv_trail_space)
 AC_SUBST(DefHeapSpace)
 AC_SUBST(DefStackSpace)
 AC_SUBST(DefTrailSpace)
-
-if test "$orparallelism" = no
-then
-  AC_DEFINE(MAX_WORKERS,1)
-else
-  AC_DEFINE_UNQUOTED(MAX_WORKERS,$yap_cv_max_workers)
-  if test "$orparallelism" = copy -o "$orparallelism" = yes
-  then
-    use_malloc="no"
-  fi
-  tabling="no"
-fi
 
 if test "$threads" = no
 then
@@ -564,6 +566,11 @@ else
   fi
   ENABLE_CUDD=""
 fi
+
+CUDA_LDFLAGS=""
+CUDA_CPPFLAGS=""
+
+
 
 dnl condor universe does not like dynamic linking on Linux, DEC, and HP-UX platforms.
 if test "$use_condor" = yes 
@@ -1837,6 +1844,8 @@ AC_SUBST(INSTALL_INFO)
 dnl let YAP_EXTRAS fall through configure, from the env into Makefile
 AC_SUBST(YAP_EXTRAS)
 AC_SUBST(NO_BUILTIN_REGEXP)
+AC_SUBST(CUDA_CPPFLAGS)
+AC_SUBST(CUDA_LDFLAGS)
 AC_SUBST(ENABLE_CHR)
 AC_SUBST(ENABLE_CLIB)
 AC_SUBST(ENABLE_CLPQR)
@@ -2500,6 +2509,7 @@ mkdir -p  packages/clpqr
 mkdir -p  packages/cplint
 mkdir -p  packages/cplint/approx
 mkdir -p  packages/cplint/approx/simplecuddLPADs
+mkdir -p  packages/cuda
 mkdir -p  packages/http
 mkdir -p  packages/jpl
 mkdir -p  packages/jpl/src
@@ -2658,6 +2668,8 @@ AC_CONFIG_FILES([packages/prism/src/prolog/Makefile])
 fi
 
 AC_CONFIG_FILES([packages/yap-lbfgs/Makefile])
+
+AC_CONFIG_FILES([packages/cuda/Makefile])
 
 AC_OUTPUT()
 

@@ -60,6 +60,7 @@ typedef struct open_query_struct {
 static inline void
 add_to_hash(Int i, ADDR key)
 {
+
   UInt h = addr_hash(key);
   while (SWI_ReverseHash[h].key) {
     h = (h+1)%N_SWI_HASH;
@@ -85,16 +86,18 @@ static inline atom_t
 AtomToSWIAtom(Atom at)
 {
   atom_t ats;
-  if ((ats = in_hash((ADDR)at)))
-    return (atom_t)((CELL)ats*2+1);
+  TranslationEntry *p;
+
+  if ((p = Yap_GetTranslationProp(at)) != NULL)
+    return (atom_t)(p->Translation*2+1);
   return (atom_t)at;
 }
 
 static inline Atom
 SWIAtomToAtom(atom_t at)
 {
-  if ((CELL)at < N_SWI_ATOMS*(LowTagBits+1))
-    return SWI_Atoms[((CELL)at)/2];
+  if ((CELL)at < 2*N_SWI_ATOMS+1)
+    return SWI_Atoms[at/2];
   return (Atom)at;
 }
 
