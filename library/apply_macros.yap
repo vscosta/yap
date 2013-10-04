@@ -6,23 +6,8 @@
 
 :- module(apply_macros, []).
 
-:- reexport(maplist, [selectlist/3,
-			 checklist/2,
-			 maplist/2,
-			 maplist/3,
-			 maplist/4,
-			 maplist/5,
-			 convlist/3,
-			 mapargs/3,
-			 sumargs/4,
-			 mapnodes/3,
-			 checknodes/2,
-			 sumlist/4,
-			 sumnodes/4,
-			 include/3,
-			 exclude/3,
-			 partition/4,
-			 partition/5			
-			]).
+:- reexport(maplist).
+
+:- reexport(mapargs).
 
 

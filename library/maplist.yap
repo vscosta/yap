@@ -54,10 +54,6 @@
 	maplist(3,+,+,-),
 	maplist(4,+,+,+,-),
 	convlist(2,+,-),
-	mapargs(2,+,-),
-	mapargs_args(2,+,-,+),
-	sumargs(3,+,+,-),
-	sumargs_args(3,+,+,-,+),
 	mapnodes(2,+,-),
 	mapnodes_list(2,+,-),
 	checknodes(1,+),
@@ -214,32 +210,6 @@ convlist(Pred, [Old|Olds], NewList) :-
 	convlist(Pred, Olds, News).
 convlist(Pred, [_|Olds], News) :-
 	convlist(Pred, Olds, News).
-
-mapargs(Pred, TermIn, TermOut) :-
-    functor(TermIn, F, N),
-    functor(TermOut, F, N),
-    mapargs_args(Pred, TermIn, TermOut, N).
-
-mapargs_args(_, _, _, 0) :- !.
-mapargs_args(Pred, TermIn, TermOut, I) :-
-    arg(I, TermIn, InArg),
-    arg(I, TermOut, OutArg),
-    I1 is I-1,
-    call(Pred, InArg, OutArg),
-    mapargs_args(Pred, TermIn, TermOut, I1).
-
-sumargs(Pred, Term, A0, A1) :-
-    functor(Term, _, N),
-    sumargs(Pred, Term, A0, A1, N).
-
-sumargs_args(_, _, A0, A1, 0) :-
-    !,
-    A0 = A1.
-sumargs_args(Pred, Term, A1, A3, N) :-
-    arg(N, Term, Arg),
-    N1 is N - 1,
-    call(Pred, Arg, A1, A2),
-    sumargs_args(Pred, Term, A2, A3, N1).
 
 mapnodes(Pred, TermIn, TermOut) :-
     (atomic(TermIn); var(TermIn)), !,
@@ -929,32 +899,6 @@ goal_expansion(foldl4(Meta, List, AccIn, AccOut, W0, W, X0, X, Y0, Y), Mod:Goal)
 		     Base,
 		     (RecursionHead :- Apply, RecursiveCall)
 		    ], Mod).
-
-goal_expansion(mapargs(Meta, In, Out), Mod:NewGoal) :-
-	goal_expansion_allowed,
-	prolog_load_context(module, Mod),
-	( var(Out)
-	->
-	    NewGoal = (
-			In =.. [F|InArgs],
-			maplist(Meta, InArgs, OutArgs),
-			Out =.. [F|OutArgs]
-		      )
-	;
-	    NewGoal = (
-			Out =.. [F|OutArgs],
-			maplist(Meta, InArgs, OutArgs),
-			In =.. [F|InArgs]
-		      )
-	).	    
-
-goal_expansion(sumargs(Meta, Term, AccIn, AccOut), Mod:Goal) :-
-	goal_expansion_allowed,
-	prolog_load_context(module, Mod),
-	Goal = (
-		 Term =.. [_|TermArgs],
-		 sumlist(Meta, TermArgs, AccIn, AccOut)
-	       ).
 
 goal_expansion(mapnodes(Meta, InTerm, OutTerm), Mod:Goal) :-
 	goal_expansion_allowed,
