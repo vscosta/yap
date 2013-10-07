@@ -30,6 +30,7 @@ int32_t Cuda_Erase(predicate *pred);
 
 void init_cuda( void );
 
+#if DEBUG_INTERFACE
 static void
 dump_mat(int32_t mat[], int32_t nrows, int32_t ncols)
 {
@@ -58,6 +59,8 @@ dump_vec(int32_t vec[], int32_t rows)
   }
   printf("\n");
 }
+#endif /* DEBUG_INTERFACE */
+
 
 // stubs, will point at Carlos code.
 
@@ -67,7 +70,9 @@ void Cuda_Initialize( void )
 
 int32_t Cuda_NewFacts(predicate *pe)
 {
+#if DEBUG_INTERFACE
   dump_mat( pe->address_host_table, pe->num_rows, pe->num_columns );
+#endif
   facts[cf] = pe;
   cf++;
   return TRUE;
@@ -75,7 +80,9 @@ int32_t Cuda_NewFacts(predicate *pe)
 
 int32_t Cuda_NewRule(predicate *pe)
 {
+#if DEBUG_INTERFACE
   dump_vec( pe->address_host_table, pe->num_rows);
+#endif
   rules[cr] = pe;
   cr++;
   return TRUE;
@@ -212,6 +219,7 @@ cuda_eval( void )
   int32_t *mat;
   predicate *ptr = (predicate *)YAP_IntOfTerm(YAP_ARG1);
   int32_t n = Cuda_Eval(facts, cf, rules, cr, ptr, & mat);
+  printf("n = %d, mat = %p\n", n, mat);
   int32_t ncols = ptr->num_columns;
   YAP_Term out = YAP_TermNil();
   YAP_Functor f = YAP_MkFunctor(YAP_IntToAtom(ptr->name), ncols);
@@ -223,7 +231,7 @@ cuda_eval( void )
   for (i=0; i<n; i++) {
     int32_t ni = ((n-1)-i)*ncols, j;
     for (j=0; j<ncols; j++) {
-      vec[i] = YAP_MkIntTerm(mat[ni+j]);
+      vec[j] = YAP_MkIntTerm(mat[ni+j]);
     }
     out = YAP_MkPairTerm(YAP_MkApplTerm( f, ncols, vec ), out);
   }

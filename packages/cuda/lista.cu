@@ -1200,7 +1200,7 @@ int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, 
 	cout << "tamanio = " << res_rows << endl;
 	cout << "iteraciones = " << itr << endl;
 
-	result = &hres;
+	*result = hres;
 
 	return res_rows;
 }
