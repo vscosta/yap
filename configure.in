@@ -279,6 +279,17 @@ AC_ARG_WITH(minisat,
 	fi,
 	[yap_cv_minisat=yes])
 
+AC_ARG_WITH(cuda,
+	[ --enable-cuda           use minisat interface],
+	if test "$withval" = yes; then
+		yap_cv_cuda=/usr
+	elif test "$withval" = no; then
+		yap_cv_cuda=no
+	else
+		yap_cv_cuda="$withval"
+	fi,
+	[yap_cv_cuda=no])
+
 AC_ARG_WITH(cudd,
 	[ --with-cudd[=DIR]           use CUDD package in DIR],
 	yap_cv_cudd="$withval",
@@ -567,9 +578,6 @@ else
   ENABLE_CUDD=""
 fi
 
-CUDA_LDFLAGS=""
-CUDA_CPPFLAGS=""
-
 
 
 dnl condor universe does not like dynamic linking on Linux, DEC, and HP-UX platforms.
@@ -688,7 +696,6 @@ dnl Checks for programs.
 AC_PROG_LN_S
 AC_PROG_INSTALL
 AC_PROG_RANLIB
-AC_CHECK_TOOL(INDENT,indent,:)
 AC_CHECK_TOOL(AR,ar,:)
 AC_CHECK_TOOL(MPI_CC,mpicc,${CC})
 AC_PATH_PROG(INSTALL_INFO,install-info,true,$PATH:/sbin:/usr/sbin:/usr/etc:/usr/local/sbin)
@@ -890,6 +897,28 @@ fi
 
 if test "$yap_cv_judy" != "no"; then
 	AC_CHECK_LIB(Judy, Judy1Set,,[AC_MSG_RESULT([libJudy not found, UDI will only work with one Index at a time])])
+fi
+
+CUDA_LDFLAGS=""
+CUDA_CPPFLAGS=""
+if test "$yap_cv_cuda" = no 
+then
+  ENABLE_CUDA="@# "
+else
+  AC_PATH_PROG(NVCC, [nvcc], [no], [$yap_cv_cuda/bin])
+  if test "$yap_cv_cuda" = no
+  then
+    ENABLE_CUDA="@# "
+  else
+    ENABLE_CUDA="@# "
+   case "$target_os" in
+     *darwin*)
+       CUDA_LDFLAGS="$LDFLAGS"
+    CUDA_CPPFLAGS="-shared -arch=sm_20  -Xcompiler -fPIC -O3 "
+    CUDA_SHLIB_LD="$NVCC  -Xcompiler -dynamiclib"
+     ;;
+   esac
+ fi
 fi
 
 dnl if test "$yap_cv_cudd" != "no"
@@ -1844,6 +1873,9 @@ AC_SUBST(INSTALL_INFO)
 dnl let YAP_EXTRAS fall through configure, from the env into Makefile
 AC_SUBST(YAP_EXTRAS)
 AC_SUBST(NO_BUILTIN_REGEXP)
+AC_SUBST(ENABLE_CUDA)
+AC_SUBST(NVCC)
+AC_SUBST(CUDA_SHLIB_LD)
 AC_SUBST(CUDA_CPPFLAGS)
 AC_SUBST(CUDA_LDFLAGS)
 AC_SUBST(ENABLE_CHR)

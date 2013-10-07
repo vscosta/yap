@@ -20,7 +20,9 @@ YAPLIBDIR=@libdir@/Yap
 #
 #
 CC=@CC@
+NVCC=@NVCC@
 CFLAGS= @SHLIB_CFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I../.. -I$(srcdir)/../../include  @CUDA_CPPFLAGS@
+NVCCFLAGS=@CUDA_CPPFLAGS@ -I$(srcdir) -I../.. -I$(srcdir)/../../include
 LDFLAGS=@LDFLAGS@
 #
 #
@@ -40,7 +42,7 @@ CWD=$(PWD)
 BDD_PROLOG= \
 	$(srcdir)/cuda.yap
 
-OBJS=cuda.o
+OBJS=cuda.o memory.o lista.o
 SOBJS=cuda.@SO@
 
 #in some systems we just create a single object, in others we need to
@@ -48,14 +50,17 @@ SOBJS=cuda.@SO@
 
 all: $(SOBJS) 
 
-cuda.o: $(srcdir)/cuda.c
-	$(CC) -c $(CFLAGS) $(srcdir)/cuda.c -o cuda.o
+cuda.o: $(srcdir)/cuda.c $(srcdir)/pred.h
+	$(NVCC) -c $(NVCCFLAGS) $(srcdir)/cuda.c -o cuda.o
 
-@DO_SECOND_LD@%.@SO@: %.o
-@DO_SECOND_LD@	@SHLIB_LD@ $(LDFLAGS) -o $@ $< @EXTRA_LIBS_FOR_DLLS@  @CUDA_LDFLAGS@
+lista.o: $(srcdir)/lista.cu $(srcdir)/pred.h
+	$(NVCC) -c $(NVCCFLAGS) $(srcdir)/lista.cu -o lista.o
 
-@DO_SECOND_LD@cuda.@SO@: cuda.o
-@DO_SECOND_LD@	@SHLIB_LD@ $(LDFLAGS) -o cuda.@SO@ cuda.o @EXTRA_LIBS_FOR_DLLS@  @CUDA_LDFLAGS@
+memory.o: $(srcdir)/memory.cu $(srcdir)/pred.h
+	$(NVCC) -c $(NVCCFLAGS) $(srcdir)/memory.cu -o memory.o
+
+@DO_SECOND_LD@cuda.@SO@: $(OBJS)
+@DO_SECOND_LD@	@CUDA_SHLIB_LD@ $(CUDA_LDFLAGS) -o cuda.@SO@ $(OBJS) -L../.. -lYAP 
 
 install: all
 	mkdir -p $(DESTDIR)$(SHAREDIR)

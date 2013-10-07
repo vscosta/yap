@@ -5,7 +5,8 @@
 
 main :-
 	cuda_extensional(db/2, _X),
-	cuda_rule((a(X, Y) :- db(Y, Z), db(X, Z), db(1, Z) ), _).
+	cuda_rule((a(X, Y) :- db(Y, Z), db(X, Z), db(1, Z) ), Q),
+	cuda_eval(Q, _).
 
 db(1,a).
 db(2,a).

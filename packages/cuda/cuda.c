@@ -4,38 +4,36 @@
 #include "YapInterface.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
+#include "pred.h"
 
-typedef struct predicate_struct {
-  int name;
-  int num_rows;
-  int num_columns;
-  int is_fact;
-  int *address_host_table;
-} predicate;
+predicate *facts[100]; /*Temporary solution to maintain facts and rules*/
+predicate *rules[100];
+int32_t cf = 0, cr = 0;
 
 // initialize CUDA system
 void Cuda_Initialize( void );
 
 // add/replace a set of facts for predicate pred
-int Cuda_NewFacts(predicate *pred);
+int32_t Cuda_NewFacts(predicate *pred);
 
 // add/replace a rule for predicate pred
-int Cuda_NewRule(predicate *pred);
+int32_t Cuda_NewRule(predicate *pred);
 
 // erase predicate pred
-int Cuda_Erase(predicate *pred);
+int32_t Cuda_Erase(predicate *pred);
 
 // evaluate predicate pred, mat is bound to a vector of solutions, and
 // output the count
-int Cuda_Eval(predicate *pred, int **mat);
+//int32_t Cuda_Eval(predicate *pred, int32_t **mat); This functions arguments were changed, please see pred.h
 
 void init_cuda( void );
 
 static void
-dump_mat(int mat[], int nrows, int ncols)
+dump_mat(int32_t mat[], int32_t nrows, int32_t ncols)
 {
-  int i, j;
+  int32_t i, j;
   for ( i=0; i< nrows; i++) {
     printf("%d", mat[i*ncols]);
     for (j=1; j < ncols; j++) {
@@ -46,10 +44,10 @@ dump_mat(int mat[], int nrows, int ncols)
 }
 
 static void
-dump_vec(int vec[], int rows)
+dump_vec(int32_t vec[], int32_t rows)
 {
-  int i = 1;
-  int j = 0;
+  int32_t i = 1;
+  int32_t j = 0;
   printf("%d", vec[0]);
   for (j = 0; j < rows; j++) {
     for ( ; vec[i]; i++ ) {
@@ -67,19 +65,23 @@ void Cuda_Initialize( void )
 {
 }
 
-int Cuda_NewFacts(predicate *pe)
+int32_t Cuda_NewFacts(predicate *pe)
 {
   dump_mat( pe->address_host_table, pe->num_rows, pe->num_columns );
+  facts[cf] = pe;
+  cf++;
   return TRUE;
 }
 
-int Cuda_NewRule(predicate *pe)
+int32_t Cuda_NewRule(predicate *pe)
 {
   dump_vec( pe->address_host_table, pe->num_rows);
+  rules[cr] = pe;
+  cr++;
   return TRUE;
 }
 
-int Cuda_Erase(predicate *pe)
+int32_t Cuda_Erase(predicate *pe)
 {
   if (pe->address_host_table)
     free( pe->address_host_table );
@@ -90,15 +92,15 @@ int Cuda_Erase(predicate *pe)
 static int
 load_facts( void ) {
 
-  int nrows = YAP_IntOfTerm(YAP_ARG1);
-  int ncols = YAP_IntOfTerm(YAP_ARG2), i = 0;
+  int32_t nrows = YAP_IntOfTerm(YAP_ARG1);
+  int32_t ncols = YAP_IntOfTerm(YAP_ARG2), i = 0;
   YAP_Term t3 = YAP_ARG3;
-  int *mat = (int *)malloc(sizeof(int)*nrows*ncols);
-  int pname = YAP_AtomToInt(YAP_NameOfFunctor(YAP_FunctorOfTerm(YAP_HeadOfTerm(t3))));
+  int32_t *mat = (int32_t *)malloc(sizeof(int32_t)*nrows*ncols);
+  int32_t pname = YAP_AtomToInt(YAP_NameOfFunctor(YAP_FunctorOfTerm(YAP_HeadOfTerm(t3))));
   predicate *pred;
 
   while(YAP_IsPairTerm(t3)) {
-    int j = 0;
+    int32_t j = 0;
     YAP_Term th = YAP_HeadOfTerm(t3);
 
     for (j = 0; j < ncols; j++) {
@@ -136,28 +138,28 @@ load_facts( void ) {
 static int
 load_rule( void ) {
   // maximum of 2K symbols per rule, should be enough for ILP
-  int vec[2048], *ptr = vec, *nvec;
+  int32_t vec[2048], *ptr = vec, *nvec;
   // qK different variables;
   YAP_Term vars[1024];
-  int nvars = 0;
-  int ngoals = YAP_IntOfTerm(YAP_ARG1);   /* gives the number of goals */
-  int ncols = YAP_IntOfTerm(YAP_ARG2);
+  int32_t nvars = 0;
+  int32_t ngoals = YAP_IntOfTerm(YAP_ARG1);   /* gives the number of goals */
+  int32_t ncols = YAP_IntOfTerm(YAP_ARG2);
   YAP_Term t3 = YAP_ARG3;
-  int pname = YAP_AtomToInt(YAP_NameOfFunctor(YAP_FunctorOfTerm(YAP_HeadOfTerm(t3))));
+  int32_t pname = YAP_AtomToInt(YAP_NameOfFunctor(YAP_FunctorOfTerm(YAP_HeadOfTerm(t3))));
   predicate *pred;
 
   while(YAP_IsPairTerm(t3)) {
-    int j = 0;
+    int32_t j = 0;
     YAP_Term th = YAP_HeadOfTerm(t3);
     YAP_Functor f = YAP_FunctorOfTerm( th );
-    int n = YAP_ArityOfFunctor( f ); 
+    int32_t n = YAP_ArityOfFunctor( f ); 
 
     *ptr++ = YAP_AtomToInt( YAP_NameOfFunctor( f ) );
     for (j = 0; j < n; j++) {
       YAP_Term ta = YAP_ArgOfTerm(j+1, th);
 
       if (YAP_IsVarTerm(ta)) {
-	int k;
+	int32_t k;
 	for (k = 0; k< nvars; k++) {
 	  if (vars[k] == ta) {
 	    *ptr++ = k+1;
@@ -190,8 +192,8 @@ load_rule( void ) {
   pred->num_rows = ngoals;
   pred->num_columns = ncols;
   pred->is_fact = FALSE;
-  nvec = (int *)malloc(sizeof(int)*(ptr-vec));
-  memcpy(nvec, vec, sizeof(int)*(ptr-vec));
+  nvec = (int32_t *)malloc(sizeof(int32_t)*(ptr-vec));
+  memcpy(nvec, vec, sizeof(int32_t)*(ptr-vec));
   pred->address_host_table =  nvec;
   Cuda_NewRule( pred );
   return YAP_Unify(YAP_ARG4, YAP_MkIntTerm((YAP_Int)pred));
@@ -207,19 +209,19 @@ cuda_erase( void )
 static int
 cuda_eval( void )
 {
-  int *mat;
+  int32_t *mat;
   predicate *ptr = (predicate *)YAP_IntOfTerm(YAP_ARG1);
-  int n = Cuda_Eval( ptr, & mat);
-  int ncols = ptr->num_columns;
+  int32_t n = Cuda_Eval(facts, cf, rules, cr, ptr, & mat);
+  int32_t ncols = ptr->num_columns;
   YAP_Term out = YAP_TermNil();
   YAP_Functor f = YAP_MkFunctor(YAP_IntToAtom(ptr->name), ncols);
   YAP_Term vec[256];
-  int i;
+  int32_t i;
 
   if (n < 0)
     return FALSE;
   for (i=0; i<n; i++) {
-    int ni = ((n-1)-i)*ncols, j;
+    int32_t ni = ((n-1)-i)*ncols, j;
     for (j=0; j<ncols; j++) {
       vec[i] = YAP_MkIntTerm(mat[ni+j]);
     }
@@ -230,9 +232,9 @@ cuda_eval( void )
 
 static int cuda_count( void )
 {
-  int *mat;
+  int32_t *mat;
   predicate *ptr = (predicate *)YAP_IntOfTerm(YAP_ARG1);
-  int n = Cuda_Eval( ptr, & mat);
+  int32_t n = Cuda_Eval(facts, cf, rules, cr, ptr, & mat);
 
   if (n < 0)
     return FALSE;

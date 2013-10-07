@@ -1,4 +1,4 @@
-#
+
 # default base directory for YAP installation
 # (EROOT for architecture-dependent files)
 #
@@ -702,6 +702,7 @@ all: startup.yss
 	@INSTALL_DLLS@ (cd library/random; $(MAKE))
 	@INSTALL_DLLS@ (cd library/regex; $(MAKE))
 	@INSTALL_DLLS@ (cd library/rltree; $(MAKE))
+	@INSTALL_DLLS@ (cd packages/yap-lbfgs; $(MAKE))
 	@ENABLE_WINCONSOLE@ (cd swi/console; $(MAKE))
 	@INSTALL_DLLS@ (cd library/system; $(MAKE))
 	@INSTALL_DLLS@ (cd library/tries; $(MAKE))
@@ -729,6 +730,7 @@ all: startup.yss
 	@ENABLE_CUDD@ (cd packages/ProbLog/simplecudd_lfi; $(MAKE))
 	@ENABLE_JPL@ @INSTALL_DLLS@ (cd packages/jpl; $(MAKE))
 	@ENABLE_PYTHON@ @INSTALL_DLLS@ (cd packages/python; $(MAKE))
+	@ENABLE_CUDA@ @INSTALL_DLLS@ (cd packages/cuda; $(MAKE))
 
 startup.yss: yap@EXEC_SUFFIX@ $(PL_SOURCES)
 	-rm -f startup.yss
@@ -775,6 +777,7 @@ install_unix: startup.yss libYap.a
 	@INSTALL_DLLS@ (cd library/random; $(MAKE) install)
 	@INSTALL_DLLS@ (cd library/regex; $(MAKE) install)
 	@INSTALL_DLLS@ (cd library/rltree; $(MAKE) install)
+	@INSTALL_DLLS@ (cd packages/yap-lbfgs; $(MAKE) install)
 	@INSTALL_DLLS@ (cd library/system; $(MAKE) install)
 	@INSTALL_DLLS@ (cd library/tries; $(MAKE) install)
 	@ENABLE_GECODE@ @INSTALL_DLLS@ (cd library/gecode; $(MAKE) install)
@@ -799,6 +802,7 @@ install_unix: startup.yss libYap.a
 	@ENABLE_REAL@ @INSTALL_DLLS@ (cd packages/real; $(MAKE) install)
 	@ENABLE_JPL@ @INSTALL_DLLS@ (cd packages/jpl; $(MAKE) install)
 	@ENABLE_PYTHON@ @INSTALL_DLLS@ (cd packages/python; $(MAKE) install)
+	@ENABLE_CUDA@ @INSTALL_DLLS@ (cd packages/cuda; $(MAKE))
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)/src
 	$(INSTALL) $(HEADERS) $(DESTDIR)$(INCLUDEDIR)/src
@@ -813,6 +817,7 @@ install_unix: startup.yss libYap.a
 	@ENABLE_BDDLIB@ @INSTALL_DLLS@ (cd packages/bdd; $(MAKE) install)
 	@ENABLE_CUDD@ (cd packages/ProbLog/simplecudd; $(MAKE) install)
 	@ENABLE_CUDD@ (cd packages/ProbLog/simplecudd_lfi; $(MAKE) install)
+	@ENABLE_CUDA@ @INSTALL_DLLS@ (cd packages/cuda; $(MAKE) install)
 
 
 install_win32: startup.yss @ENABLE_WINCONSOLE@ yap-win@EXEC_SUFFIX@
@@ -843,6 +848,7 @@ install_win32: startup.yss @ENABLE_WINCONSOLE@ yap-win@EXEC_SUFFIX@
 	(cd library/regex; $(MAKE) install)
 	(cd library/rltree; $(MAKE) install)
 	(cd library/system; $(MAKE) install)
+	@INSTALL_DLLS@ (cd packages/yap-lbfgs; $(MAKE) install)
 	@ENABLE_WINCONSOLE@ (cd swi/console; $(MAKE) install)
 	@INSTALL_MATLAB@ (cd library/matlab; $(MAKE) install)
 	@ENABLE_REAL@ (cd packages/real; $(MAKE) install)
@@ -871,6 +877,7 @@ install_win32: startup.yss @ENABLE_WINCONSOLE@ yap-win@EXEC_SUFFIX@
 	@ENABLE_BDDLIB@ (cd packages/bdd; $(MAKE) install)
 	@ENABLE_CUDD@ (cd packages/ProbLog/simplecudd; $(MAKE) install)
 	@ENABLE_CUDD@ (cd packages/ProbLog/simplecudd_lfi; $(MAKE) install)
+	@ENABLE_CUDA@ @INSTALL_DLLS@ (cd packages/cuda; $(MAKE) install)
 
 install_library: @YAPLIB@
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)
@@ -914,6 +921,7 @@ clean: clean_docs
 	@INSTALL_DLLS@ (cd library/random; $(MAKE) clean)
 	@INSTALL_DLLS@ (cd library/regex; $(MAKE) clean)
 	@INSTALL_DLLS@ (cd library/rltree; $(MAKE) clean)
+	@INSTALL_DLLS@ (cd packages/yap-lbfgs; $(MAKE) clean)
 	@ENABLE_WINCONSOLE@ (cd swi/console; $(MAKE) clean)
 	@INSTALL_DLLS@ (cd library/system; $(MAKE) clean)
 	@INSTALL_DLLS@ (cd library/tries; $(MAKE) clean)
@@ -941,6 +949,7 @@ clean: clean_docs
 	@ENABLE_CUDD@ (cd packages/ProbLog/simplecudd_lfi; $(MAKE) clean)
 	@ENABLE_JPL@ @INSTALL_DLLS@ (cd packages/jpl; $(MAKE) clean)
 	@ENABLE_PYTHON@ @INSTALL_DLLS@ (cd packages/python; $(MAKE) clean)
+	@ENABLE_CUDA@ @INSTALL_DLLS@ (cd packages/cuda; $(MAKE) clean)
 
 
 
