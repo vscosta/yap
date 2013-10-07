@@ -8,6 +8,13 @@
 #include <string.h>
 #include "pred.h"
 
+YAP_Atom AtomEq,
+  AtomGt,
+  AtomLt,
+  AtomGe,
+  AtomLe,
+  AtomDf;
+
 predicate *facts[100]; /*Temporary solution to maintain facts and rules*/
 predicate *rules[100];
 int32_t cf = 0, cr = 0;
@@ -160,8 +167,22 @@ load_rule( void ) {
     YAP_Term th = YAP_HeadOfTerm(t3);
     YAP_Functor f = YAP_FunctorOfTerm( th );
     int32_t n = YAP_ArityOfFunctor( f ); 
+    YAP_Atom at = YAP_NameOfFunctor( f );
 
-    *ptr++ = YAP_AtomToInt( YAP_NameOfFunctor( f ) );
+    if (at == AtomEq)
+      *ptr++ = SBG_EQ;
+    else if (at == AtomGt)
+      *ptr++ = SBG_GT;
+    else if (at == AtomLt)
+      *ptr++ = SBG_LT;
+    else if (at == AtomGe)
+      *ptr++ = SBG_GE;
+    else if (at == AtomLe)
+      *ptr++ = SBG_LE;
+    else if (at == AtomDf)
+      *ptr++ = SBG_DF;
+    else
+      *ptr++ = YAP_AtomToInt( at );
     for (j = 0; j < n; j++) {
       YAP_Term ta = YAP_ArgOfTerm(j+1, th);
 
@@ -257,6 +278,12 @@ init_cuda(void)
   if (first_time) Cuda_Initialize();
   first_time = FALSE;
 
+  AtomEq = YAP_LookupAtom("=");
+  AtomGt = YAP_LookupAtom(">");
+  AtomLt = YAP_LookupAtom("<");
+  AtomGe = YAP_LookupAtom(">=");
+  AtomLe = YAP_LookupAtom("=<");
+  AtomDf = YAP_LookupAtom("\\=");
   YAP_UserCPredicate("load_facts", load_facts, 4);
   YAP_UserCPredicate("load_rule", load_rule, 4);
   YAP_UserCPredicate("cuda_erase", cuda_erase, 1);

@@ -53,7 +53,7 @@ all: $(SOBJS)
 cuda.o: $(srcdir)/cuda.c $(srcdir)/pred.h
 	$(NVCC) -c $(NVCCFLAGS) $(srcdir)/cuda.c -o cuda.o
 
-lista.o: $(srcdir)/lista.cu $(srcdir)/pred.h
+lista.o: $(srcdir)/lista.cu $(srcdir)/pred.h $(srcdir)/selectproyect.cu $(srcdir)/treeb.cu  $(srcdir)/union2.cu  $(srcdir)/bpreds.cu
 	$(NVCC) -c $(NVCCFLAGS) $(srcdir)/lista.cu -o lista.o
 
 memory.o: $(srcdir)/memory.cu $(srcdir)/pred.h

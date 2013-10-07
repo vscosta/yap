@@ -1,10 +1,3 @@
-#define SBG_EQ  (-1)
-#define SBG_GT	(-2)	
-#define SBG_LT	(-3)
-#define SBG_GE	(-4)
-#define SBG_LE	(-5)
-#define SBG_DF  (-6)
-
 __global__ void predicates(int *dop1, int rows, int cols, int *cons, int numc, int *res)
 {
  	extern __shared__ int shared[];
@@ -30,16 +23,21 @@ __global__ void predicates(int *dop1, int rows, int cols, int *cons, int numc, i
 				op2 = dop1[rowact + op2];
 			switch(shared[x])
 			{
-				case SBG_EQ: if(op1 != op2)
+				case SBG_EQ:  if(op1 != op2)
 						return;
+				  break;
 				case SBG_GT: if(op1 <= op2)
 						return;
+				  break;
 				case SBG_LT: if(op1 >= op2)
 						return;
+				  break;
 				case SBG_GE: if(op1 < op2)
 						return;
+				  break;
 				case SBG_LE: if(op1 > op2)
 						return;
+				  break;
 				case SBG_DF: if(op1 == op2)
 						return;
 			}
