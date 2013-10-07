@@ -216,8 +216,8 @@ compile_literals :-
 	functor(K, N, A),
 	statistics(runtime,_),
 	format(user_error, '/** grounding ~a/~d.~45+**/~n',[N,A]),
-%        evidence(K, 1),
-	( ground_lit(K),
+       ( evidence(K, 1), % only look at literals with evidence...
+%	( ground_lit(K),
 	%writeln(k:K),
 	  compile_pw(K)
         ;
