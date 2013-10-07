@@ -990,7 +990,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
 	tleft = ArgOfTerm(1, t);
 	offset = 2;
       } else {
-	tleft = ArgOfTerm(2, t);
+	tleft = ArgOfTerm(1, t);
 	offset = 1;
       }
       bracket_left =
