@@ -12,6 +12,15 @@ main :-
 	cuda_erase( Q ),
 	writeln(L).
 
+main2 :-
+	Rule = ( db(Y, Z), db(X, Z), db(1, Z), X \= Y  ),
+	setof(a(X,Y), Z^Rule, L0), reverse(L0, RL0), writeln(RL0), 
+	cuda_rule((a(X, Y) :- Rule ), Q),
+	cuda_eval(Q, L),
+	cuda_erase( Q ),
+	writeln(L).
+
+
 db(1,a).
 db(2,a).
 db(5,b).

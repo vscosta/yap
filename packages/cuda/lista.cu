@@ -594,7 +594,6 @@ void cargareglas(vector<rulenode> *rules, int name, list<rulenode> *res) /*This 
 		actual++;
 	}
 	numrules = rules->size();
-
 	start = res->begin();
 	while(res->size() < numrules && start != res->end())
 	{
@@ -789,7 +788,7 @@ extern "C"
 int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, predicate *inpquery, int **result)
 {
 	vector<gpunode> L;
-	int showr = 1; /*1 show results; 0 don't show results*/
+	int showr = 0; /*1 show results; 0 don't show results*/
 	int x, y;
 	int qsize, *query, qname;
 
@@ -858,7 +857,7 @@ int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, 
 		while(rul_act != reglas.end()) /*Here's the loop that evaluates each rule*/
 		{
 			tipo = rul_act->referencias[0];
-			if(tipo < 0)
+			if(tipo)
 			{
 				tmpfact = L.at(-tipo - 1);
 				name1 = tmpfact.name;
@@ -1197,8 +1196,8 @@ int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, 
 	//free(hres);
 
 	cout << "Elapsed = " << time << endl;
-	cout << "tamanio = " << res_rows << endl;
-	cout << "iteraciones = " << itr << endl;
+	cout << "Size = " << res_rows << endl;
+	cout << "Iterations = " << itr << endl;
 
 	*result = hres;
 

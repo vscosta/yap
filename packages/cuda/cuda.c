@@ -97,6 +97,15 @@ int32_t Cuda_NewRule(predicate *pe)
 
 int32_t Cuda_Erase(predicate *pe)
 {
+  int i = 0;
+  while ( rules[i] != pe )
+    i++;
+  while (i < cr-1) {
+    rules[i] = rules[i+1];
+    i++;
+  }
+  rules[i] = NULL;
+  cr--;
   if (pe->address_host_table)
     free( pe->address_host_table );
   free( pe );
@@ -240,7 +249,6 @@ cuda_eval( void )
   int32_t *mat;
   predicate *ptr = (predicate *)YAP_IntOfTerm(YAP_ARG1);
   int32_t n = Cuda_Eval(facts, cf, rules, cr, ptr, & mat);
-  printf("n = %d, mat = %p\n", n, mat);
   int32_t ncols = ptr->num_columns;
   YAP_Term out = YAP_TermNil();
   YAP_Functor f = YAP_MkFunctor(YAP_IntToAtom(ptr->name), ncols);
