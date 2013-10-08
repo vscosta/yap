@@ -4151,6 +4151,17 @@ YAP_AtomToInt(Atom At)
   SWI_Atoms[AtomTranslations] = At;
   Yap_PutAtomTranslation(At, AtomTranslations);
   AtomTranslations++;
+  if (AtomTranslations == MaxAtomTranslations) {
+    Atom * nt = (Atom *)malloc(sizeof(Atom)*2*MaxAtomTranslations), *ot = SWI_Atoms;
+    if (nt == NULL) {
+      Yap_Error(SYSTEM_ERROR,MkAtomTerm(At),"No more room for translations");
+      return -1;
+    }
+    memcpy(nt, ot, sizeof(Atom)*MaxAtomTranslations);
+    SWI_Atoms = nt;
+    free( ot );
+    MaxAtomTranslations *= 2;
+  }
   return AtomTranslations-1;
 }
 

@@ -295,7 +295,7 @@
 
   struct record_list  *yap_records;
 
-  Atom  swi_atoms[2*N_SWI_ATOMS];
+  Atom  *swi_atoms;
   Functor  swi_functors[N_SWI_FUNCTORS];
   struct swi_reverse_hash  swi_reverse_hash[N_SWI_HASH];
 

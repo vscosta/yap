@@ -1016,7 +1016,9 @@ InitSWIAtoms(void)
 {
   extern atom_t ATOM_;
 
-  int i=0, j=0;
+  int j=0;
+  MaxAtomTranslations = 2*N_SWI_ATOMS ;
+  SWI_Atoms = (Atom *)malloc(sizeof(Atom)*MaxAtomTranslations);
 #include "iswiatoms.h"
   Yap_InitSWIHash();
   ATOM_ = PL_new_atom("");

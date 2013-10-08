@@ -47,7 +47,7 @@ gen_defs(Inp,Out) :-
 
 gen_init(Inp,Out) :-
 	split(Inp," 	",["A",_,String]), !,
-	append(["  SWI_Atoms[i++] = Yap_LookupAtom(",String,");"],Out).
+	append(["  YAP_AtomToInt(Yap_LookupAtom(",String,"));"],Out).
 gen_init(Inp,Out) :-
 	split(Inp," 	",["F",String,Arity]), !,
 	append(["  SWI_Functors[j++] = Yap_MkFunctor(SWIAtomToAtom(ATOM_",String,"),",Arity,");"],Out).
