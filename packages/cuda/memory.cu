@@ -1,7 +1,6 @@
 #include <list>
 #include <iostream>
 #include <stdlib.h>
-#include <stdint.h>
 #include <algorithm>
 #include <thrust/device_vector.h>
 #include "lista.h"
@@ -346,6 +345,9 @@ int cargafinal(int name, int cols, int **ptr)
 		cout << endl;
 	}
 	cout << "select finala" << endl;*/
+
+	GPUmem.clear();
+	CPUmem.clear();
 
 	*ptr = ini;
 	return cont;

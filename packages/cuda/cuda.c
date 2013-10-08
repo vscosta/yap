@@ -264,6 +264,7 @@ cuda_eval( void )
     }
     out = YAP_MkPairTerm(YAP_MkApplTerm( f, ncols, vec ), out);
   }
+  free( mat );
   return YAP_Unify(YAP_ARG2, out);
 }
 
@@ -275,6 +276,7 @@ static int cuda_count( void )
 
   if (n < 0)
     return FALSE;
+  free( mat );
   return YAP_Unify(YAP_ARG2, YAP_MkIntTerm(n));
 }
 
