@@ -37,9 +37,8 @@ int n;                                        // the size of the parameter vecto
 lbfgsfloatval_t *x;                           // pointer to the parameter vector x[0],...,x[n-1]
 lbfgsfloatval_t *g;                           // pointer to the gradient vector g[0],...,g[n-1]
 lbfgs_parameter_t param;                      // the parameters used for lbfgs
-char buffer [2048];                            // this buffer is used for creating the atoms to call
 
-YAP_Functor fcall3, fprogress8, fmod2;
+YAP_Functor fcall3, fprogress8;
 
 static lbfgsfloatval_t evaluate(
     void *instance,
@@ -106,6 +105,7 @@ static int progress(
 {
   YAP_Term call;
   YAP_Bool result;
+  YAP_Int s1;
 
   YAP_Term t[8];
   t[0] = YAP_MkFloatTerm(fx);
@@ -118,10 +118,13 @@ static int progress(
   t[7] = YAP_MkVarTerm();
 
   call = YAP_MkApplTerm( fprogress8, 8, t);
+  s1 = YAP_InitSlot(call);
 
   optimizer_status=OPTIMIZER_STATUS_CB_PROGRESS;
   result=YAP_CallProlog(call);
   optimizer_status=OPTIMIZER_STATUS_RUNNING;
+
+  call = YAP_GetFromSlot( s1 );
 
   if (result==FALSE) {
    printf("ERROR: Calling the progress call back function in YAP.\n");
@@ -558,7 +561,6 @@ void init_lbfgs_predicates( void )
 { 
   fcall3 = YAP_MkFunctor(YAP_LookupAtom("$lbfgs_callback_evaluate"), 3);
   fprogress8 = YAP_MkFunctor(YAP_LookupAtom("$lbfgs_callback_progress"), 8);
-  fmod2 = YAP_MkFunctor(YAP_LookupAtom(":"), 2);
 
   //Initialize the parameters for the L-BFGS optimization.
   lbfgs_parameter_init(&param);
