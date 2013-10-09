@@ -910,7 +910,7 @@ else
   then
     ENABLE_CUDA="@# "
   else
-    ENABLE_CUDA="@# "
+    ENABLE_CUDA=""
    case "$target_os" in
      *darwin*)
        CUDA_LDFLAGS="$LDFLAGS"
