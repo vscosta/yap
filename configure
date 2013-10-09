@@ -6974,12 +6974,12 @@ fi
      *darwin*)
        CUDA_LDFLAGS="$LDFLAGS"
     CUDA_CPPFLAGS="-shared -arch=sm_20  -Xcompiler -fPIC -O3 "
-    CUDA_SHLIB_LD="$NVCC  -Xcompiler -dynamiclib"
+    CUDA_SHLIB_LD="$NVCC  -Xcompiler -dynamiclib  -L../.. -lYAP "
      ;;
     **)
        CUDA_LDFLAGS="$LDFLAGS $LIBS"
     CUDA_CPPFLAGS="-shared -arch=sm_20  -Xcompiler -fPIC -O3 "
-    CUDA_SHLIB_LD="$NVCC  -Xcompiler -rdynamic"
+    CUDA_SHLIB_LD="$NVCC -shared -Xcompiler -export-dynamic"
     ;;
     esac
  fi
