@@ -918,7 +918,7 @@ else
     CUDA_SHLIB_LD="$NVCC  -Xcompiler -dynamiclib"
      ;;
     **)
-       CUDA_LDFLAGS="$LDFLAGS"
+       CUDA_LDFLAGS="$LDFLAGS $LIBS"
     CUDA_CPPFLAGS="-shared -arch=sm_20  -Xcompiler -fPIC -O3 "
     CUDA_SHLIB_LD="$NVCC  -Xcompiler -rdynamic"
     ;;
