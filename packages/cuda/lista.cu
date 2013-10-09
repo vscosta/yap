@@ -68,6 +68,73 @@ void buscarreglas(vector<gpunode> *facts, vector<rulenode> *rules)
 }
 
 template<class InputIterator>
+void movebpreds(InputIterator rules, InputIterator end)
+{
+	int x, subs, total, cont, cont2, pos;
+	int *move, *rest;
+	while(rules != end)
+	{
+		if(rules->num_bpreds.x > 0)
+		{
+
+			total = rules->num_rows+rules->num_bpreds.x;
+
+			/*cout << "ANTES" << endl;
+			for(x = 0; x < rules->rule_names[total]; x++)
+				cout << rules->address_host_table[x] << " ";
+			cout << "FINANTES" << endl;*/
+
+			move = (int *)malloc(sizeof(int) * rules->num_bpreds.x * 4);
+			rest = (int *)malloc(sizeof(int) * rules->rule_names[total]);
+			cont = 0;
+			cont2 = 0;
+			for(x = 0; x < total; x++)
+			{
+				subs = rules->rule_names[x+1] - rules->rule_names[x];
+				
+				//cout << subs << " ";
+				
+				if(rules->address_host_table[rules->rule_names[x]] > 0)
+				{
+					memcpy(rest + cont, rules->address_host_table + rules->rule_names[x], subs * sizeof(int));
+					cont += subs;
+				}
+				else
+				{
+					memcpy(move + cont2, rules->address_host_table + rules->rule_names[x], subs * sizeof(int));
+					cont2 += subs;
+				}
+			}
+
+			/*cout << "REST" << endl;
+			for(x = 0; x < cont; x++)
+				cout << rest[x] << " ";
+			cout << "RESTFIN" << endl;*/
+
+			memcpy(rest + cont, move, cont2 * sizeof(int));
+			pos = 1;
+			for(x = 1; x <= total; x++)
+			{
+				while(rest[pos] != 0)
+					pos++;
+				pos++;
+				rules->rule_names[x] = pos;
+			}
+			memcpy(rules->address_host_table, rest, sizeof(int) * rules->rule_names[total]);
+			free(move);
+			free(rest);
+
+			/*cout << "DESPUES" << endl;
+			for(x = 0; x < rules->rule_names[total]; x++)
+				cout << rules->address_host_table[x] << " ";
+			cout << "FINDESPUES" << endl;*/
+
+		}
+		rules++;
+	}
+}
+
+template<class InputIterator>
 void nombres(InputIterator rules, InputIterator end)
 {
 	int x, pos;
@@ -454,7 +521,7 @@ void proyeccion(InputIterator actual, InputIterator end)
 			pos = columnsproject(pv, pos.y, actual->address_host_table, ini, fin, rulestart, ruleend, &res, &pv);
 			actual->project[numjoins] = res;
 			actual->projpos[numjoins] = pos;
-			actual->num_bpreds.y = pos.y; /*para guardar el tamaño de la union final*/
+			actual->num_bpreds.y = pos.y; /*para guardar el tamanio de la union final*/
 			actual->num_bpreds.z = builtinpredicates(pv, pos.y, actual->address_host_table, ruleend + 1, actual->rule_names[total] - 1, &res);
 			actual->builtin = res;
 		}
@@ -797,6 +864,11 @@ int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, 
 	for(x = 0; x < ninpr; x++)
 		L.push_back(*inprules[x]);
 
+	/*cout << "NAMES" << endl;
+	for(x = 0; x < (ninpf+ninpr); x++)
+		cout << L[x].name << endl;
+	cout << "NAMESEND" << endl;*/
+
 	qname = inpquery->name;
 	query = inpquery->address_host_table;
 	qsize = inpquery->num_columns;
@@ -822,7 +894,8 @@ int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, 
 	rul_str = rules.begin();
 	fin = rules.end();
 
-	nombres(rul_str, fin);
+	nombres(rul_str, fin); /*preprocessing*/
+	movebpreds(rul_str, fin);
 	referencias(L.begin(), L.end(), rul_str, fin);
 	seleccion(rul_str, fin);
 	selfjoin(rul_str, fin);
@@ -1027,6 +1100,8 @@ int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, 
 					cudaEventRecord(stop3, 0);
 					cudaEventSynchronize(stop3);
 					cudaEventElapsedTime(&time, start3, stop3);
+					cudaEventDestroy(start3);
+					cudaEventDestroy(stop3);
 					cout << "Predicados = " << time << endl;
 					#endif
 				}
@@ -1046,6 +1121,8 @@ int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, 
 				cudaEventRecord(stop2, 0);
 				cudaEventSynchronize(stop2);
 				cudaEventElapsedTime(&time, start2, stop2);
+				cudaEventDestroy(start2);
+				cudaEventDestroy(stop2);
 				cout << "Union = " << time << endl;
 				#endif					
 	
@@ -1175,6 +1252,7 @@ int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, 
 		tipo = res_rows * cols1 * sizeof(int);
 		hres = (int *)malloc(tipo);
 		cudaMemcpy(hres, res, tipo, cudaMemcpyDeviceToHost);
+		cudaFree(res);
 	}
 	else
 		res_rows = 0;
@@ -1182,6 +1260,8 @@ int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, 
 	cudaEventRecord(stop, 0);
 	cudaEventSynchronize(stop);
 	cudaEventElapsedTime(&time, start, stop);
+	cudaEventDestroy(start);
+	cudaEventDestroy(stop);
 
 	if(showr == 1)
 	{
@@ -1199,6 +1279,7 @@ int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, 
 	cout << "Size = " << res_rows << endl;
 	cout << "Iterations = " << itr << endl;
 
+	clear_memory();
 	*result = hres;
 
 	return res_rows;

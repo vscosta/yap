@@ -3,6 +3,7 @@
 		 cuda_rule/2,
 		 cuda_erase/1,
 		 cuda_eval/2,
+		 cuda_coverage/4,
 		 cuda_count/2]).
 
 tell_warning :-

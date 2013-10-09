@@ -268,6 +268,48 @@ cuda_eval( void )
   return YAP_Unify(YAP_ARG2, out);
 }
 
+static int
+cuda_coverage( void )
+{
+  int32_t *mat;
+  predicate *ptr = (predicate *)YAP_IntOfTerm(YAP_ARG1);
+  int32_t n = Cuda_Eval(facts, cf, rules, cr, ptr, & mat);
+  int32_t ncols = ptr->num_columns;
+  int32_t post = YAP_AtomToInt(YAP_AtomOfTerm(YAP_ARG2));
+  int32_t i = n/2, min = 0, max = n-1, t0 = mat[0], t1 = mat[(n-1)*2];
+
+  if (n < 0)
+    return FALSE;
+  if (t0 == t1) { /* all sametype */
+    free( mat );
+    /* all pos */
+    if (t0 == post) 
+      return YAP_Unify(YAP_ARG3, YAP_MkIntTerm(n)) && 
+	YAP_Unify(YAP_ARG4, YAP_MkIntTerm(0));
+    /* all neg */
+    return YAP_Unify(YAP_ARG4, YAP_MkIntTerm(n)) && 
+      YAP_Unify(YAP_ARG3, YAP_MkIntTerm(0));
+  }
+  do {
+    i = (min+max)/2;
+    if (i == min) i++;
+    if (mat[i*2] == t0) {
+      min = i;
+    } else {
+      max = i;
+    }
+    if (min+1 == max) {      
+      free( mat );
+      if (t0 == post) 
+	return YAP_Unify(YAP_ARG3, YAP_MkIntTerm(max)) && 
+	  YAP_Unify(YAP_ARG4, YAP_MkIntTerm(n-max));
+      /* all neg */
+      return YAP_Unify(YAP_ARG4, YAP_MkIntTerm(max)) && 
+	YAP_Unify(YAP_ARG3, YAP_MkIntTerm(n-max));
+    }
+  } while ( TRUE );
+}
+
 static int cuda_count( void )
 {
   int32_t *mat;
@@ -298,6 +340,7 @@ init_cuda(void)
   YAP_UserCPredicate("load_rule", load_rule, 4);
   YAP_UserCPredicate("cuda_erase", cuda_erase, 1);
   YAP_UserCPredicate("cuda_eval", cuda_eval, 2);
+  YAP_UserCPredicate("cuda_coverage", cuda_coverage, 4);
   YAP_UserCPredicate("cuda_count", cuda_count, 2);
 }
 

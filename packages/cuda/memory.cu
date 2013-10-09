@@ -182,7 +182,7 @@ void liberar(int *ptr, int size)
 
 void reservar(int **ptr, int size)
 {
-	//cout << "R " << avmem << " " << size;
+        // cout << "R " << avmem << " " << size
 
 	while(avmem < size)
 		limpiar();
@@ -190,7 +190,7 @@ void reservar(int **ptr, int size)
 		limpiar();
 	avmem -= size;
 
-	//cout << " " << avmem << endl;
+	// cout << " " << avmem << endl;
 }
 
 void registrar(int name, int num_columns, int *ptr, int rows, int itr, int rule)
@@ -346,9 +346,6 @@ int cargafinal(int name, int cols, int **ptr)
 	}
 	cout << "select finala" << endl;*/
 
-	GPUmem.clear();
-	CPUmem.clear();
-
 	*ptr = ini;
 	return cont;
 }
@@ -463,22 +460,24 @@ void resultados(vector<rulenode>::iterator first, vector<rulenode>::iterator las
 	cout << cont << endl;
 }
 
-/*device_vector<int> reservar_vector(int size)
+void clear_memory()
 {
-	limpiar(size * sizeof(int));
-	device_vector<int> ret(size);
-	return ret;
-}*/
-/*
-void reservar_resultado(InputIterator req, int *ptr, int size)
-{
-	limpiar(size);
-	memnode temp;
-	temp.name = req->name;
-	temp.size = size;
-	cudaMalloc(&temp.dev_address, size);
-	temp.in_use = 1;
-	GPUmem.push_back(temp);
-	avmem -= size;
-	ptr = temp.dev_address;
-}*/
+	list<memnode>::iterator ini;
+	list<memnode>::iterator fin;
+	ini = GPUmem.begin();
+	fin = GPUmem.end();
+	while(ini != fin)
+	{
+		cudaFree(ini->dev_address);
+		ini++;
+	}
+	ini = CPUmem.begin();
+	fin = CPUmem.end();
+	while(ini != fin)
+	{
+		free(ini->dev_address);
+		ini++;
+	}
+	GPUmem.clear();
+	CPUmem.clear();
+}
