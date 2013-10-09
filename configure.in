@@ -917,7 +917,12 @@ else
     CUDA_CPPFLAGS="-shared -arch=sm_20  -Xcompiler -fPIC -O3 "
     CUDA_SHLIB_LD="$NVCC  -Xcompiler -dynamiclib"
      ;;
-   esac
+    **)
+       CUDA_LDFLAGS="$LDFLAGS"
+    CUDA_CPPFLAGS="-shared -arch=sm_20  -Xcompiler -fPIC -O3 "
+    CUDA_SHLIB_LD="$NVCC  -Xcompiler -rdynamic"
+    ;;
+    esac
  fi
 fi
 
