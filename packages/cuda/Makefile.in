@@ -60,7 +60,7 @@ memory.o: $(srcdir)/memory.cu $(srcdir)/pred.h
 	$(NVCC) -c $(NVCCFLAGS) $(srcdir)/memory.cu -o memory.o
 
 @DO_SECOND_LD@cuda.@SO@: $(OBJS)
-@DO_SECOND_LD@	@CUDA_SHLIB_LD@ $(CUDA_LDFLAGS) -o cuda.@SO@ $(OBJS) -L../.. -lYAP 
+@DO_SECOND_LD@	@CUDA_SHLIB_LD@ $(CUDA_LDFLAGS) -o cuda.@SO@ $(OBJS)
 
 install: all
 	mkdir -p $(DESTDIR)$(SHAREDIR)
