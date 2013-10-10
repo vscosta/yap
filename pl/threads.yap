@@ -690,6 +690,7 @@ message_queue_property(Id, Prop) :-
 	var(Term), !,
 	'$do_error'(instantiation_error, Goal).
 '$check_message_queue_or_alias'(Term, Goal) :-
+	\+ integer(Term),
 	\+ atom(Term),
 	Term \= '$message_queue'(_), !,
 	'$do_error'(domain_error(queue_or_alias, Term), Goal).
@@ -697,7 +698,6 @@ message_queue_property(Id, Prop) :-
 	\+ recorded('$queue', q(_,_,_,I,_), _), !,
 	'$do_error'(existence_error(queue, '$message_queue'(I)), Goal).
 '$check_message_queue_or_alias'(Term, Goal) :-
-	atom(Term),
 	\+ recorded('$queue', q(Term,_,_,_,_), _), !,
 	'$do_error'(existence_error(queue, Term), Goal).
 '$check_message_queue_or_alias'(_, _).
