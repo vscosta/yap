@@ -871,7 +871,7 @@ thread_property(Id, Prop) :-
 '$enumerate_threads'(Id) :-
 	'$max_threads'(Max),
 	Max1 is Max-1,
-	'$between'(0,Max1,Id),
+	between(0,Max1,Id),
 	'$thread_stacks'(Id, _, _, _).
 
 '$thread_property'(Id, alias(Alias)) :-
