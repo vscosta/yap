@@ -85,7 +85,6 @@ in_hash(ADDR key)
 static inline atom_t
 AtomToSWIAtom(Atom at)
 {
-  atom_t ats;
   TranslationEntry *p;
 
   if ((p = Yap_GetTranslationProp(at)) != NULL)
@@ -96,7 +95,7 @@ AtomToSWIAtom(Atom at)
 static inline Atom
 SWIAtomToAtom(atom_t at)
 {
-  if ((CELL)at < 2*N_SWI_ATOMS+1)
+  if ((CELL)at & 1)
     return SWI_Atoms[at/2];
   return (Atom)at;
 }

@@ -187,13 +187,21 @@ void reservar(int **ptr, int size)
   //cudaMemGetInfo(      &free, &total	 );
   // cerr << "R " << free << " " << size << endl;
 
-
+        if (size == 0) { 
+                *ptr = NULL; 
+                return;
+        }
 	while(avmem < size)
 		limpiar("not enough memory");
 	while(cudaMalloc(ptr, size) == cudaErrorMemoryAllocation)
 		limpiar("error in memory allocation");
-	if (! *ptr )
-	  exit(0);
+	if (! *ptr ) {
+	  size_t free, total;
+	  cudaMemGetInfo(      &free, &total	 );
+	  cerr << "Could not allocate " << size << " bytes, only " << free << " avaliable from total of " << total << " !!!" << endl;
+	  cerr << "Exiting CUDA...." << endl;
+	  exit(1);
+	}
 	// cerr << *ptr << " " << size;
 	avmem -= size;
 

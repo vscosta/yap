@@ -21,9 +21,21 @@ cuda_inline(P, Q) :-
 cuda_extensional( Call, IdFacts) :-
 	strip_module(Call, Mod, Name/Arity),
 	functor(S, Name, Arity),
-	findall( S, Mod:S, L),
-	length( L, N ),
-	load_facts( N, Arity, L, IdFacts ).
+	count_answers( Mod:S, N),
+	% reserve space
+	cuda_init_facts( N, Arity, Name, IdFacts ),
+	% fill it out
+	( Mod:S, cuda_load_fact(S), fail ; true ).
+
+count_answers(G, N) :-
+        S = count(0),
+        ( 
+            G,
+            arg(1, S, I0),
+            I is I0+1,
+            nb_setarg(1, S, I),
+            fail ;
+            S = count(N) ).
 
 cuda_rule((Head :- Body) , IdRules) :-
 	body_to_list( Body, L, [], 1, N),

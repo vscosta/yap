@@ -264,7 +264,7 @@ int2 columnsproject(int *first, int tam, int *rule, int ini, int fin, int sini, 
 		temp = first[x];
 		for(y = 0; y < ini; y++)
 		{
-			if(temp == rule[y])
+			if(temp == rule[y] && temp > 0) /*added condition to avoid constants*/
 			{
 				if(notin(temp, pv, ret.y))
 				{
@@ -279,7 +279,7 @@ int2 columnsproject(int *first, int tam, int *rule, int ini, int fin, int sini, 
 			continue;
 		for(y = sfin + 1; y < fin; y++)
 		{
-			if(temp == rule[y])
+			if(temp == rule[y] && temp > 0)
 			{
 				if(notin(temp, pv, ret.y))
 				{
@@ -298,7 +298,7 @@ int2 columnsproject(int *first, int tam, int *rule, int ini, int fin, int sini, 
 		temp = rule[x];
 		for(y = 0; y < ini; y++)
 		{
-			if(temp == rule[y])
+			if(temp == rule[y] && temp > 0)
 			{
 				if(notin(temp, pv, ret.y))
 				{
@@ -313,7 +313,7 @@ int2 columnsproject(int *first, int tam, int *rule, int ini, int fin, int sini, 
 			continue;
 		for(y = sfin + 1; y < fin; y++)
 		{
-			if(temp == rule[y])
+			if(temp == rule[y] && temp > 0)
 			{
 				if(notin(temp, pv, ret.y))
 				{
@@ -1083,6 +1083,7 @@ int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, 
 				//cout << "resrows = " << res_rows << endl;
 
 			}
+
 			if(x == num_refs)
 			{
 				if(rul_act->num_bpreds.x > 0) /*Built-in predicates*/
@@ -1094,7 +1095,7 @@ int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, 
 					cudaEventRecord(start3, 0);
 					#endif					
 				
-					res_rows = bpreds(res, res_rows, rul_act->builtin, rul_act->num_bpreds, &res);
+					res_rows = bpreds(res, res_rows, rul_act->num_columns, rul_act->builtin, rul_act->num_bpreds, &res);
 
 					#ifdef TIMER
 					cudaEventRecord(stop3, 0);
@@ -1115,7 +1116,7 @@ int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, 
 				cudaEventRecord(start2, 0);
 				#endif
 
-				res_rows = unir(res, res_rows, rul_act->num_columns, &res); /*Duplicate Elimination*/
+				res_rows = unir(res, res_rows, rul_act->num_columns); /*Duplicate Elimination*/
 
 				#ifdef TIMER
 				cudaEventRecord(stop2, 0);
@@ -1223,6 +1224,7 @@ int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, 
 
 		itr++;
 	}
+
 	tmprule.name = qname;
 	qposr = lower_bound(rul_str, fin, tmprule, comparer);
 	if(qposr != fin && qposr->name == qname) 
@@ -1246,14 +1248,19 @@ int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, 
 			res = dop1;
 			res_rows = rows1;
 		}
-		else		
+		else
+		{		
 			res_rows = selectproyect(dop1, rows1, cols1, tmprule.num_columns, tmprule.select[0], tmprule.numsel[0], tmprule.selfjoin[0], tmprule.numselfj[0], tmprule.project[0], &res);
+			if(qposr != fin && qposr->name == qname)
+				cudaFree(dop1);
+		}
 
 		cols1 = tmprule.num_columns;
 		tipo = res_rows * cols1 * sizeof(int);
 		hres = (int *)malloc(tipo);
 		cudaMemcpy(hres, res, tipo, cudaMemcpyDeviceToHost);
-		cudaFree(res);
+		if(res_rows > 0 && tmprule.numsel[0] != 0 && tmprule.numselfj[0] != 0)
+			cudaFree(res);
 	}
 	else
 		res_rows = 0;

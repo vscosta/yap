@@ -158,6 +158,69 @@ load_facts( void ) {
   }
 }
 
+static int currentFact = 0;
+static predicate *currentPred = NULL;
+
+static int
+cuda_init_facts( void ) {
+
+  int32_t nrows = YAP_IntOfTerm(YAP_ARG1);
+  int32_t ncols = YAP_IntOfTerm(YAP_ARG2), i = 0;
+  int32_t *mat = (int32_t *)malloc(sizeof(int32_t)*nrows*ncols);
+  int32_t pname = YAP_AtomToInt(YAP_AtomOfTerm(YAP_ARG3));
+  predicate *pred;
+
+  if (!mat)
+    return FALSE;
+  if (YAP_IsVarTerm( YAP_ARG4)) {
+    // new 
+    pred = (predicate *)malloc(sizeof(predicate));
+  } else {
+    pred = (predicate *)YAP_IntOfTerm(YAP_ARG4);
+    if (pred->address_host_table)
+      free( pred->address_host_table );
+}
+  pred->name = pname;
+  pred->num_rows = nrows;
+  pred->num_columns = ncols;
+  pred->is_fact = TRUE;
+  pred->address_host_table =  mat;
+  currentPred = pred;
+  currentFact = 0;
+
+  if (YAP_IsVarTerm( YAP_ARG4)) {
+    return YAP_Unify(YAP_ARG4, YAP_MkIntTerm((YAP_Int)pred));
+  } else {
+    return TRUE;
+  }
+}
+
+static int
+cuda_load_fact( void ) {
+  YAP_Term th = YAP_ARG1;
+
+  int i, j;
+  int ncols = currentPred->num_columns;
+  int *mat = currentPred->address_host_table;
+  i = currentFact;
+  for (j = 0; j < ncols; j++) {
+    YAP_Term ta = YAP_ArgOfTerm(j+1, th);
+    if (YAP_IsAtomTerm(ta)) {
+      mat[i*ncols+j] = YAP_AtomToInt(YAP_AtomOfTerm(ta));
+    } else {
+      mat[i*ncols+j] = YAP_IntOfTerm(ta);
+    }
+  }
+  i++;
+  if (i == currentPred->num_rows) {
+    Cuda_NewFacts(currentPred);
+    currentPred = NULL;
+    currentFact = 0;
+  } else {
+    currentFact = i;
+  }
+}
+
 static int
 load_rule( void ) {
   // maximum of 2K symbols per rule, should be enough for ILP
@@ -264,7 +327,8 @@ cuda_eval( void )
     }
     out = YAP_MkPairTerm(YAP_MkApplTerm( f, ncols, vec ), out);
   }
-  free( mat );
+  if (n > 0)
+    free( mat );
   return YAP_Unify(YAP_ARG2, out);
 }
 
@@ -276,10 +340,16 @@ cuda_coverage( void )
   int32_t n = Cuda_Eval(facts, cf, rules, cr, ptr, & mat);
   int32_t ncols = ptr->num_columns;
   int32_t post = YAP_AtomToInt(YAP_AtomOfTerm(YAP_ARG2));
-  int32_t i = n/2, min = 0, max = n-1, t0 = mat[0], t1 = mat[(n-1)*2];
+  int32_t i = n/2, min = 0, max = n-1;
+  int32_t t0, t1;
 
   if (n < 0)
     return FALSE;
+  if (n == 0) {
+    return YAP_Unify(YAP_ARG4, YAP_MkIntTerm(0)) && 
+      YAP_Unify(YAP_ARG3, YAP_MkIntTerm(0));
+  }
+  t0 = mat[0], t1 = mat[(n-1)*2];
   if (t0 == t1) { /* all sametype */
     free( mat );
     /* all pos */
@@ -337,6 +407,8 @@ init_cuda(void)
   AtomLe = YAP_LookupAtom("=<");
   AtomDf = YAP_LookupAtom("\\=");
   YAP_UserCPredicate("load_facts", load_facts, 4);
+  YAP_UserCPredicate("cuda_init_facts", cuda_init_facts, 4);
+  YAP_UserCPredicate("cuda_load_fact", cuda_load_fact, 1);
   YAP_UserCPredicate("load_rule", load_rule, 4);
   YAP_UserCPredicate("cuda_erase", cuda_erase, 1);
   YAP_UserCPredicate("cuda_eval", cuda_eval, 2);

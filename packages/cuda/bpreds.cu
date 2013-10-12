@@ -46,7 +46,7 @@ __global__ void predicates(int *dop1, int rows, int cols, int *cons, int numc, i
 	}
 }
 
-int bpreds(int *dop1, int rows, int *bin, int3 numpreds, int **ret)
+int bpreds(int *dop1, int rows, int cols, int *bin, int3 numpreds, int **ret)
 {
 	int *temp;
 	int tmplen = rows + 1;
@@ -124,6 +124,8 @@ int bpreds(int *dop1, int rows, int *bin, int3 numpreds, int **ret)
 
 	liberar(dhead, hsize);
 	liberar(temp, size);
+	liberar(dop1, rows * cols * sizeof(int));
+
 	*ret = fres;
 	return num;
 }

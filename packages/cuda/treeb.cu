@@ -1126,7 +1126,7 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 		reservar(&d_Rout, resSize);
 		if(numj > 2)
 		{
-			cudaMemcpy(dcons + rule->num_columns, wherej + 2, muljoinsize, cudaMemcpyHostToDevice);
+			cudaMemcpy(dcons + projp.y, wherej + 2, muljoinsize, cudaMemcpyHostToDevice);
 			multiJoinWithWrite<<<blockllen, numthreads, sizepro + muljoinsize>>> (d_locations, sLen, temp, d_Rout, p1, p2, of1, of2, dcons, projp.x, projp.y, posR, posS, muljoin);
 		}
 		else
