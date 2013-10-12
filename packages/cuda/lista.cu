@@ -1237,6 +1237,7 @@ int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, 
 		cols1 = qposf->num_columns;
 		rows1 =  cargar(qname, qposf->num_rows, cols1, 1, qposf->address_host_table, &dop1, 0);
 	}
+
 	if(rows1 > 0) /*Query consideration*/
 	{
 		consulta(query + 1, qsize, qname, &tmprule);
@@ -1275,9 +1276,9 @@ int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, 
 	}
 	//free(hres);
 
-	cout << "Elapsed = " << time << endl;
-	cout << "Size = " << res_rows << endl;
-	cout << "Iterations = " << itr << endl;
+	//cout << "Elapsed = " << time << endl;
+	//cout << "Size = " << res_rows << endl;
+	//cout << "Iterations = " << itr << endl;
 
 	clear_memory();
 	*result = hres;

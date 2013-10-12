@@ -839,7 +839,7 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 			}
 			catch(std::bad_alloc &e)
 			{
-				limpiar();
+				limpiar("inclusive scan in join");
 			}				
 		}
 		//thrust::inclusive_scan(res + 1, res + newLen, res + 1);	
@@ -1021,7 +1021,7 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 		}
 		catch(std::bad_alloc &e)
 		{
-			limpiar();
+			limpiar("inclusive scan in join");
 		}
 	}
 
