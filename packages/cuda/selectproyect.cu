@@ -208,6 +208,7 @@ int selectproyect(int *dop1, int rows, int cols, int head_size, int *select, int
 
 	int head_bytes = mayor(numselect, numselfj, head_size) * sizeof(int);
 	reservar(&dhead, head_bytes);
+	// cerr << "+ " << dhead << " dhead  " << head_bytes << endl;
 
 	int blockllen = rows / 1024 + 1;
 	int numthreads = 1024;
@@ -218,6 +219,7 @@ int selectproyect(int *dop1, int rows, int cols, int head_size, int *select, int
 		tmplen = rows + 1;
 		size2 = tmplen * sizeof(int);
 		reservar(&temp, size2);
+	// cerr << "+ " << temp << " temp  select " << size2 << endl;
 		cudaMemset(temp, 0, size2);
 
 		size = numselect * sizeof(int);
@@ -240,6 +242,7 @@ int selectproyect(int *dop1, int rows, int cols, int head_size, int *select, int
 
 		size = head_size * sizeof(int);
 		reservar(&fres, num * size);
+		// cerr << "+ " << fres << " fres select  " << num*size << endl;
 		cudaMemcpy(dhead, project, size, cudaMemcpyHostToDevice);
 		llenarproyectar<<<blockllen, numthreads, size>>>(dop1, rows, cols, temp, dhead, head_size, fres);
 		liberar(dhead, head_bytes);
@@ -254,6 +257,7 @@ int selectproyect(int *dop1, int rows, int cols, int head_size, int *select, int
 			tmplen = rows + 1;
 			size2 = tmplen * sizeof(int);
 			reservar(&temp, size2);
+			// cerr << "+ " << temp << " temp select  " << size2 << endl;
 			cudaMemset(temp, 0, size2);
 			
 			size = numselfj * sizeof(int);
@@ -268,6 +272,7 @@ int selectproyect(int *dop1, int rows, int cols, int head_size, int *select, int
 
 			size = head_size * sizeof(int);
 			reservar(&fres, num * size);
+			// cerr << "+ " << fres << " fres select again  " << num*size << endl;
 			cudaMemcpy(dhead, project, size, cudaMemcpyHostToDevice);
 			llenarproyectar<<<blockllen, numthreads, size>>>(dop1, rows, cols, temp, dhead, head_size, fres);
 			liberar(dhead, head_bytes);
@@ -279,6 +284,7 @@ int selectproyect(int *dop1, int rows, int cols, int head_size, int *select, int
 		{
 			size = head_size * sizeof(int);
 			reservar(&fres, rows * size);
+			// cerr << "+ " << fres << " fres select third  " << rows*size << endl;
 			cudaMemcpy(dhead, project, size, cudaMemcpyHostToDevice);
 			proyectar<<<blockllen, numthreads, size>>>(dop1, rows, cols, dhead, head_size, fres);
 			liberar(dhead, head_bytes);

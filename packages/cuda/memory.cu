@@ -112,7 +112,7 @@ void limpiar(const char s[])
 
 	if(GPUmem.size() == 0)
 	{
-		cerr << s << ": not enough GPU memory: have " << avmem << endl;
+		// cerr << s << ": not enough GPU memory: have " << avmem << endl;
 		exit(1);
 	}		
 
@@ -176,6 +176,7 @@ void liberar(int *ptr, int size)
 	//cout << "L " << avmem << " " << size; 
 
 	cudaFree(ptr);
+	// cerr << "- " << ptr << " " << size << endl;
 	avmem += size;
 	
 	//cout << " " << avmem << endl;
@@ -185,7 +186,7 @@ void reservar(int **ptr, int size)
 {
   //size_t free, total;
   //cudaMemGetInfo(      &free, &total	 );
-  // cerr << "R " << free << " " << size << endl;
+  // // cerr << "- " << free << " " << size << endl;
 
         if (size == 0) { 
                 *ptr = NULL; 
@@ -198,11 +199,10 @@ void reservar(int **ptr, int size)
 	if (! *ptr ) {
 	  size_t free, total;
 	  cudaMemGetInfo(      &free, &total	 );
-	  cerr << "Could not allocate " << size << " bytes, only " << free << " avaliable from total of " << total << " !!!" << endl;
-	  cerr << "Exiting CUDA...." << endl;
+	  // cerr << "Could not allocate " << size << " bytes, only " << free << " avaliable from total of " << total << " !!!" << endl;
+	  // cerr << "Exiting CUDA...." << endl;
 	  exit(1);
 	}
-	// cerr << *ptr << " " << size;
 	avmem -= size;
 
 	// cout << " " << avmem << endl;
@@ -277,6 +277,7 @@ int cargar(int name, int num_rows, int num_columns, int is_fact, int *address_ho
 		}
 		size = num_rows * num_columns * sizeof(int);
 		reservar(&temp, size);
+	// cerr << "+ " << temp << " temp  " << size << endl;
 		cudaMemcpyAsync(temp, address_host_table, size, cudaMemcpyHostToDevice);
 		registrar(name, num_columns, temp, num_rows, itr, 0);
 		*ptr = temp;
@@ -296,6 +297,7 @@ int cargar(int name, int num_rows, int num_columns, int is_fact, int *address_ho
 		}
 		size = totalrows * num_columns * sizeof(int);
 		reservar(&temp, size);
+		// cerr << "+ " << temp << " temp 2  " << size << endl;
 		for(x = 1; x < numgpu; x++)
 		{
 			cudaMemcpyAsync(temp + temp_storage[x-1].size, temp_storage[x].dev_address, temp_storage[x].size, cudaMemcpyDeviceToDevice);
@@ -338,6 +340,7 @@ int cargafinal(int name, int cols, int **ptr)
 	}
 	
 	reservar(&temp, cont * cols * sizeof(int));
+	// cerr << "+ " << temp << " temp 3 " << cont * cols * sizeof(int) << endl;
 	ini = temp;	
 
 	pos = gpu;
@@ -460,6 +463,7 @@ void resultados(vector<rulenode>::iterator first, vector<rulenode>::iterator las
 				cout << endl;
 			}
 			cudaFree(gpu->dev_address);
+				// cerr << "- " << gpu->dev_address << " gpu->dev_address" << endl;
 			free(temp);
 			gpu++;
 		}
@@ -491,6 +495,7 @@ void clear_memory()
 	{
 	  if (ini->isrule) {
 	    cudaFree(ini->dev_address);
+	    // cerr << "- " << ini->dev_address << " ini->dev_address" << endl;
 	    ini = GPUmem.erase(ini);
 	  } else {
 	    ini++;

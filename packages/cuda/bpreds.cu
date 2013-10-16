@@ -52,6 +52,7 @@ int bpreds(int *dop1, int rows, int cols, int *bin, int3 numpreds, int **ret)
 	int tmplen = rows + 1;
 	int size = tmplen * sizeof(int);
 	reservar(&temp, size);
+	// cerr << "+ " << temp << " temp bpreds " << size << endl;
 	cudaMemset(temp, 0, size);
 
 	int *dhead;
@@ -64,6 +65,7 @@ int bpreds(int *dop1, int rows, int cols, int *bin, int3 numpreds, int **ret)
 	else
 		hsize = sproj;
 	reservar(&dhead, hsize);
+	// cerr << "+ " << dhead << " dhead  " << hsize << endl;
 	cudaMemcpy(dhead, bin, spredn, cudaMemcpyHostToDevice);
 
 	int blockllen = rows / 1024 + 1;
@@ -108,6 +110,7 @@ int bpreds(int *dop1, int rows, int cols, int *bin, int3 numpreds, int **ret)
 
 	int *fres;
 	reservar(&fres, num * sproj);
+	// cerr << "+ " << fres << " fres  " << num * sproj << endl;
 	cudaMemcpy(dhead, bin + predn, sproj, cudaMemcpyHostToDevice);
 	llenarproyectar<<<blockllen, numthreads, sproj>>>(dop1, rows, numpreds.y, temp, dhead, numpreds.z, fres);
 
