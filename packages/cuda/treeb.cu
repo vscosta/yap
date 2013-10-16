@@ -234,7 +234,7 @@ __global__ void gIndexMultiJoin(int *R, int *S, int g_locations[], int sLen, int
 {
 	extern __shared__ int shared[];
 	int s_cur = blockIdx.x * blockDim.x + threadIdx.x;
-	int posr, poss, x, y, temp, ini;
+	int posr, poss, x, y, ini;
 
 	if(threadIdx.x < wj)
 		shared[threadIdx.x] = muljoin[threadIdx.x];
@@ -258,15 +258,17 @@ __global__ void gIndexMultiJoin(int *R, int *S, int g_locations[], int sLen, int
 				poss = s_cur * of2;
 			else
 				poss = sloc[s_cur] * of2;
-			ini = r_cur - count;			
-			for(x = 0; x < wj; x += 2)
+			ini = r_cur - count;	
+			for(y = ini; y < r_cur; y++)
 			{
-				posr = shared[x];
-				temp = p2[poss + shared[x+1]];
-				for(y = ini; y < r_cur; y++)
+				posr = mloc[y] * of1;
+				for(x = 0; x < wj; x += 2)
 				{
-					if(p1[mloc[y] * of1 + posr] != temp)
+					if(p1[posr + shared[x]] != p2[poss + shared[x+1]])
+					{
 						count--;
+						break;
+					}
 				}
 			}
 			if(count > 0)
