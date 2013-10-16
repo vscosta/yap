@@ -40,10 +40,9 @@ Yap_RestartYap ( int flag )
       siglongjmp(LOCAL_RestartEnv,1);      
 }
 
-#ifdef DEBUG
+void DumpActiveGoals( CACHE_TYPE1 );
 static int hidden(Atom);
 static int legal_env(CELL * CACHE_TYPE);
-void DumpActiveGoals( CACHE_TYPE1 );
 static void detect_bug_location(yamop *,find_pred_type,char *, int);
 
 #define ONHEAP(ptr) (CellPtr(ptr) >= CellPtr(Yap_HeapBase)  && CellPtr(ptr) < CellPtr(HeapTop))
@@ -86,6 +85,19 @@ legal_env (CELL *ep USES_REGS)
   return (TRUE);
 }
 
+static int 
+YapPutc(int sno, wchar_t ch)
+{
+  return (putc(ch, GLOBAL_stderr));
+}
+
+static void
+YapPlWrite(Term t)
+{
+  Yap_plwrite(t, NULL, 15, 0, 1200);
+}
+
+
 void
 DumpActiveGoals ( USES_REGS1 )
 {
@@ -127,16 +139,16 @@ DumpActiveGoals ( USES_REGS1 )
 	  if (first++ == 1)
 	    fprintf(stderr,"Active ancestors:\n");
 	  if (pe->ModuleOfPred) mod = pe->ModuleOfPred;
-	  Yap_DebugPlWrite (mod);
-	  Yap_DebugPutc (LOCAL_c_error_stream,':');
+	  YapPlWrite (mod);
+	  YapPutc (LOCAL_c_error_stream,':');
 	  if (pe->ArityOfPE == 0) {
-	    Yap_DebugPlWrite (MkAtomTerm ((Atom)f));
+	    YapPlWrite (MkAtomTerm ((Atom)f));
 	  } else {
-	    Yap_DebugPlWrite (MkAtomTerm (NameOfFunctor (f)));
-	    Yap_DebugPutc (LOCAL_c_error_stream,'/');
-	    Yap_DebugPlWrite (MkIntTerm (ArityOfFunctor (f)));
+	    YapPlWrite (MkAtomTerm (NameOfFunctor (f)));
+	    YapPutc (LOCAL_c_error_stream,'/');
+	    YapPlWrite (MkIntTerm (ArityOfFunctor (f)));
 	  }
-	  Yap_DebugPutc (LOCAL_c_error_stream,'\n');
+	  YapPutc (LOCAL_c_error_stream,'\n');
 	} else {
 	  UNLOCK(pe->PELock);
 	}
@@ -161,28 +173,28 @@ DumpActiveGoals ( USES_REGS1 )
 	if (pe->ModuleOfPred)
 	  mod = pe->ModuleOfPred;
 	else mod = TermProlog;
-	Yap_DebugPlWrite (mod);
-	Yap_DebugPutc (LOCAL_c_error_stream,':');
+	YapPlWrite (mod);
+	YapPutc (LOCAL_c_error_stream,':');
 	if (pe->ArityOfPE == 0) {
-	  Yap_DebugPlWrite (MkAtomTerm (NameOfFunctor(f)));
+	  YapPlWrite (MkAtomTerm (NameOfFunctor(f)));
 	} else {
 	  Int i = 0, arity = pe->ArityOfPE;
 	  Term *args = &(b_ptr->cp_a1);
-	  Yap_DebugPlWrite (MkAtomTerm (NameOfFunctor (f)));
-	  Yap_DebugPutc (LOCAL_c_error_stream,'(');
+	  YapPlWrite (MkAtomTerm (NameOfFunctor (f)));
+	  YapPutc (LOCAL_c_error_stream,'(');
 	  for (i= 0; i < arity; i++) {
-	    if (i > 0) Yap_DebugPutc (LOCAL_c_error_stream,',');
-	    Yap_DebugPlWrite(args[i]);
+	    if (i > 0) YapPutc (LOCAL_c_error_stream,',');
+	    YapPlWrite(args[i]);
 	  }
-	  Yap_DebugPutc (LOCAL_c_error_stream,')');
+	  YapPutc (LOCAL_c_error_stream,')');
 	}
-	Yap_DebugPutc (LOCAL_c_error_stream,'\n');
+	YapPutc (LOCAL_c_error_stream,'\n');
       }
       UNLOCK(pe->PELock);
       b_ptr = b_ptr->cp_b;
     }
 }
-#endif /* DEBUG */
+
 
 static void
 detect_bug_location(yamop *yap_pc, find_pred_type where_from, char *tp, int psize)
@@ -477,6 +489,11 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
       fprintf(stderr,"%% YAP OOOPS: %s.\n",tmpbuf);
       fprintf(stderr,"%%\n%%\n");
     }
+    detect_bug_location(P, FIND_PRED_FROM_ANYWHERE, (char *)H, 256);
+    fprintf (stderr,"%%\n%% PC: %s\n",(char *)H); 
+    detect_bug_location(CP, FIND_PRED_FROM_ANYWHERE, (char *)H, 256);
+    fprintf (stderr,"%%   Continuation: %s\n",(char *)H); 
+    DumpActiveGoals( PASS_REGS1 );
     error_exit_yap (1);
   }
   if (P == (yamop *)(FAILCODE))

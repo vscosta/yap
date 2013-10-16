@@ -11,7 +11,7 @@ using namespace std;
 
 void calcular_mem(int);
 void liberar(int*, int);
-void limpiar();
+void limpiar(const char []);
 void limpiartodo(int*, int*);
 int cargar(int, int, int, int, int*, int**, int);
 int cargafinal(int, int, int**);

@@ -53,6 +53,7 @@ list<memnode>::iterator buscarpornombre(int name, int itr, int *totalrows, int *
 {
 	int x = 1, sum = 0;
 	memnode temp;
+
 	temp.name = name;
 	temp.iteration = itr;
 	pair<list<memnode>::iterator, list<memnode>::iterator> rec = equal_range(GPUmem.begin(), GPUmem.end(), temp, compareiteration);
@@ -104,14 +105,14 @@ int buscarpornombrecpu(int name, int itr, int *totalrows)
 	return x;
 }
 
-void limpiar()
+void limpiar(const char s[])
 {
 	list<memnode>::iterator ini;
 	memnode temp;
 
 	if(GPUmem.size() == 0)
 	{
-		cerr << "Not enough GPU memory: have " << avmem << endl;
+		cerr << s << ": not enough GPU memory: have " << avmem << endl;
 		exit(1);
 	}		
 
@@ -182,12 +183,26 @@ void liberar(int *ptr, int size)
 
 void reservar(int **ptr, int size)
 {
-        // cout << "R " << avmem << " " << size
+  //size_t free, total;
+  //cudaMemGetInfo(      &free, &total	 );
+  // cerr << "R " << free << " " << size << endl;
 
+        if (size == 0) { 
+                *ptr = NULL; 
+                return;
+        }
 	while(avmem < size)
-		limpiar();
+		limpiar("not enough memory");
 	while(cudaMalloc(ptr, size) == cudaErrorMemoryAllocation)
-		limpiar();
+		limpiar("error in memory allocation");
+	if (! *ptr ) {
+	  size_t free, total;
+	  cudaMemGetInfo(      &free, &total	 );
+	  cerr << "Could not allocate " << size << " bytes, only " << free << " avaliable from total of " << total << " !!!" << endl;
+	  cerr << "Exiting CUDA...." << endl;
+	  exit(1);
+	}
+	// cerr << *ptr << " " << size;
 	avmem -= size;
 
 	// cout << " " << avmem << endl;
@@ -235,6 +250,11 @@ int numrows(int name, int itr)
 	return sum;
 }
 
+
+	extern "C" void * YAP_IntToAtom(int);
+	extern  "C" char * YAP_AtomName(void *);
+
+
 int cargar(int name, int num_rows, int num_columns, int is_fact, int *address_host_table, int **ptr, int itr)
 {
 	int numgpu, numcpu, totalrows = 0;
@@ -242,6 +262,7 @@ int cargar(int name, int num_rows, int num_columns, int is_fact, int *address_ho
 	int size, itrant;
 	list<memnode>::iterator i;
 	memnode fact;
+
 	if(is_fact)
 	{
 		i = buscarhecho(GPUmem.begin(), GPUmem.end(), name);
@@ -464,12 +485,16 @@ void clear_memory()
 {
 	list<memnode>::iterator ini;
 	list<memnode>::iterator fin;
-	ini = GPUmem.begin();
+       	ini = GPUmem.begin();
 	fin = GPUmem.end();
 	while(ini != fin)
 	{
-		cudaFree(ini->dev_address);
-		ini++;
+	  if (ini->isrule) {
+	    cudaFree(ini->dev_address);
+	    ini = GPUmem.erase(ini);
+	  } else {
+	    ini++;
+	  }
 	}
 	ini = CPUmem.begin();
 	fin = CPUmem.end();
@@ -478,6 +503,5 @@ void clear_memory()
 		free(ini->dev_address);
 		ini++;
 	}
-	GPUmem.clear();
 	CPUmem.clear();
 }

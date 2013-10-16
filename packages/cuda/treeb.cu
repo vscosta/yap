@@ -234,7 +234,7 @@ __global__ void gIndexMultiJoin(int *R, int *S, int g_locations[], int sLen, int
 {
 	extern __shared__ int shared[];
 	int s_cur = blockIdx.x * blockDim.x + threadIdx.x;
-	int posr, poss, x, y, temp, ini;
+	int posr, poss, x, y, ini;
 
 	if(threadIdx.x < wj)
 		shared[threadIdx.x] = muljoin[threadIdx.x];
@@ -258,15 +258,17 @@ __global__ void gIndexMultiJoin(int *R, int *S, int g_locations[], int sLen, int
 				poss = s_cur * of2;
 			else
 				poss = sloc[s_cur] * of2;
-			ini = r_cur - count;			
-			for(x = 0; x < wj; x += 2)
+			ini = r_cur - count;	
+			for(y = ini; y < r_cur; y++)
 			{
-				posr = shared[x];
-				temp = p2[poss + shared[x+1]];
-				for(y = ini; y < r_cur; y++)
+				posr = mloc[y] * of1;
+				for(x = 0; x < wj; x += 2)
 				{
-					if(p1[mloc[y] * of1 + posr] != temp)
+					if(p1[posr + shared[x]] != p2[poss + shared[x+1]])
+					{
 						count--;
+						break;
+					}
 				}
 			}
 			if(count > 0)
@@ -839,7 +841,7 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 			}
 			catch(std::bad_alloc &e)
 			{
-				limpiar();
+				limpiar("inclusive scan in join");
 			}				
 		}
 		//thrust::inclusive_scan(res + 1, res + newLen, res + 1);	
@@ -1021,7 +1023,7 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 		}
 		catch(std::bad_alloc &e)
 		{
-			limpiar();
+			limpiar("inclusive scan in join");
 		}
 	}
 
@@ -1126,7 +1128,7 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 		reservar(&d_Rout, resSize);
 		if(numj > 2)
 		{
-			cudaMemcpy(dcons + rule->num_columns, wherej + 2, muljoinsize, cudaMemcpyHostToDevice);
+			cudaMemcpy(dcons + projp.y, wherej + 2, muljoinsize, cudaMemcpyHostToDevice);
 			multiJoinWithWrite<<<blockllen, numthreads, sizepro + muljoinsize>>> (d_locations, sLen, temp, d_Rout, p1, p2, of1, of2, dcons, projp.x, projp.y, posR, posS, muljoin);
 		}
 		else

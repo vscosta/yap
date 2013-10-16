@@ -77,7 +77,7 @@ struct o3
     	}
 };
 
-int unir(int *res, int rows, int tipo, int **ret)
+int unir(int *res, int rows, int tipo)
 {
 	thrust::device_ptr<int> pt, re;
 	thrust::device_ptr<s2> pt2, re2;
@@ -102,7 +102,7 @@ int unir(int *res, int rows, int tipo, int **ret)
 				}
 				catch(std::bad_alloc &e)
 				{
-					limpiar();
+					limpiar("sort/unique in unir");
 				}				
 			}
 			nrows = thrust::distance(pt, re);
@@ -140,7 +140,7 @@ int unir(int *res, int rows, int tipo, int **ret)
 				}
 				catch(std::bad_alloc &e)
 				{
-					limpiar();
+					limpiar("sort/unique in unir");
 				}				
 			}
 			nrows = thrust::distance(pt2, re2);
@@ -179,7 +179,7 @@ int unir(int *res, int rows, int tipo, int **ret)
 				}
 				catch(std::bad_alloc &e)
 				{
-					limpiar();
+					limpiar("sort/unique in unir");
 				}				
 			}
 			nrows = thrust::distance(pt3, re3);
