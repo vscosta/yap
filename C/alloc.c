@@ -251,6 +251,7 @@ Yap_InitPreAllocCodeSpace(int wid)
   char *ptr;
   UInt sz = REMOTE_ScratchPad(wid).msz;
 
+
   if (REMOTE_ScratchPad(wid).ptr == NULL) {
 #if USE_DL_MALLOC
     LOCK(DLMallocLock);
@@ -261,7 +262,13 @@ Yap_InitPreAllocCodeSpace(int wid)
     tmalloc += sz;
     sz += sizeof(CELL);
 #endif
-    while (!(ptr = my_malloc(sz))) {
+    while (!(ptr = 
+#ifdef YAPOR_COPY
+	     malloc(sz)
+#else
+	     my_malloc(sz)
+#endif
+	     )) {
       REMOTE_PrologMode(wid) &= ~MallocMode;
 #if USE_DL_MALLOC
       UNLOCK(DLMallocLock);
@@ -290,6 +297,7 @@ Yap_InitPreAllocCodeSpace(int wid)
   }
   AuxBase = (ADDR)(ptr);
   AuxSp = (CELL *)(AuxTop = AuxBase+REMOTE_ScratchPad(wid).sz);
+  printf("wid=%d %p %p %p--%p\n", wid, AuxBase, AuxSp, Yap_HeapBase, H);
   return ptr;
 }
 
