@@ -49,7 +49,7 @@ body_to_list( (B1, B2), LF, L0, N0, NF) :- !,
 body_to_list( true, L, L, N, N) :- !.
 body_to_list( B, NL, L, N0, N) :-
 	inline( B, NB ), !,
-	body_to_list( NB, NL, L, N0, N)
+	body_to_list( NB, NL, L, N0, N).
 body_to_list( B, [B|L], L, N0, N) :-
 	N is N0+1.
 
