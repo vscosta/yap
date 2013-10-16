@@ -86,6 +86,9 @@ int unir(int *res, int rows, int tipo)
 	s3 *t3;
 	int flag, nrows;
 
+#if TIMER
+	cuda_stats.unions++;
+#endif
 	switch(tipo)
 	{
 		case 1: 

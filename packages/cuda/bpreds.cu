@@ -55,6 +55,9 @@ int bpreds(int *dop1, int rows, int cols, int *bin, int3 numpreds, int **ret)
 	// cerr << "+ " << temp << " temp bpreds " << size << endl;
 	cudaMemset(temp, 0, size);
 
+#if TIMER
+	cuda_stats.builtins++;
+#endif
 	int *dhead;
 	int predn = numpreds.x * 3;
 	int spredn = predn * sizeof(int);

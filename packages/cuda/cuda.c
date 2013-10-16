@@ -395,6 +395,12 @@ static int cuda_count( void )
   return YAP_Unify(YAP_ARG2, YAP_MkIntTerm(n));
 }
 
+static int cuda_statistics( void )
+{
+  Cuda_Statistics();
+  return TRUE;
+}
+
 static int first_time = TRUE;
 
 void
@@ -417,5 +423,6 @@ init_cuda(void)
   YAP_UserCPredicate("cuda_eval", cuda_eval, 2);
   YAP_UserCPredicate("cuda_coverage", cuda_coverage, 4);
   YAP_UserCPredicate("cuda_count", cuda_count, 2);
+  YAP_UserCPredicate("cuda_statistics", cuda_statistics, 0);
 }
 

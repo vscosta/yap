@@ -746,6 +746,9 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 	int *wherej = rule->wherejoin[pos];
 	int numj = rule->numjoin[pos];
 	int flag;
+#if TIMER
+	cuda_stats.joins++;
+#endif
 
 	int porLiberar = rLen * of1 * sizeof(int);
 	int size, sizet, sizet2;
@@ -788,7 +791,7 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 	int *posR = NULL, *posS = NULL;
 
 	#ifdef TIMER
-	cout << "INICIO" << endl;
+	//cout << "INICIO" << endl;
 	cudaEvent_t start, stop;
 	float time;
 	cudaEventCreate(&start);
@@ -896,7 +899,8 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 	cudaEventRecord(stop, 0);
 	cudaEventSynchronize(stop);
 	cudaEventElapsedTime(&time, start, stop);
-	cout << "Select1 = " << time << endl;
+	//cout << "Select1 = " << time << endl;
+	cuda_stats.select1_time += time;
 
 	cudaEventDestroy(start);
 	cudaEventDestroy(stop);
@@ -994,7 +998,8 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 	cudaEventRecord(stop, 0);
 	cudaEventSynchronize(stop);
 	cudaEventElapsedTime(&time, start, stop);
-	cout << "Select2 = " << time << endl;
+	//cout << "Select2 = " << time << endl;
+	cuda_stats.select2_time += time;
 	#endif
 	
 	/*free(hcons);
@@ -1045,7 +1050,8 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 	cudaEventRecord(stop, 0);
 	cudaEventSynchronize(stop);
 	cudaEventElapsedTime(&time, start, stop);
-	cout << "Sort = " << time << endl;
+	//cout << "Sort = " << time << endl;
+	cuda_stats.sort_time += time;
 	
 	cudaEventDestroy(start);
 	cudaEventDestroy(stop);
@@ -1181,8 +1187,9 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 	cudaEventRecord(stop, 0);
 	cudaEventSynchronize(stop);
 	cudaEventElapsedTime(&time, start, stop);
-	cout << "Join = " << time << endl;
-	cout << "FIN" << endl;
+	//cout << "Join = " << time << endl;
+	//cout << "FIN" << endl;
+	cuda_stats.join_time += time;
 	#endif
 
 	return sum;

@@ -13,6 +13,10 @@ extern "C" {
 
 #define MAXVALS 200
 
+#if TIMER
+statinfo cuda_stats;
+#endif
+
 bool compare(const gpunode &r1, const gpunode &r2)
 {
 	return (r1.name > r2.name); 
@@ -852,6 +856,28 @@ void mostrareglas(list<rulenode> aux)
 }
 
 extern "C"
+ void Cuda_Statistics(void)
+{
+  cerr << "GPU Statistics" << endl;
+  cerr << "Called " << cuda_stats.calls << "times." << endl;
+  cerr << "GPU time " << cuda_stats.total_time << "msec." << endl;
+  cerr << "Longest call " << cuda_stats.max_time << "msec." << endl;
+  cerr << "Fastest call " << cuda_stats.min_time << "msec." << endl << endl;
+  cerr << "Steps" << endl;
+  cerr << "    Select First: " << cuda_stats.select1_time << " msec." << endl;
+  cerr << "    Select Second: " << cuda_stats.select2_time << " msec." << endl;
+  cerr << "    Sort: " << cuda_stats.sort_time << " msec." << endl;
+  cerr << "    Join: " << cuda_stats.join_time << " msec." << endl;
+  cerr << "    Union: " << cuda_stats.union_time << " msec." << endl;
+  cerr << "    Built-in: " << cuda_stats.pred_time << " msec." << endl << endl;
+  cerr << "Operations" << endl;
+  cerr << "    Joins: " << cuda_stats.joins << "." << endl;
+  cerr << "    Selects/Projects: " << cuda_stats.selects << "." << endl;
+  cerr << "    Unions: " << cuda_stats.unions << "." << endl;
+  cerr << "    Built-ins: " << cuda_stats.builtins << "." << endl << endl;
+}
+
+extern "C"
 int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, predicate *inpquery, int **result)
 {
 	vector<gpunode> L;
@@ -859,6 +885,9 @@ int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, 
 	int x, y;
 	int qsize, *query, qname;
 
+#if TIMER
+	cuda_stats.calls++;
+#endif
 	for(x = 0; x < ninpf; x++)
 		L.push_back(*inpfacts[x]);
 	for(x = 0; x < ninpr; x++)
@@ -1104,7 +1133,8 @@ int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, 
 					cudaEventElapsedTime(&time, start3, stop3);
 					cudaEventDestroy(start3);
 					cudaEventDestroy(stop3);
-					cout << "Predicados = " << time << endl;
+					//cout << "Predicados = " << time << endl;
+					cuda_stats.pred_time += time;
 					#endif
 				}
 
@@ -1125,7 +1155,8 @@ int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, 
 				cudaEventElapsedTime(&time, start2, stop2);
 				cudaEventDestroy(start2);
 				cudaEventDestroy(stop2);
-				cout << "Union = " << time << endl;
+				//cout << "Union = " << time << endl;
+				cuda_stats.union_time += time;
 				#endif					
 	
 				//cout << "despues de unir = " << res_rows << endl;
@@ -1273,6 +1304,11 @@ int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, 
 	cudaEventRecord(stop, 0);
 	cudaEventSynchronize(stop);
 	cudaEventElapsedTime(&time, start, stop);
+	cuda_stats.total_time += time;
+	if (time > cuda_stats.max_time) 
+	  cuda_stats.max_time = time;
+	if (time < cuda_stats.min_time || cuda_stats.calls == 1) 
+	  cuda_stats.min_time = time;
 	cudaEventDestroy(start);
 	cudaEventDestroy(stop);
 

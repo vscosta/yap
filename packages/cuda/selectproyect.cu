@@ -206,6 +206,9 @@ int selectproyect(int *dop1, int rows, int cols, int head_size, int *select, int
 	int size, size2, num;
 	thrust::device_ptr<int> res;
 
+#if TIMER
+	cuda_stats.selects++;
+#endif
 	int head_bytes = mayor(numselect, numselfj, head_size) * sizeof(int);
 	reservar(&dhead, head_bytes);
 	// cerr << "+ " << dhead << " dhead  " << head_bytes << endl;
