@@ -859,6 +859,7 @@ extern "C"
  void Cuda_Statistics(void)
 {
   cerr << "GPU Statistics" << endl;
+#if TIMER
   cerr << "Called " << cuda_stats.calls << "times." << endl;
   cerr << "GPU time " << cuda_stats.total_time << "msec." << endl;
   cerr << "Longest call " << cuda_stats.max_time << "msec." << endl;
@@ -875,6 +876,7 @@ extern "C"
   cerr << "    Selects/Projects: " << cuda_stats.selects << "." << endl;
   cerr << "    Unions: " << cuda_stats.unions << "." << endl;
   cerr << "    Built-ins: " << cuda_stats.builtins << "." << endl << endl;
+#endif
 }
 
 extern "C"
@@ -946,11 +948,13 @@ int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, 
 	vector<gpunode>::iterator qposf;
 	vector<rulenode>::iterator qposr;
 
+#if TIMER
 	cudaEvent_t start, stop;
 	float time;
 	cudaEventCreate(&start);
 	cudaEventCreate(&stop);
 	cudaEventRecord(start, 0);
+#endif
 
 	while(reglas.size()) /*Here's the main loop*/
 	{
@@ -996,7 +1000,7 @@ int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, 
 				{
 					num_refs = rows1 * cols1 * sizeof(int);
 					reservar(&res, num_refs);
-					// cerr << "+ " << res << " Res  " << num_refs << endl;
+					// DEBUG_MEM cerr << "+ " << res << " Res  " << num_refs << endl;
 					cudaMemcpyAsync(res, dop1, num_refs, cudaMemcpyDeviceToDevice);
 					registrar(rul_act->name, cols1, res, rows1, itr, 1);
 					rul_act->gen_ant = rul_act->gen_act;
@@ -1285,7 +1289,7 @@ int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, 
 			res_rows = selectproyect(dop1, rows1, cols1, tmprule.num_columns, tmprule.select[0], tmprule.numsel[0], tmprule.selfjoin[0], tmprule.numselfj[0], tmprule.project[0], &res);
 			if(qposr != fin && qposr->name == qname) {
 				cudaFree(dop1);
-				// cerr << "- " << dop1 << " dop1" << endl;
+				// DEBUG_MEM cerr << "- " << dop1 << " dop1" << endl;
 			}
 		}
 
@@ -1293,14 +1297,15 @@ int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, 
 		tipo = res_rows * cols1 * sizeof(int);
 		hres = (int *)malloc(tipo);
 		cudaMemcpy(hres, res, tipo, cudaMemcpyDeviceToHost);
-		if(res_rows > 0 && tmprule.numsel[0] != 0 && tmprule.numselfj[0] != 0) {
+		if(res_rows > 0 /*&& tmprule.numsel[0] != 0 && tmprule.numselfj[0] != 0 */) {
 			cudaFree(res);
-			// cerr << "- " << res << " res" << endl;
+			// DEBUG_MEM cerr << "- " << res << " res" << endl;
 		}
 	}
 	else
 		res_rows = 0;
 
+#if TIMER
 	cudaEventRecord(stop, 0);
 	cudaEventSynchronize(stop);
 	cudaEventElapsedTime(&time, start, stop);
@@ -1311,6 +1316,7 @@ int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, 
 	  cuda_stats.min_time = time;
 	cudaEventDestroy(start);
 	cudaEventDestroy(stop);
+#endif
 
 	if(showr == 1)
 	{
