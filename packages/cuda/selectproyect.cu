@@ -211,7 +211,9 @@ int selectproyect(int *dop1, int rows, int cols, int head_size, int *select, int
 #endif
 	int head_bytes = mayor(numselect, numselfj, head_size) * sizeof(int);
 	reservar(&dhead, head_bytes);
-	// DEBUG_MEM cerr << "+ " << dhead << " dhead  " << head_bytes << endl;
+#ifdef DEBUG_MEM
+	cerr << "+ " << dhead << " dhead  " << head_bytes << endl;
+#endif
 
 	int blockllen = rows / 1024 + 1;
 	int numthreads = 1024;
@@ -222,7 +224,9 @@ int selectproyect(int *dop1, int rows, int cols, int head_size, int *select, int
 		tmplen = rows + 1;
 		size2 = tmplen * sizeof(int);
 		reservar(&temp, size2);
-		// DEBUG_MEM cerr << "+ " << temp << " temp  select " << size2 << endl;
+#ifdef DEBUG_MEM
+		cerr << "+ " << temp << " temp  select " << size2 << endl;
+#endif
 		cudaMemset(temp, 0, size2);
 
 		size = numselect * sizeof(int);
@@ -245,7 +249,9 @@ int selectproyect(int *dop1, int rows, int cols, int head_size, int *select, int
 
 		size = head_size * sizeof(int);
 		reservar(&fres, num * size);
-		// DEBUG_MEM cerr << "+ " << fres << " fres select  " << num*size << endl;
+#ifdef DEBUG_MEM
+		cerr << "+ " << fres << " fres select  " << num*size << endl;
+#endif
 		cudaMemcpy(dhead, project, size, cudaMemcpyHostToDevice);
 		llenarproyectar<<<blockllen, numthreads, size>>>(dop1, rows, cols, temp, dhead, head_size, fres);
 		liberar(dhead, head_bytes);
@@ -260,7 +266,9 @@ int selectproyect(int *dop1, int rows, int cols, int head_size, int *select, int
 			tmplen = rows + 1;
 			size2 = tmplen * sizeof(int);
 			reservar(&temp, size2);
-			// DEBUG_MEM cerr << "+ " << temp << " temp select  " << size2 << endl;
+#ifdef DEBUG_MEM
+			cerr << "+ " << temp << " temp select  " << size2 << endl;
+#endif
 			cudaMemset(temp, 0, size2);
 			
 			size = numselfj * sizeof(int);
@@ -275,7 +283,9 @@ int selectproyect(int *dop1, int rows, int cols, int head_size, int *select, int
 
 			size = head_size * sizeof(int);
 			reservar(&fres, num * size);
-			// DEBUG_MEM cerr << "+ " << fres << " fres select again  " << num*size << endl;
+#ifdef DEBUG_MEM
+			cerr << "+ " << fres << " fres select again  " << num*size << endl;
+#endif
 			cudaMemcpy(dhead, project, size, cudaMemcpyHostToDevice);
 			llenarproyectar<<<blockllen, numthreads, size>>>(dop1, rows, cols, temp, dhead, head_size, fres);
 			liberar(dhead, head_bytes);
@@ -287,7 +297,9 @@ int selectproyect(int *dop1, int rows, int cols, int head_size, int *select, int
 		{
 			size = head_size * sizeof(int);
 			reservar(&fres, rows * size);
-			// DEBUG_MEM cerr << "+ " << fres << " fres select third  " << rows*size << endl;
+#ifdef DEBUG_MEM
+			cerr << "+ " << fres << " fres select third  " << rows*size << endl;
+#endif
 			cudaMemcpy(dhead, project, size, cudaMemcpyHostToDevice);
 			proyectar<<<blockllen, numthreads, size>>>(dop1, rows, cols, dhead, head_size, fres);
 			liberar(dhead, head_bytes);

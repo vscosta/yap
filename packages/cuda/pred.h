@@ -1,6 +1,8 @@
 #ifndef _PRED_H_
 #define _PRED_H_
 
+// #define DEBUG_MEM 1
+
 typedef struct Nodo{
         int name;
 	int num_rows;
