@@ -37,10 +37,13 @@ int32_t Cuda_Erase(predicate *pred);
 
 void init_cuda( void );
 
+//#define DEBUG_INTERFACE 1
+
 #if DEBUG_INTERFACE
 static void
 dump_mat(int32_t mat[], int32_t nrows, int32_t ncols)
 {
+  return;
   int32_t i, j;
   for ( i=0; i< nrows; i++) {
     printf("%d", mat[i*ncols]);
@@ -56,7 +59,7 @@ dump_vec(int32_t vec[], int32_t rows)
 {
   int32_t i = 1;
   int32_t j = 0;
-  printf("%d", vec[0]);
+
   for (j = 0; j < rows; j++) {
     for ( ; vec[i]; i++ ) {
       printf(", %d", vec[i]);
@@ -392,6 +395,12 @@ static int cuda_count( void )
   return YAP_Unify(YAP_ARG2, YAP_MkIntTerm(n));
 }
 
+static int cuda_statistics( void )
+{
+  Cuda_Statistics();
+  return TRUE;
+}
+
 static int first_time = TRUE;
 
 void
@@ -414,5 +423,6 @@ init_cuda(void)
   YAP_UserCPredicate("cuda_eval", cuda_eval, 2);
   YAP_UserCPredicate("cuda_coverage", cuda_coverage, 4);
   YAP_UserCPredicate("cuda_count", cuda_count, 2);
+  YAP_UserCPredicate("cuda_statistics", cuda_statistics, 0);
 }
 

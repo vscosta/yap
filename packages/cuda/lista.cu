@@ -13,6 +13,10 @@ extern "C" {
 
 #define MAXVALS 200
 
+#if TIMER
+statinfo cuda_stats;
+#endif
+
 bool compare(const gpunode &r1, const gpunode &r2)
 {
 	return (r1.name > r2.name); 
@@ -852,6 +856,30 @@ void mostrareglas(list<rulenode> aux)
 }
 
 extern "C"
+ void Cuda_Statistics(void)
+{
+  cerr << "GPU Statistics" << endl;
+#if TIMER
+  cerr << "Called " << cuda_stats.calls << "times." << endl;
+  cerr << "GPU time " << cuda_stats.total_time << "msec." << endl;
+  cerr << "Longest call " << cuda_stats.max_time << "msec." << endl;
+  cerr << "Fastest call " << cuda_stats.min_time << "msec." << endl << endl;
+  cerr << "Steps" << endl;
+  cerr << "    Select First: " << cuda_stats.select1_time << " msec." << endl;
+  cerr << "    Select Second: " << cuda_stats.select2_time << " msec." << endl;
+  cerr << "    Sort: " << cuda_stats.sort_time << " msec." << endl;
+  cerr << "    Join: " << cuda_stats.join_time << " msec." << endl;
+  cerr << "    Union: " << cuda_stats.union_time << " msec." << endl;
+  cerr << "    Built-in: " << cuda_stats.pred_time << " msec." << endl << endl;
+  cerr << "Operations" << endl;
+  cerr << "    Joins: " << cuda_stats.joins << "." << endl;
+  cerr << "    Selects/Projects: " << cuda_stats.selects << "." << endl;
+  cerr << "    Unions: " << cuda_stats.unions << "." << endl;
+  cerr << "    Built-ins: " << cuda_stats.builtins << "." << endl << endl;
+#endif
+}
+
+extern "C"
 int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, predicate *inpquery, int **result)
 {
 	vector<gpunode> L;
@@ -859,6 +887,9 @@ int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, 
 	int x, y;
 	int qsize, *query, qname;
 
+#if TIMER
+	cuda_stats.calls++;
+#endif
 	for(x = 0; x < ninpf; x++)
 		L.push_back(*inpfacts[x]);
 	for(x = 0; x < ninpr; x++)
@@ -917,11 +948,13 @@ int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, 
 	vector<gpunode>::iterator qposf;
 	vector<rulenode>::iterator qposr;
 
+#if TIMER
 	cudaEvent_t start, stop;
 	float time;
 	cudaEventCreate(&start);
 	cudaEventCreate(&stop);
 	cudaEventRecord(start, 0);
+#endif
 
 	while(reglas.size()) /*Here's the main loop*/
 	{
@@ -967,6 +1000,9 @@ int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, 
 				{
 					num_refs = rows1 * cols1 * sizeof(int);
 					reservar(&res, num_refs);
+#ifdef DEBUG_MEM
+					cerr << "+ " << res << " Res  " << num_refs << endl;
+#endif
 					cudaMemcpyAsync(res, dop1, num_refs, cudaMemcpyDeviceToDevice);
 					registrar(rul_act->name, cols1, res, rows1, itr, 1);
 					rul_act->gen_ant = rul_act->gen_act;
@@ -1103,7 +1139,8 @@ int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, 
 					cudaEventElapsedTime(&time, start3, stop3);
 					cudaEventDestroy(start3);
 					cudaEventDestroy(stop3);
-					cout << "Predicados = " << time << endl;
+					//cout << "Predicados = " << time << endl;
+					cuda_stats.pred_time += time;
 					#endif
 				}
 
@@ -1124,7 +1161,8 @@ int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, 
 				cudaEventElapsedTime(&time, start2, stop2);
 				cudaEventDestroy(start2);
 				cudaEventDestroy(stop2);
-				cout << "Union = " << time << endl;
+				//cout << "Union = " << time << endl;
+				cuda_stats.union_time += time;
 				#endif					
 	
 				//cout << "despues de unir = " << res_rows << endl;
@@ -1251,25 +1289,40 @@ int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, 
 		else
 		{		
 			res_rows = selectproyect(dop1, rows1, cols1, tmprule.num_columns, tmprule.select[0], tmprule.numsel[0], tmprule.selfjoin[0], tmprule.numselfj[0], tmprule.project[0], &res);
-			if(qposr != fin && qposr->name == qname)
+			if(qposr != fin && qposr->name == qname) {
 				cudaFree(dop1);
+#ifdef DEBUG_MEM
+				cerr << "- " << dop1 << " dop1" << endl;
+#endif
+			}
 		}
 
 		cols1 = tmprule.num_columns;
 		tipo = res_rows * cols1 * sizeof(int);
 		hres = (int *)malloc(tipo);
 		cudaMemcpy(hres, res, tipo, cudaMemcpyDeviceToHost);
-		if(res_rows > 0 && tmprule.numsel[0] != 0 && tmprule.numselfj[0] != 0)
+		if(res_rows > 0 /*&& tmprule.numsel[0] != 0 && tmprule.numselfj[0] != 0 */) {
 			cudaFree(res);
+#ifdef DEBUG_MEM
+			cerr << "- " << res << " res" << endl;
+#endif
+		}
 	}
 	else
 		res_rows = 0;
 
+#if TIMER
 	cudaEventRecord(stop, 0);
 	cudaEventSynchronize(stop);
 	cudaEventElapsedTime(&time, start, stop);
+	cuda_stats.total_time += time;
+	if (time > cuda_stats.max_time) 
+	  cuda_stats.max_time = time;
+	if (time < cuda_stats.min_time || cuda_stats.calls == 1) 
+	  cuda_stats.min_time = time;
 	cudaEventDestroy(start);
 	cudaEventDestroy(stop);
+#endif
 
 	if(showr == 1)
 	{

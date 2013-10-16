@@ -86,6 +86,9 @@ int unir(int *res, int rows, int tipo)
 	s3 *t3;
 	int flag, nrows;
 
+#if TIMER
+	cuda_stats.unions++;
+#endif
 	switch(tipo)
 	{
 		case 1: 
@@ -102,7 +105,7 @@ int unir(int *res, int rows, int tipo)
 				}
 				catch(std::bad_alloc &e)
 				{
-					limpiar("sort/unique in unir");
+					limpiar("sort/unique in unir", 0);
 				}				
 			}
 			nrows = thrust::distance(pt, re);
@@ -140,7 +143,7 @@ int unir(int *res, int rows, int tipo)
 				}
 				catch(std::bad_alloc &e)
 				{
-					limpiar("sort/unique in unir");
+					limpiar("sort/unique in unir", 0);
 				}				
 			}
 			nrows = thrust::distance(pt2, re2);
@@ -179,7 +182,7 @@ int unir(int *res, int rows, int tipo)
 				}
 				catch(std::bad_alloc &e)
 				{
-					limpiar("sort/unique in unir");
+					limpiar("sort/unique in unir", 0);
 				}				
 			}
 			nrows = thrust::distance(pt3, re3);

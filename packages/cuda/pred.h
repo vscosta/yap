@@ -1,6 +1,8 @@
 #ifndef _PRED_H_
 #define _PRED_H_
 
+// #define DEBUG_MEM 1
+
 typedef struct Nodo{
         int name;
 	int num_rows;
@@ -11,6 +13,20 @@ typedef struct Nodo{
 
 typedef gpunode predicate;
 
+// #define TIMER 1
+
+#if TIMER
+typedef struct Stats{
+  size_t joins, selects, unions, builtins;
+  size_t calls;
+  double total_time;
+  float max_time, min_time;
+  float select1_time, select2_time, join_time, sort_time, union_time, pred_time;
+}statinfo;
+
+extern statinfo cuda_stats;
+#endif
+
 #define SBG_EQ  (-1)
 #define SBG_GT  (-2)
 #define SBG_LT  (-3)
@@ -19,5 +35,5 @@ typedef gpunode predicate;
 #define SBG_DF  (-6)
 
 int Cuda_Eval(predicate**, int, predicate**, int, predicate*, int**);
-
+void  Cuda_Statistics( void );
 #endif

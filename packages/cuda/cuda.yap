@@ -4,6 +4,7 @@
 		 cuda_erase/1,
 		 cuda_eval/2,
 		 cuda_coverage/4,
+		 cuda_statistics/0,
 		 cuda_count/2]).
 
 tell_warning :-
@@ -47,9 +48,9 @@ body_to_list( (B1, B2), LF, L0, N0, NF) :- !,
 	body_to_list( B1, LF, LI, N0, N1), 
 	body_to_list( B2, LI, L0, N1, NF). 
 body_to_list( true, L, L, N, N) :- !.
-body_to_list( B, [NB|L], L, N0, N) :-
+body_to_list( B, NL, L, N0, N) :-
 	inline( B, NB ), !,
-	N is N0+1.
+	body_to_list( NB, NL, L, N0, N).
 body_to_list( B, [B|L], L, N0, N) :-
 	N is N0+1.
 

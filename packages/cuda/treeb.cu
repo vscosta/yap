@@ -234,7 +234,7 @@ __global__ void gIndexMultiJoin(int *R, int *S, int g_locations[], int sLen, int
 {
 	extern __shared__ int shared[];
 	int s_cur = blockIdx.x * blockDim.x + threadIdx.x;
-	int posr, poss, x, y, temp, ini;
+	int posr, poss, x, y, ini;
 
 	if(threadIdx.x < wj)
 		shared[threadIdx.x] = muljoin[threadIdx.x];
@@ -258,15 +258,17 @@ __global__ void gIndexMultiJoin(int *R, int *S, int g_locations[], int sLen, int
 				poss = s_cur * of2;
 			else
 				poss = sloc[s_cur] * of2;
-			ini = r_cur - count;			
-			for(x = 0; x < wj; x += 2)
+			ini = r_cur - count;	
+			for(y = ini; y < r_cur; y++)
 			{
-				posr = shared[x];
-				temp = p2[poss + shared[x+1]];
-				for(y = ini; y < r_cur; y++)
+				posr = mloc[y] * of1;
+				for(x = 0; x < wj; x += 2)
 				{
-					if(p1[mloc[y] * of1 + posr] != temp)
+					if(p1[posr + shared[x]] != p2[poss + shared[x+1]])
+					{
 						count--;
+						break;
+					}
 				}
 			}
 			if(count > 0)
@@ -744,6 +746,9 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 	int *wherej = rule->wherejoin[pos];
 	int numj = rule->numjoin[pos];
 	int flag;
+#if TIMER
+	cuda_stats.joins++;
+#endif
 
 	int porLiberar = rLen * of1 * sizeof(int);
 	int size, sizet, sizet2;
@@ -775,7 +780,13 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 	int dconsize = sizet * 2;*/
 
 	reservar(&dcons, sizet);
+#ifdef DEBUG_MEM
+	cerr << "+ " << dcons << " dcons tree  " << sizet << endl;
+#endif
 	reservar(&temp, sizet2);
+#ifdef DEBUG_MEM
+	cerr << "+ " << temp << " temp tree " << sizet2 << endl;
+#endif
 	thrust::device_ptr<int> res = thrust::device_pointer_cast(temp);
 
 	numthreads = 1024;
@@ -784,7 +795,7 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 	int *posR = NULL, *posS = NULL;
 
 	#ifdef TIMER
-	cout << "INICIO" << endl;
+	//cout << "INICIO" << endl;
 	cudaEvent_t start, stop;
 	float time;
 	cudaEventCreate(&start);
@@ -839,7 +850,7 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 			}
 			catch(std::bad_alloc &e)
 			{
-				limpiar("inclusive scan in join");
+				limpiar("inclusive scan in join", 0);
 			}				
 		}
 		//thrust::inclusive_scan(res + 1, res + newLen, res + 1);	
@@ -850,7 +861,13 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 
 		memSizeS = newLen * sizeof(int);
 		reservar(&d_S, memSizeS);
+#ifdef DEBUG_MEM
+		cerr << "+ " << d_S << " d_S  " << memSizeS << endl;
+#endif
 		reservar(&posS, memSizeS);
+#ifdef DEBUG_MEM
+		cerr << "+ " << posS << " posS  " << memSizeS << endl;
+#endif
 		llenar<<<blockllen, numthreads>>>(p2, d_S, sLen, of2, wherej[1], temp, posS);
 		sLen = newLen;
 	}
@@ -867,11 +884,17 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 			thrust::inclusive_scan(res + 1, res + newLen, res + 1);
 			newLen = res[sLen];
 			if(newLen == 0)
-				return 0;
+			  return 0;
 
 			memSizeS = newLen * sizeof(int);
 			reservar(&d_S, memSizeS);
+#ifdef DEBUG_MEM
+			cerr << "+ " << d_S << " d_S m " << memSizeS << endl;
+#endif
 			reservar(&posS, memSizeS);
+#ifdef DEBUG_MEM
+			cerr << "+ " << posS << " posS m " << memSizeS << endl;
+#endif
 			llenar<<<blockllen, numthreads>>>(p2, d_S, sLen, of2, wherej[1], temp, posS);
 			sLen = newLen;
 		}
@@ -879,6 +902,9 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 		{
 			memSizeS = sLen * sizeof(int);
 			reservar(&d_S, memSizeS);
+#ifdef DEBUG_MEM
+			cerr << "+ " << d_S << " d_S n " << memSizeS << endl;
+#endif
 			llenarnosel<<<blockllen, numthreads>>>(p2, d_S, sLen, of2, wherej[1]);
 		}
 	}
@@ -887,7 +913,8 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 	cudaEventRecord(stop, 0);
 	cudaEventSynchronize(stop);
 	cudaEventElapsedTime(&time, start, stop);
-	cout << "Select1 = " << time << endl;
+	//cout << "Select1 = " << time << endl;
+	cuda_stats.select1_time += time;
 
 	cudaEventDestroy(start);
 	cudaEventDestroy(stop);
@@ -925,7 +952,13 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 			m32rLen = newLen + extraspace;
 			sizem32 = m32rLen * sizeof(int);
 			reservar(&d_R, sizem32);
+#ifdef DEBUG_MEM
+			cerr << "+ " << d_R << " d_R m " << sizem32 << endl;
+#endif
 			reservar(&posR, sizem32);
+#ifdef DEBUG_MEM
+			cerr << "+ " << posR << " posR m " << sizem32 << endl;
+#endif
 			cudaMemsetAsync(d_R + newLen, 0x7f, sizextra);
 			cudaMemsetAsync(posR + newLen, 0x7f, sizextra);
 			llenar<<<blockllen, numthreads>>>(p1, d_R, rLen, of1, wherej[0], temp, posR);
@@ -951,7 +984,13 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 				m32rLen = newLen + extraspace;
 				sizem32 = m32rLen * sizeof(int);
 				reservar(&d_R, sizem32);
+#ifdef DEBUG_MEM
+				cerr << "+ " << d_R << " d_R n " << sizem32 << endl;
+#endif
 				reservar(&posR, sizem32);
+#ifdef DEBUG_MEM
+				cerr << "+ " << posR << " posR n " << sizem32 << endl;
+#endif
 				cudaMemsetAsync(d_R + newLen, 0x7f, sizextra);
 				cudaMemsetAsync(posR + newLen, 0x7f, sizextra);
 				llenar<<<blockllen, numthreads>>>(p1, d_R, rLen, of1, wherej[0], temp, posR);
@@ -961,6 +1000,9 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 			{
 				sizem32 = m32rLen * sizeof(int);
 				reservar(&d_R, sizem32);
+#ifdef DEBUG_MEM
+				cerr << "+ " << d_R << " d_R sizem32 " << sizem32 << endl;
+#endif
 				cudaMemsetAsync(d_R + rLen, 0x7f, extraspace * sizeof(int));
 				llenarnosel<<<blockllen, numthreads>>>(p1, d_R, rLen, of1, wherej[0]);
 			}
@@ -971,6 +1013,9 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 	{
 		sizem32 = m32rLen * sizeof(int);
 		reservar(&d_R, sizem32);
+#ifdef DEBUG_MEM
+		cerr << "+ " << d_R << " d_R sz " << sizem32 << endl;
+#endif
 		cudaMemsetAsync(d_R + rLen, 0x7f, extraspace * sizeof(int));
 		llenarnosel<<<blockllen, numthreads>>>(p1, d_R, rLen, of1, wherej[0]);
 	}
@@ -979,7 +1024,8 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 	cudaEventRecord(stop, 0);
 	cudaEventSynchronize(stop);
 	cudaEventElapsedTime(&time, start, stop);
-	cout << "Select2 = " << time << endl;
+	//cout << "Select2 = " << time << endl;
+	cuda_stats.select2_time += time;
 	#endif
 	
 	/*free(hcons);
@@ -1005,6 +1051,9 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 	if(posR == NULL)
 	{
 		reservar(&posR, sizem32);
+#ifdef DEBUG_MEM
+		cerr << "+ " << posR << " posR m32 " << sizem32 << endl;
+#endif
 		permutation = thrust::device_pointer_cast(posR);
 		thrust::sequence(permutation, permutation + m32rLen);
 	}
@@ -1021,7 +1070,7 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 		}
 		catch(std::bad_alloc &e)
 		{
-			limpiar("inclusive scan in join");
+			limpiar("inclusive scan in join", 0);
 		}
 	}
 
@@ -1029,7 +1078,8 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 	cudaEventRecord(stop, 0);
 	cudaEventSynchronize(stop);
 	cudaEventElapsedTime(&time, start, stop);
-	cout << "Sort = " << time << endl;
+	//cout << "Sort = " << time << endl;
+	cuda_stats.sort_time += time;
 	
 	cudaEventDestroy(start);
 	cudaEventDestroy(stop);
@@ -1071,6 +1121,9 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 
 	int *d_locations;
 	reservar(&d_locations, memSizeS);
+#ifdef DEBUG_MEM
+	cerr << "+ " << d_locations << " d_locs n " << memSizeS << endl;
+#endif
 
 	dim3 Dbs(THRD_PER_BLCK_search, 1, 1);
 	dim3 Dgs(BLCK_PER_GRID_search, 1, 1);
@@ -1110,6 +1163,9 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 		cudaMemcpy(dcons, proj, sizepro, cudaMemcpyHostToDevice);
 		resSize = sum * sizepro;
 		reservar(&d_Rout, resSize);
+#ifdef DEBUG_MEM
+		cerr << "+ " << d_Rout << " d_Rout n " << resSize << endl;
+#endif
 		if(numj > 2)
 		{
 			cudaMemcpy(dcons + rule->num_columns, wherej + 2, muljoinsize, cudaMemcpyHostToDevice);
@@ -1124,6 +1180,9 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 		cudaMemcpy(dcons, proj, sizepro, cudaMemcpyHostToDevice);
 		resSize = sum * sizepro;
 		reservar(&d_Rout, resSize);
+#ifdef DEBUG_MEM
+		cerr << "+ " << d_Rout << " d_Rout 2 " << resSize << endl;
+#endif
 		if(numj > 2)
 		{
 			cudaMemcpy(dcons + projp.y, wherej + 2, muljoinsize, cudaMemcpyHostToDevice);
@@ -1162,8 +1221,9 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 	cudaEventRecord(stop, 0);
 	cudaEventSynchronize(stop);
 	cudaEventElapsedTime(&time, start, stop);
-	cout << "Join = " << time << endl;
-	cout << "FIN" << endl;
+	//cout << "Join = " << time << endl;
+	//cout << "FIN" << endl;
+	cuda_stats.join_time += time;
 	#endif
 
 	return sum;
