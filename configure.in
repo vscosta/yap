@@ -379,6 +379,7 @@ AC_ARG_WITH(mpi,
 		yap_cv_lam=yes
 	elif test "$withval" = no; then
 		yap_cv_lam=no
+		yap_cv_mpi=no
 	else
 		yap_cv_lam=$with_mpi
 		LDFLAGS="$LDFLAGS -L${yap_cv_mpi}/lib"
@@ -612,7 +613,9 @@ then
        C_PARSER_FLAGS="-O3 -Wall -Wstrict-prototypes -Wmissing-prototypes $CFLAGS"
        CFLAGS="-O3 -fomit-frame-pointer -Wall -Wstrict-prototypes -Wmissing-prototypes $CFLAGS"
        case "`$CC --version < /dev/null`" in	
-	  *3.4*) CFLAGS="-fno-gcse -fno-crossjumping $CFLAGS" ;;
+	  *3.4*) 
+	    CFLAGS="-fno-gcse -fno-crossjumping $CFLAGS" 
+	  ;;
        esac
        case "$target_cpu" in
         i*86*)
@@ -697,7 +700,6 @@ AC_PROG_LN_S
 AC_PROG_INSTALL
 AC_PROG_RANLIB
 AC_CHECK_TOOL(AR,ar,:)
-AC_CHECK_TOOL(MPI_CC,mpicc,${CC})
 AC_PATH_PROG(INSTALL_INFO,install-info,true,$PATH:/sbin:/usr/sbin:/usr/etc:/usr/local/sbin)
 AC_PATH_PROG(SHELL,sh)
 
@@ -1529,6 +1531,12 @@ dnl Linux has both elf and a.out, in this case we found elf
 	;;
 esac
 
+if test "$CC" = icc
+then
+  MPI_CC="$CC -lirc"
+  yap_cv_lam=no
+fi
+
 if test "$dynamic_loading" = "yes"
 then 
   YAPLIB_CFLAGS="$SHLIB_CFLAGS"
@@ -1641,8 +1649,10 @@ dnl LAM/MPI interface
 
 LAMOBJS=""
 MPI_OBJS=
-LAM_MPI_CC=${MPI_CC}
 if  test "$yap_cv_lam" != "no" ; then	
+  INSTALL_MPI=""
+  LAM_MPI_CC=${MPI_CC}
+  AC_CHECK_TOOL(MPI_CC,mpicc,${CC})
   if test "$yap_cv_lam" != "yes" ; then
     LAM_MPI_CC="$yap_cv_lam"/bin/mpicc
     MPI_CC="$yap_cv_lam"/bin/mpicc
@@ -1659,6 +1669,7 @@ if  test "$yap_cv_lam" != "no" ; then
   CC=${OLD_CC}
   dnl use mpich library
 elif test "$yap_cv_mpi" != "no"; then
+    INSTALL_MPI=""
     OLD_CC=${CC}
     CC=${MPI_CC}
     AC_CHECK_LIB(mpi,MPI_Init,
@@ -1702,7 +1713,8 @@ elif test "$yap_cv_mpi" != "no"; then
      CC=${OLD_CC}
    fi
 else
-    MPI_CC=${CC}
+  INSTALL_MPI="# "
+  MPI_CC=${CC}
 fi
 
 
@@ -1906,6 +1918,7 @@ AC_SUBST(JAR)
 AC_SUBST(LIBJPL)
 AC_SUBST(IN_UNIX)
 AC_SUBST(YAPMPILIB)
+AC_SUBST(INSTALL_MPI)
 AC_SUBST(LAM_MPI_CC)
 AC_SUBST(MPI_OBJS)
 AC_SUBST(MPI_LIBS)
@@ -2122,7 +2135,7 @@ AC_CHECK_FUNCS(erf feclearexcept)
 AC_CHECK_FUNCS(fesettrapenable fgetpos finite fpclass ftime ftruncate getcwd getenv)
 AC_CHECK_FUNCS(getexecname)
 AC_CHECK_FUNCS(gethostbyname gethostent gethostid gethostname)
-AC_CHECK_FUNCS(gethrtime getpagesize)
+AC_CHECK_FUNCS(gethrtime getpagesize getpid)
 AC_CHECK_FUNCS(getpwnam getrlimit getrusage gettimeofday getwd)
 AC_CHECK_FUNCS(isatty isnan isinf kill labs link lgamma)
 AC_CHECK_FUNCS(localtime lstat mallinfo)
