@@ -297,7 +297,6 @@ Yap_InitPreAllocCodeSpace(int wid)
   }
   AuxBase = (ADDR)(ptr);
   AuxSp = (CELL *)(AuxTop = AuxBase+REMOTE_ScratchPad(wid).sz);
-  printf("wid=%d %p %p %p--%p\n", wid, AuxBase, AuxSp, Yap_HeapBase, H);
   return ptr;
 }
 
