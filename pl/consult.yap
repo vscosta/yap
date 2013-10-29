@@ -923,20 +923,20 @@ absolute_file_name(File,Opts,TrueFileName) :-
 	'$get_if'(Level0),
 	Level is Level0 + 1,
 	nb_setval('$if_level',Level),
-	nb_getval('$endif',OldEndif),
-	nb_getval('$if_skip_mode',Mode),
+	'$nb_getval'('$endif', OldEndif, OldEndif=top),
+	'$nb_getval'('$if_skip_mode', Mode, Mode=run),
 	nb_setval('$endif',elif(Level,OldEndif,Mode)),
 	fail.
 % we are in skip mode, ignore....
 '$if'(Goal,_) :-
-	nb_getval('$endif',elif(Level, OldEndif, skip)), !,
+	'$nb_getval'('$endif',elif(Level, OldEndif, skip), fail), !,
 	nb_setval('$endif',endif(Level, OldEndif, skip)).	
 % we are in non skip mode, check....
 '$if'(Goal,_) :-
 	('$if_call'(Goal)
 	    ->
 	 % we will execute this branch, and later enter skip
-	 nb_getval('$endif',elif(Level,OldEndif,Mode)),
+	 '$nb_getval'('$endif', elif(Level,OldEndif,Mode), fail),
 	 nb_setval('$endif',endif(Level,OldEndif,Mode))
 	;
 	 % we are now in skip, but can start an elif.

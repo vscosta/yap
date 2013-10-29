@@ -107,8 +107,25 @@ compile-time
 	  simpleMutexUnlock(&(cm)->mutex); \
 	} while(0)
 
+//#define O_DEBUG_MT
+#ifdef O_DEBUG_MT
+#define PL_LOCK(id) \
+	do { Sdprintf("[%d] %s:%d: LOCK(%s)\n", \
+		      pthread_self(),		     \
+		      __BASE_FILE__, __LINE__, #id); \
+             countingMutexLock(&_PL_mutexes[id]); \
+	   } while(0)
+#define PL_UNLOCK(id) \
+	do { Sdprintf("[%d] %s:%d: UNLOCK(%s)\n", \
+		      pthread_self(), \
+		      __BASE_FILE__, __LINE__, #id); \
+	     countingMutexUnlock(&_PL_mutexes[id]); \
+	   } while(0)
+#else
 #define PL_LOCK(id)   IF_MT(id, countingMutexLock(&_PL_mutexes[id]))
 #define PL_UNLOCK(id) IF_MT(id, countingMutexUnlock(&_PL_mutexes[id]))
+#endif
+#undef O_DEBUG_MT
 
 #define IOLOCK  recursiveMutex
 

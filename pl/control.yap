@@ -320,6 +320,7 @@ b_getval(GlobalVariable, Val) :-
 	debugger state */
 
 break :-
+	'$init_debugger',
 	nb_getval('$system_mode',SystemMode),
 	nb_getval('$trace',Trace),
 	nb_setval('$trace',off),

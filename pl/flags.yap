@@ -58,9 +58,6 @@ yap_flag(autoload,false) :-
 % do or do not machine code
 yap_flag(argv,L) :- '$argv'(L).
 
-% do or do not machine code
-yap_flag(executable,L) :- '$executable'(L).
-
 % hide/unhide atoms
 yap_flag(hide,Atom) :- !, hide(Atom).
 yap_flag(unhide,Atom) :- !, unhide(Atom).
@@ -212,16 +209,6 @@ yap_flag(associate,X) :-
 yap_flag(associate,X) :-
 	'$do_error'(type_error(atom,X),associate(X)).
 
-yap_flag(bounded,X) :-
-	var(X), !,
-	'$access_yap_flags'(0, X1),
-	'$transl_to_true_false'(X1,X).
-yap_flag(bounded,X) :-
-	(X = true ; X = false), !,
-	'$do_error'(permission_error(modify,flag,bounded),yap_flag(bounded,X)).
-yap_flag(bounded,X) :-
-	'$do_error'(domain_error(flag_value,bounded+X),yap_flag(bounded,X)).
-
 % do or do not indexation
 yap_flag(index,X) :- var(X),
 	'$access_yap_flags'(19, X1),
@@ -243,9 +230,6 @@ yap_flag(index_sub_term_search_depth,X,X)  :-
 	'$do_error'(type_error(integer,X),yap_flag(index_sub_term_search_depth,X)).
 yap_flag(index_sub_term_search_depth,X,X) :-
 	'$do_error'(domain_error(out_of_range,index_sub_term_search_depth+X),yap_flag(index_sub_term_search_depth,X)).
-
-yap_flag(home,X) :-
-	'$yap_home'(X).
 
 % should match definitions in Yap.h
 '$transl_to_index_mode'(0, off).
@@ -312,57 +296,11 @@ yap_flag(integer_rounding_function,X) :-
 yap_flag(integer_rounding_function,X) :-
 	'$do_error'(domain_error(flag_value,integer_rounding_function+X),yap_flag(integer_rounding_function,X)).
 
-yap_flag(max_arity,X) :-
-	var(X), !,
-	'$access_yap_flags'(1, X1),
-	'$transl_to_arity'(X1,X).
-yap_flag(max_arity,X) :-
-	integer(X), X > 0, !,
-	'$do_error'(permission_error(modify,flag,max_arity),yap_flag(max_arity,X)).
-yap_flag(max_arity,X) :-
-	'$do_error'(domain_error(flag_value,max_arity+X),yap_flag(max_arity,X)).
-
 yap_flag(version,X) :-
 	var(X), !,
 	get_value('$version_name',X).
 yap_flag(version,X) :-
 	'$do_error'(permission_error(modify,flag,version),yap_flag(version,X)).
-
-yap_flag(max_integer,X) :-
-	var(X), !,
-	'$access_yap_flags'(0, 1),
-	'$access_yap_flags'(3, X).
-yap_flag(max_integer,X) :-
-	integer(X), X > 0, !,
-	'$do_error'(permission_error(modify,flag,max_integer),yap_flag(max_integer,X)).
-yap_flag(max_integer,X) :-
-	'$do_error'(domain_error(flag_value,max_integer+X),yap_flag(max_integer,X)).
-
-yap_flag(max_tagged_integer,X) :-
-	'$max_tagged_integer'(X), !.
-yap_flag(max_tagged_integer,X) :-			       
-	integer(X), X > 0, !,
-	'$do_error'(permission_error(modify,flag,max_tagged_integer),yap_flag(max_tagged_integer,X)).
-yap_flag(max_tagged_integer,X) :-
-	'$do_error'(domain_error(flag_value,max_tagged_integer+X),yap_flag(max_tagged_integer,X)).
-
-yap_flag(min_integer,X) :-
-	var(X), !,
-	'$access_yap_flags'(0, 1),
-	'$access_yap_flags'(4, X).
-yap_flag(min_integer,X) :-
-	integer(X), X < 0, !,
-	'$do_error'(permission_error(modify,flag,min_integer),yap_flag(min_integer,X)).
-yap_flag(min_integer,X) :-
-	'$do_error'(domain_error(flag_value,min_integer+X),yap_flag(min_integer,X)).
-
-yap_flag(min_tagged_integer,X) :-
-	'$min_tagged_integer'( X), !.
-yap_flag(min_tagged_integer,X) :-
-	integer(X), X > 0, !,
-	'$do_error'(permission_error(modify,flag,min_tagged_integer),yap_flag(min_tagged_integer,X)).
-yap_flag(min_tagged_integer,X) :-
-	'$do_error'(domain_error(flag_value,min_tagged_integer+X),yap_flag(min_tagged_integer,X)).
 
 /* ISO Core Revision DTR: new float flags
 
@@ -418,16 +356,6 @@ yap_flag(char_conversion,X) :-
 	).
 yap_flag(char_conversion,X) :-
 	'$do_error'(domain_error(flag_value,char_conversion+X),yap_flag(char_conversion,X)).
-
-yap_flag(double_quotes,X) :-
-	var(X), !,
-	'$access_yap_flags'(6, X1),
-	'$transl_to_trl_types'(X1,X).
-yap_flag(double_quotes,X) :-
-	'$transl_to_trl_types'(X1,X), !,
-	'$set_yap_flags'(6,X1).
-yap_flag(double_quotes,X) :-
-	'$do_error'(domain_error(flag_value,double_quotes+X),yap_flag(double_quotes,X)).
 
 yap_flag(n_of_integer_keys_in_db,X) :-
 	var(X), !,
@@ -514,13 +442,6 @@ yap_flag(discontiguous_warnings,X) :-
 yap_flag(discontiguous_warnings,X) :-
 	'$do_error'(domain_error(flag_value,discontiguous_warnings+X),yap_flag(discontiguous_warnings,X)).
 
-yap_flag(occurs_check,X) :-
-	X = false, !.
-yap_flag(occurs_check,true) :- !,
-	fail.
-yap_flag(occurs_check,X) :-
-	'$do_error'(domain_error(flag_value,occurs_check+X),yap_flag(occurs_check,X)).
-
 yap_flag(redefine_warnings,X) :-
 	var(X), !,
 	'$syntax_check_multiple'(X,X).
@@ -536,7 +457,7 @@ yap_flag(redefine_warnings,X) :-
 
 yap_flag(chr_toplevel_show_store,X) :-
 	var(X), !,
-	nb_getval('$chr_toplevel_show_store',X).
+	'$nb_getval'('$chr_toplevel_show_store', X, fail).
 yap_flag(chr_toplevel_show_store,X) :-
 	(X = true ; X = false), !,
 	nb_setval('$chr_toplevel_show_store',X).
@@ -581,8 +502,6 @@ yap_flag(system_options,X) :-
 	'$swi_current_prolog_flag'(readline, true).
 '$system_options'(tabling) :-
 	\+ '$undefined'('$c_table'(_,_,_), prolog).
-'$system_options'(threads) :-
-	\+ '$no_threads'.
 '$system_options'(wam_profiler) :-
 	\+ '$undefined'(reset_op_counters, prolog).
 	
@@ -629,14 +548,6 @@ yap_flag(toplevel_hook,G) :-
 	( recorded('$toplevel_hooks',G,_) -> G ; G = fail ).
 yap_flag(toplevel_hook,G) :- !,
 	'$set_toplevel_hook'(G).
-
-yap_flag(unix,true) :-
-	'$unix', !.
-yap_flag(unix,false).
-
-yap_flag(windows,true) :-
-	'$win32', !.
-yap_flag(windows,false).
 
 yap_flag(shared_object_search_path,P) :-
 	'$ld_path'(P).
@@ -788,35 +699,19 @@ yap_flag(max_threads,X) :-
 yap_flag(max_threads,X) :-
 	'$do_error'(domain_error(flag_value,max_threads+X),yap_flag(max_threads,X)).
 
-yap_flag(address_bits,X) :-
-	var(X), !,
-	'$address_bits'(X).
-yap_flag(address_bits,X) :-
-	integer(X), X > 0, !,
-	'$do_error'(permission_error(modify,flag,address_bits),yap_flag(address_bits,X)).
-yap_flag(address_bits,X) :-
-	'$do_error'(domain_error(flag_value,address_bits+X),yap_flag(address_bits,X)).
-
-yap_flag(dialect,yap).
-
-'$yap_system_flag'(address_bits).
 '$yap_system_flag'(agc_margin).
 '$yap_system_flag'(answer_format).
 '$yap_system_flag'(argv).
 '$yap_system_flag'(autoload).
-'$yap_system_flag'(bounded).
 '$yap_system_flag'(char_conversion).
 '$yap_system_flag'(character_escapes).
 '$yap_system_flag'(chr_toplevel_show_store).
 '$yap_system_flag'(debug).
 '$yap_system_flag'(debug_on_error    ).
 '$yap_system_flag'(debugger_print_options).
-'$yap_system_flag'(dialect).
 '$yap_system_flag'(discontiguous_warnings).
 '$yap_system_flag'(dollar_as_lower_case).
 '$yap_system_flag'(double_quotes).
-% '$yap_system_flag'(encoding).
-'$yap_system_flag'(executable).
 %		V = fast  ;
 % '$yap_system_flag'(file_name_variables).
 % '$yap_system_flag'(fileerrors ).
@@ -830,7 +725,6 @@ yap_flag(dialect,yap).
 '$yap_system_flag'(gc_trace    ).
 '$yap_system_flag'(generate_debug_info    ).
 %	    V = hide  ;
-'$yap_system_flag'(home ).
 '$yap_system_flag'(host_type ).
 '$yap_system_flag'(index).
 '$yap_system_flag'(index_sub_term_search_depth).
@@ -838,15 +732,9 @@ yap_flag(dialect,yap).
 '$yap_system_flag'(informational_messages).
 '$yap_system_flag'(integer_rounding_function).
 '$yap_system_flag'(language).
-'$yap_system_flag'(max_arity).
-'$yap_system_flag'(max_integer).
-'$yap_system_flag'(max_tagged_integer).
 '$yap_system_flag'(max_workers).
 '$yap_system_flag'(max_threads).
-'$yap_system_flag'(min_integer).
-'$yap_system_flag'(min_tagged_integer).
 '$yap_system_flag'(n_of_integer_keys_in_db).
-'$yap_system_flag'(occurs_check).
 '$yap_system_flag'(open_expands_filename).
 '$yap_system_flag'(open_shared_object).
 % '$yap_system_flag'(optimise).
@@ -866,7 +754,6 @@ yap_flag(dialect,yap).
 '$yap_system_flag'(toplevel_hook).
 '$yap_system_flag'(toplevel_print_options).
 '$yap_system_flag'(typein_module).
-'$yap_system_flag'(unix).
 '$yap_system_flag'(unknown).
 '$yap_system_flag'(update_semantics).
 '$yap_system_flag'(user_error).
@@ -878,7 +765,6 @@ yap_flag(dialect,yap).
 '$yap_system_flag'(verbose_load).
 '$yap_system_flag'(verbose_auto_load).
 '$yap_system_flag'(version).
-'$yap_system_flag'(windows).
 '$yap_system_flag'(write_strings).
 
 '$show_yap_flag_opts'(V,Out) :-
@@ -956,10 +842,6 @@ yap_flag(dialect,yap).
 
 '$transl_to_rounding_function'(0,toward_zero).
 '$transl_to_rounding_function'(1,down).
-
-'$transl_to_trl_types'(0,chars).
-'$transl_to_trl_types'(1,codes).
-'$transl_to_trl_types'(2,atom).
 
 '$yap_flag_show_gc_tracing'(true, _, _, on) :- !.
 '$yap_flag_show_gc_tracing'(_, true, _, verbose) :- !.

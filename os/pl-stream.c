@@ -2255,9 +2255,11 @@ Svsprintf(char *buf, const char *fm, va_list args)
 int
 Svdprintf(const char *fm, va_list args)
 { int rval;
-  IOSTREAM *s = Serror;
+    IOSTREAM *s = Serror;
+  //IOSTREAM *s = Sopen_file("/home/vsc/cout.txt", "append");
 
-  Slock(s);
+
+  //Slock(s);
   rval = Svfprintf(s, fm, args);
 #if defined(_DEBUG) && defined(__WINDOWS__)
   Sputc('\0', s);
@@ -2266,7 +2268,8 @@ Svdprintf(const char *fm, va_list args)
 #endif
   if ( Sflush(s) != 0 )
     rval = -1;
-  Sunlock(s);
+  //Sunlock(s);
+  //Sclose(s);
 
   return rval;
 }

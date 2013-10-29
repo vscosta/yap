@@ -29,8 +29,8 @@ static char     SccsId[] = "%W% %G%.2";
 #include "Foreign.h"
 
 #if _WIN32 || defined(__CYGWIN__)
-#ifndef YAP_SHLIB_SUFFIX
-#define YAP_SHLIB_SUFFIX ".dll"
+#ifndef SO_EXT
+#define SO_EXT ".dll"
 #endif
 #endif
 
@@ -210,12 +210,12 @@ p_call_shared_object_function( USES_REGS1 ) {
 
 static Int
 p_obj_suffix( USES_REGS1 ) {
-  return Yap_unify(Yap_StringToList(YAP_SHLIB_SUFFIX),ARG1);
+  return Yap_unify(Yap_StringToList(SO_EXT),ARG1);
 }
 
 static Int
 p_open_shared_objects( USES_REGS1 ) {
-#ifdef YAP_SHLIB_SUFFIX
+#ifdef SO_EXT
   return TRUE;
 #else
   return FALSE;

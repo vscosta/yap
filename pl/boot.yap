@@ -94,22 +94,15 @@ true :- true.
 
 '$init_globals' :-
 	'$init_consult',
-	nb_setval('$chr_toplevel_show_store',false),
 	nb_setval('$break',0),
-	% '$set_read_error_handler'(error), let the user do that
-	nb_setval('$open_expands_filename',true),
-	nb_setval('$trace',off),
+	% '$set_read_error_handler'(error), let the user do that 
 	nb_setval('$system_mode',off),
-	nb_setval('$chr_toplevel_show_store',false),
-	nb_setval('$assert_all',off),
-	nb_setval('$if_skip_mode',no_skip),
-	b_setval('$spy_glist',[]),
-	nb_setval('$spy_gn',1),
-	nb_setval('$debug_run',off),
-	nb_setval('$debug_jump',off).
+	nb_setval('$chr_toplevel_show_store',false).
 
 '$init_consult' :-
+	set_value('$open_expands_filename',true),
 	set_value('$lf_verbose',informational),
+	nb_setval('$assert_all',off),
 	nb_setval('$if_level',0),
 	nb_setval('$endif',off),
 	nb_setval('$consulting_file',[]),
@@ -1263,7 +1256,7 @@ catch_ball(C, C).
 	 '$execute_outside_system_mode'(G2, M, CP)
 	).
 '$execute_outside_system_mode'(G, M, CP) :-
-	nb_getval('$trace', on), !,
+	'$nb_getval'('$trace', on, fail), !,
 	(
 	   '$$save_by'(CP1),
 	  '$do_spy'(G, M, CP, meta_creep),

@@ -364,6 +364,7 @@ thread_exit(Term) :-
 	fail.
 '$run_at_thread_exit'(Id0) :-
 	recorded('$thread_exit_hook',[Id0|Hook],R), erase(R),
+	open('/home/vsc/coutput.txt', append, W), writeln(hook:Hook), close(W),
 	catch(once(Hook),_,fail),
 	fail.
 '$run_at_thread_exit'(_).
@@ -374,7 +375,8 @@ thread_at_exit(Goal) :-
 	recordz('$thread_exit_hook',[Id0|Goal],_).
 
 current_thread(Id, Status) :-
-	thread_property(Id, status(Status)).
+	catch(thread_property(Id, status(Status)),
+	  error(existence_error(_,_),_), fail).
 
 
 '$thread_id_alias'(Id, Alias) :-

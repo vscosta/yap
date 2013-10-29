@@ -11,7 +11,7 @@
 * File:		debug.pl						 *
 * Last rev:								 *
 * mods:									 *
-* comments:	YAP's debugger						 *
+* comments:	YAP debugger						 *
 *									 *
 *************************************************************************/
 
@@ -22,6 +22,16 @@
 -----------------------------------------------------------------------------*/
 
 :- op(900,fx,[spy,nospy]).
+
+'$init_debugger' :-
+        nb_getval('$trace', _, fail), !.
+'$init_debugger' :-
+	nb_setval('$trace',off),
+	nb_setval('$if_skip_mode',no_skip),
+	b_setval('$spy_glist',[]),
+	nb_setval('$spy_gn',1),
+	nb_setval('$debug_run',off),
+	nb_setval('$debug_jump',off).
 
 
 % First part : setting and reseting spy points
@@ -123,6 +133,7 @@
 	recorded('$spy','$spy'(G,M),_), !.
 
 spy Spec :-
+	'$init_debugger',
 	prolog:debug_action_hook(spy(Spec)), !.
 spy L :-
 	'$current_module'(M),
@@ -130,6 +141,7 @@ spy L :-
 spy _ :- debug.
 
 nospy Spec :-
+	'$init_debugger',
 	prolog:debug_action_hook(nospy(Spec)), !.
 nospy L :-
 	'$current_module'(M),
@@ -137,6 +149,7 @@ nospy L :-
 nospy _.
 
 nospyall :-
+	'$init_debugger',
 	prolog:debug_action_hook(nospyall), !.
 nospyall :-
 	recorded('$spy','$spy'(T,M),_), functor(T,F,N), '$suspy'(F/N,nospy,M), fail.
@@ -145,6 +158,7 @@ nospyall.
 % debug mode -> debug flag = 1
 
 debug :-
+	'$init_debugger',
 	( nb_getval('$spy_gn',L) -> true ; nb_setval('$spy_gn',1) ),
 	'$start_debugging'(on),
 	print_message(informational,debug(debug)).
@@ -159,6 +173,7 @@ debug :-
 	nb_setval('$debug_jump',false).
 	
 nodebug :-
+	'$init_debugger',
 	'$debug_on'(false),
 	nb_setval('$trace',off),
 	print_message(informational,debug(off)).
@@ -168,7 +183,8 @@ nodebug :-
  %
 	
 trace :- 
-	nb_getval('$trace',on), !.
+	'$init_debugger',
+	'$nb_getval'('$trace', on, fail), !.
 trace :-
 	nb_setval('$trace',on),
 	'$start_debugging'(on),
@@ -176,7 +192,7 @@ trace :-
 	'$meta_creep'.
 
 '$do_trace' :- 
-	nb_getval('$trace',on), !.
+	'$nb_getval'('$trace', on, fail), !.
 '$do_trace' :-
 	nb_setval('$trace',on),
 	'$start_debugging'(on),
@@ -184,6 +200,7 @@ trace :-
 	'$creep'.
 
 notrace :-
+	'$init_debugger',
 	nodebug.
 
 /*-----------------------------------------------------------------------------
@@ -196,6 +213,7 @@ notrace :-
 leash(X) :- var(X),
 	'$do_error'(instantiation_error,leash(X)).
 leash(X) :-
+	'$init_debugger',
 	'$leashcode'(X,Code),
 	set_value('$leash',Code),
 	'$show_leash'(informational,Code), !.
@@ -243,6 +261,7 @@ leash(X) :-
 
 
 debugging :-
+	'$init_debugger',
 	prolog:debug_action_hook(nospyall), !.
 debugging :-
 	( '$debug_on'(true) ->
