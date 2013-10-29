@@ -319,7 +319,8 @@ word lookupAtom(const char *s, size_t len)
 
   /* dirty trick to ensure s is null terminated */
   char *st = (char *)s;
-  st[len] = '\0';
+  if (st[len])
+    st[len] = '\0';
   if (len >= strlen(s)) {
     at = YAP_LookupAtom(st);
   } else {
@@ -1300,12 +1301,6 @@ sysError(const char *fm, ...)
 
 #if THREADS
 
-#define COUNT_MUTEX_INITIALIZER(name) \
- { PTHREAD_MUTEX_INITIALIZER, \
-   name, \
-   0L \
- }
-
 static int
 recursive_attr(pthread_mutexattr_t **ap)
 { static int done;
@@ -1359,28 +1354,5 @@ recursiveMutexInit(recursiveMutex *m)
   return pthread_mutex_init(m, attr);
 
 }
-
-counting_mutex _PL_mutexes[] =
-{ COUNT_MUTEX_INITIALIZER("L_MISC"),
-  COUNT_MUTEX_INITIALIZER("L_ALLOC"),
-  COUNT_MUTEX_INITIALIZER("L_ATOM"),
-  COUNT_MUTEX_INITIALIZER("L_FLAG"),
-  COUNT_MUTEX_INITIALIZER("L_FUNCTOR"),
-  COUNT_MUTEX_INITIALIZER("L_RECORD"),
-  COUNT_MUTEX_INITIALIZER("L_THREAD"),
-  COUNT_MUTEX_INITIALIZER("L_PREDICATE"),
-  COUNT_MUTEX_INITIALIZER("L_MODULE"),
-  COUNT_MUTEX_INITIALIZER("L_TABLE"),
-  COUNT_MUTEX_INITIALIZER("L_BREAK"),
-  COUNT_MUTEX_INITIALIZER("L_FILE"),
-  COUNT_MUTEX_INITIALIZER("L_PLFLAG"),
-  COUNT_MUTEX_INITIALIZER("L_OP"),
-  COUNT_MUTEX_INITIALIZER("L_INIT"),
-  COUNT_MUTEX_INITIALIZER("L_TERM"),
-  COUNT_MUTEX_INITIALIZER("L_GC"),
-  COUNT_MUTEX_INITIALIZER("L_AGC"),
-  COUNT_MUTEX_INITIALIZER("L_FOREIGN"),
-  COUNT_MUTEX_INITIALIZER("L_OS")
-};
 
 #endif

@@ -5039,10 +5039,66 @@ struct PL_local_data *Yap_InitThreadIO(int wid)
   return p;
 }
 
+#ifdef THREADS
+
+#define COUNT_MUTEX_INITIALIZER(name) \
+ { PTHREAD_MUTEX_INITIALIZER, \
+   name, \
+   0L \
+ }
+
+
+counting_mutex _PL_mutexes[] =
+{ COUNT_MUTEX_INITIALIZER("L_MISC"),
+  COUNT_MUTEX_INITIALIZER("L_ALLOC"),
+  COUNT_MUTEX_INITIALIZER("L_ATOM"),
+  COUNT_MUTEX_INITIALIZER("L_FLAG"),
+  COUNT_MUTEX_INITIALIZER("L_FUNCTOR"),
+  COUNT_MUTEX_INITIALIZER("L_RECORD"),
+  COUNT_MUTEX_INITIALIZER("L_THREAD"),
+  COUNT_MUTEX_INITIALIZER("L_PREDICATE"),
+  COUNT_MUTEX_INITIALIZER("L_MODULE"),
+  COUNT_MUTEX_INITIALIZER("L_TABLE"),
+  COUNT_MUTEX_INITIALIZER("L_BREAK"),
+  COUNT_MUTEX_INITIALIZER("L_FILE"),
+  COUNT_MUTEX_INITIALIZER("L_PLFLAG"),
+  COUNT_MUTEX_INITIALIZER("L_OP"),
+  COUNT_MUTEX_INITIALIZER("L_INIT"),
+  COUNT_MUTEX_INITIALIZER("L_TERM"),
+  COUNT_MUTEX_INITIALIZER("L_GC"),
+  COUNT_MUTEX_INITIALIZER("L_AGC"),
+  COUNT_MUTEX_INITIALIZER("L_STOPTHEWORLD"),
+  COUNT_MUTEX_INITIALIZER("L_FOREIGN"),
+  COUNT_MUTEX_INITIALIZER("L_OS"),
+  COUNT_MUTEX_INITIALIZER("L_LOCALE")
+#ifdef __WINDOWS__
+, COUNT_MUTEX_INITIALIZER("L_DDE")
+, COUNT_MUTEX_INITIALIZER("L_CSTACK")
+#endif
+
+};
+
+static void
+initMutexes( void )
+{ counting_mutex *m;
+  int n = sizeof(_PL_mutexes)/sizeof(*m);
+  int i;
+
+  for(i=0, m=_PL_mutexes; i<n; i++, m++)
+    simpleMutexInit(&m->mutex);
+}
+
+
+#endif
+
+
 static void
 init_yap(void)
 {
   GET_LD
+#ifdef THREADS
+  initMutexes();
+#endif
   /* we need encodings first */
   initCharTypes();
   initPrologFlags();
