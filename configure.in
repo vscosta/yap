@@ -376,16 +376,15 @@ AC_ARG_WITH(mpi,
 	[ --with-mpi[=DIR]           use LAM/MPI library in DIR],
 	if test "$withval" = yes; then
         dnl handle UBUNTU systems
-		yap_cv_lam=yes
+		yap_cv_mpi=yes
 	elif test "$withval" = no; then
-		yap_cv_lam=no
 		yap_cv_mpi=no
 	else
-		yap_cv_lam=$with_mpi
+		yap_cv_mpi=$with_mpi
 		LDFLAGS="$LDFLAGS -L${yap_cv_mpi}/lib"
 		CPPFLAGS="$CPPFLAGS -I${yap_cv_mpi}/include"
 	fi,
-	[yap_cv_lam=no])
+	[yap_cv_mpi=no])
 
 
 AC_ARG_WITH(mpe,
@@ -400,19 +399,6 @@ AC_ARG_WITH(mpe,
 		CPPFLAGS="$CPPFLAGS -I${yap_cv_mpe}/include"
 	fi,
 	[yap_cv_mpe=no])
-
-AC_ARG_WITH(lam,
-	[ --with-lam[=DIR]           use LAM MPI library in DIR],
-	if test "$withval" = yes; then
-	        yap_cv_lam=yes
-	elif test "$withval" = no; then
-		yap_cv_lam=no
-	else
-		yap_cv_lam=$with_lam
-		LDFLAGS="$LDFLAGS -L${yap_cv_lam}/lib"
-		CPPFLAGS="$CPPFLAGS -I${yap_cv_lam}/include"
-	fi,
-	[yap_cv_lam=no])
 
 AC_ARG_WITH(heap-space,
 	[ --with-heap-space[=space]  default heap size in Kbytes],
@@ -1533,8 +1519,8 @@ esac
 
 if test "$CC" = icc
 then
-  MPI_CC="$CC -lirc"
-  yap_cv_lam=no
+  MPI_CC="$CC"
+  yap_cv_mpi=no
 fi
 
 if test "$dynamic_loading" = "yes"
@@ -1647,56 +1633,20 @@ if test "$tabling" = "yes"
 fi
 dnl LAM/MPI interface
 
-LAMOBJS=""
-MPI_OBJS=
-if  test "$yap_cv_lam" != "no" ; then	
-  INSTALL_MPI=""
-  LAM_MPI_CC=${MPI_CC}
-  AC_CHECK_TOOL(MPI_CC,mpicc,${CC})
-  if test "$yap_cv_lam" != "yes" ; then
-    LAM_MPI_CC="$yap_cv_lam"/bin/mpicc
-    MPI_CC="$yap_cv_lam"/bin/mpicc
-    CPPFLAGS="$CPPFLAGS -I ${yap_cv_lam}/include"
-    LDFLAGS="$LDFLAGS -L${yap_cv_lam}/lib"
-  fi
-  OLD_CC=${CC}	
-  CC=${LAM_MPI_CC}
-  AC_CHECK_HEADER(mpi.h,
-		[LAMOBJS=yap_mpi."$SO"
-                 AC_DEFINE(HAVE_LIBMPI, 1)],
-		[LAMOBJS=""
-                 AC_DEFINE(HAVE_LIBMPI, 0)])
-  CC=${OLD_CC}
-  dnl use mpich library
-elif test "$yap_cv_mpi" != "no"; then
+if test "$yap_cv_mpi" != "no"; then
+    if test "$yap_cv_mpi" != "yes"; then
+      AC_PATH_PROG(MPI_CC,mpicc,true,$PATH:/sbin:/usr/sbin:/usr/etc:/usr/local/sbin)
+    else
+      AC_PATH_PROG(MPI_CC,mpicc,true,$yap_cv_mpi/bin:$PATH:/sbin:/usr/sbin:/usr/etc:/usr/local/sbin)
+    fi
+    MPILDF=`"$MPI_CC" --showme:link`
+    MPICF=`"$MPI_CC" --showme:compile`
+    LIBS="$LIBS $MPILDF"
     INSTALL_MPI=""
     OLD_CC=${CC}
     CC=${MPI_CC}
-    AC_CHECK_LIB(mpi,MPI_Init,
-		[LAMOBJS=yap_mpi."$SO"
-                 AC_DEFINE(HAVE_LIBMPI, 1)],
-		[LAMOBJS=yap_mpi."$SO"
-                 AC_DEFINE(HAVE_LIBMPI, 0)])
-    if test "$ac_cv_lib_mpi_MPI_Init" = yes
-    then
-	#YAPMPILIB=YapMPI.a
-	MPI_OBJS=mpi.o
-    else
-      AC_CHECK_LIB(mpich,MPI_Init,
-		[AC_DEFINE(HAVE_LIBMPICH, 1)],
-		[AC_DEFINE(HAVE_LIBMPICH, 0)])
-      if test "$ac_cv_lib_mpich_MPI_Init" = yes
-      then
-	#YAPMPILIB=YapMPI.a
-	MPI_OBJS=mpi.o
-      else
-	#YAPMPILIB=
-	MPI_CC=${CC}
-      fi
-    fi
     AC_CHECK_HEADERS(mpi.h)
     CC=${OLD_CC}
-    MPI_LIBS=
     if test "$yap_cv_mpe" != "no"
     then
      OLD_CC=${CC}
@@ -1919,16 +1869,15 @@ AC_SUBST(LIBJPL)
 AC_SUBST(IN_UNIX)
 AC_SUBST(YAPMPILIB)
 AC_SUBST(INSTALL_MPI)
-AC_SUBST(LAM_MPI_CC)
-AC_SUBST(MPI_OBJS)
-AC_SUBST(MPI_LIBS)
+AC_SUBST(MPI_CC)
+AC_SUBST(MPILDF)
+AC_SUBST(MPICF)
 AC_SUBST(INSTALL_COMMAND)
 AC_SUBST(INSTALLCLP)
 AC_SUBST(JPLCFLAGS)
 AC_SUBST(JPLLIBS)
 AC_SUBST(JAVALIBS)
 AC_SUBST(JPLCFLAGS)
-AC_SUBST(LAMOBJS)
 AC_SUBST(MAX_WORKERS)
 AC_SUBST(STATIC_MODE)
 AC_SUBST(ENABLE_WINCONSOLE)

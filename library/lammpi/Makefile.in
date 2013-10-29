@@ -23,7 +23,7 @@ YAPLIBDIR=@libdir@/Yap
 #
 #
 CC=@CC@
-MPI_CC=@LAM_MPI_CC@
+MPI_CC=@MPI_CC@
 CFLAGS= @SHLIB_CFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I../.. -I$(srcdir)/../../include
 #
 #
@@ -37,13 +37,12 @@ RANLIB=@RANLIB@
 srcdir=@srcdir@
 SO=@SO@
 CWD=$(PWD)
-MPILDF=`$(MPI_CC) --showme:link`
-MPICF=`$(MPI_CC) --showme:compile`
+MPILDF=@MPILDF@
+MPICF=@MPICF@
 #
 
 OBJS=yap_mpi.o hash.o prologterms2c.o
-SOBJS=@LAMOBJS@
-#yap_mpi.@SO@
+SOBJS=yap_mpi.@SO@
 
 #in some systems we just create a single object, in others we need to
 # create a libray

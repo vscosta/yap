@@ -671,15 +671,13 @@ EXTRA_INCLUDES_FOR_WIN32
 ENABLE_WINCONSOLE
 STATIC_MODE
 MAX_WORKERS
-LAMOBJS
 JAVALIBS
 JPLLIBS
 JPLCFLAGS
 INSTALLCLP
 INSTALL_COMMAND
-MPI_LIBS
-MPI_OBJS
-LAM_MPI_CC
+MPICF
+MPILDF
 INSTALL_MPI
 YAPMPILIB
 IN_UNIX
@@ -868,7 +866,6 @@ with_readline
 with_matlab
 with_mpi
 with_mpe
-with_lam
 with_heap_space
 with_stack_space
 with_trail_space
@@ -1549,7 +1546,6 @@ Optional Packages:
  --with-matlab=DIR      use MATLAB package in DIR
  --with-mpi=DIR           use LAM/MPI library in DIR
  --with-mpe=DIR           use MPE library in DIR
- --with-lam=DIR           use LAM MPI library in DIR
  --with-heap-space=space  default heap size in Kbytes
  --with-stack-space=space default stack size in Kbytes
  --with-trail-space=space default trail size in Kbytes
@@ -4885,17 +4881,16 @@ fi
 # Check whether --with-mpi was given.
 if test "${with_mpi+set}" = set; then :
   withval=$with_mpi; if test "$withval" = yes; then
-        		yap_cv_lam=yes
+        		yap_cv_mpi=yes
 	elif test "$withval" = no; then
-		yap_cv_lam=no
 		yap_cv_mpi=no
 	else
-		yap_cv_lam=$with_mpi
+		yap_cv_mpi=$with_mpi
 		LDFLAGS="$LDFLAGS -L${yap_cv_mpi}/lib"
 		CPPFLAGS="$CPPFLAGS -I${yap_cv_mpi}/include"
 	fi
 else
-  yap_cv_lam=no
+  yap_cv_mpi=no
 fi
 
 
@@ -4914,23 +4909,6 @@ if test "${with_mpe+set}" = set; then :
 	fi
 else
   yap_cv_mpe=no
-fi
-
-
-
-# Check whether --with-lam was given.
-if test "${with_lam+set}" = set; then :
-  withval=$with_lam; if test "$withval" = yes; then
-	        yap_cv_lam=yes
-	elif test "$withval" = no; then
-		yap_cv_lam=no
-	else
-		yap_cv_lam=$with_lam
-		LDFLAGS="$LDFLAGS -L${yap_cv_lam}/lib"
-		CPPFLAGS="$CPPFLAGS -I${yap_cv_lam}/include"
-	fi
-else
-  yap_cv_lam=no
 fi
 
 
@@ -8433,8 +8411,8 @@ esac
 
 if test "$CC" = icc
 then
-  MPI_CC="$CC -lirc"
-  yap_cv_lam=no
+  MPI_CC="$CC"
+  yap_cv_mpi=no
 fi
 
 if test "$dynamic_loading" = "yes"
@@ -8552,30 +8530,29 @@ if test "$tabling" = "yes"
   YAP_EXTRAS="$YAP_EXTRAS -DTABLING=1"
 fi
 
-LAMOBJS=""
-MPI_OBJS=
-if  test "$yap_cv_lam" != "no" ; then
-  INSTALL_MPI=""
-  LAM_MPI_CC=${MPI_CC}
-  if test -n "$ac_tool_prefix"; then
-  # Extract the first word of "${ac_tool_prefix}mpicc", so it can be a program name with args.
-set dummy ${ac_tool_prefix}mpicc; ac_word=$2
+if test "$yap_cv_mpi" != "no"; then
+    if test "$yap_cv_mpi" != "yes"; then
+      # Extract the first word of "mpicc", so it can be a program name with args.
+set dummy mpicc; ac_word=$2
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
 $as_echo_n "checking for $ac_word... " >&6; }
-if ${ac_cv_prog_MPI_CC+:} false; then :
+if ${ac_cv_path_MPI_CC+:} false; then :
   $as_echo_n "(cached) " >&6
 else
-  if test -n "$MPI_CC"; then
-  ac_cv_prog_MPI_CC="$MPI_CC" # Let the user override the test.
-else
-as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
+  case $MPI_CC in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_MPI_CC="$MPI_CC" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+as_dummy="$PATH:/sbin:/usr/sbin:/usr/etc:/usr/local/sbin"
+for as_dir in $as_dummy
 do
   IFS=$as_save_IFS
   test -z "$as_dir" && as_dir=.
     for ac_exec_ext in '' $ac_executable_extensions; do
   if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_prog_MPI_CC="${ac_tool_prefix}mpicc"
+    ac_cv_path_MPI_CC="$as_dir/$ac_word$ac_exec_ext"
     $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
     break 2
   fi
@@ -8583,9 +8560,11 @@ done
   done
 IFS=$as_save_IFS
 
+  test -z "$ac_cv_path_MPI_CC" && ac_cv_path_MPI_CC="true"
+  ;;
+esac
 fi
-fi
-MPI_CC=$ac_cv_prog_MPI_CC
+MPI_CC=$ac_cv_path_MPI_CC
 if test -n "$MPI_CC"; then
   { $as_echo "$as_me:${as_lineno-$LINENO}: result: $MPI_CC" >&5
 $as_echo "$MPI_CC" >&6; }
@@ -8595,27 +8574,28 @@ $as_echo "no" >&6; }
 fi
 
 
-fi
-if test -z "$ac_cv_prog_MPI_CC"; then
-  ac_ct_MPI_CC=$MPI_CC
-  # Extract the first word of "mpicc", so it can be a program name with args.
+    else
+      # Extract the first word of "mpicc", so it can be a program name with args.
 set dummy mpicc; ac_word=$2
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
 $as_echo_n "checking for $ac_word... " >&6; }
-if ${ac_cv_prog_ac_ct_MPI_CC+:} false; then :
+if ${ac_cv_path_MPI_CC+:} false; then :
   $as_echo_n "(cached) " >&6
 else
-  if test -n "$ac_ct_MPI_CC"; then
-  ac_cv_prog_ac_ct_MPI_CC="$ac_ct_MPI_CC" # Let the user override the test.
-else
-as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
+  case $MPI_CC in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_MPI_CC="$MPI_CC" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+as_dummy="$yap_cv_mpi/bin:$PATH:/sbin:/usr/sbin:/usr/etc:/usr/local/sbin"
+for as_dir in $as_dummy
 do
   IFS=$as_save_IFS
   test -z "$as_dir" && as_dir=.
     for ac_exec_ext in '' $ac_executable_extensions; do
   if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_prog_ac_ct_MPI_CC="mpicc"
+    ac_cv_path_MPI_CC="$as_dir/$ac_word$ac_exec_ext"
     $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
     break 2
   fi
@@ -8623,161 +8603,27 @@ done
   done
 IFS=$as_save_IFS
 
+  test -z "$ac_cv_path_MPI_CC" && ac_cv_path_MPI_CC="true"
+  ;;
+esac
 fi
-fi
-ac_ct_MPI_CC=$ac_cv_prog_ac_ct_MPI_CC
-if test -n "$ac_ct_MPI_CC"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_ct_MPI_CC" >&5
-$as_echo "$ac_ct_MPI_CC" >&6; }
+MPI_CC=$ac_cv_path_MPI_CC
+if test -n "$MPI_CC"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $MPI_CC" >&5
+$as_echo "$MPI_CC" >&6; }
 else
   { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }
 fi
 
-  if test "x$ac_ct_MPI_CC" = x; then
-    MPI_CC="${CC}"
-  else
-    case $cross_compiling:$ac_tool_warned in
-yes:)
-{ $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: using cross tools not prefixed with host triplet" >&5
-$as_echo "$as_me: WARNING: using cross tools not prefixed with host triplet" >&2;}
-ac_tool_warned=yes ;;
-esac
-    MPI_CC=$ac_ct_MPI_CC
-  fi
-else
-  MPI_CC="$ac_cv_prog_MPI_CC"
-fi
 
-  if test "$yap_cv_lam" != "yes" ; then
-    LAM_MPI_CC="$yap_cv_lam"/bin/mpicc
-    MPI_CC="$yap_cv_lam"/bin/mpicc
-    CPPFLAGS="$CPPFLAGS -I ${yap_cv_lam}/include"
-    LDFLAGS="$LDFLAGS -L${yap_cv_lam}/lib"
-  fi
-  OLD_CC=${CC}
-  CC=${LAM_MPI_CC}
-  ac_fn_c_check_header_mongrel "$LINENO" "mpi.h" "ac_cv_header_mpi_h" "$ac_includes_default"
-if test "x$ac_cv_header_mpi_h" = xyes; then :
-  LAMOBJS=yap_mpi."$SO"
-                 $as_echo "#define HAVE_LIBMPI 1" >>confdefs.h
-
-else
-  LAMOBJS=""
-                 $as_echo "#define HAVE_LIBMPI 0" >>confdefs.h
-
-fi
-
-
-  CC=${OLD_CC}
-  elif test "$yap_cv_mpi" != "no"; then
+    fi
+    MPILDF=`"$MPI_CC" --showme:link`
+    MPICF=`"$MPI_CC" --showme:compile`
+    LIBS="$LIBS $MPILDF"
     INSTALL_MPI=""
     OLD_CC=${CC}
     CC=${MPI_CC}
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for MPI_Init in -lmpi" >&5
-$as_echo_n "checking for MPI_Init in -lmpi... " >&6; }
-if ${ac_cv_lib_mpi_MPI_Init+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lmpi  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char MPI_Init ();
-int
-main ()
-{
-return MPI_Init ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_mpi_MPI_Init=yes
-else
-  ac_cv_lib_mpi_MPI_Init=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_mpi_MPI_Init" >&5
-$as_echo "$ac_cv_lib_mpi_MPI_Init" >&6; }
-if test "x$ac_cv_lib_mpi_MPI_Init" = xyes; then :
-  LAMOBJS=yap_mpi."$SO"
-                 $as_echo "#define HAVE_LIBMPI 1" >>confdefs.h
-
-else
-  LAMOBJS=yap_mpi."$SO"
-                 $as_echo "#define HAVE_LIBMPI 0" >>confdefs.h
-
-fi
-
-    if test "$ac_cv_lib_mpi_MPI_Init" = yes
-    then
-	#YAPMPILIB=YapMPI.a
-	MPI_OBJS=mpi.o
-    else
-      { $as_echo "$as_me:${as_lineno-$LINENO}: checking for MPI_Init in -lmpich" >&5
-$as_echo_n "checking for MPI_Init in -lmpich... " >&6; }
-if ${ac_cv_lib_mpich_MPI_Init+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lmpich  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char MPI_Init ();
-int
-main ()
-{
-return MPI_Init ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_mpich_MPI_Init=yes
-else
-  ac_cv_lib_mpich_MPI_Init=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_mpich_MPI_Init" >&5
-$as_echo "$ac_cv_lib_mpich_MPI_Init" >&6; }
-if test "x$ac_cv_lib_mpich_MPI_Init" = xyes; then :
-  $as_echo "#define HAVE_LIBMPICH 1" >>confdefs.h
-
-else
-  $as_echo "#define HAVE_LIBMPICH 0" >>confdefs.h
-
-fi
-
-      if test "$ac_cv_lib_mpich_MPI_Init" = yes
-      then
-	#YAPMPILIB=YapMPI.a
-	MPI_OBJS=mpi.o
-      else
-	#YAPMPILIB=
-	MPI_CC=${CC}
-      fi
-    fi
     for ac_header in mpi.h
 do :
   ac_fn_c_check_header_mongrel "$LINENO" "mpi.h" "ac_cv_header_mpi_h" "$ac_includes_default"
@@ -8791,7 +8637,6 @@ fi
 done
 
     CC=${OLD_CC}
-    MPI_LIBS=
     if test "$yap_cv_mpe" != "no"
     then
      OLD_CC=${CC}
@@ -9748,7 +9593,6 @@ fi
 
 
 CMDEXT=sh
-
 
 
 

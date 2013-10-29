@@ -374,7 +374,7 @@ ENGINE_OBJECTS = \
 	udi.o\
 	unify.o userpreds.o utilpreds.o \
 	yap-args.o write.o \
-	blobs.o swi.o ypstdio.o $(IOLIB_OBJECTS)  @MPI_OBJS@
+	blobs.o swi.o ypstdio.o $(IOLIB_OBJECTS)
 
 LIBTAI_OBJECTS = \
 	tai_add.o tai_now.o tai_pack.o \
@@ -739,7 +739,7 @@ startup.yss: yap@EXEC_SUFFIX@ $(PL_SOURCES)
 	echo "bootstrap('$(srcdir)/pl/init.yap'). module(user). qsave_program('startup.yss')." |  @PRE_INSTALL_ENV@ ./yap -b $(srcdir)/pl/boot.yap
 
 yap@EXEC_SUFFIX@: $(HEADERS) yap.o @YAPLIB@
-	$(MPI_CC) $(EXECUTABLE_CFLAGS) $(LDFLAGS) -o yap yap.o @YAPLIB@ $(LIBS) @MPI_LIBS@
+	$(MPI_CC) $(EXECUTABLE_CFLAGS) $(LDFLAGS) -o yap yap.o @YAPLIB@ $(LIBS)
 
 yap-win: yap-win@EXEC_SUFFIX@
 
