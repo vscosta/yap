@@ -46,6 +46,8 @@
 			    selectchk/3,
 			    sublist/2,
 			    sumlist/2,
+			    nth1/4,
+			    nth0/4,
 			    nth1/3,
 			    nth0/3]).
 
