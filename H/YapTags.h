@@ -91,7 +91,9 @@
 #ifndef USE_SYSTEM_MALLOC
 #define USE_SYSTEM_MALLOC 1
 #endif
-#elif (defined(_AIX) || (defined(__APPLE__) && !defined(__LP64__)) || defined(_WIN32) || defined(sparc) || defined(__sparc) || defined(mips) || defined(__FreeBSD__) || defined(_POWER) || defined(__POWERPC__) || defined(__linux__) || defined(IN_SECOND_QUADRANT) || defined(__CYGWIN__)) || defined(__NetBSD__) || defined(__DragonFly__)
+#endif
+
+#if (defined(_AIX) || (defined(__APPLE__) && SIZEOF_INT_P==4) || defined(_WIN32) || defined(sparc) || defined(__sparc) || defined(mips) || defined(__FreeBSD__) || defined(_POWER) || defined(__POWERPC__) || defined(__linux__) || defined(IN_SECOND_QUADRANT) || defined(__CYGWIN__)) || defined(__NetBSD__) || defined(__DragonFly__)
 #define USE_LOW32_TAGS 1
 #endif
 
@@ -99,25 +101,19 @@
 
 #include  "Tags_32Ops.h"
 
-#endif /* LONG_ADDRESSES && !defined(OLD_TAG_SCHEME) && !defined(USE_LOW32_TAGS) */
-
-#if LONG_ADDRESSES && SIZEOF_INT_P==4 && !defined(OLD_TAG_SCHEME) && defined(USE_LOW32_TAGS)
+#elif LONG_ADDRESSES && SIZEOF_INT_P==4 && !defined(OLD_TAG_SCHEME) && defined(USE_LOW32_TAGS)
 
 #include  "Tags_32LowTag.h"
 
-#endif /* LONG_ADDRESSES && !defined(OLD_TAG_SCHEME) */
-
-#if LONG_ADDRESSES && SIZEOF_INT_P==8 && !defined(OLD_TAG_SCHEME)
+#elif LONG_ADDRESSES && SIZEOF_INT_P==8 && !defined(OLD_TAG_SCHEME)
 
 #include  "Tags_64bits.h"
 
-#endif /* LONG_ADDRESSES && SIZEOF_INT_P==8 && !defined(OLD_TAG_SCHEME) */
-
-#if !LONG_ADDRESSES
+#elif !LONG_ADDRESSES
 
 #include  "Tags_24bits.h"
 
-#endif /* !LONG_ADDRESSES */
+#endif 
 
 #ifdef TAG_LOW_BITS_32
 

@@ -1000,7 +1000,9 @@ int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, 
 				{
 					num_refs = rows1 * cols1 * sizeof(int);
 					reservar(&res, num_refs);
-					// DEBUG_MEM cerr << "+ " << res << " Res  " << num_refs << endl;
+#ifdef DEBUG_MEM
+					cerr << "+ " << res << " Res  " << num_refs << endl;
+#endif
 					cudaMemcpyAsync(res, dop1, num_refs, cudaMemcpyDeviceToDevice);
 					registrar(rul_act->name, cols1, res, rows1, itr, 1);
 					rul_act->gen_ant = rul_act->gen_act;
@@ -1289,7 +1291,9 @@ int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, 
 			res_rows = selectproyect(dop1, rows1, cols1, tmprule.num_columns, tmprule.select[0], tmprule.numsel[0], tmprule.selfjoin[0], tmprule.numselfj[0], tmprule.project[0], &res);
 			if(qposr != fin && qposr->name == qname) {
 				cudaFree(dop1);
-				// DEBUG_MEM cerr << "- " << dop1 << " dop1" << endl;
+#ifdef DEBUG_MEM
+				cerr << "- " << dop1 << " dop1" << endl;
+#endif
 			}
 		}
 
@@ -1299,7 +1303,9 @@ int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, 
 		cudaMemcpy(hres, res, tipo, cudaMemcpyDeviceToHost);
 		if(res_rows > 0 /*&& tmprule.numsel[0] != 0 && tmprule.numselfj[0] != 0 */) {
 			cudaFree(res);
-			// DEBUG_MEM cerr << "- " << res << " res" << endl;
+#ifdef DEBUG_MEM
+			cerr << "- " << res << " res" << endl;
+#endif
 		}
 	}
 	else

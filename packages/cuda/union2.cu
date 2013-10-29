@@ -105,7 +105,7 @@ int unir(int *res, int rows, int tipo)
 				}
 				catch(std::bad_alloc &e)
 				{
-					limpiar("sort/unique in unir");
+					limpiar("sort/unique in unir", 0);
 				}				
 			}
 			nrows = thrust::distance(pt, re);
@@ -143,7 +143,7 @@ int unir(int *res, int rows, int tipo)
 				}
 				catch(std::bad_alloc &e)
 				{
-					limpiar("sort/unique in unir");
+					limpiar("sort/unique in unir", 0);
 				}				
 			}
 			nrows = thrust::distance(pt2, re2);
@@ -182,7 +182,7 @@ int unir(int *res, int rows, int tipo)
 				}
 				catch(std::bad_alloc &e)
 				{
-					limpiar("sort/unique in unir");
+					limpiar("sort/unique in unir", 0);
 				}				
 			}
 			nrows = thrust::distance(pt3, re3);
