@@ -24,7 +24,7 @@
 :- op(900,fx,[spy,nospy]).
 
 '$init_debugger' :-
-        nb_getval('$trace', _, fail), !.
+        '$nb_getval'('$trace', _, fail), !.
 '$init_debugger' :-
 	nb_setval('$trace',off),
 	nb_setval('$if_skip_mode',no_skip),

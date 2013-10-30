@@ -51,6 +51,7 @@ dnl store the environment's compilation flags
 mycflags="$CFLAGS"
 
 AC_PROG_CC
+AC_PROG_CPP
 AC_PROG_CXX
 AC_PROG_AWK
 AC_SUBST(GCC)
@@ -454,16 +455,6 @@ AC_ARG_WITH(max-threads,
 	  yap_cv_max_threads=$withval
 	fi,
 	[yap_cv_max_threads="1024"])
-
-AC_ARG_WITH(junit, [  --with-junit=PATH	  Specify location of the junit JAR file],
-	    [case "$withval" in
-		 yes) JUNIT=/usr/share/java/junit.jar
-			;;
-		 no) JUNIT=""
-			;;
-		 *) JUNIT="$withval"
-			;;
-	     esac])
 
 if test "$orparallelism" = no
 then
@@ -1149,50 +1140,139 @@ if test "$yap_cv_java" = no; then
 	ENABLE_JPL="@#"   
 elif test -e "$srcdir"/packages/jpl/Makefile.in; then
 	ENABLE_JPL=""
-	LIBJPL=libjpl
-	JAVA=java
-	JAVA_HOME="$yap_cv_java"
-	case "$target_os" in
-	    *cygwin*|*mingw*)
-	       JAVALIBS="\"$JAVA_HOME\"/lib/jvm.lib"
-	       JPLCFLAGS="-I\"$JAVA_HOME\"/include -I\"$JAVA_HOME\"/include/win32"
-	       	  ;;
-	       *darwin*)
-	       LIBS="$LIBS -framework JavaVM"
-	       JAVALIBS="-L/System/Library/Frameworks/JavaVM.framework/Libraries -Wl,-framework,JavaVM"
-	       JPLCFLAGS="-I/System/Library/Frameworks/JavaVM.framework/Headers"
-	       	  ;;
-	       *)
-              case "$target_os" in
-	         *linux*)
-		   JPLCFLAGS="-I\"$JAVA_HOME\"/include -I\"$JAVA_HOME\"/include/linux"
-                ;;
-	         *solaris*)
-	        JPLCFLAGS="-I\"$JAVA_HOME\"/include -I\"$JAVA_HOME\"/include/solaris"
-                ;;
-              esac
-	       JAVALIBS="-L$JAVA_HOME/jre/lib/$YAP_TARGET -L$JAVA_HOME/jre/lib/$YAP_TARGET/client  -L$JAVA_HOME/jre/lib/$YAP_TARGET/server   -Wl,-R,$JAVA_HOME/jre/lib/$YAP_TARGET -ljava -lverify -ljvm "
-	       	  ;;
-	esac
-	if test "$yap_cv_java" = ""; then
-	  JAVA=java
-          JAR=jar
-          JAVAC=javac
-          JAVADOC=javadoc
-        else
-	  JAVA=$yap_cv_java/bin/java
-	  JAR=$yap_cv_java/bin/jar
-	  JAVAC=$yap_cv_java/bin/javac
-	  JAVADOC=$yap_cv_java/bin/javadoc
-        fi
-        if test "x$JAVACFLAGS" = x; then
-          JAVACFLAGS="-source 1.4 -target 1.4"
-        fi
-else
-      ENABLE_JPL="@#"
+	if test "$yap_cv_java" -n yes; then
+          JAVA_HOME=$yap_cv_java
+	  JAVAPREFIX=$JAVA_HOME/bin
+       fi
+
+
+AC_SUBST(JAVA_HOME)
+AC_SUBST(JAVACFLAGS)
+AC_SUBST(JAVALIBS)
+AC_SUBST(JUNIT)
+AC_SUBST(JPLCFLAGS)
+AC_SUBST(JPLLDFLAGS)
+AC_SUBST(LIBJPL)
+AC_SUBST(JAVA_PRELOAD)
+AC_SUBST(CMDEXT)
+
+CMDEXT=sh
+
+if test "x$JAVALIBS" = "x"; then
+  case "$target_os" in
+     *darwin*)
+	  JAVALIBS="-Wl,-framework,JavaVM"
+	  ;;
+     *powerpc-linux*)
+	  JAVALIBS="-ljava -ljvm"
+	  ;;
+     *win32*|*win64*)
+	  JAVALIBS="-ljvm"
+	  CMDEXT=bat
+	  ;;
+     *)
+	  JAVALIBS="-ljava -lverify -ljvm"
+	  ;;
+  esac
 fi
 
-AC_PROG_CPP
+case "$target_os" in
+  *win32*)
+	JPLLDFLAGS="$JPLLDFLAGS -Wl,--kill-at"
+	LIBJPL=jpl
+	;;
+  *win64*)
+	LIBJPL=jpl
+	;;
+  *)
+	LIBJPL=libjpl
+	;;
+esac
+
+dnl ================================================================
+dnl Java stuff
+dnl ================================================================
+
+
+if test "x$JAVACFLAGS" = x; then
+  JAVACFLAGS="-source 1.4 -target 1.4"
+fi
+
+m4_include([packages/jpl/ac/ac_prog_java.m4])
+m4_include([packages/jpl/ac/ac_prog_java_works.m4])
+m4_include([packages/jpl/ac/ac_prog_javac.m4])
+m4_include([packages/jpl/ac/ac_prog_javac_works.m4])
+m4_include([packages/jpl/ac/ac_prog_javadoc.m4])
+m4_include([packages/jpl/ac/ac_jni_include_dirs.m4])
+m4_include([packages/jpl/ac/ac_prog_jar.m4])
+
+java_abs_paths=no
+AC_CHECKING(Java configuration)
+if test -r /etc/java/java2.conf; then
+  AC_MSG_RESULT(Using /etc/java/java2.conf)
+  eval `grep '\(JAVA\|JRE\|JDK\|SDK\).*=' /etc/java/java2.conf | sed 's/ *= */=/'`
+  if test ! -z "$JAVA_BINDIR"; then
+    PATH="$PATH:$JAVA_BINDIR"
+    java_abs_paths=yes
+  fi
+fi
+
+AC_PROG_JAVAC(javac)
+AC_PROG_JAVA(java)
+AC_PROG_JAR(jar)
+AC_PROG_JAVADOC(javadoc)
+
+escape_space()
+{ sed -e "s/Program Files/Program-SPACE-Files/g" -e "s/ (x86)/SPACEX86/g"
+}
+
+unescape_space()
+{ sed -e "s/-SPACE-/ /g" -e "s/SPACEX86/ (x86)/g"
+}
+
+AC_JNI_INCLUDE_DIR
+for d in $(echo $JNI_INCLUDE_DIRS | escape_space); do
+  JPLCFLAGS="$JPLCFLAGS -I'$d'"
+done
+JPLCFLAGS="$(echo $JPLCFLAGS | unescape_space)"
+
+for d in $(echo $JNI_CLIENT_DIRS | escape_space); do
+  JPLLDFLAGS="$JPLLDFLAGS -L'$d'"
+done
+JPLLDFLAGS="$(echo $JPLLDFLAGS | unescape_space)"
+
+for d in $(echo $JNI_CLIENT_DIRS | escape_space); do
+  if test -f "$d/libjsig.$SO"; then
+     JAVALIBS="-ljsig $JAVALIBS"
+     JAVA_PRELOAD=$d/libjsig.$SO
+     break
+  fi
+done
+JAVA_PRELOAD="$(echo $JAVA_PRELOAD | unescape_space)"
+
+if test "$java_abs_paths" = yes; then
+  JAVA_CC="$JAVA_BINDIR/$JAVA_CC"
+fi
+
+AC_ARG_WITH(junit, [  --with-junit=PATH	  Specify location of the junit JAR file],
+	    [case "$withval" in
+		 yes) JUNIT=/usr/share/java/junit.jar
+			;;
+		 no) JUNIT=""
+			;;
+		 *) JUNIT="$withval"
+			;;
+	     esac
+	     ],
+	     [ if test "x$JUNIT" = "x" -a -r /usr/share/java/junit.jar; then
+		  JUNIT=/usr/share/java/junit.jar
+	       fi
+	     ]
+	     )
+
+JAVA_HOME=$_JTOPDIR
+
+fi
 
 if test "$cross_compiling" = "yes"
 then
@@ -1858,13 +1938,6 @@ AC_SUBST(ENABLE_SEMWEB)
 AC_SUBST(ENABLE_SGML)
 AC_SUBST(ENABLE_ZLIB)
 AC_SUBST(ENABLE_CLPBN_BP)
-AC_SUBST(JAVA)
-AC_SUBST(JAVA_HOME)
-AC_SUBST(JUNIT)
-AC_SUBST(JAVAC)
-AC_SUBST(JAVACFLAGS)
-AC_SUBST(JAVADOC)
-AC_SUBST(JAR)
 AC_SUBST(LIBJPL)
 AC_SUBST(IN_UNIX)
 AC_SUBST(YAPMPILIB)
@@ -1874,15 +1947,10 @@ AC_SUBST(MPILDF)
 AC_SUBST(MPICF)
 AC_SUBST(INSTALL_COMMAND)
 AC_SUBST(INSTALLCLP)
-AC_SUBST(JPLCFLAGS)
-AC_SUBST(JPLLIBS)
-AC_SUBST(JAVALIBS)
-AC_SUBST(JPLCFLAGS)
 AC_SUBST(MAX_WORKERS)
 AC_SUBST(STATIC_MODE)
 AC_SUBST(ENABLE_WINCONSOLE)
 AC_SUBST(EXTRA_INCLUDES_FOR_WIN32)
-AC_SUBST(CMDEXT)
 
 AC_SUBST(ENABLE_CUDD)
 AC_SUBST(ENABLE_BDDLIB)
