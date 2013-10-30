@@ -997,9 +997,6 @@ atom_to_term(term_t atom, term_t term, term_t bindings)
 { GET_LD
   PL_chars_t txt;
 
-    { FILE *f=fopen("/home/vsc/coutput.txt", "append");
-    fprintf(f, "IN: %ld\n", bindings);
-    fclose(f); }
   if ( !bindings && PL_is_variable(atom) ) /* term_to_atom(+, -) */
   { char buf[1024];
     size_t bufsize = sizeof(buf);
@@ -1018,9 +1015,6 @@ atom_to_term(term_t atom, term_t term, term_t bindings)
     txt.storage = PL_CHARS_HEAP;
     txt.encoding = ENC_UTF8;
     txt.canonical = FALSE;
-    { FILE *f=fopen("/home/vsc/coutput.txt", "append");
-    fprintf(f, "SUCCESS: %s\n", buf);
-    fclose(f); }
     rval = PL_unify_text(atom, 0, &txt, PL_ATOM);
 
     Sclose(stream);

@@ -173,8 +173,6 @@ yap_hacks:cut_by(CP) :- '$$cut_by'(CP).
 %
 :- ( recorded('$loaded','$loaded'(_,_,_),R), erase(R), fail ; true ).
 
-:- dynamic autoloader:autoload/0.
-
 :- set_value('$user_module',user), '$protect'.
 
 :- style_check([-discontiguous,-multiple,-single_var]).

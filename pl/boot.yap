@@ -18,6 +18,12 @@
 %
 %
 %
+c(G, C, A) :-
+	'$$save_by'(CP0),
+	'$execute'(G),
+	'$$save_by'(CP1),
+	(CP0 == CP1 -> !; true ).
+
 
 true :- true.
 
