@@ -34,6 +34,10 @@
 
 #ifdef THREADS
 #define O_PLMT 1
+#else
+#ifdef _REENTRANT
+#undef _REENTRANT
+#endif
 #endif
 
 #if HAVE_ERRNO_H

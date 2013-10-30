@@ -46,9 +46,8 @@ Section "Base system (required)"
 
   SetOutPath $INSTDIR\bin
   File c:\Yap64\bin\yap.exe
-  File c:\Yap64\bin\yap.dll
+  File c:\Yap64\bin\*.dll
   File c:\Yap64\bin\yap-win.exe
-  File c:\Yap64\bin\plterm.dll
 
   SetOutPath $INSTDIR\bin
 ; SYSTEM STUFF
@@ -65,8 +64,8 @@ Section "Base system (required)"
   File /r c:\Yap64\share\Yap\*
 
   SetOutPath $INSTDIR\doc\Yap
-  File c:\Yap64\share\doc\Yap\yap.html
-  File c:\Yap64\share\doc\Yap\yap.pdf
+;  File c:\Yap64\share\doc\Yap\yap.html
+;  File c:\Yap64\share\doc\Yap\yap.pdf
   File c:\Yap64\share\doc\Yap\Artistic
   File c:\Yap64\share\doc\Yap\README.TXT
   File c:\Yap64\share\doc\Yap\COPYING.TXT

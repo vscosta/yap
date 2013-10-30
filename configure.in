@@ -330,7 +330,7 @@ AC_ARG_ENABLE(myddas-top-level,
 AC_ARG_WITH(java,
 	[ --with-java=JAVA_HOME       use Java instalation in JAVA_HOME],
 	if test "$withval" = yes; then
-		yap_cv_java="$JAVA_HOME"
+		yap_cv_java=yes
 		dynamic_loading=yes
 		maxmemory=yes
 dnl		threads=yes
@@ -1140,7 +1140,7 @@ if test "$yap_cv_java" = no; then
 	ENABLE_JPL="@#"   
 elif test -e "$srcdir"/packages/jpl/Makefile.in; then
 	ENABLE_JPL=""
-	if test "$yap_cv_java" -n yes; then
+	if test "$yap_cv_java" != "yes"; then
           JAVA_HOME=$yap_cv_java
 	  JAVAPREFIX=$JAVA_HOME/bin
        fi

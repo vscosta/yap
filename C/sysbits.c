@@ -2947,7 +2947,7 @@ recover_space(wchar_t *k, Atom At)
 }
 
 static wchar_t *
-WideStringFromAtom(Atom KeyAt)
+WideStringFromAtom(Atom KeyAt USES_REGS)
 {
   if (IsWideAtom(KeyAt)) {
     return KeyAt->WStrOfAE;
@@ -3001,13 +3001,13 @@ p_win_registry_get_value( USES_REGS1 )
   }
   NameAt = AtomOfTerm(Name);
 
-  k = WideStringFromAtom(KeyAt);
+  k = WideStringFromAtom(KeyAt PASS_REGS);
   if ( !(key=reg_open_key(k, FALSE)) ) {
     Yap_Error(EXISTENCE_ERROR_KEY, Key, "argument to win_registry_get_value");
     recover_space(k, KeyAt);
     return FALSE;
   }
-  name = WideStringFromAtom(NameAt);
+  name = WideStringFromAtom(NameAt PASS_REGS);
 
   if ( RegQueryValueExW(key, name, NULL, &type, data, &len) == ERROR_SUCCESS ) {
     RegCloseKey(key);
