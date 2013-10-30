@@ -1142,7 +1142,9 @@ elif test -e "$srcdir"/packages/jpl/Makefile.in; then
 	ENABLE_JPL=""
 	if test "$yap_cv_java" != "yes"; then
           JAVA_HOME=$yap_cv_java
-	  JAVAPREFIX=$JAVA_HOME/bin
+	  JAVAPREFIX="$JAVA_HOME"/bin
+       elif test -n "$JAVA_HOME"; then
+	  JAVAPREFIX="$JAVA_HOME"/bin
        fi
 
 
