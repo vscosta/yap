@@ -46,9 +46,9 @@ true :- true.
 
 
 '$init_system' :-
-    '$nb_getval'('$yap_inited', on, fail), !.
+    get_value('$yap_inited', true), !.
 '$init_system' :-
-    nb_setval('$yap_inited', on),
+    set_value('$yap_inited', true),
     % do catch as early as possible
     (
      '$access_yap_flags'(15, 0),
