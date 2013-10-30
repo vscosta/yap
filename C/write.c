@@ -660,7 +660,7 @@ from_pointer(CELL *ptr0, struct rewind_term *rwt, struct write_globs *wglb)
   } else {
     rwt->u.d.old = t;
     rwt->u.d.ptr = ptr0;
-    if (!IsAtomicTerm(t) && !IsVarTerm(t)) {
+    if ( !IsVarTerm(t) && !IsAtomicTerm(t)) {
       struct rewind_term *x = rwt->parent;
       
       while (x) {

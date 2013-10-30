@@ -1136,7 +1136,11 @@ initPrologFlags(void)
   setPrologFlag("user_flags", FT_ATOM, "silent");
   setPrologFlag("editor", FT_ATOM, "default");
   setPrologFlag("debugger_show_context", FT_BOOL, FALSE, 0);
+#ifndef __YAP_PROLOG__
   setPrologFlag("autoload",  FT_BOOL, TRUE,  PLFLAG_AUTOLOAD);
+#else
+  setPrologFlag("autoload",  FT_BOOL, FALSE,  PLFLAG_AUTOLOAD);
+#endif
 #ifndef O_GMP
   setPrologFlag("max_integer",	   FT_INT64|FF_READONLY, PLMAXINT);
   setPrologFlag("min_integer",	   FT_INT64|FF_READONLY, PLMININT);

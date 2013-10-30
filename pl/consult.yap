@@ -923,8 +923,8 @@ absolute_file_name(File,Opts,TrueFileName) :-
 	'$get_if'(Level0),
 	Level is Level0 + 1,
 	nb_setval('$if_level',Level),
-	'$nb_getval'('$endif', OldEndif, OldEndif=top),
-	'$nb_getval'('$if_skip_mode', Mode, Mode=run),
+	( '$nb_getval'('$endif', OldEndif, fail) -> true ; OldEndif=top),
+	( '$nb_getval'('$if_skip_mode', Mode, fail) -> true ; Mode = run ),
 	nb_setval('$endif',elif(Level,OldEndif,Mode)),
 	fail.
 % we are in skip mode, ignore....
@@ -938,6 +938,7 @@ absolute_file_name(File,Opts,TrueFileName) :-
 	 % we will execute this branch, and later enter skip
 	 '$nb_getval'('$endif', elif(Level,OldEndif,Mode), fail),
 	 nb_setval('$endif',endif(Level,OldEndif,Mode))
+
 	;
 	 % we are now in skip, but can start an elif.
 	 nb_setval('$if_skip_mode',skip)
@@ -949,7 +950,7 @@ absolute_file_name(File,Opts,TrueFileName) :-
 	'$do_error'(context_error(no_if),(:- else)).
 % we have done an if, so just skip
 '$else'(_) :-
-	nb_getval('$endif',endif(_,_,_)), !,
+	nb_getval('$endif',endif(_Level,_,_)), !,
 	nb_setval('$if_skip_mode',skip).
 % we can try the elif
 '$else'(_) :-

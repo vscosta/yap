@@ -431,12 +431,28 @@ expand_goal(G, G).
 	call(Dialect:index(Name,Arity,ExportingModI,_)), !,
 	'$continue_imported'(ExportingMod, ExportingModI, G0, G), !.
 '$get_undefined_pred'(G, _ImportingMod, G0, ExportingMod) :-
-	autoloader:autoload,
-	autoloader:find_predicate(G,ExportingModI), !,
-	'$continue_imported'(ExportingMod, ExportingModI, G0, G), !.
+	yap_flag(autoload, V),
+	V = true,
+	'$autoloader_find_predicate'(G,ExportingModI), !,
+	'$continue_imported'(ExportingMod, ExportingModI, G0, G).
 '$get_undefined_pred'(G, ImportingMod, G0, ExportingMod) :-
 	prolog:'$parent_module'(ImportingMod,ExportingModI),
 	'$continue_imported'(ExportingMod, ExportingModI, G0, G).
+
+
+'$autoloader_find_predicate'(G,ExportingModI) :-
+	'$nb_getval'('$autoloader_set', true, fail), !,
+	autoloader:find_predicate(G,ExportingModI).
+'$autoloader_find_predicate'(G,ExportingModI) :-
+	yap_flag(autoload, false), 
+	load_files([library(autoloader),
+		    autoloader:library('INDEX'),
+		    swi:library('dialect/swi/INDEX')],
+		   [silent(true),if(not_loaded)]),
+	nb_setval('$autoloader_set', true),
+	yap_flag(autoload, true), 
+	autoloader:find_predicate(G,ExportingModI).
+
 
 '$continue_imported'(Mod,Mod,Pred,Pred) :-
 	\+ '$undefined'(Pred, Mod), !.

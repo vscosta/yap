@@ -46,16 +46,6 @@ yap_flag(fast,on) :- set_value('$fast',true).
 yap_flag(fast,off) :- !, set_value('$fast',[]).
 
 % do or do not machine code
-yap_flag(autoload,V) :-
-	var(V), !,
-	( autoloader:autoload -> V = true ; V = false ).
-yap_flag(autoload,true) :-
-	'$ensure_autoload',
-	assert(autoloader:autoload).
-yap_flag(autoload,false) :-
-	retract(autoloader:autoload).
-
-% do or do not machine code
 yap_flag(argv,L) :- '$argv'(L).
 
 % hide/unhide atoms
@@ -702,7 +692,6 @@ yap_flag(max_threads,X) :-
 '$yap_system_flag'(agc_margin).
 '$yap_system_flag'(answer_format).
 '$yap_system_flag'(argv).
-'$yap_system_flag'(autoload).
 '$yap_system_flag'(char_conversion).
 '$yap_system_flag'(character_escapes).
 '$yap_system_flag'(chr_toplevel_show_store).
@@ -1016,10 +1005,4 @@ create_prolog_flag(Name, Value, Options) :-
 '$flag_domain_from_value'(Value, atom) :- atom(Value), !.
 '$flag_domain_from_value'(_, term).
 
-
-'$ensure_autoload' :-
-	load_files([library(autoloader),
-		    autoloader:library('INDEX'),
-		    swi:library('dialect/swi/INDEX')],
-		   [silent(true),if(not_loaded)]).
 
