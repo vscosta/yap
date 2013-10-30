@@ -188,6 +188,7 @@ Yap_Eval(Term t)
   return Yap_InnerEval(t);
 }
 
+#ifdef P
 inline static Term
 Yap_FoundArithError(Term t, Term inp)
 { 
@@ -199,6 +200,7 @@ Yap_FoundArithError(Term t, Term inp)
   }
   return t;
 }
+#endif
 
 
 #define RINT(v)       return(MkIntegerTerm(v))

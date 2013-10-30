@@ -368,12 +368,12 @@ stream_position_data(Prop, Term, Value) :-
 
 
 '$default_expand'(Expand) :-
-	nb_getval('$open_expands_filename',Expand).
+	get_value('$open_expands_filename',Expand).
 
 '$set_default_expand'(true) :- !,
-	nb_setval('$open_expands_filename',true).
+	set_value('$open_expands_filename',true).
 '$set_default_expand'(false) :- !,
-	nb_setval('$open_expands_filename',false).
+	set_value('$open_expands_filename',false).
 '$set_default_expand'(V) :- !,
 	'$do_error'(domain_error(flag_value,V),yap_flag(open_expands_file_name,X)).
 

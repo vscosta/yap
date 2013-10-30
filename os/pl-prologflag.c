@@ -25,6 +25,7 @@
 #include "pl-incl.h"
 #ifdef __YAP_PROLOG__
 #include "pl-ctype.h"
+#include "eval.h"
 #else
 #include "os/pl-ctype.h"
 #endif
@@ -1049,32 +1050,48 @@ initPrologFlagTable(void)
 void
 initPrologFlags(void)
 { GET_LD
-#ifndef __YAP_PROLOG__
   setPrologFlag("iso",  FT_BOOL, FALSE, PLFLAG_ISO);
+#ifdef __YAP_PROLOG__
+  setPrologFlag("arch", FT_ATOM|FF_READONLY, YAP_ARCH);
+#else
   setPrologFlag("arch", FT_ATOM|FF_READONLY, PLARCH);
+#endif
 #if __WINDOWS__
   setPrologFlag("windows",	FT_BOOL|FF_READONLY, TRUE, 0);
 #endif
+#ifndef __YAP_PROLOG__
   setPrologFlag("version",	FT_INTEGER|FF_READONLY, PLVERSION);
   setPrologFlag("dialect", FT_ATOM|FF_READONLY, "swi");
   if ( systemDefaults.home )
     setPrologFlag("home", FT_ATOM|FF_READONLY, systemDefaults.home);
   if ( GD->paths.executable )
     setPrologFlag("executable", FT_ATOM|FF_READONLY, GD->paths.executable);
+#else
+  setPrologFlag("dialect", FT_ATOM|FF_READONLY, "yap");
+  setPrologFlag("home", FT_ATOM|FF_READONLY, YAP_ROOTDIR);
+  if (GLOBAL_argv && GLOBAL_argv[0]) {
+    Yap_TrueFileName (GLOBAL_argv[0], LOCAL_FileNameBuf, FALSE);
+    setPrologFlag("executable", FT_ATOM|FF_READONLY, LOCAL_FileNameBuf);
+  } else
+    setPrologFlag("executable", FT_ATOM|FF_READONLY, Yap_FindExecutable());
+#endif
 #if defined(HAVE_GETPID) || defined(EMULATE_GETPID)
   setPrologFlag("pid", FT_INTEGER|FF_READONLY, getpid());
 #endif
   setPrologFlag("optimise", FT_BOOL, GD->cmdline.optimise, PLFLAG_OPTIMISE);
   setPrologFlag("generate_debug_info", FT_BOOL,
 		truePrologFlag(PLFLAG_DEBUGINFO), PLFLAG_DEBUGINFO);
+#ifndef __YAP_PROLOG__
   setPrologFlag("last_call_optimisation", FT_BOOL, TRUE, PLFLAG_LASTCALL);
   setPrologFlag("warn_override_implicit_import", FT_BOOL, TRUE,
 		PLFLAG_WARN_OVERRIDE_IMPLICIT_IMPORT);
+#endif
   setPrologFlag("c_cc",	     FT_ATOM, C_CC);
   setPrologFlag("c_libs",    FT_ATOM, C_LIBS);
   setPrologFlag("c_libplso", FT_ATOM, C_LIBPLSO);
   setPrologFlag("c_ldflags", FT_ATOM, C_LDFLAGS);
   setPrologFlag("c_cflags",  FT_ATOM, C_CFLAGS);
+#ifndef __YAP_PROLOG__
 #if defined(O_LARGEFILES) || SIZEOF_LONG == 8
   setPrologFlag("large_files", FT_BOOL|FF_READONLY, TRUE, 0);
 #endif
@@ -1082,6 +1099,7 @@ initPrologFlags(void)
   setPrologFlag("trace_gc",  FT_BOOL,	       FALSE, PLFLAG_TRACE_GC);
 #ifdef O_ATOMGC
   setPrologFlag("agc_margin",FT_INTEGER,	       GD->atoms.margin);
+#endif
 #endif
 #if defined(HAVE_DLOPEN) || defined(HAVE_SHL_LOAD) || defined(EMULATE_DLOPEN)
   setPrologFlag("open_shared_object",	  FT_BOOL|FF_READONLY, TRUE, 0);
@@ -1123,8 +1141,13 @@ initPrologFlags(void)
   setPrologFlag("max_integer",	   FT_INT64|FF_READONLY, PLMAXINT);
   setPrologFlag("min_integer",	   FT_INT64|FF_READONLY, PLMININT);
 #endif
+#ifndef __YAP_PROLOG__
   setPrologFlag("max_tagged_integer", FT_INTEGER|FF_READONLY, PLMAXTAGGEDINT);
   setPrologFlag("min_tagged_integer", FT_INTEGER|FF_READONLY, PLMINTAGGEDINT);
+#else
+  setPrologFlag("max_tagged_integer", FT_INTEGER|FF_READONLY, Int_MAX);
+  setPrologFlag("min_tagged_integer", FT_INTEGER|FF_READONLY, Int_MIN);
+#endif
 #ifdef O_GMP
   setPrologFlag("bounded",		   FT_BOOL|FF_READONLY,	   FALSE, 0);
 #ifdef __GNU_MP__
@@ -1148,6 +1171,7 @@ initPrologFlags(void)
   setPrologFlag("occurs_check", FT_ATOM, "false");
   setPrologFlag("access_level", FT_ATOM, "user");
   setPrologFlag("double_quotes", FT_ATOM, "codes");
+#ifndef __YAP_PROLOG__
   setPrologFlag("unknown", FT_ATOM, "error");
   setPrologFlag("debug", FT_BOOL, FALSE, 0);
   setPrologFlag("verbose", FT_ATOM|FF_KEEP, GD->options.silent ? "silent" : "normal");
@@ -1161,6 +1185,7 @@ initPrologFlags(void)
   setPrologFlag("toplevel_prompt", FT_ATOM, "~m~d~l~! ?- ");
   setPrologFlag("file_name_variables", FT_BOOL, FALSE, PLFLAG_FILEVARS);
   setPrologFlag("fileerrors", FT_BOOL, TRUE, PLFLAG_FILEERRORS);
+#endif
 #ifdef __unix__
   setPrologFlag("unix", FT_BOOL|FF_READONLY, TRUE, 0);
 #endif
@@ -1184,7 +1209,6 @@ initPrologFlags(void)
     setPrologFlag("compiled_at", FT_ATOM|FF_READONLY, buf);
   }
 #endif
-#endif /* YAP_PROLOG */
   /* Flags copied by YAP */
   setPrologFlag("optimise", FT_BOOL, GD->cmdline.optimise, PLFLAG_OPTIMISE);
   /* FLAGS used by PLStream */

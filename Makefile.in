@@ -74,6 +74,7 @@ AWK=@AWK@
 CPP=@CPP@
 DEFS=@DEFS@ -D_YAP_NOT_INSTALLED_=1
 LIBS=@LIBS@
+DLL_LIBS=@LIBS@ @EXTRA_LIBS_FOR_DLLS@
 LDFLAGS=@LDFLAGS@
 LN_S=@LN_S@
 M4=@M4@
@@ -276,8 +277,8 @@ C_SOURCES= \
 	$(srcdir)/OPTYap/or.thread_engine.c \
 	$(srcdir)/OPTYap/or.scheduler.c $(srcdir)/OPTYap/or.cut.c \
 	$(srcdir)/OPTYap/tab.tries.c $(srcdir)/OPTYap/tab.completion.c \
-	$(srcdir)/library/mpi/mpi.c $(srcdir)/library/mpi/mpe.c \
-	$(srcdir)/library/lammpi/yap_mpi.c $(srcdir)/library/lammpi/hash.c $(srcdir)/library/lammpi/prologterms2c.c  \
+	# $(srcdir)/library/mpi/mpi.c $(srcdir)/library/mpi/mpe.c \
+	# $(srcdir)/library/lammpi/yap_mpi.c $(srcdir)/library/lammpi/hash.c $(srcdir)/library/lammpi/prologterms2c.c  \
 	$(srcdir)/C/cut_c.c \
 	$(srcdir)/library/dialect/swi/fli/swi.c \
 	$(srcdir)/library/dialect/swi/fli/blobs.c \
@@ -373,7 +374,7 @@ ENGINE_OBJECTS = \
 	udi.o\
 	unify.o userpreds.o utilpreds.o \
 	yap-args.o write.o \
-	blobs.o swi.o ypstdio.o $(IOLIB_OBJECTS)  @MPI_OBJS@
+	blobs.o swi.o ypstdio.o $(IOLIB_OBJECTS)
 
 LIBTAI_OBJECTS = \
 	tai_add.o tai_now.o tai_pack.o \
@@ -431,12 +432,13 @@ parms.h:	Makefile
 		@echo $(VERSION) | $(AWK) -F. '{ printf("#define YAP_VERSION %d\n", $$1 * 10000 + $$2 * 100 + $$3); }' >> $@%
 		@echo "#define MYDDAS_VERSION	    \"$(MYDDAS_VERSION)\""       >> $@%
 		@echo "#define YAP_ARCH	    \"$(ARCH)\""       >> $@%
-		@echo "#define YAP_LIBS	    \"$(LIBS)\""     >> $@%
+		@echo "#define C_LIBS	    \"$(LIBS)\""     >> $@%
+		@echo "#define C_LIBPLSO	    \"$(DLL_LIBS)\""     >> $@%
 		@echo "#define YAP_YAPLIB	    \"$(YAPLIB)\""   >> $@%
-		@echo "#define YAP_CC	    \"$(CC)\""	       >> $@%
-		@echo "#define YAP_CFLAGS	    \"$(CFLAGS)\"" >> $@%
-		@echo "#define YAP_LDFLAGS    \"$(LDFLAGS)\""    >> $@%
-		@echo "#define YAP_SHLIB_SUFFIX    \".\" \"$(SO)\""    >> $@%
+		@echo "#define C_CC	    \"$(CC)\""	       >> $@%
+		@echo "#define C_CFLAGS	    \"$(CFLAGS)\"" >> $@%
+		@echo "#define C_LDFLAGS    \"$(LDFLAGS)\""    >> $@%
+		@echo "#define SO_EXT    \".\" \"$(SO)\""    >> $@%
 		@echo "#define YAP_TIMESTAMP \"`date +%s`\"" >> $@%
 		@echo "#define YAP_SVERSION   \"YAP $(VERSION) ($(ARCH)): `date`\"" >> $@%
 		@if cmp -s $@% $@; then rm $@%; else mv $@% $@; fi
@@ -696,7 +698,7 @@ mycb: $(srcdir)/mycb.c
 
 all: startup.yss
 	@ENABLE_GECODE@ @INSTALL_DLLS@ (cd library/gecode; $(MAKE))
-	@INSTALL_DLLS@ (cd library/lammpi; $(MAKE))
+	@INSTALL_MPI@ (cd library/lammpi; $(MAKE))
 	@INSTALL_MATLAB@ (cd library/matlab; $(MAKE))
 	@INSTALL_DLLS@ (cd library/matrix; $(MAKE))
 	@INSTALL_DLLS@ (cd library/random; $(MAKE))
@@ -737,7 +739,7 @@ startup.yss: yap@EXEC_SUFFIX@ $(PL_SOURCES)
 	echo "bootstrap('$(srcdir)/pl/init.yap'). module(user). qsave_program('startup.yss')." |  @PRE_INSTALL_ENV@ ./yap -b $(srcdir)/pl/boot.yap
 
 yap@EXEC_SUFFIX@: $(HEADERS) yap.o @YAPLIB@
-	$(MPI_CC) $(EXECUTABLE_CFLAGS) $(LDFLAGS) -o yap yap.o @YAPLIB@ $(LIBS) @MPI_LIBS@
+	$(MPI_CC) $(EXECUTABLE_CFLAGS) $(LDFLAGS) -o yap yap.o @YAPLIB@ $(LIBS)
 
 yap-win: yap-win@EXEC_SUFFIX@
 
@@ -745,7 +747,7 @@ yapwin: yap-win@EXEC_SUFFIX@
 
 yap-win@EXEC_SUFFIX@: $(PLCONS_OBJECTS) $(HEADERS) @YAPLIB@
 	(cd swi/console; $(MAKE))
-	$(MPI_CC) -municode -DUNICODE -D_UNICODE $(EXECUTABLE_CFLAGS) $(LDFLAGS) -Wl,-subsystem,windows -o yap-win $(PLCONS_OBJECTS) plterm.dll @YAPLIB@ $(LIBS) @MPI_LIBS@
+	$(MPI_CC) -municode -DUNICODE -D_UNICODE $(EXECUTABLE_CFLAGS) $(LDFLAGS) -Wl,-subsystem,windows -o yap-win $(PLCONS_OBJECTS) plterm.dll @YAPLIB@ $(LIBS) @MPILDF@
 
 libYap.a: $(LIB_OBJECTS) 
 	-rm -f libYap.a
@@ -772,7 +774,7 @@ install_unix: startup.yss libYap.a
 	$(INSTALL) $(srcdir)/README $(DESTDIR)$(DOCSDIR)
 	$(INSTALL) $(srcdir)/COPYING $(DESTDIR)$(DOCSDIR)
 	for f in $(PL_SOURCES); do $(INSTALL) $$f $(DESTDIR)$(SHAREDIR)/Yap/pl; done
-	@INSTALL_DLLS@ (cd library/lammpi; $(MAKE) install)
+	@INSTALL_MPI@ (cd library/lammpi; $(MAKE) install)
 	@INSTALL_DLLS@ (cd library/matrix; $(MAKE) install)
 	@INSTALL_DLLS@ (cd library/random; $(MAKE) install)
 	@INSTALL_DLLS@ (cd library/regex; $(MAKE) install)
@@ -915,7 +917,7 @@ depend: $(HEADERS) $(C_SOURCES)
 clean: clean_docs
 	rm -f *.o *~ *.BAK *.a
 	@ENABLE_GECODE@ @INSTALL_DLLS@ (cd library/gecode; $(MAKE) clean)
-	@INSTALL_DLLS@ (cd library/lammpi; $(MAKE) clean)
+	@INSTALL_MPI@ (cd library/lammpi; $(MAKE) clean)
 	@INSTALL_MATLAB@ (cd library/matlab; $(MAKE) clean)
 	@INSTALL_DLLS@ (cd library/matrix; $(MAKE) clean)
 	@INSTALL_DLLS@ (cd library/random; $(MAKE) clean)

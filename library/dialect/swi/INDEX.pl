@@ -18,7 +18,9 @@ index(selectchk,3,system,library(dialect/swi)).
 index(sublist,2,system,library(dialect/swi)).
 index(sumlist,2,system,library(dialect/swi)).
 index(nth1,3,system,library(dialect/swi)).
+index(nth1,4,system,library(dialect/swi)).
 index(nth0,3,system,library(dialect/swi)).
+index(nth0,4,system,library(dialect/swi)).
 index(maplist,2,system,library(dialect/swi)).
 index(maplist,3,system,library(dialect/swi)).
 index(maplist,4,system,library(dialect/swi)).
