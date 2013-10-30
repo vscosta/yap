@@ -666,14 +666,10 @@ CUDD_CPPFLAGS
 CUDD_LDFLAGS
 ENABLE_BDDLIB
 ENABLE_CUDD
-CMDEXT
 EXTRA_INCLUDES_FOR_WIN32
 ENABLE_WINCONSOLE
 STATIC_MODE
 MAX_WORKERS
-JAVALIBS
-JPLLIBS
-JPLCFLAGS
 INSTALLCLP
 INSTALL_COMMAND
 MPICF
@@ -681,14 +677,6 @@ MPILDF
 INSTALL_MPI
 YAPMPILIB
 IN_UNIX
-LIBJPL
-JAR
-JAVADOC
-JAVACFLAGS
-JAVAC
-JUNIT
-JAVA_HOME
-JAVA
 ENABLE_CLPBN_BP
 ENABLE_ZLIB
 ENABLE_SGML
@@ -735,6 +723,21 @@ CPLINT_LDFLAGS
 CPLINT_CFLAGS
 CPLINT_LIBS
 MPI_CC
+_ACJNI_JAVAC
+JAVADOC
+JAR
+uudecode
+JAVA
+JAVAC
+CMDEXT
+JAVA_PRELOAD
+LIBJPL
+JPLLDFLAGS
+JPLCFLAGS
+JUNIT
+JAVALIBS
+JAVACFLAGS
+JAVA_HOME
 ENABLE_PRISM
 ENABLE_GECODE
 NVCC
@@ -755,7 +758,6 @@ GECODE_EXTRALIBS
 GECODE_VERSION
 EGREP
 GREP
-CPP
 target_os
 target_vendor
 target_cpu
@@ -775,6 +777,7 @@ AWK
 ac_ct_CXX
 CXXFLAGS
 CXX
+CPP
 OBJEXT
 EXEEXT
 ac_ct_CC
@@ -882,10 +885,10 @@ CFLAGS
 LDFLAGS
 LIBS
 CPPFLAGS
+CPP
 CXX
 CXXFLAGS
-CCC
-CPP'
+CCC'
 
 
 # Initialize some variables set by options.
@@ -1561,9 +1564,9 @@ Some influential environment variables:
   LIBS        libraries to pass to the linker, e.g. -l<library>
   CPPFLAGS    (Objective) C/C++ preprocessor flags, e.g. -I<include dir> if
               you have headers in a nonstandard directory <include dir>
+  CPP         C preprocessor
   CXX         C++ compiler command
   CXXFLAGS    C++ compiler flags
-  CPP         C preprocessor
 
 Use these variables to override the choices made by `configure' or to help
 it to find libraries and programs with nonstandard names/locations.
@@ -1683,6 +1686,43 @@ fi
 
 } # ac_fn_c_try_compile
 
+# ac_fn_c_try_cpp LINENO
+# ----------------------
+# Try to preprocess conftest.$ac_ext, and return whether this succeeded.
+ac_fn_c_try_cpp ()
+{
+  as_lineno=${as_lineno-"$1"} as_lineno_stack=as_lineno_stack=$as_lineno_stack
+  if { { ac_try="$ac_cpp conftest.$ac_ext"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval ac_try_echo="\"\$as_me:${as_lineno-$LINENO}: $ac_try_echo\""
+$as_echo "$ac_try_echo"; } >&5
+  (eval "$ac_cpp conftest.$ac_ext") 2>conftest.err
+  ac_status=$?
+  if test -s conftest.err; then
+    grep -v '^ *+' conftest.err >conftest.er1
+    cat conftest.er1 >&5
+    mv -f conftest.er1 conftest.err
+  fi
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; } > conftest.i && {
+	 test -z "$ac_c_preproc_warn_flag$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       }; then :
+  ac_retval=0
+else
+  $as_echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+    ac_retval=1
+fi
+  eval $as_lineno_stack; ${as_lineno_stack:+:} unset as_lineno
+  as_fn_set_status $ac_retval
+
+} # ac_fn_c_try_cpp
+
 # ac_fn_cxx_try_compile LINENO
 # ----------------------------
 # Try to compile conftest.$ac_ext, and return whether this succeeded.
@@ -1720,43 +1760,6 @@ fi
   as_fn_set_status $ac_retval
 
 } # ac_fn_cxx_try_compile
-
-# ac_fn_c_try_cpp LINENO
-# ----------------------
-# Try to preprocess conftest.$ac_ext, and return whether this succeeded.
-ac_fn_c_try_cpp ()
-{
-  as_lineno=${as_lineno-"$1"} as_lineno_stack=as_lineno_stack=$as_lineno_stack
-  if { { ac_try="$ac_cpp conftest.$ac_ext"
-case "(($ac_try" in
-  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
-  *) ac_try_echo=$ac_try;;
-esac
-eval ac_try_echo="\"\$as_me:${as_lineno-$LINENO}: $ac_try_echo\""
-$as_echo "$ac_try_echo"; } >&5
-  (eval "$ac_cpp conftest.$ac_ext") 2>conftest.err
-  ac_status=$?
-  if test -s conftest.err; then
-    grep -v '^ *+' conftest.err >conftest.er1
-    cat conftest.er1 >&5
-    mv -f conftest.er1 conftest.err
-  fi
-  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
-  test $ac_status = 0; } > conftest.i && {
-	 test -z "$ac_c_preproc_warn_flag$ac_c_werror_flag" ||
-	 test ! -s conftest.err
-       }; then :
-  ac_retval=0
-else
-  $as_echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-    ac_retval=1
-fi
-  eval $as_lineno_stack; ${as_lineno_stack:+:} unset as_lineno
-  as_fn_set_status $ac_retval
-
-} # ac_fn_c_try_cpp
 
 # ac_fn_c_check_header_mongrel LINENO HEADER VAR INCLUDES
 # -------------------------------------------------------
@@ -3472,6 +3475,143 @@ ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
+ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking how to run the C preprocessor" >&5
+$as_echo_n "checking how to run the C preprocessor... " >&6; }
+# On Suns, sometimes $CPP names a directory.
+if test -n "$CPP" && test -d "$CPP"; then
+  CPP=
+fi
+if test -z "$CPP"; then
+  if ${ac_cv_prog_CPP+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+      # Double quotes because CPP needs to be expanded
+    for CPP in "$CC -E" "$CC -E -traditional-cpp" "/lib/cpp"
+    do
+      ac_preproc_ok=false
+for ac_c_preproc_warn_flag in '' yes
+do
+  # Use a header file that comes with gcc, so configuring glibc
+  # with a fresh cross-compiler works.
+  # Prefer <limits.h> to <assert.h> if __STDC__ is defined, since
+  # <limits.h> exists even on freestanding compilers.
+  # On the NeXT, cc -E runs the code through the compiler's parser,
+  # not just through cpp. "Syntax error" is here to catch this case.
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#ifdef __STDC__
+# include <limits.h>
+#else
+# include <assert.h>
+#endif
+		     Syntax error
+_ACEOF
+if ac_fn_c_try_cpp "$LINENO"; then :
+
+else
+  # Broken: fails on valid input.
+continue
+fi
+rm -f conftest.err conftest.i conftest.$ac_ext
+
+  # OK, works on sane cases.  Now check whether nonexistent headers
+  # can be detected and how.
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <ac_nonexistent.h>
+_ACEOF
+if ac_fn_c_try_cpp "$LINENO"; then :
+  # Broken: success on invalid input.
+continue
+else
+  # Passes both tests.
+ac_preproc_ok=:
+break
+fi
+rm -f conftest.err conftest.i conftest.$ac_ext
+
+done
+# Because of `break', _AC_PREPROC_IFELSE's cleaning code was skipped.
+rm -f conftest.i conftest.err conftest.$ac_ext
+if $ac_preproc_ok; then :
+  break
+fi
+
+    done
+    ac_cv_prog_CPP=$CPP
+
+fi
+  CPP=$ac_cv_prog_CPP
+else
+  ac_cv_prog_CPP=$CPP
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $CPP" >&5
+$as_echo "$CPP" >&6; }
+ac_preproc_ok=false
+for ac_c_preproc_warn_flag in '' yes
+do
+  # Use a header file that comes with gcc, so configuring glibc
+  # with a fresh cross-compiler works.
+  # Prefer <limits.h> to <assert.h> if __STDC__ is defined, since
+  # <limits.h> exists even on freestanding compilers.
+  # On the NeXT, cc -E runs the code through the compiler's parser,
+  # not just through cpp. "Syntax error" is here to catch this case.
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#ifdef __STDC__
+# include <limits.h>
+#else
+# include <assert.h>
+#endif
+		     Syntax error
+_ACEOF
+if ac_fn_c_try_cpp "$LINENO"; then :
+
+else
+  # Broken: fails on valid input.
+continue
+fi
+rm -f conftest.err conftest.i conftest.$ac_ext
+
+  # OK, works on sane cases.  Now check whether nonexistent headers
+  # can be detected and how.
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <ac_nonexistent.h>
+_ACEOF
+if ac_fn_c_try_cpp "$LINENO"; then :
+  # Broken: success on invalid input.
+continue
+else
+  # Passes both tests.
+ac_preproc_ok=:
+break
+fi
+rm -f conftest.err conftest.i conftest.$ac_ext
+
+done
+# Because of `break', _AC_PREPROC_IFELSE's cleaning code was skipped.
+rm -f conftest.i conftest.err conftest.$ac_ext
+if $ac_preproc_ok; then :
+
+else
+  { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+as_fn_error $? "C preprocessor \"$CPP\" fails sanity check
+See \`config.log' for more details" "$LINENO" 5; }
+fi
+
+ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
+
 ac_ext=cpp
 ac_cpp='$CXXCPP $CPPFLAGS'
 ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -3942,143 +4082,6 @@ case "$target_cpu" in
     ;;
  esac
 
-
-ac_ext=c
-ac_cpp='$CPP $CPPFLAGS'
-ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_c_compiler_gnu
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking how to run the C preprocessor" >&5
-$as_echo_n "checking how to run the C preprocessor... " >&6; }
-# On Suns, sometimes $CPP names a directory.
-if test -n "$CPP" && test -d "$CPP"; then
-  CPP=
-fi
-if test -z "$CPP"; then
-  if ${ac_cv_prog_CPP+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-      # Double quotes because CPP needs to be expanded
-    for CPP in "$CC -E" "$CC -E -traditional-cpp" "/lib/cpp"
-    do
-      ac_preproc_ok=false
-for ac_c_preproc_warn_flag in '' yes
-do
-  # Use a header file that comes with gcc, so configuring glibc
-  # with a fresh cross-compiler works.
-  # Prefer <limits.h> to <assert.h> if __STDC__ is defined, since
-  # <limits.h> exists even on freestanding compilers.
-  # On the NeXT, cc -E runs the code through the compiler's parser,
-  # not just through cpp. "Syntax error" is here to catch this case.
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#ifdef __STDC__
-# include <limits.h>
-#else
-# include <assert.h>
-#endif
-		     Syntax error
-_ACEOF
-if ac_fn_c_try_cpp "$LINENO"; then :
-
-else
-  # Broken: fails on valid input.
-continue
-fi
-rm -f conftest.err conftest.i conftest.$ac_ext
-
-  # OK, works on sane cases.  Now check whether nonexistent headers
-  # can be detected and how.
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <ac_nonexistent.h>
-_ACEOF
-if ac_fn_c_try_cpp "$LINENO"; then :
-  # Broken: success on invalid input.
-continue
-else
-  # Passes both tests.
-ac_preproc_ok=:
-break
-fi
-rm -f conftest.err conftest.i conftest.$ac_ext
-
-done
-# Because of `break', _AC_PREPROC_IFELSE's cleaning code was skipped.
-rm -f conftest.i conftest.err conftest.$ac_ext
-if $ac_preproc_ok; then :
-  break
-fi
-
-    done
-    ac_cv_prog_CPP=$CPP
-
-fi
-  CPP=$ac_cv_prog_CPP
-else
-  ac_cv_prog_CPP=$CPP
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $CPP" >&5
-$as_echo "$CPP" >&6; }
-ac_preproc_ok=false
-for ac_c_preproc_warn_flag in '' yes
-do
-  # Use a header file that comes with gcc, so configuring glibc
-  # with a fresh cross-compiler works.
-  # Prefer <limits.h> to <assert.h> if __STDC__ is defined, since
-  # <limits.h> exists even on freestanding compilers.
-  # On the NeXT, cc -E runs the code through the compiler's parser,
-  # not just through cpp. "Syntax error" is here to catch this case.
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#ifdef __STDC__
-# include <limits.h>
-#else
-# include <assert.h>
-#endif
-		     Syntax error
-_ACEOF
-if ac_fn_c_try_cpp "$LINENO"; then :
-
-else
-  # Broken: fails on valid input.
-continue
-fi
-rm -f conftest.err conftest.i conftest.$ac_ext
-
-  # OK, works on sane cases.  Now check whether nonexistent headers
-  # can be detected and how.
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <ac_nonexistent.h>
-_ACEOF
-if ac_fn_c_try_cpp "$LINENO"; then :
-  # Broken: success on invalid input.
-continue
-else
-  # Passes both tests.
-ac_preproc_ok=:
-break
-fi
-rm -f conftest.err conftest.i conftest.$ac_ext
-
-done
-# Because of `break', _AC_PREPROC_IFELSE's cleaning code was skipped.
-rm -f conftest.i conftest.err conftest.$ac_ext
-if $ac_preproc_ok; then :
-
-else
-  { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
-$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
-as_fn_error $? "C preprocessor \"$CPP\" fails sanity check
-See \`config.log' for more details" "$LINENO" 5; }
-fi
-
-ac_ext=c
-ac_cpp='$CPP $CPPFLAGS'
-ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for grep that handles long lines and -e" >&5
@@ -4984,20 +4987,6 @@ if test "${with_max_threads+set}" = set; then :
 	fi
 else
   yap_cv_max_threads="1024"
-fi
-
-
-
-# Check whether --with-junit was given.
-if test "${with_junit+set}" = set; then :
-  withval=$with_junit; case "$withval" in
-		 yes) JUNIT=/usr/share/java/junit.jar
-			;;
-		 no) JUNIT=""
-			;;
-		 *) JUNIT="$withval"
-			;;
-	     esac
 fi
 
 
@@ -7639,186 +7628,1039 @@ if test "$yap_cv_java" = no; then
 	ENABLE_JPL="@#"
 elif test -e "$srcdir"/packages/jpl/Makefile.in; then
 	ENABLE_JPL=""
-	LIBJPL=libjpl
-	JAVA=java
-	JAVA_HOME="$yap_cv_java"
-	case "$target_os" in
-	    *cygwin*|*mingw*)
-	       JAVALIBS="\"$JAVA_HOME\"/lib/jvm.lib"
-	       JPLCFLAGS="-I\"$JAVA_HOME\"/include -I\"$JAVA_HOME\"/include/win32"
-	       	  ;;
-	       *darwin*)
-	       LIBS="$LIBS -framework JavaVM"
-	       JAVALIBS="-L/System/Library/Frameworks/JavaVM.framework/Libraries -Wl,-framework,JavaVM"
-	       JPLCFLAGS="-I/System/Library/Frameworks/JavaVM.framework/Headers"
-	       	  ;;
-	       *)
-              case "$target_os" in
-	         *linux*)
-		   JPLCFLAGS="-I\"$JAVA_HOME\"/include -I\"$JAVA_HOME\"/include/linux"
-                ;;
-	         *solaris*)
-	        JPLCFLAGS="-I\"$JAVA_HOME\"/include -I\"$JAVA_HOME\"/include/solaris"
-                ;;
-              esac
-	       JAVALIBS="-L$JAVA_HOME/jre/lib/$YAP_TARGET -L$JAVA_HOME/jre/lib/$YAP_TARGET/client  -L$JAVA_HOME/jre/lib/$YAP_TARGET/server   -Wl,-R,$JAVA_HOME/jre/lib/$YAP_TARGET -ljava -lverify -ljvm "
-	       	  ;;
-	esac
-	if test "$yap_cv_java" = ""; then
-	  JAVA=java
-          JAR=jar
-          JAVAC=javac
-          JAVADOC=javadoc
-        else
-	  JAVA=$yap_cv_java/bin/java
-	  JAR=$yap_cv_java/bin/jar
-	  JAVAC=$yap_cv_java/bin/javac
-	  JAVADOC=$yap_cv_java/bin/javadoc
-        fi
-        if test "x$JAVACFLAGS" = x; then
-          JAVACFLAGS="-source 1.4 -target 1.4"
-        fi
-else
-      ENABLE_JPL="@#"
+	if test "$yap_cv_java" -n yes; then
+          JAVA_HOME=$yap_cv_java
+	  JAVAPREFIX=$JAVA_HOME/bin
+       fi
+
+
+
+
+
+
+
+
+
+
+
+
+CMDEXT=sh
+
+if test "x$JAVALIBS" = "x"; then
+  case "$target_os" in
+     *darwin*)
+	  JAVALIBS="-Wl,-framework,JavaVM"
+	  ;;
+     *powerpc-linux*)
+	  JAVALIBS="-ljava -ljvm"
+	  ;;
+     *win32*|*win64*)
+	  JAVALIBS="-ljvm"
+	  CMDEXT=bat
+	  ;;
+     *)
+	  JAVALIBS="-ljava -lverify -ljvm"
+	  ;;
+  esac
 fi
 
-ac_ext=c
-ac_cpp='$CPP $CPPFLAGS'
-ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_c_compiler_gnu
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking how to run the C preprocessor" >&5
-$as_echo_n "checking how to run the C preprocessor... " >&6; }
-# On Suns, sometimes $CPP names a directory.
-if test -n "$CPP" && test -d "$CPP"; then
-  CPP=
+case "$target_os" in
+  *win32*)
+	JPLLDFLAGS="$JPLLDFLAGS -Wl,--kill-at"
+	LIBJPL=jpl
+	;;
+  *win64*)
+	LIBJPL=jpl
+	;;
+  *)
+	LIBJPL=libjpl
+	;;
+esac
+
+
+
+if test "x$JAVACFLAGS" = x; then
+  JAVACFLAGS="-source 1.4 -target 1.4"
 fi
-if test -z "$CPP"; then
-  if ${ac_cv_prog_CPP+:} false; then :
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# _ACJNI_FOLLOW_SYMLINKS <path>
+# Follows symbolic links on <path>,
+# finally setting variable _ACJNI_FOLLOWED
+# --------------------
+# _ACJNI
+
+
+
+
+java_abs_paths=no
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking Java configuration..." >&5
+$as_echo "$as_me: checking Java configuration..." >&6;}
+if test -r /etc/java/java2.conf; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: Using /etc/java/java2.conf" >&5
+$as_echo "Using /etc/java/java2.conf" >&6; }
+  eval `grep '\(JAVA\|JRE\|JDK\|SDK\).*=' /etc/java/java2.conf | sed 's/ *= */=/'`
+  if test ! -z "$JAVA_BINDIR"; then
+    PATH="$PATH:$JAVA_BINDIR"
+    java_abs_paths=yes
+  fi
+fi
+echo hello $JAVAPREFIX
+
+
+
+if test "x$JAVAC" = x; then
+  if test "x$JAVAPREFIX" = x; then
+    for ac_prog in jikes$EXEEXT javac$EXEEXT gcj$EXEEXT guavac$EXEEXT
+do
+  # Extract the first word of "$ac_prog", so it can be a program name with args.
+set dummy $ac_prog; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_prog_JAVAC+:} false; then :
   $as_echo_n "(cached) " >&6
 else
-      # Double quotes because CPP needs to be expanded
-    for CPP in "$CC -E" "$CC -E -traditional-cpp" "/lib/cpp"
-    do
-      ac_preproc_ok=false
-for ac_c_preproc_warn_flag in '' yes
+  if test -n "$JAVAC"; then
+  ac_cv_prog_JAVAC="$JAVAC" # Let the user override the test.
+else
+as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
 do
-  # Use a header file that comes with gcc, so configuring glibc
-  # with a fresh cross-compiler works.
-  # Prefer <limits.h> to <assert.h> if __STDC__ is defined, since
-  # <limits.h> exists even on freestanding compilers.
-  # On the NeXT, cc -E runs the code through the compiler's parser,
-  # not just through cpp. "Syntax error" is here to catch this case.
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#ifdef __STDC__
-# include <limits.h>
-#else
-# include <assert.h>
-#endif
-		     Syntax error
-_ACEOF
-if ac_fn_c_try_cpp "$LINENO"; then :
-
-else
-  # Broken: fails on valid input.
-continue
-fi
-rm -f conftest.err conftest.i conftest.$ac_ext
-
-  # OK, works on sane cases.  Now check whether nonexistent headers
-  # can be detected and how.
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <ac_nonexistent.h>
-_ACEOF
-if ac_fn_c_try_cpp "$LINENO"; then :
-  # Broken: success on invalid input.
-continue
-else
-  # Passes both tests.
-ac_preproc_ok=:
-break
-fi
-rm -f conftest.err conftest.i conftest.$ac_ext
-
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_prog_JAVAC="$ac_prog"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
 done
-# Because of `break', _AC_PREPROC_IFELSE's cleaning code was skipped.
-rm -f conftest.i conftest.err conftest.$ac_ext
-if $ac_preproc_ok; then :
-  break
-fi
-
-    done
-    ac_cv_prog_CPP=$CPP
+  done
+IFS=$as_save_IFS
 
 fi
-  CPP=$ac_cv_prog_CPP
+fi
+JAVAC=$ac_cv_prog_JAVAC
+if test -n "$JAVAC"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $JAVAC" >&5
+$as_echo "$JAVAC" >&6; }
 else
-  ac_cv_prog_CPP=$CPP
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
 fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $CPP" >&5
-$as_echo "$CPP" >&6; }
-ac_preproc_ok=false
-for ac_c_preproc_warn_flag in '' yes
+
+
+  test -n "$JAVAC" && break
+done
+
+  else
+    for ac_prog in jikes$EXEEXT javac$EXEEXT gcj$EXEEXT guavac$EXEEXT
 do
-  # Use a header file that comes with gcc, so configuring glibc
-  # with a fresh cross-compiler works.
-  # Prefer <limits.h> to <assert.h> if __STDC__ is defined, since
-  # <limits.h> exists even on freestanding compilers.
-  # On the NeXT, cc -E runs the code through the compiler's parser,
-  # not just through cpp. "Syntax error" is here to catch this case.
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#ifdef __STDC__
-# include <limits.h>
-#else
-# include <assert.h>
-#endif
-		     Syntax error
-_ACEOF
-if ac_fn_c_try_cpp "$LINENO"; then :
-
+  # Extract the first word of "$ac_prog", so it can be a program name with args.
+set dummy $ac_prog; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_path_JAVAC+:} false; then :
+  $as_echo_n "(cached) " >&6
 else
-  # Broken: fails on valid input.
-continue
-fi
-rm -f conftest.err conftest.i conftest.$ac_ext
-
-  # OK, works on sane cases.  Now check whether nonexistent headers
-  # can be detected and how.
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <ac_nonexistent.h>
-_ACEOF
-if ac_fn_c_try_cpp "$LINENO"; then :
-  # Broken: success on invalid input.
-continue
-else
-  # Passes both tests.
-ac_preproc_ok=:
-break
-fi
-rm -f conftest.err conftest.i conftest.$ac_ext
-
+  case $JAVAC in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_JAVAC="$JAVAC" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in "$JAVAPREFIX"
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_JAVAC="$as_dir/$ac_word$ac_exec_ext"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
 done
-# Because of `break', _AC_PREPROC_IFELSE's cleaning code was skipped.
-rm -f conftest.i conftest.err conftest.$ac_ext
-if $ac_preproc_ok; then :
+  done
+IFS=$as_save_IFS
 
+  ;;
+esac
+fi
+JAVAC=$ac_cv_path_JAVAC
+if test -n "$JAVAC"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $JAVAC" >&5
+$as_echo "$JAVAC" >&6; }
 else
-  { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
-$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
-as_fn_error $? "C preprocessor \"$CPP\" fails sanity check
-See \`config.log' for more details" "$LINENO" 5; }
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
 fi
 
-ac_ext=c
-ac_cpp='$CPP $CPPFLAGS'
-ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
+  test -n "$JAVAC" && break
+done
+
+  fi
+fi
+test "x$JAVAC" = x && as_fn_error $? "no acceptable Java compiler found in \$PATH" "$LINENO" 5
+if test "$JAVAC" = "gcj$EXEEXT"; then
+  case "$JAVACFLAGS" in
+    *-C*)
+	;;
+    *)
+	JAVACFLAGS="$JAVACFLAGS -C"
+	;;
+  esac
+fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if $JAVAC works" >&5
+$as_echo_n "checking if $JAVAC works... " >&6; }
+if ${ac_cv_prog_javac_works+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+JAVA_TEST=Test.java
+CLASS_TEST=Test.class
+cat << \EOF > $JAVA_TEST
+/* #line 7840 "configure" */
+public class Test {
+}
+EOF
+if { ac_try='"$JAVAC" $JAVACFLAGS $JAVA_TEST'
+  { { eval echo "\"\$as_me\":${as_lineno-$LINENO}: \"$ac_try\""; } >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; } >/dev/null 2>&1; then
+  ac_cv_prog_javac_works=yes
+else
+  as_fn_error $? "The Java compiler $JAVAC failed (see config.log, check the CLASSPATH?)" "$LINENO" 5
+  echo "configure: failed program was:" >&5
+  cat $JAVA_TEST >&5
+fi
+rm -f $JAVA_TEST $CLASS_TEST
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_prog_javac_works" >&5
+$as_echo "$ac_cv_prog_javac_works" >&6; }
+
+
+
+if test "x$JAVA" = x; then
+  if test "x$JAVAPREFIX" = x; then
+    for ac_prog in kaffe$EXEEXT java$EXEEXT
+do
+  # Extract the first word of "$ac_prog", so it can be a program name with args.
+set dummy $ac_prog; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_prog_JAVA+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  if test -n "$JAVA"; then
+  ac_cv_prog_JAVA="$JAVA" # Let the user override the test.
+else
+as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_prog_JAVA="$ac_prog"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+fi
+fi
+JAVA=$ac_cv_prog_JAVA
+if test -n "$JAVA"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $JAVA" >&5
+$as_echo "$JAVA" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+  test -n "$JAVA" && break
+done
+
+  else
+    for ac_prog in kaffe$EXEEXT java$EXEEXT
+do
+  # Extract the first word of "$ac_prog", so it can be a program name with args.
+set dummy $ac_prog; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_path_JAVA+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  case $JAVA in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_JAVA="$JAVA" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $JAVAPREFIX
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_JAVA="$as_dir/$ac_word$ac_exec_ext"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  ;;
+esac
+fi
+JAVA=$ac_cv_path_JAVA
+if test -n "$JAVA"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $JAVA" >&5
+$as_echo "$JAVA" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+  test -n "$JAVA" && break
+done
+
+  fi
+fi
+test "x$JAVA" = x && as_fn_error $? "no acceptable Java virtual machine found in \$PATH" "$LINENO" 5
+
+# Extract the first word of "uudecode$EXEEXT", so it can be a program name with args.
+set dummy uudecode$EXEEXT; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_prog_uudecode+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  if test -n "$uudecode"; then
+  ac_cv_prog_uudecode="$uudecode" # Let the user override the test.
+else
+as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_prog_uudecode="yes"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+fi
+fi
+uudecode=$ac_cv_prog_uudecode
+if test -n "$uudecode"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $uudecode" >&5
+$as_echo "$uudecode" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+if test x$uudecode = xyes; then
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if uudecode can decode base 64 file" >&5
+$as_echo_n "checking if uudecode can decode base 64 file... " >&6; }
+if ${ac_cv_prog_uudecode_base64+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+cat << \EOF > Test.uue
+begin-base64 644 Test.class
+yv66vgADAC0AFQcAAgEABFRlc3QHAAQBABBqYXZhL2xhbmcvT2JqZWN0AQAE
+bWFpbgEAFihbTGphdmEvbGFuZy9TdHJpbmc7KVYBAARDb2RlAQAPTGluZU51
+bWJlclRhYmxlDAAKAAsBAARleGl0AQAEKEkpVgoADQAJBwAOAQAQamF2YS9s
+YW5nL1N5c3RlbQEABjxpbml0PgEAAygpVgwADwAQCgADABEBAApTb3VyY2VG
+aWxlAQAJVGVzdC5qYXZhACEAAQADAAAAAAACAAkABQAGAAEABwAAACEAAQAB
+AAAABQO4AAyxAAAAAQAIAAAACgACAAAACgAEAAsAAQAPABAAAQAHAAAAIQAB
+AAEAAAAFKrcAErEAAAABAAgAAAAKAAIAAAAEAAQABAABABMAAAACABQ=
+====
+EOF
+if uudecode$EXEEXT Test.uue; then
+        ac_cv_prog_uudecode_base64=yes
+else
+        echo "configure: 8016: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
+        echo "configure: failed file was:" >&5
+        cat Test.uue >&5
+        ac_cv_prog_uudecode_base64=no
+fi
+rm -f Test.uue
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_prog_uudecode_base64" >&5
+$as_echo "$ac_cv_prog_uudecode_base64" >&6; }
+fi
+if test x$ac_cv_prog_uudecode_base64 != xyes; then
+        rm -f Test.class
+        { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: I have to compile Test.class from scratch" >&5
+$as_echo "$as_me: WARNING: I have to compile Test.class from scratch" >&2;}
+        if test x$ac_cv_prog_javac_works = xno; then
+                as_fn_error $? "Cannot compile java source. $JAVAC does not work properly" "$LINENO" 5
+        fi
+        if test x$ac_cv_prog_javac_works = x; then
+
+if test "x$JAVAC" = x; then
+  if test "x$JAVAPREFIX" = x; then
+    for ac_prog in jikes$EXEEXT javac$EXEEXT gcj$EXEEXT guavac$EXEEXT
+do
+  # Extract the first word of "$ac_prog", so it can be a program name with args.
+set dummy $ac_prog; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_prog_JAVAC+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  if test -n "$JAVAC"; then
+  ac_cv_prog_JAVAC="$JAVAC" # Let the user override the test.
+else
+as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_prog_JAVAC="$ac_prog"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+fi
+fi
+JAVAC=$ac_cv_prog_JAVAC
+if test -n "$JAVAC"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $JAVAC" >&5
+$as_echo "$JAVAC" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+  test -n "$JAVAC" && break
+done
+
+  else
+    for ac_prog in jikes$EXEEXT javac$EXEEXT gcj$EXEEXT guavac$EXEEXT
+do
+  # Extract the first word of "$ac_prog", so it can be a program name with args.
+set dummy $ac_prog; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_path_JAVAC+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  case $JAVAC in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_JAVAC="$JAVAC" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in "$JAVAPREFIX"
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_JAVAC="$as_dir/$ac_word$ac_exec_ext"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  ;;
+esac
+fi
+JAVAC=$ac_cv_path_JAVAC
+if test -n "$JAVAC"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $JAVAC" >&5
+$as_echo "$JAVAC" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+  test -n "$JAVAC" && break
+done
+
+  fi
+fi
+test "x$JAVAC" = x && as_fn_error $? "no acceptable Java compiler found in \$PATH" "$LINENO" 5
+if test "$JAVAC" = "gcj$EXEEXT"; then
+  case "$JAVACFLAGS" in
+    *-C*)
+	;;
+    *)
+	JAVACFLAGS="$JAVACFLAGS -C"
+	;;
+  esac
+fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if $JAVAC works" >&5
+$as_echo_n "checking if $JAVAC works... " >&6; }
+if ${ac_cv_prog_javac_works+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+JAVA_TEST=Test.java
+CLASS_TEST=Test.class
+cat << \EOF > $JAVA_TEST
+/* #line 8147 "configure" */
+public class Test {
+}
+EOF
+if { ac_try='"$JAVAC" $JAVACFLAGS $JAVA_TEST'
+  { { eval echo "\"\$as_me\":${as_lineno-$LINENO}: \"$ac_try\""; } >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; } >/dev/null 2>&1; then
+  ac_cv_prog_javac_works=yes
+else
+  as_fn_error $? "The Java compiler $JAVAC failed (see config.log, check the CLASSPATH?)" "$LINENO" 5
+  echo "configure: failed program was:" >&5
+  cat $JAVA_TEST >&5
+fi
+rm -f $JAVA_TEST $CLASS_TEST
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_prog_javac_works" >&5
+$as_echo "$ac_cv_prog_javac_works" >&6; }
+
+
+        fi
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if $JAVA works" >&5
+$as_echo_n "checking if $JAVA works... " >&6; }
+if ${ac_cv_prog_java_works+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+JAVA_TEST=Test.java
+CLASS_TEST=Test.class
+TEST=Test
+cat << \EOF > $JAVA_TEST
+/* [#]line 8182 "configure" */
+public class Test {
+public static void main (String args[]) {
+        System.exit (0);
+} }
+EOF
+if test x$ac_cv_prog_uudecode_base64 != xyes; then
+        if { ac_try='"$JAVAC" $JAVACFLAGS $JAVA_TEST'
+  { { eval echo "\"\$as_me\":${as_lineno-$LINENO}: \"$ac_try\""; } >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; } && test -s $CLASS_TEST; then
+                :
+        else
+          echo "configure: failed program was:" >&5
+          cat $JAVA_TEST >&5
+          as_fn_error $? "The Java compiler $JAVAC failed (see config.log, check the CLASSPATH?)" "$LINENO" 5
+        fi
+fi
+if { ac_try='"$JAVA" $JAVAFLAGS $TEST'
+  { { eval echo "\"\$as_me\":${as_lineno-$LINENO}: \"$ac_try\""; } >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; } >/dev/null 2>&1; then
+  ac_cv_prog_java_works=yes
+else
+  echo "configure: failed program was:" >&5
+  cat $JAVA_TEST >&5
+  as_fn_error $? "The Java VM $JAVA failed (see config.log, check the CLASSPATH?)" "$LINENO" 5
+fi
+rm -fr $JAVA_TEST $CLASS_TEST Test.uue
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_prog_java_works" >&5
+$as_echo "$ac_cv_prog_java_works" >&6; }
+
+
+
+
+if test "x$JAR" = x; then
+  if test "x$JAVAPREFIX" = x; then
+    for ac_prog in jar$EXEEXT
+do
+  # Extract the first word of "$ac_prog", so it can be a program name with args.
+set dummy $ac_prog; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_prog_JAR+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  if test -n "$JAR"; then
+  ac_cv_prog_JAR="$JAR" # Let the user override the test.
+else
+as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_prog_JAR="$ac_prog"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+fi
+fi
+JAR=$ac_cv_prog_JAR
+if test -n "$JAR"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $JAR" >&5
+$as_echo "$JAR" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+  test -n "$JAR" && break
+done
+
+  else
+    for ac_prog in jar$EXEEXT
+do
+  # Extract the first word of "$ac_prog", so it can be a program name with args.
+set dummy $ac_prog; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_path_JAR+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  case $JAR in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_JAR="$JAR" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $JAVAPREFIX
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_JAR="$as_dir/$ac_word$ac_exec_ext"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  ;;
+esac
+fi
+JAR=$ac_cv_path_JAR
+if test -n "$JAR"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $JAR" >&5
+$as_echo "$JAR" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+  test -n "$JAR" && break
+done
+
+  fi
+fi
+test "x$JAR" = x && as_fn_error $? "no acceptable jar program found in \$PATH" "$LINENO" 5
+
+
+if test "x$JAVADOC" = x; then
+  if test "x$JAVAPREFIX" = x; then
+    for ac_prog in javadoc$EXEEXT
+do
+  # Extract the first word of "$ac_prog", so it can be a program name with args.
+set dummy $ac_prog; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_prog_JAVADOC+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  if test -n "$JAVADOC"; then
+  ac_cv_prog_JAVADOC="$JAVADOC" # Let the user override the test.
+else
+as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_prog_JAVADOC="$ac_prog"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+fi
+fi
+JAVADOC=$ac_cv_prog_JAVADOC
+if test -n "$JAVADOC"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $JAVADOC" >&5
+$as_echo "$JAVADOC" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+  test -n "$JAVADOC" && break
+done
+
+  else
+    for ac_prog in javadoc$EXEEXT
+do
+  # Extract the first word of "$ac_prog", so it can be a program name with args.
+set dummy $ac_prog; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_path_JAVADOC+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  case $JAVADOC in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_JAVADOC="$JAVADOC" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in "$JAVAPREFIX"
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_JAVADOC="$as_dir/$ac_word$ac_exec_ext"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  ;;
+esac
+fi
+JAVADOC=$ac_cv_path_JAVADOC
+if test -n "$JAVADOC"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $JAVADOC" >&5
+$as_echo "$JAVADOC" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+  test -n "$JAVADOC" && break
+done
+
+  fi
+fi
+test "x$JAVADOC" = x && as_fn_error $? "no acceptable javadoc generator found in \$PATH" "$LINENO" 5
+
+
+escape_space()
+{ sed -e "s/Program Files/Program-SPACE-Files/g" -e "s/ (x86)/SPACEX86/g"
+}
+
+unescape_space()
+{ sed -e "s/-SPACE-/ /g" -e "s/SPACEX86/ (x86)/g"
+}
+
+
+
+JNI_INCLUDE_DIRS=""
+
+if test "x$JAVAPREFIX" = x; then
+  test "x$JAVAC" = x && as_fn_error $? "'$JAVAC' undefined" "$LINENO" 5
+
+  case "$JAVAC" in
+    /*)	_ACJNI_JAVAC="$JAVAC"
+	;;
+     *) # Extract the first word of "$JAVAC", so it can be a program name with args.
+set dummy $JAVAC; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_path__ACJNI_JAVAC+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  case $_ACJNI_JAVAC in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path__ACJNI_JAVAC="$_ACJNI_JAVAC" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path__ACJNI_JAVAC="$as_dir/$ac_word$ac_exec_ext"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  test -z "$ac_cv_path__ACJNI_JAVAC" && ac_cv_path__ACJNI_JAVAC="no"
+  ;;
+esac
+fi
+_ACJNI_JAVAC=$ac_cv_path__ACJNI_JAVAC
+if test -n "$_ACJNI_JAVAC"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $_ACJNI_JAVAC" >&5
+$as_echo "$_ACJNI_JAVAC" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+        ;;
+  esac
+
+  # Extract the first word of "$JAVAC", so it can be a program name with args.
+set dummy $JAVAC; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_path__ACJNI_JAVAC+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  case $_ACJNI_JAVAC in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path__ACJNI_JAVAC="$_ACJNI_JAVAC" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path__ACJNI_JAVAC="$as_dir/$ac_word$ac_exec_ext"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  test -z "$ac_cv_path__ACJNI_JAVAC" && ac_cv_path__ACJNI_JAVAC="no"
+  ;;
+esac
+fi
+_ACJNI_JAVAC=$ac_cv_path__ACJNI_JAVAC
+if test -n "$_ACJNI_JAVAC"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $_ACJNI_JAVAC" >&5
+$as_echo "$_ACJNI_JAVAC" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+  test "x$_ACJNI_JAVAC" = xno && as_fn_error $? "$JAVAC could not be found in path" "$LINENO" 5
+
+
+# find the include directory relative to the javac executable
+_cur=""$_ACJNI_JAVAC""
+while ls -ld "$_cur" 2>/dev/null | grep " -> " >/dev/null; do
+        { $as_echo "$as_me:${as_lineno-$LINENO}: checking symlink for $_cur" >&5
+$as_echo_n "checking symlink for $_cur... " >&6; }
+        _slink=`ls -ld "$_cur" | sed 's/.* -> //'`
+        case "$_slink" in
+        /*) _cur="$_slink";;
+        # 'X' avoids triggering unwanted echo options.
+        *) _cur=`echo "X$_cur" | sed -e 's/^X//' -e 's:[^/]*$::'`"$_slink";;
+        esac
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: $_cur" >&5
+$as_echo "$_cur" >&6; }
+done
+_ACJNI_FOLLOWED="$_cur"
+
+  _JTOPDIR=`echo "$_ACJNI_FOLLOWED" | sed -e 's://*:/:g' -e 's:/[^/]*$::'`
+else
+  _JTOPDIR="$(dirname "$JAVAPREFIX")"
+fi
+
+case "$host_os" in
+        darwin*)        _JTOPDIR=`echo "$_JTOPDIR" | sed -e 's:/[^/]*$::'`
+                        _JINC="$_JTOPDIR/Headers";;
+        *)              _JINC="$_JTOPDIR/include";;
+esac
+if test -f "$_JINC/jni.h"; then
+        JNI_INCLUDE_DIRS="$JNI_INCLUDE_DIRS $_JINC"
+else
+        _JTOPDIR=`echo "$_JTOPDIR" | sed -e 's:/[^/]*$::'`
+        if test -f "$_JTOPDIR/include/jni.h"; then
+                JNI_INCLUDE_DIRS="$JNI_INCLUDE_DIRS $_JTOPDIR/include"
+        else
+                as_fn_error $? "cannot find java include files" "$LINENO" 5
+        fi
+fi
+
+# get the likely subdirectories for system specific java includes
+case "$host_os" in
+bsdi*)          _JNI_INC_SUBDIRS="bsdos";;
+linux*)         _JNI_INC_SUBDIRS="linux genunix";;
+mingw32*)       _JNI_INC_SUBDIRS="win32";;
+osf*)           _JNI_INC_SUBDIRS="alpha";;
+solaris*)       _JNI_INC_SUBDIRS="solaris";;
+*)              _JNI_INC_SUBDIRS="genunix";;
+esac
+
+# add any subdirectories that are present
+for JINCSUBDIR in $_JNI_INC_SUBDIRS
+do
+        if test -d "$_JTOPDIR/include/$JINCSUBDIR"; then
+                JNI_INCLUDE_DIRS="$JNI_INCLUDE_DIRS $_JTOPDIR/include/$JINCSUBDIR"
+        fi
+done
+
+case "$host_os" in
+mingw32*)       JNI_CLIENT_DIRS="$_JTOPDIR/lib"
+                ;;
+
+*)  case "$host_cpu" in
+	i?86)
+		_JNI_LIBDIRS="lib/i386"
+		_JNI_LIBSUBDIRS="client"
+		;;
+	x86_64)
+		_JNI_LIBDIRS="lib/amd64"
+		_JNI_LIBSUBDIRS="server"
+		;;
+	powerpc)
+		case "$host_os" in
+		linux*)
+			_JNI_LIBDIRS="lib/ppc bin"
+			_JNI_LIBSUBDIRS="server classic"
+			;;
+		*)
+			_JNI_LIBDIRS=""
+		esac
+		;;
+	*)
+		# Fallback option should work on all architectures except
+		# amd64 and powerpc which are special cased above.
+		_JNI_LIBDIRS="lib/$host_cpu"
+		_JNI_LIBSUBDIRS="server"
+esac
+
+for d in $_JNI_LIBDIRS; do
+	for subd in $_JNI_LIBSUBDIRS; do
+		echo "Trying $_JTOPDIR/jre/$d/$subd"
+		if test -d $_JTOPDIR/jre/$d/$subd; then
+			JNI_CLIENT_DIRS="$JNI_CLIENT_DIRS $_JTOPDIR/jre/$d/$subd $_JTOPDIR/jre/$d"
+		fi
+	done
+done
+
+;;
+esac
+
+
+for d in $(echo $JNI_INCLUDE_DIRS | escape_space); do
+  JPLCFLAGS="$JPLCFLAGS -I'$d'"
+done
+JPLCFLAGS="$(echo $JPLCFLAGS | unescape_space)"
+
+for d in $(echo $JNI_CLIENT_DIRS | escape_space); do
+  JPLLDFLAGS="$JPLLDFLAGS -L'$d'"
+done
+JPLLDFLAGS="$(echo $JPLLDFLAGS | unescape_space)"
+
+for d in $(echo $JNI_CLIENT_DIRS | escape_space); do
+  if test -f "$d/libjsig.$SO"; then
+     JAVALIBS="-ljsig $JAVALIBS"
+     JAVA_PRELOAD=$d/libjsig.$SO
+     break
+  fi
+done
+JAVA_PRELOAD="$(echo $JAVA_PRELOAD | unescape_space)"
+
+if test "$java_abs_paths" = yes; then
+  JAVA_CC="$JAVA_BINDIR/$JAVA_CC"
+fi
+
+
+# Check whether --with-junit was given.
+if test "${with_junit+set}" = set; then :
+  withval=$with_junit; case "$withval" in
+		 yes) JUNIT=/usr/share/java/junit.jar
+			;;
+		 no) JUNIT=""
+			;;
+		 *) JUNIT="$withval"
+			;;
+	     esac
+
+else
+   if test "x$JUNIT" = "x" -a -r /usr/share/java/junit.jar; then
+		  JUNIT=/usr/share/java/junit.jar
+	       fi
+
+
+fi
+
+
+JAVA_HOME=$_JTOPDIR
+
+fi
 
 if test "$cross_compiling" = "yes"
 then
@@ -9593,18 +10435,6 @@ fi
 
 
 CMDEXT=sh
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
