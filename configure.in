@@ -911,7 +911,11 @@ else
     ENABLE_CUDA="@# "
   else
     ENABLE_CUDA=""
-   case "$target_os" in
+    if test "$YAP_TARGET" = "i386"
+    then
+      NVCC="$NVCC -m32"
+    fi
+    case "$target_os" in
      *darwin*)
        CUDA_LDFLAGS="$LDFLAGS"
     CUDA_CPPFLAGS="-shared -arch=sm_20  -Xcompiler -fPIC -O3 "
