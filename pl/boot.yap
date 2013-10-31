@@ -80,7 +80,7 @@ true :- true.
     set_value('$gc',on),
     ('$exit_undefp' -> true ; true),
     prompt1(' ?- '),
-    '$debug_on'(false),
+    '$swi_set_prolog_flag'(debug, false)
 	% simple trick to find out if this is we are booting from Prolog.
 	% boot from a saved state
 	(
@@ -200,7 +200,7 @@ true :- true.
 	fail.
 '$enter_top_level' :-
 	'$nb_getval'('$break',BreakLevel,fail),
-	 '$debug_on'(DBON),
+        '$swi_current_prolog_flag'(debug, DBON),
 	(
 	 '$nb_getval'('$trace', on, fail)
 	->
