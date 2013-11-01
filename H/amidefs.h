@@ -254,6 +254,7 @@ typedef enum {
 
   The meaning and type of the symbols in a abstract machine instruction is:
 
+  A: Atom
   b: arity (Int)
   b: bitmap (CELL *)
   c: constant, is a Term
@@ -864,6 +865,12 @@ typedef struct yami {
       Int                  c;
       CELL next;
     } yxn;
+    struct {
+      yslot                y;
+      wamreg               xi;
+      Term                 c;
+      CELL next;
+    } yxc;
   } u;
 } yamop;
 

@@ -322,7 +322,7 @@
   OPCODE(p_func2s_cv                ,xxc),
   OPCODE(p_func2s_vc                ,xxn),
   OPCODE(p_func2s_y_vv              ,yxx),
-  OPCODE(p_func2s_y_cv              ,yxn),
+  OPCODE(p_func2s_y_cv              ,yxc),
   OPCODE(p_func2s_y_vc              ,yxn),
   OPCODE(p_func2f_xx                ,xxx),
   OPCODE(p_func2f_xy                ,xxy),

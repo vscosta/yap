@@ -106,6 +106,11 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
       pc->u.OtaLl.n = PtoOpAdjust(pc->u.OtaLl.n);
       pc = pc->u.OtaLl.n;
       break;
+      pc->u.OtaLl.s = AtomAdjust(pc->u.OtaLl.s);
+      pc->u.OtaLl.d = PtoLUClauseAdjust(pc->u.OtaLl.d);
+      pc->u.OtaLl.n = PtoOpAdjust(pc->u.OtaLl.n);
+      pc = pc->u.OtaLl.n;
+      break;
       /* instructions type OtapFs */
 #ifdef CUT_C
     case _cut_c:
@@ -750,12 +755,18 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
       pc->u.yx.x = XAdjust(pc->u.yx.x);
       pc = NEXTOP(pc,yx);
       break;
+      /* instructions type yxc */
+    case _p_func2s_y_cv:
+      pc->u.yxc.y = YAdjust(pc->u.yxc.y);
+      pc->u.yxc.xi = XAdjust(pc->u.yxc.xi);
+      pc->u.yxc.c = ConstantTermAdjust(pc->u.yxc.c);
+      pc = NEXTOP(pc,yxc);
+      break;
       /* instructions type yxn */
     case _p_and_y_vc:
     case _p_arg_y_cv:
     case _p_div_y_cv:
     case _p_div_y_vc:
-    case _p_func2s_y_cv:
     case _p_func2s_y_vc:
     case _p_minus_y_cv:
     case _p_or_y_vc:

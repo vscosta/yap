@@ -70,6 +70,9 @@
       CHECK(save_Arity(stream, pc->u.Osbpa.i));
       pc = NEXTOP(pc,Osbpa);
       break;
+      CHECK(save_Atom(stream, pc->u.Osbpa.i));
+      pc = NEXTOP(pc,Osbpa);
+      break;
       /* instructions type Osbpp */
     case _call:
     case _call_cpred:
@@ -116,6 +119,11 @@
       CHECK(save_PtoOp(stream, pc->u.OtaLl.n));
       pc = NEXTOP(pc,OtaLl);
       break;
+      CHECK(save_Atom(stream, pc->u.OtaLl.s));
+      CHECK(save_PtoLUClause(stream, pc->u.OtaLl.d));
+      CHECK(save_PtoOp(stream, pc->u.OtaLl.n));
+      pc = NEXTOP(pc,OtaLl);
+      break;
       /* instructions type OtapFs */
 #ifdef CUT_C
     case _cut_c:
@@ -134,6 +142,12 @@
       CHECK(save_TabEntry(stream, pc->u.OtapFs.te));
 #endif
       CHECK(save_Arity(stream, pc->u.OtapFs.s));
+      CHECK(save_PtoPred(stream, pc->u.OtapFs.p));
+      CHECK(save_ExternalFunction(stream, pc->u.OtapFs.f));
+      CHECK(save_Constant(stream, pc->u.OtapFs.extra));
+      pc = NEXTOP(pc,OtapFs);
+      break;
+      CHECK(save_Atom(stream, pc->u.OtapFs.s));
       CHECK(save_PtoPred(stream, pc->u.OtapFs.p));
       CHECK(save_ExternalFunction(stream, pc->u.OtapFs.f));
       CHECK(save_Constant(stream, pc->u.OtapFs.extra));
@@ -166,9 +180,20 @@
       CHECK(save_PtoOp(stream, pc->u.Otapl.d));
       pc = NEXTOP(pc,Otapl);
       break;
+      CHECK(save_Atom(stream, pc->u.Otapl.s));
+      CHECK(save_PtoPred(stream, pc->u.Otapl.p));
+      CHECK(save_PtoOp(stream, pc->u.Otapl.d));
+      pc = NEXTOP(pc,Otapl);
+      break;
       /* instructions type aFlp */
     case _native_me:
       CHECK(save_Arity(stream, pc->u.aFlp.n));
+      CHECK(save_ExternalFunction(stream, pc->u.aFlp.native));
+      CHECK(save_PtoOp(stream, pc->u.aFlp.native_next));
+      CHECK(save_PtoPred(stream, pc->u.aFlp.p));
+      pc = NEXTOP(pc,aFlp);
+      break;
+      CHECK(save_Atom(stream, pc->u.aFlp.n));
       CHECK(save_ExternalFunction(stream, pc->u.aFlp.native));
       CHECK(save_PtoOp(stream, pc->u.aFlp.native_next));
       CHECK(save_PtoPred(stream, pc->u.aFlp.p));
@@ -271,6 +296,9 @@
       CHECK(save_Arity(stream, pc->u.fa.a));
       pc = NEXTOP(pc,fa);
       break;
+      CHECK(save_Atom(stream, pc->u.fa.a));
+      pc = NEXTOP(pc,fa);
+      break;
       /* instructions type i */
     case _write_longint:
       CHECK(save_IntegerInCode(stream, pc->u.i.i));
@@ -366,6 +394,9 @@
       CHECK(save_Opcode(stream, pc->u.ofa.opcw));
       CHECK(save_Func(stream, pc->u.ofa.f));
       CHECK(save_Arity(stream, pc->u.ofa.a));
+      pc = NEXTOP(pc,ofa);
+      break;
+      CHECK(save_Atom(stream, pc->u.ofa.a));
       pc = NEXTOP(pc,ofa);
       break;
       /* instructions type oi */
@@ -608,6 +639,9 @@
       CHECK(save_Arity(stream, pc->u.xfa.a));
       pc = NEXTOP(pc,xfa);
       break;
+      CHECK(save_Atom(stream, pc->u.xfa.a));
+      pc = NEXTOP(pc,xfa);
+      break;
       /* instructions type xi */
     case _get_longint:
     case _put_longint:
@@ -766,12 +800,18 @@
       CHECK(save_X(stream, pc->u.yx.x));
       pc = NEXTOP(pc,yx);
       break;
+      /* instructions type yxc */
+    case _p_func2s_y_cv:
+      CHECK(save_Y(stream, pc->u.yxc.y));
+      CHECK(save_X(stream, pc->u.yxc.xi));
+      CHECK(save_ConstantTerm(stream, pc->u.yxc.c));
+      pc = NEXTOP(pc,yxc);
+      break;
       /* instructions type yxn */
     case _p_and_y_vc:
     case _p_arg_y_cv:
     case _p_div_y_cv:
     case _p_div_y_vc:
-    case _p_func2s_y_cv:
     case _p_func2s_y_vc:
     case _p_minus_y_cv:
     case _p_or_y_vc:
@@ -835,6 +875,11 @@
       CHECK(save_PtoOp(stream, pc->u.Otapl.d));
       pc = NEXTOP(pc,Otapl);
       break;
+      CHECK(save_Atom(stream, pc->u.Otapl.s));
+      CHECK(save_PtoPred(stream, pc->u.Otapl.p));
+      CHECK(save_PtoOp(stream, pc->u.Otapl.d));
+      pc = NEXTOP(pc,Otapl);
+      break;
       /* instructions type e */
     case _getwork_first_time:
       if (op == _Nstop || op == _copy_idb_term || op == _unify_idb_term) return 1;
@@ -864,6 +909,11 @@
       CHECK(save_TabEntry(stream, pc->u.Otapl.te));
 #endif
       CHECK(save_Arity(stream, pc->u.Otapl.s));
+      CHECK(save_PtoPred(stream, pc->u.Otapl.p));
+      CHECK(save_PtoOp(stream, pc->u.Otapl.d));
+      pc = NEXTOP(pc,Otapl);
+      break;
+      CHECK(save_Atom(stream, pc->u.Otapl.s));
       CHECK(save_PtoPred(stream, pc->u.Otapl.p));
       CHECK(save_PtoOp(stream, pc->u.Otapl.d));
       pc = NEXTOP(pc,Otapl);
