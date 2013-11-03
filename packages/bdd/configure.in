@@ -1,0 +1,104 @@
+AC_ARG_WITH(cudd,
+	[ --with-cudd[=DIR]           use CUDD package in DIR],
+	yap_cv_cudd="$withval",
+	[yap_cv_cudd=no])
+
+if test "$yap_cv_cudd" = no 
+then
+  ENABLE_CUDD="@# "
+  ENABLE_BDDLIB="@# "
+else
+  if test "$dynamic_bdd" = yes
+  then
+    ENABLE_BDDLIB=""
+  else
+    ENABLE_BDDLIB="@# "
+  fi
+  ENABLE_CUDD=""
+fi
+
+
+
+if test "$yap_cv_cudd" != no; then
+
+oldlibs="$LIBS"
+
+if test "$yap_cv_cudd" != "NONE" -a "$yap_cv_cudd" != "yes"; then
+   CUDD_CPPFLAGS="-I $yap_cv_cudd/include"
+   cudd_dir="$yap_cv_cudd"
+elif test "$prefix" != "NONE"; then
+   CUDD_CPPFLAGS="-I $prefix/include"
+   cudd_dir="$prefix"
+else
+   CUDD_CPPFLAGS="-I /usr/local/include"
+   cudd_dir=/usr/local
+fi
+
+OLD_CPPFLAGS="$CPPFLAGS"
+CPPFLAGS="$CPPFLAGS $CUDD_CPPFLAGS" 
+
+AC_CHECK_HEADERS(util.h cudd/util.h cudd.h cudd/cudd.h)
+AC_CHECK_HEADERS(cuddInt.h cudd/cuddInt.h)
+
+dnl cudd can be most everywhere
+if test -d "$cudd_dir/lib64/cudd" -a "$YAP_TARGET" = amd64; then
+  LIBS="$LIBS -L $cudd_dir/lib64/cudd"
+elif test -d "$cudd_dir/lib64" -a "$YAP_TARGET" = amd64; then
+  LIBS="$LIBS -L $cudd_dir/lib64  -L $cudd_dir/lib"
+elif test -d "$cudd_dir/lib/cudd"; then
+  LIBS="$LIBS -L $cudd_dir/lib/cudd"
+elif test -d "$cudd_dir/lib"; then
+  LIBS="$LIBS -L $cudd_dir/lib"
+fi
+
+if test -d "$cudd_dir/util"; then
+  LIBS="$LIBS -L $cudd_dir/util"
+fi
+
+AC_SEARCH_LIBS(util_print_cpu_stats, [cuddutil util])
+
+if test -d "$cudd_dir/st"; then
+  LIBS="$LIBS -L $cudd_dir/st"
+fi
+
+AC_SEARCH_LIBS(st_insert, [cuddst st])
+
+if test -d "$cudd_dir/epd"; then
+  LIBS="$LIBS -L $cudd_dir/epd"
+fi
+
+AC_SEARCH_LIBS(EpdAdd, [epd])
+
+if test -d "$cudd_dir/mtr"; then
+  LIBS="$LIBS -L $cudd_dir/mtr"
+fi
+
+AC_SEARCH_LIBS(Mtr_InitTree, [mtr])
+
+if test -d "$cudd_dir/cudd"; then
+  LIBS="$LIBS -L $cudd_dir/cudd"
+fi
+
+AC_SEARCH_LIBS(Cudd_Init, [cudd], [cudd_installed="yes"], [cudd_installed="no"])
+
+CPPFLAGS="$OLD_CPPFLAGS"
+
+if test "$cudd_installed" = yes; then
+  CUDD_LDFLAGS="$LIBS"
+else
+  cat << EOF
+##################################################################
+# ERROR: Could not find cudd library. Either I don't have the
+# correct path, or CUDD is installed in some strange way
+##################################################################
+EOF
+     fi
+
+LIBS="$oldlibs"
+
+fi
+
+AC_SUBST(ENABLE_CUDD)
+AC_SUBST(ENABLE_BDDLIB)
+AC_SUBST(CUDD_LDFLAGS)
+AC_SUBST(CUDD_CPPFLAGS)
