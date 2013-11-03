@@ -1,0 +1,4315 @@
+// -*- c++ -*-
+//=============================================================================
+// Copyright (C) 2011 by Denys Duchier
+//
+// This program is free software: you can redistribute it and/or modify it
+// under the terms of the GNU Lesser General Public License as published by the
+// Free Software Foundation, either version 3 of the License, or (at your
+// option) any later version.
+// 
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+// more details.
+// 
+// You should have received a copy of the GNU Lesser General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//=============================================================================
+
+static YAP_Term gecode_IRT_EQ;
+static YAP_Term gecode_IRT_NQ;
+static YAP_Term gecode_IRT_LQ;
+static YAP_Term gecode_IRT_LE;
+static YAP_Term gecode_IRT_GQ;
+static YAP_Term gecode_IRT_GR;
+
+static IntRelType gecode_IntRelType_from_term(YAP_Term X)
+{
+  if (X==gecode_IRT_EQ) return IRT_EQ;
+  if (X==gecode_IRT_NQ) return IRT_NQ;
+  if (X==gecode_IRT_LQ) return IRT_LQ;
+  if (X==gecode_IRT_LE) return IRT_LE;
+  if (X==gecode_IRT_GQ) return IRT_GQ;
+  if (X==gecode_IRT_GR) return IRT_GR;
+  cerr << "this should never happen" << endl; exit(1);
+}
+
+static YAP_Term gecode_BOT_AND;
+static YAP_Term gecode_BOT_OR;
+static YAP_Term gecode_BOT_IMP;
+static YAP_Term gecode_BOT_EQV;
+static YAP_Term gecode_BOT_XOR;
+
+static BoolOpType gecode_BoolOpType_from_term(YAP_Term X)
+{
+  if (X==gecode_BOT_AND) return BOT_AND;
+  if (X==gecode_BOT_OR) return BOT_OR;
+  if (X==gecode_BOT_IMP) return BOT_IMP;
+  if (X==gecode_BOT_EQV) return BOT_EQV;
+  if (X==gecode_BOT_XOR) return BOT_XOR;
+  cerr << "this should never happen" << endl; exit(1);
+}
+
+static YAP_Term gecode_ICL_VAL;
+static YAP_Term gecode_ICL_BND;
+static YAP_Term gecode_ICL_DOM;
+static YAP_Term gecode_ICL_DEF;
+
+static IntConLevel gecode_IntConLevel_from_term(YAP_Term X)
+{
+  if (X==gecode_ICL_VAL) return ICL_VAL;
+  if (X==gecode_ICL_BND) return ICL_BND;
+  if (X==gecode_ICL_DOM) return ICL_DOM;
+  if (X==gecode_ICL_DEF) return ICL_DEF;
+  cerr << "this should never happen" << endl; exit(1);
+}
+
+static YAP_Term gecode_TT_FIXP;
+static YAP_Term gecode_TT_FIXS;
+static YAP_Term gecode_TT_FIXE;
+
+static TaskType gecode_TaskType_from_term(YAP_Term X)
+{
+  if (X==gecode_TT_FIXP) return TT_FIXP;
+  if (X==gecode_TT_FIXS) return TT_FIXS;
+  if (X==gecode_TT_FIXE) return TT_FIXE;
+  cerr << "this should never happen" << endl; exit(1);
+}
+
+static YAP_Term gecode_EPK_DEF;
+static YAP_Term gecode_EPK_SPEED;
+static YAP_Term gecode_EPK_MEMORY;
+
+static ExtensionalPropKind gecode_ExtensionalPropKind_from_term(YAP_Term X)
+{
+  if (X==gecode_EPK_DEF) return EPK_DEF;
+  if (X==gecode_EPK_SPEED) return EPK_SPEED;
+  if (X==gecode_EPK_MEMORY) return EPK_MEMORY;
+  cerr << "this should never happen" << endl; exit(1);
+}
+
+static YAP_Term gecode_INT_VAR_NONE;
+static YAP_Term gecode_INT_VAR_RND;
+static YAP_Term gecode_INT_VAR_DEGREE_MIN;
+static YAP_Term gecode_INT_VAR_DEGREE_MAX;
+static YAP_Term gecode_INT_VAR_AFC_MIN;
+static YAP_Term gecode_INT_VAR_AFC_MAX;
+static YAP_Term gecode_INT_VAR_MIN_MIN;
+static YAP_Term gecode_INT_VAR_MIN_MAX;
+static YAP_Term gecode_INT_VAR_MAX_MIN;
+static YAP_Term gecode_INT_VAR_MAX_MAX;
+static YAP_Term gecode_INT_VAR_SIZE_MIN;
+static YAP_Term gecode_INT_VAR_SIZE_MAX;
+static YAP_Term gecode_INT_VAR_SIZE_DEGREE_MIN;
+static YAP_Term gecode_INT_VAR_SIZE_DEGREE_MAX;
+static YAP_Term gecode_INT_VAR_SIZE_AFC_MIN;
+static YAP_Term gecode_INT_VAR_SIZE_AFC_MAX;
+static YAP_Term gecode_INT_VAR_REGRET_MIN_MIN;
+static YAP_Term gecode_INT_VAR_REGRET_MIN_MAX;
+static YAP_Term gecode_INT_VAR_REGRET_MAX_MIN;
+static YAP_Term gecode_INT_VAR_REGRET_MAX_MAX;
+
+static IntVarBranch gecode_IntVarBranch_from_term(YAP_Term X)
+{
+  if (X==gecode_INT_VAR_NONE) return INT_VAR_NONE;
+  if (X==gecode_INT_VAR_RND) return INT_VAR_RND;
+  if (X==gecode_INT_VAR_DEGREE_MIN) return INT_VAR_DEGREE_MIN;
+  if (X==gecode_INT_VAR_DEGREE_MAX) return INT_VAR_DEGREE_MAX;
+  if (X==gecode_INT_VAR_AFC_MIN) return INT_VAR_AFC_MIN;
+  if (X==gecode_INT_VAR_AFC_MAX) return INT_VAR_AFC_MAX;
+  if (X==gecode_INT_VAR_MIN_MIN) return INT_VAR_MIN_MIN;
+  if (X==gecode_INT_VAR_MIN_MAX) return INT_VAR_MIN_MAX;
+  if (X==gecode_INT_VAR_MAX_MIN) return INT_VAR_MAX_MIN;
+  if (X==gecode_INT_VAR_MAX_MAX) return INT_VAR_MAX_MAX;
+  if (X==gecode_INT_VAR_SIZE_MIN) return INT_VAR_SIZE_MIN;
+  if (X==gecode_INT_VAR_SIZE_MAX) return INT_VAR_SIZE_MAX;
+  if (X==gecode_INT_VAR_SIZE_DEGREE_MIN) return INT_VAR_SIZE_DEGREE_MIN;
+  if (X==gecode_INT_VAR_SIZE_DEGREE_MAX) return INT_VAR_SIZE_DEGREE_MAX;
+  if (X==gecode_INT_VAR_SIZE_AFC_MIN) return INT_VAR_SIZE_AFC_MIN;
+  if (X==gecode_INT_VAR_SIZE_AFC_MAX) return INT_VAR_SIZE_AFC_MAX;
+  if (X==gecode_INT_VAR_REGRET_MIN_MIN) return INT_VAR_REGRET_MIN_MIN;
+  if (X==gecode_INT_VAR_REGRET_MIN_MAX) return INT_VAR_REGRET_MIN_MAX;
+  if (X==gecode_INT_VAR_REGRET_MAX_MIN) return INT_VAR_REGRET_MAX_MIN;
+  if (X==gecode_INT_VAR_REGRET_MAX_MAX) return INT_VAR_REGRET_MAX_MAX;
+  cerr << "this should never happen" << endl; exit(1);
+}
+
+static YAP_Term gecode_INT_VAL_MIN;
+static YAP_Term gecode_INT_VAL_MED;
+static YAP_Term gecode_INT_VAL_MAX;
+static YAP_Term gecode_INT_VAL_RND;
+static YAP_Term gecode_INT_VAL_SPLIT_MIN;
+static YAP_Term gecode_INT_VAL_SPLIT_MAX;
+static YAP_Term gecode_INT_VAL_RANGE_MIN;
+static YAP_Term gecode_INT_VAL_RANGE_MAX;
+static YAP_Term gecode_INT_VALUES_MIN;
+static YAP_Term gecode_INT_VALUES_MAX;
+
+static IntValBranch gecode_IntValBranch_from_term(YAP_Term X)
+{
+  if (X==gecode_INT_VAL_MIN) return INT_VAL_MIN;
+  if (X==gecode_INT_VAL_MED) return INT_VAL_MED;
+  if (X==gecode_INT_VAL_MAX) return INT_VAL_MAX;
+  if (X==gecode_INT_VAL_RND) return INT_VAL_RND;
+  if (X==gecode_INT_VAL_SPLIT_MIN) return INT_VAL_SPLIT_MIN;
+  if (X==gecode_INT_VAL_SPLIT_MAX) return INT_VAL_SPLIT_MAX;
+  if (X==gecode_INT_VAL_RANGE_MIN) return INT_VAL_RANGE_MIN;
+  if (X==gecode_INT_VAL_RANGE_MAX) return INT_VAL_RANGE_MAX;
+  if (X==gecode_INT_VALUES_MIN) return INT_VALUES_MIN;
+  if (X==gecode_INT_VALUES_MAX) return INT_VALUES_MAX;
+  cerr << "this should never happen" << endl; exit(1);
+}
+
+static YAP_Term gecode_INT_ASSIGN_MIN;
+static YAP_Term gecode_INT_ASSIGN_MED;
+static YAP_Term gecode_INT_ASSIGN_MAX;
+static YAP_Term gecode_INT_ASSIGN_RND;
+
+static IntAssign gecode_IntAssign_from_term(YAP_Term X)
+{
+  if (X==gecode_INT_ASSIGN_MIN) return INT_ASSIGN_MIN;
+  if (X==gecode_INT_ASSIGN_MED) return INT_ASSIGN_MED;
+  if (X==gecode_INT_ASSIGN_MAX) return INT_ASSIGN_MAX;
+  if (X==gecode_INT_ASSIGN_RND) return INT_ASSIGN_RND;
+  cerr << "this should never happen" << endl; exit(1);
+}
+
+static YAP_Term gecode_SRT_EQ;
+static YAP_Term gecode_SRT_NQ;
+static YAP_Term gecode_SRT_SUB;
+static YAP_Term gecode_SRT_SUP;
+static YAP_Term gecode_SRT_DISJ;
+static YAP_Term gecode_SRT_CMPL;
+static YAP_Term gecode_SRT_LQ;
+static YAP_Term gecode_SRT_LE;
+static YAP_Term gecode_SRT_GQ;
+static YAP_Term gecode_SRT_GR;
+
+static SetRelType gecode_SetRelType_from_term(YAP_Term X)
+{
+  if (X==gecode_SRT_EQ) return SRT_EQ;
+  if (X==gecode_SRT_NQ) return SRT_NQ;
+  if (X==gecode_SRT_SUB) return SRT_SUB;
+  if (X==gecode_SRT_SUP) return SRT_SUP;
+  if (X==gecode_SRT_DISJ) return SRT_DISJ;
+  if (X==gecode_SRT_CMPL) return SRT_CMPL;
+  if (X==gecode_SRT_LQ) return SRT_LQ;
+  if (X==gecode_SRT_LE) return SRT_LE;
+  if (X==gecode_SRT_GQ) return SRT_GQ;
+  if (X==gecode_SRT_GR) return SRT_GR;
+  cerr << "this should never happen" << endl; exit(1);
+}
+
+static YAP_Term gecode_SOT_UNION;
+static YAP_Term gecode_SOT_DUNION;
+static YAP_Term gecode_SOT_INTER;
+static YAP_Term gecode_SOT_MINUS;
+
+static SetOpType gecode_SetOpType_from_term(YAP_Term X)
+{
+  if (X==gecode_SOT_UNION) return SOT_UNION;
+  if (X==gecode_SOT_DUNION) return SOT_DUNION;
+  if (X==gecode_SOT_INTER) return SOT_INTER;
+  if (X==gecode_SOT_MINUS) return SOT_MINUS;
+  cerr << "this should never happen" << endl; exit(1);
+}
+
+static YAP_Term gecode_SET_VAR_NONE;
+static YAP_Term gecode_SET_VAR_RND;
+static YAP_Term gecode_SET_VAR_DEGREE_MIN;
+static YAP_Term gecode_SET_VAR_DEGREE_MAX;
+static YAP_Term gecode_SET_VAR_AFC_MIN;
+static YAP_Term gecode_SET_VAR_AFC_MAX;
+static YAP_Term gecode_SET_VAR_MIN_MIN;
+static YAP_Term gecode_SET_VAR_MIN_MAX;
+static YAP_Term gecode_SET_VAR_MAX_MIN;
+static YAP_Term gecode_SET_VAR_MAX_MAX;
+static YAP_Term gecode_SET_VAR_SIZE_MIN;
+static YAP_Term gecode_SET_VAR_SIZE_MAX;
+static YAP_Term gecode_SET_VAR_SIZE_DEGREE_MIN;
+static YAP_Term gecode_SET_VAR_SIZE_DEGREE_MAX;
+static YAP_Term gecode_SET_VAR_SIZE_AFC_MIN;
+static YAP_Term gecode_SET_VAR_SIZE_AFC_MAX;
+
+static SetVarBranch gecode_SetVarBranch_from_term(YAP_Term X)
+{
+  if (X==gecode_SET_VAR_NONE) return SET_VAR_NONE;
+  if (X==gecode_SET_VAR_RND) return SET_VAR_RND;
+  if (X==gecode_SET_VAR_DEGREE_MIN) return SET_VAR_DEGREE_MIN;
+  if (X==gecode_SET_VAR_DEGREE_MAX) return SET_VAR_DEGREE_MAX;
+  if (X==gecode_SET_VAR_AFC_MIN) return SET_VAR_AFC_MIN;
+  if (X==gecode_SET_VAR_AFC_MAX) return SET_VAR_AFC_MAX;
+  if (X==gecode_SET_VAR_MIN_MIN) return SET_VAR_MIN_MIN;
+  if (X==gecode_SET_VAR_MIN_MAX) return SET_VAR_MIN_MAX;
+  if (X==gecode_SET_VAR_MAX_MIN) return SET_VAR_MAX_MIN;
+  if (X==gecode_SET_VAR_MAX_MAX) return SET_VAR_MAX_MAX;
+  if (X==gecode_SET_VAR_SIZE_MIN) return SET_VAR_SIZE_MIN;
+  if (X==gecode_SET_VAR_SIZE_MAX) return SET_VAR_SIZE_MAX;
+  if (X==gecode_SET_VAR_SIZE_DEGREE_MIN) return SET_VAR_SIZE_DEGREE_MIN;
+  if (X==gecode_SET_VAR_SIZE_DEGREE_MAX) return SET_VAR_SIZE_DEGREE_MAX;
+  if (X==gecode_SET_VAR_SIZE_AFC_MIN) return SET_VAR_SIZE_AFC_MIN;
+  if (X==gecode_SET_VAR_SIZE_AFC_MAX) return SET_VAR_SIZE_AFC_MAX;
+  cerr << "this should never happen" << endl; exit(1);
+}
+
+static YAP_Term gecode_SET_VAL_MIN_INC;
+static YAP_Term gecode_SET_VAL_MIN_EXC;
+static YAP_Term gecode_SET_VAL_MED_INC;
+static YAP_Term gecode_SET_VAL_MED_EXC;
+static YAP_Term gecode_SET_VAL_MAX_INC;
+static YAP_Term gecode_SET_VAL_MAX_EXC;
+static YAP_Term gecode_SET_VAL_RND_INC;
+static YAP_Term gecode_SET_VAL_RND_EXC;
+
+static SetValBranch gecode_SetValBranch_from_term(YAP_Term X)
+{
+  if (X==gecode_SET_VAL_MIN_INC) return SET_VAL_MIN_INC;
+  if (X==gecode_SET_VAL_MIN_EXC) return SET_VAL_MIN_EXC;
+  if (X==gecode_SET_VAL_MED_INC) return SET_VAL_MED_INC;
+  if (X==gecode_SET_VAL_MED_EXC) return SET_VAL_MED_EXC;
+  if (X==gecode_SET_VAL_MAX_INC) return SET_VAL_MAX_INC;
+  if (X==gecode_SET_VAL_MAX_EXC) return SET_VAL_MAX_EXC;
+  if (X==gecode_SET_VAL_RND_INC) return SET_VAL_RND_INC;
+  if (X==gecode_SET_VAL_RND_EXC) return SET_VAL_RND_EXC;
+  cerr << "this should never happen" << endl; exit(1);
+}
+
+static YAP_Term gecode_SET_ASSIGN_MIN_INC;
+static YAP_Term gecode_SET_ASSIGN_MIN_EXC;
+static YAP_Term gecode_SET_ASSIGN_MED_INC;
+static YAP_Term gecode_SET_ASSIGN_MED_EXC;
+static YAP_Term gecode_SET_ASSIGN_MAX_INC;
+static YAP_Term gecode_SET_ASSIGN_MAX_EXC;
+static YAP_Term gecode_SET_ASSIGN_RND_INC;
+static YAP_Term gecode_SET_ASSIGN_RND_EXC;
+
+static SetAssign gecode_SetAssign_from_term(YAP_Term X)
+{
+  if (X==gecode_SET_ASSIGN_MIN_INC) return SET_ASSIGN_MIN_INC;
+  if (X==gecode_SET_ASSIGN_MIN_EXC) return SET_ASSIGN_MIN_EXC;
+  if (X==gecode_SET_ASSIGN_MED_INC) return SET_ASSIGN_MED_INC;
+  if (X==gecode_SET_ASSIGN_MED_EXC) return SET_ASSIGN_MED_EXC;
+  if (X==gecode_SET_ASSIGN_MAX_INC) return SET_ASSIGN_MAX_INC;
+  if (X==gecode_SET_ASSIGN_MAX_EXC) return SET_ASSIGN_MAX_EXC;
+  if (X==gecode_SET_ASSIGN_RND_INC) return SET_ASSIGN_RND_INC;
+  if (X==gecode_SET_ASSIGN_RND_EXC) return SET_ASSIGN_RND_EXC;
+  cerr << "this should never happen" << endl; exit(1);
+}
+
+static int gecode_constraint_unary_357(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  TaskTypeArgs X2 = gecode_TaskTypeArgs_from_term(YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntArgs X4 = gecode_IntArgs_from_term(YAP_ARG4);
+  BoolVarArgs X5 = gecode_BoolVarArgs_from_term(space,YAP_ARG5);
+  IntConLevel X6 = gecode_IntConLevel_from_term(YAP_ARG6);
+  unary(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_unary_353(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntVarArgs X4 = gecode_IntVarArgs_from_term(space,YAP_ARG4);
+  BoolVarArgs X5 = gecode_BoolVarArgs_from_term(space,YAP_ARG5);
+  IntConLevel X6 = gecode_IntConLevel_from_term(YAP_ARG6);
+  unary(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_nvalues_255(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntRelType X3 = gecode_IntRelType_from_term(YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  IntConLevel X5 = gecode_IntConLevel_from_term(YAP_ARG5);
+  nvalues(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_nvalues_257(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntRelType X3 = gecode_IntRelType_from_term(YAP_ARG3);
+  IntVar X4 = gecode_IntVar_from_term(space,YAP_ARG4);
+  IntConLevel X5 = gecode_IntConLevel_from_term(YAP_ARG5);
+  nvalues(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_nvalues_251(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolVarArgs X2 = gecode_BoolVarArgs_from_term(space,YAP_ARG2);
+  IntRelType X3 = gecode_IntRelType_from_term(YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  IntConLevel X5 = gecode_IntConLevel_from_term(YAP_ARG5);
+  nvalues(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_nvalues_253(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolVarArgs X2 = gecode_BoolVarArgs_from_term(space,YAP_ARG2);
+  IntRelType X3 = gecode_IntRelType_from_term(YAP_ARG3);
+  IntVar X4 = gecode_IntVar_from_term(space,YAP_ARG4);
+  IntConLevel X5 = gecode_IntConLevel_from_term(YAP_ARG5);
+  nvalues(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_max_218(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVar X2 = gecode_IntVar_from_term(space,YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  IntVar X4 = gecode_IntVar_from_term(space,YAP_ARG4);
+  max(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_max_217(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  IntConLevel X4 = gecode_IntConLevel_from_term(YAP_ARG4);
+  max(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_max_221(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  SetVar X2 = gecode_SetVar_from_term(space,YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  BoolVar X4 = gecode_BoolVar_from_term(space,YAP_ARG4);
+  max(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_dom_139(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVar X2 = gecode_IntVar_from_term(space,YAP_ARG2);
+  int X3 = gecode_int_from_term(YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  BoolVar X5 = gecode_BoolVar_from_term(space,YAP_ARG5);
+  IntConLevel X6 = gecode_IntConLevel_from_term(YAP_ARG6);
+  dom(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_dom_149(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  SetVar X2 = gecode_SetVar_from_term(space,YAP_ARG2);
+  SetRelType X3 = gecode_SetRelType_from_term(YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  int X5 = gecode_int_from_term(YAP_ARG5);
+  BoolVar X6 = gecode_BoolVar_from_term(space,YAP_ARG6);
+  dom(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_convex_51(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  SetVar X2 = gecode_SetVar_from_term(space,YAP_ARG2);
+  SetVar X3 = gecode_SetVar_from_term(space,YAP_ARG3);
+  convex(*space,X2,X3);
+  return TRUE;
+}
+
+static int gecode_constraint_nooverlap_242(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntArgs X3 = gecode_IntArgs_from_term(YAP_ARG3);
+  IntVarArgs X4 = gecode_IntVarArgs_from_term(space,YAP_ARG4);
+  IntArgs X5 = gecode_IntArgs_from_term(YAP_ARG5);
+  nooverlap(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_assign_4(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolVarArgs X2 = gecode_BoolVarArgs_from_term(space,YAP_ARG2);
+  IntAssign X3 = gecode_IntAssign_from_term(YAP_ARG3);
+  assign(*space,X2,X3);
+  return TRUE;
+}
+
+static int gecode_constraint_assign_3(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolVar X2 = gecode_BoolVar_from_term(space,YAP_ARG2);
+  IntAssign X3 = gecode_IntAssign_from_term(YAP_ARG3);
+  assign(*space,X2,X3);
+  return TRUE;
+}
+
+static int gecode_constraint_assign_5(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntAssign X3 = gecode_IntAssign_from_term(YAP_ARG3);
+  assign(*space,X2,X3);
+  return TRUE;
+}
+
+static int gecode_constraint_assign_7(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVar X2 = gecode_IntVar_from_term(space,YAP_ARG2);
+  IntAssign X3 = gecode_IntAssign_from_term(YAP_ARG3);
+  assign(*space,X2,X3);
+  return TRUE;
+}
+
+static int gecode_constraint_assign_6(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  SetVarArgs X2 = gecode_SetVarArgs_from_term(space,YAP_ARG2);
+  SetAssign X3 = gecode_SetAssign_from_term(YAP_ARG3);
+  assign(*space,X2,X3);
+  return TRUE;
+}
+
+static int gecode_constraint_assign_8(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  SetVar X2 = gecode_SetVar_from_term(space,YAP_ARG2);
+  SetAssign X3 = gecode_SetAssign_from_term(YAP_ARG3);
+  assign(*space,X2,X3);
+  return TRUE;
+}
+
+static int gecode_constraint_element_158(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  element(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_element_162(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  IntVar X4 = gecode_IntVar_from_term(space,YAP_ARG4);
+  element(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_element_152(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolVarArgs X2 = gecode_BoolVarArgs_from_term(space,YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  element(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_element_150(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolVarArgs X2 = gecode_BoolVarArgs_from_term(space,YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  BoolVar X4 = gecode_BoolVar_from_term(space,YAP_ARG4);
+  element(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_element_157(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntSetArgs X2 = gecode_IntSetArgs_from_term(YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  SetVar X4 = gecode_SetVar_from_term(space,YAP_ARG4);
+  element(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_element_165(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  SetVarArgs X2 = gecode_SetVarArgs_from_term(space,YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  SetVar X4 = gecode_SetVar_from_term(space,YAP_ARG4);
+  element(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_element_168(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntArgs X2 = gecode_IntArgs_from_term(YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  element(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_element_174(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntArgs X2 = gecode_IntArgs_from_term(YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  IntVar X4 = gecode_IntVar_from_term(space,YAP_ARG4);
+  element(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_element_166(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntArgs X2 = gecode_IntArgs_from_term(YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  BoolVar X4 = gecode_BoolVar_from_term(space,YAP_ARG4);
+  element(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_sequence_338(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  SetVarArgs X2 = gecode_SetVarArgs_from_term(space,YAP_ARG2);
+  sequence(*space,X2);
+  return TRUE;
+}
+
+static int gecode_constraint_notMax_248(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  SetVar X2 = gecode_SetVar_from_term(space,YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  notMax(*space,X2,X3);
+  return TRUE;
+}
+
+static int gecode_constraint_unary_350(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntArgs X3 = gecode_IntArgs_from_term(YAP_ARG3);
+  unary(*space,X2,X3);
+  return TRUE;
+}
+
+static int gecode_constraint_circuit_45(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  int X2 = gecode_int_from_term(YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntConLevel X4 = gecode_IntConLevel_from_term(YAP_ARG4);
+  circuit(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_circuit_36(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntArgs X2 = gecode_IntArgs_from_term(YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntVar X4 = gecode_IntVar_from_term(space,YAP_ARG4);
+  circuit(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_dom_138(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVar X2 = gecode_IntVar_from_term(space,YAP_ARG2);
+  int X3 = gecode_int_from_term(YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  BoolVar X5 = gecode_BoolVar_from_term(space,YAP_ARG5);
+  dom(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_dom_143(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVar X2 = gecode_IntVar_from_term(space,YAP_ARG2);
+  int X3 = gecode_int_from_term(YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  IntConLevel X5 = gecode_IntConLevel_from_term(YAP_ARG5);
+  dom(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_dom_137(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVar X2 = gecode_IntVar_from_term(space,YAP_ARG2);
+  int X3 = gecode_int_from_term(YAP_ARG3);
+  BoolVar X4 = gecode_BoolVar_from_term(space,YAP_ARG4);
+  IntConLevel X5 = gecode_IntConLevel_from_term(YAP_ARG5);
+  dom(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_dom_133(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVar X2 = gecode_IntVar_from_term(space,YAP_ARG2);
+  IntSet X3 = gecode_IntSet_from_term(YAP_ARG3);
+  BoolVar X4 = gecode_BoolVar_from_term(space,YAP_ARG4);
+  IntConLevel X5 = gecode_IntConLevel_from_term(YAP_ARG5);
+  dom(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_dom_131(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  int X3 = gecode_int_from_term(YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  IntConLevel X5 = gecode_IntConLevel_from_term(YAP_ARG5);
+  dom(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_dom_148(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  SetVar X2 = gecode_SetVar_from_term(space,YAP_ARG2);
+  SetRelType X3 = gecode_SetRelType_from_term(YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  int X5 = gecode_int_from_term(YAP_ARG5);
+  dom(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_dom_147(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  SetVar X2 = gecode_SetVar_from_term(space,YAP_ARG2);
+  SetRelType X3 = gecode_SetRelType_from_term(YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  BoolVar X5 = gecode_BoolVar_from_term(space,YAP_ARG5);
+  dom(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_dom_145(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  SetVar X2 = gecode_SetVar_from_term(space,YAP_ARG2);
+  SetRelType X3 = gecode_SetRelType_from_term(YAP_ARG3);
+  IntSet X4 = gecode_IntSet_from_term(YAP_ARG4);
+  BoolVar X5 = gecode_BoolVar_from_term(space,YAP_ARG5);
+  dom(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_channel_32(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVar X2 = gecode_IntVar_from_term(space,YAP_ARG2);
+  BoolVar X3 = gecode_BoolVar_from_term(space,YAP_ARG3);
+  IntConLevel X4 = gecode_IntConLevel_from_term(YAP_ARG4);
+  channel(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_channel_27(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntConLevel X4 = gecode_IntConLevel_from_term(YAP_ARG4);
+  channel(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_channel_23(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolVarArgs X2 = gecode_BoolVarArgs_from_term(space,YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  channel(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_channel_21(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolVar X2 = gecode_BoolVar_from_term(space,YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  IntConLevel X4 = gecode_IntConLevel_from_term(YAP_ARG4);
+  channel(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_nooverlap_244(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntVarArgs X4 = gecode_IntVarArgs_from_term(space,YAP_ARG4);
+  IntVarArgs X5 = gecode_IntVarArgs_from_term(space,YAP_ARG5);
+  IntVarArgs X6 = gecode_IntVarArgs_from_term(space,YAP_ARG6);
+  IntVarArgs X7 = gecode_IntVarArgs_from_term(space,YAP_ARG7);
+  BoolVarArgs X8 = gecode_BoolVarArgs_from_term(space,YAP_ARG8);
+  nooverlap(*space,X2,X3,X4,X5,X6,X7,X8);
+  return TRUE;
+}
+
+static int gecode_constraint_nooverlap_247(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntVarArgs X4 = gecode_IntVarArgs_from_term(space,YAP_ARG4);
+  IntVarArgs X5 = gecode_IntVarArgs_from_term(space,YAP_ARG5);
+  IntVarArgs X6 = gecode_IntVarArgs_from_term(space,YAP_ARG6);
+  IntVarArgs X7 = gecode_IntVarArgs_from_term(space,YAP_ARG7);
+  IntConLevel X8 = gecode_IntConLevel_from_term(YAP_ARG8);
+  nooverlap(*space,X2,X3,X4,X5,X6,X7,X8);
+  return TRUE;
+}
+
+static int gecode_constraint_element_160(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  IntVar X5 = gecode_IntVar_from_term(space,YAP_ARG5);
+  int X6 = gecode_int_from_term(YAP_ARG6);
+  IntVar X7 = gecode_IntVar_from_term(space,YAP_ARG7);
+  element(*space,X2,X3,X4,X5,X6,X7);
+  return TRUE;
+}
+
+static int gecode_constraint_element_154(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolVarArgs X2 = gecode_BoolVarArgs_from_term(space,YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  IntVar X5 = gecode_IntVar_from_term(space,YAP_ARG5);
+  int X6 = gecode_int_from_term(YAP_ARG6);
+  BoolVar X7 = gecode_BoolVar_from_term(space,YAP_ARG7);
+  element(*space,X2,X3,X4,X5,X6,X7);
+  return TRUE;
+}
+
+static int gecode_constraint_element_156(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntSetArgs X2 = gecode_IntSetArgs_from_term(YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  IntVar X5 = gecode_IntVar_from_term(space,YAP_ARG5);
+  int X6 = gecode_int_from_term(YAP_ARG6);
+  SetVar X7 = gecode_SetVar_from_term(space,YAP_ARG7);
+  element(*space,X2,X3,X4,X5,X6,X7);
+  return TRUE;
+}
+
+static int gecode_constraint_element_164(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  SetVarArgs X2 = gecode_SetVarArgs_from_term(space,YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  IntVar X5 = gecode_IntVar_from_term(space,YAP_ARG5);
+  int X6 = gecode_int_from_term(YAP_ARG6);
+  SetVar X7 = gecode_SetVar_from_term(space,YAP_ARG7);
+  element(*space,X2,X3,X4,X5,X6,X7);
+  return TRUE;
+}
+
+static int gecode_constraint_element_172(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntArgs X2 = gecode_IntArgs_from_term(YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  IntVar X5 = gecode_IntVar_from_term(space,YAP_ARG5);
+  int X6 = gecode_int_from_term(YAP_ARG6);
+  IntVar X7 = gecode_IntVar_from_term(space,YAP_ARG7);
+  element(*space,X2,X3,X4,X5,X6,X7);
+  return TRUE;
+}
+
+static int gecode_constraint_element_170(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntArgs X2 = gecode_IntArgs_from_term(YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  IntVar X5 = gecode_IntVar_from_term(space,YAP_ARG5);
+  int X6 = gecode_int_from_term(YAP_ARG6);
+  BoolVar X7 = gecode_BoolVar_from_term(space,YAP_ARG7);
+  element(*space,X2,X3,X4,X5,X6,X7);
+  return TRUE;
+}
+
+static int gecode_constraint_max_216(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  max(*space,X2,X3);
+  return TRUE;
+}
+
+static int gecode_constraint_max_220(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  SetVar X2 = gecode_SetVar_from_term(space,YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  max(*space,X2,X3);
+  return TRUE;
+}
+
+static int gecode_constraint_unshare_362(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  unshare(*space,X2);
+  return TRUE;
+}
+
+static int gecode_constraint_unshare_360(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolVarArgs X2 = gecode_BoolVarArgs_from_term(space,YAP_ARG2);
+  unshare(*space,X2);
+  return TRUE;
+}
+
+static int gecode_constraint_path_268(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  int X2 = gecode_int_from_term(YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntVar X4 = gecode_IntVar_from_term(space,YAP_ARG4);
+  IntVar X5 = gecode_IntVar_from_term(space,YAP_ARG5);
+  path(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_path_267(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  IntVar X4 = gecode_IntVar_from_term(space,YAP_ARG4);
+  IntConLevel X5 = gecode_IntConLevel_from_term(YAP_ARG5);
+  path(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_mult_238(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVar X2 = gecode_IntVar_from_term(space,YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  IntVar X4 = gecode_IntVar_from_term(space,YAP_ARG4);
+  mult(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_clause_49(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolOpType X2 = gecode_BoolOpType_from_term(YAP_ARG2);
+  BoolVarArgs X3 = gecode_BoolVarArgs_from_term(space,YAP_ARG3);
+  BoolVarArgs X4 = gecode_BoolVarArgs_from_term(space,YAP_ARG4);
+  int X5 = gecode_int_from_term(YAP_ARG5);
+  IntConLevel X6 = gecode_IntConLevel_from_term(YAP_ARG6);
+  clause(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_clause_47(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolOpType X2 = gecode_BoolOpType_from_term(YAP_ARG2);
+  BoolVarArgs X3 = gecode_BoolVarArgs_from_term(space,YAP_ARG3);
+  BoolVarArgs X4 = gecode_BoolVarArgs_from_term(space,YAP_ARG4);
+  BoolVar X5 = gecode_BoolVar_from_term(space,YAP_ARG5);
+  IntConLevel X6 = gecode_IntConLevel_from_term(YAP_ARG6);
+  clause(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_precede_273(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  int X3 = gecode_int_from_term(YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  IntConLevel X5 = gecode_IntConLevel_from_term(YAP_ARG5);
+  precede(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_distinct_120(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  distinct(*space,X2);
+  return TRUE;
+}
+
+static int gecode_constraint_member_226(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  BoolVar X4 = gecode_BoolVar_from_term(space,YAP_ARG4);
+  member(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_member_229(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  IntConLevel X4 = gecode_IntConLevel_from_term(YAP_ARG4);
+  member(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_member_222(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolVarArgs X2 = gecode_BoolVarArgs_from_term(space,YAP_ARG2);
+  BoolVar X3 = gecode_BoolVar_from_term(space,YAP_ARG3);
+  BoolVar X4 = gecode_BoolVar_from_term(space,YAP_ARG4);
+  member(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_member_225(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolVarArgs X2 = gecode_BoolVarArgs_from_term(space,YAP_ARG2);
+  BoolVar X3 = gecode_BoolVar_from_term(space,YAP_ARG3);
+  IntConLevel X4 = gecode_IntConLevel_from_term(YAP_ARG4);
+  member(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_mod_237(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVar X2 = gecode_IntVar_from_term(space,YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  IntVar X4 = gecode_IntVar_from_term(space,YAP_ARG4);
+  IntConLevel X5 = gecode_IntConLevel_from_term(YAP_ARG5);
+  mod(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_cardinality_18(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  SetVar X2 = gecode_SetVar_from_term(space,YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  cardinality(*space,X2,X3);
+  return TRUE;
+}
+
+static int gecode_constraint_atmostOne_9(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  SetVarArgs X2 = gecode_SetVarArgs_from_term(space,YAP_ARG2);
+  int X3 = gecode_int_from_term(YAP_ARG3);
+  atmostOne(*space,X2,X3);
+  return TRUE;
+}
+
+static int gecode_constraint_channelSorted_33(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  SetVar X3 = gecode_SetVar_from_term(space,YAP_ARG3);
+  channelSorted(*space,X2,X3);
+  return TRUE;
+}
+
+static int gecode_constraint_linear_210(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntRelType X3 = gecode_IntRelType_from_term(YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  linear(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_linear_214(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntRelType X3 = gecode_IntRelType_from_term(YAP_ARG3);
+  IntVar X4 = gecode_IntVar_from_term(space,YAP_ARG4);
+  linear(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_linear_186(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolVarArgs X2 = gecode_BoolVarArgs_from_term(space,YAP_ARG2);
+  IntRelType X3 = gecode_IntRelType_from_term(YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  linear(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_linear_190(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolVarArgs X2 = gecode_BoolVarArgs_from_term(space,YAP_ARG2);
+  IntRelType X3 = gecode_IntRelType_from_term(YAP_ARG3);
+  IntVar X4 = gecode_IntVar_from_term(space,YAP_ARG4);
+  linear(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_circuit_42(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  circuit(*space,X2);
+  return TRUE;
+}
+
+static int gecode_constraint_rel_288(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolVar X2 = gecode_BoolVar_from_term(space,YAP_ARG2);
+  IntRelType X3 = gecode_IntRelType_from_term(YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  BoolVar X5 = gecode_BoolVar_from_term(space,YAP_ARG5);
+  rel(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_rel_291(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolVar X2 = gecode_BoolVar_from_term(space,YAP_ARG2);
+  IntRelType X3 = gecode_IntRelType_from_term(YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  IntConLevel X5 = gecode_IntConLevel_from_term(YAP_ARG5);
+  rel(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_rel_284(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolVar X2 = gecode_BoolVar_from_term(space,YAP_ARG2);
+  IntRelType X3 = gecode_IntRelType_from_term(YAP_ARG3);
+  BoolVar X4 = gecode_BoolVar_from_term(space,YAP_ARG4);
+  BoolVar X5 = gecode_BoolVar_from_term(space,YAP_ARG5);
+  rel(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_rel_287(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolVar X2 = gecode_BoolVar_from_term(space,YAP_ARG2);
+  IntRelType X3 = gecode_IntRelType_from_term(YAP_ARG3);
+  BoolVar X4 = gecode_BoolVar_from_term(space,YAP_ARG4);
+  IntConLevel X5 = gecode_IntConLevel_from_term(YAP_ARG5);
+  rel(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_rel_282(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolVar X2 = gecode_BoolVar_from_term(space,YAP_ARG2);
+  BoolOpType X3 = gecode_BoolOpType_from_term(YAP_ARG3);
+  BoolVar X4 = gecode_BoolVar_from_term(space,YAP_ARG4);
+  int X5 = gecode_int_from_term(YAP_ARG5);
+  rel(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_rel_280(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolVar X2 = gecode_BoolVar_from_term(space,YAP_ARG2);
+  BoolOpType X3 = gecode_BoolOpType_from_term(YAP_ARG3);
+  BoolVar X4 = gecode_BoolVar_from_term(space,YAP_ARG4);
+  BoolVar X5 = gecode_BoolVar_from_term(space,YAP_ARG5);
+  rel(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_rel_299(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolVarArgs X2 = gecode_BoolVarArgs_from_term(space,YAP_ARG2);
+  IntRelType X3 = gecode_IntRelType_from_term(YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  IntConLevel X5 = gecode_IntConLevel_from_term(YAP_ARG5);
+  rel(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_rel_295(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolVarArgs X2 = gecode_BoolVarArgs_from_term(space,YAP_ARG2);
+  IntRelType X3 = gecode_IntRelType_from_term(YAP_ARG3);
+  BoolVarArgs X4 = gecode_BoolVarArgs_from_term(space,YAP_ARG4);
+  IntConLevel X5 = gecode_IntConLevel_from_term(YAP_ARG5);
+  rel(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_rel_293(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolVarArgs X2 = gecode_BoolVarArgs_from_term(space,YAP_ARG2);
+  IntRelType X3 = gecode_IntRelType_from_term(YAP_ARG3);
+  BoolVar X4 = gecode_BoolVar_from_term(space,YAP_ARG4);
+  IntConLevel X5 = gecode_IntConLevel_from_term(YAP_ARG5);
+  rel(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_rel_323(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  SetOpType X2 = gecode_SetOpType_from_term(YAP_ARG2);
+  SetVarArgs X3 = gecode_SetVarArgs_from_term(space,YAP_ARG3);
+  IntSet X4 = gecode_IntSet_from_term(YAP_ARG4);
+  SetVar X5 = gecode_SetVar_from_term(space,YAP_ARG5);
+  rel(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_rel_321(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  SetOpType X2 = gecode_SetOpType_from_term(YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntSet X4 = gecode_IntSet_from_term(YAP_ARG4);
+  SetVar X5 = gecode_SetVar_from_term(space,YAP_ARG5);
+  rel(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_rel_307(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntRelType X3 = gecode_IntRelType_from_term(YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  IntConLevel X5 = gecode_IntConLevel_from_term(YAP_ARG5);
+  rel(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_rel_309(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntRelType X3 = gecode_IntRelType_from_term(YAP_ARG3);
+  IntVar X4 = gecode_IntVar_from_term(space,YAP_ARG4);
+  IntConLevel X5 = gecode_IntConLevel_from_term(YAP_ARG5);
+  rel(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_rel_303(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntRelType X3 = gecode_IntRelType_from_term(YAP_ARG3);
+  IntVarArgs X4 = gecode_IntVarArgs_from_term(space,YAP_ARG4);
+  IntConLevel X5 = gecode_IntConLevel_from_term(YAP_ARG5);
+  rel(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_rel_310(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVar X2 = gecode_IntVar_from_term(space,YAP_ARG2);
+  IntRelType X3 = gecode_IntRelType_from_term(YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  BoolVar X5 = gecode_BoolVar_from_term(space,YAP_ARG5);
+  rel(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_rel_313(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVar X2 = gecode_IntVar_from_term(space,YAP_ARG2);
+  IntRelType X3 = gecode_IntRelType_from_term(YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  IntConLevel X5 = gecode_IntConLevel_from_term(YAP_ARG5);
+  rel(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_rel_314(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVar X2 = gecode_IntVar_from_term(space,YAP_ARG2);
+  IntRelType X3 = gecode_IntRelType_from_term(YAP_ARG3);
+  IntVar X4 = gecode_IntVar_from_term(space,YAP_ARG4);
+  BoolVar X5 = gecode_BoolVar_from_term(space,YAP_ARG5);
+  rel(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_rel_317(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVar X2 = gecode_IntVar_from_term(space,YAP_ARG2);
+  IntRelType X3 = gecode_IntRelType_from_term(YAP_ARG3);
+  IntVar X4 = gecode_IntVar_from_term(space,YAP_ARG4);
+  IntConLevel X5 = gecode_IntConLevel_from_term(YAP_ARG5);
+  rel(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_rel_320(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVar X2 = gecode_IntVar_from_term(space,YAP_ARG2);
+  SetRelType X3 = gecode_SetRelType_from_term(YAP_ARG3);
+  SetVar X4 = gecode_SetVar_from_term(space,YAP_ARG4);
+  BoolVar X5 = gecode_BoolVar_from_term(space,YAP_ARG5);
+  rel(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_rel_331(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  SetVar X2 = gecode_SetVar_from_term(space,YAP_ARG2);
+  SetRelType X3 = gecode_SetRelType_from_term(YAP_ARG3);
+  IntVar X4 = gecode_IntVar_from_term(space,YAP_ARG4);
+  BoolVar X5 = gecode_BoolVar_from_term(space,YAP_ARG5);
+  rel(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_rel_333(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  SetVar X2 = gecode_SetVar_from_term(space,YAP_ARG2);
+  SetRelType X3 = gecode_SetRelType_from_term(YAP_ARG3);
+  SetVar X4 = gecode_SetVar_from_term(space,YAP_ARG4);
+  BoolVar X5 = gecode_BoolVar_from_term(space,YAP_ARG5);
+  rel(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_rel_279(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolOpType X2 = gecode_BoolOpType_from_term(YAP_ARG2);
+  BoolVarArgs X3 = gecode_BoolVarArgs_from_term(space,YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  IntConLevel X5 = gecode_IntConLevel_from_term(YAP_ARG5);
+  rel(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_rel_277(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolOpType X2 = gecode_BoolOpType_from_term(YAP_ARG2);
+  BoolVarArgs X3 = gecode_BoolVarArgs_from_term(space,YAP_ARG3);
+  BoolVar X4 = gecode_BoolVar_from_term(space,YAP_ARG4);
+  IntConLevel X5 = gecode_IntConLevel_from_term(YAP_ARG5);
+  rel(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_min_232(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVar X2 = gecode_IntVar_from_term(space,YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  IntVar X4 = gecode_IntVar_from_term(space,YAP_ARG4);
+  min(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_min_231(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  IntConLevel X4 = gecode_IntConLevel_from_term(YAP_ARG4);
+  min(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_min_235(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  SetVar X2 = gecode_SetVar_from_term(space,YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  BoolVar X4 = gecode_BoolVar_from_term(space,YAP_ARG4);
+  min(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_cardinality_19(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  SetVar X2 = gecode_SetVar_from_term(space,YAP_ARG2);
+  int X3 = gecode_int_from_term(YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  cardinality(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_count_69(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntConLevel X4 = gecode_IntConLevel_from_term(YAP_ARG4);
+  count(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_count_66(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntArgs X4 = gecode_IntArgs_from_term(YAP_ARG4);
+  count(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_count_60(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntSet X3 = gecode_IntSet_from_term(YAP_ARG3);
+  IntArgs X4 = gecode_IntArgs_from_term(YAP_ARG4);
+  count(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_count_59(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntSetArgs X3 = gecode_IntSetArgs_from_term(YAP_ARG3);
+  IntConLevel X4 = gecode_IntConLevel_from_term(YAP_ARG4);
+  count(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_count_56(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntSetArgs X3 = gecode_IntSetArgs_from_term(YAP_ARG3);
+  IntArgs X4 = gecode_IntArgs_from_term(YAP_ARG4);
+  count(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_sqrt_346(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVar X2 = gecode_IntVar_from_term(space,YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  sqrt(*space,X2,X3);
+  return TRUE;
+}
+
+static int gecode_constraint_cumulatives_117(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntVarArgs X4 = gecode_IntVarArgs_from_term(space,YAP_ARG4);
+  IntVarArgs X5 = gecode_IntVarArgs_from_term(space,YAP_ARG5);
+  IntVarArgs X6 = gecode_IntVarArgs_from_term(space,YAP_ARG6);
+  IntArgs X7 = gecode_IntArgs_from_term(YAP_ARG7);
+  bool X8 = gecode_bool_from_term(YAP_ARG8);
+  IntConLevel X9 = gecode_IntConLevel_from_term(YAP_ARG9);
+  cumulatives(*space,X2,X3,X4,X5,X6,X7,X8,X9);
+  return TRUE;
+}
+
+static int gecode_constraint_cumulatives_115(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntVarArgs X4 = gecode_IntVarArgs_from_term(space,YAP_ARG4);
+  IntVarArgs X5 = gecode_IntVarArgs_from_term(space,YAP_ARG5);
+  IntArgs X6 = gecode_IntArgs_from_term(YAP_ARG6);
+  IntArgs X7 = gecode_IntArgs_from_term(YAP_ARG7);
+  bool X8 = gecode_bool_from_term(YAP_ARG8);
+  IntConLevel X9 = gecode_IntConLevel_from_term(YAP_ARG9);
+  cumulatives(*space,X2,X3,X4,X5,X6,X7,X8,X9);
+  return TRUE;
+}
+
+static int gecode_constraint_cumulatives_113(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntArgs X4 = gecode_IntArgs_from_term(YAP_ARG4);
+  IntVarArgs X5 = gecode_IntVarArgs_from_term(space,YAP_ARG5);
+  IntVarArgs X6 = gecode_IntVarArgs_from_term(space,YAP_ARG6);
+  IntArgs X7 = gecode_IntArgs_from_term(YAP_ARG7);
+  bool X8 = gecode_bool_from_term(YAP_ARG8);
+  IntConLevel X9 = gecode_IntConLevel_from_term(YAP_ARG9);
+  cumulatives(*space,X2,X3,X4,X5,X6,X7,X8,X9);
+  return TRUE;
+}
+
+static int gecode_constraint_cumulatives_111(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntArgs X4 = gecode_IntArgs_from_term(YAP_ARG4);
+  IntVarArgs X5 = gecode_IntVarArgs_from_term(space,YAP_ARG5);
+  IntArgs X6 = gecode_IntArgs_from_term(YAP_ARG6);
+  IntArgs X7 = gecode_IntArgs_from_term(YAP_ARG7);
+  bool X8 = gecode_bool_from_term(YAP_ARG8);
+  IntConLevel X9 = gecode_IntConLevel_from_term(YAP_ARG9);
+  cumulatives(*space,X2,X3,X4,X5,X6,X7,X8,X9);
+  return TRUE;
+}
+
+static int gecode_constraint_cumulatives_109(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntArgs X2 = gecode_IntArgs_from_term(YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntVarArgs X4 = gecode_IntVarArgs_from_term(space,YAP_ARG4);
+  IntVarArgs X5 = gecode_IntVarArgs_from_term(space,YAP_ARG5);
+  IntVarArgs X6 = gecode_IntVarArgs_from_term(space,YAP_ARG6);
+  IntArgs X7 = gecode_IntArgs_from_term(YAP_ARG7);
+  bool X8 = gecode_bool_from_term(YAP_ARG8);
+  IntConLevel X9 = gecode_IntConLevel_from_term(YAP_ARG9);
+  cumulatives(*space,X2,X3,X4,X5,X6,X7,X8,X9);
+  return TRUE;
+}
+
+static int gecode_constraint_cumulatives_107(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntArgs X2 = gecode_IntArgs_from_term(YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntVarArgs X4 = gecode_IntVarArgs_from_term(space,YAP_ARG4);
+  IntVarArgs X5 = gecode_IntVarArgs_from_term(space,YAP_ARG5);
+  IntArgs X6 = gecode_IntArgs_from_term(YAP_ARG6);
+  IntArgs X7 = gecode_IntArgs_from_term(YAP_ARG7);
+  bool X8 = gecode_bool_from_term(YAP_ARG8);
+  IntConLevel X9 = gecode_IntConLevel_from_term(YAP_ARG9);
+  cumulatives(*space,X2,X3,X4,X5,X6,X7,X8,X9);
+  return TRUE;
+}
+
+static int gecode_constraint_cumulatives_105(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntArgs X2 = gecode_IntArgs_from_term(YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntArgs X4 = gecode_IntArgs_from_term(YAP_ARG4);
+  IntVarArgs X5 = gecode_IntVarArgs_from_term(space,YAP_ARG5);
+  IntVarArgs X6 = gecode_IntVarArgs_from_term(space,YAP_ARG6);
+  IntArgs X7 = gecode_IntArgs_from_term(YAP_ARG7);
+  bool X8 = gecode_bool_from_term(YAP_ARG8);
+  IntConLevel X9 = gecode_IntConLevel_from_term(YAP_ARG9);
+  cumulatives(*space,X2,X3,X4,X5,X6,X7,X8,X9);
+  return TRUE;
+}
+
+static int gecode_constraint_cumulatives_103(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntArgs X2 = gecode_IntArgs_from_term(YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntArgs X4 = gecode_IntArgs_from_term(YAP_ARG4);
+  IntVarArgs X5 = gecode_IntVarArgs_from_term(space,YAP_ARG5);
+  IntArgs X6 = gecode_IntArgs_from_term(YAP_ARG6);
+  IntArgs X7 = gecode_IntArgs_from_term(YAP_ARG7);
+  bool X8 = gecode_bool_from_term(YAP_ARG8);
+  IntConLevel X9 = gecode_IntConLevel_from_term(YAP_ARG9);
+  cumulatives(*space,X2,X3,X4,X5,X6,X7,X8,X9);
+  return TRUE;
+}
+
+static int gecode_constraint_nvalues_254(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntRelType X3 = gecode_IntRelType_from_term(YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  nvalues(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_nvalues_256(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntRelType X3 = gecode_IntRelType_from_term(YAP_ARG3);
+  IntVar X4 = gecode_IntVar_from_term(space,YAP_ARG4);
+  nvalues(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_nvalues_250(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolVarArgs X2 = gecode_BoolVarArgs_from_term(space,YAP_ARG2);
+  IntRelType X3 = gecode_IntRelType_from_term(YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  nvalues(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_nvalues_252(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolVarArgs X2 = gecode_BoolVarArgs_from_term(space,YAP_ARG2);
+  IntRelType X3 = gecode_IntRelType_from_term(YAP_ARG3);
+  IntVar X4 = gecode_IntVar_from_term(space,YAP_ARG4);
+  nvalues(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_binpacking_10(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntArgs X4 = gecode_IntArgs_from_term(YAP_ARG4);
+  binpacking(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_linear_201(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntArgs X2 = gecode_IntArgs_from_term(YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntRelType X4 = gecode_IntRelType_from_term(YAP_ARG4);
+  int X5 = gecode_int_from_term(YAP_ARG5);
+  BoolVar X6 = gecode_BoolVar_from_term(space,YAP_ARG6);
+  IntConLevel X7 = gecode_IntConLevel_from_term(YAP_ARG7);
+  linear(*space,X2,X3,X4,X5,X6,X7);
+  return TRUE;
+}
+
+static int gecode_constraint_linear_205(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntArgs X2 = gecode_IntArgs_from_term(YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntRelType X4 = gecode_IntRelType_from_term(YAP_ARG4);
+  IntVar X5 = gecode_IntVar_from_term(space,YAP_ARG5);
+  BoolVar X6 = gecode_BoolVar_from_term(space,YAP_ARG6);
+  IntConLevel X7 = gecode_IntConLevel_from_term(YAP_ARG7);
+  linear(*space,X2,X3,X4,X5,X6,X7);
+  return TRUE;
+}
+
+static int gecode_constraint_linear_193(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntArgs X2 = gecode_IntArgs_from_term(YAP_ARG2);
+  BoolVarArgs X3 = gecode_BoolVarArgs_from_term(space,YAP_ARG3);
+  IntRelType X4 = gecode_IntRelType_from_term(YAP_ARG4);
+  int X5 = gecode_int_from_term(YAP_ARG5);
+  BoolVar X6 = gecode_BoolVar_from_term(space,YAP_ARG6);
+  IntConLevel X7 = gecode_IntConLevel_from_term(YAP_ARG7);
+  linear(*space,X2,X3,X4,X5,X6,X7);
+  return TRUE;
+}
+
+static int gecode_constraint_linear_197(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntArgs X2 = gecode_IntArgs_from_term(YAP_ARG2);
+  BoolVarArgs X3 = gecode_BoolVarArgs_from_term(space,YAP_ARG3);
+  IntRelType X4 = gecode_IntRelType_from_term(YAP_ARG4);
+  IntVar X5 = gecode_IntVar_from_term(space,YAP_ARG5);
+  BoolVar X6 = gecode_BoolVar_from_term(space,YAP_ARG6);
+  IntConLevel X7 = gecode_IntConLevel_from_term(YAP_ARG7);
+  linear(*space,X2,X3,X4,X5,X6,X7);
+  return TRUE;
+}
+
+static int gecode_constraint_abs_2(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVar X2 = gecode_IntVar_from_term(space,YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  IntConLevel X4 = gecode_IntConLevel_from_term(YAP_ARG4);
+  abs(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_convex_50(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  SetVar X2 = gecode_SetVar_from_term(space,YAP_ARG2);
+  convex(*space,X2);
+  return TRUE;
+}
+
+static int gecode_constraint_div_122(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVar X2 = gecode_IntVar_from_term(space,YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  IntVar X4 = gecode_IntVar_from_term(space,YAP_ARG4);
+  div(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_rel_311(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVar X2 = gecode_IntVar_from_term(space,YAP_ARG2);
+  IntRelType X3 = gecode_IntRelType_from_term(YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  BoolVar X5 = gecode_BoolVar_from_term(space,YAP_ARG5);
+  IntConLevel X6 = gecode_IntConLevel_from_term(YAP_ARG6);
+  rel(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_rel_315(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVar X2 = gecode_IntVar_from_term(space,YAP_ARG2);
+  IntRelType X3 = gecode_IntRelType_from_term(YAP_ARG3);
+  IntVar X4 = gecode_IntVar_from_term(space,YAP_ARG4);
+  BoolVar X5 = gecode_BoolVar_from_term(space,YAP_ARG5);
+  IntConLevel X6 = gecode_IntConLevel_from_term(YAP_ARG6);
+  rel(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_rel_300(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntSet X2 = gecode_IntSet_from_term(YAP_ARG2);
+  SetOpType X3 = gecode_SetOpType_from_term(YAP_ARG3);
+  SetVar X4 = gecode_SetVar_from_term(space,YAP_ARG4);
+  SetRelType X5 = gecode_SetRelType_from_term(YAP_ARG5);
+  IntSet X6 = gecode_IntSet_from_term(YAP_ARG6);
+  rel(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_rel_301(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntSet X2 = gecode_IntSet_from_term(YAP_ARG2);
+  SetOpType X3 = gecode_SetOpType_from_term(YAP_ARG3);
+  SetVar X4 = gecode_SetVar_from_term(space,YAP_ARG4);
+  SetRelType X5 = gecode_SetRelType_from_term(YAP_ARG5);
+  SetVar X6 = gecode_SetVar_from_term(space,YAP_ARG6);
+  rel(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_rel_289(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolVar X2 = gecode_BoolVar_from_term(space,YAP_ARG2);
+  IntRelType X3 = gecode_IntRelType_from_term(YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  BoolVar X5 = gecode_BoolVar_from_term(space,YAP_ARG5);
+  IntConLevel X6 = gecode_IntConLevel_from_term(YAP_ARG6);
+  rel(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_rel_285(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolVar X2 = gecode_BoolVar_from_term(space,YAP_ARG2);
+  IntRelType X3 = gecode_IntRelType_from_term(YAP_ARG3);
+  BoolVar X4 = gecode_BoolVar_from_term(space,YAP_ARG4);
+  BoolVar X5 = gecode_BoolVar_from_term(space,YAP_ARG5);
+  IntConLevel X6 = gecode_IntConLevel_from_term(YAP_ARG6);
+  rel(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_rel_283(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolVar X2 = gecode_BoolVar_from_term(space,YAP_ARG2);
+  BoolOpType X3 = gecode_BoolOpType_from_term(YAP_ARG3);
+  BoolVar X4 = gecode_BoolVar_from_term(space,YAP_ARG4);
+  int X5 = gecode_int_from_term(YAP_ARG5);
+  IntConLevel X6 = gecode_IntConLevel_from_term(YAP_ARG6);
+  rel(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_rel_281(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolVar X2 = gecode_BoolVar_from_term(space,YAP_ARG2);
+  BoolOpType X3 = gecode_BoolOpType_from_term(YAP_ARG3);
+  BoolVar X4 = gecode_BoolVar_from_term(space,YAP_ARG4);
+  BoolVar X5 = gecode_BoolVar_from_term(space,YAP_ARG5);
+  IntConLevel X6 = gecode_IntConLevel_from_term(YAP_ARG6);
+  rel(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_rel_326(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  SetVar X2 = gecode_SetVar_from_term(space,YAP_ARG2);
+  SetOpType X3 = gecode_SetOpType_from_term(YAP_ARG3);
+  IntSet X4 = gecode_IntSet_from_term(YAP_ARG4);
+  SetRelType X5 = gecode_SetRelType_from_term(YAP_ARG5);
+  IntSet X6 = gecode_IntSet_from_term(YAP_ARG6);
+  rel(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_rel_327(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  SetVar X2 = gecode_SetVar_from_term(space,YAP_ARG2);
+  SetOpType X3 = gecode_SetOpType_from_term(YAP_ARG3);
+  IntSet X4 = gecode_IntSet_from_term(YAP_ARG4);
+  SetRelType X5 = gecode_SetRelType_from_term(YAP_ARG5);
+  SetVar X6 = gecode_SetVar_from_term(space,YAP_ARG6);
+  rel(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_rel_328(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  SetVar X2 = gecode_SetVar_from_term(space,YAP_ARG2);
+  SetOpType X3 = gecode_SetOpType_from_term(YAP_ARG3);
+  SetVar X4 = gecode_SetVar_from_term(space,YAP_ARG4);
+  SetRelType X5 = gecode_SetRelType_from_term(YAP_ARG5);
+  IntSet X6 = gecode_IntSet_from_term(YAP_ARG6);
+  rel(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_rel_329(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  SetVar X2 = gecode_SetVar_from_term(space,YAP_ARG2);
+  SetOpType X3 = gecode_SetOpType_from_term(YAP_ARG3);
+  SetVar X4 = gecode_SetVar_from_term(space,YAP_ARG4);
+  SetRelType X5 = gecode_SetRelType_from_term(YAP_ARG5);
+  SetVar X6 = gecode_SetVar_from_term(space,YAP_ARG6);
+  rel(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_weights_364(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntArgs X2 = gecode_IntArgs_from_term(YAP_ARG2);
+  IntArgs X3 = gecode_IntArgs_from_term(YAP_ARG3);
+  SetVar X4 = gecode_SetVar_from_term(space,YAP_ARG4);
+  IntVar X5 = gecode_IntVar_from_term(space,YAP_ARG5);
+  weights(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_max_219(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVar X2 = gecode_IntVar_from_term(space,YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  IntVar X4 = gecode_IntVar_from_term(space,YAP_ARG4);
+  IntConLevel X5 = gecode_IntConLevel_from_term(YAP_ARG5);
+  max(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_path_263(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntArgs X2 = gecode_IntArgs_from_term(YAP_ARG2);
+  int X3 = gecode_int_from_term(YAP_ARG3);
+  IntVarArgs X4 = gecode_IntVarArgs_from_term(space,YAP_ARG4);
+  IntVar X5 = gecode_IntVar_from_term(space,YAP_ARG5);
+  IntVar X6 = gecode_IntVar_from_term(space,YAP_ARG6);
+  IntVarArgs X7 = gecode_IntVarArgs_from_term(space,YAP_ARG7);
+  IntVar X8 = gecode_IntVar_from_term(space,YAP_ARG8);
+  IntConLevel X9 = gecode_IntConLevel_from_term(YAP_ARG9);
+  path(*space,X2,X3,X4,X5,X6,X7,X8,X9);
+  return TRUE;
+}
+
+static int gecode_constraint_unary_358(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  TaskTypeArgs X2 = gecode_TaskTypeArgs_from_term(YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntArgs X4 = gecode_IntArgs_from_term(YAP_ARG4);
+  unary(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_unary_354(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntVarArgs X4 = gecode_IntVarArgs_from_term(space,YAP_ARG4);
+  unary(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_unary_348(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntArgs X3 = gecode_IntArgs_from_term(YAP_ARG3);
+  BoolVarArgs X4 = gecode_BoolVarArgs_from_term(space,YAP_ARG4);
+  unary(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_unary_351(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntArgs X3 = gecode_IntArgs_from_term(YAP_ARG3);
+  IntConLevel X4 = gecode_IntConLevel_from_term(YAP_ARG4);
+  unary(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_sorted_341(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntVarArgs X4 = gecode_IntVarArgs_from_term(space,YAP_ARG4);
+  IntConLevel X5 = gecode_IntConLevel_from_term(YAP_ARG5);
+  sorted(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_circuit_40(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntArgs X2 = gecode_IntArgs_from_term(YAP_ARG2);
+  int X3 = gecode_int_from_term(YAP_ARG3);
+  IntVarArgs X4 = gecode_IntVarArgs_from_term(space,YAP_ARG4);
+  IntVar X5 = gecode_IntVar_from_term(space,YAP_ARG5);
+  circuit(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_circuit_37(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntArgs X2 = gecode_IntArgs_from_term(YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntVar X4 = gecode_IntVar_from_term(space,YAP_ARG4);
+  IntConLevel X5 = gecode_IntConLevel_from_term(YAP_ARG5);
+  circuit(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_circuit_34(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntArgs X2 = gecode_IntArgs_from_term(YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntVarArgs X4 = gecode_IntVarArgs_from_term(space,YAP_ARG4);
+  IntVar X5 = gecode_IntVar_from_term(space,YAP_ARG5);
+  circuit(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_dom_142(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVar X2 = gecode_IntVar_from_term(space,YAP_ARG2);
+  int X3 = gecode_int_from_term(YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  dom(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_dom_136(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVar X2 = gecode_IntVar_from_term(space,YAP_ARG2);
+  int X3 = gecode_int_from_term(YAP_ARG3);
+  BoolVar X4 = gecode_BoolVar_from_term(space,YAP_ARG4);
+  dom(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_dom_141(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVar X2 = gecode_IntVar_from_term(space,YAP_ARG2);
+  int X3 = gecode_int_from_term(YAP_ARG3);
+  IntConLevel X4 = gecode_IntConLevel_from_term(YAP_ARG4);
+  dom(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_dom_132(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVar X2 = gecode_IntVar_from_term(space,YAP_ARG2);
+  IntSet X3 = gecode_IntSet_from_term(YAP_ARG3);
+  BoolVar X4 = gecode_BoolVar_from_term(space,YAP_ARG4);
+  dom(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_dom_135(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVar X2 = gecode_IntVar_from_term(space,YAP_ARG2);
+  IntSet X3 = gecode_IntSet_from_term(YAP_ARG3);
+  IntConLevel X4 = gecode_IntConLevel_from_term(YAP_ARG4);
+  dom(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_dom_130(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  int X3 = gecode_int_from_term(YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  dom(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_dom_129(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  int X3 = gecode_int_from_term(YAP_ARG3);
+  IntConLevel X4 = gecode_IntConLevel_from_term(YAP_ARG4);
+  dom(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_dom_127(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntSet X3 = gecode_IntSet_from_term(YAP_ARG3);
+  IntConLevel X4 = gecode_IntConLevel_from_term(YAP_ARG4);
+  dom(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_dom_146(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  SetVar X2 = gecode_SetVar_from_term(space,YAP_ARG2);
+  SetRelType X3 = gecode_SetRelType_from_term(YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  dom(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_dom_144(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  SetVar X2 = gecode_SetVar_from_term(space,YAP_ARG2);
+  SetRelType X3 = gecode_SetRelType_from_term(YAP_ARG3);
+  IntSet X4 = gecode_IntSet_from_term(YAP_ARG4);
+  dom(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_abs_1(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVar X2 = gecode_IntVar_from_term(space,YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  abs(*space,X2,X3);
+  return TRUE;
+}
+
+static int gecode_constraint_channel_29(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  int X3 = gecode_int_from_term(YAP_ARG3);
+  IntVarArgs X4 = gecode_IntVarArgs_from_term(space,YAP_ARG4);
+  int X5 = gecode_int_from_term(YAP_ARG5);
+  channel(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_channel_24(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolVarArgs X2 = gecode_BoolVarArgs_from_term(space,YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  IntConLevel X5 = gecode_IntConLevel_from_term(YAP_ARG5);
+  channel(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_rel_304(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntRelType X3 = gecode_IntRelType_from_term(YAP_ARG3);
+  rel(*space,X2,X3);
+  return TRUE;
+}
+
+static int gecode_constraint_rel_296(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolVarArgs X2 = gecode_BoolVarArgs_from_term(space,YAP_ARG2);
+  IntRelType X3 = gecode_IntRelType_from_term(YAP_ARG3);
+  rel(*space,X2,X3);
+  return TRUE;
+}
+
+static int gecode_constraint_path_266(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  IntVar X4 = gecode_IntVar_from_term(space,YAP_ARG4);
+  path(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_branch_14(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntVarBranch X3 = gecode_IntVarBranch_from_term(YAP_ARG3);
+  IntValBranch X4 = gecode_IntValBranch_from_term(YAP_ARG4);
+  branch(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_branch_13(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolVarArgs X2 = gecode_BoolVarArgs_from_term(space,YAP_ARG2);
+  IntVarBranch X3 = gecode_IntVarBranch_from_term(YAP_ARG3);
+  IntValBranch X4 = gecode_IntValBranch_from_term(YAP_ARG4);
+  branch(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_branch_15(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  SetVarArgs X2 = gecode_SetVarArgs_from_term(space,YAP_ARG2);
+  SetVarBranch X3 = gecode_SetVarBranch_from_term(YAP_ARG3);
+  SetValBranch X4 = gecode_SetValBranch_from_term(YAP_ARG4);
+  branch(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_mult_239(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVar X2 = gecode_IntVar_from_term(space,YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  IntVar X4 = gecode_IntVar_from_term(space,YAP_ARG4);
+  IntConLevel X5 = gecode_IntConLevel_from_term(YAP_ARG5);
+  mult(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_circuit_41(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntArgs X2 = gecode_IntArgs_from_term(YAP_ARG2);
+  int X3 = gecode_int_from_term(YAP_ARG3);
+  IntVarArgs X4 = gecode_IntVarArgs_from_term(space,YAP_ARG4);
+  IntVar X5 = gecode_IntVar_from_term(space,YAP_ARG5);
+  IntConLevel X6 = gecode_IntConLevel_from_term(YAP_ARG6);
+  circuit(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_circuit_38(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntArgs X2 = gecode_IntArgs_from_term(YAP_ARG2);
+  int X3 = gecode_int_from_term(YAP_ARG3);
+  IntVarArgs X4 = gecode_IntVarArgs_from_term(space,YAP_ARG4);
+  IntVarArgs X5 = gecode_IntVarArgs_from_term(space,YAP_ARG5);
+  IntVar X6 = gecode_IntVar_from_term(space,YAP_ARG6);
+  circuit(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_circuit_35(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntArgs X2 = gecode_IntArgs_from_term(YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntVarArgs X4 = gecode_IntVarArgs_from_term(space,YAP_ARG4);
+  IntVar X5 = gecode_IntVar_from_term(space,YAP_ARG5);
+  IntConLevel X6 = gecode_IntConLevel_from_term(YAP_ARG6);
+  circuit(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_clause_48(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolOpType X2 = gecode_BoolOpType_from_term(YAP_ARG2);
+  BoolVarArgs X3 = gecode_BoolVarArgs_from_term(space,YAP_ARG3);
+  BoolVarArgs X4 = gecode_BoolVarArgs_from_term(space,YAP_ARG4);
+  int X5 = gecode_int_from_term(YAP_ARG5);
+  clause(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_clause_46(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolOpType X2 = gecode_BoolOpType_from_term(YAP_ARG2);
+  BoolVarArgs X3 = gecode_BoolVarArgs_from_term(space,YAP_ARG3);
+  BoolVarArgs X4 = gecode_BoolVarArgs_from_term(space,YAP_ARG4);
+  BoolVar X5 = gecode_BoolVar_from_term(space,YAP_ARG5);
+  clause(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_precede_275(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  SetVarArgs X2 = gecode_SetVarArgs_from_term(space,YAP_ARG2);
+  int X3 = gecode_int_from_term(YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  precede(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_precede_272(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  int X3 = gecode_int_from_term(YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  precede(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_precede_271(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntArgs X3 = gecode_IntArgs_from_term(YAP_ARG3);
+  IntConLevel X4 = gecode_IntConLevel_from_term(YAP_ARG4);
+  precede(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_channel_30(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  int X3 = gecode_int_from_term(YAP_ARG3);
+  IntVarArgs X4 = gecode_IntVarArgs_from_term(space,YAP_ARG4);
+  int X5 = gecode_int_from_term(YAP_ARG5);
+  IntConLevel X6 = gecode_IntConLevel_from_term(YAP_ARG6);
+  channel(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_cumulative_86(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  int X2 = gecode_int_from_term(YAP_ARG2);
+  TaskTypeArgs X3 = gecode_TaskTypeArgs_from_term(YAP_ARG3);
+  IntVarArgs X4 = gecode_IntVarArgs_from_term(space,YAP_ARG4);
+  IntArgs X5 = gecode_IntArgs_from_term(YAP_ARG5);
+  IntArgs X6 = gecode_IntArgs_from_term(YAP_ARG6);
+  BoolVarArgs X7 = gecode_BoolVarArgs_from_term(space,YAP_ARG7);
+  cumulative(*space,X2,X3,X4,X5,X6,X7);
+  return TRUE;
+}
+
+static int gecode_constraint_cumulative_89(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  int X2 = gecode_int_from_term(YAP_ARG2);
+  TaskTypeArgs X3 = gecode_TaskTypeArgs_from_term(YAP_ARG3);
+  IntVarArgs X4 = gecode_IntVarArgs_from_term(space,YAP_ARG4);
+  IntArgs X5 = gecode_IntArgs_from_term(YAP_ARG5);
+  IntArgs X6 = gecode_IntArgs_from_term(YAP_ARG6);
+  IntConLevel X7 = gecode_IntConLevel_from_term(YAP_ARG7);
+  cumulative(*space,X2,X3,X4,X5,X6,X7);
+  return TRUE;
+}
+
+static int gecode_constraint_cumulative_82(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  int X2 = gecode_int_from_term(YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntVarArgs X4 = gecode_IntVarArgs_from_term(space,YAP_ARG4);
+  IntVarArgs X5 = gecode_IntVarArgs_from_term(space,YAP_ARG5);
+  IntArgs X6 = gecode_IntArgs_from_term(YAP_ARG6);
+  BoolVarArgs X7 = gecode_BoolVarArgs_from_term(space,YAP_ARG7);
+  cumulative(*space,X2,X3,X4,X5,X6,X7);
+  return TRUE;
+}
+
+static int gecode_constraint_cumulative_85(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  int X2 = gecode_int_from_term(YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntVarArgs X4 = gecode_IntVarArgs_from_term(space,YAP_ARG4);
+  IntVarArgs X5 = gecode_IntVarArgs_from_term(space,YAP_ARG5);
+  IntArgs X6 = gecode_IntArgs_from_term(YAP_ARG6);
+  IntConLevel X7 = gecode_IntConLevel_from_term(YAP_ARG7);
+  cumulative(*space,X2,X3,X4,X5,X6,X7);
+  return TRUE;
+}
+
+static int gecode_constraint_cumulative_79(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  int X2 = gecode_int_from_term(YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntArgs X4 = gecode_IntArgs_from_term(YAP_ARG4);
+  IntArgs X5 = gecode_IntArgs_from_term(YAP_ARG5);
+  BoolVarArgs X6 = gecode_BoolVarArgs_from_term(space,YAP_ARG6);
+  IntConLevel X7 = gecode_IntConLevel_from_term(YAP_ARG7);
+  cumulative(*space,X2,X3,X4,X5,X6,X7);
+  return TRUE;
+}
+
+static int gecode_constraint_cumulative_98(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVar X2 = gecode_IntVar_from_term(space,YAP_ARG2);
+  TaskTypeArgs X3 = gecode_TaskTypeArgs_from_term(YAP_ARG3);
+  IntVarArgs X4 = gecode_IntVarArgs_from_term(space,YAP_ARG4);
+  IntArgs X5 = gecode_IntArgs_from_term(YAP_ARG5);
+  IntArgs X6 = gecode_IntArgs_from_term(YAP_ARG6);
+  BoolVarArgs X7 = gecode_BoolVarArgs_from_term(space,YAP_ARG7);
+  cumulative(*space,X2,X3,X4,X5,X6,X7);
+  return TRUE;
+}
+
+static int gecode_constraint_cumulative_101(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVar X2 = gecode_IntVar_from_term(space,YAP_ARG2);
+  TaskTypeArgs X3 = gecode_TaskTypeArgs_from_term(YAP_ARG3);
+  IntVarArgs X4 = gecode_IntVarArgs_from_term(space,YAP_ARG4);
+  IntArgs X5 = gecode_IntArgs_from_term(YAP_ARG5);
+  IntArgs X6 = gecode_IntArgs_from_term(YAP_ARG6);
+  IntConLevel X7 = gecode_IntConLevel_from_term(YAP_ARG7);
+  cumulative(*space,X2,X3,X4,X5,X6,X7);
+  return TRUE;
+}
+
+static int gecode_constraint_cumulative_94(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVar X2 = gecode_IntVar_from_term(space,YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntVarArgs X4 = gecode_IntVarArgs_from_term(space,YAP_ARG4);
+  IntVarArgs X5 = gecode_IntVarArgs_from_term(space,YAP_ARG5);
+  IntArgs X6 = gecode_IntArgs_from_term(YAP_ARG6);
+  BoolVarArgs X7 = gecode_BoolVarArgs_from_term(space,YAP_ARG7);
+  cumulative(*space,X2,X3,X4,X5,X6,X7);
+  return TRUE;
+}
+
+static int gecode_constraint_cumulative_97(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVar X2 = gecode_IntVar_from_term(space,YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntVarArgs X4 = gecode_IntVarArgs_from_term(space,YAP_ARG4);
+  IntVarArgs X5 = gecode_IntVarArgs_from_term(space,YAP_ARG5);
+  IntArgs X6 = gecode_IntArgs_from_term(YAP_ARG6);
+  IntConLevel X7 = gecode_IntConLevel_from_term(YAP_ARG7);
+  cumulative(*space,X2,X3,X4,X5,X6,X7);
+  return TRUE;
+}
+
+static int gecode_constraint_cumulative_91(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVar X2 = gecode_IntVar_from_term(space,YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntArgs X4 = gecode_IntArgs_from_term(YAP_ARG4);
+  IntArgs X5 = gecode_IntArgs_from_term(YAP_ARG5);
+  BoolVarArgs X6 = gecode_BoolVarArgs_from_term(space,YAP_ARG6);
+  IntConLevel X7 = gecode_IntConLevel_from_term(YAP_ARG7);
+  cumulative(*space,X2,X3,X4,X5,X6,X7);
+  return TRUE;
+}
+
+static int gecode_constraint_distinct_121(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntConLevel X3 = gecode_IntConLevel_from_term(YAP_ARG3);
+  distinct(*space,X2,X3);
+  return TRUE;
+}
+
+static int gecode_constraint_distinct_118(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntArgs X2 = gecode_IntArgs_from_term(YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  distinct(*space,X2,X3);
+  return TRUE;
+}
+
+static int gecode_constraint_member_227(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  BoolVar X4 = gecode_BoolVar_from_term(space,YAP_ARG4);
+  IntConLevel X5 = gecode_IntConLevel_from_term(YAP_ARG5);
+  member(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_member_223(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolVarArgs X2 = gecode_BoolVarArgs_from_term(space,YAP_ARG2);
+  BoolVar X3 = gecode_BoolVar_from_term(space,YAP_ARG3);
+  BoolVar X4 = gecode_BoolVar_from_term(space,YAP_ARG4);
+  IntConLevel X5 = gecode_IntConLevel_from_term(YAP_ARG5);
+  member(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_mod_236(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVar X2 = gecode_IntVar_from_term(space,YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  IntVar X4 = gecode_IntVar_from_term(space,YAP_ARG4);
+  mod(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_sqr_344(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVar X2 = gecode_IntVar_from_term(space,YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  sqr(*space,X2,X3);
+  return TRUE;
+}
+
+static int gecode_constraint_sequence_337(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntSet X3 = gecode_IntSet_from_term(YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  int X5 = gecode_int_from_term(YAP_ARG5);
+  int X6 = gecode_int_from_term(YAP_ARG6);
+  IntConLevel X7 = gecode_IntConLevel_from_term(YAP_ARG7);
+  sequence(*space,X2,X3,X4,X5,X6,X7);
+  return TRUE;
+}
+
+static int gecode_constraint_sequence_335(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolVarArgs X2 = gecode_BoolVarArgs_from_term(space,YAP_ARG2);
+  IntSet X3 = gecode_IntSet_from_term(YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  int X5 = gecode_int_from_term(YAP_ARG5);
+  int X6 = gecode_int_from_term(YAP_ARG6);
+  IntConLevel X7 = gecode_IntConLevel_from_term(YAP_ARG7);
+  sequence(*space,X2,X3,X4,X5,X6,X7);
+  return TRUE;
+}
+
+static int gecode_constraint_path_264(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntArgs X2 = gecode_IntArgs_from_term(YAP_ARG2);
+  int X3 = gecode_int_from_term(YAP_ARG3);
+  IntVarArgs X4 = gecode_IntVarArgs_from_term(space,YAP_ARG4);
+  IntVar X5 = gecode_IntVar_from_term(space,YAP_ARG5);
+  IntVar X6 = gecode_IntVar_from_term(space,YAP_ARG6);
+  IntVar X7 = gecode_IntVar_from_term(space,YAP_ARG7);
+  path(*space,X2,X3,X4,X5,X6,X7);
+  return TRUE;
+}
+
+static int gecode_constraint_path_261(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntArgs X2 = gecode_IntArgs_from_term(YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntVar X4 = gecode_IntVar_from_term(space,YAP_ARG4);
+  IntVar X5 = gecode_IntVar_from_term(space,YAP_ARG5);
+  IntVar X6 = gecode_IntVar_from_term(space,YAP_ARG6);
+  IntConLevel X7 = gecode_IntConLevel_from_term(YAP_ARG7);
+  path(*space,X2,X3,X4,X5,X6,X7);
+  return TRUE;
+}
+
+static int gecode_constraint_path_258(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntArgs X2 = gecode_IntArgs_from_term(YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntVar X4 = gecode_IntVar_from_term(space,YAP_ARG4);
+  IntVar X5 = gecode_IntVar_from_term(space,YAP_ARG5);
+  IntVarArgs X6 = gecode_IntVarArgs_from_term(space,YAP_ARG6);
+  IntVar X7 = gecode_IntVar_from_term(space,YAP_ARG7);
+  path(*space,X2,X3,X4,X5,X6,X7);
+  return TRUE;
+}
+
+static int gecode_constraint_divmod_125(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVar X2 = gecode_IntVar_from_term(space,YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  IntVar X4 = gecode_IntVar_from_term(space,YAP_ARG4);
+  IntVar X5 = gecode_IntVar_from_term(space,YAP_ARG5);
+  IntConLevel X6 = gecode_IntConLevel_from_term(YAP_ARG6);
+  divmod(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_sorted_342(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  sorted(*space,X2,X3);
+  return TRUE;
+}
+
+static int gecode_constraint_circuit_44(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  int X2 = gecode_int_from_term(YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  circuit(*space,X2,X3);
+  return TRUE;
+}
+
+static int gecode_constraint_circuit_43(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntConLevel X3 = gecode_IntConLevel_from_term(YAP_ARG3);
+  circuit(*space,X2,X3);
+  return TRUE;
+}
+
+static int gecode_constraint_channel_31(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVar X2 = gecode_IntVar_from_term(space,YAP_ARG2);
+  BoolVar X3 = gecode_BoolVar_from_term(space,YAP_ARG3);
+  channel(*space,X2,X3);
+  return TRUE;
+}
+
+static int gecode_constraint_channel_28(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  SetVarArgs X3 = gecode_SetVarArgs_from_term(space,YAP_ARG3);
+  channel(*space,X2,X3);
+  return TRUE;
+}
+
+static int gecode_constraint_channel_26(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  channel(*space,X2,X3);
+  return TRUE;
+}
+
+static int gecode_constraint_channel_22(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolVarArgs X2 = gecode_BoolVarArgs_from_term(space,YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  channel(*space,X2,X3);
+  return TRUE;
+}
+
+static int gecode_constraint_channel_25(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolVarArgs X2 = gecode_BoolVarArgs_from_term(space,YAP_ARG2);
+  SetVar X3 = gecode_SetVar_from_term(space,YAP_ARG3);
+  channel(*space,X2,X3);
+  return TRUE;
+}
+
+static int gecode_constraint_channel_20(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolVar X2 = gecode_BoolVar_from_term(space,YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  channel(*space,X2,X3);
+  return TRUE;
+}
+
+static int gecode_constraint_count_52(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntArgs X3 = gecode_IntArgs_from_term(YAP_ARG3);
+  IntRelType X4 = gecode_IntRelType_from_term(YAP_ARG4);
+  int X5 = gecode_int_from_term(YAP_ARG5);
+  count(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_count_54(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntArgs X3 = gecode_IntArgs_from_term(YAP_ARG3);
+  IntRelType X4 = gecode_IntRelType_from_term(YAP_ARG4);
+  IntVar X5 = gecode_IntVar_from_term(space,YAP_ARG5);
+  count(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_count_70(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  int X3 = gecode_int_from_term(YAP_ARG3);
+  IntRelType X4 = gecode_IntRelType_from_term(YAP_ARG4);
+  int X5 = gecode_int_from_term(YAP_ARG5);
+  count(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_count_72(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  int X3 = gecode_int_from_term(YAP_ARG3);
+  IntRelType X4 = gecode_IntRelType_from_term(YAP_ARG4);
+  IntVar X5 = gecode_IntVar_from_term(space,YAP_ARG5);
+  count(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_count_62(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntSet X3 = gecode_IntSet_from_term(YAP_ARG3);
+  IntRelType X4 = gecode_IntRelType_from_term(YAP_ARG4);
+  int X5 = gecode_int_from_term(YAP_ARG5);
+  count(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_count_64(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntSet X3 = gecode_IntSet_from_term(YAP_ARG3);
+  IntRelType X4 = gecode_IntRelType_from_term(YAP_ARG4);
+  IntVar X5 = gecode_IntVar_from_term(space,YAP_ARG5);
+  count(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_count_61(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntSet X3 = gecode_IntSet_from_term(YAP_ARG3);
+  IntArgs X4 = gecode_IntArgs_from_term(YAP_ARG4);
+  IntConLevel X5 = gecode_IntConLevel_from_term(YAP_ARG5);
+  count(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_count_57(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntSetArgs X3 = gecode_IntSetArgs_from_term(YAP_ARG3);
+  IntArgs X4 = gecode_IntArgs_from_term(YAP_ARG4);
+  IntConLevel X5 = gecode_IntConLevel_from_term(YAP_ARG5);
+  count(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_count_67(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntArgs X4 = gecode_IntArgs_from_term(YAP_ARG4);
+  IntConLevel X5 = gecode_IntConLevel_from_term(YAP_ARG5);
+  count(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_count_74(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  IntRelType X4 = gecode_IntRelType_from_term(YAP_ARG4);
+  int X5 = gecode_int_from_term(YAP_ARG5);
+  count(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_count_76(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  IntRelType X4 = gecode_IntRelType_from_term(YAP_ARG4);
+  IntVar X5 = gecode_IntVar_from_term(space,YAP_ARG5);
+  count(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_cumulatives_116(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntVarArgs X4 = gecode_IntVarArgs_from_term(space,YAP_ARG4);
+  IntVarArgs X5 = gecode_IntVarArgs_from_term(space,YAP_ARG5);
+  IntVarArgs X6 = gecode_IntVarArgs_from_term(space,YAP_ARG6);
+  IntArgs X7 = gecode_IntArgs_from_term(YAP_ARG7);
+  bool X8 = gecode_bool_from_term(YAP_ARG8);
+  cumulatives(*space,X2,X3,X4,X5,X6,X7,X8);
+  return TRUE;
+}
+
+static int gecode_constraint_cumulatives_114(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntVarArgs X4 = gecode_IntVarArgs_from_term(space,YAP_ARG4);
+  IntVarArgs X5 = gecode_IntVarArgs_from_term(space,YAP_ARG5);
+  IntArgs X6 = gecode_IntArgs_from_term(YAP_ARG6);
+  IntArgs X7 = gecode_IntArgs_from_term(YAP_ARG7);
+  bool X8 = gecode_bool_from_term(YAP_ARG8);
+  cumulatives(*space,X2,X3,X4,X5,X6,X7,X8);
+  return TRUE;
+}
+
+static int gecode_constraint_cumulatives_112(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntArgs X4 = gecode_IntArgs_from_term(YAP_ARG4);
+  IntVarArgs X5 = gecode_IntVarArgs_from_term(space,YAP_ARG5);
+  IntVarArgs X6 = gecode_IntVarArgs_from_term(space,YAP_ARG6);
+  IntArgs X7 = gecode_IntArgs_from_term(YAP_ARG7);
+  bool X8 = gecode_bool_from_term(YAP_ARG8);
+  cumulatives(*space,X2,X3,X4,X5,X6,X7,X8);
+  return TRUE;
+}
+
+static int gecode_constraint_cumulatives_110(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntArgs X4 = gecode_IntArgs_from_term(YAP_ARG4);
+  IntVarArgs X5 = gecode_IntVarArgs_from_term(space,YAP_ARG5);
+  IntArgs X6 = gecode_IntArgs_from_term(YAP_ARG6);
+  IntArgs X7 = gecode_IntArgs_from_term(YAP_ARG7);
+  bool X8 = gecode_bool_from_term(YAP_ARG8);
+  cumulatives(*space,X2,X3,X4,X5,X6,X7,X8);
+  return TRUE;
+}
+
+static int gecode_constraint_cumulatives_108(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntArgs X2 = gecode_IntArgs_from_term(YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntVarArgs X4 = gecode_IntVarArgs_from_term(space,YAP_ARG4);
+  IntVarArgs X5 = gecode_IntVarArgs_from_term(space,YAP_ARG5);
+  IntVarArgs X6 = gecode_IntVarArgs_from_term(space,YAP_ARG6);
+  IntArgs X7 = gecode_IntArgs_from_term(YAP_ARG7);
+  bool X8 = gecode_bool_from_term(YAP_ARG8);
+  cumulatives(*space,X2,X3,X4,X5,X6,X7,X8);
+  return TRUE;
+}
+
+static int gecode_constraint_cumulatives_106(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntArgs X2 = gecode_IntArgs_from_term(YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntVarArgs X4 = gecode_IntVarArgs_from_term(space,YAP_ARG4);
+  IntVarArgs X5 = gecode_IntVarArgs_from_term(space,YAP_ARG5);
+  IntArgs X6 = gecode_IntArgs_from_term(YAP_ARG6);
+  IntArgs X7 = gecode_IntArgs_from_term(YAP_ARG7);
+  bool X8 = gecode_bool_from_term(YAP_ARG8);
+  cumulatives(*space,X2,X3,X4,X5,X6,X7,X8);
+  return TRUE;
+}
+
+static int gecode_constraint_cumulatives_104(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntArgs X2 = gecode_IntArgs_from_term(YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntArgs X4 = gecode_IntArgs_from_term(YAP_ARG4);
+  IntVarArgs X5 = gecode_IntVarArgs_from_term(space,YAP_ARG5);
+  IntVarArgs X6 = gecode_IntVarArgs_from_term(space,YAP_ARG6);
+  IntArgs X7 = gecode_IntArgs_from_term(YAP_ARG7);
+  bool X8 = gecode_bool_from_term(YAP_ARG8);
+  cumulatives(*space,X2,X3,X4,X5,X6,X7,X8);
+  return TRUE;
+}
+
+static int gecode_constraint_cumulatives_102(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntArgs X2 = gecode_IntArgs_from_term(YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntArgs X4 = gecode_IntArgs_from_term(YAP_ARG4);
+  IntVarArgs X5 = gecode_IntVarArgs_from_term(space,YAP_ARG5);
+  IntArgs X6 = gecode_IntArgs_from_term(YAP_ARG6);
+  IntArgs X7 = gecode_IntArgs_from_term(YAP_ARG7);
+  bool X8 = gecode_bool_from_term(YAP_ARG8);
+  cumulatives(*space,X2,X3,X4,X5,X6,X7,X8);
+  return TRUE;
+}
+
+static int gecode_constraint_binpacking_11(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntArgs X4 = gecode_IntArgs_from_term(YAP_ARG4);
+  IntConLevel X5 = gecode_IntConLevel_from_term(YAP_ARG5);
+  binpacking(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_linear_209(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntRelType X3 = gecode_IntRelType_from_term(YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  BoolVar X5 = gecode_BoolVar_from_term(space,YAP_ARG5);
+  IntConLevel X6 = gecode_IntConLevel_from_term(YAP_ARG6);
+  linear(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_linear_213(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntRelType X3 = gecode_IntRelType_from_term(YAP_ARG3);
+  IntVar X4 = gecode_IntVar_from_term(space,YAP_ARG4);
+  BoolVar X5 = gecode_BoolVar_from_term(space,YAP_ARG5);
+  IntConLevel X6 = gecode_IntConLevel_from_term(YAP_ARG6);
+  linear(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_linear_185(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolVarArgs X2 = gecode_BoolVarArgs_from_term(space,YAP_ARG2);
+  IntRelType X3 = gecode_IntRelType_from_term(YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  BoolVar X5 = gecode_BoolVar_from_term(space,YAP_ARG5);
+  IntConLevel X6 = gecode_IntConLevel_from_term(YAP_ARG6);
+  linear(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_linear_189(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolVarArgs X2 = gecode_BoolVarArgs_from_term(space,YAP_ARG2);
+  IntRelType X3 = gecode_IntRelType_from_term(YAP_ARG3);
+  IntVar X4 = gecode_IntVar_from_term(space,YAP_ARG4);
+  BoolVar X5 = gecode_BoolVar_from_term(space,YAP_ARG5);
+  IntConLevel X6 = gecode_IntConLevel_from_term(YAP_ARG6);
+  linear(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_linear_200(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntArgs X2 = gecode_IntArgs_from_term(YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntRelType X4 = gecode_IntRelType_from_term(YAP_ARG4);
+  int X5 = gecode_int_from_term(YAP_ARG5);
+  BoolVar X6 = gecode_BoolVar_from_term(space,YAP_ARG6);
+  linear(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_linear_203(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntArgs X2 = gecode_IntArgs_from_term(YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntRelType X4 = gecode_IntRelType_from_term(YAP_ARG4);
+  int X5 = gecode_int_from_term(YAP_ARG5);
+  IntConLevel X6 = gecode_IntConLevel_from_term(YAP_ARG6);
+  linear(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_linear_204(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntArgs X2 = gecode_IntArgs_from_term(YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntRelType X4 = gecode_IntRelType_from_term(YAP_ARG4);
+  IntVar X5 = gecode_IntVar_from_term(space,YAP_ARG5);
+  BoolVar X6 = gecode_BoolVar_from_term(space,YAP_ARG6);
+  linear(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_linear_207(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntArgs X2 = gecode_IntArgs_from_term(YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntRelType X4 = gecode_IntRelType_from_term(YAP_ARG4);
+  IntVar X5 = gecode_IntVar_from_term(space,YAP_ARG5);
+  IntConLevel X6 = gecode_IntConLevel_from_term(YAP_ARG6);
+  linear(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_linear_192(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntArgs X2 = gecode_IntArgs_from_term(YAP_ARG2);
+  BoolVarArgs X3 = gecode_BoolVarArgs_from_term(space,YAP_ARG3);
+  IntRelType X4 = gecode_IntRelType_from_term(YAP_ARG4);
+  int X5 = gecode_int_from_term(YAP_ARG5);
+  BoolVar X6 = gecode_BoolVar_from_term(space,YAP_ARG6);
+  linear(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_linear_195(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntArgs X2 = gecode_IntArgs_from_term(YAP_ARG2);
+  BoolVarArgs X3 = gecode_BoolVarArgs_from_term(space,YAP_ARG3);
+  IntRelType X4 = gecode_IntRelType_from_term(YAP_ARG4);
+  int X5 = gecode_int_from_term(YAP_ARG5);
+  IntConLevel X6 = gecode_IntConLevel_from_term(YAP_ARG6);
+  linear(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_linear_196(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntArgs X2 = gecode_IntArgs_from_term(YAP_ARG2);
+  BoolVarArgs X3 = gecode_BoolVarArgs_from_term(space,YAP_ARG3);
+  IntRelType X4 = gecode_IntRelType_from_term(YAP_ARG4);
+  IntVar X5 = gecode_IntVar_from_term(space,YAP_ARG5);
+  BoolVar X6 = gecode_BoolVar_from_term(space,YAP_ARG6);
+  linear(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_linear_199(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntArgs X2 = gecode_IntArgs_from_term(YAP_ARG2);
+  BoolVarArgs X3 = gecode_BoolVarArgs_from_term(space,YAP_ARG3);
+  IntRelType X4 = gecode_IntRelType_from_term(YAP_ARG4);
+  IntVar X5 = gecode_IntVar_from_term(space,YAP_ARG5);
+  IntConLevel X6 = gecode_IntConLevel_from_term(YAP_ARG6);
+  linear(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_nooverlap_246(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntVarArgs X4 = gecode_IntVarArgs_from_term(space,YAP_ARG4);
+  IntVarArgs X5 = gecode_IntVarArgs_from_term(space,YAP_ARG5);
+  IntVarArgs X6 = gecode_IntVarArgs_from_term(space,YAP_ARG6);
+  IntVarArgs X7 = gecode_IntVarArgs_from_term(space,YAP_ARG7);
+  nooverlap(*space,X2,X3,X4,X5,X6,X7);
+  return TRUE;
+}
+
+static int gecode_constraint_nooverlap_241(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntArgs X3 = gecode_IntArgs_from_term(YAP_ARG3);
+  IntVarArgs X4 = gecode_IntVarArgs_from_term(space,YAP_ARG4);
+  IntArgs X5 = gecode_IntArgs_from_term(YAP_ARG5);
+  BoolVarArgs X6 = gecode_BoolVarArgs_from_term(space,YAP_ARG6);
+  IntConLevel X7 = gecode_IntConLevel_from_term(YAP_ARG7);
+  nooverlap(*space,X2,X3,X4,X5,X6,X7);
+  return TRUE;
+}
+
+static int gecode_constraint_div_123(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVar X2 = gecode_IntVar_from_term(space,YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  IntVar X4 = gecode_IntVar_from_term(space,YAP_ARG4);
+  IntConLevel X5 = gecode_IntConLevel_from_term(YAP_ARG5);
+  div(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_sqr_345(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVar X2 = gecode_IntVar_from_term(space,YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  IntConLevel X4 = gecode_IntConLevel_from_term(YAP_ARG4);
+  sqr(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_path_265(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntArgs X2 = gecode_IntArgs_from_term(YAP_ARG2);
+  int X3 = gecode_int_from_term(YAP_ARG3);
+  IntVarArgs X4 = gecode_IntVarArgs_from_term(space,YAP_ARG4);
+  IntVar X5 = gecode_IntVar_from_term(space,YAP_ARG5);
+  IntVar X6 = gecode_IntVar_from_term(space,YAP_ARG6);
+  IntVar X7 = gecode_IntVar_from_term(space,YAP_ARG7);
+  IntConLevel X8 = gecode_IntConLevel_from_term(YAP_ARG8);
+  path(*space,X2,X3,X4,X5,X6,X7,X8);
+  return TRUE;
+}
+
+static int gecode_constraint_path_262(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntArgs X2 = gecode_IntArgs_from_term(YAP_ARG2);
+  int X3 = gecode_int_from_term(YAP_ARG3);
+  IntVarArgs X4 = gecode_IntVarArgs_from_term(space,YAP_ARG4);
+  IntVar X5 = gecode_IntVar_from_term(space,YAP_ARG5);
+  IntVar X6 = gecode_IntVar_from_term(space,YAP_ARG6);
+  IntVarArgs X7 = gecode_IntVarArgs_from_term(space,YAP_ARG7);
+  IntVar X8 = gecode_IntVar_from_term(space,YAP_ARG8);
+  path(*space,X2,X3,X4,X5,X6,X7,X8);
+  return TRUE;
+}
+
+static int gecode_constraint_path_259(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntArgs X2 = gecode_IntArgs_from_term(YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntVar X4 = gecode_IntVar_from_term(space,YAP_ARG4);
+  IntVar X5 = gecode_IntVar_from_term(space,YAP_ARG5);
+  IntVarArgs X6 = gecode_IntVarArgs_from_term(space,YAP_ARG6);
+  IntVar X7 = gecode_IntVar_from_term(space,YAP_ARG7);
+  IntConLevel X8 = gecode_IntConLevel_from_term(YAP_ARG8);
+  path(*space,X2,X3,X4,X5,X6,X7,X8);
+  return TRUE;
+}
+
+static int gecode_constraint_unary_356(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  TaskTypeArgs X2 = gecode_TaskTypeArgs_from_term(YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntArgs X4 = gecode_IntArgs_from_term(YAP_ARG4);
+  BoolVarArgs X5 = gecode_BoolVarArgs_from_term(space,YAP_ARG5);
+  unary(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_unary_359(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  TaskTypeArgs X2 = gecode_TaskTypeArgs_from_term(YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntArgs X4 = gecode_IntArgs_from_term(YAP_ARG4);
+  IntConLevel X5 = gecode_IntConLevel_from_term(YAP_ARG5);
+  unary(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_unary_352(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntVarArgs X4 = gecode_IntVarArgs_from_term(space,YAP_ARG4);
+  BoolVarArgs X5 = gecode_BoolVarArgs_from_term(space,YAP_ARG5);
+  unary(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_unary_355(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntVarArgs X4 = gecode_IntVarArgs_from_term(space,YAP_ARG4);
+  IntConLevel X5 = gecode_IntConLevel_from_term(YAP_ARG5);
+  unary(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_unary_349(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntArgs X3 = gecode_IntArgs_from_term(YAP_ARG3);
+  BoolVarArgs X4 = gecode_BoolVarArgs_from_term(space,YAP_ARG4);
+  IntConLevel X5 = gecode_IntConLevel_from_term(YAP_ARG5);
+  unary(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_sorted_340(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntVarArgs X4 = gecode_IntVarArgs_from_term(space,YAP_ARG4);
+  sorted(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_sorted_343(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntConLevel X4 = gecode_IntConLevel_from_term(YAP_ARG4);
+  sorted(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_element_161(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  IntVar X5 = gecode_IntVar_from_term(space,YAP_ARG5);
+  int X6 = gecode_int_from_term(YAP_ARG6);
+  IntVar X7 = gecode_IntVar_from_term(space,YAP_ARG7);
+  IntConLevel X8 = gecode_IntConLevel_from_term(YAP_ARG8);
+  element(*space,X2,X3,X4,X5,X6,X7,X8);
+  return TRUE;
+}
+
+static int gecode_constraint_element_155(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolVarArgs X2 = gecode_BoolVarArgs_from_term(space,YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  IntVar X5 = gecode_IntVar_from_term(space,YAP_ARG5);
+  int X6 = gecode_int_from_term(YAP_ARG6);
+  BoolVar X7 = gecode_BoolVar_from_term(space,YAP_ARG7);
+  IntConLevel X8 = gecode_IntConLevel_from_term(YAP_ARG8);
+  element(*space,X2,X3,X4,X5,X6,X7,X8);
+  return TRUE;
+}
+
+static int gecode_constraint_element_173(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntArgs X2 = gecode_IntArgs_from_term(YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  IntVar X5 = gecode_IntVar_from_term(space,YAP_ARG5);
+  int X6 = gecode_int_from_term(YAP_ARG6);
+  IntVar X7 = gecode_IntVar_from_term(space,YAP_ARG7);
+  IntConLevel X8 = gecode_IntConLevel_from_term(YAP_ARG8);
+  element(*space,X2,X3,X4,X5,X6,X7,X8);
+  return TRUE;
+}
+
+static int gecode_constraint_element_171(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntArgs X2 = gecode_IntArgs_from_term(YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  IntVar X5 = gecode_IntVar_from_term(space,YAP_ARG5);
+  int X6 = gecode_int_from_term(YAP_ARG6);
+  BoolVar X7 = gecode_BoolVar_from_term(space,YAP_ARG7);
+  IntConLevel X8 = gecode_IntConLevel_from_term(YAP_ARG8);
+  element(*space,X2,X3,X4,X5,X6,X7,X8);
+  return TRUE;
+}
+
+static int gecode_constraint_element_159(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  IntConLevel X5 = gecode_IntConLevel_from_term(YAP_ARG5);
+  element(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_element_163(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  IntVar X4 = gecode_IntVar_from_term(space,YAP_ARG4);
+  IntConLevel X5 = gecode_IntConLevel_from_term(YAP_ARG5);
+  element(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_element_153(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolVarArgs X2 = gecode_BoolVarArgs_from_term(space,YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  IntConLevel X5 = gecode_IntConLevel_from_term(YAP_ARG5);
+  element(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_element_151(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolVarArgs X2 = gecode_BoolVarArgs_from_term(space,YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  BoolVar X4 = gecode_BoolVar_from_term(space,YAP_ARG4);
+  IntConLevel X5 = gecode_IntConLevel_from_term(YAP_ARG5);
+  element(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_element_182(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  SetOpType X2 = gecode_SetOpType_from_term(YAP_ARG2);
+  SetVarArgs X3 = gecode_SetVarArgs_from_term(space,YAP_ARG3);
+  SetVar X4 = gecode_SetVar_from_term(space,YAP_ARG4);
+  SetVar X5 = gecode_SetVar_from_term(space,YAP_ARG5);
+  element(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_element_180(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  SetOpType X2 = gecode_SetOpType_from_term(YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  SetVar X4 = gecode_SetVar_from_term(space,YAP_ARG4);
+  SetVar X5 = gecode_SetVar_from_term(space,YAP_ARG5);
+  element(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_element_178(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  SetOpType X2 = gecode_SetOpType_from_term(YAP_ARG2);
+  IntSetArgs X3 = gecode_IntSetArgs_from_term(YAP_ARG3);
+  SetVar X4 = gecode_SetVar_from_term(space,YAP_ARG4);
+  SetVar X5 = gecode_SetVar_from_term(space,YAP_ARG5);
+  element(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_element_176(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  SetOpType X2 = gecode_SetOpType_from_term(YAP_ARG2);
+  IntArgs X3 = gecode_IntArgs_from_term(YAP_ARG3);
+  SetVar X4 = gecode_SetVar_from_term(space,YAP_ARG4);
+  SetVar X5 = gecode_SetVar_from_term(space,YAP_ARG5);
+  element(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_element_169(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntArgs X2 = gecode_IntArgs_from_term(YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  IntConLevel X5 = gecode_IntConLevel_from_term(YAP_ARG5);
+  element(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_element_175(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntArgs X2 = gecode_IntArgs_from_term(YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  IntVar X4 = gecode_IntVar_from_term(space,YAP_ARG4);
+  IntConLevel X5 = gecode_IntConLevel_from_term(YAP_ARG5);
+  element(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_element_167(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntArgs X2 = gecode_IntArgs_from_term(YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  BoolVar X4 = gecode_BoolVar_from_term(space,YAP_ARG4);
+  IntConLevel X5 = gecode_IntConLevel_from_term(YAP_ARG5);
+  element(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_sequence_339(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  SetVarArgs X2 = gecode_SetVarArgs_from_term(space,YAP_ARG2);
+  SetVar X3 = gecode_SetVar_from_term(space,YAP_ARG3);
+  sequence(*space,X2,X3);
+  return TRUE;
+}
+
+static int gecode_constraint_circuit_39(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntArgs X2 = gecode_IntArgs_from_term(YAP_ARG2);
+  int X3 = gecode_int_from_term(YAP_ARG3);
+  IntVarArgs X4 = gecode_IntVarArgs_from_term(space,YAP_ARG4);
+  IntVarArgs X5 = gecode_IntVarArgs_from_term(space,YAP_ARG5);
+  IntVar X6 = gecode_IntVar_from_term(space,YAP_ARG6);
+  IntConLevel X7 = gecode_IntConLevel_from_term(YAP_ARG7);
+  circuit(*space,X2,X3,X4,X5,X6,X7);
+  return TRUE;
+}
+
+static int gecode_constraint_precede_274(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  SetVarArgs X2 = gecode_SetVarArgs_from_term(space,YAP_ARG2);
+  IntArgs X3 = gecode_IntArgs_from_term(YAP_ARG3);
+  precede(*space,X2,X3);
+  return TRUE;
+}
+
+static int gecode_constraint_precede_270(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntArgs X3 = gecode_IntArgs_from_term(YAP_ARG3);
+  precede(*space,X2,X3);
+  return TRUE;
+}
+
+static int gecode_constraint_cumulative_88(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  int X2 = gecode_int_from_term(YAP_ARG2);
+  TaskTypeArgs X3 = gecode_TaskTypeArgs_from_term(YAP_ARG3);
+  IntVarArgs X4 = gecode_IntVarArgs_from_term(space,YAP_ARG4);
+  IntArgs X5 = gecode_IntArgs_from_term(YAP_ARG5);
+  IntArgs X6 = gecode_IntArgs_from_term(YAP_ARG6);
+  cumulative(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_cumulative_84(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  int X2 = gecode_int_from_term(YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntVarArgs X4 = gecode_IntVarArgs_from_term(space,YAP_ARG4);
+  IntVarArgs X5 = gecode_IntVarArgs_from_term(space,YAP_ARG5);
+  IntArgs X6 = gecode_IntArgs_from_term(YAP_ARG6);
+  cumulative(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_cumulative_78(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  int X2 = gecode_int_from_term(YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntArgs X4 = gecode_IntArgs_from_term(YAP_ARG4);
+  IntArgs X5 = gecode_IntArgs_from_term(YAP_ARG5);
+  BoolVarArgs X6 = gecode_BoolVarArgs_from_term(space,YAP_ARG6);
+  cumulative(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_cumulative_81(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  int X2 = gecode_int_from_term(YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntArgs X4 = gecode_IntArgs_from_term(YAP_ARG4);
+  IntArgs X5 = gecode_IntArgs_from_term(YAP_ARG5);
+  IntConLevel X6 = gecode_IntConLevel_from_term(YAP_ARG6);
+  cumulative(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_cumulative_100(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVar X2 = gecode_IntVar_from_term(space,YAP_ARG2);
+  TaskTypeArgs X3 = gecode_TaskTypeArgs_from_term(YAP_ARG3);
+  IntVarArgs X4 = gecode_IntVarArgs_from_term(space,YAP_ARG4);
+  IntArgs X5 = gecode_IntArgs_from_term(YAP_ARG5);
+  IntArgs X6 = gecode_IntArgs_from_term(YAP_ARG6);
+  cumulative(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_cumulative_96(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVar X2 = gecode_IntVar_from_term(space,YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntVarArgs X4 = gecode_IntVarArgs_from_term(space,YAP_ARG4);
+  IntVarArgs X5 = gecode_IntVarArgs_from_term(space,YAP_ARG5);
+  IntArgs X6 = gecode_IntArgs_from_term(YAP_ARG6);
+  cumulative(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_cumulative_90(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVar X2 = gecode_IntVar_from_term(space,YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntArgs X4 = gecode_IntArgs_from_term(YAP_ARG4);
+  IntArgs X5 = gecode_IntArgs_from_term(YAP_ARG5);
+  BoolVarArgs X6 = gecode_BoolVarArgs_from_term(space,YAP_ARG6);
+  cumulative(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_cumulative_93(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVar X2 = gecode_IntVar_from_term(space,YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntArgs X4 = gecode_IntArgs_from_term(YAP_ARG4);
+  IntArgs X5 = gecode_IntArgs_from_term(YAP_ARG5);
+  IntConLevel X6 = gecode_IntConLevel_from_term(YAP_ARG6);
+  cumulative(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_distinct_119(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntArgs X2 = gecode_IntArgs_from_term(YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntConLevel X4 = gecode_IntConLevel_from_term(YAP_ARG4);
+  distinct(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_min_230(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  min(*space,X2,X3);
+  return TRUE;
+}
+
+static int gecode_constraint_min_234(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  SetVar X2 = gecode_SetVar_from_term(space,YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  min(*space,X2,X3);
+  return TRUE;
+}
+
+static int gecode_constraint_sqrt_347(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVar X2 = gecode_IntVar_from_term(space,YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  IntConLevel X4 = gecode_IntConLevel_from_term(YAP_ARG4);
+  sqrt(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_sequence_336(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntSet X3 = gecode_IntSet_from_term(YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  int X5 = gecode_int_from_term(YAP_ARG5);
+  int X6 = gecode_int_from_term(YAP_ARG6);
+  sequence(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_sequence_334(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolVarArgs X2 = gecode_BoolVarArgs_from_term(space,YAP_ARG2);
+  IntSet X3 = gecode_IntSet_from_term(YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  int X5 = gecode_int_from_term(YAP_ARG5);
+  int X6 = gecode_int_from_term(YAP_ARG6);
+  sequence(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_unshare_363(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntConLevel X3 = gecode_IntConLevel_from_term(YAP_ARG3);
+  unshare(*space,X2,X3);
+  return TRUE;
+}
+
+static int gecode_constraint_unshare_361(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolVarArgs X2 = gecode_BoolVarArgs_from_term(space,YAP_ARG2);
+  IntConLevel X3 = gecode_IntConLevel_from_term(YAP_ARG3);
+  unshare(*space,X2,X3);
+  return TRUE;
+}
+
+static int gecode_constraint_path_269(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  int X2 = gecode_int_from_term(YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntVar X4 = gecode_IntVar_from_term(space,YAP_ARG4);
+  IntVar X5 = gecode_IntVar_from_term(space,YAP_ARG5);
+  IntConLevel X6 = gecode_IntConLevel_from_term(YAP_ARG6);
+  path(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_path_260(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntArgs X2 = gecode_IntArgs_from_term(YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntVar X4 = gecode_IntVar_from_term(space,YAP_ARG4);
+  IntVar X5 = gecode_IntVar_from_term(space,YAP_ARG5);
+  IntVar X6 = gecode_IntVar_from_term(space,YAP_ARG6);
+  path(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_divmod_124(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVar X2 = gecode_IntVar_from_term(space,YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  IntVar X4 = gecode_IntVar_from_term(space,YAP_ARG4);
+  IntVar X5 = gecode_IntVar_from_term(space,YAP_ARG5);
+  divmod(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_nooverlap_245(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntVarArgs X4 = gecode_IntVarArgs_from_term(space,YAP_ARG4);
+  IntVarArgs X5 = gecode_IntVarArgs_from_term(space,YAP_ARG5);
+  IntVarArgs X6 = gecode_IntVarArgs_from_term(space,YAP_ARG6);
+  IntVarArgs X7 = gecode_IntVarArgs_from_term(space,YAP_ARG7);
+  BoolVarArgs X8 = gecode_BoolVarArgs_from_term(space,YAP_ARG8);
+  IntConLevel X9 = gecode_IntConLevel_from_term(YAP_ARG9);
+  nooverlap(*space,X2,X3,X4,X5,X6,X7,X8,X9);
+  return TRUE;
+}
+
+static int gecode_constraint_cumulative_80(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  int X2 = gecode_int_from_term(YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntArgs X4 = gecode_IntArgs_from_term(YAP_ARG4);
+  IntArgs X5 = gecode_IntArgs_from_term(YAP_ARG5);
+  cumulative(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_cumulative_92(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVar X2 = gecode_IntVar_from_term(space,YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntArgs X4 = gecode_IntArgs_from_term(YAP_ARG4);
+  IntArgs X5 = gecode_IntArgs_from_term(YAP_ARG5);
+  cumulative(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_member_228(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  member(*space,X2,X3);
+  return TRUE;
+}
+
+static int gecode_constraint_member_224(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolVarArgs X2 = gecode_BoolVarArgs_from_term(space,YAP_ARG2);
+  BoolVar X3 = gecode_BoolVar_from_term(space,YAP_ARG3);
+  member(*space,X2,X3);
+  return TRUE;
+}
+
+static int gecode_constraint_count_71(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  int X3 = gecode_int_from_term(YAP_ARG3);
+  IntRelType X4 = gecode_IntRelType_from_term(YAP_ARG4);
+  int X5 = gecode_int_from_term(YAP_ARG5);
+  IntConLevel X6 = gecode_IntConLevel_from_term(YAP_ARG6);
+  count(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_count_73(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  int X3 = gecode_int_from_term(YAP_ARG3);
+  IntRelType X4 = gecode_IntRelType_from_term(YAP_ARG4);
+  IntVar X5 = gecode_IntVar_from_term(space,YAP_ARG5);
+  IntConLevel X6 = gecode_IntConLevel_from_term(YAP_ARG6);
+  count(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_count_75(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  IntRelType X4 = gecode_IntRelType_from_term(YAP_ARG4);
+  int X5 = gecode_int_from_term(YAP_ARG5);
+  IntConLevel X6 = gecode_IntConLevel_from_term(YAP_ARG6);
+  count(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_count_77(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  IntRelType X4 = gecode_IntRelType_from_term(YAP_ARG4);
+  IntVar X5 = gecode_IntVar_from_term(space,YAP_ARG5);
+  IntConLevel X6 = gecode_IntConLevel_from_term(YAP_ARG6);
+  count(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_count_63(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntSet X3 = gecode_IntSet_from_term(YAP_ARG3);
+  IntRelType X4 = gecode_IntRelType_from_term(YAP_ARG4);
+  int X5 = gecode_int_from_term(YAP_ARG5);
+  IntConLevel X6 = gecode_IntConLevel_from_term(YAP_ARG6);
+  count(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_count_65(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntSet X3 = gecode_IntSet_from_term(YAP_ARG3);
+  IntRelType X4 = gecode_IntRelType_from_term(YAP_ARG4);
+  IntVar X5 = gecode_IntVar_from_term(space,YAP_ARG5);
+  IntConLevel X6 = gecode_IntConLevel_from_term(YAP_ARG6);
+  count(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_count_53(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntArgs X3 = gecode_IntArgs_from_term(YAP_ARG3);
+  IntRelType X4 = gecode_IntRelType_from_term(YAP_ARG4);
+  int X5 = gecode_int_from_term(YAP_ARG5);
+  IntConLevel X6 = gecode_IntConLevel_from_term(YAP_ARG6);
+  count(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_count_55(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntArgs X3 = gecode_IntArgs_from_term(YAP_ARG3);
+  IntRelType X4 = gecode_IntRelType_from_term(YAP_ARG4);
+  IntVar X5 = gecode_IntVar_from_term(space,YAP_ARG5);
+  IntConLevel X6 = gecode_IntConLevel_from_term(YAP_ARG6);
+  count(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_notMin_249(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  SetVar X2 = gecode_SetVar_from_term(space,YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  notMin(*space,X2,X3);
+  return TRUE;
+}
+
+static int gecode_constraint_cumulative_87(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  int X2 = gecode_int_from_term(YAP_ARG2);
+  TaskTypeArgs X3 = gecode_TaskTypeArgs_from_term(YAP_ARG3);
+  IntVarArgs X4 = gecode_IntVarArgs_from_term(space,YAP_ARG4);
+  IntArgs X5 = gecode_IntArgs_from_term(YAP_ARG5);
+  IntArgs X6 = gecode_IntArgs_from_term(YAP_ARG6);
+  BoolVarArgs X7 = gecode_BoolVarArgs_from_term(space,YAP_ARG7);
+  IntConLevel X8 = gecode_IntConLevel_from_term(YAP_ARG8);
+  cumulative(*space,X2,X3,X4,X5,X6,X7,X8);
+  return TRUE;
+}
+
+static int gecode_constraint_cumulative_83(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  int X2 = gecode_int_from_term(YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntVarArgs X4 = gecode_IntVarArgs_from_term(space,YAP_ARG4);
+  IntVarArgs X5 = gecode_IntVarArgs_from_term(space,YAP_ARG5);
+  IntArgs X6 = gecode_IntArgs_from_term(YAP_ARG6);
+  BoolVarArgs X7 = gecode_BoolVarArgs_from_term(space,YAP_ARG7);
+  IntConLevel X8 = gecode_IntConLevel_from_term(YAP_ARG8);
+  cumulative(*space,X2,X3,X4,X5,X6,X7,X8);
+  return TRUE;
+}
+
+static int gecode_constraint_cumulative_99(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVar X2 = gecode_IntVar_from_term(space,YAP_ARG2);
+  TaskTypeArgs X3 = gecode_TaskTypeArgs_from_term(YAP_ARG3);
+  IntVarArgs X4 = gecode_IntVarArgs_from_term(space,YAP_ARG4);
+  IntArgs X5 = gecode_IntArgs_from_term(YAP_ARG5);
+  IntArgs X6 = gecode_IntArgs_from_term(YAP_ARG6);
+  BoolVarArgs X7 = gecode_BoolVarArgs_from_term(space,YAP_ARG7);
+  IntConLevel X8 = gecode_IntConLevel_from_term(YAP_ARG8);
+  cumulative(*space,X2,X3,X4,X5,X6,X7,X8);
+  return TRUE;
+}
+
+static int gecode_constraint_cumulative_95(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVar X2 = gecode_IntVar_from_term(space,YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntVarArgs X4 = gecode_IntVarArgs_from_term(space,YAP_ARG4);
+  IntVarArgs X5 = gecode_IntVarArgs_from_term(space,YAP_ARG5);
+  IntArgs X6 = gecode_IntArgs_from_term(YAP_ARG6);
+  BoolVarArgs X7 = gecode_BoolVarArgs_from_term(space,YAP_ARG7);
+  IntConLevel X8 = gecode_IntConLevel_from_term(YAP_ARG8);
+  cumulative(*space,X2,X3,X4,X5,X6,X7,X8);
+  return TRUE;
+}
+
+static int gecode_constraint_branch_16(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVar X2 = gecode_IntVar_from_term(space,YAP_ARG2);
+  IntValBranch X3 = gecode_IntValBranch_from_term(YAP_ARG3);
+  branch(*space,X2,X3);
+  return TRUE;
+}
+
+static int gecode_constraint_branch_12(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolVar X2 = gecode_BoolVar_from_term(space,YAP_ARG2);
+  IntValBranch X3 = gecode_IntValBranch_from_term(YAP_ARG3);
+  branch(*space,X2,X3);
+  return TRUE;
+}
+
+static int gecode_constraint_branch_17(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  SetVar X2 = gecode_SetVar_from_term(space,YAP_ARG2);
+  SetValBranch X3 = gecode_SetValBranch_from_term(YAP_ARG3);
+  branch(*space,X2,X3);
+  return TRUE;
+}
+
+static int gecode_constraint_dom_140(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVar X2 = gecode_IntVar_from_term(space,YAP_ARG2);
+  int X3 = gecode_int_from_term(YAP_ARG3);
+  dom(*space,X2,X3);
+  return TRUE;
+}
+
+static int gecode_constraint_dom_134(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVar X2 = gecode_IntVar_from_term(space,YAP_ARG2);
+  IntSet X3 = gecode_IntSet_from_term(YAP_ARG3);
+  dom(*space,X2,X3);
+  return TRUE;
+}
+
+static int gecode_constraint_dom_128(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  int X3 = gecode_int_from_term(YAP_ARG3);
+  dom(*space,X2,X3);
+  return TRUE;
+}
+
+static int gecode_constraint_dom_126(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntSet X3 = gecode_IntSet_from_term(YAP_ARG3);
+  dom(*space,X2,X3);
+  return TRUE;
+}
+
+static int gecode_constraint_linear_208(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntRelType X3 = gecode_IntRelType_from_term(YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  BoolVar X5 = gecode_BoolVar_from_term(space,YAP_ARG5);
+  linear(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_linear_211(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntRelType X3 = gecode_IntRelType_from_term(YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  IntConLevel X5 = gecode_IntConLevel_from_term(YAP_ARG5);
+  linear(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_linear_212(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntRelType X3 = gecode_IntRelType_from_term(YAP_ARG3);
+  IntVar X4 = gecode_IntVar_from_term(space,YAP_ARG4);
+  BoolVar X5 = gecode_BoolVar_from_term(space,YAP_ARG5);
+  linear(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_linear_215(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntRelType X3 = gecode_IntRelType_from_term(YAP_ARG3);
+  IntVar X4 = gecode_IntVar_from_term(space,YAP_ARG4);
+  IntConLevel X5 = gecode_IntConLevel_from_term(YAP_ARG5);
+  linear(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_linear_184(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolVarArgs X2 = gecode_BoolVarArgs_from_term(space,YAP_ARG2);
+  IntRelType X3 = gecode_IntRelType_from_term(YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  BoolVar X5 = gecode_BoolVar_from_term(space,YAP_ARG5);
+  linear(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_linear_187(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolVarArgs X2 = gecode_BoolVarArgs_from_term(space,YAP_ARG2);
+  IntRelType X3 = gecode_IntRelType_from_term(YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  IntConLevel X5 = gecode_IntConLevel_from_term(YAP_ARG5);
+  linear(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_linear_188(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolVarArgs X2 = gecode_BoolVarArgs_from_term(space,YAP_ARG2);
+  IntRelType X3 = gecode_IntRelType_from_term(YAP_ARG3);
+  IntVar X4 = gecode_IntVar_from_term(space,YAP_ARG4);
+  BoolVar X5 = gecode_BoolVar_from_term(space,YAP_ARG5);
+  linear(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_linear_191(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolVarArgs X2 = gecode_BoolVarArgs_from_term(space,YAP_ARG2);
+  IntRelType X3 = gecode_IntRelType_from_term(YAP_ARG3);
+  IntVar X4 = gecode_IntVar_from_term(space,YAP_ARG4);
+  IntConLevel X5 = gecode_IntConLevel_from_term(YAP_ARG5);
+  linear(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_linear_202(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntArgs X2 = gecode_IntArgs_from_term(YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntRelType X4 = gecode_IntRelType_from_term(YAP_ARG4);
+  int X5 = gecode_int_from_term(YAP_ARG5);
+  linear(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_linear_206(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntArgs X2 = gecode_IntArgs_from_term(YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  IntRelType X4 = gecode_IntRelType_from_term(YAP_ARG4);
+  IntVar X5 = gecode_IntVar_from_term(space,YAP_ARG5);
+  linear(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_linear_194(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntArgs X2 = gecode_IntArgs_from_term(YAP_ARG2);
+  BoolVarArgs X3 = gecode_BoolVarArgs_from_term(space,YAP_ARG3);
+  IntRelType X4 = gecode_IntRelType_from_term(YAP_ARG4);
+  int X5 = gecode_int_from_term(YAP_ARG5);
+  linear(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_linear_198(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntArgs X2 = gecode_IntArgs_from_term(YAP_ARG2);
+  BoolVarArgs X3 = gecode_BoolVarArgs_from_term(space,YAP_ARG3);
+  IntRelType X4 = gecode_IntRelType_from_term(YAP_ARG4);
+  IntVar X5 = gecode_IntVar_from_term(space,YAP_ARG5);
+  linear(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_nooverlap_240(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntArgs X3 = gecode_IntArgs_from_term(YAP_ARG3);
+  IntVarArgs X4 = gecode_IntVarArgs_from_term(space,YAP_ARG4);
+  IntArgs X5 = gecode_IntArgs_from_term(YAP_ARG5);
+  BoolVarArgs X6 = gecode_BoolVarArgs_from_term(space,YAP_ARG6);
+  nooverlap(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_nooverlap_243(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntArgs X3 = gecode_IntArgs_from_term(YAP_ARG3);
+  IntVarArgs X4 = gecode_IntVarArgs_from_term(space,YAP_ARG4);
+  IntArgs X5 = gecode_IntArgs_from_term(YAP_ARG5);
+  IntConLevel X6 = gecode_IntConLevel_from_term(YAP_ARG6);
+  nooverlap(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_element_183(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  SetOpType X2 = gecode_SetOpType_from_term(YAP_ARG2);
+  SetVarArgs X3 = gecode_SetVarArgs_from_term(space,YAP_ARG3);
+  SetVar X4 = gecode_SetVar_from_term(space,YAP_ARG4);
+  SetVar X5 = gecode_SetVar_from_term(space,YAP_ARG5);
+  IntSet X6 = gecode_IntSet_from_term(YAP_ARG6);
+  element(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_element_181(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  SetOpType X2 = gecode_SetOpType_from_term(YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  SetVar X4 = gecode_SetVar_from_term(space,YAP_ARG4);
+  SetVar X5 = gecode_SetVar_from_term(space,YAP_ARG5);
+  IntSet X6 = gecode_IntSet_from_term(YAP_ARG6);
+  element(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_element_179(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  SetOpType X2 = gecode_SetOpType_from_term(YAP_ARG2);
+  IntSetArgs X3 = gecode_IntSetArgs_from_term(YAP_ARG3);
+  SetVar X4 = gecode_SetVar_from_term(space,YAP_ARG4);
+  SetVar X5 = gecode_SetVar_from_term(space,YAP_ARG5);
+  IntSet X6 = gecode_IntSet_from_term(YAP_ARG6);
+  element(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_element_177(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  SetOpType X2 = gecode_SetOpType_from_term(YAP_ARG2);
+  IntArgs X3 = gecode_IntArgs_from_term(YAP_ARG3);
+  SetVar X4 = gecode_SetVar_from_term(space,YAP_ARG4);
+  SetVar X5 = gecode_SetVar_from_term(space,YAP_ARG5);
+  IntSet X6 = gecode_IntSet_from_term(YAP_ARG6);
+  element(*space,X2,X3,X4,X5,X6);
+  return TRUE;
+}
+
+static int gecode_constraint_rel_290(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolVar X2 = gecode_BoolVar_from_term(space,YAP_ARG2);
+  IntRelType X3 = gecode_IntRelType_from_term(YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  rel(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_rel_286(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolVar X2 = gecode_BoolVar_from_term(space,YAP_ARG2);
+  IntRelType X3 = gecode_IntRelType_from_term(YAP_ARG3);
+  BoolVar X4 = gecode_BoolVar_from_term(space,YAP_ARG4);
+  rel(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_rel_298(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolVarArgs X2 = gecode_BoolVarArgs_from_term(space,YAP_ARG2);
+  IntRelType X3 = gecode_IntRelType_from_term(YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  rel(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_rel_294(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolVarArgs X2 = gecode_BoolVarArgs_from_term(space,YAP_ARG2);
+  IntRelType X3 = gecode_IntRelType_from_term(YAP_ARG3);
+  BoolVarArgs X4 = gecode_BoolVarArgs_from_term(space,YAP_ARG4);
+  rel(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_rel_292(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolVarArgs X2 = gecode_BoolVarArgs_from_term(space,YAP_ARG2);
+  IntRelType X3 = gecode_IntRelType_from_term(YAP_ARG3);
+  BoolVar X4 = gecode_BoolVar_from_term(space,YAP_ARG4);
+  rel(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_rel_297(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolVarArgs X2 = gecode_BoolVarArgs_from_term(space,YAP_ARG2);
+  IntRelType X3 = gecode_IntRelType_from_term(YAP_ARG3);
+  IntConLevel X4 = gecode_IntConLevel_from_term(YAP_ARG4);
+  rel(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_rel_324(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  SetOpType X2 = gecode_SetOpType_from_term(YAP_ARG2);
+  SetVarArgs X3 = gecode_SetVarArgs_from_term(space,YAP_ARG3);
+  SetVar X4 = gecode_SetVar_from_term(space,YAP_ARG4);
+  rel(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_rel_322(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  SetOpType X2 = gecode_SetOpType_from_term(YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  SetVar X4 = gecode_SetVar_from_term(space,YAP_ARG4);
+  rel(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_rel_306(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntRelType X3 = gecode_IntRelType_from_term(YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  rel(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_rel_308(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntRelType X3 = gecode_IntRelType_from_term(YAP_ARG3);
+  IntVar X4 = gecode_IntVar_from_term(space,YAP_ARG4);
+  rel(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_rel_302(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntRelType X3 = gecode_IntRelType_from_term(YAP_ARG3);
+  IntVarArgs X4 = gecode_IntVarArgs_from_term(space,YAP_ARG4);
+  rel(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_rel_305(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntRelType X3 = gecode_IntRelType_from_term(YAP_ARG3);
+  IntConLevel X4 = gecode_IntConLevel_from_term(YAP_ARG4);
+  rel(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_rel_312(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVar X2 = gecode_IntVar_from_term(space,YAP_ARG2);
+  IntRelType X3 = gecode_IntRelType_from_term(YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  rel(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_rel_316(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVar X2 = gecode_IntVar_from_term(space,YAP_ARG2);
+  IntRelType X3 = gecode_IntRelType_from_term(YAP_ARG3);
+  IntVar X4 = gecode_IntVar_from_term(space,YAP_ARG4);
+  rel(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_rel_318(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVar X2 = gecode_IntVar_from_term(space,YAP_ARG2);
+  IntRelType X3 = gecode_IntRelType_from_term(YAP_ARG3);
+  SetVar X4 = gecode_SetVar_from_term(space,YAP_ARG4);
+  rel(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_rel_319(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVar X2 = gecode_IntVar_from_term(space,YAP_ARG2);
+  SetRelType X3 = gecode_SetRelType_from_term(YAP_ARG3);
+  SetVar X4 = gecode_SetVar_from_term(space,YAP_ARG4);
+  rel(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_rel_325(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  SetVar X2 = gecode_SetVar_from_term(space,YAP_ARG2);
+  IntRelType X3 = gecode_IntRelType_from_term(YAP_ARG3);
+  IntVar X4 = gecode_IntVar_from_term(space,YAP_ARG4);
+  rel(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_rel_330(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  SetVar X2 = gecode_SetVar_from_term(space,YAP_ARG2);
+  SetRelType X3 = gecode_SetRelType_from_term(YAP_ARG3);
+  IntVar X4 = gecode_IntVar_from_term(space,YAP_ARG4);
+  rel(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_rel_332(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  SetVar X2 = gecode_SetVar_from_term(space,YAP_ARG2);
+  SetRelType X3 = gecode_SetRelType_from_term(YAP_ARG3);
+  SetVar X4 = gecode_SetVar_from_term(space,YAP_ARG4);
+  rel(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_rel_278(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolOpType X2 = gecode_BoolOpType_from_term(YAP_ARG2);
+  BoolVarArgs X3 = gecode_BoolVarArgs_from_term(space,YAP_ARG3);
+  int X4 = gecode_int_from_term(YAP_ARG4);
+  rel(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_rel_276(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  BoolOpType X2 = gecode_BoolOpType_from_term(YAP_ARG2);
+  BoolVarArgs X3 = gecode_BoolVarArgs_from_term(space,YAP_ARG3);
+  BoolVar X4 = gecode_BoolVar_from_term(space,YAP_ARG4);
+  rel(*space,X2,X3,X4);
+  return TRUE;
+}
+
+static int gecode_constraint_min_233(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVar X2 = gecode_IntVar_from_term(space,YAP_ARG2);
+  IntVar X3 = gecode_IntVar_from_term(space,YAP_ARG3);
+  IntVar X4 = gecode_IntVar_from_term(space,YAP_ARG4);
+  IntConLevel X5 = gecode_IntConLevel_from_term(YAP_ARG5);
+  min(*space,X2,X3,X4,X5);
+  return TRUE;
+}
+
+static int gecode_constraint_count_68(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntVarArgs X3 = gecode_IntVarArgs_from_term(space,YAP_ARG3);
+  count(*space,X2,X3);
+  return TRUE;
+}
+
+static int gecode_constraint_count_58(void)
+{
+  GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
+  IntVarArgs X2 = gecode_IntVarArgs_from_term(space,YAP_ARG2);
+  IntSetArgs X3 = gecode_IntSetArgs_from_term(YAP_ARG3);
+  count(*space,X2,X3);
+  return TRUE;
+}
+
