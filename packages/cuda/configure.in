@@ -1,0 +1,47 @@
+AC_ARG_WITH(cuda,
+	[ --enable-cuda           use minisat interface],
+	if test "$withval" = yes; then
+		yap_cv_cuda=/usr
+	elif test "$withval" = no; then
+		yap_cv_cuda=no
+	else
+		yap_cv_cuda="$withval"
+	fi,
+	[yap_cv_cuda=no])
+
+
+CUDA_LDFLAGS=""
+CUDA_CPPFLAGS=""
+if test "$yap_cv_cuda" = no 
+then
+  ENABLE_CUDA="@# "
+else
+  AC_PATH_PROG(NVCC, [nvcc], [no], [$yap_cv_cuda/bin])
+  if test "$yap_cv_cuda" = no
+  then
+    ENABLE_CUDA="@# "
+  else
+    ENABLE_CUDA=""
+    case "$target_os" in
+     *darwin*)
+       CUDA_LDFLAGS="$LDFLAGS"
+    CUDA_CPPFLAGS="-arch=sm_20  -Xcompiler -fPIC -O3 "
+    CUDA_SHLIB_LD="$NVCC  -Xcompiler -dynamiclib  -L../.. -lYap "
+     ;;
+    **)
+       CUDA_LDFLAGS="$LDFLAGS $LIBS"
+    CUDA_CPPFLAGS=" -arch=sm_20  -Xcompiler -fPIC -O3 "
+    CUDA_SHLIB_LD="$NVCC -Xcompiler -export-dynamic"
+    ;;
+    esac
+ fi
+fi
+
+AC_SUBST(ENABLE_CUDA)
+AC_SUBST(NVCC)
+AC_SUBST(CUDA_SHLIB_LD)
+AC_SUBST(CUDA_CPPFLAGS)
+AC_SUBST(CUDA_LDFLAGS)
+
+AC_CONFIG_FILES([packages/cuda/Makefile])
+
