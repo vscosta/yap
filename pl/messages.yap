@@ -522,6 +522,8 @@ prefix(warning,	      '% ',      user_error) -->
 	{ thread_self(Id) },
 	(   { Id == main }
 	->  [ 'Warning: ', nl ]
+	;   { atom(Id) }
+	->  ['Warning: [Thread ~a ]' - Id, nl ]
 	;   ['Warning: [Thread ~d ]' - Id, nl ]
 	).
 prefix(error,	      '     ',   user_error) -->
@@ -529,6 +531,8 @@ prefix(error,	      '     ',   user_error) -->
 	{ thread_self(Id) },
 	(   { Id == main }
 	->  [ 'ERROR at ' ]
+	;   { atom(Id) }
+	->  [ 'ERROR [Thread ~a ] at ' - Id ]
 	;   [ 'ERROR [Thread ~d ] at ' - Id ]
 	),
 	'$hacks':display_pc(P),
@@ -538,6 +542,8 @@ prefix(error,	      '     ',   user_error) -->
 	{ thread_self(Id) },
 	(   { Id == main }
 	->  [ 'ERROR!!', nl ]
+	;   { atom(Id) }
+	->  [ 'ERROR!! [Thread ~a ]' - Id, nl ]
 	;   [ 'ERROR!! [Thread ~d ]' - Id, nl ]
 	).
 prefix(banner,	      '',	   user_error) --> [].
