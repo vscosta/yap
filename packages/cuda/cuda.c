@@ -222,6 +222,7 @@ cuda_load_fact( void ) {
   } else {
     currentFact = i;
   }
+  return TRUE;
 }
 
 static int
