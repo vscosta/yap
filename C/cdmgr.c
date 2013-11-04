@@ -2246,6 +2246,7 @@ addclause(Term t, yamop *cp, int mode, Term mod, Term *t4ref)
   if ((pflags & (UserCPredFlag|CArgsPredFlag|NumberDBPredFlag|AtomDBPredFlag|TestPredFlag|AsmPredFlag|CPredFlag|BinaryPredFlag)) ||
       (p->ModuleOfPred == PROLOG_MODULE && 
        mod != TermProlog && mod) ) {
+    /* printf("p=%p p->PredFlags=%lx p->cs.p_code.NOfClauses=%ld\n", p, p->PredFlags, p->cs.p_code.NOfClauses) */
     addcl_permission_error(RepAtom(at), Arity, FALSE);
     UNLOCKPE(30,p);
     return TermNil;

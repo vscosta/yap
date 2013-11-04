@@ -32,7 +32,7 @@ static TrEntry FIRST_ITRIE, CURRENT_ITRIE;
 /*            API             */     
 /* -------------------------- */
 
-inline
+
 void itrie_init_module(void) {
   ITRIE_ENGINE = core_trie_init_module();
   FIRST_ITRIE = NULL;
@@ -40,7 +40,7 @@ void itrie_init_module(void) {
 }
 
 
-inline
+
 void itrie_data_save(TrNode node, FILE *file) {
   TrData data;
 
@@ -50,7 +50,7 @@ void itrie_data_save(TrNode node, FILE *file) {
 }
 
 
-inline
+
 void itrie_data_load(TrNode node, YAP_Int depth, FILE *file) {
   TrData data;
   YAP_Int pos, neg, timestamp;
@@ -62,7 +62,7 @@ void itrie_data_load(TrNode node, YAP_Int depth, FILE *file) {
 }
 
 
-inline
+
 void itrie_data_print(TrNode node) {
   TrData data;
 
@@ -72,7 +72,7 @@ void itrie_data_print(TrNode node) {
 }
 
 
-inline
+
 void itrie_data_copy(TrNode node_dest, TrNode node_source) {
   TrData data_dest, data_source;
 
@@ -83,7 +83,7 @@ void itrie_data_copy(TrNode node_dest, TrNode node_source) {
 }
 
 
-inline
+
 void itrie_data_destruct(TrNode node) {
   TrEntry itrie;
   TrData data;
@@ -102,7 +102,7 @@ void itrie_data_destruct(TrNode node) {
 }
 
 
-inline
+
 void itrie_data_add(TrNode node_dest, TrNode node_source) {
   TrData data_dest, data_source;
 
@@ -116,7 +116,7 @@ void itrie_data_add(TrNode node_dest, TrNode node_source) {
 }
 
 
-inline
+
 void itrie_data_subtract(TrNode node_dest, TrNode node_source) {
   TrData data_dest, data_source;
 
@@ -130,7 +130,7 @@ void itrie_data_subtract(TrNode node_dest, TrNode node_source) {
 }
 
 
-inline
+
 TrEntry itrie_open(void) {
   TrEntry itrie;
   TrNode node;
@@ -144,7 +144,7 @@ TrEntry itrie_open(void) {
 }
 
 
-inline
+
 void itrie_close(TrEntry itrie) {
   core_trie_close(ITRIE_ENGINE, TrEntry_trie(itrie), &itrie_data_destruct);
   if (TrEntry_next(itrie)) {
@@ -157,7 +157,7 @@ void itrie_close(TrEntry itrie) {
 }
 
 
-inline
+
 void itrie_close_all(void) {
   TrEntry itrie;
 
@@ -171,33 +171,33 @@ void itrie_close_all(void) {
 }
 
 
-inline
+
 void itrie_set_mode(TrEntry itrie, YAP_Int mode) {
   TrEntry_mode(itrie) = mode;
   return;
 }
 
 
-inline
+
 YAP_Int itrie_get_mode(TrEntry itrie) {
   return TrEntry_mode(itrie);
 }
 
 
-inline
+
 void itrie_set_timestamp(TrEntry itrie, YAP_Int timestamp) {
   TrEntry_timestamp(itrie) = timestamp;
   return;
 }
 
 
-inline
+
 YAP_Int itrie_get_timestamp(TrEntry itrie) {
   return TrEntry_timestamp(itrie);
 }
 
 
-inline
+
 void itrie_put_entry(TrEntry itrie, YAP_Term entry) {
   TrData data;
   TrNode node;
@@ -213,7 +213,7 @@ void itrie_put_entry(TrEntry itrie, YAP_Term entry) {
 }
 
 
-inline
+
 void itrie_update_entry(TrEntry itrie, YAP_Term entry) {
   TrData data;
   TrNode node;
@@ -226,7 +226,7 @@ void itrie_update_entry(TrEntry itrie, YAP_Term entry) {
 }
 
 
-inline
+
 TrData itrie_check_entry(TrEntry itrie, YAP_Term entry) {
   TrNode node;
 
@@ -236,13 +236,13 @@ TrData itrie_check_entry(TrEntry itrie, YAP_Term entry) {
 }
 
 
-inline
+
 YAP_Term itrie_get_entry(TrData data) {
   return core_trie_get_entry(TrData_leaf(data));
 }
 
 
-inline
+
 void itrie_get_data(TrData data, YAP_Int *pos, YAP_Int *neg, YAP_Int *timestamp) {
   *pos = TrData_pos(data);
   *neg = TrData_neg(data);
@@ -251,7 +251,7 @@ void itrie_get_data(TrData data, YAP_Int *pos, YAP_Int *neg, YAP_Int *timestamp)
 }
 
 
-inline
+
 TrData itrie_traverse_init(TrEntry itrie) {
   TrData data, *bucket;
   YAP_Int traverse_bucket = 0;
@@ -269,7 +269,7 @@ TrData itrie_traverse_init(TrEntry itrie) {
 }
 
 
-inline
+
 TrData itrie_traverse_cont(TrEntry itrie) {
   TrData data, *bucket;
   YAP_Int traverse_bucket;
@@ -294,35 +294,35 @@ TrData itrie_traverse_cont(TrEntry itrie) {
 }
 
 
-inline
+
 void itrie_remove_entry(TrData data) {
   core_trie_remove_entry(ITRIE_ENGINE, TrData_leaf(data), &itrie_data_destruct);
   return;
 }
 
 
-inline
+
 void itrie_remove_subtree(TrData data) {
   core_trie_remove_subtree(ITRIE_ENGINE, TrData_leaf(data), &itrie_data_destruct);
   return;
 }
 
 
-inline
+
 void itrie_add(TrEntry itrie_dest, TrEntry itrie_source) {
   core_trie_add(TrEntry_trie(itrie_dest), TrEntry_trie(itrie_source), &itrie_data_add);
   return;
 }
 
 
-inline
+
 void itrie_subtract(TrEntry itrie_dest, TrEntry itrie_source) {
   core_trie_add(TrEntry_trie(itrie_dest), TrEntry_trie(itrie_source), &itrie_data_subtract);
   return;
 }
 
 
-inline
+
 void itrie_join(TrEntry itrie_dest, TrEntry itrie_source) {
   CURRENT_ITRIE = itrie_dest;
   core_trie_join(ITRIE_ENGINE, TrEntry_trie(itrie_dest), TrEntry_trie(itrie_source), &itrie_data_add, &itrie_data_copy);
@@ -330,40 +330,40 @@ void itrie_join(TrEntry itrie_dest, TrEntry itrie_source) {
 }
 
 
-inline
+
 void itrie_intersect(TrEntry itrie_dest, TrEntry itrie_source) {
   core_trie_intersect(ITRIE_ENGINE, TrEntry_trie(itrie_dest), TrEntry_trie(itrie_source), &itrie_data_add, &itrie_data_destruct);
   return;
 }
 
 
-inline
+
 YAP_Int itrie_count_join(TrEntry itrie1, TrEntry itrie2) {
   return core_trie_count_join(TrEntry_trie(itrie1), TrEntry_trie(itrie2));
 }
 
 
-inline
+
 YAP_Int itrie_count_intersect(TrEntry itrie1, TrEntry itrie2) {
   return core_trie_count_intersect(TrEntry_trie(itrie1), TrEntry_trie(itrie2));
 }
 
 
-inline
+
 void itrie_save(TrEntry itrie, FILE *file) {
   core_trie_save(TrEntry_trie(itrie), file, &itrie_data_save);
   return;
 }
 
 
-inline
+
 void itrie_save_as_trie(TrEntry itrie, FILE *file) {
   core_trie_save(TrEntry_trie(itrie), file, NULL);
   return;
 }
 
 
-inline
+
 TrEntry itrie_load(FILE *file) {
   TrEntry itrie;
   TrNode node;
@@ -382,28 +382,28 @@ TrEntry itrie_load(FILE *file) {
 }
 
 
-inline
+
 void itrie_stats(YAP_Int *memory, YAP_Int *tries, YAP_Int *entries, YAP_Int *nodes) {
   core_trie_stats(ITRIE_ENGINE, memory, tries, entries, nodes);
   return;
 }
 
 
-inline
+
 void itrie_max_stats(YAP_Int *memory, YAP_Int *tries, YAP_Int *entries, YAP_Int *nodes) {
   core_trie_max_stats(ITRIE_ENGINE, memory, tries, entries, nodes);
   return;
 }
 
 
-inline
+
 void itrie_usage(TrEntry itrie, YAP_Int *entries, YAP_Int *nodes, YAP_Int *virtual_nodes) {
   core_trie_usage(TrEntry_trie(itrie), entries, nodes, virtual_nodes);
   return;
 }
 
 
-inline
+
 void itrie_print(TrEntry itrie) {
   core_trie_print(TrEntry_trie(itrie), &itrie_data_print);
   return;

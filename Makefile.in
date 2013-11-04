@@ -697,7 +697,7 @@ mycb: $(srcdir)/mycb.c
 	$(CC) $(CFLAGS) $(srcdir)/mycb.c -o mycb
 
 all: startup.yss
-	@ENABLE_GECODE@ @INSTALL_DLLS@ (cd library/gecode; $(MAKE))
+	@ENABLE_GECODE@ @INSTALL_DLLS@ (cd packages/gecode; $(MAKE))
 	@INSTALL_MPI@ (cd library/lammpi; $(MAKE))
 	@INSTALL_MATLAB@ (cd library/matlab; $(MAKE))
 	@INSTALL_DLLS@ (cd library/matrix; $(MAKE))
@@ -782,7 +782,7 @@ install_unix: startup.yss libYap.a
 	@INSTALL_DLLS@ (cd packages/yap-lbfgs; $(MAKE) install)
 	@INSTALL_DLLS@ (cd library/system; $(MAKE) install)
 	@INSTALL_DLLS@ (cd library/tries; $(MAKE) install)
-	@ENABLE_GECODE@ @INSTALL_DLLS@ (cd library/gecode; $(MAKE) install)
+	@ENABLE_GECODE@ @INSTALL_DLLS@ (cd packages/gecode; $(MAKE) install)
 	@ENABLE_CLIB@ @INSTALL_DLLS@ (cd packages/clib; $(MAKE) install)
 	@ENABLE_HTTP@ @INSTALL_DLLS@ (cd packages/http; $(MAKE) install)
 	@ENABLE_HTTP@ @INSTALL_DLLS@ (cd packages/http; $(MAKE) install-examples)
@@ -795,7 +795,7 @@ install_unix: startup.yss libYap.a
 	@ENABLE_RDF@ @INSTALL_DLLS@ (cd packages/RDF; $(MAKE) install)
 	@ENABLE_SEMWEB@ @INSTALL_DLLS@ (cd packages/semweb; $(MAKE) install)
 	@ENABLE_SGML@ @INSTALL_DLLS@ (cd packages/sgml; $(MAKE) install)
-	@ENABLE_ZLIB@ @INSTALL_DLLS@ (cd packages/zlib; $(MAKE) @ZLIB_INSTALL@)
+	@ENABLE_ZLIB@ @INSTALL_DLLS@ (cd packages/zlib; $(MAKE) install)
 	@ENABLE_LIBARCHIVE@ @INSTALL_DLLS@ (cd packages/archive; $(MAKE) install)
 	@ENABLE_ODBC@ @INSTALL_DLLS@ (cd packages/odbc; $(MAKE) install)
 	@ENABLE_CLPBN_BP@ @INSTALL_DLLS@ (cd packages/CLPBN/horus; $(MAKE) install)
@@ -916,7 +916,7 @@ depend: $(HEADERS) $(C_SOURCES)
 
 clean: clean_docs
 	rm -f *.o *~ *.BAK *.a
-	@ENABLE_GECODE@ @INSTALL_DLLS@ (cd library/gecode; $(MAKE) clean)
+	@ENABLE_GECODE@ @INSTALL_DLLS@ (cd packages/gecode; $(MAKE) clean)
 	@INSTALL_MPI@ (cd library/lammpi; $(MAKE) clean)
 	@INSTALL_MATLAB@ (cd library/matlab; $(MAKE) clean)
 	@INSTALL_DLLS@ (cd library/matrix; $(MAKE) clean)

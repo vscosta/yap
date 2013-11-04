@@ -16,10 +16,6 @@
 *************************************************************************/
 % module handling
 
-'$consulting_file_name'(Stream,F)  :-
-	'$file_name'(Stream, F).
-
-
 '$module'(_,N,P) :-
 	'$module_dec'(N,P).
 
@@ -77,7 +73,7 @@ module(N) :-
 
 '$module_dec'(N,P) :-
 	'$current_module'(_,N),
-	nb_getval('$consulting_file',F),
+	source_location(F, _),
 	'$add_module_on_file'(N, F, P).
 
 '$add_module_on_file'(Mod, F, Exports) :-
@@ -744,7 +740,7 @@ export_list(Module, List) :-
 	
 
 '$reexport'(ModuleSource, Spec, Module) :-
-	nb_getval('$consulting_file',TopFile),
+	source_location(CurrentFile, _),
 	(
 	 Spec == all
 	->
@@ -753,12 +749,11 @@ export_list(Module, List) :-
 	 Goal =	reexport(ModuleSource,Spec)
 	),
 	absolute_file_name(ModuleSource, File, [access(read),file_type(prolog),file_errors(fail),solutions(first),expand(true)]),
-	'$load_files'(File, [if(not_loaded),imports([])], Goal),
+	'$load_files'(File, [if(not_loaded),silent(true), imports(Spec)], Goal),
 	recorded('$module', '$module'(FullFile, Mod, Exports),_),
 	atom_concat(File, _, FullFile), !,
 	'$convert_for_reexport'(Spec, Exports, Tab, MyExports, Goal),
 	'$add_to_imports'(Tab, Module, Mod),
-	recorded('$lf_loaded','$lf_loaded'(TopFile,TopModule,_,_),_),
 	recorded('$module', '$module'(CurrentFile, Module, ModExports), Ref),
 	erase(Ref),
 	lists:append(ModExports, MyExports, AllExports),

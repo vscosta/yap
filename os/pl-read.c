@@ -347,8 +347,7 @@ void
 Yap_setCurrentSourceLocation(IOSTREAM **s)
 {
   GET_LD
-  if (!*s)
-    *s = Suser_input;
+  if (*s)
   setCurrentSourceLocation(*s PASS_LD);
 }
 #endif

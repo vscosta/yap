@@ -854,6 +854,7 @@ Yap_tokenizer(IOSTREAM *inp_stream, int store_comments, Term *tposp)
     ch = getchr(inp_stream);
   }
   *tposp = Yap_StreamPosition(inp_stream);
+  Yap_setCurrentSourceLocation(&inp_stream);
   LOCAL_StartLine = inp_stream->posbuf.lineno;
   do {
     wchar_t och;
@@ -917,6 +918,7 @@ Yap_tokenizer(IOSTREAM *inp_stream, int store_comments, Term *tposp)
 	  }
 	  CHECK_SPACE();
 	  *tposp = Yap_StreamPosition(inp_stream);
+	  Yap_setCurrentSourceLocation(&inp_stream);
 	}
 	goto restart;
       } else {
@@ -1235,6 +1237,7 @@ Yap_tokenizer(IOSTREAM *inp_stream, int store_comments, Term *tposp)
 	    }
 	    CHECK_SPACE();
 	    *tposp = Yap_StreamPosition(inp_stream);
+	    Yap_setCurrentSourceLocation(&inp_stream);
 	  }
 	}
 	goto restart;

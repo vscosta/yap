@@ -18,13 +18,6 @@
 %
 %
 %
-c(G, C, A) :-
-	'$$save_by'(CP0),
-	'$execute'(G),
-	'$$save_by'(CP1),
-	(CP0 == CP1 -> !; true ).
-
-
 true :- true.
 
 '$live' :-
@@ -61,9 +54,9 @@ true :- true.
     ),
     (
      '$access_yap_flags'(22, 0) ->
-     set_value('$verbose',on)
+	'$swi_set_prolog_flag'(verbose,  normal)
     ;
-     set_value('$verbose',off)
+	'$swi_set_prolog_flag'(verbose,  silent)
     ),
 %	'$init_preds', % needs to be done before library_directory
 %	(
@@ -107,13 +100,10 @@ true :- true.
 
 '$init_consult' :-
 	set_value('$open_expands_filename',true),
-	set_value('$lf_verbose',informational),
 	nb_setval('$assert_all',off),
 	nb_setval('$if_level',0),
 	nb_setval('$endif',off),
-	nb_setval('$consulting_file',[]),
-	nb_setval('$initialization_goals',off),
-	nb_setval('$consulting',false),
+ 	nb_setval('$initialization_goals',off),
 	nb_setval('$included_file',[]),
 	\+ '$undefined'('$init_preds',prolog),
 	'$init_preds',
@@ -995,11 +985,11 @@ not(G) :-    \+ '$execute'(G).
 '$silent_bootstrap'(F) :-
 	'$init_globals',
 	nb_setval('$if_level',0),
-	get_value('$lf_verbose',OldSilent),
-	set_value('$lf_verbose',silent),
+	'$swi_current_prolog_flag'(verbose_load, OldSilent),
+	'$swi_set_prolog_flag'(verbose_load, silent),
 	bootstrap(F),
 	% -p option must be processed after initializing the system
-	set_value('$lf_verbose', OldSilent).
+	'$swi_set_prolog_flag'(verbose_load, OldSilent).
 
 bootstrap(F) :-
 %	'$open'(F, '$csult', Stream, 0, 0, F),
@@ -1010,7 +1000,7 @@ bootstrap(F) :-
 	file_directory_name(File, Dir),
 	working_directory(OldD, Dir),
 	(
-	  get_value('$lf_verbose',silent)
+	  '$swi_current_prolog_flag'(verbose_load, silent)
 	->
 	  true
 	;
@@ -1021,7 +1011,7 @@ bootstrap(F) :-
 	working_directory(_, OldD),
 	'$end_consult',
 	(
-	  get_value('$lf_verbose',silent)
+	  '$swi_current_prolog_flag'(verbose_load, silent)
 	->
 	  true
 	;

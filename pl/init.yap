@@ -123,9 +123,6 @@ otherwise.
 
 version(yap,[6,3]).
 
-system_mode(verbose,on)  :- set_value('$verbose',on).
-system_mode(verbose,off) :- set_value('$verbose',off).
-
 :- op(1150,fx,(mode)).
 
 :- dynamic 'extensions_to_present_answer'/1.
@@ -171,7 +168,8 @@ yap_hacks:cut_by(CP) :- '$$cut_by'(CP).
 %
 % cleanup ensure loaded and recover some data-base space.
 %
-:- ( recorded('$loaded','$loaded'(_,_,_),R), erase(R), fail ; true ).
+:- ( recorded('$lf_loaded',_,R), erase(R), fail ; true ).
+:- ( recorded('$module',_,R), erase(R), fail ; true ).
 
 :- set_value('$user_module',user), '$protect'.
 
@@ -183,8 +181,6 @@ yap_hacks:cut_by(CP) :- '$$cut_by'(CP).
 % :- yap_flag(gc,on).
 
 % :- yap_flag(gc_trace,verbose).
-
-:- system_mode(verbose,on).
 
 :- multifile prolog:message/3.
 

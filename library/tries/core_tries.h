@@ -287,32 +287,32 @@ typedef struct trie_hash {
 /*             API             */
 /* --------------------------- */
 
-inline TrEngine core_trie_init_module(void);
-inline TrNode   core_trie_open(TrEngine engine);
-inline void     core_trie_close(TrEngine engine, TrNode node, void (*destruct_function)(TrNode));
-inline void     core_trie_close_all(TrEngine engine, void (*destruct_function)(TrNode));
-inline void     core_trie_set_mode(YAP_Int mode);
-inline YAP_Int  core_trie_get_mode(void);
-inline TrNode   core_trie_put_entry(TrEngine engine, TrNode node, YAP_Term entry, YAP_Int *depth);
-inline TrNode   core_trie_check_entry(TrNode node, YAP_Term entry);
-inline YAP_Term core_trie_get_entry(TrNode node);
-inline void     core_trie_remove_entry(TrEngine engine, TrNode node, void (*destruct_function)(TrNode));
-inline void     core_trie_remove_subtree(TrEngine engine, TrNode node, void (*destruct_function)(TrNode));
-inline void     core_trie_add(TrNode node_dest, TrNode node_source, void (*add_function)(TrNode, TrNode));
-inline void     core_trie_join(TrEngine engine, TrNode node_dest, TrNode node_source, void (*add_function)(TrNode, TrNode), void (*copy_function)(TrNode, TrNode));
-inline void     core_trie_intersect(TrEngine engine, TrNode node_dest, TrNode node_source, void (*add_function)(TrNode, TrNode), void (*destruct_function)(TrNode));
-inline YAP_Int  core_trie_count_join(TrNode node1, TrNode node2);
-inline YAP_Int  core_trie_count_intersect(TrNode node1, TrNode node2);
-inline void     core_trie_save(TrNode node, FILE *file, void (*save_function)(TrNode, FILE *));
-inline TrNode   core_trie_load(TrEngine engine, FILE *file, void (*load_function)(TrNode, YAP_Int, FILE *));
-inline void     core_trie_stats(TrEngine engine, YAP_Int *memory, YAP_Int *tries, YAP_Int *entries, YAP_Int *nodes);
-inline void     core_trie_max_stats(TrEngine engine, YAP_Int *memory, YAP_Int *tries, YAP_Int *entries, YAP_Int *nodes);
-inline void     core_trie_usage(TrNode node, YAP_Int *entries, YAP_Int *nodes, YAP_Int *virtual_nodes);
-inline void     core_trie_print(TrNode node, void (*print_function)(TrNode));
+TrEngine core_trie_init_module(void);
+TrNode   core_trie_open(TrEngine engine);
+void     core_trie_close(TrEngine engine, TrNode node, void (*destruct_function)(TrNode));
+void     core_trie_close_all(TrEngine engine, void (*destruct_function)(TrNode));
+void     core_trie_set_mode(YAP_Int mode);
+YAP_Int  core_trie_get_mode(void);
+TrNode   core_trie_put_entry(TrEngine engine, TrNode node, YAP_Term entry, YAP_Int *depth);
+TrNode   core_trie_check_entry(TrNode node, YAP_Term entry);
+YAP_Term core_trie_get_entry(TrNode node);
+void     core_trie_remove_entry(TrEngine engine, TrNode node, void (*destruct_function)(TrNode));
+void     core_trie_remove_subtree(TrEngine engine, TrNode node, void (*destruct_function)(TrNode));
+void     core_trie_add(TrNode node_dest, TrNode node_source, void (*add_function)(TrNode, TrNode));
+void     core_trie_join(TrEngine engine, TrNode node_dest, TrNode node_source, void (*add_function)(TrNode, TrNode), void (*copy_function)(TrNode, TrNode));
+void     core_trie_intersect(TrEngine engine, TrNode node_dest, TrNode node_source, void (*add_function)(TrNode, TrNode), void (*destruct_function)(TrNode));
+YAP_Int  core_trie_count_join(TrNode node1, TrNode node2);
+YAP_Int  core_trie_count_intersect(TrNode node1, TrNode node2);
+void     core_trie_save(TrNode node, FILE *file, void (*save_function)(TrNode, FILE *));
+TrNode   core_trie_load(TrEngine engine, FILE *file, void (*load_function)(TrNode, YAP_Int, FILE *));
+void     core_trie_stats(TrEngine engine, YAP_Int *memory, YAP_Int *tries, YAP_Int *entries, YAP_Int *nodes);
+void     core_trie_max_stats(TrEngine engine, YAP_Int *memory, YAP_Int *tries, YAP_Int *entries, YAP_Int *nodes);
+void     core_trie_usage(TrNode node, YAP_Int *entries, YAP_Int *nodes, YAP_Int *virtual_nodes);
+void     core_trie_print(TrNode node, void (*print_function)(TrNode));
 
-inline void     core_disable_hash_table(void);
-inline void     core_enable_hash_table(void);
+void     core_disable_hash_table(void);
+void     core_enable_hash_table(void);
 
-inline YAP_Term  core_trie_to_list(TrNode node);
+YAP_Term  core_trie_to_list(TrNode node);
 
 #include "core_dbtries.h"

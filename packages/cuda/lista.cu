@@ -926,7 +926,7 @@ int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, 
 	fin = rules.end();
 
 	nombres(rul_str, fin); /*preprocessing*/
-	movebpreds(rul_str, fin);
+	//movebpreds(rul_str, fin);
 	referencias(L.begin(), L.end(), rul_str, fin);
 	seleccion(rul_str, fin);
 	selfjoin(rul_str, fin);
@@ -984,7 +984,7 @@ int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, 
 
 			rows1 = cargar(name1, filas1, cols1, isfact1, table1, &dop1, itr);
 
-			//cout << "rows1 = " << rows1 << endl;
+			// cout << "rows1 = " << rows1  << endl;
 
 			if(rows1 == 0)
 			{
@@ -1012,7 +1012,6 @@ int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, 
 				{
 
 					/*int x, y;
-					cout << "antes = " << cols1 << " " << rows1 << endl;
 					int *hop1 = (int *)malloc(cols1 * rows1 * sizeof(int));
 					cudaMemcpy(hop1, dop1, cols1 * rows1 * sizeof(int), cudaMemcpyDeviceToHost);
 					for(x = 0; x < rows1; x++)
@@ -1086,6 +1085,27 @@ int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, 
 			num_refs = rul_act->num_rows - 1;
 			for(x = 2; x < num_refs; x++)
 			{
+			  if (rul_act->address_host_table[x] < 0) {
+					#ifdef TIMER
+					cudaEvent_t start3, stop3;
+					cudaEventCreate(&start3);
+					cudaEventCreate(&stop3);
+					cudaEventRecord(start3, 0);
+					#endif					
+				
+					res_rows = bpreds(res, res_rows, rul_act->projpos[x-2].y, rul_act->builtin, rul_act->num_bpreds, &res);
+
+					#ifdef TIMER
+					cudaEventRecord(stop3, 0);
+					cudaEventSynchronize(stop3);
+					cudaEventElapsedTime(&time, start3, stop3);
+					cudaEventDestroy(start3);
+					cudaEventDestroy(stop3);
+					//cout << "Predicados = " << time << endl;
+					cuda_stats.pred_time += time;
+					#endif
+			    continue;
+			  }
 				tipo = rul_act->referencias[x];
 				if(tipo < 0)
 				{
@@ -1108,42 +1128,43 @@ int Cuda_Eval(predicate **inpfacts, int ninpf, predicate **inprules, int ninpr, 
 
 				rows2 = cargar(name2, filas2, cols2, isfact2, table2, &dop2, itr);
 
-				//cout << "rows = " << x << " " << rows2 << endl;
+				//out << "rows = " << x << " " << rows2 << endl;
 
 				if(rows2 == 0)
 					break;
+				cout << x << ": join = " << res_rows << "/" <<  rul_act->projpos[x-2].y << " " << rows2 << "/" << cols2 << endl;
 				res_rows = join(res, dop2, res_rows, rows2, rul_act->projpos[x-2].y, cols2, rul_act, x-1, 0, &res);
 				if(res_rows == 0)
 					break;
 				
-				//cout << "resrows = " << res_rows << endl;
+				cout << x << ": resrows before = " << res_rows << " cols = " <<  rul_act->projpos[x-1].y << endl;
+				if (x < num_refs-1 && res_rows > 32) {
+				  
+#ifdef TIMER
+				  cudaEvent_t start2, stop2;
+				  cudaEventCreate(&start2);
+				  cudaEventCreate(&stop2);
+				  cudaEventRecord(start2, 0);
+#endif
+
+				  res_rows = unir(res, res_rows, rul_act->projpos[x-1].y); /*Duplicate Elimination*/
+#ifdef TIMER
+				  cudaEventRecord(stop2, 0);
+				  cudaEventSynchronize(stop2);
+				  cudaEventElapsedTime(&time, start2, stop2);
+				  cudaEventDestroy(start2);
+				  cudaEventDestroy(stop2);
+				  //cout << "Union = " << time << endl;
+				  cuda_stats.union_time += time;
+#endif					
+	
+				  cout << "resrows after = " << res_rows << endl;
+				}
 
 			}
 
 			if(x == num_refs)
 			{
-				if(rul_act->num_bpreds.x > 0) /*Built-in predicates*/
-				{
-					#ifdef TIMER
-					cudaEvent_t start3, stop3;
-					cudaEventCreate(&start3);
-					cudaEventCreate(&stop3);
-					cudaEventRecord(start3, 0);
-					#endif					
-				
-					res_rows = bpreds(res, res_rows, rul_act->num_columns, rul_act->builtin, rul_act->num_bpreds, &res);
-
-					#ifdef TIMER
-					cudaEventRecord(stop3, 0);
-					cudaEventSynchronize(stop3);
-					cudaEventElapsedTime(&time, start3, stop3);
-					cudaEventDestroy(start3);
-					cudaEventDestroy(stop3);
-					//cout << "Predicados = " << time << endl;
-					cuda_stats.pred_time += time;
-					#endif
-				}
-
 				//cout << "antes de unir = " << res_rows << endl;
 
 				#ifdef TIMER

@@ -1706,11 +1706,6 @@ p_set_yap_flags( USES_REGS1 )
       return(FALSE);
     yap_flags[STACK_DUMP_ON_ERROR_FLAG] = value;
     break;
-  case GENERATE_DEBUG_INFO_FLAG:
-    if (value != 0 && value != 1)
-      return(FALSE);
-    yap_flags[GENERATE_DEBUG_INFO_FLAG] = value;
-    break;
   case INDEXING_MODE_FLAG:
     if (value < INDEX_MODE_OFF || value >  INDEX_MODE_MAX)
       return(FALSE);

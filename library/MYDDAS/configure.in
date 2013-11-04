@@ -1,0 +1,81 @@
+AC_ARG_ENABLE(myddas,
+	[ --enable-myddas[[=DIR]]      enable the MYDDAS library],
+	if test "$enableval" = yes; then
+		yap_cv_myddas=/usr
+	elif test "$enableval" = no; then
+		yap_cv_myddas=no
+	else
+		yap_cv_myddas=$enable_myddas
+		LDFLAGS="$LDFLAGS -L${yap_cv_myddas}/lib "
+		CPPFLAGS="$CPPFLAGS -I${yap_cv_myddas}/include "
+		ODBC_LDFLAGS="-L${yap_cv_myddas}/lib "
+		ODBC_CFLAGS="-I${yap_cv_myddas}/include "
+	fi,
+	[yap_cv_myddas=/usr])
+
+AC_ARG_ENABLE(myddas-stats,
+	[ --enable-myddas-stats      enable the MYDDAS library statistics support],
+	if test "$yap_cv_myddas" = no; then
+		myddasstats=no
+	else
+		myddasstats="$enableval"
+	fi, myddasstats=no)
+
+AC_ARG_ENABLE(myddas-top-level,
+	[ --enable-myddas-top-level  enable the MYDDAS top-level support to MySQL],
+	if test "$yap_cv_myddas" = no; then
+	   	myddastoplevel=no
+	else
+		myddastoplevel="$enableval"
+	fi, myddastoplevel=no)
+
+if test "$yap_cv_myddas" != "no"
+then
+	dnl check for mysql
+	AC_SEARCH_LIBS(mysql_init, [mysqlclient], [yap_cv_mysql="yes"], [yap_cv_mysql="no"])
+	if test "$yap_cv_mysql" = yes 
+	then
+                YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_MYSQL"
+	fi
+	
+	dnl check for odbc
+        case "$target_os" in
+	  *darwin*)
+	    LIBS="$LIBS -framework CoreFoundation"
+	;;
+	  **)		
+	;;
+	esac
+	AC_SEARCH_LIBS(SQLAllocHandle, [odbc], [yap_cv_odbc="yes"], [yap_cv_odbc="no"])
+	if test "$yap_cv_odbc" = yes
+	then
+	   ODBC_LIBS="$ODBC_LIBS -lodbc"
+	else
+	  AC_SEARCH_LIBS(SQLAllocHandle, [iodbc], [yap_cv_odbc="yes"], [yap_cv_odbc="no"])
+	  if test "$yap_cv_odbc" = yes
+	  then
+	     ODBC_LIBS="$ODBC_LIBS -liodbc"
+	  fi
+        fi
+	if test "$yap_cv_odbc" = yes 
+	then
+		YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_ODBC"
+	fi
+	
+	if test "$myddasstats" = "yes"
+	  then
+	    YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_STATS"
+	fi
+
+	if test "$myddastoplevel" = "yes"
+	  then
+	    YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_TOP_LEVEL"
+	fi
+
+fi	
+
+if test "$yap_cv_myddas" != "no"
+then
+  AC_CHECK_HEADERS(mysql/mysql.h)
+fi
+

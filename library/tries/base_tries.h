@@ -106,43 +106,43 @@ typedef struct trie_data {
 /*             API             */
 /* --------------------------- */
 
-inline void     trie_init_module(void);
-inline void     trie_data_load(TrNode node, YAP_Int depth, FILE *file);
-inline void     trie_data_copy(TrNode node_dest, TrNode node_source);
-inline void     trie_data_destruct(TrNode node);
-inline TrEntry  trie_open(void);
-inline void     trie_close(TrEntry trie);
-inline void     trie_close_all(void);
-inline void     trie_set_mode(YAP_Int mode);
-inline YAP_Int  trie_get_mode(void);
-inline TrData   trie_put_entry(TrEntry trie, YAP_Term entry);
-inline TrData   trie_check_entry(TrEntry trie, YAP_Term entry);
-inline YAP_Term trie_get_entry(TrData data);
-inline TrData   trie_get_first_entry(TrEntry trie);
-inline TrData   trie_get_last_entry(TrEntry trie);
-inline TrData   trie_traverse_init(TrEntry trie, TrData init_data);
-inline TrData   trie_traverse_cont(TrEntry trie);
-inline void     trie_remove_entry(TrData data);
-inline void     trie_remove_subtree(TrData data);
-inline void     trie_join(TrEntry trie_dest, TrEntry trie_source);
-inline void     trie_intersect(TrEntry trie_dest, TrEntry trie_source);
-inline YAP_Int  trie_count_join(TrEntry trie1, TrEntry trie2);
-inline YAP_Int  trie_count_intersect(TrEntry trie1, TrEntry trie2);
-inline void     trie_save(TrEntry trie, FILE *file);
-inline TrEntry  trie_load(FILE *file);
-inline void     trie_stats(YAP_Int *memory, YAP_Int *tries, YAP_Int *entries, YAP_Int *nodes);
-inline void     trie_max_stats(YAP_Int *memory, YAP_Int *tries, YAP_Int *entries, YAP_Int *nodes);
-inline void     trie_usage(TrEntry trie, YAP_Int *entries, YAP_Int *nodes, YAP_Int *virtual_nodes);
-inline void     trie_print(TrEntry trie);
+void     trie_init_module(void);
+void     trie_data_load(TrNode node, YAP_Int depth, FILE *file);
+void     trie_data_copy(TrNode node_dest, TrNode node_source);
+void     trie_data_destruct(TrNode node);
+TrEntry  trie_open(void);
+void     trie_close(TrEntry trie);
+void     trie_close_all(void);
+void     trie_set_mode(YAP_Int mode);
+YAP_Int  trie_get_mode(void);
+TrData   trie_put_entry(TrEntry trie, YAP_Term entry);
+TrData   trie_check_entry(TrEntry trie, YAP_Term entry);
+YAP_Term trie_get_entry(TrData data);
+TrData   trie_get_first_entry(TrEntry trie);
+TrData   trie_get_last_entry(TrEntry trie);
+TrData   trie_traverse_init(TrEntry trie, TrData init_data);
+TrData   trie_traverse_cont(TrEntry trie);
+void     trie_remove_entry(TrData data);
+void     trie_remove_subtree(TrData data);
+void     trie_join(TrEntry trie_dest, TrEntry trie_source);
+void     trie_intersect(TrEntry trie_dest, TrEntry trie_source);
+YAP_Int  trie_count_join(TrEntry trie1, TrEntry trie2);
+YAP_Int  trie_count_intersect(TrEntry trie1, TrEntry trie2);
+void     trie_save(TrEntry trie, FILE *file);
+TrEntry  trie_load(FILE *file);
+void     trie_stats(YAP_Int *memory, YAP_Int *tries, YAP_Int *entries, YAP_Int *nodes);
+void     trie_max_stats(YAP_Int *memory, YAP_Int *tries, YAP_Int *entries, YAP_Int *nodes);
+void     trie_usage(TrEntry trie, YAP_Int *entries, YAP_Int *nodes, YAP_Int *virtual_nodes);
+void     trie_print(TrEntry trie);
 
-inline void     trie_data_construct(TrNode node);
-inline void     trie_set_traverse_mode(YAP_Int mode);
-inline YAP_Int  trie_get_traverse_mode(void);
-inline TrData   trie_traverse_first(TrEntry trie);
-inline TrData   trie_traverse_next(TrData data);
-inline void     trie_disable_hash_table(void);
-inline void     trie_enable_hash_table(void);
+void     trie_data_construct(TrNode node);
+void     trie_set_traverse_mode(YAP_Int mode);
+YAP_Int  trie_get_traverse_mode(void);
+TrData   trie_traverse_first(TrEntry trie);
+TrData   trie_traverse_next(TrData data);
+void     trie_disable_hash_table(void);
+void     trie_enable_hash_table(void);
 
-inline YAP_Term trie_to_list(TrEntry trie);
+YAP_Term trie_to_list(TrEntry trie);
 
 #include "base_dbtries.h"

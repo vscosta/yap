@@ -7975,11 +7975,6 @@ Yap_absmi(int inp)
 	    JMPNext();
 	  }
 	}
-	if (!LOCAL_DebugOn) {
-	  PREG = pe->cs.p_code.TrueCodeOfPred;
-	  UNLOCKPE(24,pe);
-	  JMPNext();
-	}
 	UNLOCKPE(25,pe);
 	
 	d0 = pe->ArityOfPE;
@@ -12641,23 +12636,23 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      Op(p_func2s_y_cv, yxn);
+      Op(p_func2s_y_cv, yxc);
       /* A1 is a variable */
     restart_func2s_y_cv:
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
 	RESET_VARIABLE(H);
-	H[1] = PREG->u.yxn.c;
-	H[2] = XREG(PREG->u.yxn.xi);
+	H[1] = PREG->u.yxc.c;
+	H[2] = XREG(PREG->u.yxc.xi);
 	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),H);
       }
 #endif	/* LOW_LEVEL_TRACE */
       /* We have to build the structure */
       BEGD(d0);
-      d0 = PREG->u.yxn.c;
+      d0 = PREG->u.yxc.c;
       /* we do, let's get the third argument */
       BEGD(d1);
-      d1 = XREG(PREG->u.yxn.xi);
+      d1 = XREG(PREG->u.yxc.xi);
       deref_head(d1, func2s_y_unk_cv);
     func2s_y_nvar_cv:
       /* Uuuff, the second and third argument are bound */
@@ -12683,8 +12678,8 @@ Yap_absmi(int inp)
 	/* else if arity is 0 just pass d0 through */
 	/* Ding, ding, we made it */
 	BEGP(pt1);
-	pt1 = YREG + PREG->u.yxn.y;
-	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxn),Osbpp),l);
+	pt1 = YREG + PREG->u.yxc.y;
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxc),Osbpp),l);
 	INITIALIZE_PERMVAR(pt1,d0);
 	ENDP(pt1);
 	GONext();
@@ -12709,7 +12704,7 @@ Yap_absmi(int inp)
 	if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
 	  /* make sure we have something to show for our trouble */
 	  saveregs();
-	  if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,yxn),Osbpp))) {
+	  if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,yxc),Osbpp))) {
 	    Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage);
 	    setregs();
 	    JMPNext();
@@ -12728,15 +12723,15 @@ Yap_absmi(int inp)
 	/* else if arity is 0 just pass d0 through */
 	/* Ding, ding, we made it */
 	BEGP(pt1);
-	pt1 = YREG + PREG->u.yxn.y;
-	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxn),Osbpp),l);
+	pt1 = YREG + PREG->u.yxc.y;
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxc),Osbpp),l);
 	INITIALIZE_PERMVAR(pt1,d0);
 	ENDP(pt1);
 	GONext();
       }	else if (d1  == 0) {
 	BEGP(pt1);
-	pt1 = YREG + PREG->u.yxn.y;
-	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxn),Osbpp),l);
+	pt1 = YREG + PREG->u.yxc.y;
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxc),Osbpp),l);
 	INITIALIZE_PERMVAR(pt1,d0);
 	ENDP(pt1);
 	GONext();

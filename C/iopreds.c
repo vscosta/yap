@@ -334,11 +334,7 @@ syntax_error (TokEntry * tokptr, IOSTREAM *st, Term *outp)
       {
 	char s[2];
 	s[1] = '\0';
-	if (Ord (info) == 'l') {
-	  s[0] = '(';
-	} else  {
-	  s[0] = (char)info;
-	}
+	s[0] = (char)info;
 	ts[0] = MkAtomTerm(Yap_LookupAtom(s));
       }
     }
@@ -561,7 +557,6 @@ static Int
   Term tcomms = Deref(ARG7);
   int store_comments = IsVarTerm(tcomms);
 
-  Yap_setCurrentSourceLocation(&inp_stream);
   if (IsVarTerm(tmod)) {
     tmod = CurrentModule;
   } else if (!IsAtomTerm(tmod)) {

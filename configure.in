@@ -63,6 +63,8 @@ AC_CANONICAL_SYSTEM
 
 AC_DEFINE_UNQUOTED(HOST_ALIAS,"${target}")
 
+m4_define([HAS_TOP])
+
 case "$target_cpu" in
     i*86*)
      YAP_TARGET=i386
@@ -78,64 +80,6 @@ case "$target_cpu" in
     ;;
  esac
 
-dnl Gecode support
-AC_CHECK_HEADER(gecode/support/config.hpp,
-	have_gecode=yes, have_gecode=no)
-AC_ARG_ENABLE(gecode,
-	[ --enable-gecode            install gecode library],
-        [use_gecode="$enableval"
-	 if test "$use_gecode" = yes; then
-	    if test "$have_gecode" = no; then
-	       AC_MSG_ERROR([cannot enable gecode: gecode library not found])
-	    fi
-         fi], use_gecode=$have_gecode)
-AC_MSG_CHECKING([if dynamic arrays are supported])
-AC_COMPILE_IFELSE([
-  AC_LANG_PROGRAM([[void foo(int n) { int a[n]; a[1]=0; }]],[[foo(3);]])
-  ],[
-  AC_MSG_RESULT([yes])
-  AC_DEFINE([HAVE_DYNARRAY],[1],[Define if dynamic arrays are supported])
-  ],[
-  AC_MSG_RESULT([no])
-  ])
-GECODE_VERSION=unknown-gecode-version
-GECODE_EXTRALIBS="-lgecodesupport -lgecodekernel -lgecodeint -lgecodeset -lgecodesearch"
-AC_SUBST(GECODE_VERSION)
-AC_SUBST(GECODE_EXTRALIBS)
-if test "$use_gecode" = yes; then
-  AC_MSG_CHECKING([gecode version])
-  AC_RUN_IFELSE([AC_LANG_PROGRAM([[
-#include "gecode/support/config.hpp"
-#include <stdio.h>
-]],[[
-  FILE* out = fopen("conftest.out","w");
-  fprintf(out,"%s\n",GECODE_VERSION);
-  fclose(out);
-  return 0;
-]])],[GECODE_VERSION=$(cat conftest.out)
-    AC_MSG_RESULT([$GECODE_VERSION])],
-   [AC_MSG_ERROR([cannot determine gecode version])])
-   case "$target_os" in
-     *darwin*)
-     AC_MSG_CHECKING([if -framework gecode is required])
-     AC_LANG_PUSH([C++])
-     saved_CXXFLAGS="$CXXFLAGS"
-     CXXFLAGS="$CXXFLAGS -framework gecode"
-     AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-#include "gecode/int.hh"
-]],[[
-Gecode::Exception e("","");
-return 0;
-]])],[GECODE_EXTRALIBS="-framework gecode"
-      AC_MSG_RESULT([yes])],
-     [AC_MSG_RESULT([no])])
-     AC_LANG_POP()
-     CXXFLAGS="$saved_CXXFLAGS"
-     ;;
-   esac
-fi
-GECODE_MAJOR=`echo $GECODE_VERSION| sed 's/\(^.\).*/\1/'`
-AC_SUBST(GECODE_MAJOR)
 
 AC_ARG_ENABLE(tabling,
 	[ --enable-tabling           support tabling ],
@@ -234,7 +178,7 @@ AC_ARG_WITH(gmp,
 		LDFLAGS="$LDFLAGS -L${yap_cv_gmp}/lib"
 		LIBS="$LIBS -L${yap_cv_gmp}/lib"
 		CPPFLAGS="$CPPFLAGS -I${yap_cv_gmp}/include"
-		CFLAGS="$CFLAGS -I${yap_cv_gmp}/include"
+	CFLAGS="$CFLAGS -I${yap_cv_gmp}/include"
 	fi,
 	[yap_cv_gmp=yes])
 AC_ARG_WITH(R,
@@ -247,16 +191,6 @@ AC_ARG_WITH(R,
 	    yap_cv_R=$withval
 	fi,
 	[yap_cv_R=no])
-AC_ARG_WITH(python,
-	[ --with-python[=DIR]              interface to R language],
-	if test "$withval" = yes; then
-	    yap_cv_python=yes
-	elif test "$withval" = no; then
-	    yap_cv_python=no
-	else
-	    yap_cv_python=$withval
-	fi,
-	[yap_cv_python=no])
 	
 AC_ARG_WITH(judy,
 	[  --with-judy[=DIR] UDI needs judy library],
@@ -279,53 +213,6 @@ AC_ARG_WITH(minisat,
 		yap_cv_minisat="$GXX"
 	fi,
 	[yap_cv_minisat=yes])
-
-AC_ARG_WITH(cuda,
-	[ --enable-cuda           use minisat interface],
-	if test "$withval" = yes; then
-		yap_cv_cuda=/usr
-	elif test "$withval" = no; then
-		yap_cv_cuda=no
-	else
-		yap_cv_cuda="$withval"
-	fi,
-	[yap_cv_cuda=no])
-
-AC_ARG_WITH(cudd,
-	[ --with-cudd[=DIR]           use CUDD package in DIR],
-	yap_cv_cudd="$withval",
-	[yap_cv_cudd=no])
-
-AC_ARG_ENABLE(myddas,
-	[ --enable-myddas[[=DIR]]      enable the MYDDAS library],
-	if test "$enableval" = yes; then
-		yap_cv_myddas=/usr
-	elif test "$enableval" = no; then
-		yap_cv_myddas=no
-	else
-		yap_cv_myddas=$enable_myddas
-		LDFLAGS="$LDFLAGS -L${yap_cv_myddas}/lib "
-		CPPFLAGS="$CPPFLAGS -I${yap_cv_myddas}/include "
-		ODBC_LDFLAGS="-L${yap_cv_myddas}/lib "
-		ODBC_CFLAGS="-I${yap_cv_myddas}/include "
-	fi,
-	[yap_cv_myddas=/usr])
-
-AC_ARG_ENABLE(myddas-stats,
-	[ --enable-myddas-stats      enable the MYDDAS library statistics support],
-	if test "$yap_cv_myddas" = no; then
-		myddasstats=no
-	else
-		myddasstats="$enableval"
-	fi, myddasstats=no)
-
-AC_ARG_ENABLE(myddas-top-level,
-	[ --enable-myddas-top-level  enable the MYDDAS top-level support to MySQL],
-	if test "$yap_cv_myddas" = no; then
-	   	myddastoplevel=no
-	else
-		myddastoplevel="$enableval"
-	fi, myddastoplevel=no)
 
 AC_ARG_WITH(java,
 	[ --with-java=JAVA_HOME       use Java instalation in JAVA_HOME],
@@ -542,22 +429,6 @@ fi
 
 
 
-if test "$yap_cv_cudd" = no 
-then
-  ENABLE_CUDD="@# "
-  ENABLE_BDDLIB="@# "
-else
-  if test "$dynamic_bdd" = yes
-  then
-    ENABLE_BDDLIB=""
-  else
-    ENABLE_BDDLIB="@# "
-  fi
-  ENABLE_CUDD=""
-fi
-
-
-
 dnl condor universe does not like dynamic linking on Linux, DEC, and HP-UX platforms.
 if test "$use_condor" = yes 
 then
@@ -715,13 +586,11 @@ then
     EXTRA_LIBS_FOR_DLLS="\$(abs_top_builddir)/yap.dll $EXTRA_LIBS_FOR_DLLS"
     AC_CHECK_LIB(psapi,main)
     yap_cv_readline=no
-    CLIB_NETLIBS="-lws2_32 -lpsapi -lgdi32"
     if test "$prefix" = "NONE"
     then
       if test "$target_win64" = yes
       then
         prefix="\${SYSTEMDRIVE}/Yap64"
-	CLIB_NETLIBS="-lws2_32 -lwsock32 -lpsapi -lgdi32"
       else
         prefix="\${SYSTEMDRIVE}/Yap"
       fi
@@ -785,234 +654,8 @@ then
   AC_CHECK_LIB(gmp,main)
 fi
 
-if test "$yap_cv_R" = "no"; then
-    REAL_TARGET="dummy"
-    ENABLE_REAL="@# "
-elif test -e "$srcdir"/packages/real/Makefile.in ; then
-   REAL_TARGET="ritf"
-   ENABLE_REAL=""
-   AC_CHECK_PROGS(REXE, R, "none")
-   if test "$yap_cv_R" = "yes"
-   then
-     case "$target_os" in
-	*darwin*)
-	  REAL_INCLUDES="-I/Library/Frameworks/R.framework/Headers"
-	  REAL_LIBS="-framework R -L /Library/Frameworks/R.framework/Libraries -lR"
-	;;
-	  *cygwin*|*mingw*)
-            REAL_INCLUDES="$($REXE CMD config --cppflags | grep -v ^WARNING)"
-            REAL_LIBS="$($REXE CMD config --ldflags | grep -v ^WARNING)"
-        ;;
-	**)		
-          dnl R is spread all over the place
-	  dnl one of the two may work (Fedora/Ubuntu)
-          if test -n "$R_HOME" ; then
-	    REAL_INCLUDES="-I$R_HOME/include"
-          elif test "$YAP_TARGET" = amd64 -a -d /usr/lib64/R/include ; then
-	    REAL_INCLUDES="-I/usr/lib64/R/include"
-          elif test -d /usr/include/R; then
-	    REAL_INCLUDES="-I/usr/include/R"
-          elif test -d /usr/share/R/include; then
-	    REAL_INCLUDES="-I/usr/share/R/include"
-          else
-	    REAL_INCLUDES="$($REXE CMD config --cppflags | grep -v ^WARNING)"
-	  fi	
-          if test -n "$R_HOME" ; then
-	    REAL_LIBS="-L $R_HOME/lib -lR"
-          elif test "$YAP_TARGET" = amd64 -a -d /usr/lib64/R/lib; then
-	    REAL_LIBS="-L /usr/lib64/R/lib -lR"
-          elif test -d /usr/lib/R; then
-	    REAL_LIBS="-L /usr/lib/R/lib -lR"
-          else
-            REAL_LIBS="$($REXE CMD config --ldflags | grep -v ^WARNING)"
-	  fi
-        ;;
-	esac
-   else
-       case "$target_os" in
-	  *cygwin*|*mingw*)
-            REAL_INCLUDES="-I\"$yap_cv_R/include\""
-	    if test "$YAP_TARGET" = i386; then
-	      REAL_LIBS="\"$yap_cv_R/bin/i386/R.dll\""
-	    else
-	      REAL_LIBS="\"$yap_cv_R/bin/x64/R.dll\""
-	    fi
-	   ;;
-	  *)
-            REAL_INCLUDES="-I$yap_cv_R/include"
-	    REAL_LIBS="-L $yap_cv_R/lib -lR"
-	   ;;
-         esac
-  fi
-  OLD_CFLAGS="$CFLAGS"
-  CFLAGS="$CFLAGS $REAL_INCLUDES"
-  AC_CHECK_HEADERS(Rinterface.h)  
-  CFLAGS="$OLD_CFLAGS"
-else
-    REAL_TARGET="dummy"
-    ENABLE_REAL="@# "
-fi
-
-if test "$yap_cv_python" = "no"; then
-    PYTHON_TARGET="dummy"
-    ENABLE_PYTHON="@# "
-elif test -e "$srcdir"/packages/python/Makefile.in ; then
-   PYTHON_TARGET="pitf"
-   ENABLE_PYTHON=""
-   if test "$yap_cv_python" = "yes"
-   then
-      AC_CHECK_PROGS(PYTHON, python, "none")
-   else
-     PYTHON="$yap_cv_python"
-   fi
-   PYTHONHOME=`$PYTHON -c'import sys; print sys.prefix'`
-   PYTHONVERSION=`"$PYTHON" -c "import sys; print sys.version[[:3]]"`
-   PYTHON_LIBS="-L $PYTHONHOME/lib -lpython$PYTHONVERSION"
-   PYTHON_INCLUDES="-I $PYTHONHOME/include/python$PYTHONVERSION"
-else
-    PYTHON_TARGET="dummy"
-    ENABLE_PYTHON="@# "
-fi
-
 if test "$yap_cv_judy" != "no"; then
 	AC_CHECK_LIB(Judy, Judy1Set,,[AC_MSG_RESULT([libJudy not found, UDI will only work with one Index at a time])])
-fi
-
-CUDA_LDFLAGS=""
-CUDA_CPPFLAGS=""
-if test "$yap_cv_cuda" = no 
-then
-  ENABLE_CUDA="@# "
-else
-  AC_PATH_PROG(NVCC, [nvcc], [no], [$yap_cv_cuda/bin])
-  if test "$yap_cv_cuda" = no
-  then
-    ENABLE_CUDA="@# "
-  else
-    ENABLE_CUDA=""
-    case "$target_os" in
-     *darwin*)
-       CUDA_LDFLAGS="$LDFLAGS"
-    CUDA_CPPFLAGS="-shared -arch=sm_20  -Xcompiler -fPIC -O3 "
-    CUDA_SHLIB_LD="$NVCC  -Xcompiler -dynamiclib  -L../.. -lYap "
-     ;;
-    **)
-       CUDA_LDFLAGS="$LDFLAGS $LIBS"
-    CUDA_CPPFLAGS="-shared -arch=sm_20  -Xcompiler -fPIC -O3 "
-    CUDA_SHLIB_LD="$NVCC -shared -Xcompiler -export-dynamic"
-    ;;
-    esac
- fi
-fi
-
-dnl if test "$yap_cv_cudd" != "no"
-dnl then
-dnl   AC_CHECK_LIB(cudd,Cudd_Init)
-dnl fi
-
-if test "$yap_cv_myddas" != "no"
-then
-	dnl check for mysql
-	AC_SEARCH_LIBS(mysql_init, [mysqlclient], [yap_cv_mysql="yes"], [yap_cv_mysql="no"])
-	if test "$yap_cv_mysql" = yes 
-	then
-                YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_MYSQL"
-	fi
-	
-	dnl check for odbc
-        case "$target_os" in
-	  *darwin*)
-	    LIBS="$LIBS -framework CoreFoundation"
-	;;
-	  **)		
-	;;
-	esac
-	AC_SEARCH_LIBS(SQLAllocHandle, [odbc], [yap_cv_odbc="yes"], [yap_cv_odbc="no"])
-	if test "$yap_cv_odbc" = yes
-	then
-	   ODBC_LIBS="$ODBC_LIBS -lodbc"
-	else
-	  AC_SEARCH_LIBS(SQLAllocHandle, [iodbc], [yap_cv_odbc="yes"], [yap_cv_odbc="no"])
-	  if test "$yap_cv_odbc" = yes
-	  then
-	     ODBC_LIBS="$ODBC_LIBS -liodbc"
-	  fi
-        fi
-	if test "$yap_cv_odbc" = yes 
-	then
-		YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_ODBC"
-	fi
-	
-	if test "$myddasstats" = "yes"
-	  then
-	    YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_STATS"
-	fi
-
-	if test "$myddastoplevel" = "yes"
-	  then
-	    YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_TOP_LEVEL"
-	fi
-
-fi	
-
-if test "$yap_cv_cudd" != no; then
-   	    oldlibs="$LIBS"
-	    if test "$yap_cv_cudd" != "NONE" -a "$yap_cv_cudd" != "yes"; then
-	       CUDD_CPPFLAGS="-I $yap_cv_cudd/include"
-	       cudd_dir="$yap_cv_cudd"
-	    elif test "$prefix" != "NONE"; then
-	       CUDD_CPPFLAGS="-I $prefix/include"
-	       cudd_dir="$prefix"
-	    else
-	       CUDD_CPPFLAGS="-I /usr/local/include"
-	       cudd_dir=/usr/local
-	    fi
-	    OLD_CPPFLAGS="$CPPFLAGS"
-	    CPPFLAGS="$CPPFLAGS $CUDD_CPPFLAGS" 
-	    AC_CHECK_HEADERS(util.h cudd/util.h cudd.h cudd/cudd.h)
-	    AC_CHECK_HEADERS(cuddInt.h cudd/cuddInt.h)
-            dnl cudd can be most everywhere
-	    if test -d "$cudd_dir/lib64/cudd" -a "$YAP_TARGET" = amd64; then
-	      LIBS="$LIBS -L $cudd_dir/lib64/cudd"
-	    elif test -d "$cudd_dir/lib64" -a "$YAP_TARGET" = amd64; then
-	      LIBS="$LIBS -L $cudd_dir/lib64  -L $cudd_dir/lib"
-	    elif test -d "$cudd_dir/lib/cudd"; then
-	      LIBS="$LIBS -L $cudd_dir/lib/cudd"
-	    elif test -d "$cudd_dir/lib"; then
-	      LIBS="$LIBS -L $cudd_dir/lib"
-	    fi
-	    if test -d "$cudd_dir/util"; then
-	      LIBS="$LIBS -L $cudd_dir/util"
-	    fi
-	    AC_SEARCH_LIBS(util_print_cpu_stats, [cuddutil util])
-	    if test -d "$cudd_dir/st"; then
-	      LIBS="$LIBS -L $cudd_dir/st"
-	    fi
-	    AC_SEARCH_LIBS(st_insert, [cuddst st])
-	    if test -d "$cudd_dir/epd"; then
-	      LIBS="$LIBS -L $cudd_dir/epd"
-	    fi
-	    AC_SEARCH_LIBS(EpdAdd, [epd])
-	    if test -d "$cudd_dir/mtr"; then
-	      LIBS="$LIBS -L $cudd_dir/mtr"
-	    fi
-	    AC_SEARCH_LIBS(Mtr_InitTree, [mtr])
-	    if test -d "$cudd_dir/cudd"; then
-	      LIBS="$LIBS -L $cudd_dir/cudd"
-	    fi
-	    AC_SEARCH_LIBS(Cudd_Init, [cudd], [cudd_installed="yes"], [cudd_installed="no"])
-	    CPPFLAGS="$OLD_CPPFLAGS"
-	    if test "$cudd_installed" = yes; then
-	      CUDD_LDFLAGS="$LIBS"
-	    else
-  cat << EOF
-##################################################################
-# ERROR: Could not find cudd library. Either I don't have the
-# correct path, or CUDD is installed in some strange way
-##################################################################
-EOF
-     	    fi
-	    LIBS="$oldlibs"
 fi
 
 if test "$threads" = yes
@@ -1036,13 +679,6 @@ else
 fi
 CMFLAGS=-fpic
 CIFLAGS=-I.
-
-if test "$use_gecode" = no; then
-  ENABLE_GECODE="@# "
-else
-  ENABLE_GECODE=""
-fi
-AC_SUBST(ENABLE_GECODE)
 
 if test "$use_prism" = no; then
   ENABLE_PRISM="@# "
@@ -1131,149 +767,6 @@ if test -e "$srcdir"/packages/zlib/Makefile.in; then
   ENABLE_ZLIB=""
 else
   ENABLE_ZLIB="@# "
-fi
-
-dnl
-dnl java is hard
-dnl
-if test "$yap_cv_java" = no; then
-	ENABLE_JPL="@#"   
-elif test -e "$srcdir"/packages/jpl/Makefile.in; then
-	ENABLE_JPL=""
-	if test "$yap_cv_java" != "yes"; then
-          JAVA_HOME=$yap_cv_java
-	  JAVAPREFIX="$JAVA_HOME"/bin
-       elif test -n "$JAVA_HOME"; then
-	  JAVAPREFIX="$JAVA_HOME"/bin
-       fi
-
-
-AC_SUBST(JAVA_HOME)
-AC_SUBST(JAVACFLAGS)
-AC_SUBST(JAVALIBS)
-AC_SUBST(JUNIT)
-AC_SUBST(JPLCFLAGS)
-AC_SUBST(JPLLDFLAGS)
-AC_SUBST(LIBJPL)
-AC_SUBST(JAVA_PRELOAD)
-AC_SUBST(CMDEXT)
-
-CMDEXT=sh
-
-if test "x$JAVALIBS" = "x"; then
-  case "$target_os" in
-     *darwin*)
-	  JAVALIBS="-Wl,-framework,JavaVM"
-	  ;;
-     *powerpc-linux*)
-	  JAVALIBS="-ljava -ljvm"
-	  ;;
-     *win32*|*win64*)
-	  JAVALIBS="-ljvm"
-	  CMDEXT=bat
-	  ;;
-     *)
-	  JAVALIBS="-ljava -lverify -ljvm"
-	  ;;
-  esac
-fi
-
-case "$target_os" in
-  *win32*)
-	JPLLDFLAGS="$JPLLDFLAGS -Wl,--kill-at"
-	LIBJPL=jpl
-	;;
-  *win64*)
-	LIBJPL=jpl
-	;;
-  *)
-	LIBJPL=libjpl
-	;;
-esac
-
-dnl ================================================================
-dnl Java stuff
-dnl ================================================================
-
-
-if test "x$JAVACFLAGS" = x; then
-  JAVACFLAGS="-source 1.4 -target 1.4"
-fi
-
-m4_include([packages/jpl/ac/ac_prog_java.m4])
-m4_include([packages/jpl/ac/ac_prog_java_works.m4])
-m4_include([packages/jpl/ac/ac_prog_javac.m4])
-m4_include([packages/jpl/ac/ac_prog_javac_works.m4])
-m4_include([packages/jpl/ac/ac_prog_javadoc.m4])
-m4_include([packages/jpl/ac/ac_jni_include_dirs.m4])
-m4_include([packages/jpl/ac/ac_prog_jar.m4])
-
-java_abs_paths=no
-AC_CHECKING(Java configuration)
-if test -r /etc/java/java2.conf; then
-  AC_MSG_RESULT(Using /etc/java/java2.conf)
-  eval `grep '\(JAVA\|JRE\|JDK\|SDK\).*=' /etc/java/java2.conf | sed 's/ *= */=/'`
-  if test ! -z "$JAVA_BINDIR"; then
-    PATH="$PATH:$JAVA_BINDIR"
-    java_abs_paths=yes
-  fi
-fi
-
-AC_PROG_JAVAC(javac)
-AC_PROG_JAVA(java)
-AC_PROG_JAR(jar)
-AC_PROG_JAVADOC(javadoc)
-
-escape_space()
-{ sed -e "s/Program Files/Program-SPACE-Files/g" -e "s/ (x86)/SPACEX86/g"
-}
-
-unescape_space()
-{ sed -e "s/-SPACE-/ /g" -e "s/SPACEX86/ (x86)/g"
-}
-
-AC_JNI_INCLUDE_DIR
-for d in $(echo $JNI_INCLUDE_DIRS | escape_space); do
-  JPLCFLAGS="$JPLCFLAGS -I'$d'"
-done
-JPLCFLAGS="$(echo $JPLCFLAGS | unescape_space)"
-
-for d in $(echo $JNI_CLIENT_DIRS | escape_space); do
-  JPLLDFLAGS="$JPLLDFLAGS -L'$d'"
-done
-JPLLDFLAGS="$(echo $JPLLDFLAGS | unescape_space)"
-
-for d in $(echo $JNI_CLIENT_DIRS | escape_space); do
-  if test -f "$d/libjsig.$SO"; then
-     JAVALIBS="-ljsig $JAVALIBS"
-     JAVA_PRELOAD=$d/libjsig.$SO
-     break
-  fi
-done
-JAVA_PRELOAD="$(echo $JAVA_PRELOAD | unescape_space)"
-
-if test "$java_abs_paths" = yes; then
-  JAVA_CC="$JAVA_BINDIR/$JAVA_CC"
-fi
-
-AC_ARG_WITH(junit, [  --with-junit=PATH	  Specify location of the junit JAR file],
-	    [case "$withval" in
-		 yes) JUNIT=/usr/share/java/junit.jar
-			;;
-		 no) JUNIT=""
-			;;
-		 *) JUNIT="$withval"
-			;;
-	     esac
-	     ],
-	     [ if test "x$JUNIT" = "x" -a -r /usr/share/java/junit.jar; then
-		  JUNIT=/usr/share/java/junit.jar
-	       fi
-	     ]
-	     )
-
-JAVA_HOME=$_JTOPDIR
-
 fi
 
 if test "$cross_compiling" = "yes"
@@ -1806,10 +1299,7 @@ fi
 if test "$yap_cv_judy" != "no"; then
   AC_CHECK_HEADERS(Judy.h)
 fi
-if test "$yap_cv_myddas" != "no"
-then
-  AC_CHECK_HEADERS(mysql/mysql.h)
-fi
+
 if test "$yap_cv_readline" != "no"
 then
   AC_CHECK_HEADERS( readline/readline.h)
@@ -1922,11 +1412,6 @@ AC_SUBST(INSTALL_INFO)
 dnl let YAP_EXTRAS fall through configure, from the env into Makefile
 AC_SUBST(YAP_EXTRAS)
 AC_SUBST(NO_BUILTIN_REGEXP)
-AC_SUBST(ENABLE_CUDA)
-AC_SUBST(NVCC)
-AC_SUBST(CUDA_SHLIB_LD)
-AC_SUBST(CUDA_CPPFLAGS)
-AC_SUBST(CUDA_LDFLAGS)
 AC_SUBST(ENABLE_CHR)
 AC_SUBST(ENABLE_CLIB)
 AC_SUBST(ENABLE_CLPQR)
@@ -1954,10 +1439,6 @@ AC_SUBST(STATIC_MODE)
 AC_SUBST(ENABLE_WINCONSOLE)
 AC_SUBST(EXTRA_INCLUDES_FOR_WIN32)
 
-AC_SUBST(ENABLE_CUDD)
-AC_SUBST(ENABLE_BDDLIB)
-AC_SUBST(CUDD_LDFLAGS)
-AC_SUBST(CUDD_CPPFLAGS)
 AC_SUBST(ENABLE_MINISAT)
 AC_SUBST(ENABLE_REAL)
 AC_SUBST(REAL_TARGET)
@@ -1966,10 +1447,6 @@ AC_SUBST(REAL_LIBS)
 AC_SUBST(INSTALL_MATLAB)
 AC_SUBST(MATLAB_INCLUDE)
 AC_SUBST(INSTALL_PRISM)
-AC_SUBST(PYTHON_TARGET)
-AC_SUBST(ENABLE_PYTHON)
-AC_SUBST(PYTHON_INCLUDES)
-AC_SUBST(PYTHON_LIBS)
 
 dnl check for threaded code
 AC_MSG_CHECKING(for gcc threaded code)
@@ -2292,51 +1769,11 @@ AC_SUBST(TARGETS)
 AC_SUBST(PLTARGETS)
 AC_SUBST(CHR_TARGETS)
 
-dnl clib
-if test "$ENABLE_CLIB" = ""; then
-CLIB_TARGETS="socket.$SO cgi.$SO memfile.$SO files.$SO mime.$SO $CRYPT_TARGETS"
-CLIB_PLTARGETS="socket.pl cgi.pl memfile.pl filesex.pl mime.pl $CRYPT_TARGETS"
-
-if test "$ac_cv_func_setitimer" = "yes"; then
-  CLIB_TARGETS="$CLIB_TARGETS time.$SO"
-  CLIB_PLTARGETS="$CLIB_PLTARGETS time.pl"
-else
-  echo "WARNING: no setitimer(); dropping time.pl from targets"
-fi
-
-if test "$IN_UNIX" = ""; then
-CLIB_TARGETS="uid.$SO unix.$SO $CLIB_TARGETS"
-CLIB_PLTARGETS="uid.pl unix.pl $CLIB_PLTARGETS"
-CLIB_NETLIBS=
-else
-AC_CHECK_FUNC(socket, [], [
-             AC_CHECK_LIB(socket, socket,
-                      [CLIB_NETLIBS="$CLIB_NETLIBS -lsocket"]
-                      AC_DEFINE(HAVE_LIBSOCKET, 1,
-                      "Define if you have the socket library (-lsocket)."))])
-AC_CHECK_FUNC(gethostent, [], [
-             AC_CHECK_LIB(nsl, gethostent,
-                      [CLIB_NETLIBS="$CLIB_NETLIBS -lnsl"]
-                      AC_DEFINE(HAVE_LIBNSL, 1,
-                      "Define if you have the nsl library (-lnsl)."))])
-fi
 
 AC_CHECK_LIB(pthread, pthread_create,
                       [CLIB_PTHREADS="-lpthread"],[CLIB_PTHREADS=""])
-
-oldlibs="$LIBS"
-AC_CHECK_LIB(crypt, crypt, CRYPT_TARGET=crypt.\$SO, CRYPT_TARGET="")
-CLIB_CRYPTLIBS="$LIBS"
-AC_CHECK_FUNCS(crypt)
-LIBS="$oldlibs"
-
 AC_SUBST(CLIB_PTHREADS)
-AC_SUBST(CLIB_TARGETS)
-AC_SUBST(CLIB_PLTARGETS)
-AC_SUBST(CLIB_NETLIBS)
-AC_SUBST(CLIB_CRYPTLIBS)
 
-fi
 
 AC_CHECK_TYPES(socklen_t, [], [],
 [
@@ -2398,29 +1835,6 @@ AC_TRY_COMPILE(
    AC_MSG_RESULT(yes),
    AC_MSG_RESULT(no))
 
-if test "$with_time" = yes; then
-  if test "$ac_cv_func_setitimer" = "yes"; then
-    TARGETS="$TARGETS time.$SO"
-  else
-    echo "WARNING: no setitimer(); dropping time.pl from targets"
-  fi
-fi
-
-if test "$ac_cv_func_getrlimit" = "yes"; then
-  TARGETS="$TARGETS rlimit.$SO"
-else
-  echo "WARNING: no getrlimit(); dropping rlimit.pl from targets"
-fi
-
-AC_ARG_ENABLE(mimecharset,
-	[  --enable-mimecharset=charset   Default MIME charset to set on new messages],
-	RFC2045CHARSET="$enableval", RFC2045CHARSET="us-ascii")
-
-AC_SUBST(RFC2045CHARSET)
-
-MAILDROP_CFLAGS="$SHLIB_CFLAGS -I. -I\$(srcdir) -I\$(srcdir)/.. -I../../../.."
-AC_SUBST(MAILDROP_CFLAGS)
-
 if test "$yap_cv_minisat" = no 
 then
   ENABLE_MINISAT="@# "
@@ -2431,126 +1845,101 @@ else
   ENABLE_MINISAT=""
 fi
 
-dnl zlib
-if test "$ENABLE_ZLIB" = ""
+if test "x$PLARCH" = "x"; then
+  case "$host" in
+    *linux*)
+      PLARCH=`echo $host | sed 's/-.*/-linux/'`
+      ;;
+    i?86-*mingw32*)
+      # Make PLARCH match the definition in src/config/win32.h
+      PLARCH=i386-win32
+      ;;
+    x86_64-*mingw32*)
+      # Make PLARCH match the definition in src/config/win64.h
+      PLARCH=x64-win64
+      ;;
+    *-gnu)
+      PLARCH=`echo $host | sed 's/\([^-]*\)-[^-]*-\([^-]*\)-gnu/\1-\2/'`
+      ;;
+    *)
+      PLARCH=`echo $host | sed 's/\([^-]*\)-[^-]*-\([^-]*\)/\1-\2/'`
+      ;;
+  esac
+fi
+
+
+
+m4_include([library/MYDDAS/configure.in])
+
+if test "$yap_cv_R" != "no" -a  -e "$srcdir"/packages/real/Makefile.in; then
+   ENABLE_REAL=""
+
+   m4_include([packages/real/configure.in])
+else
+    REAL_TARGET="dummy"
+    ENABLE_REAL="@# "
+fi
+
+dnl
+dnl java is hard
+dnl
+if test "$yap_cv_java" = no; then
+	ENABLE_JPL="@#"   
+elif test -e "$srcdir"/packages/jpl/Makefile.in; then
+	ENABLE_JPL=""
+	if test "$yap_cv_java" != "yes"; then
+          JAVA_HOME=$yap_cv_java
+	  JAVAPREFIX="$JAVA_HOME"/bin
+       elif test -n "$JAVA_HOME"; then
+	  JAVAPREFIX="$JAVA_HOME"/bin
+       fi
+
+       m4_include([packages/jpl/configure.in])
+
+fi
+
+if test "$ENABLE_CLIB" = ""
 then
 
-AC_CHECK_LIB(z, zlibVersion,
-	     ZLIBS="-lz"
-	     ZLIB=yes,
-	     ZLIB=no)
+m4_include([packages/clib/configure.in])
 
-if test "$ZLIB" = yes; then
-  ZLIB_TARGETS="zlib4pl.$SO"
-  ZLIB_PLTARGETS='zlib.pl'
-  ZLIB_INSTALL=install
-else
-  ZLIB_TARGETS=nolib
-  ZLIB_INSTALL=nolib
-  cat << EOF
-##################################################################
-# ERROR: Could not find library zlib (-lz).  Dropped library(zlib)
-# Library zlib is available from http://www.zlib.net/
-# Most Unix/Linux distributions are shipped with binaries.  Make
-# sure to have the development library installed.
-##################################################################
-EOF
 fi
 
+if test "$ENABLE_LIBARCHIVE" = ""
+then
 
-AC_SUBST(ZLIBS)
-AC_SUBST(ZLIB_TARGETS)
-AC_SUBST(ZLIB_PLTARGETS)
-AC_SUBST(ZLIB_INSTALL)
+m4_include([packages/archive/configure.in])
+
 fi
 
-dnl archive
+if test "$ENABLE_ODBC" = ""; then
 
-if test "$yap_cv_odbc" = yes; then
-	   ODBC_TARGETS="odbc4pl.$SO"
-	   ODBC_PLTARGETS=odbc.pl
-	   AC_CHECK_HEADERS(sql.h)
-	   AC_CHECK_FUNCS(localtime mktime gmtime timegm)
-	   AC_CHECK_TYPES([SQLLEN, SQLULEN],,,
-	       [#include <sql.h>
-	       ])
+m4_include([packages/odbc/configure.in])
+
 else
 	   ODBC_TARGETS=nolib
 	   ODBC_PLTARGETS=odbc.pl
 fi
 
 
-if test "$ENABLE_LIBARCHIVE" = ""
+m4_include([packages/bdd/configure.in])
+
+dnl zlib
+if test "$ENABLE_ZLIB" = ""
 then
-OLD_LIBS=$LIBS
 
-AC_CHECK_HEADER(archive.h,
-		[ AC_DEFINE([HAVE_ARCHIVE_H], 1,
-			    [Define to 1 if you have <archive.h>.])
-		  ARCHIVEH=yes
-		],
-		ARCHIVEH=no)
-
-if test "$ARCHIVEH" = yes; then
-  AC_CHECK_LIB(archive, archive_read_new,
-	       ARCHIVE_LIBS="-larchive"
-	       ARCHIVELIB=yes,
-	       ARCHIVELIB=no)
-fi
-
-LIBS="$LIBS -larchive"
-AC_CHECK_FUNCS(archive_read_support_compression_bzip2 \
-	       archive_read_support_compression_compress \
-	       archive_read_support_compression_gzip \
-	       archive_read_support_compression_lzma \
-	       archive_read_support_compression_none \
-	       archive_read_support_compression_xz)
-
-AC_CHECK_FUNCS(archive_read_support_format_ar \
-	       archive_read_support_format_cpio \
-	       archive_read_support_format_empty \
-	       archive_read_support_format_iso9660 \
-	       archive_read_support_format_mtree \
-	       archive_read_support_format_raw \
-	       archive_read_support_format_tar \
-	       archive_read_support_format_zip)
-
-if test "$ARCHIVELIB" = yes; then
-  ARCHIVE_TARGETS="archive4pl.$SO"
-  ARCHIVE_PLTARGETS=archive.pl
-else
-  ARCHIVE_TARGETS=nolib
-  cat << EOF
-##################################################################
-# ERROR: Could not find library archive (-larchive).  Dropped
-# library(archive). Library archive is available from
-# http://code.google.com/p/libarchive/
-#
-# Most Unix/Linux distributions are shipped with binaries.  Make
-# sure to have the development library installed.  E.g.
-#
-#   Debian/Ubuntu/Mint:	aptitude install libarchive-dev
-#   Fedora/...		yum install libarchive-devel
-#   MacOS (Macports):   port install libarchive
-##################################################################
-EOF
+m4_include([packages/zlib/configure.in])
 
 fi
 
-AC_SUBST(ARCHIVE_LIBS)
-AC_SUBST(ARCHIVE_TARGETS)
-AC_SUBST(ARCHIVE_PLTARGETS)
+m4_include([packages/gecode/configure.in])
 
-LIBS="$OLD_LIBS"
-fi
+m4_include([packages/python/configure.in])
+
+m4_include([packages/cuda/configure.in])
+
 
 AC_SUBST(ENABLE_LIBARCHIVE)
-
-AC_SUBST(ODBC_CFLAGS)
-AC_SUBST(ODBC_LDFLAGS)
-AC_SUBST(ODBC_LIBS)
-AC_SUBST(ODBC_TARGETS)
-AC_SUBST(ODBC_PLTARGETS)
 
 AC_SUBST(ENABLE_ODBC)
 
@@ -2649,9 +2038,6 @@ fi
 
 if test "$ENABLE_CLIB" = ""; then
 AC_CONFIG_FILES([packages/clib/Makefile])
-AC_CONFIG_FILES([packages/clib/maildrop/rfc822/Makefile])
-AC_CONFIG_FILES([packages/clib/maildrop/rfc2045/Makefile])
-AC_CONFIG_FILES([packages/clib/maildrop/rfc2045/rfc2045charset.h])
 fi
 
 if test "$ENABLE_CLPQR" = ""; then
@@ -2664,10 +2050,6 @@ fi
 
 if test "$ENABLE_JPL" = ""; then
 AC_CONFIG_FILES([packages/jpl/Makefile packages/jpl/jpl_paths.yap packages/jpl/src/java/Makefile ])
-fi
-
-if test "$ENABLE_PYTHON" = ""; then
-AC_CONFIG_FILES([ packages/python/Makefile ])
 fi
 
 if test "$ENABLE_PLDOC" = ""; then
@@ -2728,7 +2110,7 @@ AC_CONFIG_FILES([packages/CLPBN/horus/Makefile])
 fi
 
 if test "$ENABLE_GECODE" = ""; then
-AC_CONFIG_FILES([library/gecode/Makefile])
+AC_CONFIG_FILES([packages/gecode/Makefile])
 fi
 
 if test "$ENABLE_PRISM" = ""; then
@@ -2737,8 +2119,6 @@ AC_CONFIG_FILES([packages/prism/src/prolog/Makefile])
 fi
 
 AC_CONFIG_FILES([packages/yap-lbfgs/Makefile])
-
-AC_CONFIG_FILES([packages/cuda/Makefile])
 
 AC_OUTPUT()
 

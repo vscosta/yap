@@ -209,7 +209,11 @@ typedef struct PSEUDO {
         CELL rnd1;
 	union {
 	    Int   oprnd2;
+#if MIN_ARRAY == 0
+	    CELL opseqt[MIN_ARRAY];
+#else
 	    CELL opseqt[1];
+#endif
 	} ops;
     } PInstr;
 

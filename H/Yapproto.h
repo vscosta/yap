@@ -126,6 +126,7 @@ Int    YAP_Execute(struct pred_entry *, CPredicate);
 Int    YAP_ExecuteFirst(struct pred_entry *, CPredicate);
 Int    YAP_ExecuteNext(struct pred_entry *, CPredicate);
 Int    YAP_ExecuteOnCut(struct pred_entry *, CPredicate, struct cut_c_str *);
+Int    YAP_RunGoalOnce(Term);
 
 /* cdmgr.c */
 Term	Yap_all_calls(void);

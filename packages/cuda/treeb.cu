@@ -861,11 +861,11 @@ int join(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenode>:
 
 		memSizeS = newLen * sizeof(int);
 		reservar(&d_S, memSizeS);
-#ifdef DEBUG_MEM
+#if DEBUG_MEM
 		cerr << "+ " << d_S << " d_S  " << memSizeS << endl;
 #endif
 		reservar(&posS, memSizeS);
-#ifdef DEBUG_MEM
+#if DEBUG_MEM
 		cerr << "+ " << posS << " posS  " << memSizeS << endl;
 #endif
 		llenar<<<blockllen, numthreads>>>(p2, d_S, sLen, of2, wherej[1], temp, posS);

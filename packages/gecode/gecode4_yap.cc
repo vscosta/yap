@@ -1656,7 +1656,8 @@ extern "C"
     int s0 = YAP_IntOfTerm(t2);
     YAP_Term t3 = YAP_ARG3;
     int n = gecode_list_length(t3), i=0;
-    DFA::Transition t[n];
+    DFA::Transition t[1024];
+    if (n > 1024) cerr<< "DFA too long" << endl;
     while (YAP_IsPairTerm( t3 ) ) {
       YAP_Term tt = YAP_HeadOfTerm(t3);
       int is, sy, os;

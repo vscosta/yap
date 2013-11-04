@@ -215,15 +215,15 @@
 /*             API             */
 /* --------------------------- */
 
-inline void      core_set_label_counter(YAP_Int value);
-inline YAP_Int   core_get_label_counter(void);
-inline void      core_initialize_depth_breadth_trie(TrNode node, TrNode *depth_node, TrNode *breadth_node);
-inline void      core_finalize_depth_breadth_trie(TrNode depth_node, TrNode breadth_node);
-inline TrNode    core_depth_reduction(TrEngine engine, TrNode node, TrNode depth_node, YAP_Int opt_level, void (*construct_function)(TrNode), void (*destruct_function)(TrNode), void (*copy_function)(TrNode, TrNode), void (*correct_order_function)(void));
-inline TrNode    core_breadth_reduction(TrEngine engine, TrNode node, TrNode breadth_node, YAP_Int opt_level, void (*construct_function)(TrNode), void (*destruct_function)(TrNode), void (*copy_function)(TrNode, TrNode), void (*correct_order_function)(void));
-inline YAP_Term  core_get_trie_db_return_term(void);
-inline void      core_set_trie_db_return_term(YAP_Term return_value);
-inline YAP_Int   core_db_trie_get_optimization_level_count(YAP_Int opt_level);
-inline void      core_depth_breadth_trie_replace_nested_trie(TrNode node, YAP_Int nested_trie_id, YAP_Term new_term);
-inline YAP_Int   core_get_trie_db_opt_min_prefix(void);
-inline void      core_set_trie_db_opt_min_prefix(YAP_Int min_prefix);
+void      core_set_label_counter(YAP_Int value);
+YAP_Int   core_get_label_counter(void);
+void      core_initialize_depth_breadth_trie(TrNode node, TrNode *depth_node, TrNode *breadth_node);
+void      core_finalize_depth_breadth_trie(TrNode depth_node, TrNode breadth_node);
+TrNode    core_depth_reduction(TrEngine engine, TrNode node, TrNode depth_node, YAP_Int opt_level, void (*construct_function)(TrNode), void (*destruct_function)(TrNode), void (*copy_function)(TrNode, TrNode), void (*correct_order_function)(void));
+TrNode    core_breadth_reduction(TrEngine engine, TrNode node, TrNode breadth_node, YAP_Int opt_level, void (*construct_function)(TrNode), void (*destruct_function)(TrNode), void (*copy_function)(TrNode, TrNode), void (*correct_order_function)(void));
+YAP_Term  core_get_trie_db_return_term(void);
+void      core_set_trie_db_return_term(YAP_Term return_value);
+YAP_Int   core_db_trie_get_optimization_level_count(YAP_Int opt_level);
+void      core_depth_breadth_trie_replace_nested_trie(TrNode node, YAP_Int nested_trie_id, YAP_Term new_term);
+YAP_Int   core_get_trie_db_opt_min_prefix(void);
+void      core_set_trie_db_opt_min_prefix(YAP_Int min_prefix);

@@ -179,7 +179,7 @@ assertz_static(C) :-
 	'$head_and_body'(C0, H0, B0),
 	'$recordap'(Mod:Head,(H0 :- B0),R,CR),
 	( '$is_multifile'(Head, Mod) ->
-	    nb_getval('$consulting_file',F),
+	    sourcee_location(F, _),
 	    functor(H0, Na, Ar),
 	    recorda('$multifile_dynamic'(_,_,_), '$mf'(Na,Ar,Mod,F,R), _) 
 	;
@@ -198,7 +198,7 @@ assertz_static(C) :-
 	'$head_and_body'(C0, H0, B0),
 	'$recordzp'(Mod:Head,(H0 :- B0),R,CR),
 	( '$is_multifile'(H0, Mod) ->
-	    get_value('$consulting_file',F),
+	    source_location(F, _),
 	    functor(H0, Na, Ar),
 	    recordz('$multifile_dynamic'(_,_,_), '$mf'(Na,Ar,Mod,F,R), _) 
 	;
@@ -234,7 +234,7 @@ assertz_static(C) :-
 '$remove_all_d_clauses'(_,_).
 
 '$erase_all_mf_dynamic'(Na,A,M) :-
-	get_value('$consulting_file',F),
+	source_location( F , _),
 	recorded('$multifile_dynamic'(_,_,_), '$mf'(Na,A,M,F,R), R1),
 	erase(R1),
 	erase(R),

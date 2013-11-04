@@ -766,12 +766,18 @@
       CHECK(save_X(stream, pc->u.yx.x));
       pc = NEXTOP(pc,yx);
       break;
+      /* instructions type yxc */
+    case _p_func2s_y_cv:
+      CHECK(save_Y(stream, pc->u.yxc.y));
+      CHECK(save_X(stream, pc->u.yxc.xi));
+      CHECK(save_ConstantTerm(stream, pc->u.yxc.c));
+      pc = NEXTOP(pc,yxc);
+      break;
       /* instructions type yxn */
     case _p_and_y_vc:
     case _p_arg_y_cv:
     case _p_div_y_cv:
     case _p_div_y_vc:
-    case _p_func2s_y_cv:
     case _p_func2s_y_vc:
     case _p_minus_y_cv:
     case _p_or_y_vc:

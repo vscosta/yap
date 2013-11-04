@@ -1,0 +1,87 @@
+dnl Gecode support
+
+dnl gecode is usually in /usr/local
+if test -d /usr/local/include/gecode; then
+  CFLAGS="$CFLAGS -I/usr/local/include"
+  SHLIB_CXXFLAGS="$SHLIB_CXXFLAGS -I/usr/local/include"
+  GECODE_EXTRALIBS="-L/usr/local/lib"
+fi
+
+AC_CHECK_HEADER(gecode/support/config.hpp,
+	have_gecode=yes, have_gecode=no)
+
+AC_ARG_ENABLE(gecode,
+	[ --enable-gecode            install gecode library],
+        [use_gecode="$enableval"
+	 if test "$use_gecode" = yes; then
+	    if test "$have_gecode" = no; then
+	       AC_MSG_ERROR([cannot enable gecode: gecode library not found])
+	    fi
+         fi], use_gecode=$have_gecode)
+
+if test "$use_gecode" = no; then
+  ENABLE_GECODE="@# "
+else
+  ENABLE_GECODE=""
+fi
+AC_SUBST(ENABLE_GECODE)
+
+AC_MSG_CHECKING([if dynamic arrays are supported])
+
+AC_COMPILE_IFELSE([
+  AC_LANG_PROGRAM([[void foo(int n) { int a[n]; a[1]=0; }]],[[foo(3);]])
+  ],[
+  AC_MSG_RESULT([yes])
+  AC_DEFINE([HAVE_DYNARRAY],[1],[Define if dynamic arrays are supported])
+  ],[
+  AC_MSG_RESULT([no])
+  ])
+
+GECODE_VERSION=unknown-gecode-version
+
+
+if test "$use_gecode" = yes; then
+  AC_MSG_CHECKING([gecode version])
+  AC_RUN_IFELSE([AC_LANG_PROGRAM([[
+#include "gecode/support/config.hpp"
+#include <stdio.h>
+]],[[
+  FILE* out = fopen("conftest.out","w");
+  fprintf(out,"%s\n",GECODE_VERSION);
+  fclose(out);
+  return 0;
+]])],[GECODE_VERSION=$(cat conftest.out)
+    AC_MSG_RESULT([$GECODE_VERSION])],
+   [AC_MSG_ERROR([cannot determine gecode version])])
+   case "$target_os" in
+     *darwin*)
+     AC_MSG_CHECKING([if -framework gecode is required])
+     AC_LANG_PUSH([C++])
+     saved_CXXFLAGS="$CXXFLAGS"
+     CXXFLAGS="$CXXFLAGS -framework gecode"
+     AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+#include "gecode/int.hh"
+]],[[
+Gecode::Exception e("","");
+return 0;
+]])],[GECODE_EXTRALIBS="-framework gecode"
+      AC_MSG_RESULT([yes])],
+     [AC_MSG_RESULT([no])])
+     AC_LANG_POP()
+     CXXFLAGS="$saved_CXXFLAGS"
+     ;;
+   esac
+fi
+
+GECODE_MAJOR=`echo $GECODE_VERSION| sed 's/\(^.\).*/\1/'`
+
+AC_SUBST(GECODE_MAJOR)
+
+if test "$GECODE_MAJOR" = "3"; then
+  GECODE_EXTRALIBS="$GECODE_EXTRALIBS -lgecodesupport -lgecodekernel -lgecodeint -lgecodeset -lgecodesearch"
+else
+  GECODE_EXTRALIBS="$GECODE_EXTRALIBS -lgecodesupport -lgecodekernel -lgecodefloat -lgecodeint -lgecodeset -lgecodesearch"
+fi
+
+AC_SUBST(GECODE_VERSION)
+AC_SUBST(GECODE_EXTRALIBS)

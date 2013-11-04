@@ -919,7 +919,6 @@ InitFlags(void)
   yap_flags[WRITE_QUOTED_STRING_FLAG] = FALSE;
   /* we do not garantee safe assert in parallel mode */
   yap_flags[ALLOW_ASSERTING_STATIC_FLAG] = TRUE;
-  yap_flags[GENERATE_DEBUG_INFO_FLAG] = TRUE;
   /* current default */
   yap_flags[INDEXING_MODE_FLAG] = INDEX_MODE_MULTI;
   yap_flags[TABLING_MODE_FLAG] = 0;

@@ -166,7 +166,7 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 	;
 	    get_value('$syntaxcheckmultiple',on)
 	),
-	nb_getval('$consulting_file',File),
+	source_location( File, _ ),
 	'$xtract_head'(T,M,NM,_,F,A),
 	\+ (
 	    % allow duplicates if we are not the last predicate to have
@@ -233,7 +233,7 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 '$handle_discontiguous'((:-),1,_) :- !,
 	fail.
 '$handle_discontiguous'(F,A,M) :-
-	nb_getval('$consulting_file', FileName),
+	source_location( FileName, _ ),
 	% we have been there before
 	once(recorded('$predicate_defs','$predicate_defs'(F, A, M, FileName),_)),
 	% and we are not 
@@ -247,11 +247,11 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 
 % never complain the second time
 '$handle_multiple'(F,A,M) :-
-	nb_getval('$consulting_file', FileName),
+	source_location(FileName, _),
 	recorded('$predicate_defs','$predicate_defs'(F,A,M,FileName),_), !.
 % first time we have a definition
 '$handle_multiple'(F,A,M) :-
-	nb_getval('$consulting_file', FileName0),
+	source_location(FileName0, _),
 	recorded('$predicate_defs','$predicate_defs'(F,A,M,FileName),_),
 	FileName \= FileName0,
 	'$multiple_has_been_defined'(FileName, F/A, M), !.
@@ -259,7 +259,7 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 % be careful about these cases.
 % consult does not count
 '$multiple_has_been_defined'(_, _, _) :-
-	nb_getval('$consulting',true), !.	
+	'$nb_getval'('$consulting_file', _, fail), !.	
 % multifile does not count
 '$multiple_has_been_defined'(_, F/A, M) :-
 	functor(S, F, A),
@@ -334,7 +334,7 @@ discontiguous(F) :-
 %
 '$check_multifile_pred'(Hd, M, _) :-
 	functor(Hd,Na,Ar),
-	nb_getval('$consulting_file',F),
+	source_location(F, _),
 	recorded('$multifile_defs','$defined'(F,Na,Ar,M),_), !.
 % oops, we did not.
 '$check_multifile_pred'(Hd, M, Fl) :-

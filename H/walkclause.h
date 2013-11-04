@@ -565,12 +565,15 @@
     case _put_y_var:
       pc = NEXTOP(pc,yx);
       break;
+      /* instructions type yxc */
+    case _p_func2s_y_cv:
+      pc = NEXTOP(pc,yxc);
+      break;
       /* instructions type yxn */
     case _p_and_y_vc:
     case _p_arg_y_cv:
     case _p_div_y_cv:
     case _p_div_y_vc:
-    case _p_func2s_y_cv:
     case _p_func2s_y_vc:
     case _p_minus_y_cv:
     case _p_or_y_vc:

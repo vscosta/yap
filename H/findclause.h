@@ -1317,6 +1317,13 @@
       }
       cl = NEXTOP(cl,yx);
       break;
+    case _p_func2s_y_cv:
+      if (!(nofregs = delete_regcopy(myregs, nofregs, cl->u.yxc.y))) {
+	clause->Tag = (CELL)NULL;
+	return;
+      }
+      cl = NEXTOP(cl,yxc);
+      break;
     case _p_and_y_vc:
       if (!(nofregs = delete_regcopy(myregs, nofregs, cl->u.yxn.y))) {
 	clause->Tag = (CELL)NULL;
@@ -1339,13 +1346,6 @@
       cl = NEXTOP(cl,yxn);
       break;
     case _p_div_y_vc:
-      if (!(nofregs = delete_regcopy(myregs, nofregs, cl->u.yxn.y))) {
-	clause->Tag = (CELL)NULL;
-	return;
-      }
-      cl = NEXTOP(cl,yxn);
-      break;
-    case _p_func2s_y_cv:
       if (!(nofregs = delete_regcopy(myregs, nofregs, cl->u.yxn.y))) {
 	clause->Tag = (CELL)NULL;
 	return;

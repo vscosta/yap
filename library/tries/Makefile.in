@@ -37,7 +37,7 @@ SO=@SO@
 CWD=$(PWD)
 #
 
-OBJS=core_tries.o base_tries.o tries.o base_itries.o itries.o
+OBJS=core_tries.o base_tries.o base_dbtries.o tries.o base_itries.o itries.o
 SOBJS=tries.@SO@ itries.@SO@
 
 #in some systems we just create a single object, in others we need to
