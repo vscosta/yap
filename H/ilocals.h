@@ -52,7 +52,6 @@ static void InitWorker(int wid) {
   REMOTE_DepthArenas(wid) = 0;
   REMOTE_ArithError(wid) = FALSE;
   REMOTE_LastAssertedPred(wid) = NULL;
-  REMOTE_DebugOn(wid) = FALSE;
   REMOTE_ScannerStack(wid) = NULL;
   REMOTE_ScannerExtraBlocks(wid) = NULL;
   REMOTE_BallTerm(wid) = NULL;

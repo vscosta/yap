@@ -52,7 +52,6 @@ typedef struct worker_local {
   Int  DepthArenas_;
   int  ArithError_;
   struct pred_entry*  LastAssertedPred_;
-  int  DebugOn_;
   char*  ScannerStack_;
   struct scanner_extra_alloc*  ScannerExtraBlocks_;
   struct DB_TERM*  BallTerm_;

@@ -91,8 +91,6 @@
 #define REMOTE_ArithError(wid) REMOTE(wid)->ArithError_
 #define LOCAL_LastAssertedPred LOCAL->LastAssertedPred_
 #define REMOTE_LastAssertedPred(wid) REMOTE(wid)->LastAssertedPred_
-#define LOCAL_DebugOn LOCAL->DebugOn_
-#define REMOTE_DebugOn(wid) REMOTE(wid)->DebugOn_
 #define LOCAL_ScannerStack LOCAL->ScannerStack_
 #define REMOTE_ScannerStack(wid) REMOTE(wid)->ScannerStack_
 #define LOCAL_ScannerExtraBlocks LOCAL->ScannerExtraBlocks_
