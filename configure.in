@@ -1869,7 +1869,7 @@ fi
 
 
 
-m4_include([library/myddas/configure.in])
+m4_include([library/MYDDAS/configure.in])
 
 if test "$yap_cv_R" != "no" -a  -e "$srcdir"/packages/real/Makefile.in; then
    ENABLE_REAL=""
@@ -2038,9 +2038,6 @@ fi
 
 if test "$ENABLE_CLIB" = ""; then
 AC_CONFIG_FILES([packages/clib/Makefile])
-AC_CONFIG_FILES([packages/clib/maildrop/rfc822/Makefile])
-AC_CONFIG_FILES([packages/clib/maildrop/rfc2045/Makefile])
-AC_CONFIG_FILES([packages/clib/maildrop/rfc2045/rfc2045charset.h])
 fi
 
 if test "$ENABLE_CLPQR" = ""; then
