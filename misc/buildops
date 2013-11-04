@@ -242,7 +242,7 @@ rewritable_field(0't).
 
 
 get_op(0'a,"Arity").
-get_op(0'a,"Atom").
+get_op(0'A,"Atom").
 get_op(0'b,"CellPtoHeap").
 get_op(0'c,"ConstantTerm").
 get_op(0'd,"DoubleInCode").
