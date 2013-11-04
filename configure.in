@@ -1231,7 +1231,7 @@ if test "$yap_cv_mpi" != "no"; then
 		[AC_DEFINE(HAVE_LIBMPE, 0)])
      if test "$ac_cv_lib_mpe_MPE_Init_log" = yes
      then
-	MPI_LIBS="-lmpe"
+	MPI_1LIBS="-lmpe"
 	MPI_OBJS="$MPI_OBJS mpe.o"
      fi
      AC_CHECK_HEADERS(mpe.h)
@@ -1425,7 +1425,6 @@ AC_SUBST(ENABLE_SEMWEB)
 AC_SUBST(ENABLE_SGML)
 AC_SUBST(ENABLE_ZLIB)
 AC_SUBST(ENABLE_CLPBN_BP)
-AC_SUBST(LIBJPL)
 AC_SUBST(IN_UNIX)
 AC_SUBST(YAPMPILIB)
 AC_SUBST(INSTALL_MPI)
@@ -1441,9 +1440,6 @@ AC_SUBST(EXTRA_INCLUDES_FOR_WIN32)
 
 AC_SUBST(ENABLE_MINISAT)
 AC_SUBST(ENABLE_REAL)
-AC_SUBST(REAL_TARGET)
-AC_SUBST(REAL_INCLUDES)
-AC_SUBST(REAL_LIBS)
 AC_SUBST(INSTALL_MATLAB)
 AC_SUBST(MATLAB_INCLUDE)
 AC_SUBST(INSTALL_PRISM)
@@ -2049,7 +2045,7 @@ AC_CONFIG_FILES([packages/http/Makefile])
 fi
 
 if test "$ENABLE_JPL" = ""; then
-AC_CONFIG_FILES([packages/jpl/Makefile packages/jpl/jpl_paths.yap packages/jpl/src/java/Makefile ])
+AC_CONFIG_FILES([packages/jpl/Makefile packages/jpl/src/java/Makefile ])
 fi
 
 if test "$ENABLE_PLDOC" = ""; then
