@@ -903,7 +903,7 @@ static int p_trie_get_db_opt_level_count_cont(void) {
   YAP_PRESERVED_DATA(opt_level, db_trie_opt_level);
   opt_level->value = YAP_MkIntTerm(YAP_IntOfTerm(opt_level->value) + 1);
   if (YAP_IntOfTerm(opt_level->value) < 4) {
-    if (YAP_Unify(arg_opt_level, opt_level->value));
+    if (YAP_Unify(arg_opt_level, opt_level->value))
       return YAP_Unify(arg_count, YAP_MkIntTerm(trie_get_db_opt_level_count(YAP_IntOfTerm(arg_opt_level))));
     YAP_cut_fail();
     return FALSE;

@@ -210,10 +210,10 @@
 
 static TrNode depth_reduction(TrEntry trie, TrNode depth_node, YAP_Int opt_level);
 static TrNode breadth_reduction(TrEntry trie, TrNode breadth_node, YAP_Int opt_level);
-inline int    compare_label_nodes(TrData data1, TrData data2);
-inline void   move_after(TrData data_source, TrData data_dest);
-inline void   move_last_data_after(TrData moveto_data);
-inline void   set_depth_breadth_reduction_current_data(TrData data);
+static inline int    compare_label_nodes(TrData data1, TrData data2);
+static inline  void   move_after(TrData data_source, TrData data_dest);
+static inline  void   move_last_data_after(TrData moveto_data);
+static inline  void   set_depth_breadth_reduction_current_data(TrData data);
 
 
 /* -------------------------- */
@@ -227,7 +227,7 @@ static TrData  CURRENT_DEPTH_BREADTH_DATA;
 /*            API             */     
 /* -------------------------- */
 
-inline
+
 YAP_Term trie_depth_breadth(TrEntry trie, TrEntry db_trie, YAP_Int opt_level, YAP_Int start_counter, YAP_Int *end_counter) {
   TrNode depth_node, breadth_node, nested_trie;
   core_set_label_counter(start_counter);
@@ -257,32 +257,32 @@ YAP_Term trie_depth_breadth(TrEntry trie, TrEntry db_trie, YAP_Int opt_level, YA
 }
 
 
-inline
+
 YAP_Int trie_get_db_opt_level_count(YAP_Int opt_level) {
   return core_db_trie_get_optimization_level_count(opt_level);
 }
 
 
-inline
+
 TrData trie_get_depth_breadth_reduction_current_data(void) {
   return CURRENT_DEPTH_BREADTH_DATA;
 }
 
 
-inline
+
 void trie_replace_nested_trie(TrEntry trie, YAP_Int nested_trie_id, YAP_Term new_term) {
   core_depth_breadth_trie_replace_nested_trie(TrNode_child(TrEntry_trie(trie)), nested_trie_id, new_term);
   return;
 }
 
 
-inline
+
 YAP_Int trie_get_db_opt_min_prefix(void) {
   return core_get_trie_db_opt_min_prefix();
 }
 
 
-inline
+
 void trie_set_db_opt_min_prefix(YAP_Int min_prefix) {
   core_set_trie_db_opt_min_prefix(min_prefix);
   return;
@@ -294,7 +294,7 @@ void trie_set_db_opt_min_prefix(YAP_Int min_prefix) {
 /* -------------------------- */
 
 
-inline
+static inline
 void set_depth_breadth_reduction_current_data(TrData data) {
   CURRENT_DEPTH_BREADTH_DATA = data;
   return;
@@ -359,7 +359,7 @@ TrNode breadth_reduction(TrEntry trie, TrNode breadth_node, YAP_Int opt_level) {
 }
 
 
-inline
+static inline
 void move_last_data_after(TrData moveto_data) {
   TrEntry trie = CURRENT_TRIE;
   TrData last_data = TrEntry_last_data(trie);
@@ -378,7 +378,7 @@ void move_last_data_after(TrData moveto_data) {
 }
 
 
-inline
+static inline
 void move_after(TrData data_source, TrData data_dest) {
   TrEntry trie = CURRENT_TRIE;
   if (data_source == TrEntry_first_data(trie))
@@ -407,7 +407,6 @@ void move_after(TrData data_source, TrData data_dest) {
 }
 
 
-inline
 void trie_data_order_correction(void) {
   TrEntry trie = CURRENT_TRIE;
   TrData inserted_data = TrEntry_last_data(trie);
@@ -434,7 +433,7 @@ void trie_data_order_correction(void) {
 }
 
 
-inline
+static inline
 int compare_label_nodes(TrData data1, TrData data2) {
   YAP_Term t1 = TrNode_entry(TrData_leaf(data1)), t2 = TrNode_entry(TrData_leaf(data2));
   YAP_Int i1 = atol(YAP_AtomName(YAP_AtomOfTerm(t1)) + 1), i2 = atol(YAP_AtomName(YAP_AtomOfTerm(t2)) + 1);

@@ -39,7 +39,6 @@ static YAP_Int CURRENT_TRAVERSE_MODE;
 /*            API             */     
 /* -------------------------- */
 
-inline
 void trie_init_module(void) {
   TRIE_ENGINE = core_trie_init_module();
   FIRST_TRIE = NULL;
@@ -48,7 +47,7 @@ void trie_init_module(void) {
 }
 
 
-inline
+
 void trie_data_load(TrNode node, YAP_Int depth, FILE *file) {
   TrData data;
 
@@ -58,7 +57,7 @@ void trie_data_load(TrNode node, YAP_Int depth, FILE *file) {
 }
 
 
-inline
+
 void trie_data_copy(TrNode node_dest, TrNode node_source) {
   TrData data_dest;
 
@@ -68,7 +67,7 @@ void trie_data_copy(TrNode node_dest, TrNode node_source) {
 }
 
 
-inline
+
 void trie_data_destruct(TrNode node) {
   TrEntry trie;
   TrData data;
@@ -89,7 +88,7 @@ void trie_data_destruct(TrNode node) {
 }
 
 
-inline
+
 TrEntry trie_open(void) {
   TrEntry trie;
   TrNode node;
@@ -103,7 +102,7 @@ TrEntry trie_open(void) {
 }
 
 
-inline
+
 void trie_close(TrEntry trie) {
   core_trie_close(TRIE_ENGINE, TrEntry_trie(trie), &trie_data_destruct);
   if (TrEntry_next(trie)) {
@@ -116,7 +115,7 @@ void trie_close(TrEntry trie) {
 }
 
 
-inline
+
 void trie_close_all(void) {
   TrEntry trie;
 
@@ -130,20 +129,20 @@ void trie_close_all(void) {
 }
 
 
-inline
+
 void trie_set_mode(YAP_Int mode) {
   core_trie_set_mode(mode);
   return;
 }
 
 
-inline
+
 YAP_Int trie_get_mode(void) {
   return core_trie_get_mode();
 }
 
 
-inline
+
 TrData trie_put_entry(TrEntry trie, YAP_Term entry) {
   TrData data;
   TrNode node;
@@ -157,7 +156,7 @@ TrData trie_put_entry(TrEntry trie, YAP_Term entry) {
 }
 
 
-inline
+
 TrData trie_check_entry(TrEntry trie, YAP_Term entry) {
   TrNode node;
 
@@ -167,13 +166,13 @@ TrData trie_check_entry(TrEntry trie, YAP_Term entry) {
 }
 
 
-inline
+
 YAP_Term trie_get_entry(TrData data) {
   return core_trie_get_entry(TrData_leaf(data));
 }
 
 
-inline
+
 TrData trie_get_first_entry(TrEntry trie) {
   TrData data;
   
@@ -182,7 +181,7 @@ TrData trie_get_first_entry(TrEntry trie) {
 }
 
 
-inline
+
 TrData trie_get_last_entry(TrEntry trie) {
   TrData data;
   
@@ -193,7 +192,7 @@ TrData trie_get_last_entry(TrEntry trie) {
 }
 
 
-inline
+
 TrData trie_traverse_init(TrEntry trie, TrData init_data) {
   TrData data;
 
@@ -210,7 +209,7 @@ TrData trie_traverse_init(TrEntry trie, TrData init_data) {
 }
 
 
-inline
+
 TrData trie_traverse_cont(TrEntry trie) {
   TrData data;
 
@@ -229,21 +228,21 @@ TrData trie_traverse_cont(TrEntry trie) {
 }
 
 
-inline
+
 void trie_remove_entry(TrData data) {
   core_trie_remove_entry(TRIE_ENGINE, TrData_leaf(data), &trie_data_destruct);
   return;
 }
 
 
-inline
+
 void trie_remove_subtree(TrData data) {
   core_trie_remove_subtree(TRIE_ENGINE, TrData_leaf(data), &trie_data_destruct);
   return;
 }
 
 
-inline
+
 void trie_join(TrEntry trie_dest, TrEntry trie_source) {
   CURRENT_TRIE = trie_dest;
   core_trie_join(TRIE_ENGINE, TrEntry_trie(trie_dest), TrEntry_trie(trie_source), NULL, &trie_data_copy);
@@ -251,33 +250,33 @@ void trie_join(TrEntry trie_dest, TrEntry trie_source) {
 }
 
 
-inline
+
 void trie_intersect(TrEntry trie_dest, TrEntry trie_source) {
   core_trie_intersect(TRIE_ENGINE, TrEntry_trie(trie_dest), TrEntry_trie(trie_source), NULL, &trie_data_destruct);
   return;
 }
 
 
-inline
+
 YAP_Int trie_count_join(TrEntry trie1, TrEntry trie2) {
   return core_trie_count_join(TrEntry_trie(trie1), TrEntry_trie(trie2));
 }
 
 
-inline
+
 YAP_Int trie_count_intersect(TrEntry trie1, TrEntry trie2) {
   return core_trie_count_intersect(TrEntry_trie(trie1), TrEntry_trie(trie2));
 }
 
 
-inline
+
 void trie_save(TrEntry trie, FILE *file) {
   core_trie_save(TrEntry_trie(trie), file, NULL);
   return;
 }
 
 
-inline
+
 TrEntry trie_load(FILE *file) {
   TrEntry trie;
   TrNode node;
@@ -296,35 +295,34 @@ TrEntry trie_load(FILE *file) {
 }
 
 
-inline
+
 void trie_stats(YAP_Int *memory, YAP_Int *tries, YAP_Int *entries, YAP_Int *nodes) {
   core_trie_stats(TRIE_ENGINE, memory, tries, entries, nodes);
   return;
 }
 
 
-inline
+
 void trie_max_stats(YAP_Int *memory, YAP_Int *tries, YAP_Int *entries, YAP_Int *nodes) {
   core_trie_max_stats(TRIE_ENGINE, memory, tries, entries, nodes);
   return;
 }
 
 
-inline
 void trie_usage(TrEntry trie, YAP_Int *entries, YAP_Int *nodes, YAP_Int *virtual_nodes) {
   core_trie_usage(TrEntry_trie(trie), entries, nodes, virtual_nodes);
   return;
 }
 
 
-inline
+
 void trie_print(TrEntry trie) {
   core_trie_print(TrEntry_trie(trie), NULL);
   return;
 }
 
 
-inline
+
 void trie_data_construct(TrNode node) {
   TrData data;
 
@@ -334,20 +332,20 @@ void trie_data_construct(TrNode node) {
 }
 
 
-inline
+
 void trie_set_traverse_mode(YAP_Int mode) {
   CURRENT_TRAVERSE_MODE = mode;
   return;
 }
 
 
-inline
+
 YAP_Int trie_get_traverse_mode(void) {
   return CURRENT_TRAVERSE_MODE;
 }
 
 
-inline
+
 TrData trie_traverse_first(TrEntry trie) {
   TrData data;
   if (CURRENT_TRAVERSE_MODE == TRAVERSE_MODE_FORWARD)
@@ -358,7 +356,7 @@ TrData trie_traverse_first(TrEntry trie) {
 }
 
 
-inline
+
 TrData trie_traverse_next(TrData cur) {
   TrData data = NULL;
   if (cur) {
@@ -374,14 +372,14 @@ TrData trie_traverse_next(TrData cur) {
 }
 
 
-inline
+
 void trie_disable_hash_table(void) {
   core_disable_hash_table();
   return;
 }
 
 
-inline
+
 void trie_enable_hash_table(void) {
   core_enable_hash_table();
   return;
@@ -400,7 +398,7 @@ TrData get_data_from_trie_node(TrNode node) {
 }
 
 
-inline
+
 YAP_Term trie_to_list(TrEntry trie) {
   return core_trie_to_list(TrEntry_trie(trie));
 }

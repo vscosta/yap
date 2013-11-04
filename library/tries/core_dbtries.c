@@ -209,10 +209,10 @@
 inline void displaynode(TrNode node);
 inline int      traverse_get_counter(TrNode node);
 inline YAP_Term generate_label(YAP_Int Index);
-inline YAP_Term update_depth_breadth_trie(TrEngine engine, TrNode root, YAP_Int opt_level, void (*construct_function)(TrNode), void (*destruct_function)(TrNode), void (*copy_function)(TrNode, TrNode), void (*correct_order_function)(void));
-inline YAP_Term get_return_node_term(TrNode node);
-inline void     traverse_and_replace_nested_trie(TrNode node, YAP_Int nested_trie_id, YAP_Term new_term);
-inline TrNode   replace_nested_trie(TrNode node, TrNode child, YAP_Term new_term);
+YAP_Term update_depth_breadth_trie(TrEngine engine, TrNode root, YAP_Int opt_level, void (*construct_function)(TrNode), void (*destruct_function)(TrNode), void (*copy_function)(TrNode, TrNode), void (*correct_order_function)(void));
+YAP_Term get_return_node_term(TrNode node);
+void     traverse_and_replace_nested_trie(TrNode node, YAP_Int nested_trie_id, YAP_Term new_term);
+TrNode   replace_nested_trie(TrNode node, TrNode child, YAP_Term new_term);
 
 
 /* -------------------------- */
@@ -229,20 +229,20 @@ static YAP_Int TRIE_DEPTH_BREADTH_OPT_COUNT[3];
 /*     depth-breadth Trie     */
 /* -------------------------- */
 
-inline
+
 YAP_Int core_get_trie_db_opt_min_prefix(void) {
   return TRIE_DEPTH_BREADTH_MIN_PREFIX;
 }
 
 
-inline
+
 void core_set_trie_db_opt_min_prefix(YAP_Int min_prefix) {
   TRIE_DEPTH_BREADTH_MIN_PREFIX = min_prefix;
   return;
 }
 
 
-inline
+
 void core_depth_breadth_trie_replace_nested_trie(TrNode node, YAP_Int nested_trie_id, YAP_Term new_term) {
   traverse_and_replace_nested_trie(node, nested_trie_id, new_term);
   return;
@@ -350,7 +350,6 @@ void traverse_and_replace_nested_trie(TrNode node, YAP_Int nested_trie_id, YAP_T
 }
 
 /* fixmeeee */
-inline
 TrNode replace_nested_trie(TrNode node, TrNode child, YAP_Term new_term) {
   TrNode newnode, temp, newnodef = NULL;
   if (YAP_IsApplTerm(new_term)) {
@@ -409,31 +408,31 @@ TrNode replace_nested_trie(TrNode node, TrNode child, YAP_Term new_term) {
 }
 
 
-inline
+
 YAP_Term  core_get_trie_db_return_term(void) {
   return TRIE_DEPTH_BREADTH_RETURN_TERM;
 }
 
 
-inline
+
 void core_set_trie_db_return_term(YAP_Term return_value){
   TRIE_DEPTH_BREADTH_RETURN_TERM = return_value;
   return;
 }
 
 
-inline
+
 void core_set_label_counter(YAP_Int value) {
   LABEL_COUNTER = value;                            // Initialize the counter
   return;
 }
 
-inline
+
 YAP_Int core_get_label_counter(void) {
   return LABEL_COUNTER;
 }
 
-inline
+
 void core_initialize_depth_breadth_trie(TrNode node, TrNode *depth_node, TrNode *breadth_node) {
   TrNode root = node;
   YAP_Functor f;
@@ -450,7 +449,7 @@ void core_initialize_depth_breadth_trie(TrNode node, TrNode *depth_node, TrNode 
 }
 
 
-inline
+
 void core_finalize_depth_breadth_trie(TrNode depth_node, TrNode breadth_node) {
   depth_node = trie_node_check_insert(depth_node, YAP_MkIntTerm(1));
   depth_node = trie_node_check_insert(depth_node, PairEndTag);
@@ -464,7 +463,7 @@ void core_finalize_depth_breadth_trie(TrNode depth_node, TrNode breadth_node) {
 }
 
 
-inline
+
 TrNode core_depth_reduction(TrEngine engine, TrNode node, TrNode depth_node, YAP_Int opt_level, void (*construct_function)(TrNode), void (*destruct_function)(TrNode), void (*copy_function)(TrNode, TrNode), void (*correct_order_function)(void)) {
   TrNode leaf = node;
   YAP_Term t, *stack_top;
@@ -530,7 +529,7 @@ TrNode core_depth_reduction(TrEngine engine, TrNode node, TrNode depth_node, YAP
 }
 
 
-inline
+
 TrNode core_breadth_reduction(TrEngine engine, TrNode node, TrNode breadth_node, YAP_Int opt_level, void (*construct_function)(TrNode), void (*destruct_function)(TrNode), void (*copy_function)(TrNode, TrNode), void (*correct_order_function)(void)) {
   YAP_Term t, *stack_top;
   int count = -1;
@@ -760,7 +759,7 @@ YAP_Term generate_label(YAP_Int Index) {
 }
 
 
-inline
+
 YAP_Term update_depth_breadth_trie(TrEngine engine, TrNode root, YAP_Int opt_level, void (*construct_function)(TrNode), void (*destruct_function)(TrNode), void (*copy_function)(TrNode, TrNode), void (*correct_order_function)(void)) {
   TrNode node = root, remember = NULL;
   int count = -1, cnt = -1, c_cnt = 0, f_cnt = 0;
@@ -903,7 +902,7 @@ YAP_Term update_depth_breadth_trie(TrEngine engine, TrNode root, YAP_Int opt_lev
 }
 
 
-inline
+
 YAP_Int core_db_trie_get_optimization_level_count(YAP_Int opt_level) {
   return TRIE_DEPTH_BREADTH_OPT_COUNT[opt_level - 1];
 }

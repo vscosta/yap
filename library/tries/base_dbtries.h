@@ -207,10 +207,10 @@
 /*             API             */
 /* --------------------------- */
 
-inline YAP_Term trie_depth_breadth(TrEntry trie, TrEntry db_trie, YAP_Int opt_level, YAP_Int start_counter, YAP_Int *end_counter);
-inline void     trie_data_order_correction(void);
-inline TrData   trie_get_depth_breadth_reduction_current_data(void);
-inline YAP_Int  trie_get_db_opt_level_count(YAP_Int opt_level);
-inline void     trie_replace_nested_trie(TrEntry trie, YAP_Int nested_trie_id, YAP_Term new_term);
-inline YAP_Int  trie_get_db_opt_min_prefix(void);
-inline void     trie_set_db_opt_min_prefix(YAP_Int min_prefix);
+YAP_Term trie_depth_breadth(TrEntry trie, TrEntry db_trie, YAP_Int opt_level, YAP_Int start_counter, YAP_Int *end_counter);
+void     trie_data_order_correction(void);
+TrData   trie_get_depth_breadth_reduction_current_data(void);
+YAP_Int  trie_get_db_opt_level_count(YAP_Int opt_level);
+void     trie_replace_nested_trie(TrEntry trie, YAP_Int nested_trie_id, YAP_Term new_term);
+YAP_Int  trie_get_db_opt_min_prefix(void);
+void     trie_set_db_opt_min_prefix(YAP_Int min_prefix);

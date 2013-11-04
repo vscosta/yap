@@ -49,10 +49,11 @@ static YAP_Term trie_to_list_floats(TrNode node);
 /* -------------------------- */
 
 static TrEngine CURRENT_TRIE_ENGINE;
+
 static YAP_Int USAGE_ENTRIES, USAGE_NODES, USAGE_VIRTUAL_NODES;
 static YAP_Int CURRENT_AUXILIARY_TERM_STACK_SIZE, CURRENT_TRIE_MODE, CURRENT_LOAD_VERSION, CURRENT_DEPTH, CURRENT_INDEX;
 static YAP_Term *AUXILIARY_TERM_STACK;
-static YAP_Term *stack_args, *stack_args_base, *stack_vars, *stack_vars_base;
+YAP_Term *stack_args, *stack_args_base, *stack_vars, *stack_vars_base;
 static YAP_Functor FunctorComma;
 static void (*DATA_SAVE_FUNCTION)(TrNode, FILE *);
 static void (*DATA_LOAD_FUNCTION)(TrNode, YAP_Int, FILE *);
@@ -68,7 +69,7 @@ static YAP_Int TRIE_DISABLE_HASH_TABLE = 0;
 /*     Inline Procedures      */
 /* -------------------------- */
 
-static inline
+static
 TrNode trie_node_check_insert(TrNode parent, YAP_Term t) {
   TrNode child;
 
@@ -156,7 +157,7 @@ TrNode trie_node_check_insert(TrNode parent, YAP_Term t) {
 }
 
 
-static inline
+static
 TrNode trie_node_insert(TrNode parent, YAP_Term t, TrHash hash) {
   TrNode child;
 
@@ -180,7 +181,7 @@ TrNode trie_node_insert(TrNode parent, YAP_Term t, TrHash hash) {
 }
 
 
-static inline
+static
 TrNode trie_node_check(TrNode parent, YAP_Term t) {
   TrNode child;
 
@@ -203,7 +204,7 @@ TrNode trie_node_check(TrNode parent, YAP_Term t) {
 }
 
 
-static inline
+static
 YAP_Term trie_to_list_create_simple(const char *atom_name, TrNode node) {
   YAP_Functor f = YAP_MkFunctor(YAP_LookupAtom(atom_name), 1);
   YAP_Term child = trie_to_list(TrNode_child(node));  
@@ -212,7 +213,7 @@ YAP_Term trie_to_list_create_simple(const char *atom_name, TrNode node) {
 }
 
 
-static inline
+static
 YAP_Term trie_to_list_create_simple_end(const char *atom_name, TrNode node) {
   YAP_Atom atom = YAP_LookupAtom(atom_name);
   
@@ -226,7 +227,7 @@ YAP_Term trie_to_list_create_simple_end(const char *atom_name, TrNode node) {
 }
 
 
-static inline
+static
 YAP_Term trie_to_list_create_two(const char *atom_name, TrNode node, YAP_Term operand) {
   YAP_Atom atom = YAP_LookupAtom(atom_name);
   
@@ -247,7 +248,6 @@ YAP_Term trie_to_list_create_two(const char *atom_name, TrNode node, YAP_Term op
 /*            API             */     
 /* -------------------------- */
 
-inline
 TrEngine core_trie_init_module(void) {
   static int init_once = 1;
   TrEngine engine;
@@ -264,7 +264,7 @@ TrEngine core_trie_init_module(void) {
 }
 
 
-inline
+
 TrNode core_trie_open(TrEngine engine) {
   TrNode node;
 
@@ -278,7 +278,7 @@ TrNode core_trie_open(TrEngine engine) {
 }
 
 
-inline
+
 void core_trie_close(TrEngine engine, TrNode node, void (*destruct_function)(TrNode)) {
   CURRENT_TRIE_ENGINE = engine;
   DATA_DESTRUCT_FUNCTION = destruct_function;
@@ -295,7 +295,7 @@ void core_trie_close(TrEngine engine, TrNode node, void (*destruct_function)(TrN
 }
 
 
-inline
+
 void core_trie_close_all(TrEngine engine, void (*destruct_function)(TrNode)) {
   while (TrEngine_trie(engine))
     core_trie_close(engine, TrEngine_trie(engine), destruct_function);
@@ -303,20 +303,20 @@ void core_trie_close_all(TrEngine engine, void (*destruct_function)(TrNode)) {
 }
 
 
-inline
+
 void core_trie_set_mode(YAP_Int mode) {
   CURRENT_TRIE_MODE = mode;
   return;
 }
 
 
-inline
+
 YAP_Int core_trie_get_mode(void) {
   return CURRENT_TRIE_MODE;
 }
 
 
-inline
+
 TrNode core_trie_put_entry(TrEngine engine, TrNode node, YAP_Term entry, YAP_Int *depth) {
   CURRENT_TRIE_ENGINE = engine;
   CURRENT_DEPTH = 0;
@@ -338,7 +338,7 @@ TrNode core_trie_put_entry(TrEngine engine, TrNode node, YAP_Term entry, YAP_Int
 }
 
 
-inline
+
 TrNode core_trie_check_entry(TrNode node, YAP_Term entry) {
   if (!TrNode_child(node))
     return NULL;
@@ -354,7 +354,7 @@ TrNode core_trie_check_entry(TrNode node, YAP_Term entry) {
 }
 
 
-inline
+
 YAP_Term core_trie_get_entry(TrNode node) {
   CURRENT_INDEX = -1;
   stack_vars_base = stack_vars = AUXILIARY_TERM_STACK;
@@ -363,7 +363,7 @@ YAP_Term core_trie_get_entry(TrNode node) {
 }
 
 
-inline
+
 void core_trie_remove_entry(TrEngine engine, TrNode node, void (*destruct_function)(TrNode)) {
   CURRENT_TRIE_ENGINE = engine;
   DATA_DESTRUCT_FUNCTION = destruct_function;
@@ -375,7 +375,7 @@ void core_trie_remove_entry(TrEngine engine, TrNode node, void (*destruct_functi
 }
 
 
-inline
+
 void core_trie_remove_subtree(TrEngine engine, TrNode node, void (*destruct_function)(TrNode)) {
   TrNode parent;
 
@@ -388,7 +388,7 @@ void core_trie_remove_subtree(TrEngine engine, TrNode node, void (*destruct_func
 }
 
 
-inline
+
 void core_trie_add(TrNode node_dest, TrNode node_source, void (*add_function)(TrNode, TrNode)) {
   DATA_ADD_FUNCTION = add_function;
   if (TrNode_child(node_dest) && TrNode_child(node_source))
@@ -397,7 +397,7 @@ void core_trie_add(TrNode node_dest, TrNode node_source, void (*add_function)(Tr
 }
 
 
-inline
+
 void core_trie_join(TrEngine engine, TrNode node_dest, TrNode node_source, void (*add_function)(TrNode, TrNode), void (*copy_function)(TrNode, TrNode)) {
   CURRENT_TRIE_ENGINE = engine;
   DATA_ADD_FUNCTION = add_function;
@@ -411,7 +411,7 @@ void core_trie_join(TrEngine engine, TrNode node_dest, TrNode node_source, void 
 }
 
 
-inline
+
 void core_trie_intersect(TrEngine engine, TrNode node_dest, TrNode node_source, void (*add_function)(TrNode, TrNode), void (*destruct_function)(TrNode)) {
   CURRENT_TRIE_ENGINE = engine;
   DATA_ADD_FUNCTION = add_function;
@@ -428,7 +428,7 @@ void core_trie_intersect(TrEngine engine, TrNode node_dest, TrNode node_source, 
 }
 
 
-inline
+
 YAP_Int core_trie_count_join(TrNode node1, TrNode node2) {
   YAP_Int count = 0;
 
@@ -444,7 +444,7 @@ YAP_Int core_trie_count_join(TrNode node1, TrNode node2) {
 }
 
 
-inline
+
 YAP_Int core_trie_count_intersect(TrNode node1, TrNode node2) {
   YAP_Int count = 0;
 
@@ -455,7 +455,7 @@ YAP_Int core_trie_count_intersect(TrNode node1, TrNode node2) {
 }
 
 
-inline
+
 void core_trie_save(TrNode node, FILE *file, void (*save_function)(TrNode, FILE *)) {
   CURRENT_INDEX = -1;
   DATA_SAVE_FUNCTION = save_function;
@@ -469,7 +469,7 @@ void core_trie_save(TrNode node, FILE *file, void (*save_function)(TrNode, FILE 
 }
 
 
-inline
+
 TrNode core_trie_load(TrEngine engine, FILE *file, void (*load_function)(TrNode, YAP_Int, FILE *)) {
   TrNode node;
   char version[15];
@@ -523,7 +523,7 @@ TrNode core_trie_load(TrEngine engine, FILE *file, void (*load_function)(TrNode,
 }
 
 
-inline
+
 void core_trie_stats(TrEngine engine, YAP_Int *memory, YAP_Int *tries, YAP_Int *entries, YAP_Int *nodes) {
   *memory = TrEngine_memory(engine);
   *tries = TrEngine_tries(engine);
@@ -533,7 +533,7 @@ void core_trie_stats(TrEngine engine, YAP_Int *memory, YAP_Int *tries, YAP_Int *
 }
 
 
-inline
+
 void core_trie_max_stats(TrEngine engine, YAP_Int *memory, YAP_Int *tries, YAP_Int *entries, YAP_Int *nodes) {
   *memory = TrEngine_memory_max(engine);
   *tries = TrEngine_tries_max(engine);
@@ -543,7 +543,7 @@ void core_trie_max_stats(TrEngine engine, YAP_Int *memory, YAP_Int *tries, YAP_I
 }
 
 
-inline
+
 void core_trie_usage(TrNode node, YAP_Int *entries, YAP_Int *nodes, YAP_Int *virtual_nodes) {
   USAGE_ENTRIES = 0;
   USAGE_NODES = 0;
@@ -557,7 +557,7 @@ void core_trie_usage(TrNode node, YAP_Int *entries, YAP_Int *nodes, YAP_Int *vir
 }
 
 
-inline
+
 void core_trie_print(TrNode node, void (*print_function)(TrNode)) {
   DATA_PRINT_FUNCTION = print_function;
   if (TrNode_child(node)) {
@@ -572,19 +572,19 @@ void core_trie_print(TrNode node, void (*print_function)(TrNode)) {
 }
 
 
-inline
+
 void core_disable_hash_table(void) {
   TRIE_DISABLE_HASH_TABLE = 1;
 }
 
 
-inline
+
 void core_enable_hash_table(void) {
   TRIE_DISABLE_HASH_TABLE = 0;
 }
 
 
-inline
+
 YAP_Term core_trie_to_list(TrNode node) {
   TrNode root = TrNode_child(node);
   
@@ -1724,7 +1724,7 @@ YAP_Term trie_to_list_node(TrNode node) {
 
 
 #ifdef TAG_LOW_BITS_32
-static inline
+
 YAP_Term trie_to_list_floats_tag_low_32(YAP_Term result, TrNode node, volatile YAP_Term *p, volatile double *f) {
   if(IS_HASH_NODE(node)) {
     TrNode *first_bucket, *bucket;
