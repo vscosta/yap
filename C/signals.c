@@ -116,24 +116,6 @@ p_creep_allowed( USES_REGS1 )
   return FALSE;
 }
 
-static Int
-p_debug_on( USES_REGS1 )
-{
-  Term t = Deref(ARG1);
-  if (IsVarTerm(t)) {
-    if (LOCAL_DebugOn)
-      return Yap_unify(MkAtomTerm(AtomTrue),ARG1);
-    else
-      return Yap_unify(MkAtomTerm(AtomFalse),ARG1);
-  }
-  if (t == MkAtomTerm(AtomTrue))
-    LOCAL_DebugOn = TRUE;
-  else
-    LOCAL_DebugOn = FALSE;
-  return TRUE;
-}
-
-
 void 
 Yap_signal(yap_signals sig)
 {
@@ -370,7 +352,6 @@ Yap_InitSignalCPreds(void)
   Yap_InitCPred("$stop_creeping", 0, p_stop_creeping, SafePredFlag);
   Yap_InitCPred ("$first_signal", 1, p_first_signal, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$continue_signals", 0, p_continue_signals, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$debug_on", 1, p_debug_on, 0);
   Yap_InitCPred("$creep_allowed", 0, p_creep_allowed, 0);
 #ifdef DEBUG
   Yap_InitCPred("$debug", 1, p_debug, SafePredFlag|SyncPredFlag);

@@ -165,16 +165,16 @@ debug :-
 
 '$start_debugging'(Mode) :-
 	(Mode == on ->
-	 '$debug_on'(true)
+	 '$swi_set_prolog_flag'(debug, true)
 	;
-	 '$debug_on'(false)
+	 '$swi_set_prolog_flag'(debug, false)
 	),
 	nb_setval('$debug_run',off),
 	nb_setval('$debug_jump',false).
 	
 nodebug :-
 	'$init_debugger',
-	'$debug_on'(false),
+	'$swi_set_prolog_flag'(debug, false),
 	nb_setval('$trace',off),
 	print_message(informational,debug(off)).
 
@@ -264,7 +264,7 @@ debugging :-
 	'$init_debugger',
 	prolog:debug_action_hook(nospyall), !.
 debugging :-
-	( '$debug_on'(true) ->
+	( '$swi_current_prolog_flag'(debug, true) ->
 	    print_message(help,debug(debug))
 	    ;
 	    print_message(help,debug(off))
@@ -307,7 +307,7 @@ debugging :-
 %
 % $spy may be called from user code, so be careful.
 '$spy'([Mod|G]) :-
-	'$debug_on'(F), F = false, !,
+	'$swi_current_prolog_flag'(debug, false), !,
 	'$execute_nonstop'(G,Mod).
 '$spy'([Mod|G]) :-
 	'$in_system_mode', !,
@@ -587,7 +587,7 @@ debugging :-
 	% at this point we are done with leap or skip
 	nb_setval('$debug_run',off),
 	% make sure we run this code outside debugging mode.
-	'$debug_on'(false),
+	'$swi_set_prolog_flag'(debug, false),
 	repeat,
 	'$trace_msg'(P,G,Module,L,Deterministic),
 	( 
@@ -600,13 +600,13 @@ debugging :-
 	),
 	(Debug = on
 	->
-	 '$debug_on'(true)
+	 '$swi_set_prolog_flag'(debug, true)
 	;
 	 Debug = zip
 	->
-	 '$debug_on'(true)
+	 '$swi_set_prolog_flag'(debug, true)
 	;
-	 '$debug_on'(false)
+	 '$swi_set_prolog_flag'(debug, false)
 	),
 	!.
 
@@ -650,10 +650,10 @@ debugging :-
 '$action'(0'!,_,_,_,_,_) :- !,			% ! 'g		execute
 	read(user,G),
 	% don't allow yourself to be caught by creep.
-	'$debug_on'(OldDeb),
-	'$debug_on'(false),
+	'$swi_current_prolog_flag'(debug, OldDeb),
+	'$swi_set_prolog_flag'(debug, false),
 	( '$execute'(G) -> true ; true),
-	'$debug_on'(OldDeb),
+	'$swi_set_prolog_flag'(debug, OldDeb),
 %	'$skipeol'(0'!),                        % '
 	fail.
 '$action'(0'<,_,_,_,_,_) :- !,			% <'Depth
@@ -732,7 +732,7 @@ debugging :-
 	nodebug.
 '$action'(0'r,_,CallId,_,_,_) :- !,		        % 'r		retry
         '$scan_number'(0'r,CallId,ScanNumber),		% '
-        '$debug_on'(true),
+	'$swi_set_prolog_flag'(debug, true),
 	throw(error('$retry_spy'(ScanNumber),[])).
 '$action'(0's,P,CallNumber,_,_,on) :- !,		% 's		skip
 	'$skipeol'(0's),				% '		

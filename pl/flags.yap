@@ -117,34 +117,6 @@ yap_flag(debug_on_error,X) :-
 
 
 
-yap_flag(generate_debug_info,X) :-
-	var(X), !,
-        '$access_yap_flags'(18,Options),
-	(Options =:= 0 -> X = false ; X = true ).
-yap_flag(generate_debug_info,true) :- !,
-	'$enable_restore_flag_info'(generate_debug_info),
-	'$set_yap_flags'(18,1),
-	source.
-yap_flag(generate_debug_info,false) :- !,
-	'$enable_restore_flag_info'(generate_debug_info),
-	'$set_yap_flags'(18,0),
-	no_source.
-yap_flag(generate_debug_info,X) :-
-	'$do_error'(domain_error(flag_value,generate_debug_info+X),yap_flag(generate_debug_info,X)).
-
-'$enable_restore_flag_info'(_) :-
-	nb_getval('$consulting_file',[]), !.
-'$enable_restore_flag_info'(_) :-
-	nb_getval('$initialization_goals',on), !.
-'$enable_restore_flag_info'(Flag) :-
-	'$show_consult_level'(Level1),
-	yap_flag(Flag, Info),
-	% it will be done after we leave the current consult level.
-	Level is Level1-1,
-	recorda('$initialisation',do(Level,yap_flag(Flag,Info)),_),
-	fail.
-'$enable_restore_flag_info'(_).
-
 %
 % show state of $
 %
@@ -254,37 +226,7 @@ yap_flag(tabling_mode,Options) :-
 '$transl_to_yap_flag_tabling_mode'(6,global_trie).
 
 yap_flag(informational_messages,X) :- var(X), !,
-	 get_value('$verbose',X).
-yap_flag(informational_messages,on)  :- !,
-	set_value('$verbose',on),
-	'$set_yap_flags'(22,0).
-yap_flag(informational_messages,off) :- !,
-	set_value('$verbose',off),
-	'$set_yap_flags'(22,1).
-yap_flag(informational_messages,X) :-
-	'$do_error'(domain_error(flag_value,informational_messages+X),yap_flag(informational_messages,X)).
-
-yap_flag(verbose,X) :- var(X), !,
-	 get_value('$verbose',X0),
-	 (X0 == on -> X = normal ; X = silent).
-yap_flag(verbose,normal)  :- !,
-	set_value('$verbose',on),
-	'$set_yap_flags'(22,0).
-yap_flag(verbose,silent) :- !,
-	set_value('$verbose',off),
-	'$set_yap_flags'(22,1).
-yap_flag(verbose,X) :-
-	'$do_error'(domain_error(flag_value,verbose+X),yap_flag(verbose,X)).
-
-yap_flag(integer_rounding_function,X) :-
-	var(X), !,
-	'$access_yap_flags'(2, X1),
-	'$transl_to_rounding_function'(X1,X).
-yap_flag(integer_rounding_function,X) :-
-	(X = down; X = toward_zero), !,
-	'$do_error'(permission_error(modify,flag,integer_rounding_function),yap_flag(integer_rounding_function,X)).
-yap_flag(integer_rounding_function,X) :-
-	'$do_error'(domain_error(flag_value,integer_rounding_function+X),yap_flag(integer_rounding_function,X)).
+	 yap_flag(verbose, X).
 
 yap_flag(version,X) :-
 	var(X), !,
@@ -404,21 +346,6 @@ yap_flag(language,X) :-
 yap_flag(language,X) :-
 	'$do_error'(domain_error(flag_value,language+X),yap_flag(language,X)).
 
-yap_flag(debug,X) :-
-	var(X), !,
-	'$debug_on'(Val),
-	(Val == true
-	->
-	 X = on
-	;
-	 X = true
-	).
-yap_flag(debug,X) :-
-	'$transl_to_on_off'(_,X), !,
-	(X = on -> debug ; nodebug).
-yap_flag(debug,X) :-
-	'$do_error'(domain_error(flag_value,debug+X),yap_flag(debug,X)).
-
 yap_flag(discontiguous_warnings,X) :-
 	var(X), !,
 	'$syntax_check_discontiguous'(on,_).
@@ -492,6 +419,8 @@ yap_flag(system_options,X) :-
 	'$swi_current_prolog_flag'(readline, true).
 '$system_options'(tabling) :-
 	\+ '$undefined'('$c_table'(_,_,_), prolog).
+'$system_options'(threads) :-
+	\+ '$undefined'('$thread_join'(_), prolog).
 '$system_options'(wam_profiler) :-
 	\+ '$undefined'(reset_op_counters, prolog).
 	
@@ -640,28 +569,6 @@ yap_flag(toplevel_print_options,Opts) :-
 yap_flag(host_type,X) :-
 	'$host_type'(X).
 
-yap_flag(verbose_load,X) :-
-	var(X), !,
-	( get_value('$lf_verbose',silent) -> X = false ; X = true ).
-yap_flag(verbose_load,true) :- !,
-	set_value('$lf_verbose',informational).
-yap_flag(verbose_load,false) :- !,
-	set_value('$lf_verbose',silent),
-	'$set_yap_flags'(7,1).
-yap_flag(verbose_load,X) :-
-	'$do_error'(domain_error(flag_value,verbose_load+X),yap_flag(verbose_load,X)).
-
-yap_flag(verbose_auto_load,X) :-
-	var(X), !,
-	( get_value('$verbose_auto_load',true) -> X = true ; X = false ).
-yap_flag(verbose_auto_load,true) :- !,
-	set_value('$verbose_auto_load',true).
-yap_flag(verbose_auto_load,false) :- !,
-	set_value('$verbose_auto_load',false),
-	'$set_yap_flags'(7,1).
-yap_flag(verbose_auto_load,X) :-
-	'$do_error'(domain_error(flag_value,verbose_auto_load+X),yap_flag(verbose_auto_load,X)).
-
 yap_flag(float_format,X) :-
 	var(X), !,
 	'$float_format'(X).
@@ -695,7 +602,6 @@ yap_flag(max_threads,X) :-
 '$yap_system_flag'(char_conversion).
 '$yap_system_flag'(character_escapes).
 '$yap_system_flag'(chr_toplevel_show_store).
-'$yap_system_flag'(debug).
 '$yap_system_flag'(debug_on_error    ).
 '$yap_system_flag'(debugger_print_options).
 '$yap_system_flag'(discontiguous_warnings).
@@ -712,14 +618,12 @@ yap_flag(max_threads,X) :-
 '$yap_system_flag'(gc   ).
 '$yap_system_flag'(gc_margin   ).
 '$yap_system_flag'(gc_trace    ).
-'$yap_system_flag'(generate_debug_info    ).
 %	    V = hide  ;
 '$yap_system_flag'(host_type ).
 '$yap_system_flag'(index).
 '$yap_system_flag'(index_sub_term_search_depth).
 '$yap_system_flag'(tabling_mode).
 '$yap_system_flag'(informational_messages).
-'$yap_system_flag'(integer_rounding_function).
 '$yap_system_flag'(language).
 '$yap_system_flag'(max_workers).
 '$yap_system_flag'(max_threads).
@@ -750,9 +654,6 @@ yap_flag(max_threads,X) :-
 '$yap_system_flag'(user_input).
 '$yap_system_flag'(user_output).
 '$yap_system_flag'(variable_names_may_end_with_quotes).
-'$yap_system_flag'(verbose).
-'$yap_system_flag'(verbose_load).
-'$yap_system_flag'(verbose_auto_load).
 '$yap_system_flag'(version).
 '$yap_system_flag'(write_strings).
 
@@ -861,7 +762,7 @@ set_prolog_flag(F,V) :-
 	\+ atom(F), !,
 	'$do_error'(type_error(atom,F),set_prolog_flag(F,V)).
 set_prolog_flag(F, Val) :-
-	'$swi_current_prolog_flag'(F, _),
+	'$swi_current_prolog_flag'(F, _), !,
 	'$swi_set_prolog_flag'(F, Val).
 set_prolog_flag(F,V) :-
 	'$yap_system_flag'(F), !,
