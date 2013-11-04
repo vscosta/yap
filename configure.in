@@ -12,13 +12,6 @@ dnl DefHeapSpace= Default DB space
 dnl DefStackSpace= Default global+local
 dnl DefTrailSpace= Default trail
 dnl
-dnl  CPLINT
-dnl
-dnl CPLINT_LIBS= 
-dnl CPLINT_LIBS= 
-dnl CPLINT_LDFLAGS= 
-dnl CPLINT_SHLIB_LD= 
-dnl
 dnl  ENVIRONMENT to run YAP before Install is complete
 dnl PRE_INSTALL_ENV= prefix to run YAP after libYap.so and yap are available
 dnl    but before make install
@@ -159,10 +152,6 @@ AC_ARG_ENABLE(dlcompat,
 	[ --enable-dlcompat          use dlcompat library for dynamic loading on Mac OS X],
 	use_dlcompat="$enableval", use_dlcompat=no)
 
-AC_ARG_ENABLE(cplint,
-	[ --enable-cplint[=DIR]       enable the cplint library using the CUDD library in DIR/lib],
-		yap_cv_cplint=$enableval, yap_cv_cplint=no)
-
 AC_ARG_ENABLE(clpbn-bp,
 	[ --enable-clpbn-bp           enable belief propagation solver in CLPBN.  ],
 	yap_cv_clpbn_bp="$enableval", yap_cv_clpbn_bp=yes)
@@ -259,34 +248,6 @@ AC_ARG_WITH(matlab,
 		MATLAB_INCLUDE="-I${yap_cv_matlab}/extern/include"
 	fi,
 	[yap_cv_matlab=no])
-
-AC_ARG_WITH(mpi,
-	[ --with-mpi[=DIR]           use LAM/MPI library in DIR],
-	if test "$withval" = yes; then
-        dnl handle UBUNTU systems
-		yap_cv_mpi=yes
-	elif test "$withval" = no; then
-		yap_cv_mpi=no
-	else
-		yap_cv_mpi=$with_mpi
-		LDFLAGS="$LDFLAGS -L${yap_cv_mpi}/lib"
-		CPPFLAGS="$CPPFLAGS -I${yap_cv_mpi}/include"
-	fi,
-	[yap_cv_mpi=no])
-
-
-AC_ARG_WITH(mpe,
-	[ --with-mpe[=DIR]           use MPE library in DIR],
-	if test "$withval" = yes; then
-		yap_cv_mpe=yes
-	elif test "$withval" = no; then
-		yap_cv_mpe=no
-	else
-		yap_cv_mpe=$with_mpe
-		LDFLAGS="$LDFLAGS -L${yap_cv_mpe}/lib"
-		CPPFLAGS="$CPPFLAGS -I${yap_cv_mpe}/include"
-	fi,
-	[yap_cv_mpe=no])
 
 AC_ARG_WITH(heap-space,
 	[ --with-heap-space[=space]  default heap size in Kbytes],
@@ -1092,12 +1053,6 @@ dnl Linux has both elf and a.out, in this case we found elf
 	;;
 esac
 
-if test "$CC" = icc
-then
-  MPI_CC="$CC"
-  yap_cv_mpi=no
-fi
-
 if test "$dynamic_loading" = "yes"
 then 
   YAPLIB_CFLAGS="$SHLIB_CFLAGS"
@@ -1206,43 +1161,6 @@ if test "$tabling" = "yes"
   then
   YAP_EXTRAS="$YAP_EXTRAS -DTABLING=1"
 fi
-dnl LAM/MPI interface
-
-if test "$yap_cv_mpi" != "no"; then
-    if test "$yap_cv_mpi" != "yes"; then
-      AC_PATH_PROG(MPI_CC,mpicc,true,$PATH:/sbin:/usr/sbin:/usr/etc:/usr/local/sbin)
-    else
-      AC_PATH_PROG(MPI_CC,mpicc,true,$yap_cv_mpi/bin:$PATH:/sbin:/usr/sbin:/usr/etc:/usr/local/sbin)
-    fi
-    MPILDF=`"$MPI_CC" --showme:link`
-    MPICF=`"$MPI_CC" --showme:compile`
-    LIBS="$LIBS $MPILDF"
-    INSTALL_MPI=""
-    OLD_CC=${CC}
-    CC=${MPI_CC}
-    AC_CHECK_HEADERS(mpi.h)
-    CC=${OLD_CC}
-    if test "$yap_cv_mpe" != "no"
-    then
-     OLD_CC=${CC}
-     CC=${MPI_CC}
-     AC_CHECK_LIB(mpe,MPE_Init_log,
-		[AC_DEFINE(HAVE_LIBMPE, 1)],
-		[AC_DEFINE(HAVE_LIBMPE, 0)])
-     if test "$ac_cv_lib_mpe_MPE_Init_log" = yes
-     then
-	MPI_1LIBS="-lmpe"
-	MPI_OBJS="$MPI_OBJS mpe.o"
-     fi
-     AC_CHECK_HEADERS(mpe.h)
-     CC=${OLD_CC}
-   fi
-else
-  INSTALL_MPI="# "
-  MPI_CC=${CC}
-fi
-
-
 if test ! "$yap_cv_cplint" = "no"
   then	
 	if test ! "$yap_cv_cplint" = "yes"
@@ -1426,11 +1344,8 @@ AC_SUBST(ENABLE_SGML)
 AC_SUBST(ENABLE_ZLIB)
 AC_SUBST(ENABLE_CLPBN_BP)
 AC_SUBST(IN_UNIX)
-AC_SUBST(YAPMPILIB)
 AC_SUBST(INSTALL_MPI)
 AC_SUBST(MPI_CC)
-AC_SUBST(MPILDF)
-AC_SUBST(MPICF)
 AC_SUBST(INSTALL_COMMAND)
 AC_SUBST(INSTALLCLP)
 AC_SUBST(MAX_WORKERS)
@@ -1930,9 +1845,13 @@ fi
 
 m4_include([packages/gecode/configure.in])
 
+m4_include([library/lammpi/configure.in])
+
 m4_include([packages/python/configure.in])
 
 m4_include([packages/cuda/configure.in])
+
+m4_include([packages/cplint/configure.in])
 
 
 AC_SUBST(ENABLE_LIBARCHIVE)

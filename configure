@@ -633,6 +633,9 @@ PYTHON_INCLUDES
 ENABLE_PYTHON
 PYTHON_TARGET
 PYTHON
+MPICF
+MPILDF
+YAPMPILIB
 GECODE_EXTRALIBS
 GECODE_VERSION
 GECODE_MAJOR
@@ -697,10 +700,8 @@ STATIC_MODE
 MAX_WORKERS
 INSTALLCLP
 INSTALL_COMMAND
-MPICF
-MPILDF
+MPI_CC
 INSTALL_MPI
-YAPMPILIB
 IN_UNIX
 ENABLE_CLPBN_BP
 ENABLE_ZLIB
@@ -743,7 +744,6 @@ CPLINT_SHLIB_LD
 CPLINT_LDFLAGS
 CPLINT_CFLAGS
 CPLINT_LIBS
-MPI_CC
 ENABLE_PRISM
 EGREP
 GREP
@@ -850,7 +850,6 @@ enable_clpqr
 enable_win64
 enable_april
 enable_dlcompat
-enable_cplint
 enable_clpbn_bp
 with_gmp
 with_R
@@ -859,8 +858,6 @@ with_minisat
 with_java
 with_readline
 with_matlab
-with_mpi
-with_mpe
 with_heap_space
 with_stack_space
 with_trail_space
@@ -874,8 +871,11 @@ with_time
 with_odbc
 with_cudd
 enable_gecode
+with_mpi
+with_mpe
 with_python
 with_cuda
+enable_cplint
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1526,12 +1526,12 @@ Optional Features:
  --enable-win64            compile YAP for win64
  --enable-april             compile Yap to support April ILP system
  --enable-dlcompat          use dlcompat library for dynamic loading on Mac OS X
- --enable-cplint=DIR       enable the cplint library using the CUDD library in DIR/lib
  --enable-clpbn-bp           enable belief propagation solver in CLPBN.
  --enable-myddas[=DIR]      enable the MYDDAS library
  --enable-myddas-stats      enable the MYDDAS library statistics support
  --enable-myddas-top-level  enable the MYDDAS top-level support to MySQL
  --enable-gecode            install gecode library
+ --enable-cplint=DIR       enable the cplint library using the CUDD library in DIR/lib
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -1543,8 +1543,6 @@ Optional Packages:
  --with-java=JAVA_HOME       use Java instalation in JAVA_HOME
  --with-readline=DIR      use GNU Readline Library in DIR
  --with-matlab=DIR      use MATLAB package in DIR
- --with-mpi=DIR           use LAM/MPI library in DIR
- --with-mpe=DIR           use MPE library in DIR
  --with-heap-space=space  default heap size in Kbytes
  --with-stack-space=space default stack size in Kbytes
  --with-trail-space=space default trail size in Kbytes
@@ -1554,6 +1552,8 @@ Optional Packages:
   --without-time		  Exclude alarm library
   --with-odbc=<dir>	  Location of ODBC include/lib
  --with-cudd=DIR           use CUDD package in DIR
+ --with-mpi=DIR           use LAM/MPI library in DIR
+ --with-mpe=DIR           use MPE library in DIR
  --with-python=DIR              interface to R language
  --enable-cuda           use minisat interface
 
@@ -4264,14 +4264,6 @@ else
 fi
 
 
-# Check whether --enable-cplint was given.
-if test "${enable_cplint+set}" = set; then :
-  enableval=$enable_cplint; yap_cv_cplint=$enableval
-else
-  yap_cv_cplint=no
-fi
-
-
 # Check whether --enable-clpbn-bp was given.
 if test "${enable_clpbn_bp+set}" = set; then :
   enableval=$enable_clpbn_bp; yap_cv_clpbn_bp="$enableval"
@@ -4396,41 +4388,6 @@ if test "${with_matlab+set}" = set; then :
 	fi
 else
   yap_cv_matlab=no
-fi
-
-
-
-# Check whether --with-mpi was given.
-if test "${with_mpi+set}" = set; then :
-  withval=$with_mpi; if test "$withval" = yes; then
-        		yap_cv_mpi=yes
-	elif test "$withval" = no; then
-		yap_cv_mpi=no
-	else
-		yap_cv_mpi=$with_mpi
-		LDFLAGS="$LDFLAGS -L${yap_cv_mpi}/lib"
-		CPPFLAGS="$CPPFLAGS -I${yap_cv_mpi}/include"
-	fi
-else
-  yap_cv_mpi=no
-fi
-
-
-
-
-# Check whether --with-mpe was given.
-if test "${with_mpe+set}" = set; then :
-  withval=$with_mpe; if test "$withval" = yes; then
-		yap_cv_mpe=yes
-	elif test "$withval" = no; then
-		yap_cv_mpe=no
-	else
-		yap_cv_mpe=$with_mpe
-		LDFLAGS="$LDFLAGS -L${yap_cv_mpe}/lib"
-		CPPFLAGS="$CPPFLAGS -I${yap_cv_mpe}/include"
-	fi
-else
-  yap_cv_mpe=no
 fi
 
 
@@ -7145,12 +7102,6 @@ fi
 	;;
 esac
 
-if test "$CC" = icc
-then
-  MPI_CC="$CC"
-  yap_cv_mpi=no
-fi
-
 if test "$dynamic_loading" = "yes"
 then
   YAPLIB_CFLAGS="$SHLIB_CFLAGS"
@@ -7265,187 +7216,6 @@ if test "$tabling" = "yes"
   then
   YAP_EXTRAS="$YAP_EXTRAS -DTABLING=1"
 fi
-
-if test "$yap_cv_mpi" != "no"; then
-    if test "$yap_cv_mpi" != "yes"; then
-      # Extract the first word of "mpicc", so it can be a program name with args.
-set dummy mpicc; ac_word=$2
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-$as_echo_n "checking for $ac_word... " >&6; }
-if ${ac_cv_path_MPI_CC+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  case $MPI_CC in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_MPI_CC="$MPI_CC" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-as_dummy="$PATH:/sbin:/usr/sbin:/usr/etc:/usr/local/sbin"
-for as_dir in $as_dummy
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_path_MPI_CC="$as_dir/$ac_word$ac_exec_ext"
-    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-  test -z "$ac_cv_path_MPI_CC" && ac_cv_path_MPI_CC="true"
-  ;;
-esac
-fi
-MPI_CC=$ac_cv_path_MPI_CC
-if test -n "$MPI_CC"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $MPI_CC" >&5
-$as_echo "$MPI_CC" >&6; }
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-fi
-
-
-    else
-      # Extract the first word of "mpicc", so it can be a program name with args.
-set dummy mpicc; ac_word=$2
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-$as_echo_n "checking for $ac_word... " >&6; }
-if ${ac_cv_path_MPI_CC+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  case $MPI_CC in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_MPI_CC="$MPI_CC" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-as_dummy="$yap_cv_mpi/bin:$PATH:/sbin:/usr/sbin:/usr/etc:/usr/local/sbin"
-for as_dir in $as_dummy
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_path_MPI_CC="$as_dir/$ac_word$ac_exec_ext"
-    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-  test -z "$ac_cv_path_MPI_CC" && ac_cv_path_MPI_CC="true"
-  ;;
-esac
-fi
-MPI_CC=$ac_cv_path_MPI_CC
-if test -n "$MPI_CC"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $MPI_CC" >&5
-$as_echo "$MPI_CC" >&6; }
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-fi
-
-
-    fi
-    MPILDF=`"$MPI_CC" --showme:link`
-    MPICF=`"$MPI_CC" --showme:compile`
-    LIBS="$LIBS $MPILDF"
-    INSTALL_MPI=""
-    OLD_CC=${CC}
-    CC=${MPI_CC}
-    for ac_header in mpi.h
-do :
-  ac_fn_c_check_header_mongrel "$LINENO" "mpi.h" "ac_cv_header_mpi_h" "$ac_includes_default"
-if test "x$ac_cv_header_mpi_h" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_MPI_H 1
-_ACEOF
-
-fi
-
-done
-
-    CC=${OLD_CC}
-    if test "$yap_cv_mpe" != "no"
-    then
-     OLD_CC=${CC}
-     CC=${MPI_CC}
-     { $as_echo "$as_me:${as_lineno-$LINENO}: checking for MPE_Init_log in -lmpe" >&5
-$as_echo_n "checking for MPE_Init_log in -lmpe... " >&6; }
-if ${ac_cv_lib_mpe_MPE_Init_log+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lmpe  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char MPE_Init_log ();
-int
-main ()
-{
-return MPE_Init_log ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_mpe_MPE_Init_log=yes
-else
-  ac_cv_lib_mpe_MPE_Init_log=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_mpe_MPE_Init_log" >&5
-$as_echo "$ac_cv_lib_mpe_MPE_Init_log" >&6; }
-if test "x$ac_cv_lib_mpe_MPE_Init_log" = xyes; then :
-  $as_echo "#define HAVE_LIBMPE 1" >>confdefs.h
-
-else
-  $as_echo "#define HAVE_LIBMPE 0" >>confdefs.h
-
-fi
-
-     if test "$ac_cv_lib_mpe_MPE_Init_log" = yes
-     then
-	MPI_1LIBS="-lmpe"
-	MPI_OBJS="$MPI_OBJS mpe.o"
-     fi
-     for ac_header in mpe.h
-do :
-  ac_fn_c_check_header_mongrel "$LINENO" "mpe.h" "ac_cv_header_mpe_h" "$ac_includes_default"
-if test "x$ac_cv_header_mpe_h" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_MPE_H 1
-_ACEOF
-
-fi
-
-done
-
-     CC=${OLD_CC}
-   fi
-else
-  INSTALL_MPI="# "
-  MPI_CC=${CC}
-fi
-
-
 if test ! "$yap_cv_cplint" = "no"
   then
 	if test ! "$yap_cv_cplint" = "yes"
@@ -8315,9 +8085,6 @@ fi
 
 
 CMDEXT=sh
-
-
-
 
 
 
@@ -10009,7 +9776,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 10012 "configure" */
+/* #line 9779 "configure" */
 public class Test {
 }
 EOF
@@ -10185,7 +9952,7 @@ EOF
 if uudecode$EXEEXT Test.uue; then
         ac_cv_prog_uudecode_base64=yes
 else
-        echo "configure: 10188: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
+        echo "configure: 9955: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
         echo "configure: failed file was:" >&5
         cat Test.uue >&5
         ac_cv_prog_uudecode_base64=no
@@ -10316,7 +10083,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 10319 "configure" */
+/* #line 10086 "configure" */
 public class Test {
 }
 EOF
@@ -10351,7 +10118,7 @@ JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 TEST=Test
 cat << \EOF > $JAVA_TEST
-/* [#]line 10354 "configure" */
+/* [#]line 10121 "configure" */
 public class Test {
 public static void main (String args[]) {
         System.exit (0);
@@ -13082,6 +12849,233 @@ fi
 
 
 
+# Check whether --with-mpi was given.
+if test "${with_mpi+set}" = set; then :
+  withval=$with_mpi; if test "$withval" = yes; then
+        		yap_cv_mpi=yes
+	elif test "$withval" = no; then
+		yap_cv_mpi=no
+	else
+		yap_cv_mpi=$with_mpi
+		LDFLAGS="$LDFLAGS -L${yap_cv_mpi}/lib"
+		CPPFLAGS="$CPPFLAGS -I${yap_cv_mpi}/include"
+	fi
+else
+  yap_cv_mpi=no
+fi
+
+
+
+
+# Check whether --with-mpe was given.
+if test "${with_mpe+set}" = set; then :
+  withval=$with_mpe; if test "$withval" = yes; then
+		yap_cv_mpe=yes
+	elif test "$withval" = no; then
+		yap_cv_mpe=no
+	else
+		yap_cv_mpe=$with_mpe
+		LDFLAGS="$LDFLAGS -L${yap_cv_mpe}/lib"
+		CPPFLAGS="$CPPFLAGS -I${yap_cv_mpe}/include"
+	fi
+else
+  yap_cv_mpe=no
+fi
+
+
+if test "$CC" = icc
+then
+  MPI_CC="$CC"
+  yap_cv_mpi=no
+fi
+
+
+if test "$yap_cv_mpi" != "no"; then
+    if test "$yap_cv_mpi" != "yes"; then
+      # Extract the first word of "mpicc", so it can be a program name with args.
+set dummy mpicc; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_path_MPI_CC+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  case $MPI_CC in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_MPI_CC="$MPI_CC" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+as_dummy="$PATH:/sbin:/usr/sbin:/usr/etc:/usr/local/sbin"
+for as_dir in $as_dummy
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_MPI_CC="$as_dir/$ac_word$ac_exec_ext"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  test -z "$ac_cv_path_MPI_CC" && ac_cv_path_MPI_CC="true"
+  ;;
+esac
+fi
+MPI_CC=$ac_cv_path_MPI_CC
+if test -n "$MPI_CC"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $MPI_CC" >&5
+$as_echo "$MPI_CC" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+    else
+      # Extract the first word of "mpicc", so it can be a program name with args.
+set dummy mpicc; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_path_MPI_CC+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  case $MPI_CC in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_MPI_CC="$MPI_CC" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+as_dummy="$yap_cv_mpi/bin:$PATH:/sbin:/usr/sbin:/usr/etc:/usr/local/sbin"
+for as_dir in $as_dummy
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_MPI_CC="$as_dir/$ac_word$ac_exec_ext"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  test -z "$ac_cv_path_MPI_CC" && ac_cv_path_MPI_CC="true"
+  ;;
+esac
+fi
+MPI_CC=$ac_cv_path_MPI_CC
+if test -n "$MPI_CC"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $MPI_CC" >&5
+$as_echo "$MPI_CC" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+    fi
+    MPILDF=`"$MPI_CC" --showme:link`
+    MPICF=`"$MPI_CC" --showme:compile`
+    LIBS="$LIBS $MPILDF"
+    INSTALL_MPI=""
+    OLD_CC=${CC}
+    CC=${MPI_CC}
+    for ac_header in mpi.h
+do :
+  ac_fn_c_check_header_mongrel "$LINENO" "mpi.h" "ac_cv_header_mpi_h" "$ac_includes_default"
+if test "x$ac_cv_header_mpi_h" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_MPI_H 1
+_ACEOF
+
+fi
+
+done
+
+    CC=${OLD_CC}
+    if test "$yap_cv_mpe" != "no"
+    then
+     OLD_CC=${CC}
+     CC=${MPI_CC}
+     { $as_echo "$as_me:${as_lineno-$LINENO}: checking for MPE_Init_log in -lmpe" >&5
+$as_echo_n "checking for MPE_Init_log in -lmpe... " >&6; }
+if ${ac_cv_lib_mpe_MPE_Init_log+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lmpe  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char MPE_Init_log ();
+int
+main ()
+{
+return MPE_Init_log ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_mpe_MPE_Init_log=yes
+else
+  ac_cv_lib_mpe_MPE_Init_log=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_mpe_MPE_Init_log" >&5
+$as_echo "$ac_cv_lib_mpe_MPE_Init_log" >&6; }
+if test "x$ac_cv_lib_mpe_MPE_Init_log" = xyes; then :
+  $as_echo "#define HAVE_LIBMPE 1" >>confdefs.h
+
+else
+  $as_echo "#define HAVE_LIBMPE 0" >>confdefs.h
+
+fi
+
+     if test "$ac_cv_lib_mpe_MPE_Init_log" = yes
+     then
+	MPI_1LIBS="-lmpe"
+	MPI_OBJS="$MPI_OBJS mpe.o"
+     fi
+     for ac_header in mpe.h
+do :
+  ac_fn_c_check_header_mongrel "$LINENO" "mpe.h" "ac_cv_header_mpe_h" "$ac_includes_default"
+if test "x$ac_cv_header_mpe_h" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_MPE_H 1
+_ACEOF
+
+fi
+
+done
+
+     CC=${OLD_CC}
+   fi
+else
+  INSTALL_MPI="# "
+  MPI_CC=${CC}
+fi
+
+
+
+
+
+
+
+
 # Check whether --with-python was given.
 if test "${with_python+set}" = set; then :
   withval=$with_python; if test "$withval" = yes; then
@@ -13262,6 +13256,44 @@ fi
 
 ac_config_files="$ac_config_files packages/cuda/Makefile"
 
+
+
+
+
+# Check whether --enable-cplint was given.
+if test "${enable_cplint+set}" = set; then :
+  enableval=$enable_cplint; yap_cv_cplint=$enableval
+else
+  yap_cv_cplint=no
+fi
+
+
+
+if test ! "$yap_cv_cplint" = "no"
+  then
+	if test ! "$yap_cv_cplint" = "yes"
+	then
+		CPLINT_LDFLAGS+=" -L${yap_cv_cplint}/cudd -L${yap_cv_cplint}/mtr -L${yap_cv_cplint}/st -L${yap_cv_cplint}/util -L${yap_cv_cplint}/epd "
+		CPLINT_CFLAGS+=" -I${yap_cv_cplint}/include"
+		CPLINT_LIBS="-lcudd  -lmtr -lst -lepd -lutil -lm "$CPLINT_LIBS
+	fi
+	ENABLE_CPLINT=""
+	if test "$target_os" = "cygwin" -o "$target_os" = "mingw32"
+	then
+		CPLINT_SHLIB_LD="gcc -shared ../../yap.dll"
+		SHLIB_SUFFIX="dll"
+	else
+		CPLINT_SHLIB_LD=$SHLIB_LD
+		SHLIB_SUFFIX="so"
+	fi
+
+
+
+
+
+else
+	ENABLE_CPLINT="@#"
+fi
 
 
 
