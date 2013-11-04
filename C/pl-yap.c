@@ -1297,6 +1297,16 @@ sysError(const char *fm, ...)
   PL_fail;
 }
 
+int
+raiseSignal(PL_local_data_t *ld, int sig)
+{ if (sig == SIG_THREAD_SIGNAL) {
+     Yap_signal(YAP_ITI_SIGNAL);
+     return TRUE;    
+  }
+  fprintf(stderr, "Unsupported signal %d\n", sig);
+  return FALSE;
+}
+
 
 
 #if THREADS

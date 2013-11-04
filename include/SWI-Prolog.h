@@ -25,6 +25,7 @@ extern "C" {
 }
 #endif
 
+
 #if USE_GMP
 #include <gmp.h>
 #endif
@@ -54,6 +55,12 @@ extern "C" {
 #define X_API __declspec(dllexport)
 #else
 #define X_API
+#endif
+#endif
+
+#ifndef __WINDOWS__
+#if defined(_MSC_VER) || defined(__MINGW32__)
+#define __WINDOWS__ 1
 #endif
 #endif
 
@@ -577,6 +584,7 @@ extern X_API int  PL_unify_thread_id(term_t, int);
 extern X_API int PL_thread_attach_engine(const PL_thread_attr_t *);
 extern X_API int PL_thread_destroy_engine(void);
 extern X_API int PL_thread_at_exit(void (*)(void *), void *, int);
+extern X_API int PL_thread_raise(int tid, int sig);
 extern X_API PL_engine_t PL_create_engine(const PL_thread_attr_t *);
 extern X_API int PL_destroy_engine(PL_engine_t);
 extern X_API int PL_set_engine(PL_engine_t,PL_engine_t *);

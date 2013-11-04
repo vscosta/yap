@@ -9675,6 +9675,7 @@ $as_echo_n "checking for $ac_word... " >&6; }
 if ${ac_cv_prog_JAVAC+:} false; then :
   $as_echo_n "(cached) " >&6
 else
+echo $JAVAC
   if test -n "$JAVAC"; then
   ac_cv_prog_JAVAC="$JAVAC" # Let the user override the test.
 else
@@ -9682,6 +9683,7 @@ as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
 for as_dir in $PATH
 do
   IFS=$as_save_IFS
+echo $as_dir/$ac_word$ac_exec_ext
   test -z "$as_dir" && as_dir=.
     for ac_exec_ext in '' $ac_executable_extensions; do
   if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then

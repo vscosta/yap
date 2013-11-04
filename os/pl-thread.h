@@ -28,7 +28,6 @@ extern int recursiveMutexInit(recursiveMutex *m);
 #define recursiveMutexTryLock(p) pthread_mutex_trylock(p)
 #define recursiveMutexUnlock(p)  pthread_mutex_unlock(p)
 
-#define IF_MT(id, g) if ( id == L_THREAD || GD->thread.enabled ) g
 
 typedef struct counting_mutex
 { simpleMutex mutex;                    /* mutex itself */
@@ -82,7 +81,7 @@ We  assume  id  ==  L_THREAD  is  optimized  away  if  id  is  known  at
 compile-time
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#define IF_MT(id, g) if ( id == L_THREAD || GD->thread.enabled ) g
+#define IF_MT(id, g) if ( id == L_THREAD  ) g
 
 #ifdef O_CONTENTION_STATISTICS
 #define countingMutexLock(cm) \

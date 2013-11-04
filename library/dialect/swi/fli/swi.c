@@ -2479,6 +2479,41 @@ X_API int PL_thread_self(void)
 #endif
 }
 
+static int
+alertThread(int tid)
+{
+  return pthread_kill(REMOTE_ThreadHandle(tid).pthread_handle, YAP_ALARM_SIGNAL) == 0;
+}
+
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PL_thread_raise() is used  for  re-routing   interrupts  in  the Windows
+version, where the signal handler is running  from a different thread as
+Prolog.
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+int
+PL_thread_raise(int tid, int sig)
+{ 
+  PL_LOCK(L_THREAD);
+  if ( tid < 1  )
+    { error:
+      PL_UNLOCK(L_THREAD);
+      return FALSE;
+    }
+  if ( !REMOTE_ThreadHandle(tid).in_use )
+    goto error;
+
+  if ( !raiseSignal(tid, sig) ||
+       !alertThread(tid) )
+    goto error;
+
+  PL_UNLOCK(L_THREAD);
+
+  return TRUE;
+}
+
+
+
 X_API int PL_unify_thread_id(term_t t, int i)
 {
   CACHE_REGS
