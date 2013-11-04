@@ -1459,7 +1459,7 @@ p_atom_split( USES_REGS1 )
     Yap_Error(TYPE_ERROR_INTEGER, t2, "$atom_split/4");
     return(FALSE);
   }
-  if ((len = IntOfTerm(t2)) < 0) {
+  if ((Int)(len = IntOfTerm(t2)) < 0) {
     Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t2, "$atom_split/4");
     return(FALSE);
   }
@@ -2025,7 +2025,7 @@ check_sub_atom_bef(int max, Atom at, Atom nat)
   } else {
     size_t len = strlen(RepAtom(nat)->StrOfAE);
     int min = max- len;
-    if (min - len < 0) return FALSE;
+    if ((Int)(min - len) < 0) return FALSE;
     if (IsWideAtom(at)) {
       wchar_t *p1;
       char *p2;
@@ -2269,7 +2269,7 @@ init_sub_atom( USES_REGS1 )
     if ((mask & (SUB_ATOM_HAS_MIN|SUB_ATOM_HAS_SIZE)) ==
 	(SUB_ATOM_HAS_MIN|SUB_ATOM_HAS_SIZE)) {
       if (min+len > sz) cut_fail();
-      if ((after = (sz-(min+len))) < 0) cut_fail();
+      if ((Int)(after = (sz-(min+len))) < 0) cut_fail();
       nat = build_new_atom(mask, wp, p, min, len PASS_REGS);
       if (!nat) cut_fail();
       out = Yap_unify(ARG4,MkIntegerTerm(after)) &&
