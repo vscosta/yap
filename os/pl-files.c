@@ -680,8 +680,7 @@ PRED_IMPL("time_file64", 2, time_file64, 0)
 
 static
 PRED_IMPL("size_file", 2, size_file, 0)
-{ PRED_LD
-  char *n;
+{ char *n;
 
   if ( PL_get_file_name(A1, &n, 0) )
   { int64_t size;
@@ -1127,12 +1126,13 @@ PRED_IMPL("file_name_extension", 3, file_name_extension, 0)
 
 static
 PRED_IMPL("prolog_to_os_filename", 2, prolog_to_os_filename, 0)
-{ PRED_LD
+{
+#ifdef O_XOS
+  PRED_LD
 
   term_t pl = A1;
   term_t os = A2;
 
-#ifdef O_XOS
   wchar_t *wn;
 
   if ( !PL_is_variable(pl) )
@@ -1160,7 +1160,8 @@ PRED_IMPL("prolog_to_os_filename", 2, prolog_to_os_filename, 0)
 
   return PL_error(NULL, 0, NULL, ERR_TYPE, ATOM_atom, pl);
 #else /*O_XOS*/
-  return PL_unify(pl, os);
+ 
+  return PL_unify(A1, A2);
 #endif /*O_XOS*/
 }
 
