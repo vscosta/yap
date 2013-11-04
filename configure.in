@@ -1821,11 +1821,21 @@ then
 
 m4_include([packages/archive/configure.in])
 
+if test "$ARCHIVE_TARGETS" = "nolib"
+then
+  ENABLE_LIBARCHIVE="@# "
+fi
+
 fi
 
 if test "$ENABLE_ODBC" = ""; then
 
 m4_include([packages/odbc/configure.in])
+
+if test "$ODBC_TARGETS" = "nolib"
+then
+  ENABLE_ODBC="@# "
+fi
 
 else
 	   ODBC_TARGETS=nolib
@@ -1840,6 +1850,11 @@ if test "$ENABLE_ZLIB" = ""
 then
 
 m4_include([packages/zlib/configure.in])
+
+if test "$ZLIB_TARGETS" = "nolib"
+then
+  ENABLE_ZLIB="@# "
+fi
 
 fi
 
