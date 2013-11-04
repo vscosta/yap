@@ -106,11 +106,6 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
       pc->u.OtaLl.n = PtoOpAdjust(pc->u.OtaLl.n);
       pc = pc->u.OtaLl.n;
       break;
-      pc->u.OtaLl.s = AtomAdjust(pc->u.OtaLl.s);
-      pc->u.OtaLl.d = PtoLUClauseAdjust(pc->u.OtaLl.d);
-      pc->u.OtaLl.n = PtoOpAdjust(pc->u.OtaLl.n);
-      pc = pc->u.OtaLl.n;
-      break;
       /* instructions type OtapFs */
 #ifdef CUT_C
     case _cut_c:
