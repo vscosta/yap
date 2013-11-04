@@ -39,10 +39,6 @@ AC_COMPILE_IFELSE([
 
 GECODE_VERSION=unknown-gecode-version
 
-GECODE_EXTRALIBS="$GECODE_EXTRALIBS -lgecodesupport -lgecodekernel -lgecodefloat -lgecodeint -lgecodeset -lgecodesearch -lgecodeset"
-
-AC_SUBST(GECODE_VERSION)
-AC_SUBST(GECODE_EXTRALIBS)
 
 if test "$use_gecode" = yes; then
   AC_MSG_CHECKING([gecode version])
@@ -80,3 +76,12 @@ fi
 GECODE_MAJOR=`echo $GECODE_VERSION| sed 's/\(^.\).*/\1/'`
 
 AC_SUBST(GECODE_MAJOR)
+
+if test "$GECODE_MAJOR" = "3"; then
+  GECODE_EXTRALIBS="$GECODE_EXTRALIBS -lgecodesupport -lgecodekernel -lgecodeint -lgecodeset -lgecodesearch"
+else
+  GECODE_EXTRALIBS="$GECODE_EXTRALIBS -lgecodesupport -lgecodekernel -lgecodefloat -lgecodeint -lgecodeset -lgecodesearch"
+fi
+
+AC_SUBST(GECODE_VERSION)
+AC_SUBST(GECODE_EXTRALIBS)
