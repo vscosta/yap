@@ -1,0 +1,41 @@
+AC_ARG_WITH(python,
+	[ --with-python[=DIR]              interface to R language],
+	if test "$withval" = yes; then
+	    yap_cv_python=yes
+	elif test "$withval" = no; then
+	    yap_cv_python=no
+	else
+	    yap_cv_python=$withval
+	fi,
+	[yap_cv_python=no])
+
+if test "$yap_cv_python" = "no"; then
+    PYTHON_TARGET="dummy"
+    ENABLE_PYTHON="@# "
+elif test -e "$srcdir"/packages/python/Makefile.in ; then
+   PYTHON_TARGET="pitf"
+   ENABLE_PYTHON=""
+   if test "$yap_cv_python" = "yes"
+   then
+      AC_CHECK_PROGS(PYTHON, python, "none")
+   else
+     PYTHON="$yap_cv_python"
+   fi
+   PYTHONHOME=`$PYTHON -c'import sys; print sys.prefix'`
+   PYTHONVERSION=`"$PYTHON" -c "import sys; print sys.version[[:3]]"`
+   PYTHON_LIBS="-L $PYTHONHOME/lib -lpython$PYTHONVERSION"
+   PYTHON_INCLUDES="-I $PYTHONHOME/include/python$PYTHONVERSION"
+else
+    PYTHON_TARGET="dummy"
+    ENABLE_PYTHON="@# "
+fi
+
+AC_SUBST(PYTHON_TARGET)
+AC_SUBST(ENABLE_PYTHON)
+AC_SUBST(PYTHON_INCLUDES)
+AC_SUBST(PYTHON_LIBS)
+
+if test "$ENABLE_PYTHON" = ""; then
+AC_CONFIG_FILES([ packages/python/Makefile ])
+fi
+
