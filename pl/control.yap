@@ -327,7 +327,7 @@ break :-
 	nb_getval('$debug_jump',Jump),
 	nb_getval('$debug_run',Run),
 	'$swi_current_prolog_flag'(debug, Debug),
-	'$swi_set_prolog_flag'(debug, false)
+	'$swi_set_prolog_flag'(debug, false),
 	nb_getval('$break',BL), NBL is BL+1,
 	nb_getval('$spy_gn',SPY_GN),
 	b_getval('$spy_glist',GList),

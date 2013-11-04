@@ -651,7 +651,7 @@ debugging :-
 	read(user,G),
 	% don't allow yourself to be caught by creep.
 	'$swi_current_prolog_flag'(debug, OldDeb),
-	 '$swi_set_prolog_flag'(debug, false)
+	 '$swi_set_prolog_flag'(debug, false),
 	( '$execute'(G) -> true ; true),
 	'$swi_set_prolog_flag'(debug, OldDeb),
 %	'$skipeol'(0'!),                        % '
