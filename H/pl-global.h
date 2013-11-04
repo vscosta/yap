@@ -24,9 +24,29 @@ typedef struct _PL_thread_info_t
   ldata_status_t    ldata_status;	/* status of forThreadLocalData() */
 } PL_thread_info_t;
 
+typedef struct
+{ size_t        localSize;              /* size of local stack */
+  size_t        globalSize;             /* size of global stack */
+  size_t        trailSize;              /* size of trail stack */
+  char *        goal;                   /* initial goal */
+  char *        topLevel;               /* toplevel goal */
+  char *        initFile;               /* -f initialisation file */
+  char *        systemInitFile;         /* -F initialisation file */
+  //  opt_list     *scriptFiles;
+  // opt_list     *search_paths;           /* -p path */
+  char *        pldoc_server;           /* --pldoc=Server */
+  char *        compileOut;             /* file to store compiler output */
+  char *        saveclass;              /* Type of saved state */
+  bool          silent;                 /* -q: quiet operation */
+#ifdef __WINDOWS__
+  bool          win_app;                /* --win_app: be Windows application */
+#endif
+} pl_options_t;
+
 
 /* The GD global variable */
 typedef struct {
+  pl_options_t  options;                /* command-line options */
   int io_initialised;
   cleanup_status cleaning;		/* Inside PL_cleanup() */
 
