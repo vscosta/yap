@@ -1239,7 +1239,7 @@ catch_ball(C, C).
 
 '$execute_outside_system_mode'(V,M,_) :-
 	var(V), !,
-	call(M:G).
+	call(M:V).
 '$execute_outside_system_mode'(M:G, _M, CP) :- !,
 	'$execute_outside_system_mode'(G, M, CP).
 '$execute_outside_system_mode'((G1,G2), M, CP) :- !,
@@ -1268,7 +1268,7 @@ catch_ball(C, C).
 	(
 	 '$$save_by'(CP1),
 	 '$exit_system_mode',
-	 '$execute_nonstop'(G,M),
+	 '$call'(G, CP, M:G, M),
 	 '$$save_by'(CP2),
 	 (CP1 == CP2 -> ! ; ( true ; '$exit_system_mode', fail ) ),
 	 '$enter_system_mode'
