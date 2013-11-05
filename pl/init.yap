@@ -114,12 +114,9 @@ otherwise.
 
 :- multifile prolog:debug_action_hook/1.
 
-:- source.
-
-:- no_source.
-
-
 :-	 ['protect.yap'].
+
+:- source.
 
 version(yap,[6,3]).
 

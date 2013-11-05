@@ -381,6 +381,15 @@ yap_flag(chr_toplevel_show_store,X) :-
 yap_flag(chr_toplevel_show_store,X) :-
 	'$do_error'(domain_error(flag_value,chr_toplevel_show_store+X),yap_flag(chr_toplevel_show_store,X)).
 
+yap_flag(source,X) :-
+	var(X), !,
+	source_mode( X, X ).
+yap_flag(source,X) :-
+	(X == off -> true ; X == on), !,
+	source_mode( _, X ).
+yap_flag(chr_toplevel_show_store,X) :-
+	'$do_error'(domain_error(flag_value,source+X),yap_flag(source,X)).
+
 yap_flag(open_expands_filename,Expand) :-
 	var(Expand), !,
 	'$default_expand'(Expand).
@@ -630,19 +639,17 @@ yap_flag(max_threads,X) :-
 '$yap_system_flag'(n_of_integer_keys_in_db).
 '$yap_system_flag'(open_expands_filename).
 '$yap_system_flag'(open_shared_object).
-% '$yap_system_flag'(optimise).
 '$yap_system_flag'(profiling).
 '$yap_system_flag'(prompt_alternatives_on).
-% '$yap_system_flag'(readline).
 '$yap_system_flag'(redefine_warnings).
 '$yap_system_flag'(shared_object_search_path).
 '$yap_system_flag'(shared_object_extension).
 '$yap_system_flag'(single_var_warnings).
+'$yap_system_flag'(source).
 '$yap_system_flag'(stack_dump_on_error).
 '$yap_system_flag'(strict_iso).
 '$yap_system_flag'(syntax_errors).
 '$yap_system_flag'(system_options).
-% '$yap_system_flag'(timezone).
 '$yap_system_flag'(to_chars_mode).
 '$yap_system_flag'(toplevel_hook).
 '$yap_system_flag'(toplevel_print_options).
