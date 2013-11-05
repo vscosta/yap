@@ -521,6 +521,10 @@ void    Yap_init_optyap_preds(void);
 struct PL_local_data *Yap_InitThreadIO(int wid); 
 void Yap_flush(void);
 
+/* pl-yap.c */
+Int Yap_source_line_no( void );
+Atom Yap_source_file_name( void );
+
 static inline
 yamop *
 gc_P(yamop *p, yamop *cp)

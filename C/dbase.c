@@ -197,7 +197,7 @@ static Int  p_rcdz( USES_REGS1 );
 static Int  p_rcdzp( USES_REGS1 );
 static Int  p_drcdap( USES_REGS1 );
 static Int  p_drcdzp( USES_REGS1 );
-static Term  GetDBTerm(DBTerm * CACHE_TYPE);
+static Term  GetDBTerm(DBTerm *, int src CACHE_TYPE);
 static DBProp  FetchDBPropFromKey(Term, int, int, char *);
 static Int  i_recorded(DBProp,Term CACHE_TYPE);
 static Int  c_recorded(int CACHE_TYPE);
@@ -1829,7 +1829,7 @@ new_lu_db_entry(Term t, PredEntry *pe)
   ipc = cl->ClCode;
   cl->Id = FunctorDBRef;
   cl->ClFlags = LogUpdMask;
-  cl->ClSource = x;
+  cl->lusl.ClSource = x;
   cl->ClRefCount = 0;
   cl->ClPred = pe;
   cl->ClExt = NULL;
@@ -2314,7 +2314,7 @@ p_still_variant( USES_REGS1 )
     if (Yap_op_from_opcode(cl->ClCode->opc) == _unify_idb_term) {
       return TRUE;
     } else {
-      dbt = cl->ClSource;
+      dbt = cl->lusl.ClSource;
     }
   } else {
     if (old_tr == TR-1) {
@@ -2451,7 +2451,7 @@ UnifyDBNumber(DBRef DBSP, Term t)
 
 
 static Term 
-GetDBTerm(DBTerm *DBSP USES_REGS)
+GetDBTerm(DBTerm *DBSP, int src USES_REGS)
 {
   Term t = DBSP->Entry;
 
@@ -2492,7 +2492,7 @@ GetDBTerm(DBTerm *DBSP USES_REGS)
       linkblk(lp, HOld-1, (CELL)HOld-(CELL)(DBSP->Contents));
     }
 #ifdef COROUTINING
-    if (DBSP->ag.attachments != 0L)  {
+    if (DBSP->ag.attachments != 0L && !src)  {
       if (!copy_attachments((CELL *)AdjustIDBPtr(DBSP->ag.attachments,(CELL)HOld-(CELL)(DBSP->Contents)) PASS_REGS)) {
 	H = HOld;
 	LOCAL_Error_TYPE = OUT_OF_ATTVARS_ERROR;
@@ -2510,7 +2510,7 @@ GetDBTermFromDBEntry(DBRef DBSP USES_REGS)
 {
   if (DBSP->Flags & (DBNoVars | DBAtomic))
     return DBSP->DBT.Entry;
-  return GetDBTerm(&(DBSP->DBT) PASS_REGS);
+  return GetDBTerm(&(DBSP->DBT), FALSE PASS_REGS);
 }
 
 static void
@@ -4049,10 +4049,10 @@ complete_lu_erase(LogUpdClause *clau)
 {
   DBRef *cp;
 
-  if (clau->ClSource)
-    cp = clau->ClSource->DBRefs;
-  else 
+  if (clau->ClFlags & FactMask)
     cp = NULL;
+  else 
+    cp = clau->lusl.ClSource->DBRefs;
   if (CL_IN_USE(clau)) {
     return;
   }
@@ -4501,7 +4501,7 @@ p_erase_clause( USES_REGS1 )
   if (!IsDBRefTerm(t1)) {
     if (IsApplTerm(t1)) {
       if (FunctorOfTerm(t1) == FunctorStaticClause) {
-	Yap_EraseStaticClause(Yap_ClauseFromTerm(t1), Deref(ARG2));
+	Yap_EraseStaticClause(Yap_ClauseFromTerm(t1), (PredEntry *)IntegerOfTerm(ArgOfTerm(2,t1)), Deref(ARG2));
 	return TRUE;
       }
       if (FunctorOfTerm(t1) == FunctorMegaClause) {
@@ -4602,13 +4602,12 @@ p_erased( USES_REGS1 )
 }
 
 static Int
-static_instance(StaticClause *cl USES_REGS)
+static_instance(StaticClause *cl, PredEntry *ap USES_REGS)
 {
   if (cl->ClFlags & ErasedMask) {
     return FALSE;
   }
   if (cl->ClFlags & FactMask) {
-    PredEntry *ap = cl->usc.ClPred;
     if (ap->ArityOfPE == 0) {
       return Yap_unify(ARG2,MkAtomTerm((Atom)ap->FunctorOfPred));
     } else {
@@ -4635,7 +4634,7 @@ static_instance(StaticClause *cl USES_REGS)
   } else {
     Term TermDB;
 
-    while ((TermDB = GetDBTerm(cl->usc.ClSource PASS_REGS)) == 0L) {
+    while ((TermDB = GetDBTerm(cl->usc.ClSource, TRUE PASS_REGS)) == 0L) {
       /* oops, we are in trouble, not enough stack space */
       if (LOCAL_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
 	LOCAL_Error_TYPE = YAP_NO_ERROR;
@@ -4694,7 +4693,7 @@ p_instance( USES_REGS1 )
   if (IsVarTerm(t1) || !IsDBRefTerm(t1)) {
     if (IsApplTerm(t1)) {
       if (FunctorOfTerm(t1) == FunctorStaticClause) {
-	return static_instance(Yap_ClauseFromTerm(t1) PASS_REGS);
+	return static_instance(Yap_ClauseFromTerm(t1), (PredEntry *)IntegerOfTerm(ArgOfTerm(2,t1)) PASS_REGS);
       }
       if (FunctorOfTerm(t1) == FunctorMegaClause) {
 	return mega_instance(Yap_MegaClauseFromTerm(t1), Yap_MegaClausePredicateFromTerm(t1) PASS_REGS);
@@ -4717,7 +4716,7 @@ p_instance( USES_REGS1 )
       UNLOCK(ap->PELock);
       return FALSE;
     }
-    if (cl->ClSource == NULL) {
+    if (cl->ClFlags & FactMask) {
       if (ap->ArityOfPE == 0) {
 	UNLOCK(ap->PELock);
 	return Yap_unify(ARG2,MkAtomTerm((Atom)ap->FunctorOfPred));
@@ -4754,10 +4753,12 @@ p_instance( USES_REGS1 )
     opc = Yap_op_from_opcode(cl->ClCode->opc);
     if (opc == _unify_idb_term) {
       UNLOCK(ap->PELock);
-      return Yap_unify(ARG2, cl->ClSource->Entry);
+      return Yap_unify(ARG2, cl->lusl.ClSource->Entry);
     } else  {
       Term            TermDB;
-      while ((TermDB = GetDBTerm(cl->ClSource PASS_REGS)) == 0L) {
+      int in_cl = (opc != _copy_idb_term);
+
+      while ((TermDB = GetDBTerm(cl->lusl.ClSource, in_cl PASS_REGS)) == 0L) {
 	/* oops, we are in trouble, not enough stack space */
 	if (LOCAL_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
 	  LOCAL_Error_TYPE = YAP_NO_ERROR;
@@ -4809,10 +4810,13 @@ Yap_LUInstance(LogUpdClause *cl, UInt arity)
   op_numbers opc = Yap_op_from_opcode(cl->ClCode->opc);
 
   if (opc == _unify_idb_term) {
-    TermDB = cl->ClSource->Entry;
+    TermDB = cl->lusl.ClSource->Entry;
   } else  {
     CACHE_REGS
-    while ((TermDB = GetDBTerm(cl->ClSource PASS_REGS)) == 0L) {
+      int in_src;
+ 
+   in_src =  (opc != _copy_idb_term);
+   while ((TermDB = GetDBTerm(cl->lusl.ClSource, in_src PASS_REGS)) == 0L) {
       /* oops, we are in trouble, not enough stack space */
       if (LOCAL_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
 	LOCAL_Error_TYPE = YAP_NO_ERROR;
@@ -5052,14 +5056,22 @@ Term
 Yap_FetchTermFromDB(DBTerm *ref)
 {
   CACHE_REGS
-  return GetDBTerm(ref PASS_REGS);
+    return GetDBTerm(ref, FALSE PASS_REGS);
+}
+
+Term 
+Yap_FetchClauseTermFromDB(DBTerm *ref)
+{
+  CACHE_REGS
+    return GetDBTerm(ref, TRUE PASS_REGS);
 }
 
 Term 
 Yap_PopTermFromDB(DBTerm *ref)
 {
   CACHE_REGS
-  Term t = GetDBTerm(ref PASS_REGS);
+
+  Term t = GetDBTerm(ref, FALSE PASS_REGS);
   if (t != 0L)
     ReleaseTermFromDB(ref PASS_REGS);
   return t;
@@ -5269,7 +5281,7 @@ p_dequeue( USES_REGS1 )
     else
       father_key->FirstInQueue = cur_instance->next;
     WRITE_UNLOCK(father_key->QRWLock);
-    while ((TDB = GetDBTerm(cur_instance->DBT PASS_REGS)) == 0L) {
+    while ((TDB = GetDBTerm(cur_instance->DBT, FALSE PASS_REGS)) == 0L) {
       if (LOCAL_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
 	LOCAL_Error_TYPE = YAP_NO_ERROR;
 	if (!Yap_growglobal(NULL)) {
@@ -5313,7 +5325,7 @@ p_dequeue_unlocked( USES_REGS1 )
   cur_instance = father_key->FirstInQueue;
   while (cur_instance) {
     Term TDB;
-    while ((TDB = GetDBTerm(cur_instance->DBT PASS_REGS)) == 0L) {
+    while ((TDB = GetDBTerm(cur_instance->DBT, FALSE PASS_REGS)) == 0L) {
       if (LOCAL_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
 	LOCAL_Error_TYPE = YAP_NO_ERROR;
 	if (!Yap_growglobal(NULL)) {
@@ -5370,7 +5382,7 @@ p_peek_queue( USES_REGS1 )
   cur_instance = father_key->FirstInQueue;
   while (cur_instance) {
     Term TDB;
-    while ((TDB = GetDBTerm(cur_instance->DBT PASS_REGS)) == 0L) {
+    while ((TDB = GetDBTerm(cur_instance->DBT, FALSE PASS_REGS)) == 0L) {
       if (LOCAL_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
 	LOCAL_Error_TYPE = YAP_NO_ERROR;
 	if (!Yap_growglobal(NULL)) {

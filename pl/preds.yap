@@ -1079,3 +1079,17 @@ compile_predicates(Ps) :-
 	assert_static(Mod:(G:-B)),
 	'$add_all'(Cls, Mod).
 
+
+clause_property(ClauseRef, file(FileName)) :-
+	'$instance_property'(ClauseRef, 2, FileName).
+clause_property(ClauseRef, source(FileName)) :-
+	'$instance_property'(ClauseRef, 2, FileName).
+clause_property(ClauseRef, line_count(LineNumber)) :-
+	'$instance_property'(ClauseRef, 4, LineNumber),
+	LineNumber > 0.
+clause_property(ClauseRef, fact) :-
+	'$instance_property'(ClauseRef, 3, true).
+clause_property(ClauseRef, erased) :-
+	'$instance_property'(ClauseRef, 0, true).
+clause_property(ClauseRef, predicate(PredicateIndicator)) :-
+	'$instance_property'(ClauseRef, 1, PredicateIndicator).

@@ -73,7 +73,10 @@ typedef struct logic_upd_clause {
   UInt             ClRefCount;
   /* data for clauses  with environments */
   yamop           *ClExt;
-  DBTerm          *ClSource;
+  union {
+    DBTerm          *ClSource;
+    Int             ClLine;
+  } lusl;
   /* doubly linked list of clauses */
   struct logic_upd_clause   *ClPrev, *ClNext;
   /* parent pointer */
@@ -100,6 +103,7 @@ typedef struct dynamic_clause {
   lockvar          ClLock;
 #endif
   UInt		   ClSize;
+  Int              ClLine;
   UInt             ClRefCount;
   yamop              *ClPrevious;     /* immediate update clause */
   /* The instructions, at least one of the form sl */
@@ -122,8 +126,8 @@ typedef struct static_clause {
   CELL            ClFlags;
   UInt		  ClSize;
   union {
-    DBTerm          *ClSource;
-    PredEntry       *ClPred;
+    DBTerm         *ClSource;
+    Int             ClLine;
   } usc;
   struct static_clause   *ClNext;
   /* The instructions, at least one of the form sl */
@@ -136,6 +140,7 @@ typedef struct static_mega_clause {
   UInt		  ClSize;
   PredEntry      *ClPred;
   UInt            ClItemSize;
+  Int             ClLine;
   struct  static_mega_clause *ClNext;
   /* The instructions, at least one of the form sl */
   yamop            ClCode[MIN_ARRAY];
@@ -268,7 +273,7 @@ void	Yap_IPred(PredEntry *, UInt, yamop *);
 int	Yap_addclause(Term,yamop *,int,Term,Term*);
 void	Yap_add_logupd_clause(PredEntry *,LogUpdClause *,int);
 void	Yap_kill_iblock(ClauseUnion *,ClauseUnion *,PredEntry *);
-void	Yap_EraseStaticClause(StaticClause *, Term);
+void	Yap_EraseStaticClause(StaticClause *, PredEntry *, Term);
 ClauseUnion *Yap_find_owner_index(yamop *, PredEntry *);
 
 /* dbase.c */
@@ -350,14 +355,15 @@ same_lu_block(yamop **paddr, yamop *p)
 }
 #endif
 
-#define Yap_MkStaticRefTerm(cp) __Yap_MkStaticRefTerm((cp) PASS_REGS)
+#define Yap_MkStaticRefTerm(cp, ap) __Yap_MkStaticRefTerm((cp), (ap) PASS_REGS)
 
 static inline Term 
-__Yap_MkStaticRefTerm(StaticClause *cp USES_REGS)
+__Yap_MkStaticRefTerm(StaticClause *cp, PredEntry *ap USES_REGS)
 {
-  Term t[1];
+  Term t[2];
   t[0] = MkIntegerTerm((Int)cp);
-  return Yap_MkApplTerm(FunctorStaticClause,1,t);
+  t[1] = MkIntegerTerm((Int)ap);
+  return Yap_MkApplTerm(FunctorStaticClause,2,t);
 }
 
 static inline StaticClause *

@@ -1248,8 +1248,7 @@ setAccessLevel(access_level_t accept)
 
 static bool
 vsysError(const char *fm, va_list args)
-{ GET_LD
-  static int active = 0;
+{ static int active = 0;
 
   switch ( active++ )
   { case 1:
@@ -1310,7 +1309,17 @@ raiseSignal(PL_local_data_t *ld, int sig)
   return FALSE;
 }
 
+Int
+Yap_source_line_no( void )
+{ GET_LD
+  return source_line_no;
+}
 
+Atom
+Yap_source_file_name( void )
+{ GET_LD
+  return YAP_AtomFromSWIAtom(source_file_name);
+}
 
 #if THREADS
 

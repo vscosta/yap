@@ -1894,7 +1894,7 @@ Yap_absmi(int inp)
 
 	SET_ASP(YREG, E_CB*sizeof(CELL));
 	saveregs();
-	while ((t = Yap_FetchTermFromDB(cl->ClSource)) == 0L) {
+	while ((t = Yap_FetchTermFromDB(cl->lusl.ClSource)) == 0L) {
 	  if (LOCAL_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
 	    LOCAL_Error_TYPE = YAP_NO_ERROR;
 	    if (!Yap_growglobal(NULL)) {
@@ -1967,7 +1967,7 @@ Yap_absmi(int inp)
 	LogUpdClause *cl = ClauseCodeToLogUpdClause(PREG);
 
 	saveregs();
-	if (!Yap_IUnify(ARG2, cl->ClSource->Entry)) {
+	if (!Yap_IUnify(ARG2, cl->lusl.ClSource->Entry)) {
 	  setregs();
 	  UNLOCKPE(8,PP);
 #if defined(YAPOR) || defined(THREADS)

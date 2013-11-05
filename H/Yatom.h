@@ -826,7 +826,8 @@ typedef enum
   LogUpdMask = 0x0200,		/* logic update index. */
   StaticMask = 0x0100,		/* static predicates */
   DirtyMask = 0x0080,		/* LUIndices  */
-  HasCutMask = 0x0040		/* ! */
+  HasCutMask = 0x0040,		/* ! */
+  SrcMask = 0x0020,		/* has a source term, only for static references */
 /* other flags belong to DB */
 } dbentry_flags;
 
@@ -837,6 +838,7 @@ typedef struct DB_TERM
 #ifdef COROUTINING
   union {
     CELL attachments;		/* attached terms */
+    Int line_number;
     struct DB_TERM *NextDBT;
   } ag;
 #endif
@@ -1524,6 +1526,7 @@ void Yap_ErDBE(DBRef);
 DBTerm *Yap_StoreTermInDB(Term, int);
 DBTerm *Yap_StoreTermInDBPlusExtraSpace(Term, UInt, UInt *);
 Term Yap_FetchTermFromDB(DBTerm *);
+Term Yap_FetchClauseTermFromDB(DBTerm *);
 Term Yap_PopTermFromDB(DBTerm *);
 void Yap_ReleaseTermFromDB(DBTerm *);
 

@@ -526,7 +526,7 @@ RestoreDBTerm(DBTerm *dbr, int attachments USES_REGS)
 {
   if (attachments) {
 #ifdef COROUTINING
-    if (dbr->ag.attachments)
+    if (attachments == 1 && dbr->ag.attachments )
       dbr->ag.attachments = AdjustDBTerm(dbr->ag.attachments, dbr->Contents, dbr->Contents, dbr->Contents+dbr->NOfCells);
 #endif
   } else {
@@ -565,16 +565,9 @@ RestoreStaticClause(StaticClause *cl USES_REGS)
  * clause for this predicate or not 
  */
 {
-  if (cl->usc.ClSource) {
-    char *x = (char *)DBTermAdjust(cl->usc.ClSource);
-    char *base = (char *)cl;
-
-    if (x < base || x >= base+cl->ClSize) {
-      cl->usc.ClPred = PtoPredAdjust(cl->usc.ClPred);
-    } else {
-      cl->usc.ClSource = DBTermAdjust(cl->usc.ClSource);
-      RestoreDBTerm(cl->usc.ClSource, TRUE PASS_REGS);
-    }
+  if (cl->ClFlags & SrcMask) {
+    cl->usc.ClSource = DBTermAdjust(cl->usc.ClSource);
+    RestoreDBTerm(cl->usc.ClSource, 2 PASS_REGS);
   }
   if (cl->ClNext) {
     cl->ClNext = PtoStCAdjust(cl->ClNext);
@@ -643,9 +636,9 @@ RestoreLUClause(LogUpdClause *cl, PredEntry *pp USES_REGS)
   if (cl->ClFlags & LogUpdRuleMask) {
     cl->ClExt = PtoOpAdjust(cl->ClExt);
   }
-  if (cl->ClSource) {
-    cl->ClSource = DBTermAdjust(cl->ClSource);
-    RestoreDBTerm(cl->ClSource, TRUE PASS_REGS);
+  if (!(cl->ClFlags & FactMask)) {
+    cl->lusl.ClSource = DBTermAdjust(cl->lusl.ClSource);
+    RestoreDBTerm(cl->lusl.ClSource, 2 PASS_REGS);
   }
   if (cl->ClPrev) {
     cl->ClPrev = PtoLUCAdjust(cl->ClPrev);
@@ -670,7 +663,7 @@ RestoreDBTermEntry(struct dbterm_list *dbl USES_REGS) {
     dbl->next_dbl = PtoDBTLAdjust(dbl->next_dbl);
   dbl->p = PredEntryAdjust(dbl->p);
   while (dbt) {
-    RestoreDBTerm(dbt, FALSE PASS_REGS);
+    RestoreDBTerm(dbt, 0 PASS_REGS);
     dbt = dbt->ag.NextDBT;
   }
 }
@@ -913,7 +906,7 @@ RestoreLogDBErasedMarker__( USES_REGS1 )
     PtoLUCAdjust(Yap_heap_regs->logdb_erased_marker);
   Yap_heap_regs->logdb_erased_marker->Id = FunctorDBRef;
   Yap_heap_regs->logdb_erased_marker->ClFlags = ErasedMask|LogUpdMask;
-  Yap_heap_regs->logdb_erased_marker->ClSource = NULL;
+  Yap_heap_regs->logdb_erased_marker->lusl.ClSource = NULL;
   Yap_heap_regs->logdb_erased_marker->ClRefCount = 0;
   Yap_heap_regs->logdb_erased_marker->ClPred = PredLogUpdClause;
   Yap_heap_regs->logdb_erased_marker->ClExt = NULL;
@@ -1049,7 +1042,7 @@ RestoreYapRecords__( USES_REGS1 )
     ptr->next_rec = DBRecordAdjust(ptr->next_rec);
     ptr->prev_rec = DBRecordAdjust(ptr->prev_rec);
     ptr->dbrecord = DBTermAdjust(ptr->dbrecord);
-    RestoreDBTerm(ptr->dbrecord, FALSE PASS_REGS);
+    RestoreDBTerm(ptr->dbrecord, 0 PASS_REGS);
     ptr = ptr->next_rec;
   }
 }
@@ -1060,7 +1053,7 @@ RestoreBallTerm(int wid)
   CACHE_REGS
   if (LOCAL_BallTerm) {
     LOCAL_BallTerm  = DBTermAdjust(LOCAL_BallTerm);
-    RestoreDBTerm(LOCAL_BallTerm, TRUE PASS_REGS);
+    RestoreDBTerm(LOCAL_BallTerm, 1 PASS_REGS);
   }
 }
 
@@ -1098,7 +1091,7 @@ RestoreDBEntry(DBRef dbr USES_REGS)
   else
     fprintf(stderr, " a var\n");
 #endif
-  RestoreDBTerm(&(dbr->DBT), TRUE PASS_REGS);
+  RestoreDBTerm(&(dbr->DBT), 1 PASS_REGS);
   if (dbr->Parent) {
     dbr->Parent = (DBProp)AddrAdjust((ADDR)(dbr->Parent));
   }
@@ -1317,7 +1310,7 @@ restore_static_array(StaticArrayEntry *ae USES_REGS)
 	  } else {
 	    DBTerm *db = (DBTerm *)RepAppl(reg);
 	    db = DBTermAdjust(db);
-	    RestoreDBTerm(db, TRUE PASS_REGS);
+	    RestoreDBTerm(db, 1 PASS_REGS);
 	    base->tstore = AbsAppl((CELL *)db);
 	  }
 	}
@@ -1336,7 +1329,7 @@ restore_static_array(StaticArrayEntry *ae USES_REGS)
 	    base++;
 	  } else {
 	    *base++ = reg = DBTermAdjust(reg);
-	    RestoreDBTerm(reg, TRUE PASS_REGS);
+	    RestoreDBTerm(reg, 1 PASS_REGS);
 	  }
 	}
       }

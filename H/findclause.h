@@ -228,22 +228,24 @@
     case _copy_idb_term:
       if (regno == 2) {
 	LogUpdClause *lcl = ClauseCodeToLogUpdClause(cl);
-	Term t = lcl->ClSource->Entry;
-	if (IsVarTerm(t)) {
-	  clause->Tag = (CELL)NULL;
-	} else if (IsApplTerm(t)) {
-	  CELL *pt = RepAppl(t);
+	Term t = lcl->lusl.ClSource->Entry;
+        if (!(lcl->ClFlags & FactMask)) {
+	  if (IsVarTerm(t)) {
+	    clause->Tag = (CELL)NULL;
+	  } else if (IsApplTerm(t)) {
+	    CELL *pt = RepAppl(t);
 
-	  clause->Tag = AbsAppl((CELL *)pt[0]);
-	  clause->u.c_sreg = pt;
-	} else if (IsPairTerm(t)) {
-	  CELL *pt = RepPair(t);
+	    clause->Tag = AbsAppl((CELL *)pt[0]);
+	    clause->u.c_sreg = pt;
+	  } else if (IsPairTerm(t)) {
+	    CELL *pt = RepPair(t);
 
-	  clause->Tag = AbsPair(NULL);
-	  clause->u.c_sreg = pt-1;
-	} else {
-	  clause->Tag = t;
-	}
+	    clause->Tag = AbsPair(NULL);
+	    clause->u.c_sreg = pt-1;
+	  } else {
+	    clause->Tag = t;
+	  }
+        }
       } else {
 	clause->Tag = (CELL)NULL;
       }
@@ -261,22 +263,24 @@
     case _unify_idb_term:
       if (regno == 2) {
 	LogUpdClause *lcl = ClauseCodeToLogUpdClause(cl);
-	Term t = lcl->ClSource->Entry;
-	if (IsVarTerm(t)) {
-	  clause->Tag = (CELL)NULL;
-	} else if (IsApplTerm(t)) {
-	  CELL *pt = RepAppl(t);
+	Term t = lcl->lusl.ClSource->Entry;
+        if (!(lcl->ClFlags & FactMask)) {
+	  if (IsVarTerm(t)) {
+	    clause->Tag = (CELL)NULL;
+	  } else if (IsApplTerm(t)) {
+	    CELL *pt = RepAppl(t);
 
-	  clause->Tag = AbsAppl((CELL *)pt[0]);
-	  clause->u.c_sreg = pt;
-	} else if (IsPairTerm(t)) {
-	  CELL *pt = RepPair(t);
+	    clause->Tag = AbsAppl((CELL *)pt[0]);
+	    clause->u.c_sreg = pt;
+	  } else if (IsPairTerm(t)) {
+	    CELL *pt = RepPair(t);
 
-	  clause->Tag = AbsPair(NULL);
-	  clause->u.c_sreg = pt-1;
-	} else {
-	  clause->Tag = t;
-	}
+	    clause->Tag = AbsPair(NULL);
+	    clause->u.c_sreg = pt-1;
+	  } else {
+	    clause->Tag = t;
+	  }
+        }
       } else {
 	clause->Tag = (CELL)NULL;
       }

@@ -212,27 +212,29 @@
 	clause->Tag = (CELL)NULL;
       } else {
 	LogUpdClause *lcl = ClauseCodeToLogUpdClause(cl);
-	Term t = lcl->ClSource->Entry;
+	Term t = lcl->lusl.ClSource->Entry;
       
-	if (IsVarTerm(t)) {
-	  clause->Tag = (CELL)NULL;
-	} else if (IsApplTerm(t)) {
-	  CELL *pt = RepAppl(t);
+        if (!(lcl->ClFlags & FactMask)) {
+	  if (IsVarTerm(t)) {
+	    clause->Tag = (CELL)NULL;
+	  } else if (IsApplTerm(t)) {
+	    CELL *pt = RepAppl(t);
 	
-	  clause->Tag = AbsAppl((CELL *)pt[0]);
-	  if (IsExtensionFunctor(FunctorOfTerm(t))) {
-	    clause->u.t_ptr = t;
-	  } else {
-	    clause->u.c_sreg = pt;
-	  }
-	} else if (IsPairTerm(t)) {
-	  CELL *pt = RepPair(t);
+	    clause->Tag = AbsAppl((CELL *)pt[0]);
+	    if (IsExtensionFunctor(FunctorOfTerm(t))) {
+	      clause->u.t_ptr = t;
+	    } else {
+	      clause->u.c_sreg = pt;
+	    }
+	  } else if (IsPairTerm(t)) {
+	    CELL *pt = RepPair(t);
 
-	  clause->Tag = AbsPair(NULL);
-	  clause->u.c_sreg = pt-1;
-	} else {
-	  clause->Tag = t;
-	}
+	    clause->Tag = AbsPair(NULL);
+	    clause->u.c_sreg = pt-1;
+	  } else {
+	    clause->Tag = t;
+	  }
+        }
       }
       return;
       cl = NEXTOP(cl,e);
@@ -245,27 +247,29 @@
 	clause->Tag = (CELL)NULL;
       } else {
 	LogUpdClause *lcl = ClauseCodeToLogUpdClause(cl);
-	Term t = lcl->ClSource->Entry;
+	Term t = lcl->lusl.ClSource->Entry;
       
-	if (IsVarTerm(t)) {
-	  clause->Tag = (CELL)NULL;
-	} else if (IsApplTerm(t)) {
-	  CELL *pt = RepAppl(t);
+        if (!(lcl->ClFlags & FactMask)) {
+	  if (IsVarTerm(t)) {
+	    clause->Tag = (CELL)NULL;
+	  } else if (IsApplTerm(t)) {
+	    CELL *pt = RepAppl(t);
 	
-	  clause->Tag = AbsAppl((CELL *)pt[0]);
-	  if (IsExtensionFunctor(FunctorOfTerm(t))) {
-	    clause->u.t_ptr = t;
-	  } else {
-	    clause->u.c_sreg = pt;
-	  }
-	} else if (IsPairTerm(t)) {
-	  CELL *pt = RepPair(t);
+	    clause->Tag = AbsAppl((CELL *)pt[0]);
+	    if (IsExtensionFunctor(FunctorOfTerm(t))) {
+	      clause->u.t_ptr = t;
+	    } else {
+	      clause->u.c_sreg = pt;
+	    }
+	  } else if (IsPairTerm(t)) {
+	    CELL *pt = RepPair(t);
 
-	  clause->Tag = AbsPair(NULL);
-	  clause->u.c_sreg = pt-1;
-	} else {
-	  clause->Tag = t;
-	}
+	    clause->Tag = AbsPair(NULL);
+	    clause->u.c_sreg = pt-1;
+	  } else {
+	    clause->Tag = t;
+	  }
+        }
       }
       return;
       cl = NEXTOP(cl,e);

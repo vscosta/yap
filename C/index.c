@@ -2340,7 +2340,7 @@ cls_head_info(ClauseDef *min, ClauseDef *max, UInt argno, int in_idb)
     } else {
       while (cl <= max) {
 	LogUpdClause *lcl = ClauseCodeToLogUpdClause(cl->CurrentCode);
-	Term t = lcl->ClSource->Entry;
+	Term t = lcl->lusl.ClSource->Entry;
       
 	if (IsVarTerm(t)) {
 	  cl->Tag = (CELL)NULL;

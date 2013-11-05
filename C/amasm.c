@@ -187,6 +187,7 @@ static char SccsId[] = "@(#)amasm.c	1.3 3/15/90";
 #include "yapio.h"
 #include "compile.h"
 #include "clause.h"
+
 #ifdef BEAM
 #include"eam.h"
 #endif
@@ -3086,7 +3087,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
 	  cl_u->sc.ClFlags |= HasCutMask;	  
 	cl_u->sc.ClNext = NULL;
 	cl_u->sc.ClSize = size;
-	cl_u->sc.usc.ClPred = cip->CurrentPred;
+	cl_u->sc.usc.ClLine = Yap_source_line_no();
 	if (*clause_has_blobsp) {
 	  cl_u->sc.ClFlags |= HasBlobsMask;
 	}
@@ -3913,7 +3914,8 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
       return NULL;
     }
     cl = (LogUpdClause *)((CODEADDR)x-(UInt)size);
-    cl->ClSource = x;
+    cl->lusl.ClSource = x;
+    x->ag.line_number = Yap_source_line_no();
     cl->ClSize = osize;
     cip->code_addr = (yamop *)cl;
   } else if (mode == ASSEMBLING_CLAUSE && 
@@ -3931,6 +3933,7 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
     code_p = do_pass(1, &entry_code, mode, &clause_has_blobs, &clause_has_dbterm, cip, size PASS_REGS);
     /* make sure we copy after second pass */
     cl->usc.ClSource = x;
+    x->ag.line_number = Yap_source_line_no();
     cl->ClSize = osize;
     LOCAL_ProfEnd=code_p;
     Yap_inform_profiler_of_clause(cl, LOCAL_ProfEnd, ap, GPROF_CLAUSE);
@@ -3951,6 +3954,7 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
 	Yap_LUClauseSpace += size;
       } else {
 	((StaticClause *)(cip->code_addr))->ClSize = size;
+	((StaticClause *)(cip->code_addr))->ClFlags = 0;
 	Yap_ClauseSpace += size;
       }
     } else {

@@ -443,7 +443,7 @@ F	Safe			Safe		1
 F	SafeCallCleanup		SafeCallCleanup	4
 F	Same			Same		2
 F	Slash			Slash		2
-F	StaticClause		StaticClause	1
+F	StaticClause		StaticClause	2
 F	Stream			Stream		1
 F	StreamEOS		EndOfStream	1
 F	StreamPos		StreamPos	4

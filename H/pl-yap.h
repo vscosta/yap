@@ -34,7 +34,7 @@ extern int Yap_read_term(term_t t, IOSTREAM *st, term_t *exc, term_t vs);
 extern term_t Yap_fetch_module_for_format(term_t args, YAP_Term *modp);
 extern IOENC Yap_DefaultEncoding(void);
 extern void Yap_SetDefaultEncoding(IOENC);
-
+extern void Yap_setCurrentSourceLocation(IOSTREAM **s);
 extern void   *Yap_GetStreamHandle(Atom at);
 
 extern atom_t codeToAtom(int chrcode);

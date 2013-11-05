@@ -468,7 +468,7 @@ Yap_InitCPred(char *Name, unsigned long int Arity, CPredicate code, UInt flags)
       cl->ClFlags = StaticMask;
       cl->ClNext = NULL;
       cl->ClSize = sz;
-      cl->usc.ClPred = pe;
+      cl->usc.ClLine = Yap_source_line_no();
       p_code = cl->ClCode;
     }
   }
@@ -556,7 +556,7 @@ Yap_InitCmpPred(char *Name, unsigned long int Arity, CmpPredicate cmp_code, UInt
 	cl->ClFlags = StaticMask;
 	cl->ClNext = NULL;
 	cl->ClSize = sz;
-	cl->usc.ClPred = pe;
+	cl->usc.ClLine = Yap_source_line_no();
 	p_code = cl->ClCode;
 	break;
       }
@@ -647,7 +647,7 @@ Yap_InitAsmPred(char *Name,  unsigned long int Arity, int code, CPredicate def, 
     } else {
       cl->ClSize = (CELL)NEXTOP(NEXTOP(NEXTOP(NEXTOP(NEXTOP(((yamop *)p_code),e),Osbpp),p),e),e);
     }
-    cl->usc.ClPred = pe;
+    cl->usc.ClLine = Yap_source_line_no();
     p_code = cl->ClCode;
     pe->CodeOfPred = p_code;
     if (!(flags & SafePredFlag)) {
@@ -831,7 +831,7 @@ Yap_InitCPredBack(char *Name, unsigned long int Arity,
     cl->ClSize = 
       (CELL)NEXTOP(NEXTOP(NEXTOP(code,OtapFs),OtapFs),e);
 #endif
-    cl->usc.ClPred = pe;
+    cl->usc.ClLine = Yap_source_line_no();
 
     code = cl->ClCode;
     pe->cs.p_code.TrueCodeOfPred = pe->CodeOfPred =
@@ -997,9 +997,8 @@ InitLogDBErasedMarker(void)
   Yap_LUClauseSpace += sizeof(LogUpdClause)+(UInt)NEXTOP((yamop*)NULL,e);
   Yap_heap_regs->logdb_erased_marker->Id = FunctorDBRef;
   Yap_heap_regs->logdb_erased_marker->ClFlags = ErasedMask|LogUpdMask;
-  Yap_heap_regs->logdb_erased_marker->ClSource = NULL;
+  Yap_heap_regs->logdb_erased_marker->lusl.ClSource = NULL;
   Yap_heap_regs->logdb_erased_marker->ClRefCount = 0;
-  Yap_heap_regs->logdb_erased_marker->ClPred = PredLogUpdClause;
   Yap_heap_regs->logdb_erased_marker->ClExt = NULL;
   Yap_heap_regs->logdb_erased_marker->ClPrev = NULL;
   Yap_heap_regs->logdb_erased_marker->ClNext = NULL;
@@ -1377,7 +1376,8 @@ Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts, UInt max_table_s
 #if THREADS
   /* don't forget this is a thread */
   LOCAL_ThreadHandle.stack_address =  LOCAL_GlobalBase;
-  LOCAL_ThreadHandle.ssize =  Trail+Stack;
+  LOCAL_ThreadHandle.tsize =  Trail;
+  LOCAL_ThreadHandle.ssize =  Stack;
 #endif
 #endif
   GLOBAL_AllowGlobalExpansion = TRUE;
