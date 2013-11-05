@@ -9675,7 +9675,6 @@ $as_echo_n "checking for $ac_word... " >&6; }
 if ${ac_cv_prog_JAVAC+:} false; then :
   $as_echo_n "(cached) " >&6
 else
-echo $JAVAC
   if test -n "$JAVAC"; then
   ac_cv_prog_JAVAC="$JAVAC" # Let the user override the test.
 else
@@ -9683,7 +9682,6 @@ as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
 for as_dir in $PATH
 do
   IFS=$as_save_IFS
-echo $as_dir/$ac_word$ac_exec_ext
   test -z "$as_dir" && as_dir=.
     for ac_exec_ext in '' $ac_executable_extensions; do
   if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
@@ -10560,6 +10558,9 @@ for d in $_JNI_LIBDIRS; do
 			case "$target_os" in
          		 *linux*)
            		   JAVALIBS="$JAVALIBS -Wl,-R$_JTOPDIR/jre/$d/$subd -Wl,-R$_JTOPDIR/jre/$d"
+			   ;;
+         		 darwin*)
+           		   JAVALIBS="$JAVALIBS -L $_JTOPDIR/jre/$d/$subd -L $_JTOPDIR/jre/$d"
 			   ;;
 			 **)
 			   ;;
@@ -11581,6 +11582,11 @@ fi
 
 
 
+if test "$ARCHIVE_TARGETS" = "nolib"
+then
+  ENABLE_LIBARCHIVE="@# "
+fi
+
 fi
 
 if test "$ENABLE_ODBC" = ""; then
@@ -12174,6 +12180,11 @@ ODBC_PLTARGETS=`echo $ODBC_TARGETS | sed "s/4pl\.$SO/.pl/g"`
 
 
 
+if test "$ODBC_TARGETS" = "nolib"
+then
+  ENABLE_ODBC="@# "
+fi
+
 else
 	   ODBC_TARGETS=nolib
 	   ODBC_PLTARGETS=odbc.pl
@@ -12675,6 +12686,11 @@ EOF
 fi
 
 
+
+if test "$ZLIB_TARGETS" = "nolib"
+then
+  ENABLE_ZLIB="@# "
+fi
 
 fi
 
