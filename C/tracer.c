@@ -31,7 +31,6 @@ static void  send_tracer_message(char *, char *, Int, char *, CELL *);
 static void
 send_tracer_message(char *start, char *name, Int arity, char *mname, CELL *args)
 {
-  CACHE_REGS
   if (name == NULL) {
 #ifdef  YAPOR
     fprintf(GLOBAL_stderr, "(%d)%s", worker_id, start);
