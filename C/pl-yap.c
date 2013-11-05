@@ -1299,10 +1299,13 @@ sysError(const char *fm, ...)
 
 int
 raiseSignal(PL_local_data_t *ld, int sig)
-{ if (sig == SIG_THREAD_SIGNAL) {
+{
+#if THREADS
+ if (sig == SIG_THREAD_SIGNAL) {
      Yap_signal(YAP_ITI_SIGNAL);
      return TRUE;    
   }
+#endif
   fprintf(stderr, "Unsupported signal %d\n", sig);
   return FALSE;
 }

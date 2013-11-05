@@ -42,6 +42,9 @@
 #define Int_MIN  (-Int_MAX-(CELL)1)
 #endif
 
+#define PLMAXINT Int_MAX
+#define PLMININT Int_MIN
+
 typedef enum {
   op_pi,
   op_e,
