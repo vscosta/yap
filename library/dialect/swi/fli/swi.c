@@ -30,6 +30,9 @@
 #if HAVE_ERRNO_H
 #include	<errno.h>
 #endif
+#if HAVE_SIGNAL_H
+#include	<signal.h>
+#endif
 
 #define PL_KERNEL 1
 
@@ -2479,6 +2482,8 @@ X_API int PL_thread_self(void)
 #endif
 }
 
+#if THREADS
+
 static int
 alertThread(int tid)
 {
@@ -2512,7 +2517,7 @@ PL_thread_raise(int tid, int sig)
   return TRUE;
 }
 
-
+#endif
 
 X_API int PL_unify_thread_id(term_t t, int i)
 {

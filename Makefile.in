@@ -867,7 +867,7 @@ install_win32: startup.yss @ENABLE_WINCONSOLE@ yap-win@EXEC_SUFFIX@
 	@ENABLE_RDF@ (cd packages/RDF; $(MAKE) install)
 	@ENABLE_SEMWEB@ (cd packages/semweb; $(MAKE) install)
 	@ENABLE_SGML@ (cd packages/sgml; $(MAKE) install)
-	@ENABLE_ZLIB@ (cd packages/zlib; $(MAKE) @ZLIB_INSTALL@)
+	@ENABLE_ZLIB@ (cd packages/zlib; $(MAKE) install)
 	(cd packages/CLPBN ; $(MAKE) install)
 	@ENABLE_CLPBN_BP@ (cd packages/CLPBN/horus; $(MAKE) install)
 	@ENABLE_JPL@ (cd packages/jpl ; $(MAKE) install)
