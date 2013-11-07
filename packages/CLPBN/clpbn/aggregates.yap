@@ -11,7 +11,8 @@
 		]).
 
 :- use_module(library(clpbn),
-		[{}/1]).
+		[{}/1,
+		 op(500, xfy, with)]).
 
 :- use_module(library(lists),
 		[last/2,
