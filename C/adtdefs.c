@@ -157,14 +157,15 @@ SearchWideAtom(wchar_t *p, Atom a) {
 static Atom
 LookupAtom(char *atom)
 {				/* lookup atom in atom table            */
-  register CELL hash;
-  register unsigned char *p;
+  UInt hash;
+  unsigned char *p;
   Atom a, na;
   AtomEntry *ae;
-
+  
   /* compute hash */
   p = (unsigned char *)atom;
   hash = HashFunction(p) % AtomHashTableSize;
+
   /* we'll start by holding a read lock in order to avoid contention */
   READ_LOCK(HashChain[hash].AERWLock);
   a = HashChain[hash].Entry;
