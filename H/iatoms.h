@@ -438,7 +438,7 @@
   FunctorSafeCallCleanup = Yap_MkFunctor(AtomSafeCallCleanup,4);
   FunctorSame = Yap_MkFunctor(AtomSame,2);
   FunctorSlash = Yap_MkFunctor(AtomSlash,2);
-  FunctorStaticClause = Yap_MkFunctor(AtomStaticClause,1);
+  FunctorStaticClause = Yap_MkFunctor(AtomStaticClause,2);
   FunctorStream = Yap_MkFunctor(AtomStream,1);
   FunctorStreamEOS = Yap_MkFunctor(AtomEndOfStream,1);
   FunctorStreamPos = Yap_MkFunctor(AtomStreamPos,4);
