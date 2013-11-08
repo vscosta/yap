@@ -71,34 +71,24 @@ module(N) :-
 module(N) :-
 	'$do_error'(type_error(atom,N),module(N)).
 
-'$module_dec'(N,P) :-
+'$module_dec'(N, Ps) :-
 	'$current_module'(_,N),
 	source_location(F, _),
-	'$add_module_on_file'(N, F, P).
+	'$add_module_on_file'(N, F, Ps).
 
 '$add_module_on_file'(Mod, F, Exports) :-
 	recorded('$module','$module'(F0,Mod,_),R), !,
 	'$add_preexisting_module_on_file'(F, F0, Mod, Exports, R).
-'$add_module_on_file'(Mod, F, Exports) :-
-	'$process_exports'(Exports,Mod,ExportedPreds),
-	recorda('$module','$module'(F,Mod,ExportedPreds),_).
-
-'$process_exports'([],_,[]).
-'$process_exports'([Name/Arity|Exports],Mod,[Name/Arity|ExportedPreds]):- !,
-	'$process_exports'(Exports,Mod,ExportedPreds).
-'$process_exports'([Name//Arity|Exports],Mod,[Name/Arity2|ExportedPreds]):- !,
-	Arity2 is Arity+2,
-	'$process_exports'(Exports,Mod,ExportedPreds).
-'$process_exports'([op(Prio,Assoc,Name)|Exports],Mod,ExportedPreds) :- !,
-	op(Prio,Assoc,prolog:Name),
-	'$process_exports'(Exports,Mod,ExportedPreds).
-'$process_exports'([Trash|_],Mod,_) :-
-	'$do_error'(type_error(predicate_indicator,Trash),module(Mod,[Trash])).
+'$add_module_on_file'(Module, F, Exports) :-
+	'$convert_for_export'(all, Exports, Module, Module, TranslationTab, AllExports0, load_files),
+	'$add_to_imports'(TranslationTab, Module, Module), % insert ops, at least for now
+	sort( AllExports0, AllExports ),
+	recorda('$module','$module'(F,Module,AllExports),_).
 
 % redefining a previously-defined file, no problem.
 '$add_preexisting_module_on_file'(F, F, Mod, Exports, R) :- !,
 	erase(R),
-	( recorded('$import','$impovrt'(Mod,_,_,_,_,_),R), erase(R), fail; true),
+	( recorded('$import','$import'(Mod,_,_,_,_,_),R), erase(R), fail; true),
 	recorda('$module','$module'(F,Mod,Exports),_).
 '$add_preexisting_module_on_file'(F,F0,Mod,Exports,R) :-
 	repeat,
@@ -117,88 +107,12 @@ module(N) :-
 	repeat,
 	get0(C),
 	'$skipeol'(C),
-	(C is "y" ; C is "n" ; C is "h", halt ; format(user_error,  ' Please answer with ''y'', ''n'' or ''h'' ', []), fail), !.
+	(C is "y" -> true ; C is "n" -> true ; C is "h" -> true  ; C is "e" -> halt(1) ; format(user_error,  ' Please answer with ''y'', ''n'', ''e'' or ''h'' ', []), fail), !.
 '$mod_scan'(C) :- C is "n".
 
-'$import'([],_,_) :- !.
-'$import'([N/K|L],M,T) :-
-	integer(K), atom(N), !,
-	'$do_import'(N, K, M, T),
-	'$import'(L,M,T).
-'$import'([N//K|L],M,T) :-
-	integer(K), atom(N), !,
-	N1 is N+2,
-	'$do_import'(N1, K, M, T),
-	'$import'(L,M,T).
-'$import'([PS|L],_,_) :-
-	'$do_error'(domain_error(predicate_spec,PS),import([PS|L])).
-
-'$use_preds'(Imports,Publics,Mod,M) :- var(Imports), !,
-	'$import'(Publics,Mod,M).
-'$use_preds'(M:L,Publics,Mod,_) :-
-	'$use_preds'(L,Publics,Mod,M).
-'$use_preds'([],_,_,_) :- !.
-'$use_preds'([P|Ps],Publics,Mod,M) :- !,
-	'$use_preds'(P,Publics,Mod,M),
-	'$use_preds'(Ps,Publics,Mod,M).
-'$use_preds'(N/K,Publics,M,Mod) :-
-          (  lists:memberchk(N/K,Publics) -> 
-             true ;
-             print_message(warning,import(N/K,Mod,M,private))
-	  ),
-          '$do_import'(N, K, M, Mod).
-'$use_preds'(N//K0,Publics,M,Mod) :-
-	  K is K0+2,
-	  (  lists:memberchk(N/K,Publics) -> true ;
-	     print_message(warning,import(N/K,Mod,M,private))
-	  ),
-	  '$do_import'(N, K, M, Mod).
- 
-
-%
-% ignore imports that we  do export
-%
-'$do_import'(N, K, M, T) :-
-       recorded('$module','$module'(_F, T, MyExports),_),
-       once(lists:member(N/K, MyExports)),
-       functor(S, N, K),
-       %  reexport predicates if they are undefined in the current module.
-       \+ '$undefined'(S, T), !.
-'$do_import'(N, K, M, T) :-
-	functor(G,N,K),
-	'$follow_import_chain'(M,G,M0,G0),
-	functor(G0,N1,K),
-	( '$check_import'(M0,T,N1,K) ->
-	  ( T = user ->
-	    ( recordzifnot('$import','$import'(M0,user,G0,G,N,K),_) -> true ; true)
-	  ;
-	    ( recordaifnot('$import','$import'(M0,T,G0,G,N,K),_) -> true ; true )
-	  )
-	;
-	  true
-	).
-
-'$follow_import_chain'(M,G,M0,G0) :-
-	recorded('$import','$import'(M1,M,G1,G,_,_),_), M \= M1, !,
-	'$follow_import_chain'(M1,G1,M0,G0).
-'$follow_import_chain'(M,G,M,G).
-
-'$check_import'(M,T,N,K) :-
-	recorded('$import','$import'(MI,T,_,_,N,K),_R),
-	% dereference MI to M1, in order to find who 
-	% is actually generating
-	( '$module_produced by'(M1,MI,N,K) -> true ; MI = M1 ),
-	( '$module_produced by'(M2,M,N,K) -> true ; M = M2 ),
-	M2 \= M1,  !,
-	format(user_error,'NAME CLASH: ~w was already imported to module ~w;~n',[M1:N/K,M2]),
-	format(user_error,'            Do you want to import it from ~w ? [y, n or h] ',M),
-	'$mod_scan'(C),
-	C =:= "y".
-'$check_import'(_,_,_,_).
-
-'$module_produced by'(M,M0,N,K) :-
+'$module_produced by'(M, M0, N, K) :-
 	recorded('$import','$import'(M,M0,_,_,N,K),_), !.
-'$module_produced by'(M,M0,N,K) :-
+'$module_produced by'(M, M0, N, K) :-
 	recorded('$import','$import'(MI,M0,G1,_,N,K),_),
 	functor(G1, N1, K1),
 	'$module_produced by'(M,MI,N1,K1).	
@@ -315,7 +229,7 @@ module(N) :-
 % if I don't know what the module is, I cannot do anything to the goal,
 % so I just put a call for later on.
 '$module_expansion'(M:G,call(M:G),'$execute_wo_mod'(G,M),_,_,_,_) :- var(M), !.
-'$module_expansion'(M:G,G1,GO,_,CM,_,HVars) :- !,
+'$module_expansion'(M:G,G1,GO,_,_CM,HM,HVars) :- !,
 	'$module_expansion'(G,G1,GO,M,M,HM,HVars).
 '$module_expansion'(G, G1, GO, CurMod, MM, HM,HVars) :-
 	% is this imported from some other module M1?
@@ -334,11 +248,11 @@ expand_goal(M:G, M:NG) :-
 	'$do_expand'(G, M, NG), !.
 expand_goal(G, NG) :- 
 	'$current_module'(Mod),
-	'$do_expand'(G, M, NG), !.
+	'$do_expand'(G, Mod, NG), !.
 expand_goal(G, G).
 	
 '$do_expand'(G, _, G) :- var(G), !.
-'$do_expand'(M:G, CurMod, M:GI) :- !,
+'$do_expand'(M:G, _CurMod, M:GI) :- !,
 	'$do_expand'(G, M, GI).
 '$do_expand'(G, CurMod, GI) :-
 	(
@@ -387,7 +301,7 @@ expand_goal(G, G).
 	'$do_expand'(G, CurMod, GI),
 	GI \== G, !,
 	'$module_expansion'(GI, G1, GO, CurMod, MM, HM, HVars).
-'$complete_goal_expansion'(G, M, CM, HM, G1, G2, HVars) :-
+'$complete_goal_expansion'(G, M, _CM, HM, G1, G2, _HVars) :-
 	'$all_system_predicate'(G,M,ORIG), !,
 	% make built-in processing transparent.
 	'$match_mod'(G, M, ORIG, HM, G1),
@@ -412,7 +326,7 @@ expand_goal(G, G).
 	'$get_undefined_pred'(G, ImportingMod, G0, ExportingMod),
 	ExportingMod \= ImportingMod, !,
 	'$exit_undefp'.
-'$imported_pred'(G, ImportingMod, _, _) :-
+'$imported_pred'(_G, _ImportingMod, _, _) :-
 	'$exit_undefp',
 	fail.
 
@@ -420,7 +334,7 @@ expand_goal(G, G).
 	recorded('$import','$import'(ExportingModI,ImportingMod,G0I,G,_,_),_),
 	'$continue_imported'(ExportingMod, ExportingModI, G0, G0I), !.
 % SWI builtin
-'$get_undefined_pred'(G, ImportingMod, G0, ExportingMod) :-
+'$get_undefined_pred'(G, _ImportingMod, G0, ExportingMod) :-
 	recorded('$dialect',Dialect,_),
 	Dialect \= yap,
 	functor(G, Name, Arity),
@@ -479,7 +393,7 @@ expand_goal(G, G).
 	NFlags is Fl \/ 0x200004,
 	'$flags'(P, M, Fl, NFlags).
 
-'$is_mt'(M, H0, B, (context_module(CM),B), CM) :-
+'$is_mt'(M, H, B, (context_module(CM),B), CM) :-
 	'$module_transparent'(_, M, _, H), !.
 '$is_mt'(M, _, B, B, M).
 
@@ -737,67 +651,168 @@ export_resource(Resource) :-
 	
 export_list(Module, List) :-
 	recorded('$module','$module'(_,Module,List),_).
-	
 
-'$reexport'(ModuleSource, Spec, Module) :-
-	source_location(CurrentFile, _),
-	(
-	 Spec == all
+'$convert_for_export'(all, Exports, _Module, _ContextModule, Tab, Exports, _) :-
+	'$simple_conversion'(Exports, Tab).
+'$convert_for_export'([P1|Ps], Exports, Module, ContextModule, Tab, MyExports, Goal) :-
+	'$clean_conversion'([P1|Ps], Exports, Module, ContextModule, Tab, MyExports, Goal).
+'$convert_for_export'(except(Excepts), Exports, Module, ContextModule, Tab, MyExports, Goal) :-
+	'$neg_conversion'(Excepts, Exports, Module, ContextModule, MyExports, Goal),
+	'$simple_conversion'(MyExports, Tab).
+
+'$simple_conversion'([], []).
+'$simple_conversion'([F/N|Exports], [F/N-F/N|Tab]) :-
+	'$simple_conversion'(Exports, Tab).
+'$simple_conversion'([F//N|Exports], [F/N2-F/N2|Tab]) :-
+	N2 is N+1,
+	'$simple_conversion'(Exports, Tab).
+'$simple_conversion'([F/N as NF|Exports], [F/N-NF/N|Tab]) :-
+	'$simple_conversion'(Exports, Tab).
+'$simple_conversion'([F//N as BF|Exports], [F/N2-NF/N2|Tab]) :-
+	N2 is N+1,
+	'$simple_conversion'(Exports, Tab).
+'$simple_conversion'([op(Prio,Assoc,Name)|Exports], [op(Prio,Assoc,Name)|Tab]) :-
+	'$simple_conversion'(Exports, Tab).
+
+'$clean_conversion'([], _, _, _, [], [], _).
+'$clean_conversion'([(N1/A1 as N2)|Ps], List, Module, ContextModule, [N1/A1-N2/A1|Tab], [N2/A1|MyExports], Goal) :- !,
+	( lists:memberchk(N1/A1, List)
 	->
-	 Goal =	reexport(ModuleSource)
+	  '$clean_conversion'(Ps, List, Module, ContextModule, Tab, MyExports, Goal)
 	;
-	 Goal =	reexport(ModuleSource,Spec)
-	),
-	absolute_file_name(ModuleSource, File, [access(read),file_type(prolog),file_errors(fail),solutions(first),expand(true)]),
-	'$load_files'(File, [if(not_loaded),silent(true), imports(Spec)], Goal),
-	recorded('$module', '$module'(FullFile, Mod, Exports),_),
-	atom_concat(File, _, FullFile), !,
-	'$convert_for_reexport'(Spec, Exports, Tab, MyExports, Goal),
-	'$add_to_imports'(Tab, Module, Mod),
-	recorded('$module', '$module'(CurrentFile, Module, ModExports), Ref),
-	erase(Ref),
-	lists:append(ModExports, MyExports, AllExports),
-	recorda('$module', '$module'(CurrentFile, Module, AllExports), _),
-	'$import'(MyExports, Module, TopModule).
+	  '$bad_export'(N1/A1, Module, ContextModule)
+	).	
+'$clean_conversion'([N1/A1|Ps], List, Module, ContextModule, [N1/A1-N1/A1|Tab], [N1/A1|MyExports], Goal) :- !,
+	(
+	 lists:memberchk(N1/A1, List)
+	->
+	 '$clean_conversion'(Ps, List, Module, ContextModule, Tab, MyExports, Goal)
+	;
+	  '$bad_export'(N1/A1, Module, ContextModule)
+	).
+'$clean_conversion'([N1//A1|Ps], List, Module, ContextModule, [N1/A2-N1/A2|Tab], [P1|MyExports], Goal) :- !,
+	A2 is A1+2,
+	(
+	  lists:memberchk(N1/A2, List)
+	->
+	  '$clean_conversion'(Ps, List, Module, ContextModule, Tab, MyExports, Goal)
+	;
+	  '$bad_export'(N1//A1, Module, ContextModule)
+	).
+'$clean_conversion'([op(Prio,Assoc,Name)|Ps], List, Module, ContextModule, [op(Prio,Assoc,Name)|Tab], [op(Prio,Assoc,Name)|MyExports], Goal) :- !,
+	(
+	 lists:memberchk(op(Prio,Assoc,Name), List)
+	->
+	 '$clean_conversion'(Ps, List, Module, ContextModule, Tab, MyExports, Goal)
+	;
+	  '$bad_export'(op(Prio,Assoc,Name), Module, ContextModule)
+	).
+'$clean_conversion'([P|_], _List, _, _, _, _, Goal) :-
+	'$do_error'(domain_error(module_export_predicates,P), Goal).
 
-'$convert_for_reexport'(all, Exports, Tab, MyExports, _) :-
-	'$simple_conversion'(Exports, Tab, MyExports).
-'$convert_for_reexport'([P1|Ps], Exports, Tab, MyExports, Goal) :-
-	'$clean_conversion'([P1|Ps], Exports, Tab, MyExports, Goal).
-'$convert_for_reexport'(except(List), Exports, Tab, MyExports, Goal) :-
-	'$neg_conversion'(Exports, List, Tab, MyExports, Goal).
+'$bad_export'(_, _Module, _ContextModule) :- !.
+'$bad_export'(Name/Arity, Module, ContextModule) :-
+	functor(P, Name, Arity),
+	predicate_property(Module:P, _), !,
+	print_message(warning, declaration(Name/Arity, Module, ContextModule, private)).
+'$bad_export'(Name//Arity, Module, ContextModule) :-
+	Arity2 is Arity+2,
+	functor(P, Name, Arity2),
+	predicate_property(Module:P, _), !,
+	print_message(warning, declaration(Name/Arity, Module, ContextModule, private)).
+'$bad_export'(Indicator, Module, ContextModule) :- !,
+	print_message(warning, declaration( Indicator, Module, ContextModule, undefined)).
 
-'$simple_conversion'([], [], []).
-'$simple_conversion'([P|Exports], [P-P|Tab], [P|MyExports]) :-
-	'$simple_conversion'(Exports, Tab, MyExports).
+'$neg_conversion'([], Exports, _, _, Exports, _).
+'$neg_conversion'([N1/A1|Ps], List, Module, ContextModule, MyExports, Goal) :- !,
+	(
+	 lists:delete(List, N1/A1, RList)
+	->
+	 '$neg_conversion'(Ps, RList, Module, ContextModule, MyExports, Goal)
+	;
+	 '$bad_export'(N1/A1, Module, ContextModule)
+	).
+'$neg_conversion'([N1//A1|Ps], List, Module, ContextModule, MyExports, Goal) :- !,
+	A2 is A1+2,
+	(
+	 lists:delete(List, N1/A2, RList)
+	->
+	 '$neg_conversion'(Ps, RList, Module, ContextModule, MyExports, Goal)
+	;
+	 '$bad_export'(N1//A1, Module, ContextModule)
+	).
+'$neg_conversion'([op(Prio,Assoc,Name)|Ps], List, Module, ContextModule, MyExports, Goal) :- !,
+	(
+	 lists:delete(List, op(Prio,Assoc,Name), RList)
+	->
+	 '$neg_conversion'(Ps, RList, Module, ContextModule, MyExports, Goal)
+	;
+	 '$bad_export'(op(Prio,Assoc,Name), Module, ContextModule)
+	).
+'$clean_conversion'([P|_], _List, _, _, _, Goal) :-
+	'$do_error'(domain_error(module_export_predicates,P), Goal).
 
-'$clean_conversion'([], _, [], [], _).
-'$clean_conversion'([P1|Ps], List, [P1-P1|Tab], [P1|MyExports], Goal) :-
-	lists:memberchk(P1, List), !,
-	'$clean_conversion'(Ps, List, Tab, MyExports, Goal).
-'$clean_conversion'([(N1/A1 as N2)|Ps], List, [N1/A1-N2/A1|Tab], [N2/A1|MyExports], Goal) :-
-	lists:memberchk(N1/A1, List), !,
-	'$clean_conversion'(Ps, List, Tab, MyExports, Goal).
-'$clean_conversion'([P|_], _List, _, _, Goal) :-
-	'$do_error'(domain_error(module_reexport_predicates,P), Goal).
-	
-'$neg_conversion'([], _, [], [], _).
-'$neg_conversion'([P1|Ps], List, Tab, MyExports, Goal) :-
-	lists:memberchk(P1, List), !,
-	'$neg_conversion'(Ps, List, Tab, MyExports, Goal).
-'$neg_conversion'([N1/A1|Ps], List, [N1/A1-N2/A1|Tab], [N2/A1|MyExports], Goal) :-
-	lists:memberchk(N1/A1 as N2, List), !,
-	'$neg_conversion'(Ps, List, Tab, MyExports, Goal).
-'$neg_conversion'([P|Ps], List, [P-P|Tab], [P|MyExports], Goal) :-
-	'$neg_conversion'(Ps, List, Tab, MyExports, Goal).
 	
 '$add_to_imports'([], _, _).
-'$add_to_imports'([N0/K0-N1/K1|Tab], Mod, ModR) :-
-	functor(G,N0,K0),
-	G=..[N0|Args],
+% no need to import from the actual module
+'$add_to_imports'([T|Tab], Module, ContextModule) :- 
+	'$do_import'(T, Module, ContextModule),
+	'$add_to_imports'(Tab, Module, ContextModule).
+
+'$do_import'(op(Prio,Assoc,Name), _Mod, ContextMod) :-
+	op(Prio,Assoc,ContextMod:Name).
+'$do_import'(N0/K0-N0/K0, Mod, Mod) :- !.
+'$do_import'(_N/K-N1/K, _Mod, ContextMod) :-
+       recorded('$module','$module'(_F, ContextMod, MyExports),_),
+       once(lists:member(N1/K, MyExports)),
+       functor(S, N1, K),
+       %  reexport predicates if they are undefined in the current module.
+       \+ '$undefined'(S,ContextMod), !.
+'$do_import'( N/K-N1/K, Mod, ContextMod) :-
+	functor(G,N,K),
+	'$follow_import_chain'(Mod,G,M0,G0),
+	G0=..[N0|Args],
 	G1=..[N1|Args],
-	( recordaifnot('$import','$import'(ModR,Mod,G,G1,N0,K0),_) -> true ; true ),         
-	'$add_to_imports'(Tab, Mod, ModR).
+	( '$check_import'(M0,ContextMod,N1,K) ->
+	  ( ContextMod = user ->
+	    ( recordzifnot('$import','$import'(M0,user,G0,G1,N1,K),_) -> true ; true)
+	  ;
+	    ( recordaifnot('$import','$import'(M0,ContextMod,G0,G1,N1,K),_) -> true ; true )
+	  )
+	;
+	  true
+	).
+
+'$follow_import_chain'(M,G,M0,G0) :-
+	recorded('$import','$import'(M1,M,G1,G,_,_),_), M \= M1, !,
+	'$follow_import_chain'(M1,G1,M0,G0).
+'$follow_import_chain'(M,G,M,G).
+
+% trying to import Mod:N/K into ContextM
+'$check_import'(Mod, ContextM, N, K) :-
+	recorded('$import','$import'(MI, ContextM, _, _, N,K),_R),
+	% dereference MI to M1, in order to find who 
+	% is actually generating
+	( '$module_produced by'(M1, MI,  N, K) -> true ; MI = M1 ),
+	( '$module_produced by'(M2, Mod, N, K) -> true ;  M = M2 ),
+	M2 \= M1,  !,
+	b_getval('$lf_status', TOpts),
+	'$lf_opt'(redefine_module, TOpts, Action),
+	'$redefine_action'(Action, M1, M2, M, N/K).
+'$check_import'(_,_,_,_).
+
+'$redefine_action'(ask, M1, M2, M, N/K) :-
+	stream_property(user_input,tty(true)), !,
+	format(user_error,'NAME CLASH: ~w was already imported to module ~w;~n',[M1:N/K,M2]),
+	format(user_error,'            Do you want to import it from ~w ? [y, n, e or h] ',M),
+	'$mod_scan'(C),
+	( C =:= 0'e -> halt(1) ;
+	  C =:= 0'y ).  
+'$redefine_action'(true, M1, _, _, _) :- !,
+	recorded('$module','$module'(F, M1, _MyExports),_),
+	unload_file(F).
+'$redefine_action'(false, M1,M2, M, N/K) :-
+	'$do_error'(permission_error(import,M1:N/K,redefined,M2),module(M)).
 
 % I assume the clause has been processed, so the
 % var case is long gone! Yes :)
@@ -831,7 +846,7 @@ set_base_module(ExportingModule) :-
 set_base_module(ExportingModule) :-
 	atom(ExportingModule), !,
 	'$current_module'(Mod),
-	retractall(prolog:'$parent_module'(Mod,_)),
+	retractall(prolg:'$parent_module'(Mod,_)),
 	asserta(prolog:'$parent_module'(Mod,ExportingModule)).
 set_base_module(ExportingModule) :-
 	'$do_error'(type_error(atom,ExportingModule),set_base_module(ExportingModule)).
@@ -897,11 +912,19 @@ Start a new (source-)module
 @param  Line is the line-number of the :- module/2 directive.
 @param	Redefine If =true=, allow associating the module to a new file
 */
-'$declare_module'(Name, _Test, Context, _File, _Line, _) :-
+'$declare_module'(Name, _Test, Context, _File, _Line) :-
 	add_import_module(Name, Context, start).
 
 module_property(Mod, file(F)) :-
 	recorded('$module','$module'(F,Mod,_),_).
 module_property(Mod, exports(Es)) :-
 	recorded('$module','$module'(_,Mod,Es),_).
+
+ls_imports :-
+	recorded('$import','$import'(M0,M,G0,G,_N,_K),_R),
+	numbervars(G0+G, 0, _),
+	format('~a:~w <- ~a:~w~n', [M, G, M0, G0]),
+	fail.
+ls_imports.
+
 

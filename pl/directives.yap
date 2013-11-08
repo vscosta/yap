@@ -118,15 +118,15 @@
 '$exec_directive'(reconsult(Fs), _, M, _, _) :-
 	'$load_files'(M:Fs, [], reconsult(Fs)).
 '$exec_directive'(consult(Fs), _, M, _, _) :-
-	'$consult'(Fs, M).
+	'$load_files'(M:Fs, [consult(consult)], consult(Fs)).
 '$exec_directive'(use_module(F), _, M, _, _) :-
-	'$load_files'(M:F, [if(not_loaded)],use_module(F)).
+	'$load_files'(M:F, [if(not_loaded),must_be_module(true)],use_module(F)).
 '$exec_directive'(reexport(F), _, M, _, _) :-
-	'$reexport'(F, all, M).
+	'$load_files'(M:F, [if(not_loaded), silent(true), reexport(true),must_be_module(true)], reexport(F)).
 '$exec_directive'(reexport(F,Spec), _, M, _, _) :-
-	'$reexport'(F, Spec, M).
+	'$load_files'(M:F, [if(changed), silent(true), imports(Spec), reexport(true),must_be_module(true)], reexport(F, Spec)).
 '$exec_directive'(use_module(F,Is), _, M, _, _) :-
-	'$load_files'(M:F, [if(not_loaded),imports(Is)],use_module(F,Is)).
+	'$load_files'(M:F, [if(not_loaded),imports(Is),must_be_module(true)],use_module(F,Is)).
 '$exec_directive'(use_module(Mod,F,Is), _, _, _, _) :-
 	'$use_module'(Mod,F,Is).
 '$exec_directive'(block(BlockSpec), _, _, _, _) :-
