@@ -52,8 +52,8 @@
 	source_mode(Old, New),
 	'$prepare_restore_hidden'(Old,New).
 
-'$convert_true_off_mod3'(true, off, _).
-'$convert_true_off_mod3'(false, on, _).
+'$convert_true_off_mod3'(true, off, _) :- !.
+'$convert_true_off_mod3'(false, on, _) :- !.
 '$convert_true_off_mod3'(X, _, M) :-
 	'$do_error'(domain_error(module_decl_options,hidden(X)),M).
 
@@ -654,6 +654,8 @@ export_list(Module, List) :-
 
 '$convert_for_export'(all, Exports, _Module, _ContextModule, Tab, Exports, _) :-
 	'$simple_conversion'(Exports, Tab).
+'$convert_for_export'([], Exports, Module, ContextModule, Tab, MyExports, Goal) :-
+	'$clean_conversion'([], Exports, Module, ContextModule, Tab, MyExports, Goal).
 '$convert_for_export'([P1|Ps], Exports, Module, ContextModule, Tab, MyExports, Goal) :-
 	'$clean_conversion'([P1|Ps], Exports, Module, ContextModule, Tab, MyExports, Goal).
 '$convert_for_export'(except(Excepts), Exports, Module, ContextModule, Tab, MyExports, Goal) :-

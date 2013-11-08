@@ -367,7 +367,7 @@ use_module(M,F,Is) :-
 	),
 	'$set_current_loop_stream'(Stream, OldStream),
 	'$swi_set_prolog_flag'(generate_debug_info, GenerateDebug),
-	'$comp_mode'(CompMode, OldCompMode),
+	'$comp_mode'(_CompMode, OldCompMode),
 	working_directory(_,OldD),
 	% surely, we were in run mode or we would not have included the file!
 	nb_setval('$if_skip_mode',run),
@@ -387,6 +387,7 @@ use_module(M,F,Is) :-
 	( LC == 0 -> prompt(_,'   |: ') ; true),
         ( OldMode == off -> '$exit_system_mode' ; true ),
 	'$exec_initialisation_goals',
+%	format( 'O=~w~n', [Mod=UserFile] ),
 	!.
 
 % are we in autoload and autoload_flag is false?
@@ -928,7 +929,8 @@ absolute_file_name(File,Opts,TrueFileName) :-
 	 nonvar(RelTo)
 	->
 	 '$dir_separator'(D),
-	 atom_concat([RelTo, D, File], ActualFile)
+	 atom_codes(DA,[D]),
+	 atom_concat([RelTo, DA, File], ActualFile)
 	;
 	  ActualFile = File
 	),
@@ -1126,7 +1128,7 @@ absolute_file_name(File,Opts,TrueFileName) :-
 '$fetch_comp_status'(assert_all) :-
 	'$nb_getval'('$assert_all',on, fail), !.
 '$fetch_comp_status'(source) :-
-	 '$access_yap_flags'(11,1).
+	 '$access_yap_flags'(11,1), !.
 '$fetch_comp_status'(compact).
 
 make :-
