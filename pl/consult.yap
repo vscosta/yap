@@ -895,12 +895,14 @@ absolute_file_name(File,Opts,TrueFileName) :-
 	fail.
 '$find_in_path'(S, Opts, NewFile, Call) :-
 	S =.. [Name,File0],
-	'$cat_file_name'(File0,File), !,
+	'$cat_file_name'(File0,File1), !,
+	'$expand_file_name'(File1, File),
 	'$dir_separator'(D),
 	atom_codes(A,[D]),
 	'$extend_path_directory'(Name, A, File, Opts, NewFile, Call).
 '$find_in_path'(File0,Opts,NewFile,_) :-
-	'$cat_file_name'(File0,File), !,
+	'$cat_file_name'(File0,File1), !,
+	'$expand_file_name'(File1, File),
 	'$add_path'(File,PFile),
 	'$get_abs_file'(PFile,Opts,AbsFile),
 	'$search_in_path'(AbsFile,Opts,NewFile).
@@ -928,9 +930,13 @@ absolute_file_name(File,Opts,TrueFileName) :-
 	(
 	 nonvar(RelTo)
 	->
-	 '$dir_separator'(D),
+	'$dir_separator'(D),
 	 atom_codes(DA,[D]),
-	 atom_concat([RelTo, DA, File], ActualFile)
+	 ( sub_atom(File, 0, 1, _, DA) ->
+	   ActualFile = File
+	  ;
+	   atom_concat([RelTo, DA, File], ActualFile)
+	  )
 	;
 	  ActualFile = File
 	),
@@ -982,6 +988,10 @@ absolute_file_name(File,Opts,TrueFileName) :-
 	atom_concat([File,'.',Ext],F).
 '$add_type_extensions'(_,File,File).
 
+'$add_path'(File,File) :-
+	'$dir_separator'(D),
+	atom_codes(DA,[D]),
+	sub_atom(File, 0, 1, _, DA), !.
 '$add_path'(File,File).
 '$add_path'(File,PFile) :-
 	recorded('$path',Path,_),
@@ -997,6 +1007,8 @@ absolute_file_name(File,Opts,TrueFileName) :-
 	get_value(prolog_commons_directory,Dir).
 
 
+'$extend_path_directory'(_Name, D, File, _Opts, File, Call) :-
+	sub_atom(File, 0, 1, _, D), !.
 '$extend_path_directory'(Name, D, File, Opts, NewFile, Call) :-
 	user:file_search_path(Name, Dir),
 	'$extend_pathd'(Dir, D, File, Opts, NewFile, Call).

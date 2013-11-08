@@ -1955,7 +1955,7 @@ int Yap_getcwd(const char *buf, int len)
       TODO: rewrite to use wordexp
  ****/
 static int
-TrueFileName (char *source, char *root, char *result, int in_lib)
+TrueFileName (char *source, char *root, char *result, int in_lib, int expand_root)
 {
   CACHE_REGS
   char *work;
@@ -2031,7 +2031,7 @@ TrueFileName (char *source, char *root, char *result, int in_lib)
     strncpy (result, source, YAP_FILENAME_MAX);
   }
   /* step 3: get the full file name */
-  if (!dir_separator(result[0]) && !volume_header(result)) {
+  if (expand_root && !dir_separator(result[0]) && !volume_header(result)) {
     if (!Yap_getcwd(ares1, YAP_FILENAME_MAX))
       return FALSE;
 #if _MSC_VER || defined(__MINGW32__)
@@ -2139,7 +2139,7 @@ TrueFileName (char *source, char *root, char *result, int in_lib)
 int
 Yap_TrueFileName (char *source, char *result, int in_lib)
 {
-  return TrueFileName (source, NULL, result, in_lib);
+  return TrueFileName (source, NULL, result, in_lib, TRUE);
 }
 
 static Int
@@ -2155,7 +2155,24 @@ p_true_file_name ( USES_REGS1 )
     Yap_Error(TYPE_ERROR_ATOM,t,"argument to true_file_name");
     return FALSE;
   }
-  TrueFileName (RepAtom(AtomOfTerm(t))->StrOfAE, NULL, LOCAL_FileNameBuf, FALSE);
+  TrueFileName (RepAtom(AtomOfTerm(t))->StrOfAE, NULL, LOCAL_FileNameBuf, FALSE, TRUE);
+  return Yap_unify(ARG2, MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf)));
+}
+
+static Int
+p_expand_file_name ( USES_REGS1 )
+{
+  Term t = Deref(ARG1);
+  
+  if (IsVarTerm(t)) {
+    Yap_Error(INSTANTIATION_ERROR,t,"argument to true_file_name unbound");
+    return FALSE;
+  }
+  if (!IsAtomTerm(t)) {
+    Yap_Error(TYPE_ERROR_ATOM,t,"argument to true_file_name");
+    return FALSE;
+  }
+  TrueFileName (RepAtom(AtomOfTerm(t))->StrOfAE, NULL, LOCAL_FileNameBuf, FALSE, FALSE);
   return Yap_unify(ARG2, MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf)));
 }
 
@@ -2180,7 +2197,7 @@ p_true_file_name3 ( USES_REGS1 )
     }
     root = RepAtom(AtomOfTerm(t2))->StrOfAE;
   }
-  TrueFileName (RepAtom(AtomOfTerm(t))->StrOfAE, root, LOCAL_FileNameBuf, FALSE);
+  TrueFileName (RepAtom(AtomOfTerm(t))->StrOfAE, root, LOCAL_FileNameBuf, FALSE, FALSE);
   return Yap_unify(ARG3, MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf)));
 }
 
@@ -2344,8 +2361,8 @@ p_mv ( USES_REGS1 )
   } else if (!IsAtomTerm(t2)) {
     Yap_Error(TYPE_ERROR_ATOM, t2, "second argument to rename/2 not atom");
   }
-  TrueFileName (RepAtom(AtomOfTerm(t1))->StrOfAE, NULL, oldname, FALSE);
-  TrueFileName (RepAtom(AtomOfTerm(t2))->StrOfAE, NULL, newname, FALSE);
+  TrueFileName (RepAtom(AtomOfTerm(t1))->StrOfAE, NULL, oldname, FALSE, TRUE);
+  TrueFileName (RepAtom(AtomOfTerm(t2))->StrOfAE, NULL, newname, FALSE, TRUE);
   if ((r = link (oldname, newname)) == 0 && (r = unlink (oldname)) != 0)
     unlink (newname);
   if (r != 0) {
@@ -3100,6 +3117,7 @@ Yap_InitSysPreds(void)
   Yap_InitCPred ("$win32", 0, p_win32, SafePredFlag);
   Yap_InitCPred ("$ld_path", 1, p_ld_path, SafePredFlag);
   Yap_InitCPred ("$address_bits", 1, p_address_bits, SafePredFlag);
+  Yap_InitCPred ("$expand_file_name", 2, p_expand_file_name, SyncPredFlag);
 #ifdef _WIN32
   Yap_InitCPred ("win_registry_get_value", 3, p_win_registry_get_value,0);
 #endif
