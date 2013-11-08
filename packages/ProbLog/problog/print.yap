@@ -354,8 +354,8 @@ show_inference :-
   print_inference('problog_kbest(+Query,+K,-Low,-Status)','lower bound based on K most likely proofs'), 
   print_inference('problog_max(+Query,-Prob,-FactsUsed)','explanation probability (ECML07)'),
   print_inference('problog_exact(+Query,-Prob,-Status)','exact probability'),
-  print_inference('problog_montecarlo(+Query,+Delta,-Prob)','program sampling with 95\%-confidence-interval-width Delta'),
-  print_inference('problog_dnf_sampling(+Query,+Delta,-Prob)','DNF sampling with 95\%-confidence-interval-width Delta'),
+  print_inference('problog_montecarlo(+Query,+Delta,-Prob)','program sampling with 95%-confidence-interval-width Delta'),
+  print_inference('problog_dnf_sampling(+Query,+Delta,-Prob)','DNF sampling with 95%-confidence-interval-width Delta'),
   print_sep_line.
 
 %%%%%%%%%%%%%%% This is the flag part towards screen %%%%%%%%%%%%%%%%%%%%
