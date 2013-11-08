@@ -8092,9 +8092,9 @@ reading terms. The default value for this flag is @code{off} except in
 @item debug [ISO]
 @findex debug (yap_flag/2 option)
 @*
-If @var{Value} is unbound, tell whether debugging is @code{on} or
-@code{off}. If @var{Value} is bound to @code{on} enable debugging, and if
-it is bound to @code{off} disable debugging.
+If @var{Value} is unbound, tell whether debugging is @code{true} or
+@code{false}. If @var{Value} is bound to @code{true} enable debugging, and if
+it is bound to @code{false} disable debugging.
 
 +@item debugger_print_options
 @findex debugger_print_options (yap_flag/2 option)
@@ -8509,6 +8509,13 @@ If @code{normal} allow printing of informational and banner messages,
 such as the ones that are printed when consulting. If @code{silent}
 disable printing these messages. It is @code{normal} by default except if
 YAP is booted with the @code{-q} or @code{-L} flag.
+
+@item  verbose_load
+@findex verbose_load (yap_flag/2 option)
+@* If @code{true} allow printing of informational messages when
+consulting files. If @code{false} disable printing these messages. It
+is @code{normal} by default except if YAP is booted with the @code{-L}
+flag.
 
 @item  verbose_load
 @findex verbose_load (yap_flag/2 option)
