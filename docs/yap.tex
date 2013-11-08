@@ -4660,8 +4660,8 @@ See also @code{access_file/2}.
 
     @item file_type(+@var{Type})
 Defines extensions. Current mapping: @code{txt} implies @code{['']},
-@code{prolog} implies @code{['.pl', '']}, @code{executable} implies
-@code{['.so', '']}, @code{qlf} implies @code{['.qlf', '']} and
+@code{prolog} implies @code{['.yap', '.pl', '.prolog', '']}, @code{executable} 
+implies @code{['.so', '']}, @code{qlf} implies @code{['.qlf', '']} and
 @code{directory} implies @code{['']}.  The file-type @code{source}
 is an alias for @code{prolog} for compatibility to SICStus Prolog.
 See also @code{prolog_file_type/2}. Notice also that this predicate only
