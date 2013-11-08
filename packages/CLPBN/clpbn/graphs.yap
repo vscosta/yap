@@ -12,6 +12,8 @@
 :- use_module(library('clpbn/dists'),
 		[get_dist/4]).
 
+:- use_module(library(atts)).
+
 :- attribute node/0.
 
 clpbn2graph(Vs) :-

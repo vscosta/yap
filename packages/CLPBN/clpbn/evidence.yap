@@ -11,11 +11,7 @@
 		 put_evidence/2
 		]).
 
-:- use_module(library(clpbn),
-		[{}/1,
-		 clpbn_flag/3,
-		 set_clpbn_flag/2
-		]).
+:- use_module(library(clpbn)).
 
 :- use_module(library('clpbn/dists'),
 		[get_dist/4]).
