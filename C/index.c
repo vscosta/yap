@@ -4545,8 +4545,6 @@ remove_dirty_clauses_from_index(yamop *header)
     endop = Yap_opcode(_count_trust_logical);
   else if (ap->PredFlags & ProfiledPredFlag)
     endop = Yap_opcode(_profiled_trust_logical);
-  //printf("E0 %p: %p %p\n", header, header->u.Illss.l1, header->u.Illss.l2);
-  //printf("E1 %p %d %d %p\n", curp, header->u.Illss.s, header->u.Illss.e, endop);
   while ((cl = curp->u.OtaLl.d) && (cl->ClFlags & ErasedMask)) {
     yamop *ocurp = curp;
 
@@ -4555,12 +4553,26 @@ remove_dirty_clauses_from_index(yamop *header)
     Yap_DirtyCps--;
     Yap_FreedCps++;
 #endif
-    //printf("loop %p %p %d %p\n", curp, curp->u.OtaLl.n, header->u.Illss.e, curp->opc);
+    //if (ap->ModuleOfPred!=IDB_MODULE && !strcmp(RepAtom(NameOfFunctor(ap->FunctorOfPred))->StrOfAE, "$lgt_send_to_obj_ne_"))
+    // printf(" L %p %p %d %p\n", curp, curp->u.OtaLl.n, header->u.Illss.e, curp->opc);
     clean_ref_to_clause(cl);
     curp = curp->u.OtaLl.n;
     Yap_LUIndexSpace_CP -= (UInt)NEXTOP((yamop*)NULL,OtaLl);
     Yap_FreeCodeSpace((ADDR)ocurp);
-  } 
+    if (ocurp == header->u.Illss.l2) {
+      LogUpdIndex *clau = header->u.Illss.I;
+      /* no clauses left */
+      if (clau->ClFlags & ErasedMask) {
+	Yap_ErLogUpdIndex(clau);
+	return;
+      }
+      header->u.Illss.l1 =
+	header->u.Illss.l2 = NULL;
+      header->u.Illss.s = 
+	header->u.Illss.e = 0;
+      return;
+    }
+  }
   *prevp = curp;
   curp->opc = startopc;
   if (curp->opc == endop)
