@@ -206,9 +206,11 @@ yap_hacks:cut_by(CP) :- '$$cut_by'(CP).
 
 user:prolog_file_type(yap, prolog).
 user:prolog_file_type(pl, prolog).
+user:prolog_file_type(prolog, prolog).
 user:prolog_file_type(A, prolog) :-
-	current_prolog_flag(associate, A), 
-	A\==pl,
+	current_prolog_flag(associate, A),
+	A \== prolog,
+	A \==pl,
 	A \== yap.
 %user:prolog_file_type(qlf, prolog).
 %user:prolog_file_type(qlf, qlf).
