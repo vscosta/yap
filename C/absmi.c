@@ -8246,6 +8246,7 @@ Yap_absmi(int inp)
 	LogUpdIndex *cl = PREG->u.Illss.I;
 	PredEntry *ap = cl->ClPred;
 
+	if (!cl) { FAIL(); } /* in case the index is empty */
 	if (ap->LastCallOfPred != LUCALL_EXEC) {
 	  /*
 	    only increment time stamp if we are working on current time
