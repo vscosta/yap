@@ -761,7 +761,7 @@ install: install_bin install_data
 
 install_bin: @INSTALL_COMMAND@
 
-install_unix: startup.yss libYap.a
+install_unix: startup.yss @YAPLIB@
 	mkdir -p $(DESTDIR)$(BINDIR)
 	$(INSTALL_PROGRAM) -m 755 yap@EXEC_SUFFIX@ $(DESTDIR)$(BINDIR)/yap
 	mkdir -p $(DESTDIR)$(YAPLIBDIR)
