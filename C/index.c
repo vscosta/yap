@@ -6241,6 +6241,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 	LogUpdIndex *cl = ipc->u.Illss.I;
 	PredEntry *ap = cl->ClPred;
 
+	if (!cl) return NULL; /* in case the index is empty */
 	if (ap->LastCallOfPred != LUCALL_EXEC) {
 	  /*
 	    only increment time stamp if we are working on current time
