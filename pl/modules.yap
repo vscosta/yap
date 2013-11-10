@@ -354,6 +354,7 @@ expand_goal(G, G).
 	'$nb_getval'('$autoloader_set', true, fail), !,
 	autoloader:find_predicate(G,ExportingModI).
 '$autoloader_find_predicate'(G,ExportingModI) :-
+	'$exit_undefp',
 	yap_flag(autoload, false), 
 	load_files([library(autoloader),
 		    autoloader:library('INDEX'),
@@ -361,6 +362,7 @@ expand_goal(G, G).
 		   [silent(true),if(not_loaded)]),
 	nb_setval('$autoloader_set', true),
 	yap_flag(autoload, true), 
+	'$enter_undefp',
 	autoloader:find_predicate(G,ExportingModI).
 
 
