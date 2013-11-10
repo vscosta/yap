@@ -33,7 +33,7 @@
 load_files(Files,Opts) :-
 	'$load_files'(Files,Opts,load_files(Files,Opts)).
 
-'$lf_option'(autoload, 1, false).
+'$lf_option'(autoload, 1, _).
 '$lf_option'(derived_from, 2, false).
 '$lf_option'(encoding, 3, default).
 '$lf_option'(expand, 4, false).
@@ -70,7 +70,11 @@ load_files(Files,Opts) :-
 	arg( Id, TOpts, Val ).
 
 '$load_files'(Files, Opts, Call) :-
-	( '$nb_getval'('$lf_status', OldTOpts, fail), nonvar(OldTOpts) -> '$lf_opt'(silent, OldTOpts, OldVerbosity) ; true ),
+	( '$nb_getval'('$lf_status', OldTOpts, fail), nonvar(OldTOpts) ->
+	  '$lf_opt'(silent, OldTOpts, OldVerbosity),
+	  '$lf_opt'(autoload, OldTOpts, OldAutoload)
+	;
+	  true ),
 	'$check_files'(Files,load_files(Files,Opts)),
 	'$lf_option'(last_opt, LastOpt),
 	functor( TOpts, opt, LastOpt ),
@@ -85,7 +89,18 @@ load_files(Files,Opts) :-
 	'$check_use_module'(Call,UseModule),
 	'$lf_opt'('$use_module', TOpts, UseModule),
         '$current_module'(M0),
-	'$lf_opt'(silent, TOpts, Verbosity),
+	( '$lf_opt'(silent, TOpts, Verbosity),
+	  var(Verbosity) ->
+	  Verbosity = OldVerbosity
+	;
+	  true
+	),
+	( '$lf_opt'(autoload, TOpts, Autoload),
+	  var(Autoload) ->
+	  Autoload = OldAutoload
+	;
+	  true
+	),
 	% make sure we can run consult
 	'$init_system',
 	'$lf'(Files, M0, Call, TOpts).
@@ -315,9 +330,9 @@ use_module(M,F,Is) :-
 
 
 '$do_lf'(ContextModule, Stream, UserFile, TOpts) :-
-%	format( 'I=~w~n', [ContextModule=UserFile] ),
 	'$lf_opt'('$context_module', TOpts, ContextModule),
 	'$msg_level'( TOpts, Verbosity),
+%	format( 'I=~w~n', [Verbosity=UserFile] ),
 	% export to process
 	b_setval('$lf_status', TOpts),
 	'$reset_if'(OldIfLevel),

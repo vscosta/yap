@@ -359,7 +359,7 @@ expand_goal(G, G).
 	load_files([library(autoloader),
 		    autoloader:library('INDEX'),
 		    swi:library('dialect/swi/INDEX')],
-		   [silent(true),if(not_loaded)]),
+		   [autoload(true),if(not_loaded)]),
 	nb_setval('$autoloader_set', true),
 	yap_flag(autoload, true), 
 	'$enter_undefp',
