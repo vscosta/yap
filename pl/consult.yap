@@ -1013,13 +1013,44 @@ absolute_file_name(File,Opts,TrueFileName) :-
 	atom_concat([Path,File],PFile).
 
 '$system_library_directories'(Dir) :-
-	getenv('YAPSHAREDIR', Dir).
+	getenv('YAPSHAREDIR', Dirs),
+	'$split_by_sep'(0, 0, Dirs, Dir).
 '$system_library_directories'(Dir) :-
-	getenv('YAPCOMMONSDIR', Dir).
+	getenv('YAPCOMMONSDIR', Dirs),
+	'$split_by_sep'(0, 0, Dirs, Dir).
 '$system_library_directories'(Dir) :-
 	get_value(system_library_directory,Dir).
 '$system_library_directories'(Dir) :-
-	get_value(prolog_commons_directory,Dir).
+    get_value(prolog_commons_directory,Dir).
+
+
+'$split_by_sep'(Start, Next, Dirs, Dir) :-
+    '$swi_current_prolog_flag'(windows, true), !,
+    '$split_by_sep'(Start, Next, Dirs, ';', Dir).
+'$split_by_sep'(Start, Next, Dirs, Dir) :-
+    '$split_by_sep'(Start, Next, Dirs, ':', Dir).
+
+'$split_by_sep'(Start, Next, Dirs, Sep, Dir) :-
+    sub_atom(Dirs, Next, 1, _, Let), !,
+    '$continue_split_by_sep'(Let, Start, Next, Dirs, Sep, Dir).
+'$split_by_sep'(Start, Next, Dirs, _Sep, Dir) :-
+    Next > Start,
+    sub_atom(Dirs, Start, _, Next, Dir).
+
+
+% closed a directory
+'$continue_split_by_sep'(Sep, Start, Next, Dirs, Sep, Dir) :-
+    Sz is Next-Start,
+    Sz > 0,
+    sub_atom(Dirs, Start, Sz, _, Dir).
+% next dir
+'$continue_split_by_sep'(Sep , _Start, Next, Dirs, Sep, Dir) :- !,
+    N1 is Next+1,
+    '$split_by_sep'(N1, N1, Dirs, Dir).
+% same dir
+'$continue_split_by_sep'(_Let, Start, Next, Dirs, Sep, Dir) :-
+    N1 is Next+1,
+    '$split_by_sep'(Start, N1, Dirs, Sep, Dir).
 
 
 '$extend_path_directory'(_Name, D, File, _Opts, File, Call) :-
@@ -1242,3 +1273,19 @@ source_file_property( File0, Prop) :-
 	recorded('$lf_loaded','$lf_loaded'( F, Age), _).
 '$source_file_property'( F, module(M)) :-
 	recorded('$module','$module'(F,M,_),_).
+
+%%      win_add_dll_directory(+AbsDir) is det.
+%
+%       Add AbsDir to the directories where  dependent DLLs are searched
+%       on Windows systems.
+
+:- if(current_prolog_flag(windows, true)).
+:- export(win_add_dll_directory/1).
+win_add_dll_directory(Dir) :-
+        win_add_dll_directory(Dir, _), !.
+win_add_dll_directory(Dir) :-
+        prolog_to_os_filename(Dir, OSDir),
+        getenv('PATH', Path0),
+        atomic_list_concat([Path0, OSDir], ';', Path),
+        setenv('PATH', Path).
+:- endif.
