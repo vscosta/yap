@@ -96,7 +96,7 @@ open_shared_object(File, Opts, Handle) :-
 	var(Opts), !,
 	'$do_error'(instantiation_error,G).
 '$open_shared_opts'([], _, 0) :- !.
-'$open_shared_opts'(Opt.Opts, G, V) :-
+'$open_shared_opts'([Opt|Opts], G, V) :-
 	'$open_shared_opts'(Opts, G, V0),
 	'$open_shared_opt'(Opt, G, OptV),
 	V0 is V \/ OptV.
