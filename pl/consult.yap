@@ -945,9 +945,7 @@ absolute_file_name(File,Opts,TrueFileName) :-
 	(
 	 nonvar(RelTo)
 	->
-	'$dir_separator'(D),
-	 atom_codes(DA,[D]),
-	 ( sub_atom(File, 0, 1, _, DA) ->
+	 ( is_absolute_file_name(File) ->
 	   ActualFile = File
 	  ;
 	   atom_concat([RelTo, DA, File], ActualFile)
@@ -1035,7 +1033,8 @@ absolute_file_name(File,Opts,TrueFileName) :-
     '$continue_split_by_sep'(Let, Start, Next, Dirs, Sep, Dir).
 '$split_by_sep'(Start, Next, Dirs, _Sep, Dir) :-
     Next > Start,
-    sub_atom(Dirs, Start, _, Next, Dir).
+    Len is Next-Start,
+    sub_atom(Dirs, Start, Len, _, Dir).
 
 
 % closed a directory
@@ -1054,9 +1053,14 @@ absolute_file_name(File,Opts,TrueFileName) :-
 
 
 '$extend_path_directory'(_Name, D, File, _Opts, File, Call) :-
-	sub_atom(File, 0, 1, _, D), !.
+	is_absolute_file_name(File), !.
 '$extend_path_directory'(Name, D, File, Opts, NewFile, Call) :-
-	user:file_search_path(Name, Dir),
+	user:file_search_path(Name, IDirs),
+        ( atom(IDirs) -> 
+	  '$split_by_sep'(0, 0, IDirs, Dir)
+	;
+	   Dir = IDirs
+	),
 	'$extend_pathd'(Dir, D, File, Opts, NewFile, Call).
 
 '$extend_pathd'(Dir, A, File, Opts, NewFile, Goal) :-
@@ -1274,18 +1278,3 @@ source_file_property( File0, Prop) :-
 '$source_file_property'( F, module(M)) :-
 	recorded('$module','$module'(F,M,_),_).
 
-%%      win_add_dll_directory(+AbsDir) is det.
-%
-%       Add AbsDir to the directories where  dependent DLLs are searched
-%       on Windows systems.
-
-:- if(current_prolog_flag(windows, true)).
-:- export(win_add_dll_directory/1).
-win_add_dll_directory(Dir) :-
-        win_add_dll_directory(Dir, _), !.
-win_add_dll_directory(Dir) :-
-        prolog_to_os_filename(Dir, OSDir),
-        getenv('PATH', Path0),
-        atomic_list_concat([Path0, OSDir], ';', Path),
-        setenv('PATH', Path).
-:- endif.
