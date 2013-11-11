@@ -948,6 +948,8 @@ absolute_file_name(File,Opts,TrueFileName) :-
 	 ( is_absolute_file_name(File) ->
 	   ActualFile = File
 	  ;
+	   '$dir_separator'(D),
+	   atom_codes(DA,[D]),
 	   atom_concat([RelTo, DA, File], ActualFile)
 	  )
 	;
