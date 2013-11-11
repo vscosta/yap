@@ -694,7 +694,7 @@ PRED_IMPL("win_add_dll_directory", 2, win_add_dll_directory, 0)
     if ( _xos_os_filenameW(dirs, dirw, len+10) == NULL )
       return PL_representation_error("file_name");
     if ( load_library_search_flags() )
-    { if ( (cookie = (*f_AddDllDirectoryW)(dirw)) )
+      { if ( (cookie = (*f_AddDllDirectoryW)(dirw)) )
 	return PL_unify_int64(A2, (int64_t)cookie);
       return PL_error(NULL, 0, WinError(), ERR_SYSCALL, "AddDllDirectory()");
     } else

@@ -36,7 +36,15 @@ Yap_FindExecutable(void)
 void *
 Yap_LoadForeignFile(char *file, int flags)
 {
-  return (void *)LoadLibrary(file);
+ void *ptr= (void *)LoadLibrary(file);
+ if (!ptr) {
+   LOCAL_ErrorSay[0]='\0';
+   FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+		 NULL, GetLastError(), 
+		 MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), LOCAL_ErrorSay, 256,
+		 NULL);
+ }
+ return ptr;
 }
 
 int
@@ -78,6 +86,7 @@ LoadForeign(StringList ofiles, StringList libs,
 		      NULL, GetLastError(), 
 		      MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), LOCAL_ErrorSay, 256,
 		      NULL);
+	//fprintf(stderr,"WinError: %s\n", LOCAL_ErrorSay);
       }
     ofiles = ofiles->next;
   }

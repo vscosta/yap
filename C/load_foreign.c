@@ -136,6 +136,7 @@ p_open_shared_object( USES_REGS1 ) {
   
   s = RepAtom(AtomOfTerm(t))->StrOfAE;
   if ((handle = Yap_LoadForeignFile(s, IntegerOfTerm(tflags)))==NULL) {
+    Yap_Error(EXISTENCE_ERROR_SOURCE_SINK,t,"open_shared_object_failed for %s with %s\n", s, LOCAL_ErrorSay);
     return FALSE;
   } else {
     return Yap_unify(MkIntegerTerm((Int)handle),ARG3);

@@ -10,6 +10,7 @@
 #include <windows/uxnt.h>
 #define O_HASDRIVES 1
 #define O_HASSHARES 1
+#define EMULATE_DLOPEN 1
 #endif
 
 #if defined(__GNUC__) && !defined(MAY_ALIAS)
