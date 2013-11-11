@@ -1023,7 +1023,7 @@ dnl Linux has both elf and a.out, in this case we found elf
         IN_UNIX="#"
         YAPLIB_LD="\$(CC) -shared -Wl,--export-all-symbols"
         PRE_INSTALL_ENV=""
-        INSTALL_ENV=""
+        INSTALL_ENV="YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
 	;;
       *)
 	AC_CHECK_LIB(dl,dlopen,
@@ -1052,6 +1052,9 @@ dnl Linux has both elf and a.out, in this case we found elf
         INSTALL_ENV="LD_LIBRARY_PATH=\$(DESTDIR)\$(LIBDIR):\$(DESTDIR)\$(YAPLIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
 	;;
 esac
+
+dnl use the current files, even if older
+PRE_INSTALL_ENV="$PRE_INSTALL_ENV YAPLIBDIR=\$(abs_top_builddir):\$(abs_top_builddir)/library/system:\$(abs_top_builddir)/packages/clib "
 
 if test "$dynamic_loading" = "yes"
 then 
@@ -1782,33 +1785,6 @@ fi
 
 m4_include([library/MYDDAS/configure.in])
 
-if test "$yap_cv_R" != "no" -a  -e "$srcdir"/packages/real/Makefile.in; then
-   ENABLE_REAL=""
-
-   m4_include([packages/real/configure.in])
-else
-    REAL_TARGET="dummy"
-    ENABLE_REAL="@# "
-fi
-
-dnl
-dnl java is hard
-dnl
-if test "$yap_cv_java" = no; then
-	ENABLE_JPL="@#"   
-elif test -e "$srcdir"/packages/jpl/Makefile.in; then
-	ENABLE_JPL=""
-	if test "$yap_cv_java" != "yes"; then
-          JAVA_HOME=$yap_cv_java
-	  JAVAPREFIX="$JAVA_HOME"/bin
-       elif test -n "$JAVA_HOME"; then
-	  JAVAPREFIX="$JAVA_HOME"/bin
-       fi
-
-       m4_include([packages/jpl/configure.in])
-
-fi
-
 if test "$ENABLE_CLIB" = ""
 then
 
@@ -1857,6 +1833,34 @@ then
 fi
 
 fi
+
+if test "$yap_cv_R" != "no" -a  -e "$srcdir"/packages/real/Makefile.in; then
+   ENABLE_REAL=""
+
+   m4_include([packages/real/configure.in])
+else
+    REAL_TARGET="dummy"
+    ENABLE_REAL="@# "
+fi
+
+dnl
+dnl java is hard
+dnl
+if test "$yap_cv_java" = no; then
+	ENABLE_JPL="@#"   
+elif test -e "$srcdir"/packages/jpl/Makefile.in; then
+	ENABLE_JPL=""
+	if test "$yap_cv_java" != "yes"; then
+          JAVA_HOME=$yap_cv_java
+	  JAVAPREFIX="$JAVA_HOME"/bin
+       elif test -n "$JAVA_HOME"; then
+	  JAVAPREFIX="$JAVA_HOME"/bin
+       fi
+
+       m4_include([packages/jpl/configure.in])
+
+fi
+
 
 m4_include([packages/gecode/configure.in])
 
