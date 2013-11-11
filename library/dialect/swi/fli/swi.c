@@ -2508,11 +2508,22 @@ PL_thread_raise(int tid, int sig)
   if ( !REMOTE_ThreadHandle(tid).in_use )
     goto error;
 
-  if ( !raiseSignal(tid, sig) ||
+
+  if ( !raiseSignal(REMOTE_PL_local_data_p(tid), sig) ||
        !alertThread(tid) )
     goto error;
 
   PL_UNLOCK(L_THREAD);
+
+  return TRUE;
+}
+#else
+
+int
+PL_thread_raise(int tid, int sig)
+{ 
+  if ( !raiseSignal(NULL, sig) )
+    return FALSE;
 
   return TRUE;
 }

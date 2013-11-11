@@ -48,8 +48,10 @@
 
 :- use_module(library(lists), [append/3]).
 
+:- if(current_prolog_flag(windows, false)). 
 :- reexport(library(unix), [wait/2,
 			     kill/2]).
+:- endif.
 
 :- load_foreign_files([sys], [], init_sys).
 
