@@ -23,8 +23,24 @@ elif test -e "$srcdir"/packages/python/Makefile.in ; then
    fi
    PYTHONHOME=`$PYTHON -c'import sys; print sys.prefix'`
    PYTHONVERSION=`"$PYTHON" -c "import sys; print sys.version[[:3]]"`
-   PYTHON_LIBS="-L $PYTHONHOME/lib -lpython$PYTHONVERSION"
-   PYTHON_INCLUDES="-I $PYTHONHOME/include/python$PYTHONVERSION"
+   if test -d "$PYTHONHOME/libs"; then
+     dnl windows
+     PYTHONV=`echo "$PYTHONVERSION"|sed -e 's/\.//g'`
+     PYTHON_LIBS="-L $PYTHONHOME/libs -lpython$PYTHONV"
+   elif test -d "$PYTHONHOME/lib"; then
+     PYTHON_LIBS="-L $PYTHONHOME/lib -lpython$PYTHONVERSION"
+   else
+     echo "Could not find includes for Python"
+     ENABLE_PYTHON="@# "
+   fi
+   if test -d "$PYTHONHOME/include/python$PYTHONVERSION"; then
+     PYTHON_INCLUDES="-I $PYTHONHOME/include/python$PYTHONVERSION"
+   elif test -d "$PYTHONHOME/include"; then
+     PYTHON_INCLUDES="-I $PYTHONHOME/include"
+   else
+     echo "Could not find includes for Python"
+     ENABLE_PYTHON="@# "
+   fi
 else
     PYTHON_TARGET="dummy"
     ENABLE_PYTHON="@# "
