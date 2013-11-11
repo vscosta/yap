@@ -858,7 +858,7 @@ thread_signal(Id, Goal) :-
 thread_property(Prop) :-
 	'$check_thread_property'(Prop, thread_property(Prop)),
 	'$thread_self'(Id),
-	'$thread_property'(Id, Prop).
+	'$thread_property'(Prop, Id).
 
 thread_property(Id, Prop) :-
 	(	nonvar(Id) ->
@@ -867,7 +867,7 @@ thread_property(Id, Prop) :-
 	),
 	'$check_thread_property'(Prop, thread_property(Id, Prop)),
 	'$thread_id_alias'(Id0, Id),
-	'$thread_property'(Id0, Prop).
+	'$thread_property'(Prop, Id0).
 
 '$enumerate_threads'(Id) :-
 	'$max_threads'(Max),
@@ -875,32 +875,31 @@ thread_property(Id, Prop) :-
 	between(0,Max1,Id),
 	'$thread_stacks'(Id, _, _, _).
 
-'$thread_property'(Id, alias(Alias)) :-
+'$thread_property'(alias(Alias), Id) :-
 	recorded('$thread_alias', [Id|Alias], _).
-'$thread_property'(Id, status(Status)) :-
+'$thread_property'(status(Status), Id) :-
 	'$mk_tstatus_key'(Id, Key),
 	(	recorded(Key, Exit, _) ->
 		Status = Exit
 	;	Status = running
 	).
-'$thread_property'(Id, detached(Detached)) :-
+'$thread_property'(detached(Detached), Id) :-
 	( '$thread_detached'(Id,Detached) -> true ; Detached = false ).
-'$thread_property'(Id, at_exit(M:G)) :-
+'$thread_property'(at_exit(M:G), Id) :-
 	'$thread_run_at_exit'(G,M).
-'$thread_property'(Id, InfoSize) :-
-	'$thread_stacks'(Id, Stack, Trail, System),
-	'$select_thread_property'(InfoSize, Stack, Trail, System).
-
-'$select_thread_property'(stack(Stack), Stack, _, _).
-'$select_thread_property'(trail(Trail), _, Trail, _).
-'$select_thread_property'(system(System), _, _, System).
+'$thread_property'(stack(Stack), Id) :-
+	'$thread_stacks'(Id, Stack, _, _).
+'$thread_property'(trail(Trail), Id) :-
+	'$thread_stacks'(Id, _, Trail, _).
+'$thread_property'(system(System), Id) :-
+	'$thread_stacks'(Id, _, _, System).
 
 threads :-
 	format(user_error,'------------------------------------------------------------------------~n',[]),
 	format(user_error, '~t~a~48+~n', 'Thread  Detached  Status'),
 	format(user_error,'------------------------------------------------------------------------~n',[]),
 	thread_property(Id, detached(Detached)),
-	'$thread_property'(Id, status(Status)),
+	thread_property(Id, status(Status)),
 	'$thread_id_alias'(Id, Alias),
 	format(user_error,'~t~q~30+~33|~w~42|~q~n', [Alias, Detached, Status]),
 	fail.
