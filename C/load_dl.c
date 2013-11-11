@@ -21,6 +21,7 @@
 
 #if LOAD_DL
 
+#include <stdlib.h>
 #include <dlfcn.h>
 #include <string.h>
 #include <stdio.h>
