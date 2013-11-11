@@ -79,3 +79,17 @@ reverse([Head|Tail], Sofar, Reversed) :-
 	reverse(Tail, [Head|Sofar], Reversed).
 
 
+%%      win_add_dll_directory(+AbsDir) is det.
+%
+%       Add AbsDir to the directories where  dependent DLLs are searched
+%       on Windows systems.
+
+:- if(current_prolog_flag(windows, true)).
+prolog:win_add_dll_directory(Dir) :-
+        win_add_dll_directory(Dir, _), !.
+prolog:win_add_dll_directory(Dir) :-
+        prolog_to_os_filename(Dir, OSDir),
+        getenv('PATH', Path0),
+        atomic_list_concat([Path0, OSDir], ';', Path),
+        setenv('PATH', Path).
+:- endif.
