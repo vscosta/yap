@@ -177,18 +177,6 @@ kill_thread_engine (int wid, int always_die)
   free(REMOTE_ThreadHandle(wid).default_yaam_regs);
   REMOTE_ThreadHandle(wid).default_yaam_regs = NULL;
   LOCK(GLOBAL_ThreadHandlesLock);
-  if (REMOTE_ThreadHandle(wid).tdetach == MkAtomTerm(AtomTrue) ||
-      always_die) {
-    REMOTE_ThreadHandle(wid).zombie = FALSE;
-    REMOTE_ThreadHandle(wid).in_use = FALSE;
-    MUTEX_UNLOCK(&(REMOTE_ThreadHandle(wid).tlock));
-  }
-  UNLOCK(GLOBAL_ThreadHandlesLock);
-}
-
-static void
-thread_die(int wid, int always_die)
-{
 #ifdef TABLING
   CACHE_REGS
   tab_ent_ptr tab_ent;
@@ -227,6 +215,19 @@ thread_die(int wid, int always_die)
     /* called by thread itself */
     GLOBAL_ThreadsTotalTime += Yap_cputime();
   }
+  MUTEX_LOCK(&(REMOTE_ThreadHandle(wid).tlock));
+  if (REMOTE_ThreadHandle(wid).tdetach == MkAtomTerm(AtomTrue) ||
+      always_die) {
+    REMOTE_ThreadHandle(wid).zombie = FALSE;
+    REMOTE_ThreadHandle(wid).in_use = FALSE;
+  }
+  MUTEX_UNLOCK(&(REMOTE_ThreadHandle(wid).tlock));
+  UNLOCK(GLOBAL_ThreadHandlesLock);
+}
+
+static void
+thread_die(int wid, int always_die)
+{
   kill_thread_engine(wid, always_die);
 }
 
@@ -430,7 +431,7 @@ p_thread_zombie_self( USES_REGS1 )
   //  fprintf(stderr," -- %d\n", worker_id); 
   LOCAL_ThreadHandle.in_use = FALSE;
   LOCAL_ThreadHandle.zombie = TRUE;
-  //MUTEX_UNLOCK(&(LOCAL_ThreadHandle.tlock));
+  MUTEX_UNLOCK(&(LOCAL_ThreadHandle.tlock));
   return Yap_unify(MkIntegerTerm(worker_id), ARG1);
 }
 
@@ -583,6 +584,7 @@ p_thread_destroy( USES_REGS1 )
   Int tid = IntegerOfTerm(Deref(ARG1));
 
   LOCK(GLOBAL_ThreadHandlesLock);
+  MUTEX_LOCK(&(REMOTE_ThreadHandle(tid).tlock));
   REMOTE_ThreadHandle(tid).zombie = FALSE;
   REMOTE_ThreadHandle(tid).in_use = FALSE;
   MUTEX_UNLOCK(&(REMOTE_ThreadHandle(tid).tlock));
