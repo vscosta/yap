@@ -31,6 +31,16 @@ static char     SccsId[] = "%W% %G%";
 #include "tab.macros.h"
 #endif /* TABLING */
 
+#if DEBUG_LOCKS
+
+int debug_locks;
+
+static Int p_debug_locks( USES_REGS1 ) { debug_locks = 1; return TRUE; }
+
+static Int p_nodebug_locks( USES_REGS1 ) { debug_locks = 0; return TRUE; }
+
+#endif
+
 #if THREADS
 
 #include "threads.h"
@@ -40,14 +50,6 @@ static char     SccsId[] = "%W% %G%";
  * are supposed to be compatible with the SWI-Prolog thread package.
  *
  */
-
-#if DEBUGX
-static void DEBUG_TLOCK_ACCESS( int pos, int wid) { 
-  fprintf(stderr,"wid=%p %p\n", wid, pos);
-}
-#else
-#define DEBUG_TLOCK_ACCESS(WID, POS)
-#endif
 
 static int
 allocate_new_tid(void)
@@ -65,12 +67,10 @@ allocate_new_tid(void)
     if (!Yap_InitThread(new_worker_id)) {
       return -1;
     }
-    pthread_mutex_lock(&(REMOTE_ThreadHandle(new_worker_id).tlock));
-    DEBUG_TLOCK_ACCESS(new_worker_id, 0);
+    MUTEX_LOCK(&(REMOTE_ThreadHandle(new_worker_id).tlock));
     REMOTE_ThreadHandle(new_worker_id).in_use = TRUE;
   } else if (new_worker_id < MAX_THREADS) {
-    pthread_mutex_lock(&(REMOTE_ThreadHandle(new_worker_id).tlock));
-    DEBUG_TLOCK_ACCESS(new_worker_id, 0);
+    MUTEX_LOCK(&(REMOTE_ThreadHandle(new_worker_id).tlock));
     REMOTE_ThreadHandle(new_worker_id).in_use = TRUE;
   } else {
     new_worker_id = -1;
@@ -181,8 +181,7 @@ kill_thread_engine (int wid, int always_die)
       always_die) {
     REMOTE_ThreadHandle(wid).zombie = FALSE;
     REMOTE_ThreadHandle(wid).in_use = FALSE;
-    DEBUG_TLOCK_ACCESS(1, wid);
-    pthread_mutex_unlock(&(REMOTE_ThreadHandle(wid).tlock));
+    MUTEX_UNLOCK(&(REMOTE_ThreadHandle(wid).tlock));
   }
   UNLOCK(GLOBAL_ThreadHandlesLock);
 }
@@ -252,8 +251,7 @@ setup_engine(int myworker_id, int init_thread)
   /* I exist */
   GLOBAL_NOfThreadsCreated++;
   GLOBAL_NOfThreads++;
-  DEBUG_TLOCK_ACCESS(2, myworker_id);
-  pthread_mutex_unlock(&(REMOTE_ThreadHandle(myworker_id).tlock));  
+  MUTEX_UNLOCK(&(REMOTE_ThreadHandle(myworker_id).tlock));  
 #ifdef TABLING
   new_dependency_frame(REMOTE_top_dep_fr(myworker_id), FALSE, NULL, NULL, B, NULL, FALSE, NULL);  /* same as in Yap_init_root_frames() */
 #endif /* TABLING */
@@ -424,16 +422,15 @@ p_thread_zombie_self( USES_REGS1 )
   /* make sure the lock is available */
   if (pthread_getspecific(Yap_yaamregs_key) == NULL)
     return Yap_unify(MkIntegerTerm(-1), ARG1);
-  pthread_mutex_lock(&(LOCAL_ThreadHandle.tlock));
-  DEBUG_TLOCK_ACCESS(4, worker_id);
+  MUTEX_LOCK(&(LOCAL_ThreadHandle.tlock));
   if (LOCAL_ActiveSignals &= YAP_ITI_SIGNAL) {
-    DEBUG_TLOCK_ACCESS(5, worker_id);
-    pthread_mutex_unlock(&(LOCAL_ThreadHandle.tlock));
+    MUTEX_UNLOCK(&(LOCAL_ThreadHandle.tlock));
     return FALSE;
   }
   //  fprintf(stderr," -- %d\n", worker_id); 
   LOCAL_ThreadHandle.in_use = FALSE;
   LOCAL_ThreadHandle.zombie = TRUE;
+  //MUTEX_UNLOCK(&(LOCAL_ThreadHandle.tlock));
   return Yap_unify(MkIntegerTerm(worker_id), ARG1);
 }
 
@@ -443,7 +440,7 @@ p_thread_status_lock( USES_REGS1 )
   /* make sure the lock is available */
   if (pthread_getspecific(Yap_yaamregs_key) == NULL)
     return FALSE;
-  pthread_mutex_lock(&(LOCAL_ThreadHandle.tlock_status));
+  MUTEX_LOCK(&(LOCAL_ThreadHandle.tlock_status));
   return Yap_unify(MkIntegerTerm(worker_id), ARG1);
 }
 
@@ -453,7 +450,7 @@ p_thread_status_unlock( USES_REGS1 )
   /* make sure the lock is available */
   if (pthread_getspecific(Yap_yaamregs_key) == NULL)
     return FALSE;
-  pthread_mutex_unlock(&(LOCAL_ThreadHandle.tlock_status));
+  MUTEX_UNLOCK(&(LOCAL_ThreadHandle.tlock_status));
   return Yap_unify(MkIntegerTerm(worker_id), ARG1);
 }
 
@@ -492,7 +489,7 @@ Yap_thread_create_engine(thread_attr *ops)
   if (!pthread_equal(pthread_self() , GLOBAL_master_thread) ) {
     /* we are worker_id 0 for now, lock master thread so that no one messes with us */ 
     pthread_setspecific(Yap_yaamregs_key, (const void *)&Yap_standard_regs);
-    pthread_mutex_lock(&(REMOTE_ThreadHandle(0).tlock));
+    MUTEX_LOCK(&(REMOTE_ThreadHandle(0).tlock));
   }
   if (!init_thread_engine(new_id, ops->ssize, ops->tsize, ops->sysize, &t, &t, &(ops->egoal)))
     return -1;
@@ -503,7 +500,7 @@ Yap_thread_create_engine(thread_attr *ops)
     return -1;
   if (!pthread_equal(pthread_self(), GLOBAL_master_thread)) {
     pthread_setspecific(Yap_yaamregs_key, NULL);
-    pthread_mutex_unlock(&(REMOTE_ThreadHandle(0).tlock));
+    MUTEX_UNLOCK(&(REMOTE_ThreadHandle(0).tlock));
   }
   return new_id;
 }
@@ -514,48 +511,42 @@ Yap_thread_attach_engine(int wid)
   CACHE_REGS
   /* 
      already locked
-     pthread_mutex_lock(&(REMOTE_ThreadHandle(wid).tlock));
+     MUTEX_LOCK(&(REMOTE_ThreadHandle(wid).tlock));
   */
   if (REMOTE_ThreadHandle(wid).ref_count ) {
     REMOTE_ThreadHandle(wid).ref_count++;
     REMOTE_ThreadHandle(wid).pthread_handle = pthread_self();
-    DEBUG_TLOCK_ACCESS(8, wid);
-    pthread_mutex_unlock(&(REMOTE_ThreadHandle(wid).tlock));
+    MUTEX_UNLOCK(&(REMOTE_ThreadHandle(wid).tlock));
     return TRUE;
   }
   REMOTE_ThreadHandle(wid).pthread_handle = pthread_self();
   REMOTE_ThreadHandle(wid).ref_count++;
   pthread_setspecific(Yap_yaamregs_key, (const void *)REMOTE_ThreadHandle(wid).current_yaam_regs);
   REFRESH_CACHE_REGS;
-  DEBUG_TLOCK_ACCESS(9, wid);
-  pthread_mutex_unlock(&(REMOTE_ThreadHandle(wid).tlock));
+  MUTEX_UNLOCK(&(REMOTE_ThreadHandle(wid).tlock));
   return TRUE;
 }
 
 Int
 Yap_thread_detach_engine(int wid)
 {
-  pthread_mutex_lock(&(REMOTE_ThreadHandle(wid).tlock));
-  DEBUG_TLOCK_ACCESS(10, wid);
+  MUTEX_LOCK(&(REMOTE_ThreadHandle(wid).tlock));
   //REMOTE_ThreadHandle(wid).pthread_handle = 0;
   REMOTE_ThreadHandle(wid).ref_count--;
   pthread_setspecific(Yap_yaamregs_key, NULL);
-  DEBUG_TLOCK_ACCESS(11, wid);
-  pthread_mutex_unlock(&(REMOTE_ThreadHandle(wid).tlock));
+  MUTEX_UNLOCK(&(REMOTE_ThreadHandle(wid).tlock));
   return TRUE;
 }
 
 Int
 Yap_thread_destroy_engine(int wid)
 {
-  pthread_mutex_lock(&(REMOTE_ThreadHandle(wid).tlock));
-  DEBUG_TLOCK_ACCESS(10, wid);
+  MUTEX_LOCK(&(REMOTE_ThreadHandle(wid).tlock));
   if (REMOTE_ThreadHandle(wid).ref_count == 0) {
     kill_thread_engine(wid, TRUE);
     return TRUE;
   } else {
-    DEBUG_TLOCK_ACCESS(12, wid);
-    pthread_mutex_unlock(&(REMOTE_ThreadHandle(wid).tlock));
+    MUTEX_UNLOCK(&(REMOTE_ThreadHandle(wid).tlock));
     return FALSE;
   }
 }
@@ -594,8 +585,7 @@ p_thread_destroy( USES_REGS1 )
   LOCK(GLOBAL_ThreadHandlesLock);
   REMOTE_ThreadHandle(tid).zombie = FALSE;
   REMOTE_ThreadHandle(tid).in_use = FALSE;
-  DEBUG_TLOCK_ACCESS(32, tid);
-  pthread_mutex_unlock(&(REMOTE_ThreadHandle(tid).tlock));
+  MUTEX_UNLOCK(&(REMOTE_ThreadHandle(tid).tlock));
   UNLOCK(GLOBAL_ThreadHandlesLock);
   return TRUE;
 }
@@ -604,18 +594,15 @@ static Int
 p_thread_detach( USES_REGS1 )
 {
   Int tid = IntegerOfTerm(Deref(ARG1));
-  pthread_mutex_lock(&(REMOTE_ThreadHandle(tid).tlock));
-  DEBUG_TLOCK_ACCESS(14, tid);
+  MUTEX_LOCK(&(REMOTE_ThreadHandle(tid).tlock));
   if (pthread_detach(REMOTE_ThreadHandle(tid).pthread_handle) < 0) {
     /* ERROR */
-    DEBUG_TLOCK_ACCESS(15, tid);
-    pthread_mutex_unlock(&(REMOTE_ThreadHandle(tid).tlock));
+    MUTEX_UNLOCK(&(REMOTE_ThreadHandle(tid).tlock));
     return FALSE;
   }
   REMOTE_ThreadHandle(tid).tdetach = 
     MkAtomTerm(AtomTrue);
-  DEBUG_TLOCK_ACCESS(30, tid);
-  pthread_mutex_unlock(&(REMOTE_ThreadHandle(tid).tlock));
+  MUTEX_UNLOCK(&(REMOTE_ThreadHandle(tid).tlock));
   return TRUE;
 }
 
@@ -735,7 +722,7 @@ p_lock_mutex( USES_REGS1 )
 {
   SWIMutex *mut = (SWIMutex*)IntegerOfTerm(Deref(ARG1));
 
-  if (pthread_mutex_lock(&mut->m) < 0)
+  if (MUTEX_LOCK(&mut->m) < 0)
     return FALSE;
   mut->owners++;
   mut->tid_own = worker_id;
@@ -747,7 +734,7 @@ p_trylock_mutex( USES_REGS1 )
 {
   SWIMutex *mut = (SWIMutex*)IntegerOfTerm(Deref(ARG1));
 
-  if (pthread_mutex_trylock(&mut->m) == EBUSY)
+  if (MUTEX_TRYLOCK(&mut->m) == EBUSY)
     return FALSE;
   mut->owners++;
   mut->tid_own = worker_id;
@@ -759,8 +746,12 @@ p_unlock_mutex( USES_REGS1 )
 {
   SWIMutex *mut = (SWIMutex*)IntegerOfTerm(Deref(ARG1));
 
-  if (pthread_mutex_unlock(&mut->m) < 0)
+#if DEBUG_LOCKS
+  MUTEX_UNLOCK(&mut->m);
+#else
+  if (MUTEX_UNLOCK(&mut->m) < 0)
     return FALSE;
+#endif
   mut->owners--;
   return TRUE;
 }
@@ -836,16 +827,16 @@ p_thread_stacks( USES_REGS1 )
   Int status= TRUE;
 
   LOCK(GLOBAL_ThreadHandlesLock);
-  if (!Yap_local[tid] || 
-      (!REMOTE_ThreadHandle(tid).in_use && !REMOTE_ThreadHandle(tid).zombie)) {
+  if (!Yap_local[tid] &&
+      REMOTE_ThreadHandle(tid).in_use && !REMOTE_ThreadHandle(tid).zombie) {
+    status &= Yap_unify(ARG2,MkIntegerTerm(REMOTE_ThreadHandle(tid).ssize));
+    status &= Yap_unify(ARG3,MkIntegerTerm(REMOTE_ThreadHandle(tid).tsize));
+    status &= Yap_unify(ARG4,MkIntegerTerm(REMOTE_ThreadHandle(tid).sysize));
     UNLOCK(GLOBAL_ThreadHandlesLock);
-    return FALSE;
+    return status;
   }
-  status &= Yap_unify(ARG2,MkIntegerTerm(REMOTE_ThreadHandle(tid).ssize));
-  status &= Yap_unify(ARG3,MkIntegerTerm(REMOTE_ThreadHandle(tid).tsize));
-  status &= Yap_unify(ARG4,MkIntegerTerm(REMOTE_ThreadHandle(tid).sysize));
   UNLOCK(GLOBAL_ThreadHandlesLock);
-  return status;
+  return FALSE;
 }
 
 static Int 
@@ -888,12 +879,10 @@ p_thread_signal( USES_REGS1 )
 {				/* '$thread_signal'(+P)	 */
   Int wid = IntegerOfTerm(Deref(ARG1));
   /* make sure the lock is available */
-  pthread_mutex_lock(&(REMOTE_ThreadHandle(wid).tlock));
-  DEBUG_TLOCK_ACCESS(16, wid);
+  MUTEX_LOCK(&(REMOTE_ThreadHandle(wid).tlock));
   if (!REMOTE_ThreadHandle(wid).in_use || 
       !REMOTE_ThreadHandle(wid).current_yaam_regs) {
-    DEBUG_TLOCK_ACCESS(17, wid);
-    pthread_mutex_unlock(&(REMOTE_ThreadHandle(wid).tlock));
+    MUTEX_UNLOCK(&(REMOTE_ThreadHandle(wid).tlock));
    return TRUE;
   }
   LOCK(REMOTE_SignalLock(wid));
@@ -901,8 +890,7 @@ p_thread_signal( USES_REGS1 )
     Unsigned(REMOTE_ThreadHandle(wid).current_yaam_regs->LCL0_);
   REMOTE_ActiveSignals(wid) |= YAP_ITI_SIGNAL;
   UNLOCK(REMOTE_SignalLock(wid));
-  DEBUG_TLOCK_ACCESS(18, wid);
-  pthread_mutex_unlock(&(REMOTE_ThreadHandle(wid).tlock));
+  MUTEX_UNLOCK(&(REMOTE_ThreadHandle(wid).tlock));
   return TRUE;
 }
 
@@ -953,7 +941,7 @@ p_thread_runtime( USES_REGS1 )
 static Int 
 p_thread_self_lock( USES_REGS1 )
 {				/* '$thread_unlock'	 */
-  pthread_mutex_lock(&(LOCAL_ThreadHandle.tlock));
+  MUTEX_LOCK(&(LOCAL_ThreadHandle.tlock));
   return Yap_unify(ARG1,MkIntegerTerm(worker_id));
 }
 
@@ -961,8 +949,7 @@ static Int
 p_thread_unlock( USES_REGS1 )
 {				/* '$thread_unlock'	 */
   Int wid = IntegerOfTerm(Deref(ARG1));
-  DEBUG_TLOCK_ACCESS(19, wid);
-  pthread_mutex_unlock(&(REMOTE_ThreadHandle(wid).tlock));
+  MUTEX_UNLOCK(&(REMOTE_ThreadHandle(wid).tlock));
   return TRUE;
 }
 
@@ -1006,6 +993,10 @@ void Yap_InitThreadPreds(void)
   Yap_InitCPred("$thread_self_lock", 1, p_thread_self_lock, SafePredFlag);
   Yap_InitCPred("$thread_run_at_exit", 2, p_thread_atexit, SafePredFlag);
   Yap_InitCPred("$thread_unlock", 1, p_thread_unlock, SafePredFlag);
+#if DEBUG_LOCKS
+  Yap_InitCPred("debug_locks", 0, p_debug_locks, SafePredFlag);
+  Yap_InitCPred("nodebug_locks", 0, p_nodebug_locks, SafePredFlag);
+#endif
 }
 
 #else
@@ -1075,6 +1066,10 @@ void Yap_InitThreadPreds(void)
   Yap_InitCPred("$thread_stacks", 4, p_thread_stacks, SafePredFlag);
   Yap_InitCPred("$thread_runtime", 1, p_thread_runtime, SafePredFlag);
   Yap_InitCPred("$thread_unlock", 1, p_thread_unlock, SafePredFlag);
+#if DEBUG_LOCKS
+  Yap_InitCPred("debug_locks", 0, p_debug_locks, SafePredFlag);
+  Yap_InitCPred("nodebug_locks", 0, p_nodebug_locks, SafePredFlag);
+#endif
 }
 
 

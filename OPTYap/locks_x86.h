@@ -49,9 +49,28 @@ spin_unlock(spinlock_t *lock)
 #endif
 }
 
-#define TRY_LOCK(LOCK_VAR)  spin_trylock((spinlock_t *)(LOCK_VAR))
 
 #define INIT_LOCK(LOCK_VAR)    ((LOCK_VAR) = 0)
+#define TRY_LOCK(LOCK_VAR)  spin_trylock((spinlock_t *)(LOCK_VAR))
+
+//#define DEBUG_LOCKS 1
+#if DEBUG_LOCKS
+
+extern int debug_locks;
+#define LOCK(LOCK_VAR)         do {	\
+    if (debug_locks) fprintf(stderr,"[%d] %s:%d: LOCK(%p)\n",	\
+	    (int)pthread_self(),		     \
+	    __BASE_FILE__, __LINE__,&(LOCK_VAR));    \
+             if (TRY_LOCK(&(LOCK_VAR))) break;      \
+		                 while (IS_LOCKED(LOCK_VAR)) continue;  \
+                               } while (1)
+#define IS_LOCKED(LOCK_VAR)    ((LOCK_VAR) != 0)
+#define IS_UNLOCKED(LOCK_VAR)  ((LOCK_VAR) == 0)
+#define UNLOCK(LOCK_VAR)       if (debug_locks) fprintf(stderr,"[%d] %s:%d: UNLOCK(%p)\n", \
+				       (int)pthread_self(),		\
+		      __BASE_FILE__, __LINE__,&(LOCK_VAR)); \
+	     spin_unlock((spinlock_t *)&(LOCK_VAR))
+#else
 #define LOCK(LOCK_VAR)         do {	\
                                  if (TRY_LOCK(&(LOCK_VAR))) break;      \
 		                 while (IS_LOCKED(LOCK_VAR)) continue;  \
@@ -59,6 +78,7 @@ spin_unlock(spinlock_t *lock)
 #define IS_LOCKED(LOCK_VAR)    ((LOCK_VAR) != 0)
 #define IS_UNLOCKED(LOCK_VAR)  ((LOCK_VAR) == 0)
 #define UNLOCK(LOCK_VAR)       spin_unlock((spinlock_t *)&(LOCK_VAR))
+#endif
 
 /* the code that follows has been adapted from the Erlang sources */
 
@@ -168,3 +188,32 @@ write_lock(rwlock_t *lock)
 #define READ_UNLOCK(lock) read_unlock(&(lock))
 #define WRITE_LOCK(lock) write_lock(&(lock))
 #define WRITE_UNLOCK(lock) write_unlock(&(lock))
+
+
+#if THREADS
+
+/* pthread mutex */
+
+#if DEBUG_LOCKS
+
+#define MUTEX_LOCK(LOCK_VAR)     ((debug_locks ?  fprintf(stderr,"[%d] %s:%d: MULOCK(%p)\n",  (int)pthread_self(), \
+							  __BASE_FILE__, __LINE__,(LOCK_VAR)) : 1), \
+				                   pthread_mutex_lock((LOCK_VAR)) )
+#define MUTEX_TRYLOCK(LOCK_VAR) pthread_mutex_trylock(LOCK_VAR)
+#define MUTEX_UNLOCK(LOCK_VAR) if       ((debug_locks ?  fprintf(stderr,"[%d] %s:%d: MUNLOCK(%p)\n",  (int)pthread_self(), \
+							  __BASE_FILE__, __LINE__,(LOCK_VAR)) : 1),     \
+					 pthread_mutex_unlock((LOCK_VAR)) )
+#else
+#define MUTEX_LOCK(LOCK_VAR) pthread_mutex_lock(LOCK_VAR)
+#define MUTEX_TRYLOCK(LOCK_VAR) pthread_mutex_trylock(LOCK_VAR)
+#define MUTEX_UNLOCK(LOCK_VAR) pthread_mutex_unlock(LOCK_VAR)
+#endif
+
+#else
+
+#define MUTEX_LOCK(LOCK_VAR) 
+#define MUTEX_TRYLOCK(LOCK_VAR) 
+#define MUTEX_UNLOCK(LOCK_VAR) 
+
+
+#endif
