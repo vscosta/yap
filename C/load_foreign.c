@@ -30,7 +30,7 @@ static char     SccsId[] = "%W% %G%.2";
 
 #if _WIN32 || defined(__CYGWIN__)
 #ifndef SO_EXT
-#define SO_EXT ".dll"
+#define SO_EXT "dll"
 #endif
 #endif
 

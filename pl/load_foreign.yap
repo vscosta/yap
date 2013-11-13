@@ -65,19 +65,10 @@ load_foreign_files(Objs,Libs,Entry) :-
 	'$obj_suffix'(ObjSuffix),
 	lists:append(ObjCodes,ObjSuffix,NewObjCodes).
 
-'$checklib_prefix'(Cs,Cs) :- '$rooted_path'(Cs), !.
+'$checklib_prefix'(Cs,Cs) :- is_absolute_file_name(Cs), !.
 '$checklib_prefix'([0'l,0'i,0'b|NewObjCodes],[0'l,0'i,0'b|NewObjCodes]) :- !.
 '$checklib_prefix'(NewObjCodes,[0'l,0'i,0'b|NewObjCodes]).
 
-'$rooted_path'([C|_]) :- '$dir_separator'(C), !.
-% windows drive z:\
-'$rooted_path'([_,0':,0'\\|_]) .
-
-'$get_drive'([0':|_]) :- !.
-'$get_drive'([0'\\|_]) :- !, fail.
-'$get_drive'([_|L]) :-
-	'$get_drive'(L).
-				      
 
 '$check_entry_for_load_foreign_files'(V,G) :- var(V), !,
 	'$do_error'(instantiation_error,G).

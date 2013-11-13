@@ -415,9 +415,6 @@ yap_flag(toplevel_hook,G) :-
 yap_flag(toplevel_hook,G) :- !,
 	'$set_toplevel_hook'(G).
 
-yap_flag(shared_object_search_path,P) :-
-	'$ld_path'(P).
-
 yap_flag(typein_module,X) :-
 	var(X), !,
 	'$current_module'(X).
@@ -560,7 +557,6 @@ yap_flag(max_threads,X) :-
 '$yap_system_flag'(profiling).
 '$yap_system_flag'(prompt_alternatives_on).
 '$yap_system_flag'(redefine_warnings).
-'$yap_system_flag'(shared_object_search_path).
 '$yap_system_flag'(single_var_warnings).
 '$yap_system_flag'(source).
 '$yap_system_flag'(stack_dump_on_error).
