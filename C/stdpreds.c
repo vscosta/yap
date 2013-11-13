@@ -1654,11 +1654,6 @@ p_set_yap_flags( USES_REGS1 )
       return(FALSE);
     yap_flags[CHAR_CONVERSION_FLAG] = value;
     break;
-  case YAP_DOUBLE_QUOTES_FLAG:
-    if (value < 0 || value > 2)
-      return(FALSE);
-    yap_flags[YAP_DOUBLE_QUOTES_FLAG] = value;
-    break;
   case YAP_TO_CHARS_FLAG:
     if (value != 0 && value != 1)
       return(FALSE);
@@ -1683,13 +1678,6 @@ p_set_yap_flags( USES_REGS1 )
     if (value != 0 && value !=  1)
       return(FALSE);
     yap_flags[SOURCE_MODE_FLAG] = value;
-    break;
-  case CHARACTER_ESCAPE_FLAG:
-    if (value != ISO_CHARACTER_ESCAPES
-	&& value != CPROLOG_CHARACTER_ESCAPES
-	&& value != SICSTUS_CHARACTER_ESCAPES)
-      return(FALSE);
-    yap_flags[CHARACTER_ESCAPE_FLAG] = value;
     break;
   case WRITE_QUOTED_STRING_FLAG:
     if (value != 0 && value !=  1)

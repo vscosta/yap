@@ -463,7 +463,8 @@ AtomIsSymbols(unsigned char *s)		/* Is this atom just formed by symbols ? */
 static void
 write_quoted(int ch, int quote, wrf stream)
 {
-  if (yap_flags[CHARACTER_ESCAPE_FLAG] == CPROLOG_CHARACTER_ESCAPES) {
+  CACHE_REGS
+  if (!(Yap_GetModuleEntry(CurrentModule)->flags & M_CHARESCAPE)) {
     wrputc(ch, stream);
     if (ch == '\'')
       wrputc('\'', stream);	/* be careful about quotes */
@@ -514,12 +515,8 @@ write_quoted(int ch, int quote, wrf stream)
       if ( ch <= 0xff ) {
 	char esc[8];
 	
-	if (yap_flags[CHARACTER_ESCAPE_FLAG] == SICSTUS_CHARACTER_ESCAPES) {
-	  sprintf(esc, "\\%03o", ch);
-	} else {
-	  /* last backslash in ISO mode */
-	  sprintf(esc, "\\%03o\\", ch);
-	}
+	/* last backslash in ISO mode */
+	sprintf(esc, "\\%03o\\", ch);
 	wrputs(esc, stream);
       }
     }

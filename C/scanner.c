@@ -280,8 +280,8 @@ read_quoted_char(int *scan_nextp, IOSTREAM *inp_stream)
   int ch;
 
   /* escape sequence */
- restart:
   ch = getchrq(inp_stream);
+ do_switch:
   switch (ch) {
   case 10:
     return 0;
@@ -292,17 +292,8 @@ read_quoted_char(int *scan_nextp, IOSTREAM *inp_stream)
   case 'b':
     return '\b';
   case 'c':
-    if (yap_flags[CHARACTER_ESCAPE_FLAG] == ISO_CHARACTER_ESCAPES) {
-      return send_error_message("invalid escape sequence \\c");
-    } else {
-      /* sicstus */
-      ch = getchrq(inp_stream);
-      if (chtype(ch) == SL) {
-	goto restart;
-      } else {
-	return 'c';
-      }
-    }
+    while (chtype((ch = getchrq(inp_stream))) == BS);
+    goto do_switch;
   case 'd':
     return 127;
   case 'e':
@@ -314,10 +305,7 @@ read_quoted_char(int *scan_nextp, IOSTREAM *inp_stream)
   case 'r':
     return '\r';
   case 's':         /* space */
-    if (yap_flags[CHARACTER_ESCAPE_FLAG] == ISO_CHARACTER_ESCAPES) {
-      return send_error_message("invalid escape sequence \\s");
-    } else
-      return ' ';
+    return ' ';
   case 't':
     return '\t';
   case 'u':
@@ -369,7 +357,7 @@ read_quoted_char(int *scan_nextp, IOSTREAM *inp_stream)
   case '`':
     return '`';
   case '^':
-    if (yap_flags[CHARACTER_ESCAPE_FLAG] == ISO_CHARACTER_ESCAPES) {
+    if (FALSE /*yap_flags[CHARACTER_ESCAPE_FLAG] == ISO_CHARACTER_ESCAPES */) {
       return send_error_message("invalid escape sequence");
     } else {
       ch = getchrq(inp_stream);
@@ -393,7 +381,7 @@ read_quoted_char(int *scan_nextp, IOSTREAM *inp_stream)
   case '7':
     /* character in octal: maximum of 3 digits, terminates with \ */
     /* follow ISO */
-    if (TRUE || yap_flags[CHARACTER_ESCAPE_FLAG] == ISO_CHARACTER_ESCAPES) {
+    {
       unsigned char so_far = ch-'0';
       ch = getchrq(inp_stream);
       if (ch >= '0' && ch < '8') {/* octal */
@@ -416,27 +404,10 @@ read_quoted_char(int *scan_nextp, IOSTREAM *inp_stream)
       } else {
 	return send_error_message("invalid octal escape sequence");
       }
-    } else {
-      /* sicstus */
-      unsigned char so_far = ch-'0';
-      ch = getchrq(inp_stream);
-      if (ch >= '0' && ch < '8') {/* octal */
-	so_far = so_far*8+(ch-'0');
-	ch = getchrq(inp_stream);
-	if (ch >= '0' && ch < '8') { /* octal */
-	  return so_far*8+(ch-'0');
-	} else {
-	  *scan_nextp = FALSE;
-	  return so_far;
-	}
-      } else {
-	*scan_nextp = FALSE;
-	return so_far;
-      }
     }
   case 'x':
     /* hexadecimal character (YAP allows empty hexadecimal  */
-    if (yap_flags[CHARACTER_ESCAPE_FLAG] == ISO_CHARACTER_ESCAPES) {
+    {
       unsigned char so_far = 0; 
       ch = getchrq(inp_stream);
       if (my_isxdigit(ch,'f','F')) {/* hexa */
@@ -462,17 +433,6 @@ read_quoted_char(int *scan_nextp, IOSTREAM *inp_stream)
       } else {
 	return send_error_message("invalid hexadecimal escape sequence");
       }
-    } else {
-      /* sicstus mode */
-      unsigned char so_far = 0;
-      ch = getchrq(inp_stream);
-      so_far = (chtype(ch) == NU ? ch - '0' :
-		my_isupper(ch) ? ch - 'A' + 10 : 
-		my_islower(ch) ? ch - 'a' +10 : 0);
-      ch = getchrq(inp_stream);
-      return so_far*16 + (chtype(ch) == NU ? ch - '0' :
-		       my_isupper(ch) ? ch - 'A' +10 :
-		       my_islower(ch) ? ch - 'a' + 10 : 0);
     }
   default:
     /* accept sequence. Note that the ISO standard does not
@@ -531,7 +491,7 @@ get_num(int *chp, int *chbuffp, IOSTREAM *inp_stream, char *s, UInt max_size, in
       int scan_extra = TRUE;
 
       if (ch == '\\' &&
-	  yap_flags[CHARACTER_ESCAPE_FLAG] != CPROLOG_CHARACTER_ESCAPES) {
+	  Yap_GetModuleEntry(CurrentModule)->flags & M_CHARESCAPE) {
 	ascii = read_quoted_char(&scan_extra, inp_stream);
       }
       /* a quick way to represent ASCII */
@@ -1114,7 +1074,7 @@ Yap_tokenizer(IOSTREAM *inp_stream, int store_comments, Term *tposp)
 	  LOCAL_ErrorMessage = "Heap Overflow While Scanning: please increase code space (-h)";
 	  break;
 	}
-	if (ch == 10  &&  yap_flags[CHARACTER_ESCAPE_FLAG] == ISO_CHARACTER_ESCAPES) {
+	if (ch == 10  &&  FALSE /*yap_flags[CHARACTER_ESCAPE_FLAG] == ISO_CHARACTER_ESCAPES */) {
 	  /* in ISO a new line terminates a string */
 	  LOCAL_ErrorMessage = "layout character \n inside quotes";
 	  break;
@@ -1125,7 +1085,7 @@ Yap_tokenizer(IOSTREAM *inp_stream, int store_comments, Term *tposp)
 	    break;
 	  add_ch_to_buff(ch);
 	  ch = getchrq(inp_stream);
-	} else if (ch == '\\' && yap_flags[CHARACTER_ESCAPE_FLAG] != CPROLOG_CHARACTER_ESCAPES) {
+	} else if (ch == '\\' && Yap_GetModuleEntry(CurrentModule)->flags & M_CHARESCAPE) {
 	  int scan_next = TRUE;
 	  if ((ch = read_quoted_char(&scan_next, inp_stream))) {
 	    add_ch_to_buff(ch);

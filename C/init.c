@@ -910,12 +910,10 @@ InitFlags(void)
   yap_flags[YAP_MAX_INTEGER_FLAG] = (Int)(~((CELL)1 << (sizeof(Int)*8-1)));
   yap_flags[YAP_MIN_INTEGER_FLAG] = (Int)(((CELL)1 << (sizeof(Int)*8-1)));
   yap_flags[CHAR_CONVERSION_FLAG] = 1;
-  yap_flags[YAP_DOUBLE_QUOTES_FLAG] = 1;
   yap_flags[YAP_TO_CHARS_FLAG] = ISO_TO_CHARS;
   yap_flags[LANGUAGE_MODE_FLAG] = 0;
   yap_flags[STRICT_ISO_FLAG] = FALSE;
   yap_flags[SOURCE_MODE_FLAG] = FALSE;
-  yap_flags[CHARACTER_ESCAPE_FLAG] = SICSTUS_CHARACTER_ESCAPES;
   yap_flags[WRITE_QUOTED_STRING_FLAG] = FALSE;
   /* we do not garantee safe assert in parallel mode */
   yap_flags[ALLOW_ASSERTING_STATIC_FLAG] = TRUE;
@@ -1169,23 +1167,6 @@ Yap_InitThread(int new_id)
 }
 #endif
 
-static void 
-InitFirstWorkerThreadHandle(void)
-{
-#ifdef  THREADS
-  CACHE_REGS
-  LOCAL_ThreadHandle.id = 0;
-  LOCAL_ThreadHandle.in_use = TRUE;
-  LOCAL_ThreadHandle.default_yaam_regs = 
-    &Yap_standard_regs;
-  LOCAL_ThreadHandle.pthread_handle = pthread_self();
-  pthread_mutex_init(&REMOTE_ThreadHandle(0).tlock, NULL);
-  pthread_mutex_init(&REMOTE_ThreadHandle(0).tlock_status, NULL);
-  LOCAL_ThreadHandle.tdetach = MkAtomTerm(AtomFalse);
-  LOCAL_ThreadHandle.ref_count = 1;
-#endif
-}
-
 static void
 InitScratchPad(int wid)
 {
@@ -1240,9 +1221,9 @@ InitCodes(void)
 #if !THREADS
   InitWorker(0);
 #endif /* THREADS */
-  InitFirstWorkerThreadHandle();
+  Yap_InitFirstWorkerThreadHandle();
   /* make sure no one else can use these two atoms */
-  CurrentModule = 0;
+  LOCAL_SourceModule = CurrentModule = 0;
   Yap_ReleaseAtom(AtomOfTerm(TermReFoundVar));
   /* make sure we have undefp defined */
   /* predicates can only be defined after this point */

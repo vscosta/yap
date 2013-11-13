@@ -1,29 +1,3 @@
-typedef struct _PL_thread_info_t
-{ int		    pl_tid;		/* Prolog thread id */
-  size_t	    local_size;		/* Stack sizes */
-  size_t	    global_size;
-  size_t	    trail_size;
-  size_t	    stack_size;		/* system (C-) stack */
-  int		    (*cancel)(int id);	/* cancel function */
-  int		    open_count;		/* for PL_thread_detach_engine() */
-  bool		    detached;		/* detached thread */
-  int		    status;		/* PL_THREAD_* */
-  pthread_t	    tid;		/* Thread identifier */
-  int		    has_tid;		/* TRUE: tid = valid */
-#ifdef __linux__
-  pid_t		    pid;		/* for identifying */
-#endif
-#ifdef __WINDOWS__
-  unsigned long	    w32id;		/* Win32 thread HANDLE */
-#endif
-  struct PL_local_data  *thread_data;	/* The thread-local data  */
-  module_t	    module;		/* Module for starting goal */
-  record_t	    goal;		/* Goal to start thread */
-  record_t	    return_value;	/* Value (term) returned */
-  atom_t	    name;		/* Name of the thread */
-  ldata_status_t    ldata_status;	/* status of forThreadLocalData() */
-} PL_thread_info_t;
-
 typedef struct
 { size_t        localSize;              /* size of local stack */
   size_t        globalSize;             /* size of global stack */
@@ -225,6 +199,7 @@ typedef struct PL_local_data {
     access_level_t access_level;        /* Current access level */
   } prolog_flag;
 
+  int           break_level;            /* break */
   void *        glob_info;              /* pl-glob.c */
   IOENC		encoding;		/* default I/O encoding */
 
@@ -261,6 +236,20 @@ typedef struct PL_local_data {
   } exception;
   const char   *float_format;		/* floating point format */
 
+#ifdef O_PLMT
+  struct
+  { //intptr_t   magic;			/* PL_THREAD_MAGIC (checking) */
+    struct _PL_thread_info_t *info;	/* info structure */
+    //unsigned forall_flags;		/* forThreadLocalData() flags */
+					/* Communication */
+    //message_queue messages;		/* Message queue */
+    //struct _thread_sig   *sig_head;	/* Head of signal queue */
+    //struct _thread_sig   *sig_tail;	/* Tail of signal queue */
+    //struct _at_exit_goal *exit_goals;	/* thread_at_exit/1 goals */
+    //DefinitionChain local_definitions;	/* P_THREAD_LOCAL predicates */
+  } thread;
+#endif
+
   struct {
     buffer	_discardable_buffer;	/* PL_*() character buffers */
     buffer	_buffer_ring[BUFFER_RING_SIZE];
@@ -279,6 +268,7 @@ typedef struct PL_local_data {
 #endif
 
 }  PL_local_data_t;
+
 
 #define usedStack(D) 0
 

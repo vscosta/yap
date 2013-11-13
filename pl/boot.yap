@@ -930,13 +930,13 @@ not(G) :-    \+ '$execute'(G).
 	(
 	 '$get_undefined_pred'(G, M, Goal, NM)
 	->
-	 '$exit_undefp'
+	 '$exit_undefp',
+	 Goal \= fail,
+	 '$complete_goal'(M, Goal, NM, G, NG)
 	;
-	 once('$find_undefp_handler'(G, M, Goal, NM))
-	),
-	!,
-	Goal \= fail,
-	'$complete_goal'(M, Goal, NM, G, NG).
+	 '$find_undefp_handler'(G, M),
+	 NG = G, NM = M
+	).
 
 '$complete_goal'(M, G, CurMod, G0, NG) :-
 	  (
@@ -952,35 +952,36 @@ not(G) :-    \+ '$execute'(G).
 	user:exception(undefined_predicate,M:Na/Ar,Action), !,
 	'$exit_undefp',
 	(
+	     Action == fail
+	 ->
+	  NG = fail
+      ;
+	 Action == retry
+     ->
+	 NG = G
+     ;
+	 Action == error
+     ->
+	 '$unknown_error'(M:G)
+     ;
+	 '$do_error'(type_error(atom, Action),M:G)
+     ).
+
+'$find_undefp_handler'(G,M) :-
+	 '$exit_undefp',
+	'$swi_current_prolog_flag'(M:unknown, Action),
+	(
 	 Action == fail
 	->
-	 NG = fail
+	 fail
 	;
-	 Action == retry
+	 Action == warning
 	->
-	 NG = G
+	 '$unknown_warning'(M:G),
+	 fail
 	;
-	 Action = error
-	->
 	 '$unknown_error'(M:G)
-	;
-	 '$do_error'(type_error(atom, Action),M:G)
 	).
-'$find_undefp_handler'(G,M,NG,user) :-
-	\+ '$undefined'(unknown_predicate_handler(_,_,_), user),
-	'$system_catch'(unknown_predicate_handler(G,M,NG), user, Error, '$leave_undefp'(Error)), !,
-	'$exit_undefp'.
-'$find_undefp_handler'(G,M,US,user) :-
-	recorded('$unknown','$unknown'(M:G,US),_), !,
-	'$exit_undefp'.
-'$find_undefp_handler'(_,_,_,_) :-
-	'$exit_undefp',
-	fail.
-
-'$leave_undefp'(Ball) :-
-	'$exit_undefp',
-	throw(Ball).
-
 
 '$silent_bootstrap'(F) :-
 	'$init_globals',

@@ -102,20 +102,6 @@ yap_flag(enhanced,off) :- set_value('$enhanced',[]).
 yap_flag(agc_margin,Margin) :-
 	'$agc_threshold'(Margin).
 
-%
-% SWI compatibility flag
-%
-yap_flag(debug_on_error,X) :-
-	var(X), !,
-	X = false.
-yap_flag(debug_on_error,true) :- !,
-	X = true,
-	'$do_error'(domain_error(flag_value,debug_on_error+X),yap_flag(debug_on_error,X)).
-yap_flag(debug_on_error,false) :- !.
-yap_flag(debug_on_error,X) :-
-	'$do_error'(domain_error(flag_value,debug_on_error+X),yap_flag(debug_on_error,X)).
-
-
 
 %
 % show state of $
@@ -137,28 +123,6 @@ yap_flag(dollar_as_lower_case,off) :-
 
 yap_flag(call_counting,X) :- (var(X); X = on; X = off), !,
 	'$is_call_counted'(X).
-
-yap_flag(open_shared_object,X) :-
-	var(X), !,
-	('$open_shared_objects' -> X = true ; X = false).
-yap_flag(open_shared_object,X) :-
-	(X = true ; X = false), !,
-	'$do_error'(permission_error(modify,flag,open_shared_object),yap_flag(open_shared_object,X)).
-yap_flag(open_shared_object,X) :-
-	'$do_error'(domain_error(flag_value,open_shared_object+X),yap_flag(open_shared_object,X)).
-
-yap_flag(open_shared_object,X) :-
-	var(X), !,
-	('$open_shared_objects' -> X = true ; X = false).
-yap_flag(open_shared_object,X) :-
-	(X = true ; X = false), !,
-	'$do_error'(permission_error(modify,flag,open_shared_object),yap_flag(open_shared_object,X)).
-yap_flag(open_shared_object,X) :-
-	'$do_error'(domain_error(flag_value,open_shared_object+X),yap_flag(open_shared_object,X)).
-
-yap_flag(shared_object_extension,X) :-
-	'$obj_suffix'([_|String]),
-	atom_codes(X, String).
 
 :- set_value('$associate',yap).
 
@@ -433,12 +397,6 @@ yap_flag(system_options,X) :-
 '$system_options'(wam_profiler) :-
 	\+ '$undefined'(reset_op_counters, prolog).
 	
-yap_flag(unknown,X) :-
-	var(X), !,
-	unknown(X,_).
-yap_flag(unknown,N) :-
-	unknown(_,N).
-
 yap_flag(to_chars_mode,X) :-
 	var(X), !,
 	( '$access_yap_flags'(7,0) -> X = quintus ; X = iso ).
@@ -448,16 +406,6 @@ yap_flag(to_chars_mode,iso) :- !,
 	'$set_yap_flags'(7,1).
 yap_flag(to_chars_mode,X) :-
 	'$do_error'(domain_error(flag_value,to_chars_mode+X),yap_flag(to_chars_mode,X)).
-
-yap_flag(character_escapes,X) :-
-	var(X), !,
-	'$access_yap_flags'(12,Y),	
-	'$transl_to_character_escape_modes'(Y,X).
-yap_flag(character_escapes,X) :- !,
-	'$transl_to_character_escape_modes'(Y,X), !,
-	'$set_yap_flags'(12,Y).
-yap_flag(character_escapes,X) :-
-	'$do_error'(domain_error(flag_value,character_escapes+X),yap_flag(to_chars_mode,X)).
 
 yap_flag(update_semantics,X) :-
 	var(X), !,
@@ -510,23 +458,6 @@ yap_flag(prompt_alternatives_on,groundness) :- !,
 	'$compile'('$prompt_alternatives_on'(groundness),0,'$prompt_alternatives_on'(groundness),prolog).
 yap_flag(prompt_alternatives_on,X) :-
 	'$do_error'(domain_error(flag_value,prompt_alternatives_on+X),yap_flag(prompt_alternatives_on,X)).
-
-'$user_flags'(error).
-
-yap_flag(user_flags,OUT) :-
-	var(OUT), !,
-	'$user_flags'(OUT).
-yap_flag(user_flags,silent) :- !,
-	'$purge_clauses'('$user_flags'(_),prolog),
-	'$compile'('$user_flags'(silent),0,'$user_flags'(silent),prolog).
-yap_flag(user_flags,warning) :- !,
-	'$purge_clauses'('$user_flags'(_),prolog),
-	'$compile'('$user_flags'(warning),0,'$user_flags'(warning),prolog).
-yap_flag(user_flags,error) :- !,
-	'$purge_clauses'('$user_flags'(_),prolog),
-	'$compile'('$user_flags'(error),0,'$user_flags'(error),prolog).
-yap_flag(user_flags,X) :-
-	'$do_error'(domain_error(flag_value,user_flags+X),yap_flag(user_flags,X)).
 
 yap_flag(stack_dump_on_error,OUT) :-
 	var(OUT), !,
@@ -609,9 +540,7 @@ yap_flag(max_threads,X) :-
 '$yap_system_flag'(answer_format).
 '$yap_system_flag'(argv).
 '$yap_system_flag'(char_conversion).
-'$yap_system_flag'(character_escapes).
 '$yap_system_flag'(chr_toplevel_show_store).
-'$yap_system_flag'(debug_on_error    ).
 '$yap_system_flag'(debugger_print_options).
 '$yap_system_flag'(discontiguous_warnings).
 '$yap_system_flag'(dollar_as_lower_case).
@@ -638,12 +567,10 @@ yap_flag(max_threads,X) :-
 '$yap_system_flag'(max_threads).
 '$yap_system_flag'(n_of_integer_keys_in_db).
 '$yap_system_flag'(open_expands_filename).
-'$yap_system_flag'(open_shared_object).
 '$yap_system_flag'(profiling).
 '$yap_system_flag'(prompt_alternatives_on).
 '$yap_system_flag'(redefine_warnings).
 '$yap_system_flag'(shared_object_search_path).
-'$yap_system_flag'(shared_object_extension).
 '$yap_system_flag'(single_var_warnings).
 '$yap_system_flag'(source).
 '$yap_system_flag'(stack_dump_on_error).
@@ -654,10 +581,8 @@ yap_flag(max_threads,X) :-
 '$yap_system_flag'(toplevel_hook).
 '$yap_system_flag'(toplevel_print_options).
 '$yap_system_flag'(typein_module).
-'$yap_system_flag'(unknown).
 '$yap_system_flag'(update_semantics).
 '$yap_system_flag'(user_error).
-'$yap_system_flag'(user_flags).
 '$yap_system_flag'(user_input).
 '$yap_system_flag'(user_output).
 '$yap_system_flag'(variable_names_may_end_with_quotes).
@@ -678,7 +603,7 @@ yap_flag(max_threads,X) :-
 	'$syntax_check_single_var'(_,off),
 	'$syntax_check_discontiguous'(_,off),
 	'$syntax_check_multiple'(_,off),
-	'$set_yap_flags'(12,0), % disable character escapes.
+	'$swi_set_prolog_flag'(character_escapes, false), % disable character escapes.
 	'$set_yap_flags'(14,1),
 	'$set_fpu_exceptions',
 	unknown(_,fail).
@@ -694,7 +619,7 @@ yap_flag(max_threads,X) :-
 	'$force_char_conversion',
 	'$set_yap_flags'(14,0),
 	% CHARACTER_ESCAPE
-	'$set_yap_flags'(12,1),
+	'$swi_set_prolog_flag'(character_escapes, true), % disable character escapes.
 	'$set_fpu_exceptions',
 	'$swi_set_prolog_flag'(fileerrors, true),
 	unknown(_,error).
@@ -714,15 +639,10 @@ yap_flag(max_threads,X) :-
 	% ALLOW_ASSERTING_STATIC
 	'$set_yap_flags'(14,0),
 	% CHARACTER_ESCAPE
-	'$set_yap_flags'(12,1),
+	'$swi_set_prolog_flag'(character_escapes, true), % disable character escapes.
 	'$set_fpu_exceptions',
 	unknown(_,error).
 
-'$transl_to_character_escape_modes'(0,off) :- !.
-'$transl_to_character_escape_modes'(0,cprolog).
-'$transl_to_character_escape_modes'(2,on) :- !.
-'$transl_to_character_escape_modes'(1,iso).
-'$transl_to_character_escape_modes'(2,sicstus).
 
 '$convert_upd_sem'(0,immediate).
 '$convert_upd_sem'(1,logical).
@@ -750,11 +670,15 @@ yap_flag(max_threads,X) :-
 	
 current_prolog_flag(V,Out) :-
 	var(V), !,
-	'$show_yap_flag_opts'(V,NOut),
+	'$yap_flag'(V,NOut),
 	NOut = Out.
 current_prolog_flag(V,Out) :-
 	atom(V), !,
 	yap_flag(V,NOut),
+	NOut = Out.
+current_prolog_flag(M:V,Out) :-
+	current_module(M), atom(V), !,
+	yap_flag(M:V,NOut),
 	NOut = Out.
 current_prolog_flag(V,Out) :-
 	'$do_error'(type_error(atom,V),current_prolog_flag(V,Out)).
@@ -765,6 +689,9 @@ set_prolog_flag(F,V) :-
 set_prolog_flag(F,V) :-
 	var(V), !,
 	'$do_error'(instantiation_error,set_prolog_flag(F,V)).
+set_prolog_flag(M:V,Out) :-
+	current_module(M), atom(V), !,
+	'$swi_set_prolog_flag'(M:V,Out).
 set_prolog_flag(F,V) :-
 	\+ atom(F), !,
 	'$do_error'(type_error(atom,F),set_prolog_flag(F,V)).
@@ -775,7 +702,7 @@ set_prolog_flag(F,V) :-
 	'$yap_system_flag'(F), !,
 	yap_flag(F,V).
 set_prolog_flag(F,V) :-
-	'$user_flags'(UFlag),
+	'$swi_current_prolog_flag'(user_flags, UFlag),
 	(
 	 UFlag = silent ->
 	 create_prolog_flag(F, V, [])

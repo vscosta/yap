@@ -120,7 +120,6 @@ save_program(File, _Goal) :-
     ;
       '$do_error'(type_error(atom,B),G)
     ).
-%% '$cvt_qsave_flag'(class(_B), G, class(_B)).
 %% '$cvt_qsave_flag'(autoload(_B), G, autoload(_B)).
 %% '$cvt_qsave_flag'(op(_B), G, op(_B)).
 %% '$cvt_qsave_flag'(stand_alone(_B), G, stand_alone(_B)).
@@ -132,12 +131,16 @@ save_program(File, _Goal) :-
 % there is some ordering between flags.
 '$x_yap_flag'(goal, Goal).
 '$x_yap_flag'(language, V).
+'$x_yap_flag'(M:unknown, V) :-
+	current_module(M),
+	yap_flag(M:unknown, V).
 '$x_yap_flag'(X, V) :-
 	yap_flag(X, V),
 	X \= language,
 	X \= readline,
 	X \= timezone,
 	X \= tty_control,
+	X \= undefined,
 	X \= user_input,
 	X \= user_output,
 	X \= user_error,
@@ -208,6 +211,12 @@ save_program(File, _Goal) :-
 	recorded('$restore_flag', init_file(M:B), R),
 	erase(R),
 	'$do_startup_reconsult'(M:B),
+	fail.
+'$init_from_saved_state_and_args' :-
+	recorded('$restore_flag', unknown(M:B), R),
+	erase(R),
+writeln(M:B),
+	yap_flag(M:unknown,B),
 	fail.
 '$init_from_saved_state_and_args' :-
 	'$startup_goals',

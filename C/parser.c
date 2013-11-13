@@ -567,17 +567,22 @@ ParseTerm(int prio, JMPBUFF *FailBuff USES_REGS)
       Volatile char *p = (char *) LOCAL_tokptr->TokInfo;
       if (*p == 0)
 	t = MkAtomTerm(AtomNil);
-      else if (yap_flags[YAP_DOUBLE_QUOTES_FLAG] == STRING_AS_CHARS)
-	t = Yap_StringToListOfAtoms(p);
-      else if (yap_flags[YAP_DOUBLE_QUOTES_FLAG] == STRING_AS_ATOM) {
-	Atom at = Yap_LookupAtom(p);
-	if (at == NIL) {
-	  LOCAL_ErrorMessage = "Heap Overflow";
-	  FAIL;	  
-	}
-	t = MkAtomTerm(at);
-      } else
-	t = Yap_StringToList(p);
+      else {
+	unsigned int flags = Yap_GetModuleEntry(CurrentModule)->flags;
+	if (flags &  DBLQ_CHARS)
+	  t = Yap_StringToListOfAtoms(p);
+	else if (flags & DBLQ_ATOM) {
+	  Atom at = Yap_LookupAtom(p);
+	  if (at == NIL) {
+	    LOCAL_ErrorMessage = "Heap Overflow";
+	    FAIL;	  
+	  }
+	  t = MkAtomTerm(at);
+	} else if (flags & DBLQ_STRING) {
+	  t = Yap_MkBlobStringTerm(p, strlen(p));
+	} else
+	  t = Yap_StringToList(p);
+      }
       NextToken;
     }
   break;
@@ -587,12 +592,22 @@ ParseTerm(int prio, JMPBUFF *FailBuff USES_REGS)
       Volatile wchar_t *p = (wchar_t *) LOCAL_tokptr->TokInfo;
       if (*p == 0)
 	t = MkAtomTerm(AtomNil);
-      else if (yap_flags[YAP_DOUBLE_QUOTES_FLAG] == STRING_AS_CHARS)
-	t = Yap_WideStringToListOfAtoms(p);
-      else if (yap_flags[YAP_DOUBLE_QUOTES_FLAG] == STRING_AS_ATOM)
-	t = MkAtomTerm(Yap_LookupWideAtom(p));
-      else
-	t = Yap_WideStringToList(p);
+      else {
+	unsigned int flags = Yap_GetModuleEntry(CurrentModule)->flags;
+	if (flags &  DBLQ_CHARS)
+	  t = Yap_WideStringToListOfAtoms(p);
+	else if (flags & DBLQ_ATOM) {
+	  Atom at = Yap_LookupWideAtom(p);
+	  if (at == NIL) {
+	    LOCAL_ErrorMessage = "Heap Overflow";
+	    FAIL;	  
+	  }
+	  t = MkAtomTerm(at);
+	} else if (flags & DBLQ_STRING) {
+	  t = Yap_MkBlobWideStringTerm(p, wcslen(p));
+	} else
+	  t = Yap_WideStringToList(p);
+      }
       if (t == 0L) {
 	LOCAL_ErrorMessage = "Stack Overflow";
 	FAIL;

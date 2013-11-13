@@ -60,7 +60,7 @@ typedef struct
   int   max_depth;			/* depth limit */
   int   depth;				/* current depth */
   atom_t spacing;			/* Where to insert spaces */
-  Term module;			/* Module for operators */
+  module_t module;			/* Module for operators */
   IOSTREAM *out;			/* stream to write to */
   term_t portray_goal;			/* call/2 activated portray hook */
   term_t write_options;			/* original write options */
@@ -241,7 +241,7 @@ writeTopTerm(term_t t, int prec, write_options *options)
   if (flags & PL_WRT_BLOB_PORTRAY)
     yap_flag |= Blob_Portray_f;
   old_module = CurrentModule;
-  CurrentModule = options->module;
+  CurrentModule = Yap_GetModuleFromEntry(options->module);
   Yap_plwrite(Yap_GetFromSlot(t PASS_REGS), options->out, options->max_depth, yap_flag, prec);
   CurrentModule = old_module;
   return TRUE;

@@ -1321,7 +1321,47 @@ Yap_source_file_name( void )
   return YAP_AtomFromSWIAtom(source_file_name);
 }
 
+atom_t
+accessLevel(void)
+{ GET_LD
+
+    switch(LD->prolog_flag.access_level)
+      { case ACCESS_LEVEL_USER:     return ATOM_user;
+      case ACCESS_LEVEL_SYSTEM:   return ATOM_system;
+      }
+
+  return NULL_ATOM;
+}
+
+int
+getAccessLevelMask(atom_t a, access_level_t *val)
+{ if ( a == ATOM_user )
+    *val = ACCESS_LEVEL_USER;
+  else if ( a == ATOM_system )
+    *val = ACCESS_LEVEL_SYSTEM;
+  else
+    return FALSE;
+
+  return TRUE;
+}
+
+
+int
+currentBreakLevel(void)
+{ GET_LD
+
+    return LD->break_level;
+}
+
 #if THREADS
+
+PL_thread_info_t *
+SWI_thread_info(int tid, PL_thread_info_t *info)
+{
+  if (info)
+    REMOTE_PL_local_data_p(tid)->thread.info = info;
+  return REMOTE_PL_local_data_p(tid)->thread.info;
+}
 
 static int
 recursive_attr(pthread_mutexattr_t **ap)

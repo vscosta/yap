@@ -3433,7 +3433,7 @@ YAP_SetCurrentModule(Term new)
 {
   CACHE_REGS
   Term omod = CurrentModule;
-  CurrentModule = new;
+  LOCAL_SourceModule = CurrentModule = new;
   return omod;
 } 
 

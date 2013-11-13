@@ -152,63 +152,8 @@ setup_call_catcher_cleanup(Setup, Goal, Catcher, Cleanup) :-
 %	informs about what the user wants to be done when
 %	there are no clauses for a certain predicate */
 
-unknown(V0,V) :-
-	'$current_module'(M),
-	'$unknown'(V0,V,M).
-
-% query mode
-'$unknown'(V0,V,_) :- var(V), !,
-	'$ask_unknown_flag'(V),
-	V = V0.
-% handle modules.
-'$unknown'(V0,Mod:Handler,_) :-
-	'$unknown'(V0,Handler,Mod).
-% check if we have one we like.
-'$unknown'(_,New,Mod) :- 
-	'$valid_unknown_handler'(New,Mod), fail.
-% clean up previous unknown predicate handlers
-'$unknown'(Old,New,Mod) :-
-	recorded('$unknown','$unknown'(_,MyOld),Ref), !,
-	erase(Ref),
-	'$cleanup_unknown_handler'(MyOld,Old),
-	'$new_unknown'(New, Mod).
-% store the new one.
-'$unknown'(fail,New,Mod) :-
-	'$new_unknown'(New, Mod).
-
-'$valid_unknown_handler'(V,_) :-
-	var(V), !,
-	'$do_error'(instantiation_error,yap_flag(unknown,V)).
-'$valid_unknown_handler'(fail,_) :- !.
-'$valid_unknown_handler'(error,_) :- !.
-'$valid_unknown_handler'(warning,_) :- !.
-'$valid_unknown_handler'(S,M) :-
-	functor(S,_,1),
-	arg(1,S,A),
-	var(A), 
-	\+ '$undefined'(S,M),
-	!.
-'$valid_unknown_handler'(S,_) :-
-	'$do_error'(domain_error(flag_value,unknown+S),yap_flag(unknown,S)).
-
-
-'$ask_unknown_flag'(Old) :-
-	recorded('$unknown','$unknown'(_,MyOld),_), !,
-	'$cleanup_unknown_handler'(MyOld,Old).
-'$ask_unknown_flag'(fail).
-
-'$cleanup_unknown_handler'('$unknown_error'(_),error) :- !.
-'$cleanup_unknown_handler'('$unknown_warning'(_),warning) :- !.
-'$cleanup_unknown_handler'(Handler, Handler).
-
-'$new_unknown'(fail,_) :- !.
-'$new_unknown'(error,_) :- !,
-	recorda('$unknown','$unknown'(P,'$unknown_error'(P)),_).
-'$new_unknown'(warning,_) :- !,
-	recorda('$unknown','$unknown'(P,'$unknown_warning'(P)),_).
-'$new_unknown'(X,M) :-
-	arg(1,X,A),
-	recorda('$unknown','$unknown'(A,M:X),_).
+unknown(V0, V) :-
+	prolog_flag(unknown, V0, V).
 
 '$unknown_error'(Mod:Goal) :-
 	functor(Goal,Name,Arity),

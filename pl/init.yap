@@ -272,7 +272,7 @@ file_search_path(path, C) :-
 	lists:member(C, B)
     ).
 
-:- yap_flag(unknown,error). 
+:- yap_flag(user:unknown,error). 
 
 :- stream_property(user_input, tty(true)) -> set_prolog_flag(readline, true) ; true.
 

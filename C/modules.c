@@ -21,10 +21,16 @@ static char     SccsId[] = "%W% %G%";
 #include "Yap.h"
 #include "Yatom.h"
 #include "YapHeap.h"
+#include "pl-shared.h"
 
 static Int p_current_module( USES_REGS1 );
 static Int p_current_module1( USES_REGS1 );
+static ModEntry *LookupModule(Term a);
 
+ unsigned int
+getUnknownModule(ModEntry * m) {
+  return m->flags & UNKNOWN_MASK;
+}
 
 inline static ModEntry *
 FetchModuleEntry(Atom at)
@@ -56,6 +62,7 @@ GetModuleEntry(Atom at)
   AtomEntry *ae = RepAtom(at);
   ModEntry *new;
 
+
   p0 = ae->PropsOfAE;
   while (p0) {
     ModEntry *me = RepModProp(p0);
@@ -65,14 +72,21 @@ GetModuleEntry(Atom at)
     }
     p0 = me->NextOfPE;
   }
-  new = (ModEntry *) Yap_AllocAtomSpace(sizeof(*new));
-  INIT_RWLOCK(new->ModRWLock);
-  new->KindOfPE = ModProperty;
-  new->PredForME = NULL;
-  new->NextME = CurrentModules;
-  CurrentModules = new;
-  new->AtomOfME = ae;
-  AddPropToAtom(ae, (PropEntry *)new);
+  {
+    CACHE_REGS
+    new = (ModEntry *) Yap_AllocAtomSpace(sizeof(*new));
+    INIT_RWLOCK(new->ModRWLock);
+    new->KindOfPE = ModProperty;
+    new->PredForME = NULL;
+    new->NextME = CurrentModules;
+    CurrentModules = new;
+    new->AtomOfME = ae;
+    if (at == AtomProlog)
+      new->flags = UNKNOWN_FAIL|M_SYSTEM|M_CHARESCAPE;
+    else
+      new->flags = LookupModule(LOCAL_SourceModule)->flags;
+    AddPropToAtom(ae, (PropEntry *)new);
+  }
   return new;
 }
 
@@ -100,14 +114,14 @@ Yap_Module_Name(PredEntry *ap)
 }
 
 static ModEntry * 
-LookupModule(Term a)
+LookupModule(Term a )
 {
   Atom at;
   ModEntry *me;
 
   /* prolog module */
   if (a == 0)
-    return GetModuleEntry(AtomOfTerm(TermProlog));
+    return GetModuleEntry(AtomProlog);
   at = AtomOfTerm(a);
   me = GetModuleEntry(at);
   return me;
@@ -118,6 +132,21 @@ Yap_Module(Term tmod)
 {
   LookupModule(tmod);
   return tmod;
+}
+
+ModEntry *
+Yap_GetModuleEntry(Term mod)
+{
+  ModEntry *me;
+  if (!(me = LookupModule(mod)))
+    return NULL;
+  return me;
+}
+
+Term
+Yap_GetModuleFromEntry(ModEntry *me)
+{
+  return MkAtomTerm(me->AtomOfME);;
 }
 
 struct pred_entry *
@@ -163,6 +192,7 @@ p_current_module( USES_REGS1 )
     CurrentModule = t;
     LookupModule(CurrentModule);
   }
+  LOCAL_SourceModule = CurrentModule;
   return TRUE;
 }
 
@@ -180,6 +210,7 @@ p_change_module( USES_REGS1 )
   Term mod = Deref(ARG1);
   LookupModule(mod);
   CurrentModule = mod;
+  LOCAL_SourceModule = mod;
   return TRUE;
 }
 

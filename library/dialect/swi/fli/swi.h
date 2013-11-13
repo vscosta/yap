@@ -105,7 +105,7 @@ SWIModuleToModule(module_t m)
 {
   CACHE_REGS
   if (m)
-    return (CELL)m;
+    return MkAtomTerm(m->AtomOfME);
   if (CurrentModule)
     return CurrentModule;
   return USER_MODULE;

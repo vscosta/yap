@@ -1320,7 +1320,7 @@ feed). The last example escapes the escape character.
 Escape sequences were not available in C-Prolog and in original
 versions of YAP up to 4.2.0. Escape sequences can be disable by using:
 @example
-@code{:- yap_flag(character_escapes,off).}
+@code{:- yap_flag(character_escapes,false).}
 @end example
 
 
@@ -8080,7 +8080,7 @@ reading terms. The default value for this flag is @code{off} except in
 @item character_escapes [ISO]
 @findex  character_escapes (yap_flag/2 option)
 @* Writable flag telling whether a character escapes are enables,
-@code{on}, or disabled, @code{off}. The default value for this flag is
+@code{true}, or disabled, @code{false}. The default value for this flag is
 @code{on}.
 
 @c You can also use @code{cprolog} mode, which corresponds to @code{off},

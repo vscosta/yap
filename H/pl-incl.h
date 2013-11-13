@@ -53,6 +53,8 @@
 
 #define SWIP "swi_"
 
+#include "pl-shared.h"
+
 /* try not to pollute the SWI space */
 #ifdef P
 #undef P
@@ -184,15 +186,12 @@ typedef enum
 #if __YAP_PROLOG__
 #include "pl-yap.h"
 #if _WIN32
-#ifndef THREADS
-typedef int pthread_t;
-#endif
 #define __WINDOWS__ 1
 #else
 #include <pthread.h>
 #endif
 #endif
-typedef uintptr_t	PL_atomic_t;	/* same a word */
+typedef uintptr_t	PL_atomic_t;	/* same size as a word */
 
 #define MAXSIGNAL	64
 
@@ -449,13 +448,6 @@ typedef struct
   char *home;				/* systems home directory */
 } pl_defaults_t;
 
-typedef enum
-{ LDATA_IDLE = 0,
-  LDATA_SIGNALLED,
-  LDATA_ANSWERING,
-  LDATA_ANSWERED
-} ldata_status_t;
-
 
 typedef struct tempfile *	TempFile; 	/* pl-os.c */
 typedef struct canonical_dir *	CanonicalDir;	/* pl-os.c */
@@ -544,11 +536,6 @@ typedef struct redir_context
 } redir_context;
 
 #include "pl-file.h"
-
-typedef enum
-{ ACCESS_LEVEL_USER = 0,        /* Default user view */
-  ACCESS_LEVEL_SYSTEM           /* Allow low-level access */
-} access_level_t;
 
 #define SYSTEM_MODE         (LD->prolog_flag.access_level == ACCESS_LEVEL_SYSTEM)
 
@@ -842,7 +829,7 @@ COMMON(access_level_t)	setAccessLevel(access_level_t new_level);
 /**** stuff from pl-error.c ****/
 extern void		outOfCore(void);
 extern void		fatalError(const char *fm, ...);
-extern int		callProlog(void * module, term_t goal, int flags, term_t *ex);
+extern int		callProlog(module_t  module, term_t goal, int flags, term_t *ex);
 extern word notImplemented(char *name, int arity);
 
 /**** stuff from pl-ctype.c ****/
@@ -1020,6 +1007,8 @@ static inline void freeHeap(void *mem, size_t n)
   YAP_FreeSpaceFromYap(mem);
 }
 
+extern atom_t accessLevel(void);
+int currentBreakLevel(void);
 
 extern const PL_extension PL_predicates_from_ctype[];
 extern const PL_extension PL_predicates_from_file[];

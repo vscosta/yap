@@ -412,4 +412,8 @@
 
 #define LOCAL_search_atoms LOCAL->search_atoms_
 #define REMOTE_search_atoms(wid) REMOTE(wid)->search_atoms_
+#define LOCAL_debugstatus LOCAL->debugstatus_
+#define REMOTE_debugstatus(wid) REMOTE(wid)->debugstatus_
+#define LOCAL_SourceModule LOCAL->SourceModule_
+#define REMOTE_SourceModule(wid) REMOTE(wid)->SourceModule_
 

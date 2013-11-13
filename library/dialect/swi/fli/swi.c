@@ -533,7 +533,7 @@ X_API int PL_get_module(term_t ts, module_t *m)
   YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
   if (!IsAtomTerm(t) )
     return FALSE;
-  *m = (module_t)t;
+  *m = Yap_GetModuleEntry(t);
   return TRUE;
 }
 
@@ -546,7 +546,7 @@ X_API module_t PL_new_module(atom_t swiat)
   WRITE_LOCK(RepAtom(at)->ARWLock);  
   t = Yap_Module(MkAtomTerm(at));
   WRITE_UNLOCK(RepAtom(at)->ARWLock);    
-  return (module_t)t;
+  return Yap_GetModuleEntry(t);
 }
 
 /* SWI: int PL_get_atom(term_t t, YAP_Atom *a)
@@ -2060,26 +2060,30 @@ PL_is_initialised(int *argcp, char ***argvp)
 X_API module_t
 PL_context(void)
 {
-  return (module_t)YAP_CurrentModule();
+  CACHE_REGS
+  return Yap_GetModuleEntry(LOCAL_SourceModule);
 }
 
 X_API int
 PL_strip_module(term_t raw, module_t *m, term_t plain)
 {
   CACHE_REGS
-  YAP_Term t =  YAP_StripModule(Yap_GetFromSlot(raw PASS_REGS),(YAP_Term *)m);
+    YAP_Term m0;
+  if (*m) 
+    m0 = MkAtomTerm((*m)->AtomOfME);
+  else
+    m0 = USER_MODULE;
+  YAP_Term t =  YAP_StripModule(Yap_GetFromSlot(raw PASS_REGS), &m0);
   if (!t)
     return FALSE;
+  *m = Yap_GetModuleEntry(m0);
   Yap_PutInSlot(plain, t PASS_REGS);
   return TRUE;
 }
 
 X_API atom_t PL_module_name(module_t m)
 {
-  Atom at = AtomOfTerm((Term)m);
-  WRITE_LOCK(RepAtom(at)->ARWLock);  
-  Yap_Module(MkAtomTerm(at));
-  WRITE_UNLOCK(RepAtom(at)->ARWLock);  
+  Atom at = m->AtomOfME;
   return AtomToSWIAtom(at);
 }
 
@@ -2167,9 +2171,9 @@ X_API void PL_predicate_info(predicate_t p,atom_t *name, int *arity, module_t *m
     aname = (Atom)(pd->FunctorOfPred);
   }
   if (pd->ModuleOfPred && m) 
-    *m = (module_t)pd->ModuleOfPred;
+    *m = Yap_GetModuleEntry(pd->ModuleOfPred);
   else if (m)
-    *m = (module_t)TermProlog;
+    *m = Yap_GetModuleEntry(TermProlog);
   if (name)
     *name = AtomToSWIAtom(aname);
 }

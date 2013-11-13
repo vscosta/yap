@@ -24,6 +24,7 @@
 /*#define O_DEBUG 1*/
 #include "pl-incl.h"
 #ifdef __YAP_PROLOG__
+#include "Yatom.h"
 #include "pl-ctype.h"
 #include "eval.h"
 #else
@@ -240,7 +241,6 @@ freeSymbolPrologFlagTable(Symbol s)
 }
 #endif
 
-#ifndef __YAP_PROLOG__
 int
 setDoubleQuotes(atom_t a, unsigned int *flagp)
 { GET_LD
@@ -364,7 +364,6 @@ setOccursCheck(atom_t a)
   }
 }
 
-#endif /* __YAP_PROLOG__ */
 
 static int
 setEncoding(atom_t a)
@@ -603,7 +602,6 @@ set_prolog_flag_unlocked(term_t key, term_t value, int flags)
       if ( !PL_get_atom_ex(value, &a) )
 	return FALSE;
 
-#ifndef __YAP_PROLOG__
       if ( k == ATOM_double_quotes )
       { rval = setDoubleQuotes(a, &m->flags);
       } else if ( k == ATOM_unknown )
@@ -614,9 +612,7 @@ set_prolog_flag_unlocked(term_t key, term_t value, int flags)
       { rval = setOccursCheck(a);
       } else if ( k == ATOM_access_level )
       { rval = setAccessLevelFromAtom(a);
-      } else
-#endif
-      if ( k == ATOM_encoding )
+      } else if ( k == ATOM_encoding )
       { rval = setEncoding(a);
       } else if ( k == ATOM_stream_type_check )
       { rval = setStreamTypeCheck(a);
@@ -763,7 +759,6 @@ static int
 unify_prolog_flag_value(Module m, atom_t key, prolog_flag *f, term_t val)
 { GET_LD
 
-#ifndef __YAP_PROLOG__
   if ( key == ATOM_character_escapes )
   { atom_t v = (true(m, M_CHARESCAPE) ? ATOM_true : ATOM_false);
 
@@ -817,7 +812,6 @@ unify_prolog_flag_value(Module m, atom_t key, prolog_flag *f, term_t val)
   } else if ( key == ATOM_access_level )
   { return PL_unify_atom(val, accessLevel());
   }
-#endif /* YAP_PROLOG */
 
   switch(f->flags & FT_MASK)
   { case FT_BOOL:
@@ -1175,7 +1169,9 @@ initPrologFlags(void)
   setPrologFlag("occurs_check", FT_ATOM, "false");
   setPrologFlag("access_level", FT_ATOM, "user");
   setPrologFlag("double_quotes", FT_ATOM, "codes");
-#ifndef __YAP_PROLOG__
+#ifdef __YAP_PROLOG__
+  setPrologFlag("unknown", FT_ATOM, "fail");
+#else
   setPrologFlag("unknown", FT_ATOM, "error");
 #endif
   setPrologFlag("debug", FT_BOOL, FALSE, 0);

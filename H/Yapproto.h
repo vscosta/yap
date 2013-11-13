@@ -302,6 +302,9 @@ void    Yap_NewModulePred(Term, struct pred_entry *);
 Term    Yap_StripModule(Term, Term *);
 void    Yap_InitModules(void);
 void    Yap_InitModulesC(void);
+struct mod_entry *Yap_GetModuleEntry(Term tmod);
+Term Yap_GetModuleFromEntry(struct mod_entry *me);
+
 
 #if HAVE_MPI
 /* mpi.c */
@@ -385,6 +388,7 @@ void	Yap_WinError(char *);
 
 /* threads.c */
 void   Yap_InitThreadPreds(void);
+void   Yap_InitFirstWorkerThreadHandle(void);
 #if THREADS
 int    Yap_InitThread(int);
 #endif

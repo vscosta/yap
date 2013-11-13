@@ -97,6 +97,10 @@ COMMON(int) 		IsAbsolutePath(const char *spec);
 
 COMMON(bool) 		sysError(const char *fm, ...);
 
+COMMON(int)		setDoubleQuotes(atom_t a, unsigned int *flagp);
+
+COMMON(int)		getAccessLevelMask(atom_t a, access_level_t *val);
+
 /* TBD */
 
 extern word globalString(size_t size, char *s);
@@ -112,6 +116,7 @@ atom_t YAP_SWIAtomFromAtom(YAP_Atom at);
 PL_blob_t*	YAP_find_blob_type(YAP_Atom at);
 
 void PL_license(const char *license, const char *module);
+
 
 #define arityFunctor(f) YAP_PLArityOfSWIFunctor(f)
 
@@ -147,16 +152,18 @@ atomLength(Atom atom)
 #define argTermP(w,i) ((Word)((YAP_ArgsOfTerm(w)+(i))))
 #define deRef(t) while (IsVarTerm(*(t)) && !IsUnboundVar(t)) { t = (CELL *)(*(t)); }
 #define canBind(t) FALSE  // VSC: to implement
-#define MODULE_user YAP_ModuleUser()
 #define _PL_predicate(A,B,C,D) PL_predicate(A,B,C)
 #define predicateHasClauses(A) (YAP_NumberOfClausesForPredicate((YAP_PredEntryPtr)A) != 0)
-#define lookupModule(A) Yap_Module(MkAtomTerm(YAP_AtomFromSWIAtom(A)))
+#define lookupModule(A) Yap_GetModuleEntry(MkAtomTerm(YAP_AtomFromSWIAtom(A)))
 
 #define charEscapeWriteOption(A) FALSE  // VSC: to implement
 #define wordToTermRef(A) YAP_InitSlot(*(A))
 #define isTaggedInt(A) IsIntegerTerm(A)
 #define valInt(A) IntegerOfTerm(A)
-#define MODULE_parse ((Module)CurrentModule)
+
+#define MODULE_user Yap_GetModuleEntry(Yap_LookupAtom("user"))
+#define MODULE_system Yap_GetModuleEntry(Yap_LookupAtom("system"))
+#define MODULE_parse Yap_GetModuleEntry(LOCAL_SourceModule)
 
 extern term_t Yap_CvtTerm(term_t ts);
 
@@ -191,6 +198,8 @@ charCode(Term w)
 #define PL_unify_integer(t, i)	PL_unify_integer__LD(t, i PASS_LD)
 
 #endif /* __YAP_PROLOG__ */
+
+unsigned int getUnknownModule(module_t m);
 
 #if IN_PL_OS_C
 static int
@@ -230,5 +239,9 @@ unblockSignal(int sig)
 #define suspendTrace(x)
 
 atom_t ATOM_;
+
+#if THREADS
+intptr_t system_thread_id(PL_thread_info_t *info);
+#endif
 
 #endif /* PL_YAP_H */

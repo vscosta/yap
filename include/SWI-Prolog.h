@@ -138,7 +138,7 @@ typedef unsigned long uintptr_t;
 #define PL_HAVE_TERM_T
 typedef	uintptr_t    term_t;
 #endif
-typedef	void *module_t;
+typedef	struct mod_entry *module_t;
 typedef	void *record_t;
 typedef uintptr_t	atom_t;
 typedef	YAP_Term    *predicate_t;

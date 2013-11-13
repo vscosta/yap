@@ -358,6 +358,7 @@ typedef struct mod_entry
 #if defined(YAPOR) || defined(THREADS)
   rwlock_t ModRWLock;		/* a read-write lock to protect the entry */
 #endif
+  unsigned int     flags;        /* Module local flags (from SWI compat) */
   struct  mod_entry *NextME;   /* next module                         */
 } ModEntry;
 
@@ -1537,15 +1538,7 @@ Atom Yap_GetOp(OpEntry *, int *, int);
 Prop Yap_GetAProp(Atom, PropFlags);
 Prop Yap_GetAPropHavingLock(AtomEntry *, PropFlags);
 
-typedef enum
-{
-  PROLOG_MODULE = 0,
-  USER_MODULE = 1,
-  IDB_MODULE = 2,
-  ATTRIBUTES_MODULE = 3,
-  CHARSIO_MODULE = 4,
-  TERMS_MODULE = 5
-} default_modules;
+#define  PROLOG_MODULE 0
 
 #include "YapHeap.h"
 
