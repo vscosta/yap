@@ -900,7 +900,6 @@ InitFlags(void)
 {
   /* note that Yap_heap_regs must be set first */
 
-  yap_flags[YAP_TO_CHARS_FLAG] = ISO_TO_CHARS;
   yap_flags[LANGUAGE_MODE_FLAG] = 0;
   yap_flags[STRICT_ISO_FLAG] = FALSE;
   yap_flags[SOURCE_MODE_FLAG] = FALSE;

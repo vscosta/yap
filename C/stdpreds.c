@@ -1649,11 +1649,6 @@ p_set_yap_flags( USES_REGS1 )
   value = IntOfTerm(tvalue);
   /* checking should have been performed */
   switch(flag) {
-  case YAP_TO_CHARS_FLAG:
-    if (value != 0 && value != 1)
-      return(FALSE);
-    yap_flags[YAP_TO_CHARS_FLAG] = value;
-    break;
   case LANGUAGE_MODE_FLAG:
     if (value < 0 || value > 2)
       return(FALSE);
