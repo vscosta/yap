@@ -1,3 +1,86 @@
+typedef enum
+{ LDATA_IDLE = 0,
+  LDATA_SIGNALLED,
+  LDATA_ANSWERING,
+  LDATA_ANSWERED
+} ldata_status_t;
+
+typedef enum
+{ CLN_NORMAL = 0,			/* Normal mode */
+  CLN_ACTIVE,				/* Started cleanup */
+  CLN_FOREIGN,				/* Foreign hooks */
+  CLN_PROLOG,				/* Prolog hooks */
+  CLN_SHARED,				/* Unload shared objects */
+  CLN_DATA				/* Remaining data */
+} cleanup_status;
+
+#ifdef O_PLMT
+
+typedef struct free_chunk *FreeChunk;   /* left-over chunk */
+
+struct free_chunk
+{ FreeChunk     next;                   /* next of chain */
+  size_t        size;                   /* size of free bit */
+};
+
+typedef struct _PL_thread_info_t
+{ int		    pl_tid;		/* Prolog thread id */
+  size_t	    local_size;		/* Stack sizes */
+  size_t	    global_size;
+  size_t	    trail_size;
+  size_t	    stack_size;		/* system (C-) stack */
+  int		    (*cancel)(int id);	/* cancel function */
+  int		    open_count;		/* for PL_thread_detach_engine() */
+  bool		    detached;		/* detached thread */
+  int		    status;		/* PL_THREAD_* */
+  pthread_t	    tid;		/* Thread identifier */
+  int		    has_tid;		/* TRUE: tid = valid */
+#ifdef __linux__
+  pid_t		    pid;		/* for identifying */
+#endif
+#ifdef __WINDOWS__
+  unsigned long	    w32id;		/* Win32 thread HANDLE */
+#endif
+  struct PL_local_data  *thread_data;	/* The thread-local data  */
+  module_t	    module;		/* Module for starting goal */
+  record_t	    goal;		/* Goal to start thread */
+  record_t	    return_value;	/* Value (term) returned */
+  atom_t	    name;		/* Name of the thread */
+  ldata_status_t    ldata_status;	/* status of forThreadLocalData() */
+} PL_thread_info_t;
+
+PL_thread_info_t *SWI_thread_info(int tid, PL_thread_info_t *info);
+intptr_t system_thread_id(PL_thread_info_t *info);
+
+#endif
+
+typedef struct
+{ unsigned long flags;                  /* Fast access to some boolean Prolog flags */
+} pl_features_t;
+
+typedef enum
+{ OCCURS_CHECK_FALSE = 0,
+  OCCURS_CHECK_TRUE,
+  OCCURS_CHECK_ERROR
+} occurs_check_t;
+
+typedef enum
+{ ACCESS_LEVEL_USER = 0,        /* Default user view */
+  ACCESS_LEVEL_SYSTEM           /* Allow low-level access */
+} access_level_t;
+
+typedef struct exception_frame		/* PL_throw exception environments */
+{ struct exception_frame *parent;	/* parent frame */
+  jmp_buf	exception_jmp_env;	/* longjmp environment */
+} exception_frame;
+
+typedef struct
+{ atom_t	file;			/* current source file */
+  int	  	line;			/* current line */
+  int		linepos;		/* position in the line */
+  int64_t	character;		/* current character location */
+} source_location;
+
 typedef struct
 { size_t        localSize;              /* size of local stack */
   size_t        globalSize;             /* size of global stack */

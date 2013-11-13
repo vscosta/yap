@@ -28,6 +28,7 @@ static char     SccsId[] = "%W% %G%";
 #if COROUTINING
 #include "attvar.h"
 #endif
+#include "pl-shared.h"
 
 #if HAVE_STRING_H
 #include <string.h>

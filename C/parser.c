@@ -51,6 +51,8 @@ static char SccsId[] = "%W% %G%";
 #include "YapHeap.h"
 #include "yapio.h"
 #include "eval.h"
+/* stuff we want to use in standard YAP code */
+#include "pl-shared.h"
 #if HAVE_STRING_H
 #include <string.h>
 #endif

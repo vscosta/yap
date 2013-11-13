@@ -909,7 +909,6 @@ InitFlags(void)
   yap_flags[INTEGER_ROUNDING_FLAG] = 0;
   yap_flags[YAP_MAX_INTEGER_FLAG] = (Int)(~((CELL)1 << (sizeof(Int)*8-1)));
   yap_flags[YAP_MIN_INTEGER_FLAG] = (Int)(((CELL)1 << (sizeof(Int)*8-1)));
-  yap_flags[CHAR_CONVERSION_FLAG] = 1;
   yap_flags[YAP_TO_CHARS_FLAG] = ISO_TO_CHARS;
   yap_flags[LANGUAGE_MODE_FLAG] = 0;
   yap_flags[STRICT_ISO_FLAG] = FALSE;

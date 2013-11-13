@@ -141,7 +141,7 @@ typedef	uintptr_t    term_t;
 typedef	struct mod_entry *module_t;
 typedef	void *record_t;
 typedef uintptr_t	atom_t;
-typedef	YAP_Term    *predicate_t;
+typedef	struct pred_entry    *predicate_t;
 typedef struct  open_query_struct *qid_t;
 typedef uintptr_t    functor_t;
 typedef int     (*PL_agc_hook_t)(atom_t);

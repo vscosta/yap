@@ -13,12 +13,6 @@
 #define EMULATE_DLOPEN 1
 #endif
 
-#if defined(__GNUC__) && !defined(MAY_ALIAS)
-#define MAY_ALIAS __attribute__ ((__may_alias__))
-#else
-#define MAY_ALIAS
-#endif
-
 #ifndef PL_CONSOLE
 #define PL_KERNEL 1
 #endif
@@ -170,7 +164,6 @@ typedef enum
 #if HAVE_STRING_H
 #include <string.h>
 #endif
-#define COMMON(X) X
 
 #ifdef HAVE_LOCALE_H
 #include <locale.h>
@@ -240,53 +233,11 @@ users foreign language code.
 #define WM_SIGNALLED (WM_USER+4201)     /* how to select a good number!? */
 #endif
 
-// THIS HAS TO BE ABSTRACTED
-
-#define GLOBAL_LD (LOCAL_PL_local_data_p)
-
-#if !defined(O_PLMT) && !defined(YAPOR)
-#define LOCAL_LD (GLOBAL_LD)
-#define LD (GLOBAL_LD)
-#define ARG1_LD   void
-#define ARG_LD
-#define GET_LD
-#define PRED_LD
-#define PASS_LD
-#define PASS_LD1 
-#define IGNORE_LD
-
-#else
-
-#define LOCAL_LD (__PL_ld)
-#define LD	  LOCAL_LD
-
-#define GET_LD	  CACHE_REGS struct PL_local_data *__PL_ld = GLOBAL_LD;
-#define ARG1_LD   struct PL_local_data *__PL_ld
-
-#define ARG_LD    , ARG1_LD
-#define PASS_LD1  LD
-#define PASS_LD   , LD
-#define PRED_LD   GET_LD
-#define IGNORE_LD (void)__PL_ld;
-
-#endif
 
 		/********************************
 		*       UTILITIES               *
 		*********************************/
 #define ROUND(p, n) ((((p) + (n) - 1) & ~((n) - 1)))
-
-		/********************************
-		*       HASH TABLES             *
-		*********************************/
-
-#include "pl-table.h"
-
-		/********************************
-		*       OS		         *
-		*********************************/
-
-#include "pl-os.h"
 
 		/********************************
 		*       Error		         *
@@ -299,14 +250,6 @@ users foreign language code.
 		*********************************/
 
 #include "pl-files.h"
-
-		/********************************
-		*       BUFFERS                 *
-		*********************************/
-
-#define BUFFER_RING_SIZE 	16	/* foreign buffer ring (pl-fli.c) */
-
-#include "pl-buffer.h"
 
 		 /*******************************
 		 *	   OPTION LISTS		*
@@ -409,60 +352,13 @@ typedef struct
 #define GF_PROCEDURE	2		/* check for max arity */
 
 
-#ifdef O_PLMT
-
-typedef struct free_chunk *FreeChunk;   /* left-over chunk */
-
-struct free_chunk
-{ FreeChunk     next;                   /* next of chain */
-  size_t        size;                   /* size of free bit */
-};
-
-#endif
-
 		 /*******************************
 		 *	   LIST BUILDING	*
 		 *******************************/
 
 #include "pl-privitf.h"
 
-typedef enum
-{ CLN_NORMAL = 0,			/* Normal mode */
-  CLN_ACTIVE,				/* Started cleanup */
-  CLN_FOREIGN,				/* Foreign hooks */
-  CLN_PROLOG,				/* Prolog hooks */
-  CLN_SHARED,				/* Unload shared objects */
-  CLN_DATA				/* Remaining data */
-} cleanup_status;
 
-typedef struct
-{ char *state;				/* system's boot file */
-  char *startup;			/* default user startup file */
-  int  local;				/* default local stack size (K) */
-  int  global;				/* default global stack size (K) */
-  int  trail;				/* default trail stack size (K) */
-  char *goal;				/* default initialisation goal */
-  char *toplevel;			/* default top level goal */
-  bool notty;				/* use tty? */
-  char *arch;				/* machine/OS we are using */
-  char *home;				/* systems home directory */
-} pl_defaults_t;
-
-
-typedef struct tempfile *	TempFile; 	/* pl-os.c */
-typedef struct canonical_dir *	CanonicalDir;	/* pl-os.c */
-typedef struct on_halt *	OnHalt;		/* pl-os.c */
-typedef struct extension_cell *	ExtensionCell;  /* pl-ext.c */
-typedef struct initialise_handle * InitialiseHandle;
-
-
-typedef struct
-{ unsigned long flags;                  /* Fast access to some boolean Prolog flags */
-} pl_features_t;
-
-#define truePrologFlag(flag)      true(&LD->prolog_flag.mask, flag)
-#define setPrologFlagMask(flag)   set(&LD->prolog_flag.mask, flag)
-#define clearPrologFlagMask(flag) clear(&LD->prolog_flag.mask, flag)
 
 // LOCAL variables (heap will get this form LOCAL
 
@@ -475,74 +371,9 @@ typedef struct
 #define FT_FROM_VALUE   0x0f            /* Determine type from value */
 #define FT_MASK         0x0f            /* mask to get type */
 
-#define PLFLAG_CHARESCAPE           0x000001 /* handle \ in atoms */
-#define PLFLAG_GC                   0x000002 /* do GC */
-#define PLFLAG_TRACE_GC             0x000004 /* verbose gc */
-#define PLFLAG_TTY_CONTROL          0x000008 /* allow for tty control */
-#define PLFLAG_READLINE             0x000010 /* readline is loaded */
-#define PLFLAG_DEBUG_ON_ERROR       0x000020 /* start tracer on error */
-#define PLFLAG_REPORT_ERROR         0x000040 /* print error message */
-#define PLFLAG_FILE_CASE            0x000080 /* file names are case sensitive */
-#define PLFLAG_FILE_CASE_PRESERVING 0x000100 /* case preserving file names */
-#define PLFLAG_DOS_FILE_NAMES       0x000200 /* dos (8+3) file names */
-#define ALLOW_VARNAME_FUNCTOR       0x000400 /* Read Foo(x) as 'Foo'(x) */
-#define PLFLAG_ISO                  0x000800 /* Strict ISO compliance */
-#define PLFLAG_OPTIMISE             0x001000 /* -O: optimised compilation */
-#define PLFLAG_FILEVARS             0x002000 /* Expand $var and ~ in filename */
-#define PLFLAG_AUTOLOAD             0x004000 /* do autoloading */
-#define PLFLAG_CHARCONVERSION       0x008000 /* do character-conversion */
-#define PLFLAG_LASTCALL             0x010000 /* Last call optimization enabled?  */
-#define PLFLAG_EX_ABORT             0x020000 /* abort with exception */
-#define PLFLAG_BACKQUOTED_STRING    0x040000 /* `a string` */
-#define PLFLAG_SIGNALS              0x080000 /* Handle signals */
-#define PLFLAG_DEBUGINFO            0x100000 /* generate debug info */
-#define PLFLAG_FILEERRORS           0x200000 /* Edinburgh file errors */
-
-typedef enum
-{ OCCURS_CHECK_FALSE = 0,
-  OCCURS_CHECK_TRUE,
-  OCCURS_CHECK_ERROR
-} occurs_check_t;
-
-typedef struct
-{ atom_t	file;			/* current source file */
-  int	  	line;			/* current line */
-  int		linepos;		/* position in the line */
-  int64_t	character;		/* current character location */
-} source_location;
-
-typedef struct exception_frame		/* PL_throw exception environments */
-{ struct exception_frame *parent;	/* parent frame */
-  jmp_buf	exception_jmp_env;	/* longjmp environment */
-} exception_frame;
-
-		 /*******************************
-		 *	    STREAM I/O		*
-		 *******************************/
-
-#define REDIR_MAGIC 0x23a9bef3
-
-typedef struct redir_context
-{ int		magic;			/* REDIR_MAGIC */
-  IOSTREAM     *stream;			/* temporary output */
-  int		is_stream;		/* redirect to stream */
-  int		redirected;		/* output is redirected */
-  term_t	term;			/* redirect target */
-  int		out_format;		/* output type */
-  int		out_arity;		/* 2 for difference-list versions */
-  size_t	size;			/* size of I/O buffer */
-  char	       *data;			/* data written */
-  char		buffer[1024];		/* fast temporary buffer */
-} redir_context;
-
-#include "pl-file.h"
-
 #define SYSTEM_MODE         (LD->prolog_flag.access_level == ACCESS_LEVEL_SYSTEM)
 
 #define PL_malloc_atomic malloc
-
-/* vsc: global variables */
-#include "pl-global.h"
 
 #define EXCEPTION_GUARDED(code, cleanup) \
 	{ exception_frame __throw_env; \
@@ -683,18 +514,6 @@ void 		remove_string(char *s);
 #include <pl-text.h>
 
 typedef double			real;
-
-#define true(s, a)		((s)->flags & (a))
-#define false(s, a)		(!true((s), (a)))
-#define set(s, a)		((s)->flags |= (a))
-#define clear(s, a)		((s)->flags &= ~(a))
-#ifdef  DEBUG
-/* should have messages here */
-#undef DEBUG
-#define DEBUG(LEVEL, COMMAND)
-#else
-#define DEBUG(LEVEL, COMMAND)
-#endif
 
 #define forwards static		/* forwards function declarations */
 

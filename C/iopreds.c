@@ -29,6 +29,8 @@ static char SccsId[] = "%W% %G%";
 #include "YapHeap.h"
 #include "yapio.h"
 #include "eval.h"
+/* stuff we want to use in standard YAP code */
+#include "pl-shared.h"
 #include <stdlib.h>
 #if HAVE_STDARG_H
 #include <stdarg.h>
@@ -974,7 +976,8 @@ p_char_conversion( USES_REGS1 )
   }
   /* check if we do have a table for converting characters */
   if (CharConversionTable2 == NULL) {
-    int i;
+     GET_LD
+     int i;
 
     /* don't create a table if we don't need to */
     if (s0[0] == s1[0])
@@ -986,7 +989,7 @@ p_char_conversion( USES_REGS1 )
 	return(FALSE);
       }
     }
-    if (yap_flags[CHAR_CONVERSION_FLAG] != 0) {
+    if (truePrologFlag(PLFLAG_CHARCONVERSION)) {
       if (p_force_char_conversion( PASS_REGS1 ) == FALSE)
 	return(FALSE);
     }

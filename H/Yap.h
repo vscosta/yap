@@ -347,7 +347,6 @@ typedef enum
   INTEGER_ROUNDING_FLAG = 2,
   YAP_MAX_INTEGER_FLAG = 3,
   YAP_MIN_INTEGER_FLAG = 4,
-  CHAR_CONVERSION_FLAG = 5,
   YAP_TO_CHARS_FLAG = 7,
   LANGUAGE_MODE_FLAG = 8,
   STRICT_ISO_FLAG = 9,
@@ -376,8 +375,28 @@ typedef enum
 #define ISO_CHARACTER_ESCAPES			1
 #define SICSTUS_CHARACTER_ESCAPES		2
 
-/* stuff we want to use in standard YAP code */
-#include "pl-shared.h"
+// SWI Stuff
+typedef enum
+  { DBG_OFF = 0,                          /* no debugging */
+    DBG_ON,                               /* switch on in current environment */
+    DBG_ALL                               /* switch on globally */
+  } debug_type;
+
+typedef int bool;
+
+typedef struct debuginfo
+{ size_t        skiplevel;              /* current skip level */
+  bool          tracing;                /* are we tracing? */
+  debug_type    debugging;              /* are we debugging? */
+  int           leashing;               /* ports we are leashing */
+  int           visible;                /* ports that are visible */
+  bool          showContext;            /* tracer shows context module */
+  int           styleCheck;             /* source style checking */
+  int           suspendTrace;           /* tracing is suspended now */
+  //LocalFrame    retryFrame;             /* Frame to retry */
+} pl_debugstatus_t;
+// over SWI
+
 
 typedef enum
 {
