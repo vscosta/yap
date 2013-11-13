@@ -1310,12 +1310,12 @@ Yap_tokenizer(IOSTREAM *inp_stream, int store_comments, Term *tposp)
       break;
 
     default:
-#ifdef DEBUG
+#if DEBUG
       fprintf(GLOBAL_stderr, "\n++++ token: wrong char type %c %d\n", ch, chtype(ch));
 #endif
       t->Tok = Ord(kind = eot_tok);
     }
-#ifdef DEBUG
+#if DEBUG
     if(GLOBAL_Option[2]) fprintf(GLOBAL_stderr,"[Token %d %ld]",Ord(kind),(unsigned long int)t->TokInfo);
 #endif
     if (LOCAL_ErrorMessage) {

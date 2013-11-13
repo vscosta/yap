@@ -123,7 +123,7 @@ Yap_LookupVar(char *var)	/* lookup variable in variables table   */
   CACHE_REGS
   VarEntry *p;
 
-#ifdef DEBUG
+#if DEBUG
   if (GLOBAL_Option[4])
     fprintf(GLOBAL_stderr,"[LookupVar %s]", var);
 #endif
@@ -786,7 +786,7 @@ ParseTerm(int prio, JMPBUFF *FailBuff USES_REGS)
       FAIL;
     break;
   }
-#ifdef DEBUG
+#if DEBUG
   if (GLOBAL_Option['p' - 'a' + 1]) {
     Yap_DebugPutc(LOCAL_c_error_stream,'[');
     Yap_DebugPlWrite(t);

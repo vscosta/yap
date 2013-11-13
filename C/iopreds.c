@@ -118,7 +118,7 @@ Yap_InitPlIO (void)
  */
 static int newline = TRUE;
 
-#ifdef DEBUG
+#if DEBUG
 
 static       int   eolflg = 1;
 

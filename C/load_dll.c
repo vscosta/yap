@@ -38,6 +38,7 @@ Yap_LoadForeignFile(char *file, int flags)
 {
  void *ptr= (void *)LoadLibrary(file);
  if (!ptr) {
+   CACHE_REGS
    LOCAL_ErrorSay[0]='\0';
    FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
 		 NULL, GetLastError(), 

@@ -18,6 +18,11 @@ typedef	uintptr_t    term_t;
 
 #ifndef _FLI_H_INCLUDED
 
+#ifdef __WINDOWS__
+#include <windows.h>
+#include <windows/uxnt.h>
+#endif
+
 typedef	void *record_t;
 typedef struct mod_entry *module_t;
 typedef uintptr_t	atom_t;
@@ -29,6 +34,7 @@ typedef	struct pred_entry    *predicate_t;
 typedef uintptr_t	PL_fid_t;	/* opaque foreign context handle */
 #define fid_t PL_fid_t			/* avoid AIX name-clash */
 
+typedef uintptr_t		word;		/* Anonymous 4 byte object */
 #endif
 
 #define GLOBAL_LD (LOCAL_PL_local_data_p)
