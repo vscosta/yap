@@ -73,12 +73,10 @@ option, but 90% of the prolog flags   are read-only or never changed and
 we want to be able to have a lot of flags and don't harm thread_create/3
 too much.
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-#ifndef __YAP_PROLOG__
-static void setArgvPrologFlag(void);
-#endif
+
+static void setArgvPrologFlag(const char *flag, int argc, char **argv);
 static void setTZPrologFlag(void);
 static void setVersionPrologFlag(void);
-static atom_t lookupAtomFlag(atom_t key);
 static void initPrologFlagTable(void);
 
 
@@ -100,6 +98,8 @@ following arguments are to be provided:
 
     FT_BOOL	TRUE/FALSE, *PLFLAG_
     FT_INTEGER  intptr_t
+    FT_INT64    int64_t
+    FT_FLOAT	double
     FT_ATOM	const char *
     FT_TERM	a term
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
@@ -240,6 +240,7 @@ freeSymbolPrologFlagTable(Symbol s)
 { freePrologFlag(s->value);
 }
 #endif
+
 
 int
 setDoubleQuotes(atom_t a, unsigned int *flagp)
@@ -542,14 +543,16 @@ set_prolog_flag_unlocked(term_t key, term_t value, int flags)
 
     succeed;
   } else
-  { atom_t how = lookupAtomFlag(ATOM_user_flags);
+  { atom_t how;
 
-    if ( how == ATOM_error )
-      return PL_error(NULL, 0, NULL, ERR_EXISTENCE,
-		      ATOM_prolog_flag, key);
-    else if ( how == ATOM_warning )
-      Sdprintf("WARNING: Flag %s: new Prolog flags must be created using "
-	       "create_prolog_flag/3\n", stringAtom(k));
+    if ( PL_current_prolog_flag(ATOM_user_flags, PL_ATOM, &how) )
+    { if ( how == ATOM_error )
+	return PL_error(NULL, 0, NULL, ERR_EXISTENCE,
+			ATOM_prolog_flag, key);
+      else if ( how == ATOM_warning )
+	Sdprintf("WARNING: Flag %s: new Prolog flags must be created using "
+		 "create_prolog_flag/3\n", stringAtom(k));
+    }
 
     goto anyway;
   }
@@ -588,7 +591,6 @@ set_prolog_flag_unlocked(term_t key, term_t value, int flags)
 	  break;			/* don't change value */
 #endif
       }
-
 					/* set the flag value */
       f->value.a = (val ? ATOM_true : ATOM_false);
 
@@ -728,8 +730,8 @@ PRED_IMPL("create_prolog_flag", 3, create_prolog_flag, PL_FA_ISO)
 }
 
 
-static atom_t
-lookupAtomFlag(atom_t key)
+static prolog_flag *
+lookupFlag(atom_t key)
 { GET_LD
   Symbol s;
   prolog_flag *f = NULL;
@@ -744,13 +746,51 @@ lookupAtomFlag(atom_t key)
       f = s->value;
   }
 
-  if ( f )
-  { assert((f->flags&FT_MASK) == FT_ATOM);
-    return f->value.a;
+  return f;
+}
+
+
+int
+PL_current_prolog_flag(atom_t name, int type, void *value)
+{ prolog_flag *f;
+
+  if ( (f=lookupFlag(name)) )
+  { switch(type)
+    { case PL_ATOM:
+	if ( (f->flags&FT_MASK) == FT_ATOM )
+	{ atom_t *vp = value;
+	  *vp = f->value.a;
+	  return TRUE;
+	}
+        return FALSE;
+      case PL_INTEGER:
+	if ( (f->flags&FT_MASK) == FT_INTEGER )
+	{ int64_t *vp = value;
+	  *vp = f->value.i;
+	  return TRUE;
+	}
+        return FALSE;
+      case PL_FLOAT:
+	if ( (f->flags&FT_MASK) == FT_FLOAT )
+	{ double *vp = value;
+	  *vp = f->value.f;
+	  return TRUE;
+	}
+        return FALSE;
+      case PL_TERM:
+	if ( (f->flags&FT_MASK) == FT_TERM )
+	{ term_t *vp = value;
+	  term_t t = *vp;
+
+	  return PL_recorded(f->value.t, t);
+	}
+        return FALSE;
+    }
   }
 
-  return NULL_ATOM;
+  return FALSE;
 }
+
 
 
 static int
@@ -1108,9 +1148,6 @@ initPrologFlags(void)
 #else
   setPrologFlag("threads",	FT_BOOL|FF_READONLY, FALSE, 0);
 #endif
-#ifdef ASSOCIATE_SRC
-  setPrologFlag("associate", FT_ATOM, ASSOCIATE_SRC);
-#endif
 #ifdef O_DDE
   setPrologFlag("dde", FT_BOOL|FF_READONLY, TRUE, 0);
 #endif
@@ -1158,10 +1195,13 @@ initPrologFlags(void)
     setPrologFlag("integer_rounding_function", FT_ATOM|FF_READONLY, "toward_zero");
   setPrologFlag("max_arity", FT_ATOM|FF_READONLY, "unbounded");
   setPrologFlag("answer_format", FT_ATOM, "~p");
-  setPrologFlag("colon_sets_calling_context", FT_BOOL, TRUE, 0);
+  setPrologFlag("colon_sets_calling_context", FT_BOOL|FF_READONLY, TRUE, 0);
   setPrologFlag("character_escapes", FT_BOOL, TRUE, PLFLAG_CHARESCAPE);
   setPrologFlag("char_conversion", FT_BOOL, FALSE, PLFLAG_CHARCONVERSION);
   setPrologFlag("backquoted_string", FT_BOOL, FALSE, PLFLAG_BACKQUOTED_STRING);
+#ifdef O_QUASIQUOTATIONS
+  setPrologFlag("quasi_quotations", FT_BOOL, TRUE, PLFLAG_QUASI_QUOTES);
+#endif
   setPrologFlag("write_attributes", FT_ATOM, "ignore");
   setPrologFlag("stream_type_check", FT_ATOM, "loose");
   setPrologFlag("occurs_check", FT_ATOM, "false");
@@ -1177,6 +1217,7 @@ initPrologFlags(void)
   setPrologFlag("verbose_load", FT_ATOM, "normal");
   setPrologFlag("verbose_autoload", FT_BOOL, FALSE, 0);
   setPrologFlag("verbose_file_search", FT_BOOL, FALSE, 0);
+  setPrologFlag("sandboxed_load", FT_BOOL, FALSE, 0);
   setPrologFlag("allow_variable_name_as_functor", FT_BOOL, FALSE,
 	     ALLOW_VARNAME_FUNCTOR);
   setPrologFlag("toplevel_var_size", FT_INTEGER, 1000);
@@ -1186,6 +1227,9 @@ initPrologFlags(void)
   setPrologFlag("fileerrors", FT_BOOL, TRUE, PLFLAG_FILEERRORS);
 #ifdef __unix__
   setPrologFlag("unix", FT_BOOL|FF_READONLY, TRUE, 0);
+#endif
+#ifdef __APPLE__
+  setPrologFlag("apple", FT_BOOL|FF_READONLY, TRUE, 0);
 #endif
 
   setPrologFlag("encoding", FT_ATOM, stringAtom(encoding_to_atom(LD->encoding)));
@@ -1201,43 +1245,23 @@ initPrologFlags(void)
 #endif
 
 #if defined(__DATE__) && defined(__TIME__)
-  { char buf[100];
-
-    Ssprintf(buf, "%s, %s", __DATE__, __TIME__);
-    setPrologFlag("compiled_at", FT_ATOM|FF_READONLY, buf);
-  }
+  setPrologFlag("compiled_at", FT_ATOM|FF_READONLY, __DATE__ ", " __TIME__);
 #endif
-  /* Flags copied by YAP */
-  setPrologFlag("optimise", FT_BOOL, GD->cmdline.optimise, PLFLAG_OPTIMISE);
-  /* FLAGS used by PLStream */
-  setPrologFlag("tty_control", FT_BOOL|FF_READONLY,
-	     truePrologFlag(PLFLAG_TTY_CONTROL), PLFLAG_TTY_CONTROL);
-  setPrologFlag("encoding", FT_ATOM, stringAtom(encoding_to_atom(LD->encoding)));
-  setPrologFlag("file_name_variables", FT_BOOL, FALSE, PLFLAG_FILEVARS);
-  setPrologFlag("fileerrors", FT_BOOL, TRUE, PLFLAG_FILEERRORS);
-  setPrologFlag("readline", FT_BOOL/*|FF_READONLY*/, FALSE, 0);
 
-
-#ifndef __YAP_PROLOG__
-  setArgvPrologFlag();
-#endif /* YAP_PROLOG */
   setTZPrologFlag();
-#ifndef __YAP_PROLOG__
   setOSPrologFlags();
-#endif /* YAP_PROLOG */
   setVersionPrologFlag();
+  setArgvPrologFlag("os_argv", GD->cmdline.os_argc,   GD->cmdline.os_argv);
+  setArgvPrologFlag("argv",    GD->cmdline.appl_argc, GD->cmdline.appl_argv);
 }
 
 
-#ifndef __YAP_PROLOG__
 static void
-setArgvPrologFlag(void)
+setArgvPrologFlag(const char *flag, int argc, char **argv)
 { GET_LD
   fid_t fid = PL_open_foreign_frame();
   term_t e = PL_new_term_ref();
   term_t l = PL_new_term_ref();
-  int argc    = GD->cmdline.argc;
-  char **argv = GD->cmdline.argv;
   int n;
 
   PL_put_nil(l);
@@ -1248,11 +1272,10 @@ setArgvPrologFlag(void)
       fatalError("Could not set Prolog flag argv: not enough stack");
   }
 
-  setPrologFlag("argv", FT_TERM, l);
+  setPrologFlag(flag, FT_TERM, l);
   PL_discard_foreign_frame(fid);
 }
 
-#endif
 
 static void
 setTZPrologFlag(void)
@@ -1260,6 +1283,7 @@ setTZPrologFlag(void)
 
   setPrologFlag("timezone", FT_INTEGER|FF_READONLY, timezone);
 }
+
 
 static void
 setVersionPrologFlag(void)
@@ -1284,18 +1308,18 @@ setVersionPrologFlag(void)
   setGITVersion();
 }
 
+
 void
 cleanupPrologFlags(void)
 { if ( GD->prolog_flag.table )
   { Table t = GD->prolog_flag.table;
 
     GD->prolog_flag.table = NULL;
-#ifdef O_PLMT
     t->free_symbol = freeSymbolPrologFlagTable;
-#endif
     destroyHTable(t);
   }
 }
+
 
 
 		 /*******************************

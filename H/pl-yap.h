@@ -161,8 +161,8 @@ atomLength(Atom atom)
 #define isTaggedInt(A) IsIntegerTerm(A)
 #define valInt(A) IntegerOfTerm(A)
 
-#define MODULE_user Yap_GetModuleEntry(Yap_LookupAtom("user"))
-#define MODULE_system Yap_GetModuleEntry(Yap_LookupAtom("system"))
+#define MODULE_user Yap_GetModuleEntry(MkAtomTerm(Yap_LookupAtom("user")))
+#define MODULE_system Yap_GetModuleEntry(MkAtomTerm(Yap_LookupAtom("system")))
 #define MODULE_parse Yap_GetModuleEntry(LOCAL_SourceModule)
 
 extern term_t Yap_CvtTerm(term_t ts);

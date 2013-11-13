@@ -807,6 +807,8 @@ PL_EXPORT(int)		PL_unify_mpq(term_t t, mpq_t mpz);
 
 #endif
 
+PL_EXPORT(int)	PL_current_prolog_flag(atom_t name, int type, void *ptr);
+
 void swi_install(void);
 
 X_API int PL_warning(const char *msg, ...);

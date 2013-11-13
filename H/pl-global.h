@@ -176,7 +176,11 @@ typedef struct {
   } atoms;
 
   struct
-  {
+  { int         os_argc;                /* main(int argc, char **argv) */
+    char **     os_argv;
+    int         appl_argc;              /* Application options */
+    char **     appl_argv;
+    int         notty;                  /* -tty: donot use ioctl() */
     int		optimise;		/* -O: optimised compilation */
   } cmdline;
 
