@@ -397,16 +397,6 @@ yap_flag(system_options,X) :-
 '$system_options'(wam_profiler) :-
 	\+ '$undefined'(reset_op_counters, prolog).
 	
-yap_flag(to_chars_mode,X) :-
-	var(X), !,
-	( '$access_yap_flags'(7,0) -> X = quintus ; X = iso ).
-yap_flag(to_chars_mode,quintus) :- !,
-	'$set_yap_flags'(7,0).
-yap_flag(to_chars_mode,iso) :- !,
-	'$set_yap_flags'(7,1).
-yap_flag(to_chars_mode,X) :-
-	'$do_error'(domain_error(flag_value,to_chars_mode+X),yap_flag(to_chars_mode,X)).
-
 yap_flag(update_semantics,X) :-
 	var(X), !,
 	( '$log_upd'(I) -> '$convert_upd_sem'(I,X) ).
@@ -577,7 +567,6 @@ yap_flag(max_threads,X) :-
 '$yap_system_flag'(strict_iso).
 '$yap_system_flag'(syntax_errors).
 '$yap_system_flag'(system_options).
-'$yap_system_flag'(to_chars_mode).
 '$yap_system_flag'(toplevel_hook).
 '$yap_system_flag'(toplevel_print_options).
 '$yap_system_flag'(typein_module).
@@ -629,8 +618,6 @@ yap_flag(max_threads,X) :-
 	'$syntax_check_single_var'(_,on),
 	'$syntax_check_discontiguous'(_,on),
 	'$syntax_check_multiple'(_,on),
-	% YAP_TO_CHARS
-	'$set_yap_flags'(7,1),
 	fileerrors,
 	'$transl_to_on_off'(X1,on),
 	% CHAR_CONVERSION

@@ -626,19 +626,11 @@ p_atom_chars( USES_REGS1 )
     }
     at = AtomOfTerm(t1);
     if (IsWideAtom(at)) {
-      if (yap_flags[YAP_TO_CHARS_FLAG] == QUINTUS_TO_CHARS) {
-	NewT = Yap_WideStringToList((wchar_t *)RepAtom(at)->StrOfAE);
-      } else {
-	NewT = Yap_WideStringToListOfAtoms((wchar_t *)RepAtom(AtomOfTerm(t1))->StrOfAE);
-      }
+      NewT = Yap_WideStringToListOfAtoms((wchar_t *)RepAtom(AtomOfTerm(t1))->StrOfAE);
       if (NewT == 0L)
 	goto expand_global;
     } else {
-      if (yap_flags[YAP_TO_CHARS_FLAG] == QUINTUS_TO_CHARS) {
-	NewT = Yap_StringToList(RepAtom(at)->StrOfAE);
-      } else {
-	NewT = Yap_StringToListOfAtoms(RepAtom(AtomOfTerm(t1))->StrOfAE);
-      }
+      NewT = Yap_StringToListOfAtoms(RepAtom(AtomOfTerm(t1))->StrOfAE);
     }
     return Yap_unify(NewT, ARG2);
   } else {
@@ -663,47 +655,7 @@ p_atom_chars( USES_REGS1 )
       Yap_Error(TYPE_ERROR_LIST, t, "atom_chars/2");
       return(FALSE);		
     }
-    if (yap_flags[YAP_TO_CHARS_FLAG] == QUINTUS_TO_CHARS) {
-      while (t != TermNil) {
-	register Term   Head;
-	register Int    i;
-	Head = HeadOfTerm(t);
-	if (IsVarTerm(Head)) {
-	  Yap_Error(INSTANTIATION_ERROR,Head,"atom_chars/2");
-	  return(FALSE);
-	} else if (!IsIntegerTerm(Head)) {
-	  Yap_Error(REPRESENTATION_ERROR_CHARACTER_CODE,Head,"atom_chars/2");
-	  return(FALSE);		
-	}
-	i = IntegerOfTerm(Head);
-	if (i < 0) {
-	  Yap_Error(REPRESENTATION_ERROR_CHARACTER_CODE,Head,"atom_chars/2");
-	  return(FALSE);		
-	}
-	if (i > MAX_ISO_LATIN1 && !ws) {
-	  ws = ch_to_wide(String, s PASS_REGS);
-	}
-	if (ws) {
-	  if (ws > (wchar_t *)AuxSp-1024) {
-	    goto expand_auxsp;
-	  }
-	  *ws++ = i;      
-	} else {
-	  if (s+1024 > (char *)AuxSp) {
-	    goto expand_auxsp;
-	  }
-	  *s++ = i;
-	}
-	t = TailOfTerm(t);
-	if (IsVarTerm(t)) {
-	  Yap_Error(INSTANTIATION_ERROR,t,"atom_chars/2");
-	  return(FALSE);
-	} else if (!IsPairTerm(t) && t != TermNil) {
-	  Yap_Error(TYPE_ERROR_LIST, t, "atom_chars/2");
-	  return(FALSE);
-	}
-      }
-    } else {
+    {
       /* ISO Prolog Mode */
       int has_atoms = yap_flags[STRICT_ISO_FLAG];
       int has_ints =  FALSE;
@@ -1581,11 +1533,7 @@ p_number_chars( USES_REGS1 )
       }
 #endif
     }
-    if (yap_flags[YAP_TO_CHARS_FLAG] == QUINTUS_TO_CHARS) {
-      NewT = Yap_StringToList(String);
-    } else {
-      NewT = Yap_StringToListOfAtoms(String);
-    }
+    NewT = Yap_StringToListOfAtoms(String);
     return Yap_unify(NewT, ARG2);
   }
   if (IsVarTerm(t)) {
@@ -1597,44 +1545,7 @@ p_number_chars( USES_REGS1 )
     return(FALSE);		
   }
   s = String;
-  if (yap_flags[YAP_TO_CHARS_FLAG] == QUINTUS_TO_CHARS) {
-    while (t != TermNil) {
-      register Term   Head;
-      register Int    i;
-      Head = HeadOfTerm(t);
-      if (IsVarTerm(Head)) {
-	Yap_Error(INSTANTIATION_ERROR,Head,"number_chars/2");
-	return(FALSE);
-      } else if (!IsIntegerTerm(Head)) {
-	Yap_Error(TYPE_ERROR_INTEGER,Head,"number_chars/2");
-	return(FALSE);		
-      }
-      i = IntOfTerm(Head);
-      if (i < 0 || i > 255) {
-	Yap_Error(TYPE_ERROR_INTEGER,Head,"number_chars/2");
-	return(FALSE);		
-      }
-      if (s+1024 > (char *)AuxSp) {
-	int offs = (s-String);
-	String = Yap_ExpandPreAllocCodeSpace(0, NULL, TRUE);
-	if (String + (offs+1024) > (char *)AuxSp) {
-	  /* crash in flames */
-	  Yap_Error(OUT_OF_AUXSPACE_ERROR, ARG1, "allocating temp space in number_chars/2");
-	  return FALSE;
-	}
-	goto restart_aux;
-      }
-      *s++ = i;
-      t = TailOfTerm(t);
-      if (IsVarTerm(t)) {
-	Yap_Error(INSTANTIATION_ERROR,t,"number_chars/2");
-	return(FALSE);
-      } else if (!IsPairTerm(t) && t != TermNil) {
-	Yap_Error(TYPE_ERROR_LIST,t,"number_chars/2");
-	return(FALSE);
-      }
-    }
-  } else {
+  {
     /* ISO code */
     int has_atoms = yap_flags[STRICT_ISO_FLAG];
     int has_ints =  FALSE;

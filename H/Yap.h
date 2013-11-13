@@ -342,11 +342,6 @@ typedef pthread_rwlock_t rwlock_t;
 
 typedef enum
 {
-  MAX_ARITY_FLAG = 1,
-  INTEGER_ROUNDING_FLAG = 2,
-  YAP_MAX_INTEGER_FLAG = 3,
-  YAP_MIN_INTEGER_FLAG = 4,
-  YAP_TO_CHARS_FLAG = 7,
   LANGUAGE_MODE_FLAG = 8,
   STRICT_ISO_FLAG = 9,
   SOURCE_MODE_FLAG = 11,

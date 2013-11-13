@@ -239,7 +239,7 @@ Yap_gmp_div_big_int(Term t, Int i)
     MP_INT *b = Yap_BigIntOfTerm(t);
 
     mpz_init_set(&new, b);
-    if (yap_flags[INTEGER_ROUNDING_FLAG] == 0) {
+    if ( (-3 / 2) == -2 ) {
       if (i > 0) {
 	mpz_tdiv_q_ui(&new, &new, i);
       } else if (i == 0) {
@@ -544,7 +544,7 @@ Yap_gmp_div_big_big(Term t1, Term t2)
     MP_INT *b2 = Yap_BigIntOfTerm(t2);
 
     mpz_init_set(&new, b1);
-    if (yap_flags[INTEGER_ROUNDING_FLAG] == 0) {
+    if ( (-3 / 2) == -2 ) {
       mpz_tdiv_q(&new, &new, b2);
     } else {
       mpz_fdiv_q(&new, &new, b2);
