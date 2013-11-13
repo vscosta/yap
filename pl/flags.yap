@@ -654,9 +654,6 @@ yap_flag(max_threads,X) :-
 '$transl_to_on_off'(0,off).
 '$transl_to_on_off'(1,on).
 
-'$transl_to_arity'(X1,X) :- X1 < 0, !, X = unbounded.
-'$transl_to_arity'(X,X).
-
 '$transl_to_rounding_function'(0,toward_zero).
 '$transl_to_rounding_function'(1,down).
 

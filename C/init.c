@@ -900,11 +900,6 @@ InitFlags(void)
 {
   /* note that Yap_heap_regs must be set first */
 
-#if USE_GMP
-  yap_flags[YAP_INT_BOUNDED_FLAG] = 0;
-#else
-  yap_flags[YAP_INT_BOUNDED_FLAG] = 1;
-#endif
   yap_flags[MAX_ARITY_FLAG] = -1;
   yap_flags[INTEGER_ROUNDING_FLAG] = 0;
   yap_flags[YAP_MAX_INTEGER_FLAG] = (Int)(~((CELL)1 << (sizeof(Int)*8-1)));
