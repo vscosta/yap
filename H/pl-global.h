@@ -1,3 +1,25 @@
+
+typedef enum
+  { DBG_OFF = 0,                          /* no debugging */
+    DBG_ON,                               /* switch on in current environment */
+    DBG_ALL                               /* switch on globally */
+  } debug_type;
+
+typedef struct debuginfo
+{ size_t        skiplevel;              /* current skip level */
+  bool          tracing;                /* are we tracing? */
+  debug_type    debugging;              /* are we debugging? */
+  int           leashing;               /* ports we are leashing */
+  int           visible;                /* ports that are visible */
+  bool          showContext;            /* tracer shows context module */
+  int           styleCheck;             /* source style checking */
+  int           suspendTrace;           /* tracing is suspended now */
+  //LocalFrame    retryFrame;             /* Frame to retry */
+} pl_debugstatus_t;
+
+
+typedef struct find_data_tag *  FindData;       /* pl-trace.c */
+
 typedef enum
 { LDATA_IDLE = 0,
   LDATA_SIGNALLED,
@@ -319,6 +341,12 @@ typedef struct PL_local_data {
   } exception;
   const char   *float_format;		/* floating point format */
 
+  struct
+  { FindData    find;                   /* /<ports> <goal> in tracer */
+  } trace;
+
+  pl_debugstatus_t _debugstatus;        /* status of the debugger */
+
 #ifdef O_PLMT
   struct
   { //intptr_t   magic;			/* PL_THREAD_MAGIC (checking) */
@@ -375,3 +403,4 @@ extern PL_local_data_t lds;
 #define source_line_pos		(LD->read_source.linepos)
 #define source_char_no		(LD->read_source.character)
 
+#define debugstatus		(LD->_debugstatus)

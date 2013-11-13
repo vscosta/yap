@@ -16,14 +16,17 @@
 typedef	uintptr_t    term_t;
 #endif
 
-#ifndef _FLI_H_INCLUDED
+#if  !defined(_FLI_H_INCLUDED) && !defined(PL_INCL_H)
 
 #ifdef __WINDOWS__
 #include <windows.h>
 #include <windows/uxnt.h>
 #endif
 
-typedef	void *record_t;
+typedef int	bool;
+
+
+typedef	DBTerm *record_t;
 typedef struct mod_entry *module_t;
 typedef uintptr_t	atom_t;
 
@@ -156,6 +159,7 @@ typedef struct initialise_handle * InitialiseHandle;
 #define clear(s, a)		((s)->flags &= ~(a))
 #ifdef  DEBUG
 /* should have messages here */
+#define DEBUG_YAP 1
 #undef DEBUG
 #define DEBUG(LEVEL, COMMAND)
 #else
@@ -203,10 +207,11 @@ typedef struct initialise_handle * InitialiseHandle;
 extern unsigned int
 getUnknownModule(module_t m);
 
-#define debugstatus LOCAL_debugstatus        /* status of the debugger */
-
 #define truePrologFlag(flag)      true(&LD->prolog_flag.mask, flag)
 #define setPrologFlagMask(flag)   set(&LD->prolog_flag.mask, flag)
 #define clearPrologFlagMask(flag) clear(&LD->prolog_flag.mask, flag)
+
+COMMON(int)		debugmode(debug_type new, debug_type *old);
+COMMON(int)		tracemode(debug_type new, debug_type *old);
 
 #endif /* PL_SHARED_INCLUDE */

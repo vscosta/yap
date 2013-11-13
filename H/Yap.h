@@ -365,33 +365,6 @@ typedef enum
 #define QUINTUS_TO_CHARS	0
 #define ISO_TO_CHARS		1
 
-#define CPROLOG_CHARACTER_ESCAPES		0
-#define ISO_CHARACTER_ESCAPES			1
-#define SICSTUS_CHARACTER_ESCAPES		2
-
-// SWI Stuff
-typedef enum
-  { DBG_OFF = 0,                          /* no debugging */
-    DBG_ON,                               /* switch on in current environment */
-    DBG_ALL                               /* switch on globally */
-  } debug_type;
-
-typedef int bool;
-
-typedef struct debuginfo
-{ size_t        skiplevel;              /* current skip level */
-  bool          tracing;                /* are we tracing? */
-  debug_type    debugging;              /* are we debugging? */
-  int           leashing;               /* ports we are leashing */
-  int           visible;                /* ports that are visible */
-  bool          showContext;            /* tracer shows context module */
-  int           styleCheck;             /* source style checking */
-  int           suspendTrace;           /* tracing is suspended now */
-  //LocalFrame    retryFrame;             /* Frame to retry */
-} pl_debugstatus_t;
-// over SWI
-
-
 typedef enum
 {
   INDEX_MODE_OFF = 0,

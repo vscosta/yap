@@ -1333,6 +1333,85 @@ accessLevel(void)
   return NULL_ATOM;
 }
 
+#define SKIP_VERY_DEEP	  1000000000L
+#define SKIP_REDO_IN_SKIP (SKIP_VERY_DEEP-1)
+
+#define WFG_TRACE       0x01000
+#define WFG_TRACING     0x02000
+#define WFG_BACKTRACE   0x04000
+#define WFG_CHOICE      0x08000
+
+#define TRACE_FIND_NONE 0
+#define TRACE_FIND_ANY  1
+#define TRACE_FIND_NAME 2
+#define TRACE_FIND_TERM 3
+
+typedef struct find_data_tag
+{ int    port;                          /* Port to find */
+  bool   searching;                     /* Currently searching? */
+  int    type;                          /* TRACE_FIND_* */
+  union
+  { atom_t      name;                   /* Name of goal to find */
+    struct
+    { functor_t functor;                /* functor of the goal */
+      Record    term;                   /* Goal to find */
+    } term;
+  } goal;
+} find_data;
+
+
+int
+tracemode(debug_type doit, debug_type *old)
+{ GET_LD
+
+  if ( doit )
+  { debugmode(DBG_ON, NULL);
+    doit = TRUE;
+  }
+
+  if ( old )
+    *old = debugstatus.tracing;
+
+  if ( debugstatus.tracing != doit )
+  { debugstatus.tracing = doit;
+    printMessage(ATOM_silent,
+                 PL_FUNCTOR_CHARS, "trace_mode", 1,
+                   PL_ATOM, doit ? ATOM_on : ATOM_off);
+  }
+  if ( doit )                           /* make sure trace works inside skip */
+  { debugstatus.skiplevel = SKIP_VERY_DEEP;
+    if ( LD->trace.find )
+      LD->trace.find->searching = FALSE;
+  }
+
+  succeed;
+}
+
+
+int
+debugmode(debug_type doit, debug_type *old)
+{ GET_LD
+
+  if ( old )
+    *old = debugstatus.debugging;
+
+  if ( debugstatus.debugging != doit )
+  { if ( doit )
+    { debugstatus.skiplevel = SKIP_VERY_DEEP;
+      if ( doit == DBG_ALL )
+      { doit = DBG_ON;
+      }
+    }
+    debugstatus.debugging = doit;
+    printMessage(ATOM_silent,
+                 PL_FUNCTOR_CHARS, "debug_mode", 1,
+                   PL_ATOM, doit ? ATOM_on : ATOM_off);
+  }
+
+  succeed;
+}
+
+
 int
 getAccessLevelMask(atom_t a, access_level_t *val)
 { if ( a == ATOM_user )

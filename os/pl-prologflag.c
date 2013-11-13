@@ -568,7 +568,6 @@ set_prolog_flag_unlocked(term_t key, term_t value, int flags)
 	else
 	  clearPrologFlagMask(mask);
       }
-#ifndef __YAP_PROLOG__
       if ( k == ATOM_character_escapes )
       { if ( val )
 	  set(m, M_CHARESCAPE);
@@ -589,7 +588,6 @@ set_prolog_flag_unlocked(term_t key, term_t value, int flags)
 	  break;			/* don't change value */
 #endif
       }
-#endif /* __YAP_PROLOG__ */
 
 					/* set the flag value */
       f->value.a = (val ? ATOM_true : ATOM_false);

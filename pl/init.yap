@@ -67,6 +67,7 @@ otherwise.
 :- bootstrap('errors.yap').
 :- bootstrap('lists.yap').
 :- bootstrap('consult.yap').
+:- bootstrap('absf.yap').
 
 :- [	 'utils.yap',
 	 'control.yap',

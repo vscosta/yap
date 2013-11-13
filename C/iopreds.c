@@ -118,7 +118,7 @@ Yap_InitPlIO (void)
  */
 static int newline = TRUE;
 
-#if DEBUG
+#if DEBUG_YAP
 
 static       int   eolflg = 1;
 
@@ -1088,7 +1088,7 @@ Yap_InitBackIO (void)
 {
 }
 
-#if DEBUG
+#if DEBUG_YAP
 static Int
 p_write_string( USES_REGS1 )
 {
@@ -1116,7 +1116,7 @@ Yap_InitIOPreds(void)
   Yap_InitCPred ("$get_read_error_handler", 1, p_get_read_error_handler, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$read", 7, p_read, SyncPredFlag|UserCPredFlag);
   Yap_InitCPred ("$read", 8, p_read2, SyncPredFlag|UserCPredFlag);
-#if DEBUG
+#if DEBUG_YAP
   Yap_InitCPred ("write_string", 2, p_write_string, SyncPredFlag|UserCPredFlag);
 #endif
   Yap_InitCPred ("$start_line", 1, p_startline, SafePredFlag|SyncPredFlag);

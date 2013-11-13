@@ -1,4 +1,8 @@
 
+#ifndef PL_INCL_H
+
+#define PL_INCL_H 1
+
 #include "config.h"
 
 #if USE_GMP
@@ -47,8 +51,6 @@
 
 #define SWIP "swi_"
 
-#include "pl-shared.h"
-
 /* try not to pollute the SWI space */
 #ifdef P
 #undef P
@@ -88,6 +90,8 @@ do_endCritical(void) {
 typedef int bool;
 typedef int			Char;		/* char that can pass EOF */
 typedef uintptr_t		word;		/* Anonymous 4 byte object */
+
+#include "pl-shared.h"
 
 #if SIZE_DOUBLE==SIZEOF_INT_P
 #define WORDS_PER_DOUBLE 1
@@ -185,6 +189,8 @@ typedef enum
 #endif
 #endif
 typedef uintptr_t	PL_atomic_t;	/* same size as a word */
+
+typedef struct record *		Record;	
 
 #define MAXSIGNAL	64
 
@@ -839,3 +845,6 @@ extern const PL_extension PL_predicates_from_write[];
 extern const PL_extension PL_predicates_from_prologflag[];
 extern const PL_extension PL_predicates_from_win[];
 
+#define enableThreads(val) FALSE
+
+#endif
