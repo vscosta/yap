@@ -3,6 +3,10 @@
 
 #define PL_INCL_H 1
 
+/* define that we are in the pl-* code */
+#define _PL_EMULATION_LAYER 1
+
+
 #include "config.h"
 
 #if HAVE_ERRNO_H
@@ -57,7 +61,6 @@ do_endCritical(void) {
 
 #include <SWI-Stream.h>
 #include <SWI-Prolog.h>
-typedef int bool;
 typedef int			Char;		/* char that can pass EOF */
 typedef uintptr_t		word;		/* Anonymous 4 byte object */
 
@@ -796,6 +799,7 @@ COMMON(word)		pl_prolog_flag5(term_t key, term_t value, word scope, word access,
 COMMON(foreign_t)	pl_prolog_flag(term_t name, term_t value, control_t h);
 
 COMMON(struct tm *)	PL_localtime_r(const time_t *t, struct tm *r);
+COMMON(char *)		PL_asctime_r(const struct tm *tm, char *buf);
 
 
 #define PL_unify(t1, t2)	PL_unify__LD(t1, t2 PASS_LD)
@@ -836,6 +840,8 @@ static inline void freeHeap(void *mem, size_t n)
 {
   YAP_FreeSpaceFromYap(mem);
 }
+
+extern void unallocStream(IOSTREAM *s);
 
 extern atom_t accessLevel(void);
 int currentBreakLevel(void);

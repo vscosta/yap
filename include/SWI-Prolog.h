@@ -134,6 +134,8 @@ typedef unsigned long uintptr_t;
 #include <inttypes.h>			/* more portable than stdint.h */
 #endif
 
+#ifndef PL_BASIC_H
+
 #ifndef PL_HAVE_TERM_T
 #define PL_HAVE_TERM_T
 typedef	uintptr_t    term_t;
@@ -151,12 +153,16 @@ typedef wchar_t pl_wchar_t;             /* wide character support */
 #if  !defined(_MSC_VER) 
 typedef uintptr_t	PL_fid_t;	/* opaque foreign context handle */
 #endif
+typedef int  (*PL_dispatch_hook_t)(int fd);
+
 
 #define O_STRING 1
 
 typedef void *pl_function_t;
 
 #define fid_t PL_fid_t			/* avoid AIX name-clash */
+
+#endif
 
 typedef struct _PL_extension
 { const char 		*predicate_name;	/* Name of the predicate */
@@ -655,8 +661,6 @@ readline overhead.
 #define PL_DISPATCH_NOWAIT    0		/* Dispatch only once */
 #define PL_DISPATCH_WAIT      1		/* Dispatch till input available */
 #define PL_DISPATCH_INSTALLED 2		/* dispatch function installed? */
-
-typedef int  (*PL_dispatch_hook_t)(int fd);
 
 extern X_API int PL_dispatch(int fd, int wait);
 PL_EXPORT(PL_dispatch_hook_t) 	PL_dispatch_hook(PL_dispatch_hook_t);

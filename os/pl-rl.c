@@ -415,9 +415,6 @@ Sread_readline(void *handle, char *buf, size_t size)
   int fd = (int) h;
   int ttymode = PL_ttymode(Suser_input); /* Not so nice */
   int rval;
-#ifdef HAVE_CLOCK
-  intptr_t oldclock = clock();
-#endif
 
   PL_write_prompt(ttymode == PL_NOTTY);
 

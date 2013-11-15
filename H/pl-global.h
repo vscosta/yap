@@ -1,3 +1,4 @@
+#include <setjmp.h>
 
 typedef enum
   { DBG_OFF = 0,                          /* no debugging */

@@ -18,13 +18,18 @@
 
 #include "config.h"
 #include "YapInterface.h"
+#if HAVE_STDINT_H
+#include <stdint.h>
+#endif
+#include <stdlib.h>
+#include <stddef.h>
+#include "pl-shared.h"
 #ifdef _MSC_VER /* Microsoft's Visual C++ Compiler */
 #ifdef  HAVE_UNISTD_H
 #undef  HAVE_UNISTD_H
 #endif
 #endif
 
-#include <stdlib.h>
 #include <stdio.h>
 #if HAVE_STRING_H
 #include <string.h>
@@ -201,6 +206,8 @@ YAP_parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
   iap->ErrorCause = NULL;
   iap->QuietMode = FALSE;
 
+  GD->cmdline.os_argc = argc;
+  GD->cmdline.os_argv = argv;
   while (--argc > 0)
     {
       p = *++argv;
@@ -553,5 +560,7 @@ YAP_parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
       goto myddas_error;
     }
 #endif
+  GD->cmdline.appl_argc = argc;
+  GD->cmdline.appl_argv = argv;
   return BootMode;
 }

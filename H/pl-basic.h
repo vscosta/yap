@@ -59,21 +59,37 @@ typedef int pthread_t;
 
 #if  !defined(_FLI_H_INCLUDED)
 
-typedef int	bool;
+typedef int bool;
 
+/* this must be called if we're not including SWI-Prolog first */
+/* should be a copy of what we can find in SWI-Prolog.h */
 
-typedef	 struct DB_STRUCT *record_t;
-typedef struct mod_entry *module_t;
+#ifndef PL_HAVE_TERM_T
+#define PL_HAVE_TERM_T
+typedef	uintptr_t    term_t;
+#endif
+typedef	struct mod_entry *module_t;
+typedef struct DB_STRUCT *record_t;
 typedef uintptr_t	atom_t;
-
+typedef	struct pred_entry    *predicate_t;
+typedef struct  open_query_struct *qid_t;
+typedef uintptr_t    functor_t;
+typedef int     (*PL_agc_hook_t)(atom_t);
+typedef unsigned long	foreign_t;	/* return type of foreign functions */
+typedef wchar_t pl_wchar_t;             /* wide character support */
+#include <inttypes.h>			/* more portable than stdint.h */
+#if  !defined(_MSC_VER) 
+typedef uintptr_t	PL_fid_t;	/* opaque foreign context handle */
+#endif
 typedef int  (*PL_dispatch_hook_t)(int fd);
 
-typedef	struct pred_entry    *predicate_t;
 
-typedef uintptr_t	PL_fid_t;	/* opaque foreign context handle */
+#define O_STRING 1
+
+typedef void *pl_function_t;
+
 #define fid_t PL_fid_t			/* avoid AIX name-clash */
 
-typedef uintptr_t		word;		/* Anonymous 4 byte object */
 #endif
 
 #ifndef COMMON
