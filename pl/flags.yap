@@ -45,9 +45,6 @@ yap_flag(V,Out) :-
 yap_flag(fast,on) :- set_value('$fast',true).
 yap_flag(fast,off) :- !, set_value('$fast',[]).
 
-% do or do not machine code
-yap_flag(argv,L) :- '$argv'(L).
-
 % hide/unhide atoms
 yap_flag(hide,Atom) :- !, hide(Atom).
 yap_flag(unhide,Atom) :- !, unhide(Atom).
@@ -237,21 +234,6 @@ yap_flag(float_max_exponent,X) :-
 yap_flag(float_max_exponent,X) :-
 	'$do_error'(domain_error(flag_value,float_max_exponent+X),yap_flag(float_max_exponent,X)).
 */
-
-yap_flag(char_conversion,X) :-
-	var(X), !,
-	'$access_yap_flags'(5, X1),
-	'$transl_to_on_off'(X1,X).
-yap_flag(char_conversion,X) :-
-	'$transl_to_on_off'(X1,X), !,
-	'$set_yap_flags'(5,X1),
-	( X1 = 1 ->
-	    '$force_char_conversion'
-	    ;
-	    '$disable_char_conversion'
-	).
-yap_flag(char_conversion,X) :-
-	'$do_error'(domain_error(flag_value,char_conversion+X),yap_flag(char_conversion,X)).
 
 yap_flag(n_of_integer_keys_in_db,X) :-
 	var(X), !,
@@ -525,8 +507,6 @@ yap_flag(max_threads,X) :-
 
 '$yap_system_flag'(agc_margin).
 '$yap_system_flag'(answer_format).
-'$yap_system_flag'(argv).
-'$yap_system_flag'(char_conversion).
 '$yap_system_flag'(chr_toplevel_show_store).
 '$yap_system_flag'(debugger_print_options).
 '$yap_system_flag'(discontiguous_warnings).
@@ -650,7 +630,7 @@ yap_flag(max_threads,X) :-
 	
 current_prolog_flag(V,Out) :-
 	var(V), !,
-	'$yap_flag'(V,NOut),
+	yap_flag(V,NOut),
 	NOut = Out.
 current_prolog_flag(V,Out) :-
 	atom(V), !,
