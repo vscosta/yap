@@ -33,9 +33,7 @@ load_foreign_files(Objs,Libs,Entry) :-
 '$check_obj_for_load_foreign_files'(V,_,G) :- var(V), !,
 	'$do_error'(instantiation_error,G).
 '$check_obj_for_load_foreign_files'(Obj,NewObj,_) :- atom(Obj), !,
-	atom_codes(Obj,ObjCodes),
-	'$process_obj_suffix'(ObjCodes,NewObjCodes),
-	atom_codes(NewObj,NewObjCodes).
+	'$process_obj_suffix'(Obj,NewObj).
 '$check_obj_for_load_foreign_files'(Obj,_,G) :-
 	'$do_error'(type_error(atom,Obj),G).
 
@@ -51,23 +49,23 @@ load_foreign_files(Objs,Libs,Entry) :-
 '$check_lib_for_load_foreign_files'(V,_,G) :- var(V), !,
 	'$do_error'(instantiation_error,G).
 '$check_lib_for_load_foreign_files'(Lib,NLib,_) :- atom(Lib), !,
-	atom_codes(Lib,LibCodes),
-	'$process_obj_suffix'(LibCodes,NewLibCodes),
-	'$checklib_prefix'(NewLibCodes,FullLibCodes),
-	atom_codes(NLib,FullLibCodes).
+	'$process_obj_suffix'(Lib,NewLib),
+	'$checklib_prefix'(NewLib,NLib).
 '$check_lib_for_load_foreign_files'(Lib,_,G) :-
 	'$do_error'(type_error(atom,Lib),G).
 
-'$process_obj_suffix'(ObjCodes,ObjCodes) :-
-	'$obj_suffix'(ObjSuffix),
-	lists:append(_,ObjSuffix,ObjCodes), !.
-'$process_obj_suffix'(ObjCodes,NewObjCodes) :-
-	'$obj_suffix'(ObjSuffix),
-	lists:append(ObjCodes,ObjSuffix,NewObjCodes).
+'$process_obj_suffix'(Obj,Obj) :-
+	'$swi_current_prolog_flag'(shared_object_extension, ObjSuffix),
+	sub_atom(Obj, _, _, 0, ObjSuffix), !.
+'$process_obj_suffix'(Obj,NewObj) :-
+	'$swi_current_prolog_flag'(shared_object_extension, ObjSuffix),
+	atom_concat([Obj,'.',ObjSuffix],NewObj).
 
-'$checklib_prefix'(Cs,Cs) :- is_absolute_file_name(Cs), !.
-'$checklib_prefix'([0'l,0'i,0'b|NewObjCodes],[0'l,0'i,0'b|NewObjCodes]) :- !.
-'$checklib_prefix'(NewObjCodes,[0'l,0'i,0'b|NewObjCodes]).
+'$checklib_prefix'(F,F) :- is_absolute_file_name(F), !.
+'$checklib_prefix'(F, F) :-
+	sub_atom(F, 0, _, _, lib), !.
+'$checklib_prefix'(F, Lib) :-
+	atom_concat(lib, F, Lib).
 
 
 '$check_entry_for_load_foreign_files'(V,G) :- var(V), !,
