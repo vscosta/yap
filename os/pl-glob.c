@@ -516,10 +516,10 @@ expand(const char *pattern, GlobInfo info)
 	continue;
 
       strcpy(path, current);
-      strcat(path, prefix);
+      strcpy(&path[clen], prefix);
 
       if ( (d=opendir(path[0] ? OsPath(path, tmp) : ".")) )
-      { size_t plen = strlen(path);
+      { size_t plen = clen+prefix_len;
 
 	if ( plen > 0 && path[plen-1] != '/' )
 	  path[plen++] = '/';

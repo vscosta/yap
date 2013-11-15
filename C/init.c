@@ -25,6 +25,7 @@ static char     SccsId[] = "%W% %G%";
 
 #include <stdlib.h>
 #include "Yap.h"
+#include "pl-shared.h"
 #include "yapio.h"
 #include "alloc.h"
 #include "clause.h"
@@ -1146,7 +1147,7 @@ Yap_InitThread(int new_id)
       REGSTORE *rs = (REGSTORE *)calloc(sizeof(REGSTORE),1);
       pthread_setspecific(Yap_yaamregs_key, (const void *)rs);
       REMOTE_ThreadHandle(new_id).default_yaam_regs = rs;
-      REMOTE_ThreadHandle(new_id).current_yaam_regs = REMOTE_ThreadHandle(new_id).default_yaam_regs;
+      REMOTE_ThreadHandle(new_id).current_yaam_regs = rs;
       rs->worker_id_ = new_id;
       rs->worker_local_ = REMOTE(new_id);
     }
@@ -1333,6 +1334,7 @@ Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts, UInt max_table_s
 #if THREADS
   /* make sure we use the correct value of regcache */
   regcache =  ((REGSTORE *)pthread_getspecific(Yap_yaamregs_key));
+  LOCAL_PL_local_data_p->reg_cache = regcache;
 #endif
 #if USE_SYSTEM_MALLOC
   if (Trail < MinTrailSpace)

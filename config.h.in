@@ -263,6 +263,8 @@
 #undef  HAVE_SLEEP
 #undef  HAVE_SNPRINTF
 #undef  HAVE_SOCKET
+#undef  HAVE_SRAND
+#undef  HAVE_SRANDOM
 #undef  HAVE_STAT
 #undef  HAVE_STRCHR
 #undef  HAVE_STRERROR

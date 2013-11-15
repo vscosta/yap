@@ -55,6 +55,7 @@ handling times must be cleaned, but that not only holds for this module.
 #endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#include <fcntl.h>
 #endif
 #ifdef HAVE_BSTRING_H
 #include <bstring.h>
@@ -298,7 +299,7 @@ freeStream(IOSTREAM *s)
 /* name must be registered by the caller */
 
 static void
-setFileNameStream(IOSTREAM *s, atom_t name)
+setFileNameStream_unlocked(IOSTREAM *s, atom_t name)
 { stream_context *ctx = getStreamContext(s);
 
   if ( ctx->filename )
@@ -307,6 +308,17 @@ setFileNameStream(IOSTREAM *s, atom_t name)
   }
   if ( !(name == NULL_ATOM || name == ATOM_) )
     ctx->filename = name;
+}
+
+
+int
+setFileNameStream(IOSTREAM *s, atom_t name)
+{ LOCK();
+  setFileNameStream_unlocked(s, name);
+  PL_register_atom(name);
+  UNLOCK();
+
+  return TRUE;
 }
 
 
@@ -326,7 +338,7 @@ static void init_yap(void);
 #endif
 
 void
-initIO()
+initIO(void)
 { GET_LD
   const atom_t *np;
   int i;
@@ -334,14 +346,13 @@ initIO()
   streamAliases = newHTable(16);
   streamContext = newHTable(16);
   PL_register_blob_type(&stream_blob);
-#ifdef __unix__
-{ int fd;
 
-  if ( (fd=Sfileno(Sinput))  < 0 || !isatty(fd) ||
-       (fd=Sfileno(Soutput)) < 0 || !isatty(fd) )
+  if ( false(Sinput, SIO_ISATTY) ||
+       false(Soutput, SIO_ISATTY) )
+  { /* clear PLFLAG_TTY_CONTROL */
     PL_set_prolog_flag("tty_control", PL_BOOL, FALSE);
-}
-#endif
+  }
+
   ResetTty();
 #if __YAP_PROLOG__
   /* needs to be done after tty hacking */
@@ -1221,19 +1232,24 @@ current input context.
 static
 PRED_IMPL("$input_context", 1, input_context, 0)
 { PRED_LD
-  term_t tail = PL_copy_term_ref(A1);
-  term_t head = PL_new_term_ref();
+  term_t tail   = PL_copy_term_ref(A1);
+  term_t head   = PL_new_term_ref();
+  term_t stream = PL_new_term_ref();
   InputContext c = input_context_stack;
 
   for(c=input_context_stack; c; c=c->previous)
   { atom_t file = c->term_file ? c->term_file : ATOM_minus;
     int line = c->term_file ? c->term_line : 0;
 
-    if ( !PL_unify_list(tail, head, tail) ||
-	 !PL_unify_term(head, PL_FUNCTOR, FUNCTOR_input3,
+    PL_put_variable(stream);
+
+    if ( !PL_unify_stream_or_alias(stream, c->stream) ||
+	 !PL_unify_list(tail, head, tail) ||
+	 !PL_unify_term(head, PL_FUNCTOR, FUNCTOR_input4,
 			PL_ATOM, c->type,
 			PL_ATOM, file,
-			PL_INT,  line) )
+			PL_INT,  line,
+			PL_TERM, stream) )
       return FALSE;
   }
 
@@ -1357,21 +1373,23 @@ closeOutputRedirect(redir_context *ctx)
     term_t out  = PL_new_term_ref();
     term_t diff, tail;
 
-    closeStream(ctx->stream);
-    _PL_get_arg(1, ctx->term, out);
-    if ( ctx->out_arity == 2 )
-    { diff = PL_new_term_ref();
-      _PL_get_arg(2, ctx->term, diff);
-      tail = PL_new_term_ref();
-    } else
-    { diff = tail = 0;
-    }
+    if ( Sclose(ctx->stream) == 0 )
+    { _PL_get_arg(1, ctx->term, out);
+      if ( ctx->out_arity == 2 )
+      { diff = PL_new_term_ref();
+	_PL_get_arg(2, ctx->term, diff);
+	tail = PL_new_term_ref();
+      } else
+      { diff = tail = 0;
+      }
 
-    rval = PL_unify_wchars_diff(out, tail, ctx->out_format,
-				ctx->size/sizeof(wchar_t),
-				(wchar_t*)ctx->data);
-    if ( rval && tail )
-      rval = PL_unify(tail, diff);
+      rval = PL_unify_wchars_diff(out, tail, ctx->out_format,
+				  ctx->size/sizeof(wchar_t),
+				  (wchar_t*)ctx->data);
+      if ( rval && tail )
+	rval = PL_unify(tail, diff);
+    } else
+      rval = FALSE;
 
     if ( ctx->data != ctx->buffer )
       Sfree(ctx->data);
@@ -1673,286 +1691,347 @@ setCloseOnExec(IOSTREAM *s, int val)
   return TRUE;
 }
 
+/* returns TRUE: ok, FALSE: error, -1: not available
+*/
+
+static int
+set_stream(IOSTREAM *s, term_t stream, atom_t aname, term_t a ARG_LD)
+{ if ( aname == ATOM_alias )	/* alias(name) */
+  { atom_t alias;
+    int i;
+
+    if ( !PL_get_atom_ex(a, &alias) )
+      return FALSE;
+
+    if ( (i=standardStreamIndexFromName(alias)) >= 0 )
+    { LD->IO.streams[i] = s;
+      if ( i == 0 )
+	LD->prompt.next = TRUE;	/* changed standard input: prompt! */
+      return TRUE;
+    }
+
+    LOCK();
+    aliasStream(s, alias);
+    UNLOCK();
+    return TRUE;
+  } else if ( aname == ATOM_buffer ) /* buffer(Buffering) */
+  { atom_t b;
+
+#define SIO_ABUF (SIO_FBUF|SIO_LBUF|SIO_NBUF)
+    if ( !PL_get_atom_ex(a, &b) )
+      return FALSE;
+    if ( b == ATOM_full )
+    { s->flags &= ~SIO_ABUF;
+      s->flags |= SIO_FBUF;
+    } else if ( b == ATOM_line )
+    { s->flags &= ~SIO_ABUF;
+      s->flags |= SIO_LBUF;
+    } else if ( b == ATOM_false )
+    { Sflush(s);
+      s->flags &= ~SIO_ABUF;
+      s->flags |= SIO_NBUF;
+    } else
+    { return PL_error("set_stream", 2, NULL, ERR_DOMAIN,
+		      ATOM_buffer, a);
+    }
+    return TRUE;
+  } else if ( aname == ATOM_buffer_size )
+  { int size;
+
+    if ( !PL_get_integer_ex(a, &size) )
+      return FALSE;
+    if ( size < 1 )
+      return PL_error(NULL, 0, NULL, ERR_DOMAIN, ATOM_not_less_than_one, a);
+    Ssetbuffer(s, NULL, size);
+    return TRUE;
+  } else if ( aname == ATOM_eof_action ) /* eof_action(Action) */
+  { atom_t action;
+
+    if ( !PL_get_atom_ex(a, &action) )
+      return FALSE;
+    if ( action == ATOM_eof_code )
+    { s->flags &= ~(SIO_NOFEOF|SIO_FEOF2ERR);
+    } else if ( action == ATOM_reset )
+    { s->flags &= ~SIO_FEOF2ERR;
+      s->flags |= SIO_NOFEOF;
+    } else if ( action == ATOM_error )
+    { s->flags &= ~SIO_NOFEOF;
+      s->flags |= SIO_FEOF2ERR;
+    } else
+    { PL_error("set_stream", 2, NULL, ERR_DOMAIN,
+	       ATOM_eof_action, a);
+      return FALSE;
+    }
+
+    return TRUE;
+  } else if ( aname == ATOM_type ) /* type(Type) */
+  { atom_t type;
+
+    if ( !PL_get_atom_ex(a, &type) )
+      return FALSE;
+    if ( type == ATOM_text )
+    { if ( false(s, SIO_TEXT) && Ssetenc(s, LD->encoding, NULL) != 0 )
+	return PL_error(NULL, 0, NULL, ERR_PERMISSION,
+			ATOM_encoding, ATOM_stream, stream);
+      s->flags |= SIO_TEXT;
+    } else if ( type == ATOM_binary )
+    { if ( true(s, SIO_TEXT) && Ssetenc(s, ENC_OCTET, NULL) != 0 )
+	return PL_error(NULL, 0, NULL, ERR_PERMISSION,
+			ATOM_encoding, ATOM_stream, stream);
+
+      s->flags &= ~SIO_TEXT;
+    } else
+    { return PL_error("set_stream", 2, NULL, ERR_DOMAIN,
+		      ATOM_type, a);
+    }
+
+    return TRUE;
+  } else if ( aname == ATOM_close_on_abort ) /* close_on_abort(Bool) */
+  { int close;
+
+    if ( !PL_get_bool_ex(a, &close) )
+      return FALSE;
+
+    if ( close )
+      s->flags &= ~SIO_NOCLOSE;
+    else
+      s->flags |= SIO_NOCLOSE;
+
+    return TRUE;
+  } else if ( aname == ATOM_record_position )
+  { int rec;
+
+    if ( !PL_get_bool_ex(a, &rec) )
+      return FALSE;
+
+    if ( rec )
+      s->position = &s->posbuf;
+    else
+      s->position = NULL;
+
+    return TRUE;
+  } else if ( aname == ATOM_line_position )
+  { int lpos;
+
+    if ( !PL_get_integer_ex(a, &lpos) )
+      return FALSE;
+
+    if ( s->position )
+      s->position->linepos = lpos;
+    else
+      return PL_error(NULL, 0, NULL, ERR_PERMISSION,
+		      ATOM_line_position, ATOM_stream, stream);
+
+    return TRUE;
+  } else if ( aname == ATOM_file_name ) /* file_name(Atom) */
+  {	atom_t fn;
+
+    if ( !PL_get_atom_ex(a, &fn) )
+      return FALSE;
+
+    setFileNameStream(s, fn);
+
+    return TRUE;
+  } else if ( aname == ATOM_timeout )
+  { double f;
+    atom_t v;
+
+    if ( PL_get_atom(a, &v) && v == ATOM_infinite )
+    { s->timeout = -1;
+      return TRUE;
+    }
+    if ( !PL_get_float_ex(a, &f) )
+      return FALSE;
+
+    s->timeout = (int)(f*1000.0);
+    if ( s->timeout < 0 )
+      s->timeout = 0;
+    return TRUE;
+  } else if ( aname == ATOM_tty )	/* tty(bool) */
+  {	int val;
+
+    if ( !PL_get_bool_ex(a, &val) )
+      return FALSE;
+
+    if ( val )
+      set(s, SIO_ISATTY);
+    else
+      clear(s, SIO_ISATTY);
+
+    return TRUE;
+  } else if ( aname == ATOM_encoding )	/* encoding(atom) */
+  {	atom_t val;
+    IOENC enc;
+
+    if ( !PL_get_atom_ex(a, &val) )
+      return FALSE;
+    if ( (enc = atom_to_encoding(val)) == ENC_UNKNOWN )
+    { bad_encoding(NULL, val);
+      return FALSE;
+    }
+
+    if ( Ssetenc(s, enc, NULL) == 0 )
+      return TRUE;
+
+    return PL_error(NULL, 0, NULL, ERR_PERMISSION,
+		    ATOM_encoding, ATOM_stream, stream);
+#ifdef O_LOCALE
+  } else if ( aname == ATOM_locale )	/* locale(Locale) */
+  {	PL_locale *val;
+
+    if ( !getLocaleEx(a, &val) )
+      return FALSE;
+    if ( Ssetlocale(s, val, NULL) == 0 )
+      return TRUE;
+
+    return PL_error(NULL, 0, NULL, ERR_PERMISSION,
+		    ATOM_locale, ATOM_stream, stream);
+#endif
+  } else if ( aname == ATOM_representation_errors )
+  { atom_t val;
+
+    if ( !PL_get_atom_ex(a, &val) )
+      return FALSE;
+
+    clear(s, SIO_REPXML|SIO_REPPL);
+
+    if ( val == ATOM_error )
+      ;
+    else if ( val == ATOM_xml )
+      set(s, SIO_REPXML);
+    else if ( val == ATOM_prolog )
+      set(s, SIO_REPPL);
+    else
+      return PL_error(NULL, 0, NULL, ERR_DOMAIN,
+		      ATOM_representation_errors, a);
+
+    return TRUE;
+  } else if ( aname == ATOM_newline )
+  { atom_t val;
+
+    if ( !PL_get_atom_ex(a, &val) )
+      return FALSE;
+    if ( val == ATOM_posix )
+      s->newline = SIO_NL_POSIX;
+    else if ( val == ATOM_dos )
+      s->newline = SIO_NL_DOS;
+    else if ( val == ATOM_detect )
+    { if ( false(s, SIO_INPUT) )
+	return PL_error(NULL, 0, "detect only allowed for input streams",
+			ERR_DOMAIN, ATOM_newline, a);
+      s->newline = SIO_NL_DETECT;
+    } else
+      return PL_error(NULL, 0, NULL, ERR_DOMAIN, ATOM_newline, a);
+
+    return TRUE;
+  } else if ( aname == ATOM_close_on_exec ) /* close_on_exec(bool) */
+  { int val;
+
+    if ( !PL_get_bool_ex(a, &val) )
+      return FALSE;
+
+    return setCloseOnExec(s, val);
+  } else
+  { assert(0);
+    return FALSE;
+  }
+}
+
+
+typedef struct set_stream_info
+{ atom_t name;
+  int    flags;
+} set_stream_info;
+
+#define SS_READ		0x01
+#define SS_WRITE	0x02
+#define SS_BOTH		(SS_READ|SS_WRITE)
+#define SS_NOPAIR	(0x4|SS_BOTH)
+
+#define SS_INFO(name, flags) { name, flags }
+
+static const set_stream_info ss_info[] =
+{ SS_INFO(ATOM_alias,		      SS_NOPAIR),
+  SS_INFO(ATOM_buffer,		      SS_BOTH),
+  SS_INFO(ATOM_buffer_size,	      SS_BOTH),
+  SS_INFO(ATOM_eof_action,	      SS_READ),
+  SS_INFO(ATOM_type,		      SS_BOTH),
+  SS_INFO(ATOM_close_on_abort,	      SS_BOTH),
+  SS_INFO(ATOM_record_position,	      SS_BOTH),
+  SS_INFO(ATOM_line_position,	      SS_NOPAIR),
+  SS_INFO(ATOM_file_name,	      SS_BOTH),
+  SS_INFO(ATOM_timeout,		      SS_BOTH),
+  SS_INFO(ATOM_tty,		      SS_BOTH),
+  SS_INFO(ATOM_encoding,	      SS_BOTH),
+  SS_INFO(ATOM_locale,		      SS_BOTH),
+  SS_INFO(ATOM_representation_errors, SS_WRITE),
+  SS_INFO(ATOM_newline,		      SS_BOTH),
+  SS_INFO(ATOM_close_on_exec,	      SS_BOTH),
+  SS_INFO((atom_t)0,		      0)
+};
 
 
 static
 PRED_IMPL("set_stream", 2, set_stream, 0)
 { PRED_LD
   IOSTREAM *s;
-  atom_t aname;
-  int arity;
+  atom_t sblob, aname;
+  stream_ref *ref;
+  PL_blob_t *type;
+  int rc, arity;
+  const set_stream_info *info;
+  term_t aval = PL_new_term_ref();
 
   term_t stream = A1;
   term_t attr = A2;
 
-  if ( !PL_get_stream_handle(stream, &s) )
-    return FALSE;
-
-  if ( PL_get_name_arity(attr, &aname, &arity) )
-  { if ( arity == 1 )
-    { term_t a = PL_new_term_ref();
-
-      _PL_get_arg(1, attr, a);
-
-      if ( aname == ATOM_alias )	/* alias(name) */
-      { atom_t alias;
-	int i;
-
-	if ( !PL_get_atom_ex(a, &alias) )
-	  goto error;
-
-	if ( (i=standardStreamIndexFromName(alias)) >= 0 )
-	{ LD->IO.streams[i] = s;
-	  if ( i == 0 )
-	    LD->prompt.next = TRUE;	/* changed standard input: prompt! */
-	  goto ok;
-	}
-
-	LOCK();
-	aliasStream(s, alias);
-	UNLOCK();
-	goto ok;
-      } else if ( aname == ATOM_buffer ) /* buffer(Buffering) */
-      { atom_t b;
-
-#define SIO_ABUF (SIO_FBUF|SIO_LBUF|SIO_NBUF)
-	if ( !PL_get_atom_ex(a, &b) )
-	  goto error;
-	if ( b == ATOM_full )
-	{ s->flags &= ~SIO_ABUF;
-	  s->flags |= SIO_FBUF;
-	} else if ( b == ATOM_line )
-	{ s->flags &= ~SIO_ABUF;
-	  s->flags |= SIO_LBUF;
-	} else if ( b == ATOM_false )
-	{ Sflush(s);
-	  s->flags &= ~SIO_ABUF;
-	  s->flags |= SIO_NBUF;
-	} else
-	{ PL_error("set_stream", 2, NULL, ERR_DOMAIN,
-		   ATOM_buffer, a);
-	  goto error;
-	}
-	goto ok;
-      } else if ( aname == ATOM_buffer_size )
-      { int size;
-
-	if ( !PL_get_integer_ex(a, &size) )
-	  goto error;
-	if ( size < 1 )
-	{ PL_error(NULL, 0, NULL, ERR_DOMAIN, ATOM_not_less_than_one, a);
-	  goto error;
-	}
-	Ssetbuffer(s, NULL, size);
-	goto ok;
-      } else if ( aname == ATOM_eof_action ) /* eof_action(Action) */
-      { atom_t action;
-
-	if ( !PL_get_atom_ex(a, &action) )
-	  return FALSE;
-	if ( action == ATOM_eof_code )
-	{ s->flags &= ~(SIO_NOFEOF|SIO_FEOF2ERR);
-	} else if ( action == ATOM_reset )
-	{ s->flags &= ~SIO_FEOF2ERR;
-	  s->flags |= SIO_NOFEOF;
-	} else if ( action == ATOM_error )
-	{ s->flags &= ~SIO_NOFEOF;
-	  s->flags |= SIO_FEOF2ERR;
-	} else
-	{ PL_error("set_stream", 2, NULL, ERR_DOMAIN,
-		   ATOM_eof_action, a);
-	  goto error;
-	}
-
-	goto ok;
-      } else if ( aname == ATOM_type ) /* type(Type) */
-      { atom_t type;
-
-	if ( !PL_get_atom_ex(a, &type) )
-	  return FALSE;
-	if ( type == ATOM_text )
-	{ if ( false(s, SIO_TEXT) && Ssetenc(s, LD->encoding, NULL) != 0 )
-	  { PL_error(NULL, 0, NULL, ERR_PERMISSION,
-		     ATOM_encoding, ATOM_stream, stream);
-	    goto error;
-	  }
-	  s->flags |= SIO_TEXT;
-	} else if ( type == ATOM_binary )
-	{ if ( true(s, SIO_TEXT) && Ssetenc(s, ENC_OCTET, NULL) != 0 )
-	  { PL_error(NULL, 0, NULL, ERR_PERMISSION,
-		     ATOM_encoding, ATOM_stream, stream);
-	    goto error;
-	  }
-
-	  s->flags &= ~SIO_TEXT;
-	} else
-	{ PL_error("set_stream", 2, NULL, ERR_DOMAIN,
-		   ATOM_type, a);
-	  goto error;
-	}
-
-	goto ok;
-      } else if ( aname == ATOM_close_on_abort ) /* close_on_abort(Bool) */
-      { int close;
-
-	if ( !PL_get_bool_ex(a, &close) )
-	  goto error;
-
-	if ( close )
-	  s->flags &= ~SIO_NOCLOSE;
-	else
-	  s->flags |= SIO_NOCLOSE;
-
-	goto ok;
-      } else if ( aname == ATOM_record_position )
-      { int rec;
-
-	if ( !PL_get_bool_ex(a, &rec) )
-	  goto error;
-
-	if ( rec )
-	  s->position = &s->posbuf;
-	else
-	  s->position = NULL;
-
-	goto ok;
-      } else if ( aname == ATOM_line_position )
-      { int lpos;
-
-	if ( !PL_get_integer_ex(a, &lpos) )
-	  goto error;
-
-	if ( s->position )
-	{ s->position->linepos = lpos;
-	} else
-	{ PL_error(NULL, 0, NULL, ERR_PERMISSION,
-		   ATOM_line_position, ATOM_stream, stream);
-	  goto error;
-	}
-
-	goto ok;
-      } else if ( aname == ATOM_file_name ) /* file_name(Atom) */
-      {	atom_t fn;
-
-	if ( !PL_get_atom_ex(a, &fn) )
-	  goto error;
-
-	PL_register_atom(fn);
-	LOCK();
-	setFileNameStream(s, fn);
-	UNLOCK();
-
-	goto ok;
-      } else if ( aname == ATOM_timeout )
-      { double f;
-	atom_t v;
-
-	if ( PL_get_atom(a, &v) && v == ATOM_infinite )
-	{ s->timeout = -1;
-	  goto ok;
-	}
-	if ( !PL_get_float_ex(a, &f) )
-	  goto error;
-
-	s->timeout = (int)(f*1000.0);
-	if ( s->timeout < 0 )
-	  s->timeout = 0;
-	goto ok;
-      } else if ( aname == ATOM_tty )	/* tty(bool) */
-      {	int val;
-
-	if ( !PL_get_bool_ex(a, &val) )
-	  goto error;
-
-	if ( val )
-	  set(s, SIO_ISATTY);
-	else
-	  clear(s, SIO_ISATTY);
-
-	goto ok;
-      } else if ( aname == ATOM_encoding )	/* encoding(atom) */
-      {	atom_t val;
-	IOENC enc;
-
-	if ( !PL_get_atom_ex(a, &val) )
-	  goto error;
-	if ( (enc = atom_to_encoding(val)) == ENC_UNKNOWN )
-	{ bad_encoding(NULL, val);
-	  goto error;
-	}
-
-	if ( Ssetenc(s, enc, NULL) == 0 )
-	  goto ok;
-
-	PL_error(NULL, 0, NULL, ERR_PERMISSION,
-		 ATOM_encoding, ATOM_stream, stream);
-	goto error;
-      } else if ( aname == ATOM_representation_errors )
-      { atom_t val;
-
-	if ( !PL_get_atom_ex(a, &val) )
-	  goto error;
-	clear(s, SIO_REPXML|SIO_REPPL);
-	if ( val == ATOM_error )
-	  ;
-	else if ( val == ATOM_xml )
-	  set(s, SIO_REPXML);
-	else if ( val == ATOM_prolog )
-	  set(s, SIO_REPPL);
-	else
-	{ PL_error(NULL, 0, NULL, ERR_DOMAIN,
-		   ATOM_representation_errors, a);
-	  goto error;
-	}
-	goto ok;
-      } else if ( aname == ATOM_newline )
-      { atom_t val;
-
-	if ( !PL_get_atom_ex(a, &val) )
-	  goto error;
-	if ( val == ATOM_posix )
-	  s->newline = SIO_NL_POSIX;
-	else if ( val == ATOM_dos )
-	  s->newline = SIO_NL_DOS;
-	else if ( val == ATOM_detect )
-	{ if ( false(s, SIO_INPUT) )
-	  { PL_error(NULL, 0, "detect only allowed for input streams",
-		     ERR_DOMAIN, ATOM_newline, a);
-	    goto error;
-	  }
-	  s->newline = SIO_NL_DETECT;
-	} else
-	{ PL_error(NULL, 0, NULL, ERR_DOMAIN, ATOM_newline, a);
-	  goto error;
-	}
-	goto ok;
-      } else if ( aname == ATOM_close_on_exec ) /* close_on_exec(bool) */
-      {	int val;
-
-	if ( !PL_get_bool_ex(a, &val) )
-	  goto error;
-
-	switch ( setCloseOnExec(s, val) )
-	{ case TRUE:  goto ok;
-	  case FALSE: goto error;
-	  default:    goto type_error;
-	}
-      }
+  if ( PL_get_name_arity(attr, &aname, &arity) && arity == 1 )
+  { for(info = ss_info; info->name; info++)
+    { if ( info->name == aname )
+	goto found;
     }
-  }
+    return PL_domain_error("stream_attribute", attr);
+  } else
+    return PL_type_error("stream_attribute", attr);
 
-type_error:
-  PL_error("set_stream", 2, NULL, ERR_TYPE,
-	   PL_new_atom("stream_attribute"), attr);
-  goto error;
+found:
+  _PL_get_arg(1, attr, aval);
 
-ok:
-  releaseStream(s);
-  return TRUE;
-error:
-  releaseStream(s);
-  return FALSE;
+  if ( !PL_get_atom(stream, &sblob) )
+    return not_a_stream(stream);
+
+  ref = PL_blob_data(sblob, NULL, &type);
+  if ( type == &stream_blob )		/* got a stream handle */
+  { if ( ref->read && ref->write &&	/* stream pair */
+	 info->flags & SS_NOPAIR )
+      return PL_error("set_stream", 2, NULL, ERR_PERMISSION,
+		      aname, ATOM_stream_pair, stream);
+
+    rc = TRUE;
+    if ( ref->read && (info->flags&SS_READ))
+    { if ( !(s = getStream(ref->read)) )
+        return symbol_no_stream(sblob);
+      rc = set_stream(s, stream, aname, aval PASS_LD);
+      releaseStream(ref->read);
+    }
+    if ( rc && ref->write && (info->flags&SS_WRITE) )
+    { if ( !(s = getStream(ref->write)) )
+        return symbol_no_stream(sblob);
+      rc = set_stream(s, stream, aname, aval PASS_LD);
+      releaseStream(ref->write);
+    }
+  } else if ( PL_get_stream_handle(stream, &s) )
+  { rc = set_stream(s, stream, aname, aval PASS_LD);
+    releaseStream(s);
+  } else
+    rc = FALSE;
+
+  if ( rc < 0 )				/* not on this OS */
+    return PL_domain_error("stream_attribute", attr);
+
+  return rc;
 }
+
 
 #ifdef _MSC_VER					/* defined in pl-nt.c */
 extern int ftruncate(int fileno, int64_t length);
@@ -3029,6 +3108,9 @@ static const opt_spec open4_options[] =
   { ATOM_wait,		 OPT_BOOL },
   { ATOM_encoding,	 OPT_ATOM },
   { ATOM_bom,		 OPT_BOOL },
+#ifdef O_LOCALE
+  { ATOM_locale,	 OPT_LOCALE },
+#endif
   { NULL_ATOM,	         0 }
 };
 
@@ -3047,6 +3129,9 @@ openStream(term_t file, term_t mode, term_t options)
   atom_t lock		= ATOM_none;
   int	 wait		= TRUE;
   atom_t encoding	= NULL_ATOM;
+#ifdef O_LOCALE
+  PL_locale *locale	= NULL;
+#endif
   int    close_on_abort = TRUE;
   int	 bom		= -1;
   char   how[10];
@@ -3058,7 +3143,12 @@ openStream(term_t file, term_t mode, term_t options)
   if ( options )
   { if ( !scan_options(options, 0, ATOM_stream_option, open4_options,
 		       &type, &reposition, &alias, &eof_action,
-		       &close_on_abort, &buffer, &lock, &wait, &encoding, &bom) )
+		       &close_on_abort, &buffer, &lock, &wait,
+		       &encoding, &bom
+#ifdef O_LOCALE
+		       , &locale
+#endif
+		      ) )
       return FALSE;
   }
 
@@ -3158,12 +3248,18 @@ openStream(term_t file, term_t mode, term_t options)
 	       ATOM_open, ATOM_source_sink, file);
       return NULL;
     }
-    setFileNameStream(s, fn_to_atom(path));
+    setFileNameStream_unlocked(s, fn_to_atom(path));
   } else
   { return NULL;
   }
 
   s->encoding = enc;
+#ifdef O_LOCALE
+  if ( locale )
+  { Ssetlocale(s, locale, NULL);
+    releaseLocale(locale);			/* acquired by scan_options() */
+  }
+#endif
   if ( !close_on_abort )
     s->flags |= SIO_NOCLOSE;
 
@@ -3512,7 +3608,8 @@ do_close(IOSTREAM *s, int force)
       Sclearerr(s);
     } else
     { Sflush(s);
-      Sclose(s);
+      if ( Sclose(s) < 0 )
+	PL_clear_exception();
     }
 
     return TRUE;
@@ -3819,6 +3916,15 @@ stream_encoding_prop(IOSTREAM *s, term_t prop ARG_LD)
 }
 
 
+#ifdef O_LOCALE
+static int
+stream_locale_prop(IOSTREAM *s, term_t prop ARG_LD)
+{ if ( s->locale )
+    return unifyLocale(prop, s->locale, TRUE);
+  return FALSE;
+}
+#endif
+
 static int
 stream_reperror_prop(IOSTREAM *s, term_t prop ARG_LD)
 { atom_t a;
@@ -3895,7 +4001,7 @@ stream_close_on_exec_prop(IOSTREAM *s, term_t prop ARG_LD)
    if ( (fd = Sfileno(s)) < 0)
      return FALSE;
 
-#if defined(F_SETFD) && defined(FD_CLOEXEC)
+#if defined(F_GETFD) && defined(FD_CLOEXEC)
 
    if ( (fd_flags = fcntl(fd, F_GETFD)) == -1)
      return FALSE;
@@ -3937,6 +4043,9 @@ static const sprop sprop_list [] =
   { FUNCTOR_close_on_abort1,stream_close_on_abort_prop },
   { FUNCTOR_tty1,	    stream_tty_prop },
   { FUNCTOR_encoding1,	    stream_encoding_prop },
+#ifdef O_LOCALE
+  { FUNCTOR_locale1,	    stream_locale_prop },
+#endif
   { FUNCTOR_bom1,	    stream_bom_prop },
   { FUNCTOR_newline1,	    stream_newline_prop },
   { FUNCTOR_representation_errors1, stream_reperror_prop },
@@ -4169,10 +4278,8 @@ PRED_IMPL("is_stream", 1, is_stream, 0)
   atom_t a;
 
   if ( PL_get_atom(A1, &a) &&
-       get_stream_handle(a, &s, 0) )
-  { releaseStream(s);
+       get_stream_handle(a, &s, SH_UNLOCKED) )
     return TRUE;
-  }
 
   return FALSE;
 }
@@ -4400,7 +4507,8 @@ PRED_IMPL("current_output", 1, current_output, PL_FA_ISO)
 
 static
 PRED_IMPL("byte_count", 2, byte_count, 0)
-{ IOSTREAM *s;
+{ PRED_LD
+  IOSTREAM *s;
 
   if ( getStreamWithPosition(A1, &s) )
   { int64_t n = s->position->byteno;
@@ -5025,15 +5133,13 @@ struct PL_local_data *Yap_InitThreadIO(int wid)
   if (wid) 
     p = (struct PL_local_data *)malloc(sizeof(struct PL_local_data));
   else
-    p = (struct PL_local_data *)calloc(sizeof(struct PL_local_data), 1);
+    return &lds;
   if (!p) {
     Yap_Error(OUT_OF_HEAP_ERROR, 0L, "Creating thread %d\n", wid);
     return p;
   }
 #if THREADS
-  if (wid) {
-    memcpy(p, Yap_local[0]->PL_local_data_p_, sizeof(struct PL_local_data));
-  }
+  memcpy(p, Yap_local[0]->PL_local_data_p_, sizeof(struct PL_local_data));
 #endif
   return p;
 }
@@ -5099,6 +5205,9 @@ init_yap(void)
   initMutexes();
 #endif
   /* we need encodings first */
+#ifdef O_LOCALE
+  initLocale();
+#endif
   initCharTypes();
   initPrologFlags();
   setPrologFlagMask(PLFLAG_TTY_CONTROL);
@@ -5111,6 +5220,9 @@ init_yap(void)
   PL_register_extensions(PL_predicates_from_read);
   PL_register_extensions(PL_predicates_from_tai);
   PL_register_extensions(PL_predicates_from_prologflag);
+#ifdef O_LOCALE
+  PL_register_extensions(PL_predicates_from_locale);
+#endif
 #ifdef __WINDOWS__
   PL_register_extensions(PL_predicates_from_win);
 #endif

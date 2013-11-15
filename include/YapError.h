@@ -13,6 +13,9 @@
 * version:      $Id: Yap.h,v 1.38 2008-06-18 10:02:27 vsc Exp $	 *
 *************************************************************************/
 
+#ifndef YAP_ERROR_H
+#define YAP_ERROR_H 1
+
 /* Types of Errors */
 typedef enum
 {
@@ -118,3 +121,4 @@ typedef enum
 } yap_error_number;
 
 
+#endif

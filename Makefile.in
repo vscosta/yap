@@ -214,6 +214,7 @@ IOLIB_SOURCES=$(srcdir)/os/pl-buffer.c $(srcdir)/os/pl-ctype.c \
 	$(srcdir)/os/pl-file.c \
 	$(srcdir)/os/pl-files.c  \
 	$(srcdir)/os/pl-fmt.c  \
+	$(srcdir)/os/pl-locale.h \
 	$(srcdir)/os/pl-glob.c  \
 	$(srcdir)/os/pl-option.c  \
 	$(srcdir)/os/pl-os.c \
@@ -345,7 +346,7 @@ YAPDOCS=$(srcdir)/docs/yap.tex $(srcdir)/docs/chr.tex \
 
 IOLIB_OBJECTS=pl-buffer.o pl-codelist.o pl-ctype.o pl-dtoa.o pl-error.o  \
 	pl-file.o pl-files.o pl-fmt.o \
-	pl-glob.o pl-option.o \
+	pl-glob.o pl-locale.o pl-option.o \
 	pl-nt.o \
 	pl-os.o pl-privitf.o \
 	pl-prologflag.o \
@@ -623,6 +624,9 @@ pl-fmt.o: $(srcdir)/os/pl-fmt.c config.h
 
 pl-glob.o: $(srcdir)/os/pl-glob.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/os @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/os/pl-glob.c -o $@
+
+pl-locale.o: $(srcdir)/os/pl-locale.c config.h
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/os @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/os/pl-locale.c -o $@
 
 pl-option.o: $(srcdir)/os/pl-option.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/os @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/os/pl-option.c -o $@

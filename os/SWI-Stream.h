@@ -168,7 +168,11 @@ typedef struct io_stream
   int			io_errno;	/* Save errno value */
   void *		exception;	/* pending exception (record_t) */
   void *		context;	/* getStreamContext() */
-  intptr_t		reserved[2];	/* reserved for extension */
+  intptr_t		reserved[0];	/* reserved for extension */
+  struct PL_locale *    locale;         /* Locale associated to stream */
+#if 0 /* We used them all :-( */
+  intptr_t              reserved[0];    /* reserved for extension */
+#endif
 } IOSTREAM;
 
 #define SmakeFlag(n)	(1<<(n-1))
@@ -377,6 +381,8 @@ PL_EXPORT(void)		Ssetbuffer(IOSTREAM *s, char *buf, size_t size);
 
 PL_EXPORT(int64_t)	Stell64(IOSTREAM *s);
 PL_EXPORT(int)		Sseek64(IOSTREAM *s, int64_t pos, int whence);
+
+PL_EXPORT(int)		Ssetlocale(IOSTREAM *s, struct PL_locale *n, struct PL_locale **old);
 
 #ifdef __WINDOWS__
 #if defined(_WINSOCKAPI_) || defined(NEEDS_SWINSOCK)

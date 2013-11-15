@@ -113,22 +113,43 @@ addUTF8Buffer(Buffer b, int c)
   }
 }
 
-		 /*******************************
-		 *     UNICODE CLASSIFIERS	*
-		 *******************************/
+                 /*******************************
+                 *     UNICODE CLASSIFIERS      *
+                 *******************************/
 
 #define CharTypeW(c, t, w) \
-	((unsigned)(c) <= 0xff ? (_PL_char_types[(unsigned)(c)] t) \
-			       : (uflagsW(c) & w))
+        ((unsigned)(c) <= 0xff ? (_PL_char_types[(unsigned)(c)] t) \
+                               : (uflagsW(c) & (w)))
 
-#define PlBlankW(c)	CharTypeW(c, <= SP, U_SEPARATOR)
-#define PlUpperW(c)	CharTypeW(c, == UC, U_UPPERCASE)
-#define PlIdStartW(c)	(c <= 0xff ? (isLower(c)||isUpper(c)||c=='_') \
-				   : uflagsW(c) & U_ID_START)
-#define PlIdContW(c)	CharTypeW(c, >= UC, U_ID_CONTINUE)
-#define PlSymbolW(c)	CharTypeW(c, == SY, 0)
-#define PlPunctW(c)	CharTypeW(c, == PU, 0)
-#define PlSoloW(c)	CharTypeW(c, == SO, 0)
+#define PlBlankW(c)     CharTypeW(c, == SP, U_SEPARATOR)
+#define PlUpperW(c)     CharTypeW(c, == UC, U_UPPERCASE)
+#define PlIdStartW(c)   (c <= 0xff ? (isLower(c)||isUpper(c)||c=='_') \
+                                   : uflagsW(c) & U_ID_START)
+#define PlIdContW(c)    CharTypeW(c, >= UC, U_ID_CONTINUE)
+#define PlSymbolW(c)    CharTypeW(c, == SY, U_SYMBOL)
+#define PlPunctW(c)     CharTypeW(c, == PU, 0)
+#define PlSoloW(c)      CharTypeW(c, == SO, U_OTHER)
+#define PlInvalidW(c)   (uflagsW(c) == 0)
+
+int
+f_is_prolog_var_start(wint_t c)
+{ return PlIdStartW(c) && (PlUpperW(c) || c == '_');
+}
+
+int
+f_is_prolog_atom_start(wint_t c)
+{ return PlIdStartW(c) != 0;
+}
+
+int
+f_is_prolog_identifier_continue(wint_t c)
+{ return PlIdContW(c) || c == '_';
+}
+
+int
+f_is_prolog_symbol(wint_t c)
+{ return PlSymbolW(c) != 0;
+}
 
 int
 unicode_separator(pl_wchar_t c)

@@ -105,14 +105,13 @@ LastModifiedFile(const char *name, double *tp)
     if ( rc )
     { double t;
 
-      fprintf(stderr, "wt.dwHighDateTime=%ld wt.dwLowDateTime=%ld\n",wt.dwHighDateTime,  wt.dwLowDateTime);
       t  = (double)wt.dwHighDateTime * (4294967296.0 * ntick nano);
       t += (double)wt.dwLowDateTime  * (ntick nano);
       t -= SEC_TO_UNIX_EPOCH;
 
       *tp = t;
-      fprintf(stderr, " t=%f\n", t);
-      return TRUE;
+
+       return TRUE;
     }
   }
 
@@ -662,7 +661,8 @@ PRED_IMPL("time_file", 2, time_file, 0)
 
 static
 PRED_IMPL("time_file64", 2, time_file64, 0)
-{ char *fn;
+{ GET_LD
+  char *fn;
 
   if ( PL_get_file_name(A1, &fn, 0) )
   { int64_t time;
@@ -680,7 +680,8 @@ PRED_IMPL("time_file64", 2, time_file64, 0)
 
 static
 PRED_IMPL("size_file", 2, size_file, 0)
-{ char *n;
+{ PRED_LD
+  char *n;
 
   if ( PL_get_file_name(A1, &n, 0) )
   { int64_t size;
@@ -902,7 +903,7 @@ PRED_IMPL("tmp_file_stream", 3, tmp_file_stream, 0)
 
 
 static
-PRED_IMPL("swi_delete_file", 1, delete_file, 0)
+PRED_IMPL("delete_file", 1, delete_file, 0)
 { PRED_LD
   char *n;
   atom_t aname;
@@ -944,9 +945,6 @@ PRED_IMPL("make_directory", 1, make_directory, 0)
   if ( !PL_get_file_name(A1, &n, 0) )
     return FALSE;
 
-#if __MINGW32__
-#define mkdir(A, B) mkdir(A)
-#endif
   if ( mkdir(n, 0777) == 0 )
     return TRUE;
   else
@@ -1126,13 +1124,12 @@ PRED_IMPL("file_name_extension", 3, file_name_extension, 0)
 
 static
 PRED_IMPL("prolog_to_os_filename", 2, prolog_to_os_filename, 0)
-{
-#ifdef O_XOS
-  PRED_LD
+{ PRED_LD
 
   term_t pl = A1;
   term_t os = A2;
 
+#ifdef O_XOS
   wchar_t *wn;
 
   if ( !PL_is_variable(pl) )
@@ -1160,8 +1157,7 @@ PRED_IMPL("prolog_to_os_filename", 2, prolog_to_os_filename, 0)
 
   return PL_error(NULL, 0, NULL, ERR_TYPE, ATOM_atom, pl);
 #else /*O_XOS*/
- 
-  return PL_unify(A1, A2);
+  return PL_unify(pl, os);
 #endif /*O_XOS*/
 }
 
@@ -1202,7 +1198,7 @@ BeginPredDefs(files)
   PRED_DEF("exists_directory", 1, exists_directory, 0)
   PRED_DEF("tmp_file", 2, tmp_file, 0)
   PRED_DEF("tmp_file_stream", 3, tmp_file_stream, 0)
-  PRED_DEF("swi_delete_file", 1, delete_file, 0)
+  PRED_DEF("delete_file", 1, delete_file, 0)
   PRED_DEF("delete_directory", 1, delete_directory, 0)
   PRED_DEF("make_directory", 1, make_directory, 0)
   PRED_DEF("same_file", 2, same_file, 0)

@@ -139,7 +139,7 @@ typedef unsigned long uintptr_t;
 typedef	uintptr_t    term_t;
 #endif
 typedef	struct mod_entry *module_t;
-typedef	void *record_t;
+typedef struct DB_STRUCT *record_t;
 typedef uintptr_t	atom_t;
 typedef	struct pred_entry    *predicate_t;
 typedef struct  open_query_struct *qid_t;
@@ -249,6 +249,7 @@ t */
 #define CVT_ATOMIC	(CVT_NUMBER|CVT_ATOM|CVT_STRING)
 #define CVT_WRITE	0x0040		/* as of version 3.2.10 */
 #define CVT_WRITE_CANONICAL	0x0080		/* as of version 3.2.10 */
+#define CVT_WRITEQ	0x00C0
 #define CVT_ALL		(CVT_ATOMIC|CVT_LIST)
 #define CVT_MASK	0x00ff
 

@@ -5,40 +5,6 @@
 
 #include "config.h"
 
-#if USE_GMP
-#define O_GMP 1
-#endif
-
-#ifdef __WINDOWS__
-#include <windows.h>
-#include <windows/uxnt.h>
-#define O_HASDRIVES 1
-#define O_HASSHARES 1
-#define EMULATE_DLOPEN 1
-#endif
-
-#ifndef PL_CONSOLE
-#define PL_KERNEL 1
-#endif
-
-#ifdef __MINGW32__
-#define O_XOS 1
-#endif
-
-#ifndef __unix__
-#if defined(_AIX) || defined(__APPLE__) || defined(__unix) || defined(__BEOS__) || defined(__NetBSD__)
-#define __unix__ 1
-#endif
-#endif
-
-#ifdef THREADS
-#define O_PLMT 1
-#else
-#ifdef _REENTRANT
-#undef _REENTRANT
-#endif
-#endif
-
 #if HAVE_ERRNO_H
 #include <errno.h>
 #endif
@@ -64,6 +30,7 @@
 #ifdef H
 #undef H
 #endif
+
 /* vsc: needs defining before getting rid of YAP locks */
 static inline int
 do_startCritical(void) {
@@ -85,13 +52,34 @@ do_endCritical(void) {
 #ifdef UNLOCK
 #undef UNLOCK
 #endif
+
+#include "pl-shared.h"
+
 #include <SWI-Stream.h>
 #include <SWI-Prolog.h>
 typedef int bool;
 typedef int			Char;		/* char that can pass EOF */
 typedef uintptr_t		word;		/* Anonymous 4 byte object */
 
-#include "pl-shared.h"
+#define usedStack(D) 0
+
+#define exception_term         (LD->exception.term)
+
+#define Suser_input             (LD->IO.streams[0])
+#define Suser_output            (LD->IO.streams[1])
+#define Suser_error             (LD->IO.streams[2])
+#define Scurin                  (LD->IO.streams[3])
+#define Scurout                 (LD->IO.streams[4])
+#define Sprotocol               (LD->IO.streams[5])
+#define Sdin                    Suser_input             /* not used for now */
+#define Sdout                   Suser_output
+
+#define source_line_no         (LD->read_source.line)
+#define source_file_name       (LD->read_source.file)
+#define source_line_pos                (LD->read_source.linepos)
+#define source_char_no         (LD->read_source.character)
+
+#define debugstatus            (LD->_debugstatus)
 
 #if SIZE_DOUBLE==SIZEOF_INT_P
 #define WORDS_PER_DOUBLE 1
@@ -532,7 +520,6 @@ typedef double			real;
 
 #endif
 
-#define PL_unify_time(A,B) PL_unify_int64(A,B)
 extern int PL_unify_char(term_t chr, int c, int how);
 extern int PL_get_char(term_t chr, int *c, int eof);
 extern void PL_cleanup_fork(void);
@@ -786,6 +773,10 @@ setBoolean(int *flag, term_t old, term_t new)
 	}
 
 
+COMMON(int)             f_is_prolog_var_start(wint_t c);
+COMMON(int)             f_is_prolog_atom_start(wint_t c);
+COMMON(int)             f_is_prolog_identifier_continue(wint_t c);
+COMMON(int)             f_is_prolog_symbol(wint_t c);
 
 
 COMMON(int) 		PL_get_atom__LD(term_t t1, atom_t *a ARG_LD);
@@ -794,7 +785,10 @@ COMMON(int)		PL_get_text__LD(term_t l, PL_chars_t *text, int flags ARG_LD);
 COMMON(int) 		PL_is_variable__LD(term_t t ARG_LD);
 COMMON(term_t) 		PL_new_term_ref__LD(ARG1_LD);
 COMMON(void) 		PL_put_term__LD(term_t t1, term_t t2 ARG_LD);
+COMMON(int) 		PL_unify__LD(term_t t1, term_t t2 ARG_LD);
 COMMON(int) 		PL_unify_atom__LD(term_t t, atom_t a ARG_LD);
+COMMON(int)		PL_unify_int64__LD(term_t t1, int64_t ARG_LD);
+COMMON(int)		PL_unify_int64_ex__LD(term_t t1, int64_t ARG_LD);
 COMMON(int) 		PL_unify_integer__LD(term_t t1, intptr_t i ARG_LD);
 
 COMMON(word)		pl_get_prolog_flag(term_t key, term_t value);
@@ -802,6 +796,17 @@ COMMON(word)		pl_prolog_flag5(term_t key, term_t value, word scope, word access,
 COMMON(foreign_t)	pl_prolog_flag(term_t name, term_t value, control_t h);
 
 COMMON(struct tm *)	PL_localtime_r(const time_t *t, struct tm *r);
+
+
+#define PL_unify(t1, t2)	PL_unify__LD(t1, t2 PASS_LD)
+#define PL_unify_int64(t, i)	PL_unify_int64__LD(t, i PASS_LD)
+#define PL_unify_int64_ex(t, i)	PL_unify_int64_ex__LD(t, i PASS_LD)
+
+static inline int
+PL_unify_time(term_t t, time_t time) {
+  GET_LD
+  return PL_unify_int64(t, (int64_t)time);
+}
 
 /* inlines that need ARG_LD */
 static inline intptr_t
@@ -844,6 +849,7 @@ extern const PL_extension PL_predicates_from_tai[];
 extern const PL_extension PL_predicates_from_write[];
 extern const PL_extension PL_predicates_from_prologflag[];
 extern const PL_extension PL_predicates_from_win[];
+extern const PL_extension PL_predicates_from_locale[];
 
 #define enableThreads(val) FALSE
 

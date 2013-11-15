@@ -19,8 +19,12 @@
 
     You should have received a copy of the GNU Lesser General Public
     License along with this library; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
+
+#ifndef COMMON
+#define COMMON(type) extern type
+#endif
 
 typedef enum
 { ERR_NO_ERROR = 0,
@@ -47,8 +51,10 @@ typedef enum
 				/* Only used on SWI-Prolog itself */
   ERR_AR_OVERFLOW,		/* void */
   ERR_AR_TYPE,			/* atom_t expected, Number value */
+  ERR_AR_DOMAIN,		/* atom_t domain, Number value */
   ERR_AR_UNDEF,			/* void */
   ERR_AR_UNDERFLOW,		/* void */
+  ERR_PTR_TYPE,			/* atom_t expected, Word value */
   ERR_BUSY,			/* mutexes */
   ERR_CHARS_TYPE,		/* char *, term */
   ERR_CLOSED_STREAM,		/* IOSTREAM * */
@@ -60,6 +66,7 @@ typedef enum
   ERR_MODIFY_THREAD_LOCAL_PROC,	/* Procedure proc */
   ERR_NOT_EVALUABLE,		/* functor_t func */
   ERR_NOT_IMPLEMENTED_PROC,	/* name, arity */
+  ERR_IMPORT_PROC,		/* proc, dest, [already-from] */
   ERR_OCCURS_CHECK,		/* Word, Word */
   ERR_PERMISSION_PROC,		/* op, type, Definition */
   ERR_SHARED_OBJECT_OP,		/* op, error */
@@ -70,6 +77,12 @@ typedef enum
 
 #define MSG_ERRNO		((char *)(-1))
 
-int			PL_error(const char *pred, int arity, const char *msg, int id, ...);
-int	 		printMessage(atom_t severity, ...);
-void			unallocStream(IOSTREAM *s);
+COMMON(int)		PL_error(const char *pred, int arity, const char *msg,
+				 PL_error_code id, ...);
+COMMON(int)		PL_no_memory(void);
+COMMON(int)		printMessage(atom_t severity, ...);
+#ifdef ARG_LD
+COMMON(int)		PL_get_atom_ex__LD(term_t t, atom_t *a ARG_LD);
+#endif
+COMMON(int)		PL_get_module_ex(term_t name, module_t *m);
+COMMON(int)		PL_get_arg_ex(int n, term_t term, term_t arg);

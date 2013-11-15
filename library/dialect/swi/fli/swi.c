@@ -41,6 +41,8 @@
 
 #include	<yapio.h>
 
+#include "pl-basic.h"
+
 #ifdef USE_GMP
 #include <gmp.h>
 #endif
@@ -54,7 +56,6 @@
 
 extern X_API Atom YAP_AtomFromSWIAtom(atom_t at);
 extern X_API atom_t YAP_SWIAtomFromAtom(Atom at);
-extern int	PL_error(const char *pred, int arity, const char *msg, int id, ...);
 
 static int 
 do_gc(UInt sz)

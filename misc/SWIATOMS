@@ -9,7 +9,6 @@
 # produce pl-atom.ic, pl-atom.ih, pl-funct.ic and pl-funct.ih.
 
 
-
 A abort			"abort"
 A aborted		"$aborted"
 A abs			"abs"
@@ -34,9 +33,9 @@ A anonvar		"_"
 A append		"append"
 A ar_equals		"=:="
 A ar_not_equal		"=\\="
-A arity			"arity"
 A argument		"argument"
 A argumentlimit		"argumentlimit"
+A arity			"arity"
 A as			"as"
 A ascii			"ascii"
 A asin			"asin"
@@ -52,8 +51,8 @@ A at_not_equals		"\\=@="
 A at_smaller		"@<"
 A at_smaller_eq		"@=<"
 A atan			"atan"
-A atanh			"atanh"
 A atan2			"atan2"
+A atanh			"atanh"
 A atom			"atom"
 A atom_garbage_collection	"atom_garbage_collection"
 A atomic		"atomic"
@@ -62,9 +61,10 @@ A att			"att"
 A attributes		"attributes"
 A attvar		"attvar"
 A autoload		"autoload"
-A backquoted_string	"backquoted_string"
+A back_quotes		"back_quotes"
 A backslash		"\\"
 A backtrace		"backtrace"
+A backquoted_string	"`"
 A bar			"|"
 A base			"base"
 A begin			"begin"
@@ -78,6 +78,7 @@ A bom			"bom"
 A bool			"bool"
 A boolean		"boolean"
 A brace_term_position	"brace_term_position"
+A brace_terms		"brace_terms"
 A break			"break"
 A break_level		"break_level"
 A btree			"btree"
@@ -89,7 +90,6 @@ A byte			"byte"
 A c_stack		"c_stack"
 A call			"call"
 A callable		"callable"
-A callpred		"$callpred"
 A canceled		"canceled"
 A case_sensitive_file_names "case_sensitive_file_names"
 A catch			"catch"
@@ -106,8 +106,8 @@ A chmod			"chmod"
 A choice		"choice"
 A class			"class"
 A clause		"clause"
-A clauses		"clauses"
 A clause_reference	"clause_reference"
+A clauses		"clauses"
 A close			"close"
 A close_on_abort	"close_on_abort"
 A close_on_exec		"close_on_exec"
@@ -119,6 +119,7 @@ A codes			"codes"
 A collected		"collected"
 A collections		"collections"
 A colon			":"
+A colon_eq		":="
 A comma			","
 A comments		"comments"
 A compound		"compound"
@@ -138,14 +139,15 @@ A cumulative		"cumulative"
 A curl			"{}"
 A current		"current"
 A current_input		"current_input"
+A current_locale	"current_locale"
 A current_output	"current_output"
 A cut			"!"
 A cut_call		"cut_call"
 A cut_exit		"cut_exit"
 A cut_parent		"cut_parent"
 A cutted		"cut"
-A cyclic_term		"cyclic_term"
 A cycles		"cycles"
+A cyclic_term		"cyclic_term"
 A dand			"$and"
 A date			"date"
 A db_reference		"db_reference"
@@ -164,6 +166,7 @@ A debugger_print_options "debugger_print_options"
 A debugger_show_context "debugger_show_context"
 A debugging		"debugging"
 A dec10			"dec10"
+A decimal_point		"decimal_point"
 A default		"default"
 A defined		"defined"
 A delete		"delete"
@@ -179,7 +182,6 @@ A digit			"digit"
 A directory		"directory"
 A discontiguous		"discontiguous"
 A div			"div"
-A gdiv			"//"
 A divide		"/"
 A dload			"$load"
 A dmessage_queue	"$message_queue"
@@ -187,10 +189,13 @@ A dmutex		"$mutex"
 A domain_error		"domain_error"
 A dos			"dos"
 A dot			"."
+A dot_lists		"dot_lists"
 A dots			"dots"
 A double_quotes		"double_quotes"
 A doublestar		"**"
+A dparse_quasi_quotations "$parse_quasi_quotations"
 A dprof_node		"$profile_node"
+A dquasi_quotation	"$quasi_quotation"
 A dquery_loop		"$query_loop"
 A drecover_and_rethrow	"$recover_and_rethrow"
 A dstream		"$stream"
@@ -198,7 +203,9 @@ A dthread_init		"$thread_init"
 A dthrow		"$throw"
 A dtime			"$time"
 A dtoplevel		"$toplevel"
+A duplicate_key		"duplicate_key"
 A dvard			"$VAR$"
+A dvariable_names	"$variable_names"
 A dwakeup		"$wakeup"
 A dynamic		"dynamic"
 A e			"e"
@@ -216,6 +223,8 @@ A equal			"equal"
 A equals		"="
 A erase			"erase"
 A erased		"erased"
+A erf			"erf"
+A erfc			"erfc"
 A error			"error"
 A eval			"eval"
 A evaluable		"evaluable"
@@ -265,6 +274,7 @@ A frame_reference	"frame_reference"
 A free_of_attvar	"free_of_attvar"
 A freeze		"freeze"
 A full			"full"
+A fullstop		"fullstop"
 A functor_name		"functor_name"
 A functors		"functors"
 A fx			"fx"
@@ -274,6 +284,7 @@ A garbage_collection	"garbage_collection"
 A gc			"gc"
 A gcd			"gcd"
 A gctime		"gctime"
+A gdiv			"//"
 A getcwd		"getcwd"
 A global		"global"
 A global_shifts		"global_shifts"
@@ -285,14 +296,15 @@ A goal_expansion	"goal_expansion"
 A grammar		"-->"
 A graph			"graph"
 A ground		"ground"
+A grouping		"grouping"
 A gvar			"gvar"
 A halt			"halt"
 A has_alternatives	"has_alternatives"
 A hash			"hash"
 A hashed		"hashed"
 A hat			"^"
-A heapused		"heapused"
 A heap_gc		"heap_gc"
+A heapused		"heapused"
 A help			"help"
 A hidden		"hidden"
 A hide_childs		"hide_childs"
@@ -332,9 +344,11 @@ A join			"join"
 A jump			"jump"
 A kernel		"kernel"
 A key			"key"
+A key_value_position	"key_value_position"
 A larger		">"
 A larger_equal		">="
 A level			"level"
+A lgamma		"lgamma"
 A li			"li"
 A library		"library"
 A limit			"limit"
@@ -348,6 +362,7 @@ A local			"local"
 A local_shifts		"local_shifts"
 A local_stack		"local_stack"
 A locale		"locale"
+A locale_property	"locale_property"
 A locallimit		"locallimit"
 A localused		"localused"
 A lock			"lock"
@@ -361,6 +376,10 @@ A lower			"lower"
 A lsb			"lsb"
 A lshift		"<<"
 A main			"main"
+A map			"map"
+A map_position		"map_position"
+A map_punify		">:<"
+A map_select		":<"
 A mark			"mark"
 A matches		"matches"
 A max			"max"
@@ -380,6 +399,7 @@ A message_queue		"message_queue"
 A message_queue_property "message_queue_property"
 A meta_argument		"meta_argument"
 A meta_argument_specifier "meta_argument_specifier"
+A meta_atom		"meta_atom"
 A meta_predicate	"meta_predicate"
 A min			"min"
 A min_free		"min_free"
@@ -402,10 +422,12 @@ A natural		"natural"
 A newline		"newline"
 A next_argument		"next_argument"
 A nil			"[]"
+A nl			"nl"
 A nlink			"nlink"
 A no_memory		"no_memory"
 A nodebug		"nodebug"
 A non_empty_list	"non_empty_list"
+A non_terminal		"non_terminal"
 A none			"none"
 A nonvar		"nonvar"
 A noprofile		"noprofile"
@@ -473,16 +495,24 @@ A profile_node		"profile_node"
 A program		"program"
 A program_counter	"program_counter"
 A prolog		"prolog"
+A prolog_atom_start	"prolog_atom_start"
 A prolog_flag		"prolog_flag"
 A prolog_flag_access	"prolog_flag_access"
 A prolog_flag_option	"prolog_flag_option"
 A prolog_flag_type	"prolog_flag_type"
+A prolog_identifier_continue "prolog_identifier_continue"
+A prolog_symbol		"prolog_symbol"
+A prolog_var_start	"prolog_var_start"
 A prompt		"|:"
 A property		"property"
 A protocol		"protocol"
 A prove			":-"
 A public		"public"
 A punct			"punct"
+A quasi_quotation	"quasi_quotation"
+A quasi_quotation_position  "quasi_quotation_position"
+A quasi_quotation_syntax	"quasi_quotation_syntax"
+A quasi_quotations	"quasi_quotations"
 A query			"?-"
 A question_mark		"?"
 A queue_option		"queue_option"
@@ -511,6 +541,7 @@ A redo_in_skip		"redo_in_skip"
 A references		"references"
 A rem			"rem"
 A rename		"rename"
+A repeat		"repeat"
 A report_error		"report_error"
 A reposition		"reposition"
 A representation_error	"representation_error"
@@ -586,6 +617,7 @@ A string_position	"string_position"
 A strong		"strong"
 A subterm_positions	"subterm_positions"
 A suffix		"suffix"
+A symbol_char		"symbol_char"
 A syntax_error		"syntax_error"
 A syntax_errors		"syntax_errors"
 A system		"system"
@@ -604,6 +636,7 @@ A terminal_capability	"terminal_capability"
 A test			"test"
 A text			"text"
 A text_stream		"text_stream"
+A thousands_sep		"thousands_sep"
 A thread		"thread"
 A thread_cputime	"thread_cputime"
 A thread_get_message_option "thread_get_message_option"
@@ -684,8 +717,8 @@ A wait			"wait"
 A wakeup		"wakeup"
 A walltime		"walltime"
 A warning		"warning"
-A weak			"weak"
 A wchar_t		"wchar_t"
+A weak			"weak"
 A when_condition	"when_condition"
 A white			"white"
 A write			"write"
@@ -732,7 +765,6 @@ F buffer		1
 F buffer_size		1
 F busy			2
 F call			1
-F callpred		2
 F catch			3
 F ceil			1
 F ceiling		1
@@ -762,6 +794,7 @@ F dcall			1
 F dcut			1
 F dde_error		2
 F debugging		1
+F decimal_point		1
 F detached		1
 F dexit			2
 F dforeign_registered   2
@@ -774,12 +807,15 @@ F dmutex		1
 F domain_error		2
 F dot			2
 F doublestar		2
+F dparse_quasi_quotations 2
 F dprof_node		1
+F dquasi_quotation	3
 F drecover_and_rethrow	2
 F dstream		1
 F dthread_init		0
 F dthrow		1
 F dtime			2
+F duplicate_key		1
 F dvard			1
 F dwakeup		1
 F e			0
@@ -789,12 +825,15 @@ F eof_action		1
 F epsilon		0
 F equals		2
 F erased		1
+F erf			1
+F erfc			1
 F error			2
 F eval			1
 F evaluation_error	1
 F exception		1
 F exception		3
 F existence_error	2
+F existence_error	3
 F exited		1
 F exp			1
 F exports		1
@@ -815,26 +854,31 @@ F frame_finished	1
 F gcd			2
 F goal_expansion	2
 F ground		1
+F grouping		1
 F hat			2
 F ifthen		2
 F import_into		1
 F input			0
-F input			3
+F input			4
 F integer		1
 F interrupt		1
 F io_error		2
 F is			2
 F isovar		1
+F key_value_position	7
 F larger		2
 F larger_equal		2
+F lgamma		1
 F line_count		1
 F list_position		4
 F listing		1
+F locale		1
 F locked		2
 F log			1
 F log10			1
 F lsb			1
 F lshift		2
+F map_position		5
 F max			2
 F max_size		1
 F message_lines		1
@@ -869,6 +913,8 @@ F procedure		2
 F prove			1
 F prove			2
 F punct			2
+F quasi_quotation	4
+F quasi_quotation_position  5
 F random		1
 F random_float		0
 F rational		1
@@ -876,6 +922,7 @@ F rationalize		1
 F rdiv			2
 F redo			1
 F rem			2
+F repeat		1
 F reposition		1
 F representation_error	1
 F representation_errors 1
@@ -913,6 +960,7 @@ F tan			1
 F tanh			1
 F term_expansion	2
 F term_position		5
+F thousands_sep		1
 F timeout		1
 F timeout_error		2
 F trace			1

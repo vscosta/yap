@@ -109,13 +109,15 @@ destroyHTable(Table ht)
 static int lookups;
 static int cmps;
 
-void
+int
 exitTables(int status, void *arg)
 { (void)status;
   (void)arg;
 
   Sdprintf("hashstat: Anonymous tables: %d lookups using %d compares\n",
 	   lookups, cmps);
+
+  return 0;
 }
 #endif
 
@@ -173,7 +175,7 @@ rehashHTable(Table ht, Symbol map)
 { Symbol *newentries, *oldentries;
   int     newbuckets, oldbuckets;
   int     i;
-#ifdef O_PLMT
+#if P_PLMT
   int     safe_copy = (ht->mutex != NULL);
 #else
   int     safe_copy = TRUE;

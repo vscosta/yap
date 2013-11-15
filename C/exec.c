@@ -19,6 +19,7 @@ static char     SccsId[] = "@(#)cdmgr.c	1.1 05/02/98";
 #endif
 
 #include "absmi.h"
+#include "pl-shared.h"
 #include "yapio.h"
 #include "attvar.h"
 #ifdef CUT_C
@@ -1744,10 +1745,12 @@ Yap_InitYaamRegs( int myworker_id )
 #ifdef THREADS
   CACHE_REGS
    if (myworker_id) {
-    pthread_setspecific(Yap_yaamregs_key, (const void *)REMOTE_ThreadHandle(myworker_id).default_yaam_regs);
-    REMOTE_ThreadHandle(myworker_id).current_yaam_regs = REMOTE_ThreadHandle(myworker_id).default_yaam_regs;
-    REFRESH_CACHE_REGS
-  }
+     REGSTORE *rs = REMOTE_ThreadHandle(myworker_id).default_yaam_regs;
+     pthread_setspecific(Yap_yaamregs_key,  (const void *)rs);
+     REMOTE_PL_local_data_p(myworker_id)->reg_cache = rs;
+     REMOTE_ThreadHandle(myworker_id).current_yaam_regs = rs;
+     REFRESH_CACHE_REGS
+   }
   /* may be run by worker_id on behalf on myworker_id */
 #else
   Yap_regp = &Yap_standard_regs;

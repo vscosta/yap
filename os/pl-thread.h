@@ -1,15 +1,30 @@
-#ifndef PL_THREAD_H
+/*  Part of SWI-Prolog
 
-#define PL_THREAD_H 1
+    Author:        Jan Wielemaker
+    E-mail:        J.Wielemaker@cs.vu.nl
+    WWW:           http://www.swi-prolog.org
+    Copyright (C): 1985-2012, University of Amsterdam
+			      VU University Amsterdam
 
-#if defined(THREADS) && !defined(O_PLMT)
-#define O_PLMT 1
-#endif
+    This library is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Lesser General Public
+    License as published by the Free Software Foundation; either
+    version 2.1 of the License, or (at your option) any later version.
 
-#if defined(O_PLMT) // && defined(PL_KERNEL)
-/* Support PL_LOCK in the interface */
-#if THREADS
+    This library is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Lesser General Public License for more details.
 
+    You should have received a copy of the GNU Lesser General Public
+    License along with this library; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+*/
+
+#ifndef PL_THREAD_H_DEFINED
+#define PL_THREAD_H_DEFINED
+
+#ifdef THREADS
 #include <pthread.h>
 
 typedef pthread_mutex_t simpleMutex;
@@ -67,9 +82,10 @@ extern counting_mutex _PL_mutexes[];	/* Prolog mutexes */
 #define L_STOPTHEWORLD 19
 #define L_FOREIGN      20
 #define L_OS           21
+#define L_LOCALE       23
 #ifdef __WINDOWS__
-#define L_DDE          22
-#define L_CSTACK       23
+#define L_DDE	       24
+#define L_CSTACK       25
 #endif
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -128,8 +144,6 @@ compile-time
 
 #define IOLOCK  recursiveMutex
 
-#endif
-
 #else
 #define PL_LOCK(X)		
 #define PL_UNLOCK(X)
@@ -138,3 +152,5 @@ typedef void *		IOLOCK;
 #endif
 
 #endif
+
+

@@ -1,81 +1,15 @@
 
-#ifndef PL_SHARED_INCLUDE
+#ifndef PL_SHARED_H
 
-#define PL_SHARED_INCLUDE
+#define PL_SHARED_H
 
-#if defined(__GNUC__) && !defined(MAY_ALIAS)
-#define MAY_ALIAS __attribute__ ((__may_alias__))
-#else
-#define MAY_ALIAS
-#endif
-
-#define COMMON(X) X
-
-#ifndef PL_HAVE_TERM_T
-#define PL_HAVE_TERM_T
-typedef	uintptr_t    term_t;
-#endif
-
-#if  !defined(_FLI_H_INCLUDED) && !defined(PL_INCL_H)
-
-#ifdef __WINDOWS__
-#include <windows.h>
-#include <windows/uxnt.h>
-#endif
-
-typedef int	bool;
-
-
-typedef	DBTerm *record_t;
-typedef struct mod_entry *module_t;
-typedef uintptr_t	atom_t;
-
-typedef int  (*PL_dispatch_hook_t)(int fd);
-
-typedef	struct pred_entry    *predicate_t;
-
-typedef uintptr_t	PL_fid_t;	/* opaque foreign context handle */
-#define fid_t PL_fid_t			/* avoid AIX name-clash */
-
-typedef uintptr_t		word;		/* Anonymous 4 byte object */
-#endif
-
-#define GLOBAL_LD (LOCAL_PL_local_data_p)
-
-#if !defined(O_PLMT) && !defined(YAPOR)
-#define LOCAL_LD (GLOBAL_LD)
-#define LD (GLOBAL_LD)
-#define ARG1_LD   void
-#define ARG_LD
-#define GET_LD
-#define PRED_LD
-#define PASS_LD
-#define PASS_LD1 
-#define IGNORE_LD
-
-#else
-
-#define LOCAL_LD (__PL_ld)
-#define LD	  LOCAL_LD
-
-#define GET_LD	  CACHE_REGS struct PL_local_data *__PL_ld = GLOBAL_LD;
-#define ARG1_LD   struct PL_local_data *__PL_ld
-
-#define ARG_LD    , ARG1_LD
-#define PASS_LD1  LD
-#define PASS_LD   , LD
-#define PRED_LD   GET_LD
-#define IGNORE_LD (void)__PL_ld;
-
-#endif
-
-#if _WIN32
-#ifndef THREADS
-typedef int pthread_t;
-#endif
-#endif
+#include "pl-basic.h"
 
 #include "SWI-Stream.h"
+
+#define O_LOCALE 1
+
+#include "pl-locale.h"		/* Locale objects */
 
 		 /*******************************
 		 *	    STREAM I/O		*

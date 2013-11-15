@@ -36,7 +36,7 @@ typedef enum
   CLN_DATA				/* Remaining data */
 } cleanup_status;
 
-#ifdef O_PLMT
+#ifdef THREADS
 
 typedef struct free_chunk *FreeChunk;   /* left-over chunk */
 
@@ -262,6 +262,13 @@ typedef struct {
 /* #endif */
   } procedures;
 
+#ifdef O_LOCALE
+  struct
+  { Table               localeTable;    /* Name --> locale table */
+    PL_locale          *default_locale; /* System wide default */
+  } locale;
+#endif
+
 } gds_t;
 
 extern gds_t gds;
@@ -382,29 +389,16 @@ typedef struct PL_local_data {
   } gmp;
 #endif
 
+  struct regstore_t *reg_cache;         /* pointer to YAP registers */
+
+#ifdef O_LOCALE
+  struct
+  { PL_locale *current;                 /* Current locale */
+  } locale;
+#endif
+
 }  PL_local_data_t;
 
 
-#define usedStack(D) 0
-
-#define features		(LD->feature.mask)
-
 extern PL_local_data_t lds;
 
-#define exception_term		(LD->exception.term)
-
-#define Suser_input             (LD->IO.streams[0])
-#define Suser_output            (LD->IO.streams[1])
-#define Suser_error             (LD->IO.streams[2])
-#define Scurin                  (LD->IO.streams[3])
-#define Scurout                 (LD->IO.streams[4])
-#define Sprotocol               (LD->IO.streams[5])
-#define Sdin                    Suser_input             /* not used for now */
-#define Sdout                   Suser_output
-
-#define source_line_no		(LD->read_source.line)
-#define source_file_name	(LD->read_source.file)
-#define source_line_pos		(LD->read_source.linepos)
-#define source_char_no		(LD->read_source.character)
-
-#define debugstatus		(LD->_debugstatus)

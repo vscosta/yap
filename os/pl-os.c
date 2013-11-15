@@ -43,8 +43,7 @@ is supposed to give the POSIX standard one.
 #include "pl-incl.h"
 #include "pl-ctype.h"
 #include "pl-utf8.h"
-#undef abs
-#include <math.h>		/* avoid abs() problem with msvc++ */
+#include <math.h>
 #include <stdio.h>		/* rename() and remove() prototypes */
 
 #if TIME_WITH_SYS_TIME
@@ -203,11 +202,6 @@ static char errmsg[64];
     consult a file or to execute a query.
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#ifdef HAVE_CLOCK_GETTIME
-#define timespec_to_double(ts) \
-	((double)(ts).tv_sec + (double)(ts).tv_nsec/(double)1000000000.0)
-#endif
-
 #ifndef __WINDOWS__			/* defined in pl-nt.c */
 
 #ifdef HAVE_TIMES
@@ -223,6 +217,11 @@ static char errmsg[64];
 #endif
 #endif /*_SC_CLK_TCK*/
 #endif /*HAVE_TIMES*/
+
+#ifdef HAVE_CLOCK_GETTIME
+#define timespec_to_double(ts) \
+	((double)(ts).tv_sec + (double)(ts).tv_nsec/(double)1000000000.0)
+#endif
 
 double
 CpuTime(cputime_kind which)
@@ -398,7 +397,7 @@ setOSPrologFlags(void)
 
 uintptr_t
 UsedMemory(void)
-{ GET_LD
+{ //GET_LD
 
 #if defined(HAVE_GETRUSAGE) && defined(HAVE_RU_IDRSS)
   struct rusage usage;
@@ -1478,12 +1477,9 @@ AbsoluteFile(const char *spec, char *path)
   }
 
   strcpy(path, GD->paths.CWDdir);
-  if ( file[0] != EOS )
-    strcpy(&path[GD->paths.CWDlen], file);
-  if ( strchr(file, '.') || strchr(file, '/') )
-    return canonisePath(path);
-  else
-    return path;
+  strcpy(&path[GD->paths.CWDlen], file);
+
+  return canonisePath(path);
 }
 
 

@@ -19,7 +19,7 @@
 
     You should have received a copy of the GNU Lesser General Public
     License along with this library; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "pl-incl.h"
@@ -39,6 +39,7 @@ typedef union
   long *l;				/* long value */
   int  *i;				/* integer value */
   uintptr_t *sz;			/* size_t value */
+  double *f;				/* double value */
   char **s;				/* string value */
   word *a;				/* atom value */
   term_t *t;				/* term-reference */
@@ -93,37 +94,30 @@ scan_options(term_t options, int flags, atom_t optype,
     { if ( s->name == name )
       { switch((s->type & OPT_TYPE_MASK))
 	{ case OPT_BOOL:
-	  { atom_t aval;
+	  { int bval;
 
-	    if ( !PL_get_atom(val, &aval) )
-	      fail;
-	    if ( aval == ATOM_true || aval == ATOM_on )
-	      *values[n].b = TRUE;
-	    else if ( aval == ATOM_false || aval == ATOM_off )
-	      *values[n].b = FALSE;
-	    else
-	      goto itemerror;
+	    if ( !PL_get_bool_ex(val, &bval) )
+	      return FALSE;
+	    *values[n].b = bval;
 	    break;
 	  }
 	  case OPT_INT:
-	  { if ( !PL_get_integer(val, values[n].i) )
-	      goto itemerror;
+	  { if ( !PL_get_integer_ex(val, values[n].i) )
+	      return FALSE;
 
 	    break;
 	  }
 	  case OPT_LONG:
-	  { if ( !PL_get_long(val, values[n].l) )
-	    { if ( (s->type & OPT_INF) && PL_is_inf(val) )
-		*values[n].l = LONG_MAX;
-	      else
-		goto itemerror;
-	    }
+	  { if ( (s->type & OPT_INF) && PL_is_inf(val) )
+	      *values[n].l = LONG_MAX;
+	    else if ( !PL_get_long_ex(val, values[n].l) )
+	      return FALSE;
 
 	    break;
 	  }
 	  case OPT_NATLONG:
-	  { if ( !PL_get_long(val, values[n].l) )
-	      goto itemerror;
+	  { if ( !PL_get_long_ex(val, values[n].l) )
+	      return FALSE;
 	    if ( *(values[n].l) <= 0 )
 	      return PL_error(NULL, 0, NULL, ERR_DOMAIN,
 			      ATOM_not_less_than_one, val);
@@ -131,31 +125,46 @@ scan_options(term_t options, int flags, atom_t optype,
 	    break;
 	  }
 	  case OPT_SIZE:
-	  { if ( !PL_get_uintptr(val, values[n].sz) )
-	    { if ( (s->type & OPT_INF) && PL_is_inf(val) )
-		*values[n].sz = (size_t)-1;
-	      else
-		goto itemerror;
-	    }
+	  { if ( (s->type & OPT_INF) && PL_is_inf(val) )
+	      *values[n].sz = (size_t)-1;
+	    else if ( !PL_get_size_ex(val, values[n].sz) )
+	      return FALSE;
+
+	    break;
+	  }
+	  case OPT_DOUBLE:
+	  { if ( !PL_get_float_ex(val, values[n].f) )
+	      return FALSE;
 
 	    break;
 	  }
 	  case OPT_STRING:
 	  { char *str;
 
-	    if ( !PL_get_chars(val, &str, CVT_ALL) ) /* copy? */
-	      goto itemerror;
+	    if ( !PL_get_chars(val, &str, CVT_ALL|CVT_EXCEPTION) ) /* copy? */
+	      return FALSE;
 	    *values[n].s = str;
 	    break;
 	  }
 	  case OPT_ATOM:
 	  { atom_t a;
 
-	    if ( !PL_get_atom(val, &a) )
-	      goto itemerror;
+	    if ( !PL_get_atom_ex(val, &a) )
+	      return FALSE;
 	    *values[n].a = a;
 	    break;
 	  }
+#ifdef O_LOCALE
+	  case OPT_LOCALE:
+	  { PL_locale *l;
+	    PL_locale **lp = values[n].ptr;
+
+	    if ( !getLocaleEx(val, &l) )
+	      return FALSE;
+	    *lp = l;
+	    break;
+	  }
+#endif
 	  case OPT_TERM:
 	  { *values[n].t = val;
 	    val = PL_new_term_ref();	/* can't reuse anymore */

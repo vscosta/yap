@@ -187,7 +187,8 @@ kill_thread_engine (int wid, int always_die)
   REMOTE_ActiveSignals(wid) = 0L;
   if (REMOTE_ScratchPad(wid).ptr)
     free(REMOTE_ScratchPad(wid).ptr);
-  REMOTE_ThreadHandle(wid).current_yaam_regs = NULL;
+  REMOTE_PL_local_data_p(wid)->reg_cache =
+    REMOTE_ThreadHandle(wid).current_yaam_regs = NULL;
   if (REMOTE_ThreadHandle(wid).start_of_timesp)
     free(REMOTE_ThreadHandle(wid).start_of_timesp);
   if (REMOTE_ThreadHandle(wid).last_timep)
@@ -266,6 +267,8 @@ setup_engine(int myworker_id, int init_thread)
   regcache = standard_regs;
   /* create the YAAM descriptor */
   REMOTE_ThreadHandle(myworker_id).default_yaam_regs = standard_regs;
+  REMOTE_ThreadHandle(myworker_id).current_yaam_regs = standard_regs;
+  REMOTE_PL_local_data_p(myworker_id)->reg_cache = standard_regs;
   Yap_InitExStacks(myworker_id, REMOTE_ThreadHandle(myworker_id).tsize, REMOTE_ThreadHandle(myworker_id).ssize);
   LOCAL_SourceModule = CurrentModule = REMOTE_ThreadHandle(myworker_id).cmod;
   Yap_InitTime( myworker_id );
@@ -1002,16 +1005,20 @@ void
 Yap_InitFirstWorkerThreadHandle(void)
 {
   CACHE_REGS
+  set_system_thread_id(0, NULL);
   LOCAL_ThreadHandle.id = 0;
   LOCAL_ThreadHandle.in_use = TRUE;
   LOCAL_ThreadHandle.default_yaam_regs = 
+    &Yap_standard_regs;
+  LOCAL_ThreadHandle.current_yaam_regs = 
+    &Yap_standard_regs;
+  LOCAL_PL_local_data_p->reg_cache =
     &Yap_standard_regs;
   LOCAL_ThreadHandle.pthread_handle = pthread_self();
   pthread_mutex_init(&REMOTE_ThreadHandle(0).tlock, NULL);
   pthread_mutex_init(&REMOTE_ThreadHandle(0).tlock_status, NULL);
   LOCAL_ThreadHandle.tdetach = MkAtomTerm(AtomFalse);
   LOCAL_ThreadHandle.ref_count = 1;
-  set_system_thread_id(0, NULL);
 }
 
 

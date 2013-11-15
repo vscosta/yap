@@ -1038,7 +1038,7 @@ PL_dispatch(int fd, int wait)
    YAP: YAP_Atom YAP_AtomOfTerm(Term) */
 int PL_get_atom__LD(term_t ts, atom_t *a ARG_LD)
 {
-  CACHE_REGS
+  REGS_FROM_LD
   YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
   if ( !IsAtomTerm(t))
     return 0;
@@ -1048,27 +1048,33 @@ int PL_get_atom__LD(term_t ts, atom_t *a ARG_LD)
 
 void PL_put_term__LD(term_t d, term_t s ARG_LD)
 {
-  CACHE_REGS
+  REGS_FROM_LD
   Yap_PutInSlot(d,Yap_GetFromSlot(s PASS_REGS) PASS_REGS);
 }
 
 term_t PL_new_term_ref__LD(ARG1_LD)
 {
-  CACHE_REGS
+  REGS_FROM_LD
   term_t to = Yap_NewSlots(1 PASS_REGS);
   return to;
 }
 
 int PL_is_variable__LD(term_t ts ARG_LD)
 {
-  CACHE_REGS
+  REGS_FROM_LD
   YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
   return YAP_IsVarTerm(t);
 }
 
+X_API int PL_unify__LD(term_t t1, term_t t2 ARG_LD)
+{
+  REGS_FROM_LD
+  return Yap_unify(Yap_GetFromSlot(t1 PASS_REGS),Yap_GetFromSlot(t2 PASS_REGS));
+}
+
 int PL_unify_atom__LD(term_t t, atom_t at ARG_LD)
 {
-  CACHE_REGS
+  REGS_FROM_LD
   YAP_Term cterm = MkAtomTerm(YAP_AtomFromSWIAtom(at));
   return YAP_Unify(Yap_GetFromSlot(t PASS_REGS),cterm);
 }
@@ -1077,10 +1083,43 @@ int PL_unify_atom__LD(term_t t, atom_t at ARG_LD)
    YAP long int  unify(YAP_Term* a, Term* b) */
 int PL_unify_integer__LD(term_t t, intptr_t i ARG_LD)
 {	
-  CACHE_REGS
+  REGS_FROM_LD
   Term iterm = MkIntegerTerm(i);
   return Yap_unify(Yap_GetFromSlot(t PASS_REGS),iterm);
 }
+
+/* SWI: int PL_unify_integer(term_t ?t, long n)
+   YAP long int  unify(YAP_Term* a, Term* b) */
+X_API int PL_unify_int64__LD(term_t t, int64_t n ARG_LD)
+{	
+  REGS_FROM_LD
+#if SIZEOF_INT_P==8
+  Term iterm = MkIntegerTerm(n);
+  return Yap_unify(Yap_GetFromSlot(t PASS_REGS),iterm);
+#elif USE_GMP
+  YAP_Term iterm;
+  char s[64];
+  MP_INT rop;
+
+#ifdef _WIN32
+  snprintf(s, 64, "%I64d", (long long int)n);
+#elif HAVE_SNPRINTF
+  snprintf(s, 64, "%lld", (long long int)n);
+#else
+  sprintf(s, "%lld", (long long int)n);
+#endif
+  mpz_init_set_str (&rop, s, 10);
+  iterm = YAP_MkBigNumTerm((void *)&rop);
+  return YAP_Unify(Yap_GetFromSlot(t PASS_REGS),iterm);
+#else
+  if ((long)n == n)
+    return PL_unify_integer(t, n);
+  fprintf(stderr,"Error in PL_unify_int64: please install GMP\n");
+  return FALSE;
+#endif
+
+}
+
 
 
 #ifdef _WIN32
@@ -1495,5 +1534,7 @@ recursiveMutexInit(recursiveMutex *m)
   return pthread_mutex_init(m, attr);
 
 }
+
+
 
 #endif

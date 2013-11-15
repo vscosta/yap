@@ -19,7 +19,7 @@
 
     You should have received a copy of the GNU Lesser General Public
     License along with this library; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #ifndef OPTION_H_INCLUDED
@@ -33,6 +33,8 @@
 #define OPT_LONG	(5)
 #define OPT_NATLONG	(6)		/* > 0 */
 #define OPT_SIZE	(7)		/* size_t */
+#define OPT_DOUBLE	(8)
+#define OPT_LOCALE	(9)
 #define OPT_TYPE_MASK	0xff
 #define OPT_INF		0x100		/* allow 'inf' */
 
@@ -43,7 +45,7 @@ typedef struct
   int		type;			/* Type of option */
 } opt_spec, *OptSpec;
 
-COMMON(int) 		scan_options(term_t list, int flags, atom_t name,
+COMMON(int)		scan_options(term_t list, int flags, atom_t name,
 				     const opt_spec *specs, ...);
 
 #endif /*OPTION_H_INCLUDED*/
