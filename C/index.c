@@ -483,7 +483,7 @@ static char     SccsId[] = "%W% %G%";
 #include "absmi.h"
 #include "compile.h"
 #include "index.h"
-#ifdef DEBUG
+#if DEBUG
 #include "yapio.h"
 #endif
 #ifndef NULL
@@ -2846,7 +2846,7 @@ Yap_PredIsIndexable(PredEntry *ap, UInt NSlots, yamop *next_pc)
     CleanCls(&cint);
     return FAILCODE;
   }
-#ifdef DEBUG
+#if DEBUG
   if (GLOBAL_Option['i' - 'a' + 1]) {
     Yap_ShowCode(&cint);
   }
@@ -3263,7 +3263,7 @@ index_jmp(ClausePointer cur, ClausePointer parent, yamop *ipc, int is_lu, yamop 
     /* maybe I am a new group */
     ncur = ClauseCodeToLogUpdIndex(ipc);
     if (ncur->ParentIndex != lcur) {
-#ifdef DEBUG
+#if DEBUG
       fprintf(stderr,"OOPS, bad parent in lu index\n");
 #endif
       cur.lui = NULL;
@@ -3990,7 +3990,7 @@ ExpandIndex(PredEntry *ap, int ExtraArgs, yamop *nextop USES_REGS) {
   } else {
     expand_clauses = NULL;
   }
-#ifdef DEBUG
+#if DEBUG
   if (GLOBAL_Option['i' - 'a' + 1]) {
     Term tmod = ap->ModuleOfPred;
     if (!tmod) tmod = TermProlog;
@@ -4052,7 +4052,7 @@ ExpandIndex(PredEntry *ap, int ExtraArgs, yamop *nextop USES_REGS) {
     CleanCls(&cint);
     return FAILCODE;
   }
-#ifdef DEBUG
+#if DEBUG
   if (GLOBAL_Option['i' - 'a' + 1]) {
     Yap_ShowCode(&cint);
   }
@@ -4522,7 +4522,7 @@ remove_clause_from_index(yamop *header, LogUpdClause *cl)
     ocurp->u.OtILl.block = curp->u.OtILl.block;
   }
   header->u.Illss.e--;
-#ifdef DEBUG
+#if DEBUG
   Yap_DirtyCps--;
   Yap_FreedCps++;
 #endif
@@ -4549,7 +4549,7 @@ remove_dirty_clauses_from_index(yamop *header)
     yamop *ocurp = curp;
 
     header->u.Illss.e--;
-#ifdef DEBUG
+#if DEBUG
     Yap_DirtyCps--;
     Yap_FreedCps++;
 #endif
@@ -4586,7 +4586,7 @@ remove_dirty_clauses_from_index(yamop *header)
       yamop *ocurp = curp;
 
       header->u.Illss.e--;
-#ifdef DEBUG
+#if DEBUG
       Yap_DirtyCps--;
       Yap_FreedCps++;
 #endif
@@ -4956,7 +4956,7 @@ add_try(PredEntry *ap, ClauseDef *cls, yamop *next, struct intermediates *cint)
     siglongjmp(cint->CompilerBotch,2);
   }
   Yap_LUIndexSpace_CP += size;
-#ifdef DEBUG
+#if DEBUG
   Yap_NewCps++;
   Yap_LiveCps++;
 #endif
@@ -4982,7 +4982,7 @@ add_trust(LogUpdIndex *icl, ClauseDef *cls, struct intermediates *cint)
     siglongjmp(cint->CompilerBotch,2);
   }
   Yap_LUIndexSpace_CP += size;
-#ifdef DEBUG
+#if DEBUG
   Yap_NewCps++;
   Yap_LiveCps++;
 #endif
@@ -5477,7 +5477,7 @@ Yap_AddClauseToIndex(PredEntry *ap, yamop *beg, int first) {
   }
   LOCAL_Error_Size = 0;
   LOCAL_ErrorMessage = NULL;
-#ifdef DEBUG
+#if DEBUG
   if (GLOBAL_Option['i' - 'a' + 1]) {
     Term tmod = ap->ModuleOfPred;
     if (!tmod) tmod = TermProlog;
@@ -5637,7 +5637,7 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
     case _enter_lu_pred:
       ipc->u.Illss.s--;
       ipc->u.Illss.e++;
-#ifdef DEBUG
+#if DEBUG
       Yap_DirtyCps++;
       Yap_LiveCps--;
 #endif
@@ -5956,7 +5956,7 @@ Yap_RemoveClauseFromIndex(PredEntry *ap, yamop *beg) {
     }
     return;
   }
-#ifdef DEBUG
+#if DEBUG
   if (GLOBAL_Option['i' - 'a' + 1]) {
     Term tmod = ap->ModuleOfPred;
 

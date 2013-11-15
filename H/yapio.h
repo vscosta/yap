@@ -51,19 +51,6 @@
 #define YP_fdopen	fdopen
 #define init_yp_stdio()
 
-#if defined(_MSC_VER) || defined(__MINGW32__)
-#define open _open
-#define close _close
-#define popen _popen
-#define pclose _pclose
-#define read _read
-#define write _write
-#define isatty _isatty
-#define putenv(S) _putenv(S)
-#define chdir(P) _chdir(P)
-#define getcwd(B,S) _getcwd(B,S)
-#endif
-
 #define YP_FILE		FILE
 
 int     YP_putc(int, int);

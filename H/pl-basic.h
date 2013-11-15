@@ -10,20 +10,22 @@
 
 #define O_LOCALE 1
 
-#ifdef __WINDOWS__
-#include <windows.h>
-#include <windows/uxnt.h>
-#define O_HASDRIVES 1
-#define O_HASSHARES 1
-#define EMULATE_DLOPEN 1
-#endif
-
 #ifndef PL_CONSOLE
 #define PL_KERNEL 1
 #endif
 
 #ifdef __MINGW32__
+#ifndef O_XOS
 #define O_XOS 1
+#endif
+#ifndef __WINDOWS__
+#define __WINDOWS__ 1
+#endif
+#endif
+
+#ifdef __WINDOWS__
+#include <windows.h>
+#include <windows/uxnt.h>
 #endif
 
 #ifndef __unix__
@@ -56,6 +58,9 @@ typedef	uintptr_t    term_t;
 typedef int pthread_t;
 #endif
 #endif
+
+typedef uintptr_t		word;		/* Anonymous 4 byte object */
+
 
 #if  !defined(_FLI_H_INCLUDED)
 

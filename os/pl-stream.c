@@ -21,7 +21,7 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifdef __WINDOWS__
+#if defined(__WINDOWS__) || defined(__MINGW32__)
 #include "windows/uxnt.h"
 #ifdef _YAP_NOT_INSTALLED_
 #include <config.h>

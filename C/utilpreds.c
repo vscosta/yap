@@ -1559,7 +1559,7 @@ ShiftPtr(CELL t, char *base)
 }
 
 static Atom
-AddAtom(Atom t, char *buf)
+addAtom(Atom t, char *buf)
 {
   char *s = buf+(UInt)t;
 
@@ -1581,7 +1581,7 @@ FetchFunctor(CELL *pt, char *buf)
   // and then an atom
   ptr = AdjustSize(ptr, buf);
   name = (Atom)((char *)ptr-buf);
-  at = AddAtom(name, buf);
+  at = addAtom(name, buf);
   *pt = (CELL)Yap_MkFunctor(at, arity);
   return arity;
 }
@@ -1597,7 +1597,7 @@ import_arg(CELL *hp, char *abase, char *buf, CELL *amax)
   if (IsVarTerm(t)) {
     hp[0] = (CELL)ShiftPtr(t, abase);
   } else if (IsAtomTerm(t)) {
-    hp[0] = MkAtomTerm(AddAtom(AtomOfTerm(t), buf));
+    hp[0] = MkAtomTerm(addAtom(AtomOfTerm(t), buf));
   } else if (IsPairTerm(t)) {
     CELL *newp = ShiftPtr((CELL)RepPair(t), abase);
     hp[0] = AbsPair(newp);
@@ -1649,7 +1649,7 @@ Yap_ImportTerm(char * buf) {
   else if (IsIntTerm(tinp))
     return tinp;
   else if (IsAtomTerm(tinp)) {
-    tret = MkAtomTerm(AddAtom(NULL,(char *)(bc+3)));
+    tret = MkAtomTerm(addAtom(NULL,(char *)(bc+3)));
     return tret;
   }
   if (H + sz > ASP)
@@ -3710,7 +3710,7 @@ MurmurHashNeutral2 ( const void * key, int len, unsigned int seed )
 } 
 
 static CELL *
-AddAtomToHash(CELL *st, Atom at)
+addAtomToHash(CELL *st, Atom at)
 {
   unsigned int len;
 
@@ -3778,14 +3778,14 @@ hash_complex_term(register CELL *pt0,
       if (IsAtomOrIntTerm(d0)) {
 	if (d0 != TermFoundVar) {
 	  if (IsAtomTerm(d0)) {
-	    st = AddAtomToHash(st, AtomOfTerm(d0));
+	    st = addAtomToHash(st, AtomOfTerm(d0));
 	  } else {
 	    *st++ = IntOfTerm(d0);
 	  }
 	}
 	continue;
       } else if (IsPairTerm(d0)) {
-	st = AddAtomToHash(st, AtomDot);
+	st = addAtomToHash(st, AtomDot);
 	if (depth == 1)
 	  continue;
 	if (to_visit + 256 >= (visited_t *)AuxSp) {
@@ -3848,7 +3848,7 @@ hash_complex_term(register CELL *pt0,
 	  }
 	  continue;
 	}
-	st = AddAtomToHash(st, NameOfFunctor(f));
+	st = addAtomToHash(st, NameOfFunctor(f));
 	if (depth == 1)
 	  continue;
 	if (to_visit + 1024 >= (visited_t *)AuxSp) {

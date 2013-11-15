@@ -202,7 +202,15 @@ static char errmsg[64];
     consult a file or to execute a query.
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
+#ifdef HAVE_CLOCK_GETTIME
+#define timespec_to_double(ts) \
+	((double)(ts).tv_sec + (double)(ts).tv_nsec/(double)1000000000.0)
+#endif
+
 #ifndef __WINDOWS__			/* defined in pl-nt.c */
+
+#define HAVE_CLOCK_GETTIME
+#define HAVE_TIMES
 
 #ifdef HAVE_TIMES
 #include <sys/times.h>
@@ -218,10 +226,6 @@ static char errmsg[64];
 #endif /*_SC_CLK_TCK*/
 #endif /*HAVE_TIMES*/
 
-#ifdef HAVE_CLOCK_GETTIME
-#define timespec_to_double(ts) \
-	((double)(ts).tv_sec + (double)(ts).tv_nsec/(double)1000000000.0)
-#endif
 
 double
 CpuTime(cputime_kind which)

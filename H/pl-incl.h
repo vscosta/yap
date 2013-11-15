@@ -13,6 +13,22 @@
 #include <errno.h>
 #endif
 
+
+#ifdef __MINGW32__
+#define O_XOS 1
+#ifndef __WINDOWS__
+#define __WINDOWS__ 1
+#endif
+#endif
+
+#ifdef __WINDOWS__
+#include <windows.h>
+#include <windows/uxnt.h>
+#define O_HASDRIVES 1
+#define O_HASSHARES 1
+#define EMULATE_DLOPEN 1
+#endif
+
 #include "Yap.h"
 #include "YapHeap.h"
 
@@ -62,7 +78,6 @@ do_endCritical(void) {
 #include <SWI-Stream.h>
 #include <SWI-Prolog.h>
 typedef int			Char;		/* char that can pass EOF */
-typedef uintptr_t		word;		/* Anonymous 4 byte object */
 
 #define usedStack(D) 0
 

@@ -56,7 +56,7 @@ static char     SccsId[] = "%W% %G%";
 #include <string.h>
 #endif
 
-#ifdef DEBUG
+#if DEBUG
 
 #define	LOGFILE	"logfile"
 
@@ -204,7 +204,7 @@ Yap_OpDec(int p, char *type, Atom a, Term m)
 static void 
 SetOp(int p, int type, char *at, Term m)
 {
-#ifdef DEBUG
+#if DEBUG
   if (GLOBAL_Option[5])
     fprintf(stderr,"[setop %d %s %s]\n", p, optypes[type], at);
 #endif
@@ -334,7 +334,7 @@ InitOps(void)
     SetOp(Ops[i].opPrio, Ops[i].opType, Ops[i].opName, PROLOG_MODULE);
 }
 
-#ifdef DEBUG
+#if DEBUG
 #ifdef HAVE_ISATTY
 #include <unistd.h>
 #endif
@@ -344,7 +344,7 @@ static void
 InitDebug(void)
 {
   Atom            At;
-#ifdef DEBUG
+#if DEBUG
   int i;
 
   for (i = 1; i < 20; ++i)

@@ -212,6 +212,7 @@
 #undef  HAVE_LABS
 #undef  HAVE_LGAMMA
 #undef  HAVE_LINK
+#undef  HAVE_LOCALECONV
 #undef  HAVE_LOCALTIME
 #undef  HAVE_LSTAT
 #undef  HAVE_MALLINFO
