@@ -111,6 +111,8 @@ typedef void *pl_function_t;
 #define IGNORE_LD
 
 #define REGS_FROM_LD
+#define LD_FROM_CACHE 
+
 #else
 
 #define LOCAL_LD (__PL_ld)
@@ -126,6 +128,7 @@ typedef void *pl_function_t;
 #define IGNORE_LD (void)__PL_ld;
 
 #define REGS_FROM_LD  struct regstore_t *regcache = __PL_ld->reg_cache;
+#define LD_FROM_REGS struct PL_local_data *__PL_ld = LOCAL_PL_local_data_p;
 
 #endif
 

@@ -93,7 +93,7 @@ true :- true.
 
 '$init_globals' :-
 	'$init_consult',
-	nb_setval('$break',0),
+	% '$swi_set_prolog_flag'(break_level, 0),
 	% '$set_read_error_handler'(error), let the user do that 
 	nb_setval('$system_mode',off),
 	nb_setval('$chr_toplevel_show_store',false).
@@ -189,7 +189,7 @@ true :- true.
 	'$clean_up_dead_clauses',
 	fail.
 '$enter_top_level' :-
-	'$nb_getval'('$break',BreakLevel,fail),
+	'$swi_current_prolog_flag'(break_level, BreakLevel),
         '$swi_current_prolog_flag'(debug, DBON),
 	(
 	 '$nb_getval'('$trace', on, fail)
@@ -208,8 +208,8 @@ true :- true.
 	get_value('$top_level_goal',GA), GA \= [], !,
 	set_value('$top_level_goal',[]),
 	'$run_atom_goal'(GA),
-	'$nb_getval'('$break',BreakLevel,fail),
-	( BreakLevel \= 0 -> true ; '$pred_exists'(halt(_), user) -> halt(0) ; '$halt'(0) ).
+	'$swi_current_prolog_flag'(break_level, BreakLevel),
+	( Breaklevel \= 0 -> true ; '$pred_exists'(halt(_), user) -> halt(0) ; '$halt'(0) ).
 '$enter_top_level' :-
 	'$run_toplevel_hooks',
 	prompt1(' ?- '),
@@ -219,7 +219,7 @@ true :- true.
 	nb_setval('$debug_run',off),
 	nb_setval('$debug_jump',off),
 	'$command'(Command,Varnames,_Pos,top),
-	'$nb_getval'('$break',BreakLevel,fail),
+	'$swi_current_prolog_flag'(break_level, BreakLevel),
 	( BreakLevel \= 0 -> true ; '$pred_exists'(halt(_), user) -> halt(0) ; '$halt'(0) ).
 
 
@@ -559,7 +559,7 @@ true :- true.
         flush_output,
 	fail.
 '$present_answer'((?-), Answ) :-
-	'$nb_getval'('$break',BL,fail),
+	'$swi_current_prolog_flag'(break_level, BL ),
 	( BL \= 0 -> 	format(user_error, '[~p] ',[BL]) ;
 			true ),
         ( recorded('$print_options','$toplevel'(Opts),_) ->
@@ -1221,7 +1221,7 @@ catch_ball(Ball, V) :-
 catch_ball(C, C).
 
 '$run_toplevel_hooks' :-
-	'$nb_getval'('$break', 0, fail),
+	'$swi_current_prolog_flag'(break_level, 0 ),
 	recorded('$toplevel_hooks',H,_), 
 	H \= fail, !,
 	( call(user:H1) -> true ; true).

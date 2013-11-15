@@ -273,6 +273,7 @@ static char     SccsId[] = "%W% %G%";
 #include "YapHeap.h"
 #include "eval.h"
 #include "yapio.h"
+#include "pl-shared.h"
 #ifdef TABLING
 #include "tab.macros.h"
 #endif /* TABLING */
@@ -330,6 +331,7 @@ static Int p_runtime( USES_REGS1 );
 static Int p_walltime( USES_REGS1 );
 static Int p_access_yap_flags( USES_REGS1 );
 static Int p_set_yap_flags( USES_REGS1 );
+static Int p_break( USES_REGS1 );
 
 #ifdef BEAM
 Int use_eam( USES_REGS1 );
@@ -1659,11 +1661,6 @@ p_set_yap_flags( USES_REGS1 )
     }
     yap_flags[LANGUAGE_MODE_FLAG] = value;
     break;
-  case STRICT_ISO_FLAG:
-    if (value != 0 && value !=  1)
-      return(FALSE);
-    yap_flags[STRICT_ISO_FLAG] = value;
-    break;
   case SOURCE_MODE_FLAG:
     if (value != 0 && value !=  1)
       return(FALSE);
@@ -1837,13 +1834,17 @@ p_loop( USES_REGS1 ) {
 
 
 static Int
-p_max_tagged_integer( USES_REGS1 ) {
-  return Yap_unify(ARG1, MkIntTerm(MAX_ABS_INT-((CELL)1)));
-}
-
-static Int
-p_min_tagged_integer( USES_REGS1 ) {
-  return Yap_unify(ARG1, MkIntTerm(-MAX_ABS_INT));
+p_break( USES_REGS1 ) {
+  Atom at = AtomOfTerm(Deref( ARG1 ));
+  if (at == AtomTrue) {
+    LOCAL_PL_local_data_p->break_level++;
+    return TRUE;
+  }
+  if (at == AtomFalse) {
+    LOCAL_PL_local_data_p->break_level--;
+    return TRUE;
+  }
+  return FALSE;
 }
 
 void 
@@ -1922,8 +1923,7 @@ Yap_InitCPreds(void)
   Yap_InitCPred("$set_yap_flags", 2, p_set_yap_flags, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$p_system_mode", 1, p_system_mode, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("abort", 0, p_abort, SyncPredFlag);
-  Yap_InitCPred("$max_tagged_integer", 1, p_max_tagged_integer, SafePredFlag);
-  Yap_InitCPred("$min_tagged_integer", 1, p_min_tagged_integer, SafePredFlag);
+  Yap_InitCPred("$break", 1, p_break, SafePredFlag);
 #ifdef BEAM
   Yap_InitCPred("@", 0, eager_split, SafePredFlag);
   Yap_InitCPred(":", 0, force_wait, SafePredFlag);

@@ -42,6 +42,9 @@
 #define Int_MIN  (-Int_MAX-(CELL)1)
 #endif
 
+#define  PLMAXTAGGEDINT (MAX_ABS_INT-((CELL)1))
+#define  PLMINTAGGEDINT (-MAX_ABS_INT)
+
 #define PLMAXINT Int_MAX
 #define PLMININT Int_MIN
 

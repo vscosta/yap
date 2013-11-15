@@ -343,7 +343,6 @@ typedef pthread_rwlock_t rwlock_t;
 typedef enum
 {
   LANGUAGE_MODE_FLAG = 8,
-  STRICT_ISO_FLAG = 9,
   SOURCE_MODE_FLAG = 11,
   WRITE_QUOTED_STRING_FLAG = 13,
   ALLOW_ASSERTING_STATIC_FLAG = 14,

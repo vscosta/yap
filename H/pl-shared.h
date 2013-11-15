@@ -147,5 +147,8 @@ getUnknownModule(module_t m);
 
 COMMON(int)		debugmode(debug_type new, debug_type *old);
 COMMON(int)		tracemode(debug_type new, debug_type *old);
+COMMON(void)		Yap_setCurrentSourceLocation(IOSTREAM **s);
+
+#define SWIAtomToAtom(X) SWI_Atoms[(X)>>1]
 
 #endif /* PL_SHARED_INCLUDE */

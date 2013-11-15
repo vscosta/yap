@@ -506,12 +506,10 @@ yap_flag(max_threads,X) :-
 	'$do_error'(domain_error(flag_value,max_threads+X),yap_flag(max_threads,X)).
 
 '$yap_system_flag'(agc_margin).
-'$yap_system_flag'(answer_format).
 '$yap_system_flag'(chr_toplevel_show_store).
 '$yap_system_flag'(debugger_print_options).
 '$yap_system_flag'(discontiguous_warnings).
 '$yap_system_flag'(dollar_as_lower_case).
-'$yap_system_flag'(double_quotes).
 %		V = fast  ;
 % '$yap_system_flag'(file_name_variables).
 % '$yap_system_flag'(fileerrors ).

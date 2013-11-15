@@ -173,6 +173,7 @@ typedef enum
 #endif
 #if __YAP_PROLOG__
 #include "pl-yap.h"
+
 #if _WIN32
 #define __WINDOWS__ 1
 #else
@@ -533,8 +534,6 @@ extern int _PL_unify_atomic(term_t t, PL_atomic_t a);
 extern int _PL_unify_string(term_t t, word w);
 
 
-#define _PL_get_arg(X,Y,Z) PL_get_arg(X,Y,Z)
-
 extern IOSTREAM **			/* provide access to Suser_input, */
   _PL_streams(void);			/* Suser_output and Suser_error */
 
@@ -781,12 +780,14 @@ COMMON(int)             f_is_prolog_atom_start(wint_t c);
 COMMON(int)             f_is_prolog_identifier_continue(wint_t c);
 COMMON(int)             f_is_prolog_symbol(wint_t c);
 
+COMMON(int)		_PL_get_arg__LD(int index, term_t t, term_t a ARG_LD);
 
 COMMON(int) 		PL_get_atom__LD(term_t t1, atom_t *a ARG_LD);
 COMMON(int) 		PL_get_atom_ex__LD(term_t t, atom_t *a ARG_LD);
 COMMON(int)		PL_get_text__LD(term_t l, PL_chars_t *text, int flags ARG_LD);
 COMMON(int) 		PL_is_variable__LD(term_t t ARG_LD);
 COMMON(term_t) 		PL_new_term_ref__LD(ARG1_LD);
+COMMON(int) 		PL_put_atom__LD(term_t t, atom_t a ARG_LD);
 COMMON(void) 		PL_put_term__LD(term_t t1, term_t t2 ARG_LD);
 COMMON(int) 		PL_unify__LD(term_t t1, term_t t2 ARG_LD);
 COMMON(int) 		PL_unify_atom__LD(term_t t, atom_t a ARG_LD);

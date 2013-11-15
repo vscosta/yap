@@ -30,6 +30,7 @@ static char     SccsId[] = "%W% %G%";
 #include "YapHeap.h"
 #include "eval.h"
 #include "yapio.h"
+#include "pl-shared.h"
 #ifdef TABLING
 #include "tab.macros.h"
 #endif /* TABLING */
@@ -656,8 +657,9 @@ p_atom_chars( USES_REGS1 )
       return(FALSE);		
     }
     {
+      LD_FROM_REGS
       /* ISO Prolog Mode */
-      int has_atoms = yap_flags[STRICT_ISO_FLAG];
+      int has_atoms = truePrologFlag(PLFLAG_ISO);
       int has_ints =  FALSE;
 
       while (t != TermNil) {
@@ -1308,7 +1310,8 @@ p_atom_length( USES_REGS1 )
     }
     return Yap_unify(ARG2, MkIntegerTerm(len));
   } else if (!IsAtomTerm(t1)) {
-    if (!yap_flags[STRICT_ISO_FLAG]) {
+    LD_FROM_REGS
+    if (!truePrologFlag(PLFLAG_ISO)) {
       char *String; 
 
       if (IsIntegerTerm(t1)) {
@@ -1547,7 +1550,8 @@ p_number_chars( USES_REGS1 )
   s = String;
   {
     /* ISO code */
-    int has_atoms = yap_flags[STRICT_ISO_FLAG];
+    LD_FROM_REGS
+    int has_atoms = truePrologFlag(PLFLAG_ISO);
     int has_ints =  FALSE;
 
     while (t != TermNil) {

@@ -193,9 +193,12 @@ charCode(Term w)
 #define PL_get_text(l, t, f)	PL_get_text__LD(l, t, f PASS_LD)
 #define PL_is_variable(t)	PL_is_variable__LD(t PASS_LD)
 #define PL_new_term_ref()	PL_new_term_ref__LD(PASS_LD1)
+#define PL_put_atom(t, a)	PL_put_atom__LD(t, a PASS_LD)
 #define PL_put_term(t1, t2)	PL_put_term__LD(t1, t2 PASS_LD)
 #define PL_unify_atom(t, a)	PL_unify_atom__LD(t, a PASS_LD)
 #define PL_unify_integer(t, i)	PL_unify_integer__LD(t, i PASS_LD)
+
+#define _PL_get_arg(i, t, a) _PL_get_arg__LD(i, t, a PASS_LD);
 
 #endif /* __YAP_PROLOG__ */
 

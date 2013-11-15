@@ -169,7 +169,8 @@ OpDec(int p, char *type, Atom a, Term m)
     WRITE_UNLOCK(ae->ARWLock);
   }
   if (i <= 3) {
-    if (yap_flags[STRICT_ISO_FLAG] && 
+    GET_LD
+    if (truePrologFlag(PLFLAG_ISO) && 
 	info->Posfix != 0) /* there is a posfix operator */ {
       /* ISO dictates */
       WRITE_UNLOCK(info->OpRWLock);
@@ -178,7 +179,8 @@ OpDec(int p, char *type, Atom a, Term m)
     }
     info->Infix = p;
   } else if (i <= 5) {
-    if (yap_flags[STRICT_ISO_FLAG] && 
+    GET_LD
+    if (truePrologFlag(PLFLAG_ISO) && 
 	info->Infix != 0) /* there is an infix operator */ {
       /* ISO dictates */
       WRITE_UNLOCK(info->OpRWLock);
@@ -902,7 +904,6 @@ InitFlags(void)
   /* note that Yap_heap_regs must be set first */
 
   yap_flags[LANGUAGE_MODE_FLAG] = 0;
-  yap_flags[STRICT_ISO_FLAG] = FALSE;
   yap_flags[SOURCE_MODE_FLAG] = FALSE;
   yap_flags[WRITE_QUOTED_STRING_FLAG] = FALSE;
   /* we do not garantee safe assert in parallel mode */
@@ -994,8 +995,6 @@ InitLogDBErasedMarker(void)
   Yap_heap_regs->logdb_erased_marker->ClCode->opc = Yap_opcode(_op_fail);
   INIT_CLREF_COUNT(Yap_heap_regs->logdb_erased_marker);
 }
-
-#define SWIAtomToAtom(X) SWI_Atoms[(X)>>1]
 
 static void 
 InitSWIAtoms(void)

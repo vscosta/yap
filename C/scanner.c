@@ -232,12 +232,11 @@ extern double atof(const char *);
 static Term
 float_send(char *s, int sign)
 {
-  CACHE_REGS
+  GET_LD
   Float f = (Float)atof(s);
 #if HAVE_FINITE
-  if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
+  if (truePrologFlag(PLFLAG_ISO)) { /* iso */
     if (!finite(f)) {
-      CACHE_REGS
       LOCAL_ErrorMessage = "Float overflow while scanning";
       return(MkEvalFl(0.0));
     }
@@ -279,6 +278,7 @@ send_error_message(char s[])
 static wchar_t
 read_quoted_char(int *scan_nextp, IOSTREAM *inp_stream)
 {
+  GET_LD
   int ch;
 
   /* escape sequence */
@@ -359,7 +359,7 @@ read_quoted_char(int *scan_nextp, IOSTREAM *inp_stream)
   case '`':
     return '`';
   case '^':
-    if (FALSE /*yap_flags[CHARACTER_ESCAPE_FLAG] == ISO_CHARACTER_ESCAPES */) {
+    if (truePrologFlag(PLFLAG_ISO)) {
       return send_error_message("invalid escape sequence");
     } else {
       ch = getchrq(inp_stream);
@@ -458,7 +458,7 @@ num_send_error_message(char s[])
 static Term
 get_num(int *chp, int *chbuffp, IOSTREAM *inp_stream, char *s, UInt max_size, int sign)
 {
-  CACHE_REGS
+  GET_LD
   char *sp = s;
   int ch = *chp;
   Int val = 0L, base = ch - '0';
@@ -574,7 +574,7 @@ get_num(int *chp, int *chbuffp, IOSTREAM *inp_stream, char *s, UInt max_size, in
     ch = getchr(inp_stream);
   }
   if (might_be_float && ( ch == '.'  || ch == 'e' || ch == 'E')) {
-    if (yap_flags[STRICT_ISO_FLAG] && (ch == 'e' || ch == 'E')) {
+    if (truePrologFlag(PLFLAG_ISO) && (ch == 'e' || ch == 'E')) {
       return num_send_error_message("Float format not allowed in ISO mode");
     }
     if (ch == '.') {
@@ -796,7 +796,7 @@ ch_to_wide(char *base, char *charp)
 TokEntry *
 Yap_tokenizer(IOSTREAM *inp_stream, int store_comments, Term *tposp)
 {
-  CACHE_REGS
+  GET_LD
   TokEntry *t, *l, *p;
   enum TokenKinds kind;
   int solo_flag = TRUE;
@@ -1076,7 +1076,7 @@ Yap_tokenizer(IOSTREAM *inp_stream, int store_comments, Term *tposp)
 	  LOCAL_ErrorMessage = "Heap Overflow While Scanning: please increase code space (-h)";
 	  break;
 	}
-	if (ch == 10  &&  FALSE /*yap_flags[CHARACTER_ESCAPE_FLAG] == ISO_CHARACTER_ESCAPES */) {
+	if (ch == 10  &&  truePrologFlag(PLFLAG_ISO)) {
 	  /* in ISO a new line terminates a string */
 	  LOCAL_ErrorMessage = "layout character \n inside quotes";
 	  break;

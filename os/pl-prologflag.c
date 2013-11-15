@@ -1174,13 +1174,8 @@ initPrologFlags(void)
   setPrologFlag("max_integer",	   FT_INT64|FF_READONLY, PLMAXINT);
   setPrologFlag("min_integer",	   FT_INT64|FF_READONLY, PLMININT);
 #endif
-#ifndef __YAP_PROLOG__
   setPrologFlag("max_tagged_integer", FT_INTEGER|FF_READONLY, PLMAXTAGGEDINT);
   setPrologFlag("min_tagged_integer", FT_INTEGER|FF_READONLY, PLMINTAGGEDINT);
-#else
-  setPrologFlag("max_tagged_integer", FT_INTEGER|FF_READONLY, Int_MAX);
-  setPrologFlag("min_tagged_integer", FT_INTEGER|FF_READONLY, Int_MIN);
-#endif
 #ifdef O_GMP
   setPrologFlag("bounded",		   FT_BOOL|FF_READONLY,	   FALSE, 0);
 #ifdef __GNU_MP__

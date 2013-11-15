@@ -207,28 +207,6 @@ X_API int PL_get_arg(int index, term_t ts, term_t a)
   return 1;
 }
    
-/* SWI: int PL_get_arg(int index, term_t t, term_t a)
-   YAP: YAP_Term YAP_ArgOfTerm(int argno, YAP_Term t)*/
-X_API int _PL_get_arg(int index, term_t ts, term_t a)
-{
-  CACHE_REGS
-  YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
-  if ( !YAP_IsApplTerm(t) ) {
-    if (YAP_IsPairTerm(t)) {
-      if (index == 1){
-	Yap_PutInSlot(a,HeadOfTerm(t) PASS_REGS);
-	return 1;
-      } else if (index == 2) {
-	Yap_PutInSlot(a,TailOfTerm(t) PASS_REGS);
-	return 1;
-      }
-    }
-    return 0;
-  }
-  Yap_PutInSlot(a,ArgOfTerm(index, t) PASS_REGS);
-  return 1;
-}
-   
 /* SWI: int PL_get_atom(term_t t, YAP_Atom *a)
    YAP: YAP_Atom YAP_AtomOfTerm(Term) */
 X_API int PL_get_atom(term_t ts, atom_t *a)

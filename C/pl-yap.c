@@ -1034,6 +1034,28 @@ PL_dispatch(int fd, int wait)
   return TRUE;
 }
 
+/* SWI: int PL_get_arg(int index, term_t t, term_t a)
+   YAP: YAP_Term YAP_ArgOfTerm(int argno, YAP_Term t)*/
+X_API int _PL_get_arg__LD(int index, term_t ts, term_t a ARG_LD)
+{
+  REGS_FROM_LD
+  YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
+  if ( !YAP_IsApplTerm(t) ) {
+    if (YAP_IsPairTerm(t)) {
+      if (index == 1){
+	Yap_PutInSlot(a,HeadOfTerm(t) PASS_REGS);
+	return 1;
+      } else if (index == 2) {
+	Yap_PutInSlot(a,TailOfTerm(t) PASS_REGS);
+	return 1;
+      }
+    }
+    return 0;
+  }
+  Yap_PutInSlot(a,ArgOfTerm(index, t) PASS_REGS);
+  return 1;
+}
+   
 /* SWI: int PL_get_atom(term_t t, YAP_Atom *a)
    YAP: YAP_Atom YAP_AtomOfTerm(Term) */
 int PL_get_atom__LD(term_t ts, atom_t *a ARG_LD)
@@ -1044,6 +1066,13 @@ int PL_get_atom__LD(term_t ts, atom_t *a ARG_LD)
     return 0;
   *a = YAP_SWIAtomFromAtom(AtomOfTerm(t));
   return 1;
+}
+
+X_API int PL_put_atom__LD(term_t t, atom_t a ARG_LD)
+{
+  REGS_FROM_LD
+  Yap_PutInSlot(t,MkAtomTerm(SWIAtomToAtom(a)) PASS_REGS);
+  return TRUE;
 }
 
 void PL_put_term__LD(term_t d, term_t s ARG_LD)
