@@ -13512,7 +13512,7 @@ Yap_absmi(int inp)
 #endif	/* LOW_LEVEL_TRACER */
 	WRITEBACK_Y_AS_ENV();
 	/* setup GB */
-	ENV_YREG[E_CB] = (CELL) b_ptr;
+	ENV_YREG[E_CB] = (CELL) B;
 #ifdef YAPOR
 	SCH_check_requests();
 #endif	/* YAPOR */
