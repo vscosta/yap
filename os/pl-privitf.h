@@ -60,14 +60,14 @@ avoid using term-references to address the list.
 
 typedef struct list_ctx
 { 
-  YAP_Term gstore;
-  YAP_Term start;
+  Term gstore;
+  Term start;
 } list_ctx;
 
 static inline void
 addSmallIntList(list_ctx *ctx, int value)
 {
-  ctx->gstore = YAP_ExtendList(ctx->gstore,YAP_MkIntTerm(value));
+  ctx->gstore = ExtendList(ctx->gstore,MkIntTerm(value));
 }
 
 #else

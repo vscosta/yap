@@ -209,9 +209,6 @@ static char errmsg[64];
 
 #ifndef __WINDOWS__			/* defined in pl-nt.c */
 
-#define HAVE_CLOCK_GETTIME
-#define HAVE_TIMES
-
 #ifdef HAVE_TIMES
 #include <sys/times.h>
 

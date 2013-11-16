@@ -1088,11 +1088,18 @@ term_t PL_new_term_ref__LD(ARG1_LD)
   return to;
 }
 
+int PL_is_atom__LD(term_t ts ARG_LD)
+{
+  REGS_FROM_LD
+  Term t = Yap_GetFromSlot(ts PASS_REGS);
+  return !IsVarTerm(t) && IsAtomTerm(t);
+}
+
 int PL_is_variable__LD(term_t ts ARG_LD)
 {
   REGS_FROM_LD
   YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
-  return YAP_IsVarTerm(t);
+  return IsVarTerm(t);
 }
 
 X_API int PL_unify__LD(term_t t1, term_t t2 ARG_LD)

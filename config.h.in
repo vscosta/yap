@@ -206,6 +206,7 @@
 #undef  HAVE_GETTIMEOFDAY
 #undef  HAVE_GETWD
 #undef  HAVE_ISATTY
+#undef  HAVE_ISFINITE
 #undef  HAVE_ISINF
 #undef  HAVE_ISNAN
 #undef  HAVE_KILL

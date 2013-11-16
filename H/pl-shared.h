@@ -3,6 +3,8 @@
 
 #define PL_SHARED_H
 
+#include "config.h"
+
 #include "pl-basic.h"
 
 #include "SWI-Stream.h"

@@ -582,32 +582,6 @@ current_arity(void)
 }
 
 static int
-dogc( int extra_args, Term *tp USES_REGS )
-{
-  UInt arity;
-  yamop *nextpc;
-  int i;
-
-  if (P && PREVOP(P,Osbpp)->opc == Yap_opcode(_call_usercpred)) {
-    arity = PREVOP(P,Osbpp)->u.Osbpp.p->ArityOfPE;
-    nextpc = P;
-  } else {
-    arity = 0;
-    nextpc = CP;
-  }
-  for (i=0; i < extra_args; i++) {
-    XREGS[arity+i+1] = tp[i];
-  }
-  if (!Yap_gc(arity+extra_args, ENV, nextpc)) {
-    return FALSE;
-  }
-  for (i=0; i < extra_args; i++) {
-     tp[i] = XREGS[arity+i+1];
-  }
-  return TRUE;
-}
-
-static int
 doexpand(UInt sz)
 {
   CACHE_REGS
@@ -1005,7 +979,7 @@ YAP_MkPairTerm(Term t1, Term t2)
     Int sl1 = Yap_InitSlot(t1 PASS_REGS);
     Int sl2 = Yap_InitSlot(t2 PASS_REGS);
     RECOVER_H();
-    if (!dogc( 0, NULL PASS_REGS )) {
+    if (!Yap_dogc( 0, NULL PASS_REGS )) {
       return TermNil;
     }
     BACKUP_H();
@@ -1030,7 +1004,7 @@ YAP_MkListFromTerms(Term *ta, Int sz)
   while (H+sz*2 > ASP-1024) {
     Int sl1 = Yap_InitSlot((CELL)ta PASS_REGS);
     RECOVER_H();
-    if (!dogc( 0, NULL PASS_REGS )) {
+    if (!Yap_dogc( 0, NULL PASS_REGS )) {
       return TermNil;
     }
     BACKUP_H();
@@ -2062,7 +2036,7 @@ YAP_ReadBuffer(char *s, Term *tp)
   while ((t = Yap_StringToTerm(s,tp)) == 0L) {
     if (LOCAL_ErrorMessage) {
       if (!strcmp(LOCAL_ErrorMessage,"Stack Overflow")) {
-	if (!dogc( 0, NULL PASS_REGS )) {
+	if (!Yap_dogc( 0, NULL PASS_REGS )) {
 	  *tp = MkAtomTerm(Yap_LookupAtom(LOCAL_ErrorMessage));
 	  LOCAL_ErrorMessage = NULL;
 	  RECOVER_H();
@@ -2908,7 +2882,7 @@ do_bootfile (char *bootfilename)
       YAP_Reset();
     }
   YAP_EndConsult(bootfile);
-#ifdef DEBUG
+#if DEBUG
   if (Yap_output_msg)
     fprintf(stderr,"Boot loaded\n");
 #endif
@@ -3574,7 +3548,7 @@ YAP_FloatsToList(double *dblp, size_t sz)
       /* we are in trouble */
       LOCAL_OpenArray =  (CELL *)dblp;
     }
-    if (!dogc( 0, NULL PASS_REGS )) {
+    if (!Yap_dogc( 0, NULL PASS_REGS )) {
       RECOVER_H();
       return 0L;
     }
@@ -3646,7 +3620,7 @@ YAP_IntsToList(Int *dblp, size_t sz)
       /* we are in trouble */
       LOCAL_OpenArray =  (CELL *)dblp;
     }
-    if (!dogc( 0, NULL PASS_REGS )) {
+    if (!Yap_dogc( 0, NULL PASS_REGS )) {
       RECOVER_H();
       return 0L;
     }
@@ -3698,7 +3672,7 @@ YAP_OpenList(int n)
   BACKUP_H();
 
   while (H+2*n > ASP-1024) {
-    if (!dogc( 0, NULL PASS_REGS )) {
+    if (!Yap_dogc( 0, NULL PASS_REGS )) {
       RECOVER_H();
       return FALSE;
     }
@@ -4134,7 +4108,7 @@ YAP_RequiresExtraStack(size_t sz) {
   while (H > ASP-sz) {
     CACHE_REGS
     RECOVER_H();
-    if (!dogc( 0, NULL PASS_REGS )) {
+    if (!Yap_dogc( 0, NULL PASS_REGS )) {
       return -1;
     }
     BACKUP_H();

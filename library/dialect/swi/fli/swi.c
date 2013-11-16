@@ -41,8 +41,6 @@
 
 #include	<yapio.h>
 
-#include "pl-basic.h"
-
 #ifdef USE_GMP
 #include <gmp.h>
 #endif
@@ -206,6 +204,28 @@ X_API int PL_get_arg(int index, term_t ts, term_t a)
   Yap_PutInSlot(a,YAP_ArgOfTerm(index, t) PASS_REGS);
   return 1;
 }
+
+X_API int _PL_get_arg(int index, term_t ts, term_t a)
+{
+  CACHE_REGS
+  YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
+  if ( !YAP_IsApplTerm(t) ) {
+    if (YAP_IsPairTerm(t)) {
+      if (index == 1){
+	Yap_PutInSlot(a,HeadOfTerm(t) PASS_REGS);
+	return 1;
+      } else if (index == 2) {
+	Yap_PutInSlot(a,TailOfTerm(t) PASS_REGS);
+	return 1;
+      }
+    }
+    return 0;
+  }
+  Yap_PutInSlot(a,ArgOfTerm(index, t) PASS_REGS);
+  return 1;
+}
+   
+
    
 /* SWI: int PL_get_atom(term_t t, YAP_Atom *a)
    YAP: YAP_Atom YAP_AtomOfTerm(Term) */
@@ -2867,6 +2887,7 @@ str_prefix(const char *p0, char *s)
 static int
 atom_generator(const char *prefix, char **hit, int state)
 {
+  CACHE_REGS
   struct scan_atoms *index;
   Atom            catom;
   Int            i;

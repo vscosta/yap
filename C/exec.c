@@ -1883,6 +1883,34 @@ p_get_exception( USES_REGS1 )
   return Yap_unify(t, ARG1);
 }
 
+
+int
+Yap_dogc( int extra_args, Term *tp USES_REGS )
+{
+  UInt arity;
+  yamop *nextpc;
+  int i;
+
+  if (P && PREVOP(P,Osbpp)->opc == Yap_opcode(_call_usercpred)) {
+    arity = PREVOP(P,Osbpp)->u.Osbpp.p->ArityOfPE;
+    nextpc = P;
+  } else {
+    arity = 0;
+    nextpc = CP;
+  }
+  for (i=0; i < extra_args; i++) {
+    XREGS[arity+i+1] = tp[i];
+  }
+  if (!Yap_gc(arity+extra_args, ENV, nextpc)) {
+    return FALSE;
+  }
+  for (i=0; i < extra_args; i++) {
+     tp[i] = XREGS[arity+i+1];
+  }
+  return TRUE;
+}
+
+
 void 
 Yap_InitExecFs(void)
 {

@@ -134,8 +134,6 @@ typedef unsigned long uintptr_t;
 #include <inttypes.h>			/* more portable than stdint.h */
 #endif
 
-#ifndef PL_BASIC_H
-
 #ifndef PL_HAVE_TERM_T
 #define PL_HAVE_TERM_T
 typedef	uintptr_t    term_t;
@@ -154,15 +152,16 @@ typedef wchar_t pl_wchar_t;             /* wide character support */
 typedef uintptr_t	PL_fid_t;	/* opaque foreign context handle */
 #endif
 typedef int  (*PL_dispatch_hook_t)(int fd);
+typedef void *pl_function_t;
 
 
 #define O_STRING 1
 
-typedef void *pl_function_t;
+#define COMMON(X) X
+
 
 #define fid_t PL_fid_t			/* avoid AIX name-clash */
 
-#endif
 
 typedef struct _PL_extension
 { const char 		*predicate_name;	/* Name of the predicate */
@@ -618,6 +617,9 @@ extern X_API int PL_get_signum_ex(term_t sig, int *n);
 extern X_API size_t PL_utf8_strlen(const char *s, size_t len);
 
 extern X_API int PL_unify_list_codes(term_t l, const char *chars);
+
+
+
 
 PL_EXPORT(void)		PL_add_to_protocol(const char *buf, size_t count);
 

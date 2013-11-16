@@ -1787,5 +1787,7 @@ AddPropToAtom(AtomEntry *ae, PropEntry *p)
     ae->PropsOfAE = AbsProp(p);
   }
 }
+
+
 #endif
 

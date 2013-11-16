@@ -56,11 +56,11 @@ static char     SccsId[] = "%W% %G%";
 #include <string.h>
 #endif
 
+int  Yap_output_msg = FALSE;
+
 #if DEBUG
 
 #define	LOGFILE	"logfile"
-
-int  Yap_output_msg = FALSE;
 
 #ifdef MACC
 static void  InTTYLine(char *);

@@ -4,6 +4,11 @@
 
 #define PL_BASIC_H
 
+/* we are in YAP */
+#ifndef __YAP_PROLOG__
+#define __YAP_PROLOG__ 1
+#endif
+
 #if USE_GMP
 #define O_GMP 1
 #endif
@@ -13,6 +18,8 @@
 #ifndef PL_CONSOLE
 #define PL_KERNEL 1
 #endif
+
+#include <SWI-Prolog.h>
 
 #ifdef __MINGW32__
 #ifndef O_XOS
@@ -61,45 +68,7 @@ typedef int pthread_t;
 
 typedef uintptr_t		word;		/* Anonymous 4 byte object */
 
-
-#if  !defined(_FLI_H_INCLUDED)
-
 typedef int bool;
-
-/* this must be called if we're not including SWI-Prolog first */
-/* should be a copy of what we can find in SWI-Prolog.h */
-
-#ifndef PL_HAVE_TERM_T
-#define PL_HAVE_TERM_T
-typedef	uintptr_t    term_t;
-#endif
-typedef	struct mod_entry *module_t;
-typedef struct DB_STRUCT *record_t;
-typedef uintptr_t	atom_t;
-typedef	struct pred_entry    *predicate_t;
-typedef struct  open_query_struct *qid_t;
-typedef uintptr_t    functor_t;
-typedef int     (*PL_agc_hook_t)(atom_t);
-typedef unsigned long	foreign_t;	/* return type of foreign functions */
-typedef wchar_t pl_wchar_t;             /* wide character support */
-#include <inttypes.h>			/* more portable than stdint.h */
-#if  !defined(_MSC_VER) 
-typedef uintptr_t	PL_fid_t;	/* opaque foreign context handle */
-#endif
-typedef int  (*PL_dispatch_hook_t)(int fd);
-
-
-#define O_STRING 1
-
-typedef void *pl_function_t;
-
-#define fid_t PL_fid_t			/* avoid AIX name-clash */
-
-#endif
-
-#ifndef COMMON
-#define COMMON(X) X
-#endif
 
 
 #define GLOBAL_LD (LOCAL_PL_local_data_p)
@@ -116,7 +85,7 @@ typedef void *pl_function_t;
 #define IGNORE_LD
 
 #define REGS_FROM_LD
-#define LD_FROM_CACHE 
+#define LD_FROM_REGS
 
 #else
 
@@ -136,6 +105,52 @@ typedef void *pl_function_t;
 #define LD_FROM_REGS struct PL_local_data *__PL_ld = LOCAL_PL_local_data_p;
 
 #endif
+
+static inline Term
+OpenList(int n USES_REGS)
+{
+  Term t;
+  BACKUP_H();
+
+  while (H+2*n > ASP-1024) {
+    if (!Yap_dogc( 0, NULL PASS_REGS )) {
+      RECOVER_H();
+      return FALSE;
+    }
+  }
+  t = AbsPair(H);
+  H += 2*n;
+
+  RECOVER_H();
+  return t;
+}
+
+static inline Term
+ExtendList(Term t0, Term inp)
+{
+  Term t;
+  CELL *ptr = RepPair(t0);
+  BACKUP_H();
+
+  ptr[0] = inp;
+  ptr[1] = AbsPair(ptr+2);
+  t = AbsPair(ptr+2);
+
+  RECOVER_H();
+  return t;
+}
+
+static inline int
+CloseList(Term t0, Term tail)
+{
+  CELL *ptr = RepPair(t0);
+
+  RESET_VARIABLE(ptr-1);
+  if (!Yap_unify((Term)(ptr-1), tail))
+    return FALSE;
+  return TRUE;
+}
+
 
 #endif
 

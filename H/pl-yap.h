@@ -3,6 +3,8 @@
 
 #ifdef __YAP_PROLOG__
 
+#include "Yatom.h"
+
 /* depends on tag schema, but 4 should always do */
 #define LMASK_BITS	4		/* total # mask bits */
 
@@ -25,13 +27,12 @@
 #define INTBITSIZE (sizeof(int)*8)
 
 typedef module_t	        Module;
-typedef YAP_Term	       *Word;		/* Anonymous 4 byte object */
-typedef YAP_Term		(*Func)(term_t);	/* foreign functions */
+typedef Term		(*Func)(term_t);	/* foreign functions */
 
 extern const char *Yap_GetCurrentPredName(void);
-extern YAP_Int     Yap_GetCurrentPredArity(void);
+extern Int     Yap_GetCurrentPredArity(void);
 extern int Yap_read_term(term_t t, IOSTREAM *st, term_t *exc, term_t vs);
-extern term_t Yap_fetch_module_for_format(term_t args, YAP_Term *modp);
+extern term_t Yap_fetch_module_for_format(term_t args, Term *modp);
 extern IOENC Yap_DefaultEncoding(void);
 extern void Yap_SetDefaultEncoding(IOENC);
 extern void Yap_setCurrentSourceLocation(IOSTREAM **s);
@@ -39,7 +40,7 @@ extern void   *Yap_GetStreamHandle(Atom at);
 
 extern atom_t codeToAtom(int chrcode);
 
-#define valTermRef(t)    ((Word)YAP_AddressFromSlot(t))
+#define valTermRef(t)    ((Word)Yap_AddressFromSlot(t PASS_REGS))
 
 #include "pl-codelist.h"
 
@@ -71,16 +72,20 @@ COMMON(word) 		pl_writeq(term_t term);
 
 static inline int
 get_procedure(term_t descr, predicate_t *proc, term_t he, int f) {
-  YAP_Term t = YAP_GetFromSlot(descr);
+  CACHE_REGS
+  Term t = Yap_GetFromSlot(descr PASS_REGS);
 
-  if (YAP_IsVarTerm(t)) return 0;
-  if (YAP_IsAtomTerm(t)) 
-    *proc = YAP_Predicate(YAP_AtomOfTerm(t),0,YAP_CurrentModule());
-  else if (YAP_IsApplTerm(t)) {
-    YAP_Functor f = YAP_FunctorOfTerm(t);
-    *proc = YAP_Predicate(YAP_NameOfFunctor(f),YAP_ArityOfFunctor(f),YAP_CurrentModule());
+  if (IsVarTerm(t)) return FALSE;
+  if (IsAtomTerm(t)) 
+    *proc = RepPredProp(Yap_GetPredPropByAtom(AtomOfTerm(t),CurrentModule));
+  else if (IsApplTerm(t)) {
+    Functor f = FunctorOfTerm(t);
+    if (IsExtensionFunctor(f)) {
+      return FALSE;
+    } 
+    *proc = RepPredProp(Yap_GetPredPropByFunc(f, CurrentModule));
   }
-  return 1;
+  return TRUE;
 }
 
 COMMON(intptr_t) 	lengthList(term_t list, int errors);
@@ -110,10 +115,10 @@ extern word globalWString(size_t size, wchar_t *s);
 
 #define valHandle(r) valHandle__LD(r PASS_LD)
 
-YAP_Int YAP_PLArityOfSWIFunctor(functor_t f);
-YAP_Atom YAP_AtomFromSWIAtom(atom_t at);
-atom_t YAP_SWIAtomFromAtom(YAP_Atom at);
-PL_blob_t*	YAP_find_blob_type(YAP_Atom at);
+Int                   YAP_PLArityOfSWIFunctor(functor_t f);
+Atom                  YAP_AtomFromSWIAtom(atom_t at);
+atom_t                YAP_SWIAtomFromAtom(Atom at);
+struct PL_blob_t*     YAP_find_blob_type(Atom at);
 
 void PL_license(const char *license, const char *module);
 
@@ -121,43 +126,40 @@ void PL_license(const char *license, const char *module);
 #define arityFunctor(f) YAP_PLArityOfSWIFunctor(f)
 
 #define stringAtom(w)	YAP_AtomName(YAP_AtomFromSWIAtom(w))
-#define isInteger(A) (YAP_IsIntTerm((A)) || YAP_IsBigNumTerm((A)))
-#define isString(A) Yap_IsStringTerm(A)
-#define isAtom(A) YAP_IsAtomTerm((A))
-#define isList(A) YAP_IsPairTerm((A))
-#define isNil(A) ((A) == YAP_TermNil())
-#define isReal(A) YAP_IsFloatTerm((A))
-#define isFloat(A) YAP_IsFloatTerm((A))
-#define isVar(A) YAP_IsVarTerm((A))
-#define valReal(w) YAP_FloatOfTerm((w))
-#define valFloat(w) YAP_FloatOfTerm((w))
-#ifdef AtomLength /* there is another AtomLength in the system */
-#undef AtomLength
-#endif
-#define AtomLength(w) YAP_AtomNameLength(w)
+#define isInteger(A) (!IsVarTerm(A) && ( IsIntegerTerm((A)) || YAP_IsBigNumTerm((A)) ))
+#define isString(A) (!IsVarTerm(A) && Yap_IsStringTerm(A) )
+#define isAtom(A) (!IsVarTerm(A) && IsAtomTerm((A)) )
+#define isList(A) (!IsVarTerm(A) && IsPairTerm((A)) )
+#define isNil(A) ((A) == TermNil)
+#define isReal(A) (!IsVarTerm(A) && IsFloatTerm((A)) )
+#define isFloat(A) (!IsVarTerm(A) && IsFloatTerm((A)) )
+#define isVar(A) IsVarTerm((A))
+#define valReal(w) FloatOfTerm((w))
+#define valFloat(w) FloatOfTerm((w))
 #define atomValue(atom) YAP_AtomFromSWIAtom(atom)
-#define atomFromTerm(term) YAP_SWIAtomFromAtom(YAP_AtomOfTerm(term))
-#define atomName(atom) ((char *)YAP_AtomName(atom))
-#define nameOfAtom(atom) ((char *)YAP_AtomName(atom))
+#define atomFromTerm(term) YAP_SWIAtomFromAtom(AtomOfTerm(term))
 
-inline static size_t
-atomLength(Atom atom)
+inline static char *
+atomName(Atom atom)
 {
-  if (YAP_IsWideAtom(atom)) 
-    return wcslen(atom->WStrOfAE)*sizeof(wchar_t);
-  return(strlen(atom->StrOfAE));
+  if (IsWideAtom(atom)) 
+    return (char *)(atom->WStrOfAE);
+  return atom->StrOfAE;
 }
+
+#define nameOfAtom(atom) nameOfAtom(atom)
+
 
 #define atomBlobType(at) YAP_find_blob_type(at)
 #define argTermP(w,i) ((Word)((YAP_ArgsOfTerm(w)+(i))))
 #define deRef(t) while (IsVarTerm(*(t)) && !IsUnboundVar(t)) { t = (CELL *)(*(t)); }
 #define canBind(t) FALSE  // VSC: to implement
 #define _PL_predicate(A,B,C,D) PL_predicate(A,B,C)
-#define predicateHasClauses(A) (YAP_NumberOfClausesForPredicate((YAP_PredEntryPtr)A) != 0)
+#define predicateHasClauses(pe) ((pe)->cs.p_code.NOfClauses != 0)
 #define lookupModule(A) Yap_GetModuleEntry(MkAtomTerm(YAP_AtomFromSWIAtom(A)))
 
 #define charEscapeWriteOption(A) FALSE  // VSC: to implement
-#define wordToTermRef(A) YAP_InitSlot(*(A))
+#define wordToTermRef(A) Yap_InitSlot(*(A) PASS_REGS)
 #define isTaggedInt(A) IsIntegerTerm(A)
 #define valInt(A) IntegerOfTerm(A)
 
@@ -176,14 +178,16 @@ inline static int
 charCode(Term w)
 { if ( IsAtomTerm(w) )
     { 
-      YAP_Atom a = atomValue(w);
+      Atom a = atomValue(w);
 
-      if ( YAP_AtomNameLength(a) == 1) {
-	if (YAP_IsWideAtom(a)) {
-	  return YAP_WideAtomName(a)[0];
-	}
-	return YAP_AtomName(a)[0];
+      if (IsWideAtom(a)) {
+	if (wcslen(a->WStrOfAE) == 1)
+	  return a->WStrOfAE[0];
+	return -1;
       }
+      if (strlen(a->StrOfAE) == 1)
+	return a->StrOfAE[0];
+      return -1;
     }
   return -1;
 }
@@ -191,6 +195,7 @@ charCode(Term w)
 #define PL_get_atom(t, a)	PL_get_atom__LD(t, a PASS_LD)
 #define PL_get_atom_ex(t, a)	PL_get_atom_ex__LD(t, a PASS_LD)
 #define PL_get_text(l, t, f)	PL_get_text__LD(l, t, f PASS_LD)
+#define PL_is_atom(t)		PL_is_atom__LD(t PASS_LD)
 #define PL_is_variable(t)	PL_is_variable__LD(t PASS_LD)
 #define PL_new_term_ref()	PL_new_term_ref__LD(PASS_LD1)
 #define PL_put_atom(t, a)	PL_put_atom__LD(t, a PASS_LD)

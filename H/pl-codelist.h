@@ -5,7 +5,8 @@
 static inline Word
 INIT_SEQ_STRING(size_t n)
 {
-  return RepPair(YAP_OpenList(n));
+  CACHE_REGS
+  return RepPair(OpenList(n  PASS_REGS));
 }
 
 static inline Word
@@ -38,7 +39,7 @@ CLOSE_SEQ_STRING(Word p, Word p0, term_t tail, term_t term, term_t l) {
     }
     return FALSE;
   } else {
-    p[0] = YAP_TermNil();
+    p[0] = TermNil;
     return Yap_unify(Yap_GetFromSlot(l PASS_REGS), Yap_GetFromSlot(term PASS_REGS));
   }
 }

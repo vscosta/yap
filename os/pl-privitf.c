@@ -133,24 +133,27 @@ PL_unify_char(term_t chr, int c, int how)
 int
 allocList(size_t maxcells, list_ctx *ctx)
 {
-  ctx->gstore = ctx->start = YAP_OpenList(maxcells);
+  CACHE_REGS
+  ctx->gstore = ctx->start = OpenList(maxcells PASS_REGS);
   return (ctx->gstore != 0L);
 }
 
 int
 unifyList(term_t term, list_ctx *ctx)
 {
-  if (!YAP_CloseList(ctx->gstore, YAP_TermNil()))
+  CACHE_REGS
+  if (!CloseList(ctx->gstore, TermNil))
     return FALSE;
-  return YAP_Unify(YAP_GetFromSlot(term), ctx->start);
+  return Yap_unify(Yap_GetFromSlot(term PASS_REGS), ctx->start);
 }
 
 int
 unifyDiffList(term_t head, term_t tail, list_ctx *ctx)
 {
-  if (!YAP_CloseList(ctx->gstore, YAP_GetFromSlot(tail)))
+  CACHE_REGS
+  if (!CloseList(ctx->gstore, Yap_GetFromSlot(tail PASS_REGS)))
     return FALSE;
-  return YAP_Unify(YAP_GetFromSlot(head), ctx->start);
+  return Yap_unify(Yap_GetFromSlot(head PASS_REGS), ctx->start);
 }
 
 #else

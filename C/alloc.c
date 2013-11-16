@@ -387,7 +387,7 @@ InitExStacks(int wid, int Trail, int Stack)
   REMOTE_ScratchPad(wid).ptr = NULL;
   REMOTE_ScratchPad(wid).sz = REMOTE_ScratchPad(wid).msz = SCRATCH_START_SIZE;
 
-#ifdef DEBUG
+#if DEBUG
   if (Yap_output_msg) {
     UInt ta;
 
@@ -1547,7 +1547,7 @@ Yap_InitMemory(UInt Trail, UInt Heap, UInt Stack)
   AuxTop = (ADDR)(AuxSp = (CELL *)LOCAL_GlobalBase);
 #endif
 
-#ifdef DEBUG
+#if DEBUG
 #if SIZEOF_INT_P!=SIZEOF_INT
   if (Yap_output_msg) {
     fprintf(stderr, "HeapBase = %p  GlobalBase = %p\n  LocalBase = %p  TrailTop = %p\n",

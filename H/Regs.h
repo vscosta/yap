@@ -724,3 +724,4 @@ CalculateStackGap(void)
   //  if (gmin > 1024*1024) return 1024*1024; 
   return gmin;
 }
+

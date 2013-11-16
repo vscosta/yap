@@ -17,7 +17,7 @@
 /* static char SccsId[] = "X 4.3.3"; */
 
 #include "config.h"
-#include "YapInterface.h"
+#include "Yap.h"
 #if HAVE_STDINT_H
 #include <stdint.h>
 #endif
@@ -34,6 +34,9 @@
 #if HAVE_STRING_H
 #include <string.h>
 #endif
+
+void    YAP_SetOutputMessage(void);
+int     YAP_parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap);
 
 #if (DefTrailSpace < MinTrailSpace)
 #undef DefTrailSpace
@@ -153,7 +156,7 @@ dump_runtime_variables(void)
  * shell
  */
 
-X_API int
+int
 YAP_parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 {
   char *p;
@@ -416,7 +419,7 @@ YAP_parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 	      if (ch)
 		{
 		  fprintf(stderr,"[ YAP unrecoverable error: illegal size specification %s ]", argv[-1]);
-		  YAP_Exit(1);
+		  Yap_exit(1);
 		}
 	      *ssize = i;
 	    }

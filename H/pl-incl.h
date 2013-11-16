@@ -6,36 +6,20 @@
 /* define that we are in the pl-* code */
 #define _PL_EMULATION_LAYER 1
 
-
-#include "config.h"
-
-#if HAVE_ERRNO_H
-#include <errno.h>
-#endif
-
-
-#ifdef __MINGW32__
-#define O_XOS 1
-#ifndef __WINDOWS__
-#define __WINDOWS__ 1
-#endif
-#endif
-
-#ifdef __WINDOWS__
-#include <windows.h>
-#include <windows/uxnt.h>
-#define O_HASDRIVES 1
-#define O_HASSHARES 1
-#define EMULATE_DLOPEN 1
-#endif
-
 #include "Yap.h"
+
 #include "YapHeap.h"
+
+/* include all stuff that is exported to yap */
+#include "pl-shared.h"
 
 #define PLVERSION YAP_VERSION
 #define PLNAME "yap"
 
 #define SWIP "swi_"
+
+/* PL internal magic */
+typedef word *			Word;
 
 /* try not to pollute the SWI space */
 #ifdef P
@@ -66,6 +50,7 @@ do_endCritical(void) {
 }
 #define startCritical  do_startCritical()
 #define endCritical do_endCritical()
+
 #ifdef LOCK
 #undef LOCK
 #endif
@@ -73,10 +58,13 @@ do_endCritical(void) {
 #undef UNLOCK
 #endif
 
-#include "pl-shared.h"
-
 #include <SWI-Stream.h>
-#include <SWI-Prolog.h>
+#ifdef HAVE_ERRNO_H
+#include <errno.h>
+#else
+extern int errno;
+#endif
+
 typedef int			Char;		/* char that can pass EOF */
 
 #define usedStack(D) 0
@@ -800,6 +788,7 @@ COMMON(int)		_PL_get_arg__LD(int index, term_t t, term_t a ARG_LD);
 COMMON(int) 		PL_get_atom__LD(term_t t1, atom_t *a ARG_LD);
 COMMON(int) 		PL_get_atom_ex__LD(term_t t, atom_t *a ARG_LD);
 COMMON(int)		PL_get_text__LD(term_t l, PL_chars_t *text, int flags ARG_LD);
+COMMON(int) 		PL_is_atom__LD(term_t t ARG_LD);
 COMMON(int) 		PL_is_variable__LD(term_t t ARG_LD);
 COMMON(term_t) 		PL_new_term_ref__LD(ARG1_LD);
 COMMON(int) 		PL_put_atom__LD(term_t t, atom_t a ARG_LD);

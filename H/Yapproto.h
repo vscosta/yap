@@ -187,6 +187,7 @@ Int	Yap_exec_absmi(int);
 void	Yap_trust_last(void);
 Term	Yap_GetException(void);
 void	Yap_PrepGoal(UInt, CELL *, choiceptr USES_REGS);
+int     Yap_dogc( int extra_args, Term *tp USES_REGS );
 
 /* exo.c */
 void	Yap_InitExoPreds(void);
