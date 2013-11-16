@@ -43,6 +43,7 @@
 #define O_HASSHARES 1
 #define O_XOS 1
 #define O_RLC 1
+#define EMULATE_DLOPEN  1
 #endif
 
 #ifdef THREADS
