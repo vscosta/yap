@@ -54,6 +54,7 @@
 #endif
 #endif
 
+
 #include <SWI-Prolog.h>
 
 #define COMMON(X) extern X
@@ -81,11 +82,10 @@ typedef uintptr_t		word;		/* Anonymous 4 byte object */
 typedef int bool;
 
 
-#ifndef THREADS
-
 #define GLOBAL_LD (LOCAL_PL_local_data_p)
 
 #if !defined(O_PLMT) && !defined(YAPOR)
+
 #define LOCAL_LD (GLOBAL_LD)
 #define LD (GLOBAL_LD)
 #define ARG1_LD   void
@@ -308,9 +308,6 @@ CloseList(Term t0, Term tail)
     return FALSE;
   return TRUE;
 }
-
-
-#endif
 
 
 
