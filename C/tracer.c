@@ -144,6 +144,10 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   LOCK(Yap_heap_regs->low_level_trace_lock);
   sc = Yap_heap_regs;
   vsc_count++;
+#ifdef THREADS
+  LOCAL_ThreadHandle.thread_inst_count++;
+#endif  
+#ifdef COMMENTED
   fprintf(stderr,"in %p\n");
   CELL * gc_ENV = ENV;
   while (gc_ENV != NULL) {	/* no more environments */
@@ -153,10 +157,6 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   }
   UNLOCK(Yap_heap_regs->low_level_trace_lock);
   return;
-#ifdef THREADS
-  LOCAL_ThreadHandle.thread_inst_count++;
-#endif  
-#ifdef COMMENTED
   {
     choiceptr b_p = B;
     while (b_p) {
