@@ -40,10 +40,10 @@
 
 #define MAX_ARITY 256
 
-#define FNV32_PRIME 16777619
+#define FNV32_PRIME ((UInt)16777619)
 #define FNV64_PRIME ((UInt)1099511628211)
 
-#define FNV32_OFFSET 2166136261 
+#define FNV32_OFFSET ((UInt)2166136261)
 #define FNV64_OFFSET ((UInt)14695981039346656037)
 
 /*MurmurHash3 from: https://code.google.com/p/smhasher/wiki/MurmurHash3*/

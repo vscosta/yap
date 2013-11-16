@@ -3,12 +3,33 @@
 
 #define PL_INCL_H 1
 
-/* define that we are in the pl-* code */
-#define _PL_EMULATION_LAYER 1
+#ifndef __WINDOWS__
+#if defined(_MSC_VER) || defined(__MINGW32__)
+#define __WINDOWS__ 1
+#endif
+#endif
+
+#ifdef __WINDOWS__
+#if HAVE_WINSOCK2_H
+#include <winsock2.h>
+#endif
+
+#include <windows.h>
+
+#if HAVE_XOS_H
+#include <xos.h>			/* Windows POSIX enhancements */
+#endif
+
+#include "windows/uxnt.h"		/* More Windows POSIX enhancements */
+
+#endif
 
 #include "Yap.h"
 
 #include "YapHeap.h"
+
+/* define that we are in the pl-* code */
+#define _PL_EMULATION_LAYER 1
 
 /* include all stuff that is exported to yap */
 #include "pl-shared.h"
@@ -34,6 +55,13 @@ typedef word *			Word;
 #ifdef H
 #undef H
 #endif
+
+/* swi code called from pl-incl.h */
+/* should have messages here */
+#ifdef  DEBUG
+#undef DEBUG
+#endif
+#define DEBUG(LEVEL, COMMAND)
 
 /* vsc: needs defining before getting rid of YAP locks */
 static inline int
@@ -220,7 +248,7 @@ users foreign language code.
 #define CREF	PL_FA_CREF
 #define ISO	PL_FA_ISO
 
-		/********************************
+/********************************
 		*       THREADS	             *
 		*********************************/
 
@@ -578,16 +606,9 @@ extern bool tellString(char **s, size_t *size, IOENC enc);
 extern bool tellString(char **s, size_t *size, IOENC enc);
 extern bool toldString(void);
 
-extern int setupOutputRedirect(term_t to, redir_context *ctx, int redir);
-extern void discardOutputRedirect(redir_context *ctx);
-extern int closeOutputRedirect(redir_context *ctx);
-
-extern IOENC atom_to_encoding(atom_t);
 
 void closeFiles(int);
 atom_t PrologPrompt(void);
-word pl_current_input(term_t);
-word pl_current_output(term_t);
 word pl_exists_file(term_t name);
 char *DirName(const char *f, char *dir);
 void			outOfCore(void);

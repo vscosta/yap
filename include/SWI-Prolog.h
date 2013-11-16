@@ -50,17 +50,17 @@ extern "C" {
 #include <time.h>
 #endif
 
+#ifndef __WINDOWS__
+#if defined(_MSC_VER) || defined(__MINGW32__)
+#define __WINDOWS__ 1
+#endif
+#endif
+
 #ifndef X_API
 #if (defined(_MSC_VER) || defined(__MINGW32__)) && defined(PL_KERNEL)
 #define X_API __declspec(dllexport)
 #else
 #define X_API
-#endif
-#endif
-
-#ifndef __WINDOWS__
-#if defined(_MSC_VER) || defined(__MINGW32__)
-#define __WINDOWS__ 1
 #endif
 #endif
 
@@ -154,14 +154,7 @@ typedef uintptr_t	PL_fid_t;	/* opaque foreign context handle */
 typedef int  (*PL_dispatch_hook_t)(int fd);
 typedef void *pl_function_t;
 
-
-#define O_STRING 1
-
-#define COMMON(X) X
-
-
 #define fid_t PL_fid_t			/* avoid AIX name-clash */
-
 
 typedef struct _PL_extension
 { const char 		*predicate_name;	/* Name of the predicate */

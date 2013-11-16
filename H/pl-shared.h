@@ -3,15 +3,119 @@
 
 #define PL_SHARED_H
 
-#include "config.h"
+/* we are in YAP */
+#ifndef __YAP_PROLOG__
+#define __YAP_PROLOG__ 1
+#endif
 
-#include "pl-basic.h"
+// SWI stuff that is needed everywhere
 
-#include "SWI-Stream.h"
+#ifndef __unix__
+#if defined(_AIX) || defined(__APPLE__) || defined(__unix) || defined(__BEOS__) || defined(__NetBSD__)
+#define __unix__ 1
+#endif
+#endif
 
-#define O_LOCALE 1
+#ifndef PL_CONSOLE
+#define PL_KERNEL 1
+#endif
 
-#include "pl-locale.h"		/* Locale objects */
+#ifndef __WINDOWS__
+#if defined(_MSC_VER) || defined(__MINGW32__)
+#define __WINDOWS__ 1
+#endif
+#endif
+
+// SWI Options
+#define O_STRING		1
+#define O_QUASIQUOTATIONS	1
+#define O_LOCALE		1
+//#define O_ATOMGC		1
+//#define O_CLAUSEGC		1
+#ifdef HAVE_GMP_H
+#define O_GMP			1
+#endif
+#ifdef __WINDOWS__
+#define NOTTYCONTROL           TRUE
+#define O_DDE 1
+#define O_DLL 1
+#define O_HASDRIVES 1
+#define O_HASSHARES 1
+#define O_XOS 1
+#define O_RLC 1
+#endif
+
+#ifdef THREADS
+#define O_PLMT 1
+#else
+#ifdef _REENTRANT
+#undef _REENTRANT
+#endif
+#endif
+
+#include <SWI-Prolog.h>
+
+#define COMMON(X) extern X
+
+#if defined(__GNUC__) && !defined(MAY_ALIAS)
+#define MAY_ALIAS __attribute__ ((__may_alias__))
+#else
+#define MAY_ALIAS
+#endif
+
+#ifndef PL_HAVE_TERM_T
+#define PL_HAVE_TERM_T
+typedef	uintptr_t    term_t;
+#endif
+
+#if _WIN32
+#ifndef THREADS
+typedef int pthread_t;
+#endif
+#endif
+
+
+typedef uintptr_t		word;		/* Anonymous 4 byte object */
+
+typedef int bool;
+
+
+#ifndef THREADS
+
+#define GLOBAL_LD (LOCAL_PL_local_data_p)
+
+#if !defined(O_PLMT) && !defined(YAPOR)
+#define LOCAL_LD (GLOBAL_LD)
+#define LD (GLOBAL_LD)
+#define ARG1_LD   void
+#define ARG_LD
+#define GET_LD
+#define PRED_LD
+#define PASS_LD
+#define PASS_LD1 
+#define IGNORE_LD
+
+#define REGS_FROM_LD
+#define LD_FROM_REGS
+
+#else
+
+#define LOCAL_LD (__PL_ld)
+#define LD	  LOCAL_LD
+
+#define GET_LD	  CACHE_REGS struct PL_local_data *__PL_ld = GLOBAL_LD;
+#define ARG1_LD   struct PL_local_data *__PL_ld
+
+#define ARG_LD    , ARG1_LD
+#define PASS_LD1  LD
+#define PASS_LD   , LD
+#define PRED_LD   GET_LD
+#define IGNORE_LD (void)__PL_ld;
+
+#define REGS_FROM_LD  struct regstore_t *regcache = __PL_ld->reg_cache;
+#define LD_FROM_REGS struct PL_local_data *__PL_ld = LOCAL_PL_local_data_p;
+
+#endif
 
 		 /*******************************
 		 *	    STREAM I/O		*
@@ -83,6 +187,17 @@ typedef struct initialise_handle * InitialiseHandle;
 
 #include "pl-table.h"
 
+		/********************************
+		*       LOCALE		         *
+		*********************************/
+
+#define O_LOCALE 1
+
+#include "pl-locale.h"		/* Locale objects */
+
+		/********************************
+		*       GLOBALS		         *
+		*********************************/
 
 /* vsc: global variables */
 #include "pl-global.h"
@@ -93,15 +208,8 @@ typedef struct initialise_handle * InitialiseHandle;
 #define false(s, a)		(!true((s), (a)))
 #define set(s, a)		((s)->flags |= (a))
 #define clear(s, a)		((s)->flags &= ~(a))
-#ifdef  DEBUG
-/* should have messages here */
-#define DEBUG_YAP 1
-#undef DEBUG
-#define DEBUG(LEVEL, COMMAND)
-#else
-#define DEBUG(LEVEL, COMMAND)
-#endif
 
+#define P_QUASI_QUOTATION_SYNTAX	(0x00000004) /* <![Type[Quasi Quote]]> */
 #define PLFLAG_CHARESCAPE           0x000001 /* handle \ in atoms */
 #define PLFLAG_GC                   0x000002 /* do GC */
 #define PLFLAG_TRACE_GC             0x000004 /* verbose gc */
@@ -124,6 +232,8 @@ typedef struct initialise_handle * InitialiseHandle;
 #define PLFLAG_SIGNALS              0x080000 /* Handle signals */
 #define PLFLAG_DEBUGINFO            0x100000 /* generate debug info */
 #define PLFLAG_FILEERRORS           0x200000 /* Edinburgh file errors */
+#define PLFLAG_WARN_OVERRIDE_IMPLICIT_IMPORT 0x200000 /* Warn overriding weak symbols */
+#define PLFLAG_QUASI_QUOTES	    0x400000 /* Support quasi quotes */
 
 /* Flags on module.  Most of these flags are copied to the read context
    in pl-read.c.
@@ -152,5 +262,55 @@ COMMON(int)		tracemode(debug_type new, debug_type *old);
 COMMON(void)		Yap_setCurrentSourceLocation(IOSTREAM **s);
 
 #define SWIAtomToAtom(X) SWI_Atoms[(X)>>1]
+
+static inline Term
+OpenList(int n USES_REGS)
+{
+  Term t;
+  BACKUP_H();
+
+  while (H+2*n > ASP-1024) {
+    if (!Yap_dogc( 0, NULL PASS_REGS )) {
+      RECOVER_H();
+      return FALSE;
+    }
+  }
+  t = AbsPair(H);
+  H += 2*n;
+
+  RECOVER_H();
+  return t;
+}
+
+static inline Term
+ExtendList(Term t0, Term inp)
+{
+  Term t;
+  CELL *ptr = RepPair(t0);
+  BACKUP_H();
+
+  ptr[0] = inp;
+  ptr[1] = AbsPair(ptr+2);
+  t = AbsPair(ptr+2);
+
+  RECOVER_H();
+  return t;
+}
+
+static inline int
+CloseList(Term t0, Term tail)
+{
+  CELL *ptr = RepPair(t0);
+
+  RESET_VARIABLE(ptr-1);
+  if (!Yap_unify((Term)(ptr-1), tail))
+    return FALSE;
+  return TRUE;
+}
+
+
+#endif
+
+
 
 #endif /* PL_SHARED_INCLUDE */

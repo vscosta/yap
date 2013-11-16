@@ -18,8 +18,12 @@
 static char     SccsId[] = "@(#)save.c	1.3 3/15/90";
 #endif
 
+#include "config.h"
 #include "SWI-Stream.h"
 #if _MSC_VER || defined(__MINGW32__)
+#if HAVE_WINSOCK2_H
+#include <winsock2.h>
+#endif
 #include <windows.h>
 #include <psapi.h>
 #endif

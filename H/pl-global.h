@@ -1,3 +1,8 @@
+
+#ifndef PL_GLOBAL_H
+
+#define PL_GLOBAL_H
+
 #include <setjmp.h>
 
 typedef enum
@@ -402,4 +407,6 @@ typedef struct PL_local_data {
 
 
 extern PL_local_data_t lds;
+
+#endif
 

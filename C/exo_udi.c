@@ -297,7 +297,6 @@ Interval(struct index_t *it, Term min, Term max, Term op, BITS32 off USES_REGS)
    BITS32 n;
    BITS32 *pt;
    BITS32 *end;
-   BITS32 *pt0, *end0; 
    Atom at;
 
    LOCAL_exo_it = it;
@@ -309,14 +308,11 @@ Interval(struct index_t *it, Term min, Term max, Term op, BITS32 off USES_REGS)
      n = it->nels;
      pt  = c;
      end  = c+(n-1);
-     pt0 = pt;
-     end0 = end+1;
    } else if (it->links[off]) {
      c = (BITS32 *)it->udi_data;
      n = c[it->links[off]];
-     pt0 = pt  = c+(it->links[off]+1);
+     pt = c;
      end  = c+(it->links[off]+n);
-     end0 = end+1;
      // fprintf(stderr," %d links %d=%d \n", off, it->links[off], n);
    } else {
      if (!IsVarTerm(min)) {

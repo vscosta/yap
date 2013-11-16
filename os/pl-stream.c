@@ -141,7 +141,7 @@ STRYLOCK(IOSTREAM *s)
 #endif
 
 extern int			fatalError(const char *fm, ...);
-extern int			PL_handle_signals();
+extern int			PL_handle_signals( void );
 extern IOENC			initEncoding(void);
 extern int			reportStreamError(IOSTREAM *s);
 extern record_t			PL_record(term_t t);

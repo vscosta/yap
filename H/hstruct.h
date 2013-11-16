@@ -228,6 +228,7 @@
   UInt  dirty_cps;
   UInt  freed_cps;
 #endif
+
   UInt  expand_clauses_sz;
 
   struct udi_info  *udi_control_blocks;

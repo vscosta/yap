@@ -112,7 +112,7 @@ CRITICAL_SECTION lock;
 #define UNLOCK() LeaveCriticalSection(&lock);
 
 static void
-pt_init()
+pt_init( void )
 { InitializeCriticalSection(&lock);
 }
 
@@ -130,7 +130,7 @@ typedef struct pipe_context
 static pipe_context *pipes = NULL;
 
 static pipe_context *
-allocPipeContext()
+allocPipeContext( void )
 { pipe_context *pc = malloc(sizeof(*pc));
 
   if ( !pc )

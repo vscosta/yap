@@ -1638,7 +1638,7 @@ growstack(size_t size USES_REGS)
     fprintf(GLOBAL_stderr, "%%   Local:%8ld cells (%p-%p)\n", (unsigned long int)(LCL0-ASP),LCL0,ASP);
     fprintf(GLOBAL_stderr, "%%   Trail:%8ld cells (%p-%p)\n",
 	       (unsigned long int)(TR-(tr_fr_ptr)LOCAL_TrailBase),LOCAL_TrailBase,TR);
-    fprintf(GLOBAL_stderr, "%% Growing the stacks %ld bytes\n", size);
+    fprintf(GLOBAL_stderr, "%% Growing the stacks " UInt_FORMAT " bytes\n", (UInt) size);
   }
   if (!execute_growstack(size, FALSE, FALSE, NULL, NULL, NULL PASS_REGS))
     return FALSE;

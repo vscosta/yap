@@ -1408,7 +1408,7 @@ isDriveRelativePath(const char *p)	/* '/...' */
 #endif
 
 static int
-GetCurrentDriveLetter()
+GetCurrentDriveLetter( void )
 {
 #ifdef OS2
   return _getdrive();
