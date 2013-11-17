@@ -247,8 +247,6 @@ load_files(Files,Opts) :-
         ), !,
 	'$lf_opt'(if, TOpts, If),
 	( var(If) -> If = true ; true ),
-	'$lf_opt'(encoding, TOpts, Encoding),
-	'$set_encoding'(Stream, Encoding),
 	'$lf_opt'(imports, TOpts, Imports),
 	'$start_lf'(If, Mod, Stream, TOpts, File, Imports),
 	close(Stream).
@@ -333,6 +331,8 @@ use_module(M,F,Is) :-
 	'$lf_opt'('$context_module', TOpts, ContextModule),
 	'$msg_level'( TOpts, Verbosity),
 %	format( 'I=~w~n', [Verbosity=UserFile] ),
+	'$lf_opt'(encoding, TOpts, Encoding),
+	'$set_encoding'(Stream, Encoding),
 	% export to process
 	b_setval('$lf_status', TOpts),
 	'$reset_if'(OldIfLevel),
@@ -392,12 +392,13 @@ use_module(M,F,Is) :-
 	'$bind_module'(Mod, UseModule),
 %	( File = '/Users/vsc/Yap/bins/threads/share/Yap/error.pl' -> start_low_level_trace ; stop_low_level_trace ),
 	'$lf_opt'(imports, TOpts, Imports),
-	'$import_to_current_module'(File, ContextModule, Imports, TOpts),
+	'$import_to_current_module'(File, ContextModule, Imports, _, TOpts),
 	'$lf_opt'(reexport, TOpts, Reexport),
 	( Reexport == false -> true ;
 	  '$lf_opt'('$parent_topts', TOpts, OldTOpts),
 	  '$lf_opt'('$context_module', OldTOpts, OldContextModule),
-	  '$import_to_current_module'(File, OldContextModule, Imports, TOpts)
+	  '$import_to_current_module'(File, OldContextModule, Imports, _, TOpts),
+	  '$extend_exports'(ContextModule, Imports)
 	),
 	( LC == 0 -> prompt(_,'   |: ') ; true),
         ( OldMode == off -> '$exit_system_mode' ; true ),
@@ -441,20 +442,13 @@ use_module(M,F,Is) :-
 '$bind_module'(_, load_files).
 '$bind_module'(Mod, use_module(Mod)).
 
-'$import_to_current_module'(File, ContextModule, Imports, TOpts) :-
+'$import_to_current_module'(File, ContextModule, Imports, RemainingImports, TOpts) :-
 	recorded('$module','$module'(File, Module, ModExports),_),
 	Module \= ContextModule, !,
 	'$lf_opt'('$call', TOpts, Call),
-	'$convert_for_export'(Imports, ModExports, Module, ContextModule, TranslationTab, _RemainingImports, Goal),
-%	format( 'O=~w~n', [(TranslationTab,ContextModule)] ),
+	'$convert_for_export'(Imports, ModExports, Module, ContextModule, TranslationTab, RemainingImports, Goal),
 	'$add_to_imports'(TranslationTab, Module, ContextModule).
-'$import_to_current_module'(_, _, _, _).
-
-'$reexport_lf'(Imports, TOpts, Mod, ContextModule) :-
-	'$lf_opt'('$call', TOpts, Goal),
-	( var(Imports) -> Imports = all ; true ),
-	'$reexport'(Imports, Mod, ContextModule, Goal).
-
+'$import_to_current_module'(_, _, _, _, _).
 
 '$start_reconsulting'(F) :-
 	recorda('$reconsulted','$',_),
@@ -658,14 +652,15 @@ prolog_load_context(term_position, '$stream_position'(0,Line,0,0,0)) :-
 % be imported from any module.
 '$file_loaded'(Stream, M, Imports, TOpts) :-
 	'$file_name'(Stream, F),
-	'$ensure_file_loaded'(F, M, Imports, TOpts).
+	'$ensure_file_loaded'(F, M, F1),
+%	format( 'IL=~w~n', [(F1:Imports->M)] ),
+	'$import_to_current_module'(F1, M, Imports, _, TOpts).
 
-'$ensure_file_loaded'(F, M, Imports, TOpts) :-
+'$ensure_file_loaded'(F, M, F1) :-
 	recorded('$module','$module'(F1,_NM,_P),_),
 	recorded('$lf_loaded','$lf_loaded'(F1,_),_),
-	same_file(F1,F), !,
-	'$import_to_current_module'(F1, M, Imports, TOpts).
-'$ensure_file_loaded'(F, _M, _, _TOpts) :-
+	same_file(F1,F), !.
+'$ensure_file_loaded'(F, _M, F1) :-
 	recorded('$lf_loaded','$lf_loaded'(F1,_),_),
 	same_file(F1,F), !.
 	
@@ -674,16 +669,16 @@ prolog_load_context(term_position, '$stream_position'(0,Line,0,0,0)) :-
 % be imported from any module.
 '$file_unchanged'(Stream, M, Imports, TOpts) :-
 	'$file_name'(Stream, F),
-	'$ensure_file_unchanged'(F, M, Imports, TOpts).
+	'$ensure_file_unchanged'(F, M, F1),
+%	format( 'IU=~w~n', [(F1:Imports->M)] ),
+	'$import_to_current_module'(F1, M, Imports, _, TOpts).
 
-'$ensure_file_unchanged'(F, M, Imports, TOpts) :-
+'$ensure_file_unchanged'(F, M, F1) :-
 	recorded('$module','$module'(F1,_NM,_P),_),
 	recorded('$lf_loaded','$lf_loaded'(F1,Age),R),
 	same_file(F1,F), !,
-	'$file_is_unchanged'(F, R, Age),
-%	format( 'I=~w~n', [M=Imports] ),
-	'$import_to_current_module'(F1, M, Imports, TOpts).
-'$ensure_file_unchanged'(F, _M, _, _TOpts) :-
+	'$file_is_unchanged'(F, R, Age).
+'$ensure_file_unchanged'(F, _M, F1) :-
 	recorded('$lf_loaded','$lf_loaded'(F1,Age),R),
 	same_file(F1,F), !,
 	'$file_is_unchanged'(F, R, Age).
@@ -752,7 +747,7 @@ remove_from_path(New) :- '$check_path'(New,Path),
 	fail.
 '$remove_multifile_clauses'(_).
 
-
+% inform the file has been loaded and is now available.
 '$loaded'(Stream, UserFile, M, OldF, Line, Reconsult, F, Dir, Opts) :-
 	'$file_name'(Stream, F0),
 	( F0 == user_input, nonvar(UserFile) -> UserFile = F ; F = F0 ),
