@@ -23,6 +23,7 @@ typedef	 struct	TOKEN {
 typedef	struct VARSTRUCT {
   Term VarAdr;
   CELL hv;
+  UInt refs;
   struct VARSTRUCT *VarLeft, *VarRight;
   char VarRep[1];
 } VarEntry;

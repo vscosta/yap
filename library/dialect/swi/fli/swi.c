@@ -2999,41 +2999,6 @@ Yap_swi_install(void)
   Yap_install_blobs();
 }
 
-int Yap_read_term(term_t t, IOSTREAM *st, term_t *excep, term_t vs);
-
-int
-Yap_read_term(term_t t, IOSTREAM *st, term_t *excep, term_t vs)
-{
-  CACHE_REGS
-  Term varnames, out, tpos;
-  Term error, *vp;
-
-  if (vs) {
-    vp = & varnames;
-  } else {
-    vp = NULL;
-  }
-  if (!Yap_readTerm(st, &out, vp, &error, &tpos)) {
-    if (excep) {
-      *excep = Yap_InitSlot(error PASS_REGS);
-    }
-    return FALSE;
-  }
-  if (!out) {
-    if (excep) {
-      *excep = Yap_InitSlot(error PASS_REGS);
-    }
-    return FALSE;
-  }
-  if (!Yap_unify(out, Yap_GetFromSlot(t PASS_REGS))) {
-    return FALSE;
-  }
-  if (vp &&
-      !Yap_unify(varnames, Yap_GetFromSlot(vs PASS_REGS))) {
-    return FALSE;
-  }
-  return TRUE;
-}
 
 extern atom_t 		fileNameStream(IOSTREAM *s);
 extern Atom 		Yap_FileName(IOSTREAM *s);

@@ -46,6 +46,8 @@ PROGRAMS= \
 	$(srcdir)/prolog_colour.pl \
 	$(srcdir)/prolog_source.pl \
 	$(srcdir)/prolog_xref.pl \
+	$(srcdir)/pure_input.pl \
+	$(srcdir)/quasi_quotations.pl \
 	$(srcdir)/quintus.pl \
 	$(srcdir)/readutil.pl \
 	$(srcdir)/record.pl \
@@ -55,10 +57,12 @@ PROGRAMS= \
 	$(srcdir)/url.pl \
 	$(srcdir)/utf8.pl \
 	$(srcdir)/win_menu.pl \
-	$(srcdir)/www_browser.pl
+	$(srcdir)/www_browser.pl\
+	$(srcdir)/dcg/basics.pl
 
 
 install: $(PROGRAMS)
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
+	mkdir -p $(DESTDIR)$(SHAREDIR)/dcg
 	for p in $(PROGRAMS); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap; done
 

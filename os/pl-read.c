@@ -5,58 +5,9 @@
 #include "pl-dtoa.h"
 #include "pl-umap.c"			/* Unicode map */
 
-typedef       unsigned char * ucharp;
-typedef const unsigned char * cucharp;
-
-#define utf8_get_uchar(s, chr) (ucharp)utf8_get_char((char *)(s), chr)
-
-#define FASTBUFFERSIZE	256	/* read quickly upto this size */
-
-struct read_buffer
-{ int	size;			/* current size of read buffer */
-  unsigned char *base;		/* base of read buffer */
-  unsigned char *here;		/* current position in read buffer */
-  unsigned char *end;		/* end of the valid buffer */
-
-  IOSTREAM *stream;		/* stream we are reading from */
-  unsigned char fast[FASTBUFFERSIZE];	/* Quick internal buffer */
-};
+#include "pl-read.h"			/* read structure */
 
 
-typedef struct
-{ unsigned char *here;			/* current character */
-  unsigned char *base;			/* base of clause */
-  unsigned char *end;			/* end of the clause */
-  unsigned char *token_start;		/* start of most recent read token */
-  int		has_exception;		/* exception is raised */
-
-  unsigned char *posp;			/* position pointer */
-  size_t	posi;			/* position number */
-
-  unsigned int	flags;			/* Module syntax flags */
-  int		styleCheck;		/* style-checking mask */
-  bool		backquoted_string;	/* Read `hello` as string */
-
-  int	       *char_conversion_table;	/* active conversion table */
-
-  term_t	exception;		/* raised exception */
-  term_t	varnames;		/* Report variables+names */  
-  int		strictness;		/* Strictness level */
-
-  term_t	comments;		/* Report comments */
-
-  struct read_buffer _rb;		/* keep read characters here */
-} read_data, *ReadData;
-
-#define	rdhere		  (_PL_rd->here)
-#define	rdbase		  (_PL_rd->base)
-#define	rdend		  (_PL_rd->end)
-#define	last_token_start  (_PL_rd->token_start)
-#define	rb		  (_PL_rd->_rb)
-
-#define DO_CHARESCAPE true(_PL_rd, CHARESCAPE)
-
-extern IOFUNCTIONS Sstringfunctions;
 
 static bool
 isStringStream(IOSTREAM *s)
@@ -67,9 +18,12 @@ isStringStream(IOSTREAM *s)
 
 static void
 init_read_data(ReadData _PL_rd, IOSTREAM *in ARG_LD)
-{  memset(_PL_rd, 0, sizeof(*_PL_rd));	/* optimise! */
+{  CACHE_REGS
+   memset(_PL_rd, 0, sizeof(*_PL_rd));	/* optimise! */
 
+  _PL_rd->magic = RD_MAGIC;
   _PL_rd->varnames = 0;
+  _PL_rd->module = Yap_GetModuleEntry(CurrentModule);
   rb.stream = in;
   _PL_rd->has_exception = 0;
   _PL_rd->exception = 0;
@@ -80,19 +34,50 @@ free_read_data(ReadData _PL_rd)
 { 
 }
 
+static void
+ptr_to_location(const unsigned char *here, source_location *pos, ReadData _PL_rd)
+{ unsigned char const *s, *ll = NULL;
+  int c;
+
+  *pos = _PL_rd->start_of_term;
+
+						/* update line number */
+  for(s=rdbase; s<here; s = utf8_get_uchar(s, &c))
+  { pos->position.charno++;
+
+    if ( c == '\n' )
+    { pos->position.lineno++;
+      ll = s+1;
+    }
+  }
+						/* update line position */
+  if ( ll )
+  { s = ll;
+    pos->position.linepos = 0;
+  } else
+  { s = rdbase;
+  }
+
+  for(; s<here; s++)
+  { switch(*s)
+    { case '\b':
+	if ( pos->position.linepos > 0 )
+	  pos->position.linepos--;
+      break;
+    case '\t':
+      pos->position.linepos |= 7;		/* TBD: set tab distance */
+    default:
+      pos->position.linepos++;
+    }
+  }
+
+  pos->position.byteno = 0;			/* we do not know */
+}
+
 static int 
 read_term(term_t t, ReadData _PL_rd ARG_LD)
 {
-  int rval;
-  term_t except;
-
-  if (!(rval = Yap_read_term(t, rb.stream, &except, _PL_rd->varnames))) {
-    if (except) {
-      _PL_rd->has_exception = TRUE;
-      _PL_rd->exception = except;
-    }
-  }
-  return rval;
+  return Yap_read_term(t, rb.stream, _PL_rd);
 }
 
 
@@ -155,6 +140,26 @@ int
 unicode_separator(pl_wchar_t c)
 { return PlBlankW(c);
 }
+
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	FALSE	return false
+	TRUE	redo
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+static int
+reportReadError(ReadData rd)
+{ if ( rd->on_error == ATOM_error )
+    return PL_raise_exception(rd->exception);
+  if ( rd->on_error != ATOM_quiet )
+    printMessage(ATOM_error, PL_TERM, rd->exception);
+  PL_clear_exception();
+
+  if ( rd->on_error == ATOM_dec10 )
+    return TRUE;
+
+  return FALSE;
+}
+
 
 		/********************************
 		*           RAW READING         *
@@ -343,33 +348,17 @@ addToBuffer(int c, ReadData _PL_rd)
 }
 
 
-static void
-setCurrentSourceLocation(IOSTREAM *s ARG_LD)
-{ atom_t a;
-
-  if ( s->position )
-  { source_line_no  = s->position->lineno;
-    source_line_pos = s->position->linepos - 1;	/* char just read! */
-    source_char_no  = s->position->charno - 1;	/* char just read! */
-  } else
-  { source_line_no  = -1;
-    source_line_pos = -1;
-    source_char_no  = 0;
-  }
-
-  if ( (a = fileNameStream(s)) )
-    source_file_name = a;
-  else
-    source_file_name = NULL_ATOM;
-}
 
 #if __YAP_PROLOG__
 void
-Yap_setCurrentSourceLocation(IOSTREAM **s)
+Yap_setCurrentSourceLocation(IOSTREAM ** rd)
 {
   GET_LD
-  if (*s)
-  setCurrentSourceLocation(*s PASS_LD);
+  if (*rd) {
+    read_data rdt;
+    rdt._rb.stream = *rd;
+    setCurrentSourceLocation(&rdt PASS_LD);
+  }
 }
 #endif
 
@@ -393,10 +382,154 @@ getchr__(ReadData _PL_rd)
 			   addToBuffer(c, _PL_rd); \
 		        }
 #define set_start_line { if ( !something_read ) \
-			 { setCurrentSourceLocation(rb.stream PASS_LD); \
+			 { setCurrentSourceLocation(_PL_rd PASS_LD); \
 			   something_read++; \
 			 } \
 		       }
+
+
+
+
+
+#ifdef O_QUASIQUOTATIONS
+/** '$qq_open'(+QQRange, -Stream) is det.
+
+Opens a quasi-quoted memory range.
+
+@arg QQRange is a term '$quasi_quotation'(ReadData, Start, Length)
+@arg Stream  is a UTF-8 encoded string, whose position indication
+	     reflects the location in the real file.
+*/
+
+static
+PRED_IMPL("$qq_open", 2, qq_open, 0)
+{ PRED_LD
+
+  if ( PL_is_functor(A1, FUNCTOR_dquasi_quotation3) )
+  { void *ptr;
+    size_t start, len;
+    term_t arg = PL_new_term_ref();
+
+    if ( PL_get_arg(1, A1, arg) && PL_get_pointer_ex(arg, &ptr) &&
+	 PL_get_arg(2, A1, arg) && PL_get_size_ex(arg, &start) &&
+	 PL_get_arg(3, A1, arg) && PL_get_size_ex(arg, &len) )
+    { ReadData _PL_rd = ptr;
+
+      if ( _PL_rd->magic == RD_MAGIC )
+      { char *s_start = (char*)rdbase+start;
+	IOSTREAM *s;
+
+	if ( (s=Sopenmem(&s_start, &len, "r")) )
+	{ source_location pos;
+
+	  s->encoding = ENC_UTF8;
+	  ptr_to_location((unsigned char*)s_start, &pos, _PL_rd);
+	  if ( pos.file )
+	    setFileNameStream(s, pos.file);
+	  if ( pos.position.lineno > 0 )
+	  { s->position = &s->posbuf;
+	    *s->position = pos.position;
+	  }
+
+	  return PL_unify_stream(A2, s);
+	}
+      } else
+	PL_existence_error("read_context", A1);
+    }
+  } else
+    PL_type_error("read_context", A1);
+
+  return FALSE;
+}
+
+
+static int
+parse_quasi_quotations(ReadData _PL_rd ARG_LD)
+{ if ( _PL_rd->qq_tail )
+  { term_t av;
+    int rc;
+
+    if ( !PL_unify_nil(_PL_rd->qq_tail) )
+      return FALSE;
+
+    if ( !_PL_rd->quasi_quotations )
+    { if ( (av = PL_new_term_refs(2)) &&
+	   PL_put_term(av+0, _PL_rd->qq) &&
+#if __YAP_PROLOG__
+	   PL_put_atom(av+1, YAP_SWIAtomFromAtom(_PL_rd->module->AtomOfME)) &&
+#else
+	   PL_put_atom(av+1, _PL_rd->module->name) &&
+#endif
+	   PL_cons_functor_v(av, FUNCTOR_dparse_quasi_quotations2, av) )
+      { term_t ex;
+
+	rc = callProlog(MODULE_system, av+0, PL_Q_CATCH_EXCEPTION, &ex);
+	if ( rc )
+	  return TRUE;
+	_PL_rd->exception = ex;
+	_PL_rd->has_exception = TRUE;
+      }
+      return FALSE;
+    } else
+      return TRUE;
+  } else if ( _PL_rd->quasi_quotations )	/* user option, but no quotes */
+  { return PL_unify_nil(_PL_rd->quasi_quotations);
+  } else
+    return TRUE;
+}
+
+
+static int
+is_quasi_quotation_syntax(term_t type, ReadData _PL_rd)
+{ GET_LD
+  term_t plain = PL_new_term_ref();
+  term_t ex;
+  Module m = _PL_rd->module;
+  atom_t name;
+  int arity;
+
+  PL_strip_module(type, &m, plain);
+
+  if ( PL_get_name_arity(plain, &name, &arity) )
+  { if ( _PL_rd->quasi_quotations )
+    { return TRUE;
+    } else
+    { Procedure proc;
+
+      if ( (proc=resolveProcedure(PL_new_functor(name, 4), m)) &&
+#if __YAP_PROLOG__
+	   proc->PredFlags & QuasiQuotationPredFlag
+#else
+	   true(proc->definition, P_QUASI_QUOTATION_SYNTAX)
+#endif
+	   )
+	return TRUE;
+
+      if ( (ex = PL_new_term_ref()) &&
+	   PL_unify_term(ex,
+			 PL_FUNCTOR_CHARS, "unknown_quasi_quotation_syntax", 2,
+			   PL_TERM, type,
+#if __YAP_PROLOG__
+			   PL_ATOM, YAP_SWIAtomFromAtom(m->AtomOfME)
+#else
+			   PL_ATOM, m->name
+#endif
+			 ) )
+	return errorWarning(NULL, ex, _PL_rd);
+    }
+  } else
+  { if ( (ex = PL_new_term_ref()) &&
+	 PL_unify_term(ex, PL_FUNCTOR_CHARS, "invalid_quasi_quotation_syntax", 1,
+		       PL_TERM, type) )
+      return errorWarning(NULL, ex, _PL_rd);
+  }
+
+  return FALSE;
+}
+
+#endif /*O_QUASIQUOTATIONS*/
+
+
 
 #define rawSyntaxError(what) { addToBuffer(EOS, _PL_rd); \
 			       rdbase = rb.base, last_token_start = rb.here-1; \
@@ -1002,9 +1135,144 @@ out:
 }
 
 
+static int
+unify_read_term_position(term_t tpos ARG_LD)
+{ if ( tpos && source_line_no > 0 )
+  { return PL_unify_term(tpos,
+			 PL_FUNCTOR, FUNCTOR_stream_position4,
+			   PL_INT64, source_char_no,
+			   PL_INT, source_line_no,
+			   PL_INT, source_line_pos,
+			   PL_INT64, source_byte_no);
+  } else
+  { return TRUE;
+  }
+}
+
+
 word
 pl_raw_read(term_t term)
 { return pl_raw_read2(0, term);
+}
+
+
+static const opt_spec read_term_options[] =
+{ { ATOM_variable_names,    OPT_TERM },
+  { ATOM_variables,         OPT_TERM },
+  { ATOM_singletons,        OPT_TERM },
+  { ATOM_term_position,     OPT_TERM },
+  { ATOM_subterm_positions, OPT_TERM },
+  { ATOM_character_escapes, OPT_BOOL },
+  { ATOM_double_quotes,	    OPT_ATOM },
+  { ATOM_module,	    OPT_ATOM },
+  { ATOM_syntax_errors,     OPT_ATOM },
+  { ATOM_backquoted_string, OPT_BOOL },
+  { ATOM_comments,	    OPT_TERM },
+#ifdef O_QUASIQUOTATIONS
+  { ATOM_quasi_quotations,  OPT_TERM },
+#endif
+  { ATOM_cycles,	    OPT_BOOL },
+  { NULL_ATOM,		    0 }
+};
+
+
+static foreign_t
+read_term_from_stream(IOSTREAM *s, term_t term, term_t options ARG_LD)
+{ term_t tpos = 0;
+  term_t tcomments = 0;
+  int rval;
+  atom_t w;
+  read_data rd;
+  bool charescapes = -1;
+  atom_t dq = NULL_ATOM;
+  atom_t mname = NULL_ATOM;
+  fid_t fid = PL_open_foreign_frame();
+
+retry:
+  init_read_data(&rd, s PASS_LD);
+
+  if ( !scan_options(options, 0, ATOM_read_option, read_term_options,
+		     &rd.varnames,
+		     &rd.variables,
+		     &rd.singles,
+		     &tpos,
+		     &rd.subtpos,
+		     &charescapes,
+		     &dq,
+		     &mname,
+		     &rd.on_error,
+		     &rd.backquoted_string,
+		     &tcomments,
+#ifdef O_QUASIQUOTATIONS
+		     &rd.quasi_quotations,
+#endif
+		     &rd.cycles) ) {
+    return FALSE;
+  }
+
+  if ( mname )
+  { rd.module = lookupModule(mname);
+    rd.flags  = rd.module->flags;
+  }
+
+  if ( charescapes != -1 )
+  { if ( charescapes )
+      set(&rd, M_CHARESCAPE);
+    else
+      clear(&rd, M_CHARESCAPE);
+  }
+  if ( dq )
+  { if ( !setDoubleQuotes(dq, &rd.flags) )
+      return FALSE;
+  }
+  if ( rd.singles && PL_get_atom(rd.singles, &w) && w == ATOM_warning )
+    rd.singles = TRUE;
+  if ( tcomments )
+    rd.comments = PL_copy_term_ref(tcomments);
+
+  rval = read_term(term, &rd PASS_LD);
+  if ( Sferror(s) )
+    return FALSE;
+
+  if ( rval )
+  { if ( tpos )
+      rval = unify_read_term_position(tpos PASS_LD);
+    if ( rval && tcomments )
+    { if ( !PL_unify_nil(rd.comments) )
+	rval = FALSE;
+    }
+  } else
+  { if ( rd.has_exception && reportReadError(&rd) )
+    { PL_rewind_foreign_frame(fid);
+      free_read_data(&rd);
+      goto retry;
+    }
+  }
+
+  free_read_data(&rd);
+
+  return rval;
+}
+
+
+/** read_term(-Term, +Options) is det.
+*/
+
+static
+PRED_IMPL("read_term", 2, read_term, PL_FA_ISO)
+{ PRED_LD
+  IOSTREAM *s;
+
+  if ( getTextInputStream(0, &s) )
+  { if ( read_term_from_stream(s, A1, A2 PASS_LD) )
+      return PL_release_stream(s);
+    if ( Sferror(s) )
+      return streamStatus(s);
+    PL_release_stream(s);
+    return FALSE;
+  }
+
+  return FALSE;
 }
 
 
@@ -1108,6 +1376,11 @@ PL_chars_to_term(const char *s, term_t t)
 		 *******************************/
 
 BeginPredDefs(read)
+  PRED_DEF("swi_read_term",		  3, read_term,		  PL_FA_ISO)
+  PRED_DEF("swi_read_term",		  2, read_term,		  PL_FA_ISO)
   PRED_DEF("atom_to_term", 3, atom_to_term, 0)
   PRED_DEF("term_to_atom", 2, term_to_atom, 0)
+#ifdef O_QUASIQUOTATIONS
+  PRED_DEF("$qq_open",            2, qq_open,             0)
+#endif
 EndPredDefs

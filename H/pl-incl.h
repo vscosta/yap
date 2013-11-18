@@ -42,6 +42,9 @@
 /* PL internal magic */
 typedef word *			Word;
 
+/* SWI internal name for a predicate */
+typedef struct pred_entry *      Procedure;      /* predicate */
+
 /* try not to pollute the SWI space */
 #ifdef P
 #undef P
@@ -108,10 +111,11 @@ typedef int			Char;		/* char that can pass EOF */
 #define Sdin                    Suser_input             /* not used for now */
 #define Sdout                   Suser_output
 
-#define source_line_no         (LD->read_source.line)
-#define source_file_name       (LD->read_source.file)
-#define source_line_pos                (LD->read_source.linepos)
-#define source_char_no         (LD->read_source.character)
+#define source_file_name	(LD->read_source.file)
+#define source_line_no          (LD->read_source.position.lineno)
+#define source_line_pos         (LD->read_source.position.linepos)
+#define source_char_no          (LD->read_source.position.charno)
+#define source_byte_no          (LD->read_source.position.byteno)
 
 #define debugstatus            (LD->_debugstatus)
 
@@ -813,7 +817,7 @@ COMMON(int) 		PL_is_atom__LD(term_t t ARG_LD);
 COMMON(int) 		PL_is_variable__LD(term_t t ARG_LD);
 COMMON(term_t) 		PL_new_term_ref__LD(ARG1_LD);
 COMMON(int) 		PL_put_atom__LD(term_t t, atom_t a ARG_LD);
-COMMON(void) 		PL_put_term__LD(term_t t1, term_t t2 ARG_LD);
+COMMON(int) 		PL_put_term__LD(term_t t1, term_t t2 ARG_LD);
 COMMON(int) 		PL_unify__LD(term_t t1, term_t t2 ARG_LD);
 COMMON(int) 		PL_unify_atom__LD(term_t t, atom_t a ARG_LD);
 COMMON(int)		PL_unify_int64__LD(term_t t1, int64_t ARG_LD);

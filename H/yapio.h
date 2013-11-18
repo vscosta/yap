@@ -236,6 +236,8 @@ chtype(Int ch)
 /* routines in parser.c */
 VarEntry *Yap_LookupVar(char *);
 Term Yap_VarNames(VarEntry *,Term);
+Term Yap_Variables(VarEntry *,Term);
+Term Yap_Singletons(VarEntry *,Term);
 
 /* routines in scanner.c */
 TokEntry *Yap_tokenizer(struct io_stream *, int, Term *);

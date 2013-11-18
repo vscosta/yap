@@ -139,6 +139,7 @@ Yap_LookupVar(char *var)	/* lookup variable in variables table   */
       if (hv == hpv) {
 	Int scmp;
 	if ((scmp = strcmp(var, p->VarRep)) == 0) {
+	  p->refs++;
 	  return(p);
 	} else if (scmp < 0) {
 	  op = &(p->VarLeft);
@@ -159,6 +160,7 @@ Yap_LookupVar(char *var)	/* lookup variable in variables table   */
     *op = p;
     p->VarLeft = p->VarRight = NULL;
     p->hv = hv;
+    p->refs = 1L;
     strcpy(p->VarRep, var);
   } else {
     /* anon var */
@@ -166,7 +168,8 @@ Yap_LookupVar(char *var)	/* lookup variable in variables table   */
     p->VarLeft = LOCAL_AnonVarTable;
     LOCAL_AnonVarTable = p;
     p->VarRight = NULL;    
-    p->hv = 0L;
+    p->refs = 0L;
+    p->hv = 1L;
     p->VarRep[0] = '_';
     p->VarRep[1] = '\0';
   }
@@ -205,6 +208,63 @@ Yap_VarNames(VarEntry *p,Term l)
 {
   CACHE_REGS
   return VarNames(p,l PASS_REGS);
+}
+
+static Term
+Singletons(VarEntry *p,Term l USES_REGS)
+{
+  if (p != NULL) {
+    if (strcmp(p->VarRep, "_") != 0 && p->refs == 1) {
+      Term t[2];
+      Term o;
+      
+      t[0] = MkAtomTerm(Yap_LookupAtom(p->VarRep));
+      t[1] = p->VarAdr;
+      o = Yap_MkApplTerm(FunctorEq, 2, t);
+      o = MkPairTerm(o, Singletons(p->VarRight,
+				 Singletons(p->VarLeft,l PASS_REGS) PASS_REGS));
+      if (H > ASP-4096) {
+	save_machine_regs();
+	siglongjmp(LOCAL_IOBotch,1);
+      }  
+      return(o);
+    } else {
+      return Singletons(p->VarRight,Singletons(p->VarLeft,l PASS_REGS) PASS_REGS);
+    }
+  } else {
+    return (l);
+  }
+}
+
+Term
+Yap_Singletons(VarEntry *p,Term l)
+{
+  CACHE_REGS
+  return Singletons(p,l PASS_REGS);
+}
+
+
+static Term
+Variables(VarEntry *p,Term l USES_REGS)
+{
+  if (p != NULL) {
+    Term o;
+    o = MkPairTerm(p->VarAdr, Variables(p->VarRight,Variables(p->VarLeft,l PASS_REGS) PASS_REGS));
+    if (H > ASP-4096) {
+      save_machine_regs();
+      siglongjmp(LOCAL_IOBotch,1);
+    }  
+    return(o);
+  } else {
+    return (l);
+  }
+}
+
+Term
+Yap_Variables(VarEntry *p,Term l)
+{
+  CACHE_REGS
+  return Variables(p,l PASS_REGS);
 }
 
 static int

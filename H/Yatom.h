@@ -637,7 +637,11 @@ IsValProperty (int flags)
   return (PropFlags) ((flags == ValProperty));
 }
 
-
+#if SIZEOF_INT_P==4
+#define EXTRA_FLAG_BASE 0
+#else
+#define EXTRA_FLAG_BASE 32
+#endif
 
 /*	    predicate property entry structure				*/
 /*  AsmPreds are things like var, nonvar, atom ...which are implemented
@@ -649,6 +653,7 @@ IsValProperty (int flags)
 */
 typedef enum
 {
+  QuasiQuotationPredFlag = ((UInt)0x80000000 << EXTRA_FLAG_BASE),		/* SWI-like quasi quotations */
   MegaClausePredFlag =   0x80000000L, /* predicate is implemented as a mega-clause */
   ThreadLocalPredFlag = 0x40000000L,	/* local to a thread */
   MultiFileFlag = 0x20000000L,	/* is multi-file */
@@ -710,7 +715,12 @@ typedef struct pred_entry
   PropFlags KindOfPE;		/* kind of property                     */
   struct yami *CodeOfPred;
   OPCODE OpcodeOfPred;		/* undefcode, indexcode, spycode, ....  */
+#if SIZEOF_INT_P==4
+  CELL PredFlags, ExtraPredFlags;
+#else
   CELL PredFlags;
+#define ExtraPredFlags   PredFlags;
+#endif
   UInt ArityOfPE;		/* arity of property                    */
   union
   {

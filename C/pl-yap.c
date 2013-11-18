@@ -1075,10 +1075,11 @@ X_API int PL_put_atom__LD(term_t t, atom_t a ARG_LD)
   return TRUE;
 }
 
-void PL_put_term__LD(term_t d, term_t s ARG_LD)
+int PL_put_term__LD(term_t d, term_t s ARG_LD)
 {
   REGS_FROM_LD
   Yap_PutInSlot(d,Yap_GetFromSlot(s PASS_REGS) PASS_REGS);
+  return 1;
 }
 
 term_t PL_new_term_ref__LD(ARG1_LD)
@@ -1154,6 +1155,11 @@ X_API int PL_unify_int64__LD(term_t t, int64_t n ARG_LD)
   return FALSE;
 #endif
 
+}
+
+Procedure
+resolveProcedure(functor_t f, Module module)
+{ return RepPredProp(PredPropByFunc((Functor)f, MkAtomTerm(module->AtomOfME)));
 }
 
 

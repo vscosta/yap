@@ -31,7 +31,6 @@ typedef Term		(*Func)(term_t);	/* foreign functions */
 
 extern const char *Yap_GetCurrentPredName(void);
 extern Int     Yap_GetCurrentPredArity(void);
-extern int Yap_read_term(term_t t, IOSTREAM *st, term_t *exc, term_t vs);
 extern term_t Yap_fetch_module_for_format(term_t args, Term *modp);
 extern IOENC Yap_DefaultEncoding(void);
 extern void Yap_SetDefaultEncoding(IOENC);
@@ -149,7 +148,6 @@ atomName(Atom atom)
 
 #define nameOfAtom(atom) nameOfAtom(atom)
 
-
 #define atomBlobType(at) YAP_find_blob_type(at)
 #define argTermP(w,i) ((Word)((YAP_ArgsOfTerm(w)+(i))))
 #define deRef(t) while (IsVarTerm(*(t)) && !IsUnboundVar(t)) { t = (CELL *)(*(t)); }
@@ -157,6 +155,8 @@ atomName(Atom atom)
 #define _PL_predicate(A,B,C,D) PL_predicate(A,B,C)
 #define predicateHasClauses(pe) ((pe)->cs.p_code.NOfClauses != 0)
 #define lookupModule(A) Yap_GetModuleEntry(MkAtomTerm(YAP_AtomFromSWIAtom(A)))
+
+Procedure resolveProcedure(functor_t f, Module module);
 
 #define charEscapeWriteOption(A) FALSE  // VSC: to implement
 #define wordToTermRef(A) Yap_InitSlot(*(A) PASS_REGS)

@@ -104,9 +104,7 @@ typedef struct exception_frame		/* PL_throw exception environments */
 
 typedef struct
 { atom_t	file;			/* current source file */
-  int	  	line;			/* current line */
-  int		linepos;		/* position in the line */
-  int64_t	character;		/* current character location */
+  IOPOS         position;               /* Line, line pos, char and byte */
 } source_location;
 
 typedef struct

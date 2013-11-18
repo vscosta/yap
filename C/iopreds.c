@@ -85,6 +85,7 @@ static char SccsId[] = "%W% %G%";
 #endif
 #endif
 #include "iopreds.h"
+#include "pl-read.h"
 
 static Int p_set_read_error_handler( USES_REGS1 );
 static Int p_get_read_error_handler( USES_REGS1 );
@@ -376,12 +377,12 @@ syntax_error (TokEntry * tokptr, IOSTREAM *st, Term *outp)
 }
 
 static void
-GenerateSyntaxError(Term *tp, TokEntry *tokstart, IOSTREAM *sno USES_REGS)
+GenerateSyntaxError(Term *tp, TokEntry *tokstart, IOSTREAM *sno, Term msg USES_REGS)
 {
   if (tp) {
     Term et[2];
     Term t = MkVarTerm();
-    et[1] = MkPairTerm(syntax_error(tokstart, sno, &t), TermNil);
+    et[1] = MkPairTerm(syntax_error(tokstart, sno, &t), msg);
     t = MkAtomTerm(AtomSyntaxError);
     et[0] = Yap_MkApplTerm(FunctorShortSyntaxError,1,&t);
     *tp = Yap_MkApplTerm(FunctorError, 2, et);
@@ -420,7 +421,7 @@ Yap_StringToTerm(char *s,Term *tp)
   t = Yap_Parse();
   TR = TR_before_parse;
   if (!t || LOCAL_ErrorMessage) {
-    GenerateSyntaxError(tp, tokstart, sno PASS_REGS);
+    GenerateSyntaxError(tp, tokstart, sno, MkAtomTerm(Yap_LookupAtom(LOCAL_ErrorMessage)) PASS_REGS);
     Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable, LOCAL_Comments);
     Sclose(sno);
     return FALSE;
@@ -501,43 +502,211 @@ p_get_read_error_handler( USES_REGS1 )
 }
 
 int
-Yap_readTerm(void *st0, Term *tp, Term *varnames, Term *terror, Term *tpos)
+Yap_read_term(term_t t0, IOSTREAM *inp_stream, struct read_data_t *rd)
 {
   CACHE_REGS
   TokEntry *tokstart;
-  Term pt;
-  IOSTREAM *st = (IOSTREAM *)st0;
+  Term t, v;
+  Term OCurrentModule = CurrentModule, tmod, tpos;
+  int store_comments = rd->comments;
 
-  if (st == NULL) {
+  if (inp_stream == NULL) {
     return FALSE;
   }
-  tokstart = LOCAL_tokptr = LOCAL_toktide = Yap_tokenizer(st, FALSE, tpos);
-  if (LOCAL_ErrorMessage)
-    {
-      Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable, LOCAL_Comments);
-      if (terror)
-	*terror = MkAtomTerm(Yap_LookupAtom(LOCAL_ErrorMessage));
-      Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable, LOCAL_Comments);
-      return FALSE;
+  CurrentModule = tmod = MkAtomTerm(rd->module->AtomOfME);
+  LOCAL_Error_TYPE = YAP_NO_ERROR;
+  while (TRUE) {
+    CELL *old_H;
+    int64_t cpos = 0;
+    int seekable = inp_stream->functions->seek != NULL;
+
+    /* two cases where we can seek: memory and console */
+    if (seekable) {
+      cpos = inp_stream->posbuf.byteno;
     }
-  pt = Yap_Parse();
-  if (LOCAL_ErrorMessage || pt == (CELL)0) {
-    GenerateSyntaxError(terror, tokstart, st PASS_REGS);
-    Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable, LOCAL_Comments);
-    return FALSE;
-  }
-  if (varnames) {
-    *varnames = Yap_VarNames(LOCAL_VarTable, TermNil);
-    if (!*varnames) {
-      Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable, LOCAL_Comments);
-      return FALSE;
+    /* Scans the term using stack space */
+    while (TRUE) {
+      old_H = H;
+      LOCAL_Comments = TermNil;
+      LOCAL_CommentsNextChar = LOCAL_CommentsTail = NULL;
+      tokstart = LOCAL_tokptr = LOCAL_toktide = Yap_tokenizer(inp_stream, store_comments, &tpos);
+      if (LOCAL_Error_TYPE != YAP_NO_ERROR && seekable) {
+	H = old_H;
+	Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable, LOCAL_Comments);
+	if (seekable) {
+	  Sseek64(inp_stream, cpos, SIO_SEEK_SET);
+	}
+	if (LOCAL_Error_TYPE == OUT_OF_TRAIL_ERROR) {
+	  LOCAL_Error_TYPE = YAP_NO_ERROR;
+	  if (!Yap_growtrail (sizeof(CELL) * K16, FALSE)) {
+	    return FALSE;
+	  }
+	} else if (LOCAL_Error_TYPE == OUT_OF_AUXSPACE_ERROR) {
+	  LOCAL_Error_TYPE = YAP_NO_ERROR;
+	  if (!Yap_ExpandPreAllocCodeSpace(0, NULL, TRUE)) {
+	    return FALSE;
+	  }
+	} else if (LOCAL_Error_TYPE == OUT_OF_HEAP_ERROR) {
+	  LOCAL_Error_TYPE = YAP_NO_ERROR;
+	  if (!Yap_growheap(FALSE, 0, NULL)) {
+	    return FALSE;
+	  }
+	} else if (LOCAL_Error_TYPE == OUT_OF_STACK_ERROR) {
+	  LOCAL_Error_TYPE = YAP_NO_ERROR;
+	  if (!Yap_dogc( 0, NULL PASS_REGS )) {
+	    return FALSE;
+	  }
+	}
+      } else {
+	/* done with this */
+	break;
+      }
+    }
+    LOCAL_Error_TYPE = YAP_NO_ERROR;
+    /* preserve value of H after scanning: otherwise we may lose strings
+       and floats */
+    old_H = H;
+    if (tokstart != NULL && tokstart->Tok == Ord (eot_tok)) {
+      /* did we get the end of file from an abort? */
+      if (LOCAL_ErrorMessage &&
+	  !strcmp(LOCAL_ErrorMessage,"Abort")) {
+	Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable, LOCAL_Comments);
+	return FALSE;
+      } else {
+	Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable, LOCAL_Comments);
+	rd->varnames = 0;
+	return Yap_unify_constant( Yap_GetFromSlot( t0 PASS_REGS), MkAtomTerm (AtomEof));
+      }
+    }
+  repeat_cycle:
+    CurrentModule = tmod;
+    if (LOCAL_ErrorMessage || (t = Yap_Parse()) == 0) {
+      CurrentModule = OCurrentModule;
+      if (LOCAL_ErrorMessage) {
+	int res;
+
+	if (!strcmp(LOCAL_ErrorMessage,"Stack Overflow") ||
+	    !strcmp(LOCAL_ErrorMessage,"Trail Overflow") ||
+	    !strcmp(LOCAL_ErrorMessage,"Heap Overflow")) {
+	  /* ignore term we just built */
+	  tr_fr_ptr old_TR = TR;
+
+
+	  H = old_H;
+	  TR = (tr_fr_ptr)LOCAL_ScannerStack;
+	  
+	  if (!strcmp(LOCAL_ErrorMessage,"Stack Overflow"))
+	    res = Yap_growstack_in_parser(&old_TR, &tokstart, &LOCAL_VarTable);
+	  else if (!strcmp(LOCAL_ErrorMessage,"Heap Overflow"))
+	    res = Yap_growheap_in_parser(&old_TR, &tokstart, &LOCAL_VarTable);
+	  else
+	    res = Yap_growtrail_in_parser(&old_TR, &tokstart, &LOCAL_VarTable);
+	  if (res) {
+	    LOCAL_ScannerStack = (char *)TR;
+	    TR = old_TR;
+	    old_H = H;
+	    LOCAL_tokptr = LOCAL_toktide = tokstart;
+	    LOCAL_ErrorMessage = NULL;
+	    goto repeat_cycle;
+	  }
+	  LOCAL_ScannerStack = (char *)TR;
+	  TR = old_TR;
+	}
+      }
+      {
+	Term terror;
+	GenerateSyntaxError(&terror, tokstart, inp_stream, MkAtomTerm(Yap_LookupAtom(LOCAL_ErrorMessage)) PASS_REGS);
+	if (LOCAL_ErrorMessage == NULL)
+	  LOCAL_ErrorMessage = "SYNTAX ERROR";
+	
+	Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable, LOCAL_Comments);
+	rd->has_exception = TRUE;
+	rd->exception = Yap_InitSlot(terror PASS_REGS);
+	return FALSE;
+      }
+    } else {
+      CurrentModule = OCurrentModule;
+      /* parsing succeeded */
+      break;
     }
   }
-  *tp = pt;
-  if (!pt)
+  if (!Yap_unify(t, Yap_GetFromSlot( t0 PASS_REGS)))
     return FALSE;
+  if (store_comments && !Yap_unify(LOCAL_Comments, Yap_GetFromSlot( rd->comments PASS_REGS)))
+    return FALSE;
+  if (rd->varnames) {
+    while (TRUE) {
+      CELL *old_H = H;
+
+      if (setjmp(LOCAL_IOBotch) == 0) {
+	v = Yap_VarNames(LOCAL_VarTable, TermNil);
+	break;
+      } else {
+	tr_fr_ptr old_TR;
+	restore_machine_regs();
+
+	old_TR = TR;
+	/* restart global */
+	H = old_H;
+	TR = (tr_fr_ptr)LOCAL_ScannerStack;
+	Yap_growstack_in_parser(&old_TR, &tokstart, &LOCAL_VarTable);
+	LOCAL_ScannerStack = (char *)TR;
+	TR = old_TR;
+      }
+    }
+    if (!Yap_unify(v, Yap_GetFromSlot( rd->varnames PASS_REGS)))
+      return FALSE;
+  }
+  if (rd->variables) {
+    while (TRUE) {
+      CELL *old_H = H;
+
+      if (setjmp(LOCAL_IOBotch) == 0) {
+	v = Yap_Variables(LOCAL_VarTable, TermNil);
+	break;
+      } else {
+	tr_fr_ptr old_TR;
+	restore_machine_regs();
+
+	old_TR = TR;
+	/* restart global */
+	H = old_H;
+	TR = (tr_fr_ptr)LOCAL_ScannerStack;
+	Yap_growstack_in_parser(&old_TR, &tokstart, &LOCAL_VarTable);
+	LOCAL_ScannerStack = (char *)TR;
+	TR = old_TR;
+      }
+    }
+    if (!Yap_unify(v, Yap_GetFromSlot( rd->variables PASS_REGS)))
+      return FALSE;
+  }
+  if (rd->singles) {
+    while (TRUE) {
+      CELL *old_H = H;
+
+      if (setjmp(LOCAL_IOBotch) == 0) {
+	v = Yap_Singletons(LOCAL_VarTable, TermNil);
+	break;
+      } else {
+	tr_fr_ptr old_TR;
+	restore_machine_regs();
+
+	old_TR = TR;
+	/* restart global */
+	H = old_H;
+	TR = (tr_fr_ptr)LOCAL_ScannerStack;
+	Yap_growstack_in_parser(&old_TR, &tokstart, &LOCAL_VarTable);
+	LOCAL_ScannerStack = (char *)TR;
+	TR = old_TR;
+      }
+    }
+    if (!Yap_unify(v, Yap_GetFromSlot( rd->singles PASS_REGS)))
+      return FALSE;
+  }
+  Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable, LOCAL_Comments);
   return TRUE;
 }
+
 
 /*
   Assumes
@@ -555,7 +724,6 @@ static Int
   Term t, v;
   TokEntry *tokstart;
   Term tmod = Deref(ARG3), OCurrentModule = CurrentModule, tpos;
-  extern void Yap_setCurrentSourceLocation(IOSTREAM **s);
   Term tcomms = Deref(ARG7);
   int store_comments = IsVarTerm(tcomms);
 

@@ -280,7 +280,6 @@ void   *Yap_GetOutputStream(Atom at);
 extern void Yap_DebugPlWrite (Term t);
 extern void Yap_DebugErrorPutc (int n);
 #endif
-int     Yap_readTerm(void *, Term *, Term *, Term *, Term *);
 void    Yap_PlWriteToStream(Term, int, int);
 /* depth_lim.c */
 void	Yap_InitItDeepenPreds(void);

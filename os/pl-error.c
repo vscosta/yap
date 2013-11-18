@@ -90,9 +90,19 @@ int
 PL_get_intptr_ex(term_t t, intptr_t *i)
 {
 #if SIZEOF_LONG != SIZEOF_VOIDP && SIZEOF_VOIDP == 8
-   return PL_get_int64_ex(t, i);
+   return PL_get_int64_ex(t, (int64_t *)i);
 #else
    return PL_get_long_ex(t, (long*)i);
+#endif
+}
+
+int
+PL_get_pointer_ex(term_t t, void **i)
+{
+#if SIZEOF_LONG != SIZEOF_VOIDP && SIZEOF_VOIDP == 8
+  return PL_get_int64_ex(t, (int64_t *)i);
+#else
+   return PL_get_long_ex(t, (long *)i);
 #endif
 }
 
