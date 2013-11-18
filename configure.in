@@ -712,6 +712,12 @@ else
   ENABLE_RDF="@# "
 fi
 
+if test -e "$srcdir"/packages/ltx2htm/Makefile.in; then
+  ENABLE_LTX2HTM=""
+else
+  ENABLE_LTX2HTM="@# "
+fi
+
 if test -e "$srcdir"/packages/semweb/Makefile.in; then
   ENABLE_SEMWEB=""
 else
@@ -1338,6 +1344,7 @@ AC_SUBST(ENABLE_CLIB)
 AC_SUBST(ENABLE_CLPQR)
 AC_SUBST(ENABLE_HTTP)
 AC_SUBST(ENABLE_JPL)
+AC_SUBST(ENABLE_LTX2HTM)
 AC_SUBST(ENABLE_PLDOC)
 AC_SUBST(ENABLE_PLUNIT)
 AC_SUBST(ENABLE_R)
@@ -1861,6 +1868,13 @@ elif test -e "$srcdir"/packages/jpl/Makefile.in; then
 
 fi
 
+if test -e "$srcdir"/packages/ltx2htm/Makefile.in; then
+   ENABLE_LTX22HTM=""
+
+   m4_include([packages/ltx2htm/configure.in])
+else
+    ENABLE_LTX2HTM="@# "
+fi
 
 m4_include([packages/gecode/configure.in])
 
@@ -1912,6 +1926,7 @@ mkdir -p  packages/jpl/src/java/jpl/fli
 mkdir -p  packages/jpl/src/java/jpl/test
 mkdir -p  packages/jpl/examples
 mkdir -p  packages/jpl/examples/java
+mkdir -p  packages/ltx2htm
 mkdir -p  packages/meld
 mkdir -p  packages/PLStream
 mkdir -p  packages/PLStream/libtai
@@ -1984,6 +1999,10 @@ fi
 
 if test "$ENABLE_JPL" = ""; then
 AC_CONFIG_FILES([packages/jpl/Makefile packages/jpl/src/java/Makefile ])
+fi
+
+if test "$ENABLE_LTX2HTM" = ""; then
+AC_CONFIG_FILES([ packages/ltx2htm/Makefile packages/ltx2htm/latex2html])
 fi
 
 if test "$ENABLE_PLDOC" = ""; then

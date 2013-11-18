@@ -48,7 +48,7 @@ html::
 endif
 
 $(HTML):	$(TEX)
-		latex2html -rootdir `pwd` -split 0 $(DOC)
+		$(bindir)/latex2html $(DOC)
 
 $(PDF):		$(TEX)
 		$(srcdir)/../../man/runtex --pdf $(DOC)

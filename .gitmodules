@@ -46,3 +46,6 @@
 [submodule "packages/udi"]
 	path = packages/udi
 	url = https://github.com/davidvaz/yap-udi-indexers.git
+[submodule "packages/ltx2htm"]
+	path = packages/ltx2htm
+	url = git://git.code.sf.net/p/yap/ltx2htm
