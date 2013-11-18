@@ -683,7 +683,7 @@ export_list(Module, List) :-
 '$simple_conversion'([], [], []).
 '$simple_conversion'([F/N|Exports], [F/N-F/N|Tab], [F/N|E]) :-
 	'$simple_conversion'(Exports, Tab, E).
-'$simple_conpversion'([F//N|Exports], [F/N2-F/N2|Tab], [F/N2|E]) :-
+'$simple_conversion'([F//N|Exports], [F/N2-F/N2|Tab], [F/N2|E]) :-
 	N2 is N+1,
 	'$simple_conversion'(Exports, Tab, E).
 '$simple_conversion'([F/N as NF|Exports], [F/N-NF/N|Tab], [NF/N|E]) :-
