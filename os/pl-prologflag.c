@@ -1005,6 +1005,7 @@ pl_prolog_flag5(term_t key, term_t value,
   }
 
   fid = PL_open_foreign_frame();
+
   LOCK();
   for(;;)
   { while( (s=advanceTableEnum(e->table_enum)) )
@@ -1032,7 +1033,6 @@ pl_prolog_flag5(term_t key, term_t value,
 #endif
       PL_rewind_foreign_frame(fid);
     }
-
     if ( e->scope == ATOM_local )
     { e->scope = ATOM_global;
       freeTableEnum(e->table_enum);

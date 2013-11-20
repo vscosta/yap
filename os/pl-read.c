@@ -24,9 +24,14 @@ init_read_data(ReadData _PL_rd, IOSTREAM *in ARG_LD)
   _PL_rd->magic = RD_MAGIC;
   _PL_rd->varnames = 0;
   _PL_rd->module = Yap_GetModuleEntry(CurrentModule);
+  _PL_rd->exception = PL_new_term_ref();
   rb.stream = in;
   _PL_rd->has_exception = 0;
-  _PL_rd->exception = 0;
+  _PL_rd->module = MODULE_parse;
+  _PL_rd->flags  = _PL_rd->module->flags; /* change for options! */
+  _PL_rd->styleCheck = debugstatus.styleCheck;
+  _PL_rd->on_error = ATOM_error;
+  _PL_rd->backquoted_string = truePrologFlag(PLFLAG_BACKQUOTED_STRING);
 }
 
 static void
@@ -1207,6 +1212,8 @@ retry:
 		     &rd.quasi_quotations,
 #endif
 		     &rd.cycles) ) {
+    PL_discard_foreign_frame(fid);
+    free_read_data(&rd);
     return FALSE;
   }
 
@@ -1231,8 +1238,10 @@ retry:
     rd.comments = PL_copy_term_ref(tcomments);
 
   rval = read_term(term, &rd PASS_LD);
-  if ( Sferror(s) )
+  if ( Sferror(s) ) {
+    free_read_data(&rd);
     return FALSE;
+  }
 
   if ( rval )
   { if ( tpos )
@@ -1241,22 +1250,42 @@ retry:
     { if ( !PL_unify_nil(rd.comments) )
 	rval = FALSE;
     }
-  } else
-  { if ( rd.has_exception && reportReadError(&rd) )
+  } else {
+    if ( rd.has_exception && reportReadError(&rd) )
     { PL_rewind_foreign_frame(fid);
       free_read_data(&rd);
       goto retry;
     }
   }
-
   free_read_data(&rd);
 
   return rval;
 }
 
 
+/** read_term(+Stream, -Term, +Options) is det.
+*/
+
+static
+PRED_IMPL("read_term", 3, read_term, PL_FA_ISO)
+{ PRED_LD
+  IOSTREAM *s;
+
+  if ( getTextInputStream(A1, &s) )
+  { if ( read_term_from_stream(s, A2, A3 PASS_LD) )
+      return PL_release_stream(s);
+    if ( Sferror(s) )
+      return streamStatus(s);
+    PL_release_stream(s);
+    return FALSE;
+  }
+
+  return FALSE;
+}
+
 /** read_term(-Term, +Options) is det.
 */
+
 
 static
 PRED_IMPL("read_term", 2, read_term, PL_FA_ISO)
@@ -1376,8 +1405,8 @@ PL_chars_to_term(const char *s, term_t t)
 		 *******************************/
 
 BeginPredDefs(read)
-  PRED_DEF("swi_read_term",		  3, read_term,		  PL_FA_ISO)
-  PRED_DEF("swi_read_term",		  2, read_term,		  PL_FA_ISO)
+  PRED_DEF("read_term",		  3, read_term,		  PL_FA_ISO)
+  PRED_DEF("read_term",		  2, read_term,		  PL_FA_ISO)
   PRED_DEF("atom_to_term", 3, atom_to_term, 0)
   PRED_DEF("term_to_atom", 2, term_to_atom, 0)
 #ifdef O_QUASIQUOTATIONS

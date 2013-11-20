@@ -131,92 +131,11 @@ exists(F) :-
 /* Term IO	*/
 
 read(T) :-
-	'$read'(false,T,_,_,_,Err,_),
-	(nonvar(Err) ->
-	    print_message(error,Err), fail
-	    ;
-	    true
-	).
+	read_term(T, []).
 
 read(Stream,T) :-
-	'$read'(false,T,_,_,_,Err,_,Stream),
-	(nonvar(Err) ->
-	    print_message(error,Err), fail
-	    ;
-	    true
-	).
+	read_term(Stream, T, []).
 
-read_term(T, Options) :-
-	'$check_io_opts'(Options,read_term(T, Options)),
-	current_input(S),
-	'$preprocess_read_terms_options'(Options,Module,DoComments),
-	'$read_vars'(S,T,Module,Pos,VL,'|: ',DoComments),
-	'$postprocess_read_terms_options'(Options, T, VL, Pos).
-
-read_term(Stream, T, Options) :-
-	'$check_io_opts'(Options,read_term(T, Options)),
-	'$preprocess_read_terms_options'(Options,Module,DoComments),
-	'$read_vars'(Stream,T,Module,Pos,VL,'|: ',DoComments),
-	'$postprocess_read_terms_options'(Options, T, VL, Pos).
-
-%
-% support flags to read
-%
-'$preprocess_read_terms_options'([], _, no).
-'$preprocess_read_terms_options'([syntax_errors(NewVal)|L], Mod, DoComments) :- !,
-	'$get_read_error_handler'(OldVal),
-	set_value('$read_term_error_handler', OldVal),
-	'$set_read_error_handler'(NewVal),
-	'$preprocess_read_terms_options'(L,Mod, DoComments).
-'$preprocess_read_terms_options'([module(Mod)|L], Mod, DoComments) :- !,
-	'$preprocess_read_terms_options'(L, Mod, DoComments).
-'$preprocess_read_terms_options'([comments(Val)|L], Mod, Val) :- !,
-	'$preprocess_read_terms_options'(L, Mod, _).
-'$preprocess_read_terms_options'([_|L],Mod, DoComments) :-
-	'$preprocess_read_terms_options'(L,Mod, DoComments).
-
-'$postprocess_read_terms_options'([], _, _, _).
-'$postprocess_read_terms_options'([H|Tail], T, VL, Pos) :- !,
-	'$postprocess_read_terms_option'(H, T, VL, Pos),
-	'$postprocess_read_terms_options_list'(Tail, T, VL, Pos).
-	
-'$postprocess_read_terms_options_list'([], _, _, _).
-'$postprocess_read_terms_options_list'([H|Tail], T, VL, Pos) :-
-	'$postprocess_read_terms_option'(H, T, VL, Pos),
-	'$postprocess_read_terms_options_list'(Tail, T, VL, Pos).
-
-'$postprocess_read_terms_option'(syntax_errors(_), _, _, _) :-
-	get_value('$read_term_error_handler', OldVal),
-	'$set_read_error_handler'(OldVal).
-'$postprocess_read_terms_option'(variable_names(Vars), _, Vars, _).
-'$postprocess_read_terms_option'(singletons(Val), T, VL, _) :-
-	'$singletons_in_term'(T, Val1),
-	'$fetch_singleton_names'(Val1,VL,Val).
-'$postprocess_read_terms_option'(variables(Val), T, _, _) :-
-	'$variables_in_term'(T, [], Val).
-'$postprocess_read_terms_option'(comments(_), _, _, _).
-'$postprocess_read_terms_option'(term_position(Pos), _, _, Pos).
-'$postprocess_read_terms_option'(module(_), _, _, _).
-%'$postprocess_read_terms_option'(cycles(Val), _, _).
-
-% problem is what to do about _ singletons.
-% no need to do ordering, the two lists already come ordered.
-'$fetch_singleton_names'([], _, []) :- !.
-'$fetch_singleton_names'([V1|Ss], [(Na=V2)|Ns], ONs) :-
-	V1 == V2, !,
-	'$add_singleton_if_no_underscore'(Na,V2,NSs,ONs),
-	'$fetch_singleton_names'(Ss, Ns, NSs).
-'$fetch_singleton_names'([V1|Ss], [N=V2|Ns], NSs) :-
-	V1 @< V2, !, 
-	'$fetch_singleton_names'(Ss, [N=V2|Ns], NSs).
-'$fetch_singleton_names'(_Ss, [], []).
-'$fetch_singleton_names'(Ss, [_|Ns], NSs) :-
-%	V1 @> V2, !,
-	'$fetch_singleton_names'(Ss, Ns, NSs).
-
-'$add_singleton_if_no_underscore'(Name, _, NSs, NSs) :- 
-	atom_codes(Name, [C|_]), C == 0'_ , !. %'
-'$add_singleton_if_no_underscore'(Name, V2, NSs, [(Name=V2)|NSs]).
 
 /* meaning of flags for '$write' is
 	 1	quote illegal atoms
