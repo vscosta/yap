@@ -1483,43 +1483,6 @@ ArgsOfSFTerm(Term t)
 
 #endif
 
-Int
-Yap_NewSlots(int n USES_REGS)
-{
-  Int old_slots = IntOfTerm(ASP[0]), oldn = n;
-  while (n > 0) {
-    RESET_VARIABLE(ASP);
-    ASP--;
-    n--;
-  }
-  ASP[0] = MkIntTerm(old_slots+oldn);
-  CurSlot = LCL0-ASP;
-  return((ASP+1)-LCL0);
-}
-
-Int
-Yap_InitSlot(Term t USES_REGS)
-{
-  Int old_slots = IntOfTerm(ASP[0]);
-  *ASP = t;
-  ASP--;
-  CurSlot ++;
-  ASP[0] = MkIntTerm(old_slots+1);
-  return((ASP+1)-LCL0);
-}
-
-int
-Yap_RecoverSlots(int n USES_REGS)
-{
-  Int old_slots = IntOfTerm(ASP[0]);
-  if (old_slots - n < 0) {
-    return FALSE;
-  }
-  ASP += n;
-  CurSlot -= n;
-  ASP[0] = MkIntTerm(old_slots-n);
-  return TRUE;
-}
 
 static HoldEntry *
 InitAtomHold(void)

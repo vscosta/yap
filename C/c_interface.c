@@ -1210,7 +1210,6 @@ YAP_cut_up(void)
 	 pointer back to where cut_up called it. Slots depend on it. */
   if (ENV > B->cp_env) {
     ASP = B->cp_env;
-    Yap_PopSlots( PASS_REGS1 );
   }
 #ifdef YAPOR
   {
@@ -1636,16 +1635,67 @@ execute_cargs_back(PredEntry *pe, CPredicate exec_code, struct foreign_context *
   }
 }
 
+static Int
+complete_fail(choiceptr ptr, int has_cp USES_REGS)
+{
+  // this case is easy, jut be sure to throw everything 
+  // after the old B;
+  while (B != ptr) {
+    B = B->cp_b;
+  }
+  if (has_cp)
+    return do_cut( FALSE );
+  return FALSE;
+}
+
+static int
+complete_exit(choiceptr ptr, int has_cp, int cut_all USES_REGS)
+{
+  // the user often leaves open frames, especially in forward execuryion
+  while (B && (!ptr ||  B < ptr)) {
+    if (cut_all || B->cp_ap == NOCODE) {/* separator */
+      do_cut( TRUE ); // pushes B up
+      continue;
+    } else if (B->cp_ap->opc == RETRY_USERC_OPCODE && B->cp_b == ptr) { 
+      // started the current choicepoint, I hope
+      return do_cut( TRUE );
+    } else 
+      break; // oops, there is something else
+  }
+  if (!ptr ||  B < ptr) {
+    // we're still not there yet
+    choiceptr new = B;
+    while (new  && new < ptr) {
+      if (new->cp_ap == NOCODE) /* separator */
+	new->cp_ap = FAILCODE; // there are choice-points above but at least, these won't harm innocent code
+      else if (new->cp_ap->opc == RETRY_USERC_OPCODE && new->cp_b == ptr) { 
+	// I can't cut, but I can tag it as done
+	new->cp_ap = FAILCODE; // there are choice-points above but at least, these won't harm innocent code
+      }
+      new = new->cp_b;
+    }
+  }
+  if (has_cp) {
+    if (B == ptr) {
+      return do_cut( TRUE );
+    } else {
+      ptr->cp_ap = FAILCODE;
+    }
+  }
+  return TRUE;
+}
 
 Int
 YAP_Execute(PredEntry *pe, CPredicate exec_code)
 {
   CACHE_REGS
   Int ret;
+  Int OASP = LCL0-(CELL *)B;
   //  Term omod = CurrentModule;
   //if (pe->PredFlags & CArgsPredFlag) {
   //  CurrentModule = pe->ModuleOfPred;
   //}
+  Int CurSlot = Yap_StartSlots( PASS_REGS1 );
   if (pe->PredFlags & SWIEnvPredFlag) {
     CPredicateV codev = (CPredicateV)exec_code;
     struct foreign_context ctx;
@@ -1666,6 +1716,12 @@ YAP_Execute(PredEntry *pe, CPredicate exec_code)
     ret = (exec_code)( PASS_REGS1 );
   }
   PP = NULL;
+  // check for junk: open frames, etc */
+  LOCAL_CurSlot = CurSlot;
+  if (ret)
+    complete_exit(((choiceptr)(LCL0-OASP)), FALSE, FALSE PASS_REGS);
+  else
+    complete_fail(((choiceptr)(LCL0-OASP)), FALSE PASS_REGS);
   //CurrentModule = omod;
   if (!ret) {
     Term t;
@@ -1689,12 +1745,13 @@ Int
 YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code)
 {
   CACHE_REGS
+  CELL ocp = LCL0-(CELL *)B;
+  /* for slots to work */
+  Int CurSlot = Yap_StartSlots( PASS_REGS1 );
   if (pe->PredFlags & (SWIEnvPredFlag|CArgsPredFlag)) {
     Int val;
     CPredicateV codev = (CPredicateV)exec_code;
     struct foreign_context *ctx = (struct foreign_context *)(&EXTRA_CBACK_ARG(pe->ArityOfPE,1));
-    struct open_query_struct *oexec = LOCAL_execution;
-    extern void PL_close_foreign_frame(struct open_query_struct *);
 
     PP = pe;
     ctx->control = FRG_FIRST_CALL;
@@ -1705,9 +1762,7 @@ YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code)
     } else {
       val = ((codev)(B->cp_args-LCL0,0,ctx));
     }
-    /* make sure we clean up the frames left by the user */
-    while (LOCAL_execution != oexec)
-      PL_close_foreign_frame(LOCAL_execution);
+    LOCAL_CurSlot = CurSlot;
     PP = NULL;
     if (val == 0) {
       Term t;
@@ -1720,9 +1775,9 @@ YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code)
 	Yap_JumpToEnv(t);
 	return FALSE;
       }
-      cut_fail();
+      return complete_fail(((choiceptr)(LCL0-ocp)), TRUE PASS_REGS);
     } else if (val == 1) { /* TRUE */
-      cut_succeed();
+      return complete_exit(((choiceptr)(LCL0-ocp)), TRUE, FALSE PASS_REGS);
     } else {
       if ((val & REDO_PTR) == REDO_PTR)
 	ctx->context = (int *)(val & ~REDO_PTR);
@@ -1758,22 +1813,19 @@ YAP_ExecuteOnCut(PredEntry *pe, CPredicate exec_code, struct cut_c_str *top)
     Int val;
     CPredicateV codev = (CPredicateV)exec_code;
     struct foreign_context *ctx = (struct foreign_context *)(&EXTRA_CBACK_ARG(pe->ArityOfPE,1));
-    struct open_query_struct *oexec = LOCAL_execution;
-    extern void PL_close_foreign_frame(struct open_query_struct *);
     CELL *args = B->cp_args;
 
     B = oB;
     PP = pe;
     ctx->control = FRG_CUTTED;
     ctx->engine = NULL; //(PL_local_data *)Yap_regp;
+    /* for slots to work */
+    Yap_StartSlots( PASS_REGS1 );
     if (pe->PredFlags & CArgsPredFlag) {
       val = execute_cargs_back(pe, exec_code, ctx PASS_REGS);
     } else {
       val = ((codev)(args-LCL0,0,ctx));
     }
-    /* make sure we clean up the frames left by the user */
-    while (LOCAL_execution != oexec)
-      PL_close_foreign_frame(LOCAL_execution);
 
     PP = NULL;
     //    B = LCL0-(CELL*)oB;
@@ -1792,9 +1844,12 @@ YAP_ExecuteOnCut(PredEntry *pe, CPredicate exec_code, struct cut_c_str *top)
       return TRUE;
     } 
   } else {
-    Int ret;
+    Int ret, CurSlot;
     B = oB;
+    /* for slots to work */
+    CurSlot = Yap_StartSlots( PASS_REGS1 );
     ret = (exec_code)( PASS_REGS1 );
+    LOCAL_CurSlot = CurSlot;
     if (!ret) {
       Term t;
 
@@ -1814,12 +1869,13 @@ Int
 YAP_ExecuteNext(PredEntry *pe, CPredicate exec_code)
 {
   CACHE_REGS
+    /* for slots to work */
+  Int CurSlot = Yap_StartSlots( PASS_REGS1 );
+  UInt ocp = LCL0-(CELL *)B;
   if (pe->PredFlags & (SWIEnvPredFlag|CArgsPredFlag)) {
     Int val;
     CPredicateV codev = (CPredicateV)exec_code;
     struct foreign_context *ctx = (struct foreign_context *)(&EXTRA_CBACK_ARG(pe->ArityOfPE,1));
-    struct open_query_struct *oexec = LOCAL_execution;
-    extern void PL_close_foreign_frame(struct open_query_struct *);
     
     PP = pe;
     ctx->control = FRG_REDO;
@@ -1828,9 +1884,9 @@ YAP_ExecuteNext(PredEntry *pe, CPredicate exec_code)
     } else {
       val = ((codev)(B->cp_args-LCL0,0,ctx));
     }
+    LOCAL_CurSlot = CurSlot;
+    /* we are below the original choice point ?? */
     /* make sure we clean up the frames left by the user */
-    while (LOCAL_execution != oexec)
-      PL_close_foreign_frame(LOCAL_execution);
     PP = NULL;
     if (val == 0) {
       Term t;
@@ -1843,10 +1899,10 @@ YAP_ExecuteNext(PredEntry *pe, CPredicate exec_code)
 	Yap_JumpToEnv(t);
 	return FALSE;
       } else {
-	cut_fail();
+	return complete_fail(((choiceptr)(LCL0-ocp)), TRUE PASS_REGS);
       }
     } else if (val == 1) { /* TRUE */
-      cut_succeed();
+      return complete_exit(((choiceptr)(LCL0-ocp)), TRUE, FALSE PASS_REGS);
     } else {
       if ((val & REDO_PTR) == REDO_PTR)
 	ctx->context = (int *)(val & ~REDO_PTR);
@@ -2251,8 +2307,6 @@ run_emulator(YAP_dogoalinfo *dgi USES_REGS)
   LOCAL_PrologMode = UserMode;
   out = Yap_absmi(0);
   LOCAL_PrologMode = UserCCallMode;
-  if (out)
-    Yap_StartSlots(PASS_REGS1);
   return out;
 }
 
@@ -2265,12 +2319,17 @@ YAP_EnterGoal(PredEntry *pe, Term *ptr, YAP_dogoalinfo *dgi)
   BACKUP_MACHINE_REGS();
   dgi->p = P;
   dgi->cp = CP;
+  dgi->CurSlot = LOCAL_CurSlot;
   // ensure our current ENV receives current P.
   Yap_PrepGoal(pe->ArityOfPE, ptr, B PASS_REGS);
   P = pe->CodeOfPred;
   dgi->b = LCL0-(CELL*)B;
   out = run_emulator(dgi PASS_REGS);
   RECOVER_MACHINE_REGS();
+  if (out) {
+    LOCAL_CurSlot = dgi->CurSlot; // ignore any slots created within the called goal
+    Yap_StartSlots( PASS_REGS1 );
+  }
   return out;
 }
 
@@ -2291,9 +2350,13 @@ YAP_RetryGoal(YAP_dogoalinfo *dgi)
   P = FAILCODE;
   /* make sure we didn't leave live slots when we backtrack */
   ASP = (CELL *)B;
-  Yap_PopSlots( PASS_REGS1 );
+  LOCAL_CurSlot = dgi->CurSlot;
   out = run_emulator(dgi PASS_REGS);
   RECOVER_MACHINE_REGS();
+  if (out) {
+    LOCAL_CurSlot = dgi->CurSlot;
+    Yap_StartSlots( PASS_REGS1 );
+  }
   return out;
 }
 
@@ -2343,7 +2406,6 @@ YAP_LeaveGoal(int backtrack, YAP_dogoalinfo *dgi)
   /* ASP should be set to the top of the local stack when we
      did the call */
   ASP = B->cp_env;
-  Yap_PopSlots(PASS_REGS1);
   /* YENV should be set to the current environment */
   YENV = ENV  = (CELL *)((B->cp_env)[E_E]);
   B    = B->cp_b;
@@ -2351,6 +2413,7 @@ YAP_LeaveGoal(int backtrack, YAP_dogoalinfo *dgi)
   HB = PROTECT_FROZEN_H(B);
   CP = dgi->cp;
   P = dgi->p;
+  LOCAL_CurSlot = dgi->CurSlot;
   RECOVER_MACHINE_REGS();
   return TRUE;
 }
@@ -2361,6 +2424,7 @@ YAP_RunGoal(Term t)
   CACHE_REGS
   Term out;
   yamop *old_CP = CP;
+  Int CurSlot = LOCAL_CurSlot;
   BACKUP_MACHINE_REGS();
 
   LOCAL_AllowRestart = FALSE;
@@ -2372,6 +2436,7 @@ YAP_RunGoal(Term t)
     ENV = (CELL *)ENV[E_E];
     CP = old_CP;
     LOCAL_AllowRestart = TRUE;
+    // we are back to user code again, need slots */
     Yap_StartSlots( PASS_REGS1 );
   } else {
     ENV = B->cp_env;
@@ -2379,8 +2444,9 @@ YAP_RunGoal(Term t)
     CP = old_CP;
     B = B->cp_b;
     LOCAL_AllowRestart = FALSE;
+    ASP = ENV;
+    LOCAL_CurSlot = CurSlot;
   }
-
   RECOVER_MACHINE_REGS();
   return out;
 }
@@ -2451,13 +2517,11 @@ YAP_RunGoalOnce(Term t)
   Term out;
   yamop *old_CP = CP;
   Int oldPrologMode = LOCAL_PrologMode;
-  Int oldSlot = CurSlot;
 
   BACKUP_MACHINE_REGS();
   LOCAL_PrologMode = UserMode;
   out = Yap_RunTopGoal(t);
   LOCAL_PrologMode = oldPrologMode;
-  CurSlot = oldSlot;
   if (!(oldPrologMode & UserCCallMode)) {
     /* called from top-level */
     LOCAL_AllowRestart = FALSE;
@@ -2509,8 +2573,6 @@ YAP_RestartGoal(void)
   if (LOCAL_AllowRestart) {
     P = (yamop *)FAILCODE;
     LOCAL_PrologMode = UserMode;
-    // exec_absmi destroys slots on top of stack....
-    Yap_CloseSlots( PASS_REGS1 );
     out = Yap_exec_absmi(TRUE);
     LOCAL_PrologMode = UserCCallMode;
     if (out == FALSE) {
@@ -2557,7 +2619,6 @@ YAP_ShutdownGoal(int backtrack)
     }
     /* we can always recover the stack */
     ASP = cut_pt->cp_env;
-    Yap_PopSlots( PASS_REGS1 );
     ENV = (CELL *)ASP[E_E];
     B = (choiceptr)ASP[E_CB];
     Yap_TrimTrail();
@@ -3237,8 +3298,6 @@ YAP_Reset(void)
   ASP = (CELL *)B;
   /* the first real choice-point will also have AP=FAIL */ 
   /* always have an empty slots for people to use */
-  CurSlot = 0;
-  Yap_StartSlots( PASS_REGS1 );
   P = CP = YESCODE;
   RECOVER_MACHINE_REGS();
   return res;
