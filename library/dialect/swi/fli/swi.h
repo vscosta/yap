@@ -48,11 +48,9 @@ typedef struct open_query_struct {
   YAP_Term *g;
   PredEntry *pe;
   yamop *p, *cp;
-  Int slots, b, envp, asp;
   jmp_buf env;
   int flags;
   YAP_dogoalinfo h;
-  struct open_query_struct *old;
 } open_query;
 
 #define addr_hash(V) (((CELL) (V)) >> 4 & (N_SWI_HASH-1))

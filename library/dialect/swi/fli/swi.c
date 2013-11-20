@@ -2184,51 +2184,49 @@ X_API fid_t
 PL_open_foreign_frame(void)
 {
   CACHE_REGS
-  open_query *new = (open_query *)malloc(sizeof(open_query));
-  if (!new) return 0;
-  new->old = LOCAL_execution;
-  new->g = NULL;
-  new->open = FALSE;
-  new->cp = CP;
-  new->p = P;
-  new->flags = 0;
-  new->b = (CELL)(LCL0-(CELL*)B);
-  new->envp = (CELL)(LCL0-ENV);
-  new->asp = (CELL)(LCL0-ASP);
-  new->slots = CurSlot;
-  LOCAL_execution = new;
-  { 
-    /* initialise a new marker choicepoint */
-    choiceptr cp_b = ((choiceptr)ASP)-1;
+  /* initialise a new marker choicepoint */
+    choiceptr cp_b = ((choiceptr)(ASP-1))-1;
     cp_b->cp_tr = TR;
     cp_b->cp_h = H;
     cp_b->cp_b = B;
     cp_b->cp_cp = CP;
     cp_b->cp_env = ENV;
     cp_b->cp_ap = NOCODE;
+#ifdef DEPTH_LIMIT
+    cp_b->cp_depth = DEPTH;
+#endif /* DEPTH_LIMIT */
+    cp_b->cp_a1 = MkIntTerm(LOCAL_CurSlot);
     HB = H;
     B = cp_b;
     ASP = (CELL *)B;
     Yap_StartSlots( PASS_REGS1 );
-  }
-  return (fid_t)new;
+    
+    return (fid_t)(LCL0-(CELL*)cp_b);
 }
 
 X_API void
 PL_close_foreign_frame(fid_t f)
 {
   CACHE_REGS
-  open_query *env = (open_query *)f;
-  CP = env->cp;
-  P = env->p;
-  CurSlot = env->slots;
-  B = (choiceptr)(LCL0-env->b);
-  ENV = (CELL *)(LCL0-env->envp);
-  ASP = (CELL *)(LCL0-env->asp);
-  EX = NULL;
-  LOCAL_BallTerm = EX;
-  LOCAL_execution = env->old;
-  free(env);
+  choiceptr cp_b = (choiceptr)(LCL0-(UInt)f);
+  CELL *old_slots;
+  LOCAL_CurSlot = IntOfTerm(cp_b->cp_a1);
+  B = cp_b->cp_b;
+  CP = cp_b->cp_cp;
+  ENV = cp_b->cp_env;
+#ifdef DEPTH_LIMIT
+  DEPTH = cp_b->cp_depth;
+#endif /* DEPTH_LIMIT */
+  HB = B->cp_h;
+  Yap_TrimTrail();
+  if (LOCAL_CurSlot) {
+  /* we can assume there was a slot before */
+    CELL *old_slot;
+    old_slot = LCL0-(LOCAL_CurSlot);
+    ASP = old_slot-(2+IntOfTerm(old_slot[-1]));
+  } else {
+    ASP = ((CELL *)(cp_b+1))+1;
+  }
 }
 
 static void
@@ -2244,12 +2242,15 @@ X_API void
 PL_rewind_foreign_frame(fid_t f)
 {
   CACHE_REGS
-  open_query *env = (open_query *)f;
-  CurSlot = env->slots;
-  while (B->cp_b != (choiceptr)(LCL0-env->b))
-    B = B->cp_b;
+  choiceptr cp_b = (choiceptr)(LCL0-(UInt)f);
+  if (B != cp_b) {
+    while (B->cp_b != cp_b)
+      B = B->cp_b;
+  }
   backtrack();
+  // restore to original location
   ASP = (CELL *)B;
+  LOCAL_CurSlot = IntOfTerm(B->cp_a1);
   Yap_StartSlots( PASS_REGS1 );  
 }
 
@@ -2257,27 +2258,29 @@ X_API void
 PL_discard_foreign_frame(fid_t f)
 {
   CACHE_REGS
-  open_query *env = (open_query *)f;
-  if (LOCAL_execution != env) {
-    /* handle the case where we do not want to kill the last open frame */ 
-    open_query *env0 = LOCAL_execution;
-    while (env0 && env0 != env) env0 = env0->old;
-    if (!env0)
-      return;
+  choiceptr cp_b = (choiceptr)(LCL0-(UInt)f);
+
+  if (B != cp_b) {
+    while (B->cp_b != cp_b)
+      B = B->cp_b;
+    backtrack();
   }
-  while (B->cp_b != (choiceptr)(LCL0-env->b))
-    B = B->cp_b;
-  backtrack();
-  CurSlot = env->slots;
-  ENV = (CELL *)(LCL0-env->envp);
-  CP = env->cp;
-  P = env->p;
-  LOCAL_execution = env->old;
-  ASP = LCL0-env->asp;
-  B = B->cp_b;
-  //LOCAL_BallTerm = EX;
-  //EX = NULL;
-  free(env);
+  LOCAL_CurSlot = IntOfTerm(cp_b->cp_a1);
+  B = cp_b->cp_b;
+  CP = cp_b->cp_cp;
+  ENV = cp_b->cp_env;
+  HB = B->cp_h;
+#ifdef DEPTH_LIMIT
+  DEPTH = cp_b->cp_depth;
+#endif /* DEPTH_LIMIT */
+  /* we can assume there was a slot before */
+  if (LOCAL_CurSlot) {
+    CELL *old_slot;
+    old_slot = LCL0-(LOCAL_CurSlot);
+    ASP = old_slot-(2+IntOfTerm(old_slot[-1]));
+  } else {
+    ASP = ((CELL *)(cp_b+1))+1;
+  }
 }
 
 X_API qid_t PL_open_query(module_t ctx, int flags, predicate_t p, term_t t0)
@@ -2288,26 +2291,13 @@ X_API qid_t PL_open_query(module_t ctx, int flags, predicate_t p, term_t t0)
     t = Yap_AddressFromSlot(t0 PASS_REGS);
 
   /* ignore flags  and module for now */
-  if (!LOCAL_execution) {
-    open_query *new = (open_query *)malloc(sizeof(open_query));
-    if (!new) return 0;
-    new->old = LOCAL_execution;
-    new->g = NULL;
-    new->open = FALSE;
-    new->cp = CP;
-    new->p = P;
-    new->b = (CELL)(LCL0-(CELL*)B);
-    new->envp = (CELL)(LCL0-ENV);
-    new->asp = (CELL)(LCL0-ASP);
-    new->slots = CurSlot;
-    new->flags = 0;
-    LOCAL_execution = new;
-  }
-  LOCAL_execution->open=1;
-  LOCAL_execution->state=0;
-  LOCAL_execution->flags = flags;
-  LOCAL_execution->pe = (PredEntry *)p;
-  LOCAL_execution->g = t;
+  open_query *new = (open_query *)(LCL0+Yap_NewSlots(sizeof(open_query)/sizeof(CELL) PASS_REGS));
+  LOCAL_execution = new;
+  new->open=1;
+  new->state=0;
+  new->flags = flags;
+  new->pe = (PredEntry *)p;
+  new->g = t;
   return LOCAL_execution;
 }
 
@@ -2318,6 +2308,7 @@ X_API int PL_next_solution(qid_t qi)
   if (qi->open != 1) return 0;
   if (setjmp(LOCAL_execution->env))
     return 0;
+  // don't forget, on success these guys must create slots
   if (qi->state == 0) {
     result = YAP_EnterGoal((YAP_PredEntryPtr)qi->pe, qi->g, &qi->h);
   } else {
@@ -2342,7 +2333,7 @@ X_API void PL_cut_query(qid_t qi)
 X_API void PL_close_query(qid_t qi)
 {
   CACHE_REGS
-  EX = NULL;
+
   if (EX && !(qi->flags & (PL_Q_CATCH_EXCEPTION))) {
     EX = NULL;
   }

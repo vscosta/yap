@@ -294,7 +294,7 @@ typedef struct foreign_context *control_t;
 
 #define PRED_IMPL(name, arity, fname, flags) \
         foreign_t \
-        pl_ ## fname ## _va(term_t PL__t0, int PL__ac, control_t PL__ctx)
+        pl_ ## fname ## arity ## _va(term_t PL__t0, int PL__ac, control_t PL__ctx)
 
 #define CTX_CNTRL ForeignControl(PL__ctx)
 #define CTX_PTR   ForeignContextPtr(PL__ctx)
@@ -304,7 +304,7 @@ typedef struct foreign_context *control_t;
 #define BeginPredDefs(id) \
         const PL_extension PL_predicates_from_ ## id[] = {
 #define PRED_DEF(name, arity, fname, flags) \
-  { name, arity, pl_ ## fname ## _va, (flags)|PL_FA_VARARGS },
+  { name, arity, pl_ ## fname ## arity ## _va, (flags)|PL_FA_VARARGS },
 #define EndPredDefs \
         { NULL, 0, NULL, 0 } \
         };

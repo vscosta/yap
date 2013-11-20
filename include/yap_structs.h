@@ -231,6 +231,7 @@ typedef struct YAP_pred_entry *YAP_PredEntryPtr;
 /* this should be opaque to the user */ 
 typedef struct {
   unsigned long  b;
+  YAP_Int CurSlot; 
   struct yami *p, *cp;
 } YAP_dogoalinfo;
 
