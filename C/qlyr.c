@@ -1058,7 +1058,6 @@ p_read_program( USES_REGS1 )
   read_module(stream);
   Sclose( stream );
   /* back to the top level we go */
-  Yap_CloseSlots(PASS_REGS1);
   ReInitProlog();
   Yap_RestartYap( 3 );
   return TRUE;
