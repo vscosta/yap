@@ -92,7 +92,6 @@ INLINE_ONLY inline EXTERN void save_B(void);
 
 typedef struct regstore_t
   {
-    Int     CurSlot_;
     CELL    CreepFlag_;		/* 13                                         */
     CELL   *HB_;		/* 4 heap (global) stack top at latest c.p.   */
 #if defined(YAPOR_SBA) || defined(TABLING)
@@ -634,7 +633,6 @@ INLINE_ONLY EXTERN inline void restore_B(void) {
 
 #endif
 
-#define	CurSlot       Yap_REGS.CurSlot_
 #define	AuxBase       Yap_REGS.AuxBase_
 #define	AuxSp         Yap_REGS.AuxSp_
 #define	AuxTop        Yap_REGS.AuxTop_

@@ -71,6 +71,7 @@
 #define LOCKPRED_OPCODE Yap_heap_regs->lockpred_op
 #define ORLAST_OPCODE Yap_heap_regs->orlast_op
 #define UNDEF_OPCODE Yap_heap_regs->undef_op
+#define RETRY_USERC_OPCODE Yap_heap_regs->retry_userc_op
 
 #define NOfAtoms Yap_heap_regs->n_of_atoms
 #define AtomHashTableSize Yap_heap_regs->atom_hash_table_size

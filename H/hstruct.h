@@ -71,6 +71,7 @@
   OPCODE  lockpred_op;
   OPCODE  orlast_op;
   OPCODE  undef_op;
+  OPCODE  retry_userc_op;
 
   UInt  n_of_atoms;
   UInt  atom_hash_table_size;
@@ -228,7 +229,6 @@
   UInt  dirty_cps;
   UInt  freed_cps;
 #endif
-
   UInt  expand_clauses_sz;
 
   struct udi_info  *udi_control_blocks;

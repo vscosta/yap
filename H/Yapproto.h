@@ -55,9 +55,6 @@ Term	Yap_NWideStringToDiffListOfAtoms(wchar_t *, Term, size_t);
 int     Yap_AtomIncreaseHold(Atom);
 int     Yap_AtomDecreaseHold(Atom);
 struct operator_entry *Yap_OpPropForModule(Atom, Term);
-Int	Yap_InitSlot(Term CACHE_TYPE);
-Int     Yap_NewSlots(int CACHE_TYPE);
-int     Yap_RecoverSlots(int CACHE_TYPE);
 
 
 #ifdef SFUNC

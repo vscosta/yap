@@ -232,5 +232,7 @@ static void InitWorker(int wid) {
   REMOTE_exo_arg(wid) = 0;
 
 
+
+  REMOTE_CurSlot(wid) = 0;
   REMOTE_SourceModule(wid) = 0;
 }

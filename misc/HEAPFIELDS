@@ -70,6 +70,7 @@ OPCODE		index_op		INDEX_OPCODE		MkOp _index_pred
 OPCODE		lockpred_op		LOCKPRED_OPCODE		MkOp _lock_pred
 OPCODE		orlast_op		ORLAST_OPCODE		MkOp _or_last
 OPCODE		undef_op		UNDEF_OPCODE		MkOp _undef_p
+OPCODE		retry_userc_op		RETRY_USERC_OPCODE	MkOp _retry_userc
 
 /* atom tables */
 UInt		n_of_atoms		NOfAtoms		void void

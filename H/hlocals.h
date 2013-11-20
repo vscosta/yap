@@ -232,5 +232,7 @@ typedef struct worker_local {
   UInt  exo_arg_;
 
   struct scan_atoms*  search_atoms_;
+
+  Int  CurSlot_;
   Term  SourceModule_;
 } w_local;

@@ -124,7 +124,7 @@ void PL_license(const char *license, const char *module);
 
 #define arityFunctor(f) YAP_PLArityOfSWIFunctor(f)
 
-#define stringAtom(w)	YAP_AtomName(YAP_AtomFromSWIAtom(w))
+#define stringAtom(w)	(YAP_AtomFromSWIAtom(w)->StrOfAE)
 #define isInteger(A) (!IsVarTerm(A) && ( IsIntegerTerm((A)) || YAP_IsBigNumTerm((A)) ))
 #define isString(A) (!IsVarTerm(A) && Yap_IsStringTerm(A) )
 #define isAtom(A) (!IsVarTerm(A) && IsAtomTerm((A)) )

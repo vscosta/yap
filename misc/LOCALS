@@ -265,6 +265,10 @@ UInt				exo_arg					=0
 // atom completion
 struct scan_atoms*		search_atoms				void
 
+// Slots
+Int				CurSlot					=0
+
+
 Term				SourceModule				=0
 
 END_WORKER_LOCAL

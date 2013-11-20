@@ -71,6 +71,7 @@
   LOCKPRED_OPCODE = Yap_opcode(_lock_pred);
   ORLAST_OPCODE = Yap_opcode(_or_last);
   UNDEF_OPCODE = Yap_opcode(_undef_p);
+  RETRY_USERC_OPCODE = Yap_opcode(_retry_userc);
 
 
 
