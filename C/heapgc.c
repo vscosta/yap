@@ -1915,20 +1915,20 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 static void
 mark_slots( USES_REGS1 )
 {
-  Int curslot = CurSlot;
+  Int curslot = LOCAL_CurSlot;
   while (curslot) {
     CELL *ptr = LCL0-curslot;
-    Int ns = IntegerOfTerm(*ptr);
-
-    ptr++;
+    Int ns = IntegerOfTerm(ptr[-1]);
+    curslot = IntegerOfTerm(ptr[0]);
+    fprintf(stderr,"%ld\n", curslot);
+    ptr-=2;
     while (ns > 0) {
-      //      Yap_DebugPlWrite(ptr);
-      //fprintf(stderr,"\n");
+           Yap_DebugPlWrite(ptr);
+      fprintf(stderr,"\n");
       mark_external_reference(ptr PASS_REGS);
-      ptr++;
+      ptr--;
       ns--;
     }
-    curslot = IntegerOfTerm(*ptr);
   }
 }
 
@@ -2930,11 +2930,12 @@ sweep_environments(CELL_PTR gc_ENV, OPREG size, CELL *pvbmap USES_REGS)
 static void
 sweep_slots( USES_REGS1 )
 {
-  Int curslot = CurSlot;
+  Int curslot = LOCAL_CurSlot;
   while (curslot) {
     CELL *ptr = LCL0-curslot;
-    Int ns = IntOfTerm(*ptr);
-    ptr++;
+    Int ns = IntOfTerm(ptr[-1]);
+    curslot = IntegerOfTerm(ptr[0]);
+    ptr-=2;
     while (ns > 0) {
       CELL cp_cell = *ptr;
       if (MARKED_PTR(ptr)) {
@@ -2943,10 +2944,9 @@ sweep_slots( USES_REGS1 )
 	  into_relocation_chain(ptr, GET_NEXT(cp_cell) PASS_REGS);
 	}
       }
-      ptr++;
+      ptr--;
       ns--;
     }
-    curslot = IntegerOfTerm(*ptr);
   }
 }
 
