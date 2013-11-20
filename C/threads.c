@@ -270,7 +270,7 @@ setup_engine(int myworker_id, int init_thread)
   REMOTE_ThreadHandle(myworker_id).current_yaam_regs = standard_regs;
   REMOTE_PL_local_data_p(myworker_id)->reg_cache = standard_regs;
   Yap_InitExStacks(myworker_id, REMOTE_ThreadHandle(myworker_id).tsize, REMOTE_ThreadHandle(myworker_id).ssize);
-  LOCAL_SourceModule = CurrentModule = REMOTE_ThreadHandle(myworker_id).cmod;
+  REMOTE_SourceModule(myworker_id) = CurrentModule = REMOTE_ThreadHandle(myworker_id).cmod;
   Yap_InitTime( myworker_id );
   Yap_InitYaamRegs( myworker_id );
   REFRESH_CACHE_REGS
