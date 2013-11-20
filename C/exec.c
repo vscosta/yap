@@ -1089,7 +1089,6 @@ exec_absmi(int top USES_REGS)
 	restore_H();
 	/* set stack */
 	ASP = (CELL *)PROTECT_FROZEN_B(B);
-	Yap_PopSlots( PASS_REGS1 );
 	LOCK(LOCAL_SignalLock);
 	/* forget any signals active, we're reborne */
 	LOCAL_ActiveSignals = 0;
@@ -1119,7 +1118,6 @@ exec_absmi(int top USES_REGS)
       LOCAL_PrologMode = UserMode;
     }
   } else {
-    Yap_CloseSlots( PASS_REGS1 );
     LOCAL_PrologMode = UserMode;
   }
   YENV = ASP;
@@ -1210,7 +1208,6 @@ static int
 execute_pred(PredEntry *ppe, CELL *pt USES_REGS)
 {
   yamop *saved_p, *saved_cp;
-  Int saved_slot = CurSlot;
   yamop        *CodeAdr;
   Int             out;
 
@@ -1227,7 +1224,6 @@ execute_pred(PredEntry *ppe, CELL *pt USES_REGS)
     UNLOCK(ppe->PELock);
     out = do_goal(CodeAdr, ppe->ArityOfPE, pt, FALSE PASS_REGS);
   }
-  CurSlot = saved_slot;
 
   if (out == 1) {
     choiceptr cut_B;
@@ -1739,6 +1735,7 @@ void
 Yap_InitYaamRegs( int myworker_id )
 {
   Term h0var;
+  //  getchar();
 #if PUSH_REGS
   /* Guarantee that after a longjmp we go back to the original abstract
      machine registers */
@@ -1783,17 +1780,18 @@ Yap_InitYaamRegs( int myworker_id )
   CreepFlag = CalculateStackGap();
   /* the first real choice-point will also have AP=FAIL */ 
   /* always have an empty slots for people to use */
-  CurSlot = 0;
   REMOTE_GlobalArena(myworker_id) = TermNil;
-  h0var = MkVarTerm();
 #if defined(YAPOR) || defined(THREADS)
   LOCAL = REMOTE(myworker_id);
   worker_id = myworker_id;
 #endif /* THREADS */
 #if COROUTINING
   REMOTE_WokenGoals(myworker_id) = Yap_NewTimedVar(TermNil);
+  h0var = MkVarTerm();
   REMOTE_AttsMutableList(myworker_id) = Yap_NewTimedVar(h0var);
 #endif
+  REMOTE_CurSlot(myworker_id) = 0;
+  h0var = MkVarTerm();
   REMOTE_GcGeneration(myworker_id) = Yap_NewTimedVar(h0var);
   REMOTE_GcCurrentPhase(myworker_id) = 0L;
   REMOTE_GcPhase(myworker_id) = Yap_NewTimedVar(MkIntTerm(REMOTE_GcCurrentPhase(myworker_id)));
@@ -1810,7 +1808,6 @@ Yap_InitYaamRegs( int myworker_id )
   Yap_REGS.MYDDAS_GLOBAL_POINTER = NULL;
 #endif
   Yap_PrepGoal(0, NULL, NULL PASS_REGS);
-  Yap_StartSlots( PASS_REGS1 );
 #ifdef TABLING
   /* ensure that LOCAL_top_dep_fr is always valid */
   if (REMOTE_top_dep_fr(myworker_id))
