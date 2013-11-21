@@ -94,9 +94,9 @@ HASH_MURMUR3_32 (UInt arity, CELL *cl, UInt bnds[], UInt sz)
 	k1 *= c1;
 	k1 = ROTL32(k1,15);
 	k1 *= c2;
-    
+
 	hash ^= k1;
-	hash = ROTL32(hash,13); 
+	hash = ROTL32(hash,13);
 	hash = hash*5+0xe6546b64;
         i++;
 	len++;
@@ -116,10 +116,10 @@ HASH_MURMUR3_32 (UInt arity, CELL *cl, UInt bnds[], UInt sz)
   hash = fmix32(hash);
 
   return hash;
-} 
+}
 
 /*DJB2*/
-#define DJB2_OFFSET 5381 
+#define DJB2_OFFSET 5381
 
 INLINE_ONLY inline BITS32
 HASH_DJB2(UInt arity, CELL *cl, UInt bnds[], UInt sz);
@@ -208,7 +208,7 @@ HASH_FVN_1A(UInt arity, CELL *cl, UInt bnds[], UInt sz)
   return hash;
 }
 
-//#define TEST_HASH_DJB 1 
+//#define TEST_HASH_DJB 1
 
 #if defined TEST_HASH_MURMUR
 # define HASH(...) HASH_MURMUR3_32(__VA_ARGS__)
@@ -234,7 +234,7 @@ NEXT(UInt arity, CELL *cl, UInt bnds[], UInt sz, BITS32 hash)
 }
 
 /* search for matching elements */
-static int 
+static int
 MATCH(CELL *clp, CELL *kvp, UInt arity, UInt bnds[])
 {
   UInt j = 0;
@@ -268,11 +268,11 @@ ADD_TO_TRY_CHAIN(CELL *kvp, CELL *cl, struct index_t *it)
  * a pointer to the point in the clause where one can find the element.
  *
  * The cls table indexes all elements that can be reached using that key.
- * 
+ *
  * Insert:
  * j = first
  * not match cij -> insert, open new chain
- * match ci..j ck..j -> find j = minarg(cij \= c2j), 
+ * match ci..j ck..j -> find j = minarg(cij \= c2j),
  * else j = +inf -> c2+ci
  * Lookup:
  * j= first
@@ -413,7 +413,7 @@ add_index(struct index_t **ip, UInt bmap, PredEntry *ap, UInt count)
   i->key = (BITS32 *)base;
   i->links = (BITS32 *)base+i->hsize;
   i->ncollisions = i->nentries = i->ntrys = 0;
-  i->cls = (CELL *)((ADDR)ap->cs.p_code.FirstClause+2*sizeof(struct index_t *)); 
+  i->cls = (CELL *)((ADDR)ap->cs.p_code.FirstClause+2*sizeof(struct index_t *));
   i->bcls= i->cls-i->arity;
   i->udi_free_args = 0;
   i->is_udi = FALSE;
@@ -503,19 +503,19 @@ add_index(struct index_t **ip, UInt bmap, PredEntry *ap, UInt count)
 }
 
 yamop  *
-Yap_ExoLookup(PredEntry *ap USES_REGS) 
+Yap_ExoLookup(PredEntry *ap USES_REGS)
 {
   UInt arity = ap->ArityOfPE;
   UInt bmap = 0L, bit = 1, count = 0, j, j0 = 0;
   struct index_t **ip = (struct index_t **)(ap->cs.p_code.FirstClause);
   struct index_t *i = *ip;
-  
+
   for (j=0; j< arity; j++, bit<<=1) {
     Term t = Deref(XREGS[j+1]);
     if (!IsVarTerm(t)) {
       bmap += bit;
       LOCAL_ibnds[j] = TRUE;
-      if (!count) j0= j; 
+      if (!count) j0= j;
       count++;
     } else {
       LOCAL_ibnds[j] = FALSE;
@@ -540,11 +540,11 @@ Yap_ExoLookup(PredEntry *ap USES_REGS)
     yamop *code = LOOKUP(i, arity, j0, LOCAL_ibnds);
     if (code == FAILCODE)
       return code;
-    if (i->is_udi) 
+    if (i->is_udi)
       return ((CEnterExoIndex)i->udi_first)(i PASS_REGS);
-    else 
+    else
       return code;
-  } else if(i->is_udi) { 
+  } else if(i->is_udi) {
     return ((CEnterExoIndex)i->udi_first)(i PASS_REGS);
   } else {
     return i->code;
@@ -552,7 +552,7 @@ Yap_ExoLookup(PredEntry *ap USES_REGS)
 }
 
 CELL
-Yap_NextExo(choiceptr cptr, struct index_t *it) 
+Yap_NextExo(choiceptr cptr, struct index_t *it)
 {
   CACHE_REGS
   BITS32 offset = ADDRESS_TO_LINK(it,(BITS32 *)((CELL *)(B+1))[it->arity]);
@@ -562,13 +562,10 @@ Yap_NextExo(choiceptr cptr, struct index_t *it)
   return next;
 }
 
-static Int 
-p_exodb_get_space( USES_REGS1 )
-{				/* '$number_of_clauses'(Predicate,M,N) */
-  Term            t = Deref(ARG1);
-  Term            mod = Deref(ARG2);
-  Term            tn = Deref(ARG3);
-  UInt		  arity;
+MegaClause *
+exodb_get_space( Term t, Term mod, Term tn )
+{
+  UInt            arity;
   Prop            pe;
   PredEntry      *ap;
   MegaClause *mcl;
@@ -578,7 +575,7 @@ p_exodb_get_space( USES_REGS1 )
 
 
   if (IsVarTerm(mod)  || !IsAtomTerm(mod)) {
-    return(FALSE);
+    return NULL;
   }
   if (IsAtomTerm(t)) {
     Atom a = AtomOfTerm(t);
@@ -589,32 +586,32 @@ p_exodb_get_space( USES_REGS1 )
     arity = ArityOfFunctor(f);
     pe = PredPropByFunc(f, mod);
   } else {
-    return FALSE;
+    return NULL;
   }
-  if (EndOfPAEntr(pe))
-    return FALSE;
+  if (EndOfPAEntr(pe)) 
+    return NULL;
   ap = RepPredProp(pe);
   if (ap->PredFlags & (DynamicPredFlag|LogUpdatePredFlag
 #ifdef TABLING
-		       |TabledPredFlag
+                       |TabledPredFlag
 #endif /* TABLING */
-		       )) {
+                       )) {
     Yap_Error(PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE,t,"dbload_get_space/4");
-    return FALSE;
+    return NULL;
   }
   if (IsVarTerm(tn)  || !IsIntegerTerm(tn)) {
-    return FALSE;
+    return NULL;
   }
   ncls = IntegerOfTerm(tn);
   if (ncls <= 1) {
-    return FALSE;
+    return NULL;
   }
 
   required = ncls*arity*sizeof(CELL)+sizeof(MegaClause)+2*sizeof(struct index_t *);
   while (!(mcl = (MegaClause *)Yap_AllocCodeSpace(required))) {
     if (!Yap_growheap(FALSE, required, NULL)) {
       /* just fail, the system will keep on going */
-      return FALSE;
+      return NULL;
     }
   }
   Yap_ClauseSpace += required;
@@ -636,14 +633,26 @@ p_exodb_get_space( USES_REGS1 )
   } else {
     ap->OpcodeOfPred = Yap_opcode(_enter_exo);
   }
-  ap->CodeOfPred = ap->cs.p_code.TrueCodeOfPred = (yamop *)(&(ap->OpcodeOfPred)); 
+  ap->CodeOfPred = ap->cs.p_code.TrueCodeOfPred = (yamop *)(&(ap->OpcodeOfPred));
+  return mcl;
+}
+
+
+static Int
+p_exodb_get_space( USES_REGS1 )
+{				/* '$number_of_clauses'(Predicate,M,N) */
+  void *mcl;
+
+  if ((mcl = exodb_get_space(Deref(ARG1), Deref(ARG2), Deref(ARG3))) == NULL)
+    return FALSE;
+
   return Yap_unify(ARG4, MkIntegerTerm((Int)mcl));
 }
 
 #define DerefAndCheck(t, V)			\
   t = Deref(V); if(IsVarTerm(t) || !(IsAtomOrIntTerm(t))) Yap_Error(TYPE_ERROR_ATOM, t0, "load_db");
 
-static int 
+static Int
 store_exo(yamop *pc, UInt arity, Term t0)
 {
   Term t;
@@ -659,12 +668,23 @@ store_exo(yamop *pc, UInt arity, Term t0)
   return TRUE;
 }
 
-static Int 
+void
+exoassert( void *handle, Int n, Term term )
+{                               /* '$number_of_clauses'(Predicate,M,N) */
+  PredEntry       *pe;
+  MegaClause      *mcl;
+
+
+  mcl = (MegaClause *) handle;
+  pe = mcl->ClPred;
+  store_exo((yamop *)((ADDR)mcl->ClCode+2*sizeof(struct index_t *)+n*(mcl->ClItemSize)),pe->ArityOfPE, term);
+}
+
+static Int
 p_exoassert( USES_REGS1 )
 {				/* '$number_of_clauses'(Predicate,M,N) */
   Term            thandle = Deref(ARG2);
   Term            tn = Deref(ARG3);
-  PredEntry       *pe;
   MegaClause      *mcl;
   Int              n;
 
@@ -677,11 +697,11 @@ p_exoassert( USES_REGS1 )
     return FALSE;
   }
   n = IntegerOfTerm(tn);
-  pe = mcl->ClPred;
-  return store_exo((yamop *)((ADDR)mcl->ClCode+2*sizeof(struct index_t *)+n*(mcl->ClItemSize)),pe->ArityOfPE, Deref(ARG1));
+  exoassert(mcl,n,Deref(ARG1));
+  return TRUE;
 }
 
-void 
+void
 Yap_InitExoPreds(void)
 {
   CACHE_REGS

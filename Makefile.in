@@ -115,6 +115,7 @@ INTERFACE_HEADERS = \
 	$(srcdir)/include/yap_structs.h \
 	$(srcdir)/include/YapInterface.h \
 	$(srcdir)/include/SWI-Prolog.h \
+	$(srcdir)/include/YapError.h \
 	$(srcdir)/H/TermExt.h \
 	$(srcdir)/H/YapTags.h \
 	$(srcdir)/H/Tags_32bits.h \
@@ -149,7 +150,6 @@ HEADERS = \
 	$(srcdir)/H/sshift.h \
 	$(srcdir)/H/Yap.h \
 	$(srcdir)/H/Yatom.h \
-	$(srcdir)/include/YapError.h \
 	$(srcdir)/H/YapHeap.h \
 	$(srcdir)/H/Regs.h \
 	$(srcdir)/H/Yapproto.h \
