@@ -1923,8 +1923,6 @@ mark_slots( USES_REGS1 )
     fprintf(stderr,"%ld\n", curslot);
     ptr-=2;
     while (ns > 0) {
-           Yap_DebugPlWrite(ptr);
-      fprintf(stderr,"\n");
       mark_external_reference(ptr PASS_REGS);
       ptr--;
       ns--;
