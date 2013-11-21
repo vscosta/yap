@@ -248,17 +248,15 @@ YAP_parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 	      argv++;
 	      break;
 	  case 'f':
+	    iap->FastBoot = TRUE;
 	    if (argc > 1 && argv[1][0] != '-') {
 	      argc--;
 	      argv++;
-	      if (!strcmp(*argv,"none")) {
-		iap->FastBoot = TRUE;
-	      } else {
+	      if (strcmp(*argv,"none")) {
 		iap->YapPrologRCFile = *argv;
 	      }
 	      break;
 	    }
-	    iap->FastBoot = TRUE;
 	    break;
 #ifdef MYDDAS_MYSQL 
 	  case 'm':
