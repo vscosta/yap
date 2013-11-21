@@ -12724,7 +12724,9 @@ if test -e "$srcdir"/packages/ltx2htm/Makefile.in; then
 
 
 
+
 ac_config_commands="$ac_config_commands exe"
+
 
 
 
@@ -14917,7 +14919,7 @@ $as_echo "$as_me: executing $ac_file commands" >&6;}
 
 
   case $ac_file$ac_mode in
-    "exe":C)  chmod +x latex2html
+    "exe":C)  chmod +x packages/ltx2htm/latex2html
 		    ;;
 
   esac
