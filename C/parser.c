@@ -214,7 +214,7 @@ static Term
 Singletons(VarEntry *p,Term l USES_REGS)
 {
   if (p != NULL) {
-    if (strcmp(p->VarRep, "_") != 0 && p->refs == 1) {
+    if (p->VarRep && p->VarRep[0] !=  '_' && p->refs == 1) {
       Term t[2];
       Term o;
       
