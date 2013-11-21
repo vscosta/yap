@@ -1243,6 +1243,11 @@ retry:
     return FALSE;
   }
 
+#ifdef O_QUASIQUOTATIONS
+  if ( rval)
+    rval = parse_quasi_quotations(&rd PASS_LD);
+#endif
+
   if ( rval )
   { if ( tpos )
       rval = unify_read_term_position(tpos PASS_LD);

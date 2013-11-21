@@ -52,6 +52,10 @@
 
 #include "swi.h"
 
+#include "pl-error.h"
+
+extern int		PL_unify_termv(term_t l, va_list args);
+
 extern X_API Atom YAP_AtomFromSWIAtom(atom_t at);
 extern X_API atom_t YAP_SWIAtomFromAtom(Atom at);
 
@@ -1454,10 +1458,9 @@ typedef struct {
 
 /* SWI: int PL_unify_term(term_t ?t1, term_t ?t2)
    YAP long int  YAP_Unify(YAP_Term* a, Term* b) */
-X_API int PL_unify_term(term_t l,...)
+int PL_unify_termv(term_t l, va_list ap)
 {
   CACHE_REGS
-  va_list ap;
   int type, res;
   int nels = 1;
   int depth = 1;
@@ -1471,7 +1474,6 @@ X_API int PL_unify_term(term_t l,...)
       return FALSE;
     }
   }
-  va_start (ap, l);
   pt = a;
   while (depth > 0) {
     while (nels > 0) {
@@ -1673,11 +1675,24 @@ X_API int PL_unify_term(term_t l,...)
       nels = stack[depth-1].nels;
     }
   }
-  va_end (ap);
   res = Yap_unify(Yap_GetFromSlot(l PASS_REGS),a[0]);
   RECOVER_MACHINE_REGS();
   return res;
 }
+
+
+int
+PL_unify_term(term_t t, ...)
+{ va_list args;
+  int rval;
+
+  va_start(args, t);
+  rval = PL_unify_termv(t, args);
+  va_end(args);
+
+  return rval;
+}
+
 
 /* end PL_unify_* functions =============================*/
 
@@ -2209,7 +2224,6 @@ PL_close_foreign_frame(fid_t f)
 {
   CACHE_REGS
   choiceptr cp_b = (choiceptr)(LCL0-(UInt)f);
-  CELL *old_slots;
   LOCAL_CurSlot = IntOfTerm(cp_b->cp_a1);
   B = cp_b->cp_b;
   CP = cp_b->cp_cp;

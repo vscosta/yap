@@ -7,12 +7,7 @@
 #endif
 
 void			fatalError(const char *fm, ...) {exit(1);}
-int			printMessage(atom_t severity, ...) {
-#if DEBUG 
-  fprintf(stderr,"calling printMessage: not implemented\n");
-#endif
-  return 0;
-}
+int			printMessage(atom_t severity, ...);
 
 		 /*******************************
 		 *    ERROR-CHECKING *_get()	*
@@ -311,6 +306,59 @@ word
 notImplemented(char *name, int arity)
 { return (word)PL_error(NULL, 0, NULL, ERR_NOT_IMPLEMENTED_PROC, name, arity);
 }
+
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+printMessage(atom_t severity, ...)
+
+Calls print_message(severity, term), where  ...   are  arguments  as for
+PL_unify_term(). This predicate saves possible   pending  exceptions and
+restores them to make the call from B_THROW possible.
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+#define OK_RECURSIVE 10
+
+int
+printMessage(atom_t severity, ...)
+{ GET_LD
+    //wakeup_state wstate;
+  term_t av;
+  predicate_t pred = RepPredProp(PredPropByFunc(FunctorPrintMessage,PROLOG_MODULE)); //PROCEDURE_print_message2;
+  va_list args;
+  int rc;
+
+  if ( ++LD->in_print_message >= OK_RECURSIVE*3 )
+    fatalError("printMessage(): recursive call\n");
+  /*  if ( !saveWakeup(&wstate, TRUE PASS_LD) )
+  { LD->in_print_message--;
+    return FALSE;
+  }
+  */
+
+  av = PL_new_term_refs(2);
+  va_start(args, severity);
+  PL_put_atom(av+0, severity);
+  rc = PL_unify_termv(av+1, args);
+  va_end(args);
+
+  if ( rc )
+    { if ( isDefinedProcedure(pred)  && LD->in_print_message <= OK_RECURSIVE )
+    { rc = PL_call_predicate(NULL, PL_Q_NODEBUG|PL_Q_CATCH_EXCEPTION,
+			     pred, av);
+    } else if ( LD->in_print_message <= OK_RECURSIVE*2 )
+    { Sfprintf(Serror, "Message: ");
+      rc = PL_write_term(Serror, av+1, 1200, 0);
+      Sfprintf(Serror, "\n");
+    } else				/* in_print_message == 2 */
+    { Sfprintf(Serror, "printMessage(): recursive call\n");
+    }
+  }
+
+  /* restoreWakeup(&wstate PASS_LD); */
+  LD->in_print_message--;
+
+  return rc;
+}
+
 
 int PL_error(const char *pred, int arity, const char *msg, PL_error_code id, ...)
 {

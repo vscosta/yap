@@ -229,6 +229,7 @@
   AtomPortray = AtomAdjust(AtomPortray);
   AtomPredicateIndicator = AtomAdjust(AtomPredicateIndicator);
   AtomPrimitive = AtomAdjust(AtomPrimitive);
+  AtomPrintMessage = AtomAdjust(AtomPrintMessage);
   AtomPrivateProcedure = AtomAdjust(AtomPrivateProcedure);
   AtomProcedure = AtomAdjust(AtomProcedure);
   AtomProfile = AtomAdjust(AtomProfile);
@@ -425,6 +426,7 @@
   FunctorPermissionError = FuncAdjust(FunctorPermissionError);
   FunctorPlus = FuncAdjust(FunctorPlus);
   FunctorPortray = FuncAdjust(FunctorPortray);
+  FunctorPrintMessage = FuncAdjust(FunctorPrintMessage);
   FunctorPrologConstraint = FuncAdjust(FunctorPrologConstraint);
   FunctorQuery = FuncAdjust(FunctorQuery);
   FunctorRecordedWithKey = FuncAdjust(FunctorRecordedWithKey);

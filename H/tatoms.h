@@ -456,6 +456,8 @@
 #define AtomPredicateIndicator Yap_heap_regs->AtomPredicateIndicator_
   Atom AtomPrimitive_;
 #define AtomPrimitive Yap_heap_regs->AtomPrimitive_
+  Atom AtomPrintMessage_;
+#define AtomPrintMessage Yap_heap_regs->AtomPrintMessage_
   Atom AtomPrivateProcedure_;
 #define AtomPrivateProcedure Yap_heap_regs->AtomPrivateProcedure_
   Atom AtomProcedure_;
@@ -848,6 +850,8 @@
 #define FunctorPlus Yap_heap_regs->FunctorPlus_
   Functor FunctorPortray_;
 #define FunctorPortray Yap_heap_regs->FunctorPortray_
+  Functor FunctorPrintMessage_;
+#define FunctorPrintMessage Yap_heap_regs->FunctorPrintMessage_
   Functor FunctorPrologConstraint_;
 #define FunctorPrologConstraint Yap_heap_regs->FunctorPrologConstraint_
   Functor FunctorQuery_;

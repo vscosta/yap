@@ -229,6 +229,7 @@
   AtomPortray = Yap_FullLookupAtom("$portray");
   AtomPredicateIndicator = Yap_LookupAtom("predicate_indicator");
   AtomPrimitive = Yap_LookupAtom("primitive");
+  AtomPrintMessage = Yap_LookupAtom("print_message");
   AtomPrivateProcedure = Yap_LookupAtom("private_procedure");
   AtomProcedure = Yap_LookupAtom("procedure");
   AtomProfile = Yap_FullLookupAtom("$profile");
@@ -425,6 +426,7 @@
   FunctorPermissionError = Yap_MkFunctor(AtomPermissionError,3);
   FunctorPlus = Yap_MkFunctor(AtomPlus,2);
   FunctorPortray = Yap_MkFunctor(AtomPortray,1);
+  FunctorPrintMessage = Yap_MkFunctor(AtomPrintMessage,2);
   FunctorPrologConstraint = Yap_MkFunctor(AtomProlog,2);
   FunctorQuery = Yap_MkFunctor(AtomQuery,1);
   FunctorRecordedWithKey = Yap_MkFunctor(AtomRecordedWithKey,6);

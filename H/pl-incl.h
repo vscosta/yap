@@ -276,6 +276,7 @@ users foreign language code.
 		*       Error		         *
 		*********************************/
 
+#define isDefinedProcedure(pred) TRUE // TBD
 #include "pl-error.h"
 
 		/********************************
@@ -567,7 +568,6 @@ extern void PL_get_number(term_t l, number *n);
 extern int PL_unify_atomic(term_t t, PL_atomic_t a);
 extern int _PL_unify_atomic(term_t t, PL_atomic_t a);
 extern int _PL_unify_string(term_t t, word w);
-
 
 extern IOSTREAM **			/* provide access to Suser_input, */
   _PL_streams(void);			/* Suser_output and Suser_error */

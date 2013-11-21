@@ -234,6 +234,7 @@ A	Pointer			N	"pointer"
 A	Portray			F	"$portray"
 A	PredicateIndicator	N	"predicate_indicator"
 A	Primitive		N	"primitive"
+A	PrintMessage		N	"print_message"
 A	PrivateProcedure	N	"private_procedure"
 A	Procedure		N	"procedure"
 A	Profile			F	"$profile"
@@ -430,6 +431,7 @@ F	Or			Semic		2
 F	PermissionError		PermissionError	3
 F	Plus			Plus		2
 F	Portray			Portray		1
+F	PrintMessage		PrintMessage	2
 F	PrologConstraint	Prolog		2
 F	Query			Query		1
 F	RecordedWithKey		RecordedWithKey	6

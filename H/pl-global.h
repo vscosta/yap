@@ -393,6 +393,8 @@ typedef struct PL_local_data {
   } gmp;
 #endif
 
+  int in_print_message;
+
   struct regstore_t *reg_cache;         /* pointer to YAP registers */
 
 #ifdef O_LOCALE
