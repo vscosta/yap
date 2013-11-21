@@ -2305,7 +2305,7 @@ X_API qid_t PL_open_query(module_t ctx, int flags, predicate_t p, term_t t0)
     t = Yap_AddressFromSlot(t0 PASS_REGS);
 
   /* ignore flags  and module for now */
-  open_query *new = (open_query *)(LCL0+Yap_NewSlots(sizeof(open_query)/sizeof(CELL) PASS_REGS));
+  open_query *new = (open_query *)Yap_AllocCodeSpace(sizeof(open_query));
   LOCAL_execution = new;
   new->open=1;
   new->state=0;
@@ -2342,6 +2342,7 @@ X_API void PL_cut_query(qid_t qi)
   if (qi->open != 1 || qi->state == 0) return;
   YAP_LeaveGoal(FALSE, &qi->h);
   qi->open = 0;
+  Yap_FreeCodeSpace( qi );
 }
 
 X_API void PL_close_query(qid_t qi)
@@ -2357,6 +2358,7 @@ X_API void PL_close_query(qid_t qi)
   }
   YAP_LeaveGoal(FALSE, &qi->h);
   qi->open = 0;
+  Yap_FreeCodeSpace( qi );
 }
 
 X_API int PL_call_predicate(module_t ctx, int flags, predicate_t p, term_t t0)
@@ -2365,6 +2367,7 @@ X_API int PL_call_predicate(module_t ctx, int flags, predicate_t p, term_t t0)
   qid_t qi = PL_open_query(ctx, flags, p, t0);
   int ret = PL_next_solution(qi);
   PL_cut_query(qi);
+  Yap_FreeCodeSpace( qi );
   PL_close_foreign_frame(f);
   return ret;
 }
