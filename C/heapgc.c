@@ -1920,7 +1920,6 @@ mark_slots( USES_REGS1 )
     CELL *ptr = LCL0-curslot;
     Int ns = IntegerOfTerm(ptr[-1]);
     curslot = IntegerOfTerm(ptr[0]);
-    fprintf(stderr,"%ld\n", curslot);
     ptr-=2;
     while (ns > 0) {
       mark_external_reference(ptr PASS_REGS);
