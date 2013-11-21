@@ -1813,6 +1813,7 @@ YAP_ExecuteOnCut(PredEntry *pe, CPredicate exec_code, struct cut_c_str *top)
     Int val;
     CPredicateV codev = (CPredicateV)exec_code;
     struct foreign_context *ctx = (struct foreign_context *)(&EXTRA_CBACK_ARG(pe->ArityOfPE,1));
+    Int CurSlot;
     CELL *args = B->cp_args;
 
     B = oB;
@@ -1820,12 +1821,13 @@ YAP_ExecuteOnCut(PredEntry *pe, CPredicate exec_code, struct cut_c_str *top)
     ctx->control = FRG_CUTTED;
     ctx->engine = NULL; //(PL_local_data *)Yap_regp;
     /* for slots to work */
-    Yap_StartSlots( PASS_REGS1 );
+    CurSlot = Yap_StartSlots( PASS_REGS1 );
     if (pe->PredFlags & CArgsPredFlag) {
       val = execute_cargs_back(pe, exec_code, ctx PASS_REGS);
     } else {
       val = ((codev)(args-LCL0,0,ctx));
     }
+    LOCAL_CurSlot = CurSlot;
 
     PP = NULL;
     //    B = LCL0-(CELL*)oB;
