@@ -389,49 +389,6 @@ GenerateSyntaxError(Term *tp, TokEntry *tokstart, IOSTREAM *sno, Term msg USES_R
   }
 }
 
-Term
-Yap_StringToTerm(char *s,Term *tp)
-{
-  CACHE_REGS
-  IOSTREAM *sno = Sopenmem(&s, NULL, "r");
-  Term t;
-  TokEntry *tokstart;
-  tr_fr_ptr TR_before_parse;
-  Term tpos = TermNil;
-
-  if (sno == NULL)
-    return FALSE;
-  TR_before_parse = TR;
-  tokstart = LOCAL_tokptr = LOCAL_toktide = Yap_tokenizer(sno, FALSE, &tpos);
-  if (tokstart == NIL || tokstart->Tok == Ord (eot_tok)) {
-    if (tp) {
-      *tp = MkAtomTerm(AtomEOFBeforeEOT);
-    }
-    Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable, LOCAL_Comments);
-    Sclose(sno);
-    return FALSE;
-  } else if (LOCAL_ErrorMessage) {
-    if (tp) {
-      *tp = MkAtomTerm(Yap_LookupAtom(LOCAL_ErrorMessage));
-    }
-    Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable, LOCAL_Comments);
-    Sclose(sno);
-    return FALSE;
-  }
-  t = Yap_Parse();
-  TR = TR_before_parse;
-  if (!t || LOCAL_ErrorMessage) {
-    GenerateSyntaxError(tp, tokstart, sno, MkAtomTerm(Yap_LookupAtom(LOCAL_ErrorMessage)) PASS_REGS);
-    Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable, LOCAL_Comments);
-    Sclose(sno);
-    return FALSE;
-  }
-  Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable, LOCAL_Comments);
-  Sclose(sno);
-  return t;
-}
-
-
 Int
 Yap_FirstLineInParse (void)
 {
@@ -748,10 +705,6 @@ p_disable_char_conversion( USES_REGS1 )
 {
   int i;
 
-  for (i = 0; i < MaxStreams; i++) {
-    if (!(Stream[i].status & Free_Stream_f))
-      Stream[i].stream_wgetc_for_read = Stream[i].stream_wgetc;
-  }
   CharConversionTable = NULL;
   return(TRUE);
 }
@@ -923,8 +876,6 @@ p_write_string( USES_REGS1 )
 void
 Yap_InitIOPreds(void)
 {
-  if (!Stream)
-    Stream = (StreamDesc *)Yap_AllocCodeSpace(sizeof(StreamDesc)*MaxStreams);
   /* here the Input/Output predicates */
   Yap_InitCPred ("$set_read_error_handler", 1, p_set_read_error_handler, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$get_read_error_handler", 1, p_get_read_error_handler, SafePredFlag|SyncPredFlag);

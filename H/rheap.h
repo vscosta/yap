@@ -983,16 +983,6 @@ RestoreDBErasedIList__( USES_REGS1 )
 }
 
 static void
-RestoreStreams(void)
-{
-}
-
-static void
-RestoreAliases(void)
-{
-}
-
-static void
 RestoreForeignCode__( USES_REGS1 )
 {
   ForeignObj *f_code;

@@ -636,6 +636,9 @@ PYTHON
 MPICF
 MPILDF
 YAPMPILIB
+RAPTOR_CPPFLAGS
+RAPTOR_LDFLAGS
+ENABLE_RAPTOR
 GECODE_EXTRALIBS
 GECODE_VERSION
 GECODE_MAJOR
@@ -873,6 +876,7 @@ with_odbc
 with_cudd
 with_junit
 enable_gecode
+with_raptor
 with_mpi
 with_mpe
 with_python
@@ -1554,6 +1558,7 @@ Optional Packages:
   --with-odbc=<dir>	  Location of ODBC include/lib
  --with-cudd=DIR           use CUDD package in DIR
   --with-junit=PATH	  Specify location of the junit JAR file
+ --with-raptor=DIR           use RAPTOR package in DIR
  --with-mpi=DIR           use LAM/MPI library in DIR
  --with-mpe=DIR           use MPE library in DIR
  --with-python=DIR              interface to R language
@@ -6519,6 +6524,12 @@ if test -e "$srcdir"/packages/zlib/Makefile.in; then
   ENABLE_ZLIB=""
 else
   ENABLE_ZLIB="@# "
+fi
+
+if test -e "$srcdir"/packages/raptor/Makefile.in; then
+  ENABLE_RAPTOR=""
+else
+  ENABLE_RAPTOR="@# "
 fi
 
 if test "$cross_compiling" = "yes"
@@ -11710,7 +11721,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 11713 "configure" */
+/* #line 11724 "configure" */
 public class Test {
 }
 EOF
@@ -11886,7 +11897,7 @@ EOF
 if uudecode$EXEEXT Test.uue; then
         ac_cv_prog_uudecode_base64=yes
 else
-        echo "configure: 11889: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
+        echo "configure: 11900: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
         echo "configure: failed file was:" >&5
         cat Test.uue >&5
         ac_cv_prog_uudecode_base64=no
@@ -12017,7 +12028,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 12020 "configure" */
+/* #line 12031 "configure" */
 public class Test {
 }
 EOF
@@ -12052,7 +12063,7 @@ JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 TEST=Test
 cat << \EOF > $JAVA_TEST
-/* [#]line 12055 "configure" */
+/* [#]line 12066 "configure" */
 public class Test {
 public static void main (String args[]) {
         System.exit (0);
@@ -12910,6 +12921,112 @@ fi
 
 
 
+if test "$ENABLE_RAPTOR" = ""
+then
+
+# Check whether --with-raptor was given.
+if test "${with_raptor+set}" = set; then :
+  withval=$with_raptor; yap_cv_raptor="$withval"
+else
+  yap_cv_raptor=yes
+fi
+
+
+if test "$yap_cv_raptor" = no
+then
+  ENABLE_RAPTOR="@# "
+else
+  ENABLE_RAPTOR=""
+fi
+
+
+
+if test "$yap_cv_raptor" != no; then
+
+oldlibs="$LIBS"
+oldCPPFLAGS="$CPPFLAGS"
+
+if test "$yap_cv_raptor" != "NONE" -a "$yap_cv_raptor" != "yes"; then
+   CPPFLAGS="-I $yap_cv_raptor/include"
+elif test -d /usr/include/raptor2; then
+   CPPFLAGS="-I  /usr/include/raptor2"
+elif test -d /usr/local/include/raptor2; then
+   CPPFLAGS="-I  /usr/local/include/raptor2"
+elif test "$prefix" != "NONE"; then
+   CPPFLAGS="-I $prefix/include"
+else
+   CPPFLAGS="-I /usr/local/include"
+fi
+
+for ac_header in raptor.h
+do :
+  ac_fn_c_check_header_mongrel "$LINENO" "raptor.h" "ac_cv_header_raptor_h" "$ac_includes_default"
+if test "x$ac_cv_header_raptor_h" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_RAPTOR_H 1
+_ACEOF
+
+fi
+
+done
+
+
+oldlibs="$LIBS"
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lraptor2" >&5
+$as_echo_n "checking for main in -lraptor2... " >&6; }
+if ${ac_cv_lib_raptor2_main+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lraptor2  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+
+int
+main ()
+{
+return main ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_raptor2_main=yes
+else
+  ac_cv_lib_raptor2_main=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_raptor2_main" >&5
+$as_echo "$ac_cv_lib_raptor2_main" >&6; }
+if test "x$ac_cv_lib_raptor2_main" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBRAPTOR2 1
+_ACEOF
+
+  LIBS="-lraptor2 $LIBS"
+
+fi
+
+
+RAPTOR_LDFLAGS="$LIBS"
+RAPTOR_CPPFLAGS="$CPPFLAGS"
+
+LIBS="$oldlibs"
+CPPFLAGS="$oldCPPFLAGS"
+
+fi
+
+
+
+
+
+fi
+
 
 # Check whether --with-mpi was given.
 if test "${with_mpi+set}" = set; then :
@@ -13598,6 +13715,11 @@ fi
 
 if test "$ENABLE_GECODE" = ""; then
 ac_config_files="$ac_config_files packages/gecode/Makefile"
+
+fi
+
+if test "$ENABLE_RAPTOR" = ""; then
+ac_config_files="$ac_config_files packages/raptor/Makefile"
 
 fi
 
@@ -14361,6 +14483,7 @@ do
     "packages/real/Makefile") CONFIG_FILES="$CONFIG_FILES packages/real/Makefile" ;;
     "packages/CLPBN/horus/Makefile") CONFIG_FILES="$CONFIG_FILES packages/CLPBN/horus/Makefile" ;;
     "packages/gecode/Makefile") CONFIG_FILES="$CONFIG_FILES packages/gecode/Makefile" ;;
+    "packages/raptor/Makefile") CONFIG_FILES="$CONFIG_FILES packages/raptor/Makefile" ;;
     "packages/prism/src/c/Makefile") CONFIG_FILES="$CONFIG_FILES packages/prism/src/c/Makefile" ;;
     "packages/prism/src/prolog/Makefile") CONFIG_FILES="$CONFIG_FILES packages/prism/src/prolog/Makefile" ;;
     "packages/yap-lbfgs/Makefile") CONFIG_FILES="$CONFIG_FILES packages/yap-lbfgs/Makefile" ;;

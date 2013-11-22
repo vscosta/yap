@@ -270,16 +270,6 @@
 
   struct operator_entry  *op_list;
 
-
-  struct stream_desc  *yap_streams;
-
-  UInt  n_of_file_aliases;
-  UInt  sz_of_file_aliases;
-  struct AliasDescS  *file_aliases;
-
-  Atom  atprompt;
-  char  _prompt[MAX_PROMPT];
-
   char  *char_conversion_table;
   char  *char_conversion_table2;
 

@@ -270,16 +270,6 @@
 
   OpList = OpListAdjust(OpList);
 
-
-  RestoreStreams();
-
-
-
-  RestoreAliases();
-
-  AtPrompt = AtomAdjust(AtPrompt);
-
-
   CharConversionTable = CodeCharPAdjust(CharConversionTable);
   CharConversionTable2 = CodeCharPAdjust(CharConversionTable2);
 

@@ -6,6 +6,7 @@ typedef enum TokenKinds {
   WString_tok,
   Ponctuation_tok,
   Error_tok,
+  QuasiQuotes_tok,
   eot_tok
 } tkinds;
 

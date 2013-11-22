@@ -300,20 +300,6 @@ Int		yap_flags_field[NUMBER_OF_YAP_FLAGS] yap_flags InitFlags() void
 /* Operators */
 struct operator_entry	*op_list	OpList			=NULL OpListAdjust
 
-/* Input/Output */
-
-/* stream array */
-struct stream_desc *yap_streams		Stream			=NULL RestoreStreams()
-
-/* stream aliases */
-UInt		n_of_file_aliases	NOfFileAliases		=0 void
-UInt		sz_of_file_aliases	SzOfFileAliases		=0 void
-struct AliasDescS *file_aliases		FileAliases		=NULL RestoreAliases()
-
-/* prompting */
-Atom		atprompt		AtPrompt		=AtomNil AtomAdjust
-char		_prompt[MAX_PROMPT]	YapPrompt		void void
-
 /* ISO char conversion: I will make no comments */
 char		*char_conversion_table	CharConversionTable	=NULL CodeCharPAdjust
 char		*char_conversion_table2	CharConversionTable2	=NULL CodeCharPAdjust

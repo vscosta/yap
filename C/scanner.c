@@ -233,23 +233,24 @@ static Term
 float_send(char *s, int sign)
 {
   GET_LD
-  Float f = (Float)atof(s);
+    Float f = (Float)(sign*atof(s));
+  printf("buf=%s && f= %f\n", s, f);
 #if HAVE_ISFINITE
   if (truePrologFlag(PLFLAG_ISO)) { /* iso */
     if (!isfinite(f)) {
       LOCAL_ErrorMessage = "Float overflow while scanning";
-      return(MkEvalFl(0.0));
+      return(MkEvalFl(f));
     }
   }
 #elif HAVE_FINITE
   if (truePrologFlag(PLFLAG_ISO)) { /* iso */
     if (!finite(f)) {
       LOCAL_ErrorMessage = "Float overflow while scanning";
-      return(MkEvalFl(0.0));
+      return(MkEvalFl(f));
     }
   }
 #endif
-  return (MkEvalFl(f*sign));
+  return (MkEvalFl(f));
 }
 
 /* we have an overflow at s */

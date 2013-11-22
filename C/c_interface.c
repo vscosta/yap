@@ -2088,10 +2088,12 @@ YAP_ReadBuffer(char *s, Term *tp)
 {
   CACHE_REGS
   Term t; 
+  Int sl;
   BACKUP_H();
 
+  sl = Yap_NewSlots(1 PASS_REGS);
   LOCAL_ErrorMessage=NULL;
-  while ((t = Yap_StringToTerm(s,tp)) == 0L) {
+  while (!PL_chars_to_term(s,sl)) {
     if (LOCAL_ErrorMessage) {
       if (!strcmp(LOCAL_ErrorMessage,"Stack Overflow")) {
 	if (!Yap_dogc( 0, NULL PASS_REGS )) {
@@ -2115,8 +2117,8 @@ YAP_ReadBuffer(char *s, Term *tp)
 	  return 0L;
 	}
       } else {
-	*tp = MkAtomTerm(Yap_LookupAtom(LOCAL_ErrorMessage));
-	LOCAL_ErrorMessage = NULL;
+	// get from slot has an exception
+	*tp = Yap_GetFromSlot(sl PASS_REGS);
 	RECOVER_H();
 	return 0L;
       }
@@ -2127,7 +2129,7 @@ YAP_ReadBuffer(char *s, Term *tp)
     }
   }
   RECOVER_H();
-  return t;
+  return Yap_GetFromSlot(sl PASS_REGS);
 }
 
 /* copy a string to a buffer */

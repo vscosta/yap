@@ -736,6 +736,12 @@ else
   ENABLE_ZLIB="@# "
 fi
 
+if test -e "$srcdir"/packages/raptor/Makefile.in; then
+  ENABLE_RAPTOR=""
+else
+  ENABLE_RAPTOR="@# "
+fi
+
 if test "$cross_compiling" = "yes"
 then
   YAP_EXTRAS=
@@ -1878,6 +1884,11 @@ fi
 
 m4_include([packages/gecode/configure.in])
 
+if test "$ENABLE_RAPTOR" = ""
+then
+m4_include([packages/raptor/configure.in])
+fi
+
 m4_include([library/lammpi/configure.in])
 
 m4_include([packages/python/configure.in])
@@ -2064,6 +2075,10 @@ fi
 
 if test "$ENABLE_GECODE" = ""; then
 AC_CONFIG_FILES([packages/gecode/Makefile])
+fi
+
+if test "$ENABLE_RAPTOR" = ""; then
+AC_CONFIG_FILES([packages/raptor/Makefile])
 fi
 
 if test "$ENABLE_PRISM" = ""; then

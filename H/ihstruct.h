@@ -270,16 +270,6 @@
 
   OpList = NULL;
 
-
-  Stream = NULL;
-
-  NOfFileAliases = 0;
-  SzOfFileAliases = 0;
-  FileAliases = NULL;
-
-  AtPrompt = AtomNil;
-
-
   CharConversionTable = NULL;
   CharConversionTable2 = NULL;
 

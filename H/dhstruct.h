@@ -270,16 +270,6 @@
 
 #define OpList Yap_heap_regs->op_list
 
-
-#define Stream Yap_heap_regs->yap_streams
-
-#define NOfFileAliases Yap_heap_regs->n_of_file_aliases
-#define SzOfFileAliases Yap_heap_regs->sz_of_file_aliases
-#define FileAliases Yap_heap_regs->file_aliases
-
-#define AtPrompt Yap_heap_regs->atprompt
-#define YapPrompt Yap_heap_regs->_prompt
-
 #define CharConversionTable Yap_heap_regs->char_conversion_table
 #define CharConversionTable2 Yap_heap_regs->char_conversion_table2
 
