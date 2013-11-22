@@ -69,10 +69,12 @@ PL_is_blob(term_t t, PL_blob_t **type)
 /* } */
 
 static AtomEntry *
-lookupBlob(void *blob, size_t len, PL_blob_t *type)
+lookupBlob(void *blob, size_t len, PL_blob_t *type, int *new)
 {
   BlobPropEntry *b;
   AtomEntry *ae;
+  if (new)
+    *new = FALSE;
 
   LOCK(SWI_Blobs_Lock);
   if (type->flags & PL_BLOB_UNIQUE) {
@@ -89,6 +91,8 @@ lookupBlob(void *blob, size_t len, PL_blob_t *type)
       ae = RepAtom(ae->NextOfAE);
     }
   }
+  if (new)
+    *new = TRUE;
   b = (BlobPropEntry *)Yap_AllocCodeSpace(sizeof(BlobPropEntry));
   if (!b) {
     UNLOCK(SWI_Blobs_Lock);
@@ -124,7 +128,7 @@ PL_unify_blob(term_t t, void *blob, size_t len, PL_blob_t *type)
 
   if (!blob)
     return FALSE;
-  ae = lookupBlob(blob, len, type);
+  ae = lookupBlob(blob, len, type, NULL);
   if (!ae) {
     return FALSE;
   }
@@ -137,15 +141,47 @@ PL_unify_blob(term_t t, void *blob, size_t len, PL_blob_t *type)
 PL_EXPORT(int)	
 PL_put_blob(term_t t, void *blob, size_t len, PL_blob_t *type)
 {
-  fprintf(stderr,"PL_put_blob not implemented yet\n");
-  return FALSE;
+  CACHE_REGS
+  AtomEntry *ae;
+  int ret;
+
+  if (!blob)
+    return FALSE;
+  ae = lookupBlob(blob, len, type, & ret);
+  if (!ae) {
+    return FALSE;
+  }
+  if (type->acquire) {
+    type->acquire(AtomToSWIAtom(AbsAtom(ae)));
+  }
+  Yap_PutInSlot(t, MkAtomTerm(AbsAtom(ae))  PASS_REGS);
+  return ret;
 }
 
 PL_EXPORT(int)	
 PL_get_blob(term_t t, void **blob, size_t *len, PL_blob_t **type)
 {
-  fprintf(stderr,"PL_get_blob not implemented yet\n");
-  return FALSE;
+  CACHE_REGS
+  Atom a;
+  Term tt;
+  AtomEntry *ae;
+
+  tt = Yap_GetFromSlot(t PASS_REGS);
+  if (IsVarTerm(tt))
+    return FALSE;
+  if (!IsAtomTerm(tt))
+    return FALSE;
+  a = AtomOfTerm(tt);
+  if (!IsBlob(a))
+    return FALSE;
+  ae = RepAtom(a);
+  if (type)
+    *type = RepBlobProp(ae->PropsOfAE)->blob_t;
+  if (len)
+    *len = ae->rep.blob[0].length;
+  if (blob)
+    *blob = ae->rep.blob[0].data;
+  return TRUE;
 }
 
 PL_EXPORT(void*)	
