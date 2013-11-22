@@ -246,7 +246,7 @@ print_message(Severity, Msg) :-
 % This predicate has more hooks than a pirate ship!
 print_message(Severity, Term) :-
 	% first step at hook processing
-	'$message_to_lines'(Term, Lines),
+	'$messages':translate_message(Term, Lines, []),
 	(   nonvar(Term),
 	    user:message_hook(Term, Severity, Lines)
 	->
@@ -262,17 +262,9 @@ print_message(_, loaded(A, F, _, Time, Space)) :- !,
 print_message(_, Term) :-
 	format(user_error,'~q~n',[Term]).
 
-'$message_to_lines'(Term, Lines) :-
-	user:generate_message_hook(Term, [], Lines), !.
-'$message_to_lines'(Term, Lines) :-
-	prolog:message(Term, Lines, []), !.
-'$message_to_lines'(Term, Lines) :-
-	'$messages':generate_message(Term, Lines, []), !.
-	
-
 %	print_system_message(+Term, +Level, +Lines)
 %
-%	Print the message if the user did not intecept the message.
+%	Print the message if the user did not intercept the message.
 %	The first is used for errors and warnings that can be related
 %	to source-location.  Note that syntax errors have their own
 %	source-location and should therefore not be handled this way.

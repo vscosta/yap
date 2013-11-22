@@ -180,10 +180,6 @@ yap_hacks:cut_by(CP) :- '$$cut_by'(CP).
 
 % :- yap_flag(gc_trace,verbose).
 
-:- multifile prolog:message/3.
-
-:- dynamic prolog:message/3.
-
 :- multifile
 	prolog:comment_hook/3.
 

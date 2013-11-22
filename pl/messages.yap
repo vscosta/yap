@@ -22,6 +22,8 @@
 	   prefix/5,
 	   file_location/3]).
 
+:- multifile prolog:message/3.
+
 file_location(Prefix) -->
 	{
 	 prolog_load_context(file, FileName)
@@ -35,6 +37,19 @@ file_position(user_input,LN,MsgCodes) -->
 file_position(FileName,LN,MsgCodes) -->
 	[ '~a (~a:~d).' - [MsgCodes,FileName,LN] ].
 
+
+translate_message(Term) -->
+	generate_message(Term), !.
+translate_message(Term) -->
+	{ Term = error(_, _) },
+	[ 'Unknown exception: ~p'-[Term] ].
+translate_message(Term) -->
+	[ 'Unknown message: ~p'-[Term] ].
+
+generate_message(Term, Lines, []) :-
+	user:generate_message_hook(Term, [], Lines), !.
+generate_message(Term) -->
+	prolog:message(Term), !.
 generate_message(halt) --> !,
 	['YAP execution halted'].
 generate_message(false) --> !,
@@ -211,7 +226,7 @@ system_message(error(out_of_heap_error, Where)) -->
 	[ 'OUT OF DATABASE SPACE ERROR- ~w' - [Where] ].
 system_message(error(out_of_stack_error, Where)) -->
 	[ 'OUT OF STACK SPACE ERROR- ~w' - [Where] ].
-system_message(error(out_of_trail_error, Where)) -->
+vsystem_message(error(out_of_trail_error, Where)) -->
 	[ 'OUT OF TRAIL SPACE ERROR- ~w' - [Where] ].
 system_message(error(out_of_attvars_error, Where)) -->
 	[ 'OUT OF STACK SPACE ERROR- ~w' - [Where] ].
@@ -488,12 +503,23 @@ prolog:print_message_lines(_, _, []) :- !.
 prolog:print_message_lines(S, P, [at_same_line|Lines]) :- !,
 	print_message_line(S, Lines, Rest),
 	prolog:print_message_lines(S, P, Rest).
+prolog:print_message_lines(S, kind(Kind), Lines) :- !,
+	prefix(Kind, Prefix, _),
+	lists:append([ begin(Kind, Ctx)
+		  | Lines
+		  ],
+		  [ end(Ctx)
+		  ],
+		  AllLines),
+	print_message_lines(S, Prefix, AllLines).
 prolog:print_message_lines(S, P-Opts, Lines) :- !,
+	atom(P), !,
 	atom_concat('~N', P, Prefix),
 	format(S, Prefix, Opts),
 	print_message_line(S, Lines, Rest),
 	prolog:print_message_lines(S, P-Opts, Rest).
 prolog:print_message_lines(S, P, Lines) :-
+	atom(P), !,
 	atom_concat('~N', P, Prefix),
 	format(S, Prefix, []),
 	print_message_line(S, Lines, Rest),
@@ -505,6 +531,10 @@ print_message_line(S, [], []) :- !,
 	nl(S).
 print_message_line(S, [nl|T], T) :- !,
 	nl(S).
+print_message_line(S, [begin(_,_)|T0], T) :- !,
+	print_message_line(S, T0, T).
+print_message_line(S, [end(_)|T0], T) :- !,
+	print_message_line(S, T0, T).
 print_message_line(S, [Fmt-Args|T0], T) :- !,
 	format(S, Fmt, Args),
 	print_message_line(S, T0, T).
@@ -512,8 +542,6 @@ print_message_line(S, [Fmt|T0], T) :-
 	format(S, Fmt, []),
 	print_message_line(S, T0, T).
 
-prefix(error,   '     ', user_error, 'ERROR!! ').
-prefix(warning, '% ', user_error, 'Warning: ').
 
 prefix(help,	      '',          user_error) --> [].
 prefix(query,	      '',          user_error) --> [].
@@ -549,5 +577,7 @@ prefix(error,	      '     ',   user_error) -->
 prefix(banner,	      '',	   user_error) --> [].
 prefix(informational, '~*|% '-[LC],     user_error) -->
 	{ '$show_consult_level'(LC) }.
+prefix(debug(_),      '% ',	   user_error).
+prefix(information,   '% ',	   user_error).
 
 
