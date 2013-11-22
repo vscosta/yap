@@ -29,7 +29,7 @@
 // SWI Options
 #define O_STRING		1
 #define O_QUASIQUOTATIONS	1
-#define O_LOCALE		1
+//#define O_LOCALE		1
 //#define O_ATOMGC		1
 //#define O_CLAUSEGC		1
 #ifdef HAVE_GMP_H
