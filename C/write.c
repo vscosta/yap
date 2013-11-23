@@ -338,7 +338,7 @@ wrputf(Float f, struct write_globs *wglb)	/* writes a float	 */
 #if O_LOCALE
   const unsigned char *decimalpoint = (unsigned char*)
     localeconv()->decimal_point;
-  size_t l1 = strlen(decimalpoint+1);
+  size_t l1 = strlen((const char *)decimalpoint+1);
 #else
   const unsigned char *decimalpoint = ".";
   l1 = 0;
@@ -366,8 +366,7 @@ wrputf(Float f, struct write_globs *wglb)	/* writes a float	 */
     if (ch == 'e' || ch == 'E') {
       if (!found_dot) {
         found_dot = TRUE;
-        wrputs((char *)decimalpoint, stream);
-	wrputc('0', stream);
+	wrputs(".0" , stream);
       }
       found_dot = TRUE;
     }
@@ -375,8 +374,7 @@ wrputf(Float f, struct write_globs *wglb)	/* writes a float	 */
     pt++;
   }
   if (!found_dot) {
-    wrputs((char *)decimalpoint, stream);
-    wrputc('0', stream);
+    wrputs(".0", stream);
   }
 #else
   char *format_float(double f, char *buf);
