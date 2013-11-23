@@ -237,7 +237,7 @@ float_send(char *s, int sign)
 {
   GET_LD
     Float f = (Float)(sign*atof(s));
-#if HAVE_ISFINITE
+#if HAVE_ISFINITE || defined(isfinite)
   if (truePrologFlag(PLFLAG_ISO)) { /* iso */
     if (!isfinite(f)) {
       LOCAL_ErrorMessage = "Float overflow while scanning";
