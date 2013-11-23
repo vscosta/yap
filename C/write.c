@@ -409,19 +409,25 @@ wrputref(CODEADDR ref, int Quote_illegal, struct write_globs *wglb)
 }
 
 /* writes a blob (default) */
-static void 
-wrputblob(CODEADDR ref, int Quote_illegal, struct write_globs *wglb)
+static int
+wrputblob(AtomEntry * ref, int Quote_illegal, struct write_globs *wglb)
 {
   char            s[256];
   wrf  stream = wglb->stream;
+  PL_blob_t *type = RepBlobProp(ref->PropsOfAE)->blob_t;
 
-  putAtom(AtomSWIStream, Quote_illegal, wglb);
+  if (type->write) {
+    atom_t at = YAP_SWIAtomFromAtom(AbsAtom(ref));
+    return type->write(stream, at, 0);
+  } else {
+    putAtom(AtomSWIStream, Quote_illegal, wglb);
 #if defined(__linux__) || defined(__APPLE__)
-  sprintf(s, "(%p)", ref);
+    sprintf(s, "(%p)", ref);
 #else
-  sprintf(s, "(0x%p)", ref);
+    sprintf(s, "(0x%p)", ref);
 #endif
-  wrputs(s, stream);
+    wrputs(s, stream);
+  }
   lastw = alphanum;
 }
 
@@ -546,7 +552,7 @@ putAtom(Atom atom, int Quote_illegal,  struct write_globs *wglb)
   wrf stream = wglb->stream;
 
   if (IsBlob(atom)) {
-    wrputblob((CODEADDR)RepAtom(atom),wglb->Quote_illegal,wglb);
+    wrputblob(RepAtom(atom),wglb->Quote_illegal,wglb);
     return;
   }
   if (IsWideAtom(atom)) {
