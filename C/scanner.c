@@ -54,6 +54,9 @@
 #if HAVE_WCTYPE_H
 #include <wctype.h>
 #endif
+#if O_LOCALE
+#include "locale.h"
+#endif
 
 /* You just can't trust some machines */
 #define my_isxdigit(C,SU,SL)	(chtype(C) == NU || (C >= 'A' &&	\
@@ -95,28 +98,28 @@ EF,
 /* 128 129 130 131 132 133 134 135 136 137 138 139 140 141 142 143 */
   BS, BS,  BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS,
 
-/* 144 145 ’   147 148 149 150 151 152 153 154 155 156 157 158 159 */
+/* 144 145 Â’   147 148 149 150 151 152 153 154 155 156 157 158 159 */
    BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS,
 
-/*     ¡   ¢   £   ¤   ¥   ¦   §   ¨   ©   ª   «   ¬   ­   ®   ¯   */
+/* Â    Â¡   Â¢   Â£   Â¤   Â¥   Â¦   Â§   Â¨   Â©   Âª   Â«   Â¬   Â­   Â®   Â¯   */
    BS, SY, SY, SY, SY, SY, SY, SY, SY, SY, LC, SY, SY, SY, SY, SY,
 
-/* °   ±   ²   ³   ´   µ   ¶   ·   ¸   ¹   º   »   ¼   ½   ¾   ¿   */
+/* Â°   Â±   Â²   Â³   Â´   Âµ   Â¶   Â·   Â¸   Â¹   Âº   Â»   Â¼   Â½   Â¾   Â¿   */
    SY, SY, LC, LC, SY, SY, SY, SY, SY, LC, LC, SY, SY, SY, SY, SY,
 
-/* À   Á   Â   Ã   Ä   Å   Æ   Ç   È   É   Ê   Ë   Ì   Í   Î   Ï    */
+/* Ã€   Ã   Ã‚   Ãƒ   Ã„   Ã…   Ã†   Ã‡   Ãˆ   Ã‰   ÃŠ   Ã‹   ÃŒ   Ã   ÃŽ   Ã    */
    UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC,
 
-/* Ð   Ñ   Ò   Ó   Ô   Õ   Ö   ×   Ø   Ù   Ú   Û   Ü   Ý   Þ   ß    */
+/* Ã   Ã‘   Ã’   Ã“   Ã”   Ã•   Ã–   Ã—   Ã˜   Ã™   Ãš   Ã›   Ãœ   Ã   Ãž   ÃŸ    */
 #ifdef  vms
    UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, LC,
 #else
    UC, UC, UC, UC, UC, UC, UC, SY, UC, UC, UC, UC, UC, UC, UC, LC,
 #endif
-/* à   á   â   ã   ä   å   æ   ç   è   é   ê   ë   ì   í   î   ï    */
+/* Ã    Ã¡   Ã¢   Ã£   Ã¤   Ã¥   Ã¦   Ã§   Ã¨   Ã©   Ãª   Ã«   Ã¬   Ã­   Ã®   Ã¯    */
    LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC,
 
-/* ð   ñ   ò   ó   ô   õ   ö   ÷   ø   ù   ú   û   ü   cannot write the last three because of lcc    */
+/* Ã°   Ã±   Ã²   Ã³   Ã´   Ãµ   Ã¶   Ã·   Ã¸   Ã¹   Ãº   Ã»   Ã¼   cannot write the last three because of lcc    */
 #ifdef  vms
    LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC
 #else
@@ -234,7 +237,6 @@ float_send(char *s, int sign)
 {
   GET_LD
     Float f = (Float)(sign*atof(s));
-  printf("buf=%s && f= %f\n", s, f);
 #if HAVE_ISFINITE
   if (truePrologFlag(PLFLAG_ISO)) { /* iso */
     if (!isfinite(f)) {
@@ -471,6 +473,7 @@ get_num(int *chp, int *chbuffp, IOSTREAM *inp_stream, char *s, UInt max_size, in
   int ch = *chp;
   Int val = 0L, base = ch - '0';
   int might_be_float = TRUE, has_overflow = FALSE;
+  const unsigned char *decimalpoint;
 
   *sp++ = ch;
   ch = getchr(inp_stream);
@@ -582,34 +585,50 @@ get_num(int *chp, int *chbuffp, IOSTREAM *inp_stream, char *s, UInt max_size, in
     ch = getchr(inp_stream);
   }
   if (might_be_float && ( ch == '.'  || ch == 'e' || ch == 'E')) {
-    if (truePrologFlag(PLFLAG_ISO) && (ch == 'e' || ch == 'E')) {
-      return num_send_error_message("Float format not allowed in ISO mode");
-    }
-    if (ch == '.') {
-      if (--max_size == 0) {
-	return num_send_error_message("Number Too Long");
-      }
-      *sp++ = '.';
+    int has_dot = ( ch == '.' );
+    if (has_dot) {
+      unsigned char * dp;
+      int dc;
+
       if (chtype(ch = getchr(inp_stream)) != NU) {
-	*chbuffp = '.';
-	*chp = ch;
-	*--sp = '\0';
-	if (has_overflow)
-	  return read_int_overflow(s,base,val,sign);
-	if (sign == -1)
-	  return MkIntegerTerm(-val);
-	return MkIntegerTerm(val);
+	if ( ch == 'e' || ch == 'E') {
+	  if (truePrologFlag(PLFLAG_ISO))
+	    return num_send_error_message("Float format not allowed in ISO mode");
+	} else {/* followed by a letter, end of term? */
+	  sp[0] = '\0';
+	  *chbuffp = '.';
+	  *chp = ch;
+	  if (has_overflow)
+	    return read_int_overflow(s,base,val,sign);
+	  if (sign == -1)
+	    return MkIntegerTerm(-val);
+	  return MkIntegerTerm(val);
+	}
       }
-      do {
+#if O_LOCALE
+      if ((decimalpoint = (unsigned char*) ( localeconv()->decimal_point )) == NULL)
+#endif
+	decimalpoint = (const unsigned char*)".";
+      dp =(unsigned char *)decimalpoint;
+      /* translate . to current locale */
+      while ((dc = *dp++) != '\0') {
+	*sp++ = dc;
 	if (--max_size == 0) {
 	  return num_send_error_message("Number Too Long");
 	}
-	*sp++ = ch;
       }
-      while (chtype(ch = getchr(inp_stream)) == NU);
+      /* numbers after . */
+      if (chtype(ch) == NU) {
+	do {
+	  if (--max_size == 0) {
+	    return num_send_error_message("Number Too Long");
+	  }
+	  *sp++ = ch;
+	}
+	while (chtype(ch = getchr(inp_stream)) == NU);
+      }
     }
     if (ch == 'e' || ch == 'E') {
-      char *sp0 = sp;
       char cbuff = ch;
 
       if (--max_size == 0) {
@@ -629,15 +648,8 @@ get_num(int *chp, int *chbuffp, IOSTREAM *inp_stream, char *s, UInt max_size, in
 	ch = getchr(inp_stream);
       }
       if (chtype(ch) != NU) {
-	/* error */
-	char *sp;
-	*chp = ch;
-	*chbuffp = cbuff;
-	*sp0 = '\0';
-	for (sp = s; sp < sp0; sp++) {
-	  if (*sp == '.')
-	    return float_send(s,sign);
-	}
+	if (has_dot)
+	  return float_send(s,sign);
 	return MkIntegerTerm(sign*val);
       }
       do {

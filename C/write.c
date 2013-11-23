@@ -36,6 +36,9 @@ static char     SccsId[] = "%W% %G%";
 #if HAVE_CTYPE_H
 #include <ctype.h>
 #endif
+#if HAVE_LOCALE_H
+#include <locale.h>
+#endif
 
 /* describe the type of the previous term to have been written */
 typedef enum {
@@ -331,6 +334,15 @@ wrputf(Float f, struct write_globs *wglb)	/* writes a float	 */
   int found_dot = FALSE;
   char            *pt = s;
   int ch;
+  /* always use C locale for writing numbers */
+#if O_LOCALE
+  const unsigned char *decimalpoint = (unsigned char*)
+    localeconv()->decimal_point;
+  size_t l1 = strlen(decimalpoint+1);
+#else
+  const unsigned char *decimalpoint = ".";
+  l1 = 0;
+#endif
 
   if (lastw == symbol || lastw == alphanum) {
     wrputc(' ', stream);
@@ -345,24 +357,26 @@ wrputf(Float f, struct write_globs *wglb)	/* writes a float	 */
     pt++;
   }
   while ((ch = *pt) != '\0') {
-    switch (ch) {
-    case '.':
+    // skip locale
+    if (ch == decimalpoint[0] && !strncmp(pt+1, (char *)decimalpoint+1, l1)) {
       found_dot = TRUE;
-      wrputc('.', stream);    
-      break;
-    case 'e':
-    case 'E':
+      pt += l1;
+      ch = '.';
+    }
+    if (ch == 'e' || ch == 'E') {
       if (!found_dot) {
         found_dot = TRUE;
-        wrputs(".0", stream);
+        wrputs((char *)decimalpoint, stream);
+	wrputc('0', stream);
       }
-    default:
-      wrputc(ch, stream);
+      found_dot = TRUE;
     }
+    wrputc(ch, stream);
     pt++;
   }
   if (!found_dot) {
-    wrputs(".0", stream);    
+    wrputs((char *)decimalpoint, stream);
+    wrputc('0', stream);
   }
 #else
   char *format_float(double f, char *buf);
