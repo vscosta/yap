@@ -855,8 +855,8 @@ p_thread_stacks( USES_REGS1 )
   Int status= TRUE;
 
   LOCK(GLOBAL_ThreadHandlesLock);
-  if (!Yap_local[tid] &&
-      REMOTE_ThreadHandle(tid).in_use && !REMOTE_ThreadHandle(tid).zombie) {
+  if (REMOTE(tid) &&
+      (REMOTE_ThreadHandle(tid).in_use || REMOTE_ThreadHandle(tid).zombie)) {
     status &= Yap_unify(ARG2,MkIntegerTerm(REMOTE_ThreadHandle(tid).ssize));
     status &= Yap_unify(ARG3,MkIntegerTerm(REMOTE_ThreadHandle(tid).tsize));
     status &= Yap_unify(ARG4,MkIntegerTerm(REMOTE_ThreadHandle(tid).sysize));
