@@ -301,12 +301,16 @@ Yap_StripModule(Term t,  Term *modp)
   CACHE_REGS
   Term tmod;
 
-  tmod = CurrentModule;
+  if (modp)
+    tmod = *modp;
+  else
+    tmod = CurrentModule;
  restart:
   if (IsVarTerm(t)) {
     return 0L;
   } else if (IsAtomTerm(t) || IsPairTerm(t)) {
-    *modp = tmod;
+    if (modp)
+      *modp = tmod;
     return t;
   } else if (IsApplTerm(t)) {
     Functor    fun = FunctorOfTerm(t);
@@ -321,7 +325,8 @@ Yap_StripModule(Term t,  Term *modp)
       t = ArgOfTerm(2, t);
       goto restart;
     }
-    *modp = tmod;
+    if (modp)
+      *modp = tmod;
     return t;
   }
   return 0L;
