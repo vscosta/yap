@@ -1086,6 +1086,87 @@ p_flags( USES_REGS1 )
   return TRUE;
 }
 
+static Int 
+p_set_flag( USES_REGS1 )
+{				/* $flags(+Functor,+Mod,?OldFlags,?NewFlags) */
+  PredEntry      *pe;
+  Term t1 = Deref(ARG1);
+  Term mod = Deref(ARG2);
+  Term v = Deref(ARG4);
+  char *s;
+
+  if (IsVarTerm(mod) || !IsAtomTerm(mod)) {
+    return(FALSE);
+  }
+  if (IsVarTerm(t1))
+    return (FALSE);
+  if (IsAtomTerm(t1)) {
+    while ((pe = RepPredProp(PredPropByAtom(AtomOfTerm(t1), mod)))== NULL) {
+      if (!Yap_growheap(FALSE, 0, NULL)) {
+	Yap_Error(OUT_OF_HEAP_ERROR, ARG1, "while generating new predicate");
+	return FALSE;
+      }
+      t1 = Deref(ARG1);
+      mod = Deref(ARG2);
+    }
+  } else if (IsApplTerm(t1)) {
+    Functor         funt = FunctorOfTerm(t1);
+    while ((pe = RepPredProp(PredPropByFunc(funt, mod)))== NULL) {
+      if (!Yap_growheap(FALSE, 0, NULL)) {
+	Yap_Error(OUT_OF_HEAP_ERROR, ARG1, "while generating new predicate");
+	return FALSE;
+      }
+      t1 = Deref(ARG1);
+      mod = Deref(ARG2);
+    }
+  } else
+    return (FALSE);
+  if (EndOfPAEntr(pe))
+    return (FALSE);
+  ARG3 = Deref(ARG3);
+  if (IsVarTerm(ARG3)) {
+    UNLOCK(pe->PELock);
+    return (FALSE);
+  } else if (!IsAtomTerm(ARG3)) {
+    Yap_Error(TYPE_ERROR_ATOM,ARG3,"set_property/1");
+    return(FALSE);
+  }
+  v = Deref(ARG4);
+  if (IsVarTerm(ARG4)) {
+    UNLOCK(pe->PELock);
+    return (FALSE);
+  } else if (!IsIntTerm(v)) {
+    Yap_Error(TYPE_ERROR_ATOM,v,"set_property/1");
+    return(FALSE);
+  }
+  s = RepAtom(AtomOfTerm(ARG3))->StrOfAE;
+  if (v == MkIntTerm(1)) {
+    if (!strcmp(s, "quasi_quotation_syntax")) {
+      pe->ExtraPredFlags |= QuasiQuotationPredFlag;
+    } else if (!strcmp(s, "trace")) {
+      // proc->ExtraPredFlags |= QuasiQuotationPredFlag;
+    } else {
+      fprintf( stderr, "not implemented");
+      UNLOCK(pe->PELock);
+      return FALSE;
+    }
+  } else if (v == MkIntTerm(0)) {
+    if (!strcmp(s, "quasi_quotation_syntax")) {
+      pe->ExtraPredFlags &= ~QuasiQuotationPredFlag;
+    } else if (!strcmp(s, "trace")) {
+      // proc->ExtraPredFlags |= QuasiQuotationPredFlag;
+    } else {
+      fprintf( stderr, "not implemented");
+      UNLOCK(pe->PELock);
+      return FALSE;
+    }
+  }
+  
+  UNLOCK(pe->PELock);
+  return TRUE;
+}
+
+
 static int 
 AlreadyHidden(char *name)
 {
@@ -1940,6 +2021,7 @@ Yap_InitCPreds(void)
   Yap_InitCPred("$exit_undefp", 0, p_exitundefp, SafePredFlag);
   /* Accessing and changing the flags for a predicate */
   Yap_InitCPred("$flags", 4, p_flags, SyncPredFlag);
+  Yap_InitCPred("$set_flag", 4, p_set_flag, SyncPredFlag);
   /* hiding and unhiding some predicates */
   Yap_InitCPred("hide", 1, p_hide, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("unhide", 1, p_unhide, SafePredFlag|SyncPredFlag);
