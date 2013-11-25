@@ -851,7 +851,7 @@ zero_pos(I0, Pos, [0|Values]) :-
 	zero_pos(I, Pos, Values).
 
 one_list([]).
-one_list(1.Ev) :-
+one_list([1|Ev]) :-
 	one_list(Ev).
 
 %
