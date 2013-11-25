@@ -5203,6 +5203,7 @@ p_nth_clause( USES_REGS1 )
   LogUpdClause *cl;
   Int ncls;
 
+  Int CurSlot, sl;
   if (!IsIntegerTerm(tn))
     return FALSE;
   ncls = IntegerOfTerm(tn);
@@ -5211,8 +5212,11 @@ p_nth_clause( USES_REGS1 )
     return FALSE;
   PELOCK(47,pe);
   if (!(pe->PredFlags & (SourcePredFlag|LogUpdatePredFlag))) {
+    UNLOCK(pe->PELock);
     return FALSE;
   }
+  CurSlot = Yap_StartSlots( PASS_REGS1 );
+  sl = Yap_InitSlot( ARG4 PASS_REGS );
   /* in case we have to index or to expand code */
   if (pe->ModuleOfPred != IDB_MODULE) {
     UInt i;
@@ -5227,6 +5231,8 @@ p_nth_clause( USES_REGS1 )
     IPred(pe, 0, CP);
   }
   cl = Yap_NthClause(pe, ncls);
+  ARG4 = Yap_GetFromSlot( sl PASS_REGS );
+  LOCAL_CurSlot = CurSlot;  
   if (cl == NULL) {
     UNLOCK(pe->PELock);
     return FALSE;
