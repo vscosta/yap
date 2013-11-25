@@ -964,18 +964,6 @@ current_predicate(A,T) :-			% only for the predicate
 	M \= prolog,
 	'$pred_exists'(T,M).
 
-current_predicate(F) :-
-	strip_module(F, M, F0),
-	'$$current_predicate'(F0,M).
-
-'$$current_predicate'(F0,M) :-
-        ( var(M) ->			% only for the predicate
-	'$current_module'(M),
-	M \= prolog
-	;
-	true ),
-	'$current_predicate3'(M, F0).
-
 system_predicate(A,P) :-
 	'$current_predicate_no_modules'(prolog,A,P),
 	\+ '$hidden'(A).
@@ -989,22 +977,48 @@ system_predicate(P) :-
 	'$ifunctor'(T,A,Arity),
 	'$pred_exists'(T,M).
 
-'$current_predicate3'(M,A/Arity) :-
-	nonvar(M),
-	nonvar(A),
-	nonvar(Arity), !,
-	'$ifunctor'(Pred,A,Arity),
-	'$pred_exists'(Pred,M).
-'$current_predicate3'(M,A/Arity) :-
+current_predicate(F0) :-
+	strip_module(F0, M, F),
+	'$$current_predicate'(F, M).
+
+'$$current_predicate'(F, M) :-
+        ( var(M) ->			% only for the predicate
+	'$current_module'(M),
+	M \= prolog
+	; true),
+	'$current_predicate3'(F,M).
+
+'$current_predicate3'(A/Arity,M) :-
 	nonvar(A), nonvar(Arity), !,
-	'$current_predicate'(M,A,Arity),
-	'$ifunctor'(T,A,Arity),
-	'$pred_exists'(T,M).
-'$current_predicate3'(M,A/Arity) :- !,
-	'$current_predicate'(M,A,Arity),
-	'$ifunctor'(T,A,Arity),
-	'$pred_exists'(T,M).
-'$current_predicate3'(M,BadSpec) :-			% only for the predicate
+	( '$ifunctor'(T,A,Arity),
+	 '$pred_exists'(T,M)
+	->
+	 true
+	;
+%	 '$current_predicate'(prolog,A,Arity)
+%	->
+%	 functor(T,A,Arity),
+%	'$pred_exists'(T,M)
+%	;
+	 recorded('$import','$import'(NM,M,G,T,A,Arity),_)
+	->
+	'$pred_exists'(G,NM)
+	).
+'$current_predicate3'(A/Arity,M) :- !,
+	(
+	 '$current_predicate'(M,A,Arity),
+	 '$ifunctor'(T,A,Arity),
+	 '$pred_exists'(T,M)
+	;
+%	 '$current_predicate'(prolog,A,Arity),
+%	 functor(T,A,Arity),
+%	'$pred_exists'(T,M)
+%	;
+	 recorded('$import','$import'(NM,M,G,T,A,Arity),_),
+	 functor(T,A,Arity),
+	'$pred_exists'(G,NM)
+	).
+'$current_predicate3'(BadSpec,M) :-			% only for the predicate
 	'$do_error'(type_error(predicate_indicator,BadSpec),current_predicate(M:BadSpec)).
 
 current_key(A,K) :-
