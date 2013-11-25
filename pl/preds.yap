@@ -374,6 +374,10 @@ nth_clause(V,I,R) :-
 	'$do_error'(type_error(callable,C),M:nth_clause(C,I,R)).
 '$nth_clause'(R,M,I,R) :- db_reference(R), !,
 	'$do_error'(type_error(callable,R),M:nth_clause(R,I,R)).
+'$nth_clause'(P,M,I,R) :- var(I), var(R), !,
+	'$number_of_clauses'(P,M,N), N > 0,
+	between(1, N, I),
+	'$nth_clause'(P,M,I,R).
 '$nth_clause'(P,M,I,R) :-
 	( '$is_log_updatable'(P,M) ; '$is_source'(P,M) ), !,
 	'$p_nth_clause'(P,M,I,R).
