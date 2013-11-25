@@ -1,3 +1,16 @@
+
+typedef struct vlist_struct_t {
+  struct VARSTRUCT *ve;
+  struct vlist_struct_t *next;
+} vlist_t;
+
+typedef struct qq_struct_t {
+  unsigned char *text;
+  IOPOS start, mid, end;
+  vlist_t *vlist;
+  struct qq_struct_t *next;
+} qq_t;
+
 typedef       unsigned char * ucharp;
 typedef const unsigned char * cucharp;
 
@@ -72,7 +85,7 @@ extern IOFUNCTIONS Sstringfunctions;
 #define NULL_ATOM 0
 #endif
 
-static void
+static inline void
 setCurrentSourceLocation(ReadData _PL_rd ARG_LD)
 { atom_t a;
   IOSTREAM *s = rb.stream;
@@ -98,3 +111,8 @@ setCurrentSourceLocation(ReadData _PL_rd ARG_LD)
 }
 
 extern int Yap_read_term(term_t t, IOSTREAM *st, struct read_data_t *rdt);
+/* parser.c */
+extern Term	Yap_Parse( struct read_data_t *);
+extern void	init_read_data( struct read_data_t *, IOSTREAM *st ARG_LD);
+extern void	free_read_data( struct read_data_t *);
+

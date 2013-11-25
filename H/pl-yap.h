@@ -115,8 +115,6 @@ extern word globalWString(size_t size, wchar_t *s);
 #define valHandle(r) valHandle__LD(r PASS_LD)
 
 Int                   YAP_PLArityOfSWIFunctor(functor_t f);
-Atom                  YAP_AtomFromSWIAtom(atom_t at);
-atom_t                YAP_SWIAtomFromAtom(Atom at);
 struct PL_blob_t*     YAP_find_blob_type(Atom at);
 
 void PL_license(const char *license, const char *module);

@@ -321,9 +321,6 @@ Term	Yap_MkNewPairTerm(void);
 Term	Yap_Globalise(Term);
 
 
-/* parser.c */
-Term	Yap_Parse(void);
-
 /* readutil.c */
 void	Yap_InitReadUtil(void);
 

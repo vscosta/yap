@@ -653,7 +653,7 @@ IsValProperty (int flags)
 */
 typedef enum
 {
-  QuasiQuotationPredFlag = ((UInt)0x80000000 << EXTRA_FLAG_BASE),		/* SWI-like quasi quotations */
+  QuasiQuotationPredFlag = ((UInt)0x00000001 << EXTRA_FLAG_BASE),		/* SWI-like quasi quotations */
   MegaClausePredFlag =   0x80000000L, /* predicate is implemented as a mega-clause */
   ThreadLocalPredFlag = 0x40000000L,	/* local to a thread */
   MultiFileFlag = 0x20000000L,	/* is multi-file */
@@ -719,7 +719,7 @@ typedef struct pred_entry
   CELL PredFlags, ExtraPredFlags;
 #else
   CELL PredFlags;
-#define ExtraPredFlags   PredFlags;
+#define ExtraPredFlags   PredFlags
 #endif
   UInt ArityOfPE;		/* arity of property                    */
   union

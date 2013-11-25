@@ -8,6 +8,8 @@
 #define __YAP_PROLOG__ 1
 #endif
 
+#include <assert.h>
+
 // SWI stuff that is needed everywhere
 
 #ifndef __unix__
@@ -29,7 +31,7 @@
 // SWI Options
 #define O_STRING		1
 #define O_QUASIQUOTATIONS	1
-//#define O_LOCALE		1
+#define O_LOCALE		1
 //#define O_ATOMGC		1
 //#define O_CLAUSEGC		1
 #ifdef HAVE_GMP_H
@@ -263,6 +265,18 @@ COMMON(int)		tracemode(debug_type new, debug_type *old);
 COMMON(void)		Yap_setCurrentSourceLocation(IOSTREAM **s);
 
 #define SWIAtomToAtom(X) SWI_Atoms[(X)>>1]
+Atom                  YAP_AtomFromSWIAtom(atom_t at);
+atom_t                YAP_SWIAtomFromAtom(Atom at);
+
+
+/* This is silly, but let's keep it like that for now */
+static inline Functor
+SWIFunctorToFunctor(functor_t f)
+{
+  if ((CELL)(f) & 2 && ((CELL)f) < N_SWI_FUNCTORS*4+2)
+    return SWI_Functors[((CELL)f)/4];
+  return (Functor)f;
+}
 
 static inline Term
 OpenList(int n USES_REGS)
