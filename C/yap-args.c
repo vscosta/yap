@@ -18,6 +18,7 @@
 
 #include "config.h"
 #include "Yap.h"
+#include "YapHeap.h"
 #if HAVE_STDINT_H
 #include <stdint.h>
 #endif
