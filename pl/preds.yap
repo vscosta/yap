@@ -897,7 +897,7 @@ predicate_property(Pred,Prop) :-
 	'$is_public'(P,M).
 '$predicate_property'(P,M,M,exported) :-
 	functor(P,N,A),
-	once(recorded('$module','$module'(_TFN,M,Publics),_)),
+	once(recorded('$module','$module'(_TFN,M,Publics,_L),_)),
 	lists:memberchk(N/A,Publics).
 '$predicate_property'(P,Mod,_,number_of_clauses(NCl)) :-
 	'$number_of_clauses'(P,Mod,NCl).

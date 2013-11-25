@@ -310,7 +310,7 @@ use_module(M,F,Is) :-
 	'$use_module'(M,F,Is).
 
 '$use_module'(M,F,Is) :- nonvar(M), !,
-	recorded('$module','$module'(F1,M,_),_),
+	recorded('$module','$module'(F1,M,_,_),_),
 	'$load_files'(F1, [if(not_loaded),must_be_module(true),imports(Is)], use_module(M,F,Is)),
 	( F1 = F -> true ; true ).
 '$use_module'(M,F,Is) :-
@@ -443,7 +443,7 @@ use_module(M,F,Is) :-
 '$bind_module'(Mod, use_module(Mod)).
 
 '$import_to_current_module'(File, ContextModule, Imports, RemainingImports, TOpts) :-
-	recorded('$module','$module'(File, Module, ModExports),_),
+	recorded('$module','$module'(File, Module, ModExports, _),_),
 	Module \= ContextModule, !,
 	'$lf_opt'('$call', TOpts, Call),
 	'$convert_for_export'(Imports, ModExports, Module, ContextModule, TranslationTab, RemainingImports, Goal),
@@ -657,7 +657,7 @@ prolog_load_context(term_position, '$stream_position'(0,Line,0,0,0)) :-
 	'$import_to_current_module'(F1, M, Imports, _, TOpts).
 
 '$ensure_file_loaded'(F, M, F1) :-
-	recorded('$module','$module'(F1,_NM,_P),_),
+	recorded('$module','$module'(F1,_NM,_P,_),_),
 	recorded('$lf_loaded','$lf_loaded'(F1,_),_),
 	same_file(F1,F), !.
 '$ensure_file_loaded'(F, _M, F1) :-
@@ -674,7 +674,7 @@ prolog_load_context(term_position, '$stream_position'(0,Line,0,0,0)) :-
 	'$import_to_current_module'(F1, M, Imports, _, TOpts).
 
 '$ensure_file_unchanged'(F, M, F1) :-
-	recorded('$module','$module'(F1,_NM,_P),_),
+	recorded('$module','$module'(F1,_NM,_P,_),_),
 	recorded('$lf_loaded','$lf_loaded'(F1,Age),R),
 	same_file(F1,F), !,
 	'$file_is_unchanged'(F, R, Age).
@@ -964,5 +964,5 @@ source_file_property( File0, Prop) :-
 '$source_file_property'( F, modified(Age)) :-
 	recorded('$lf_loaded','$lf_loaded'( F, Age), _).
 '$source_file_property'( F, module(M)) :-
-	recorded('$module','$module'(F,M,_),_).
+	recorded('$module','$module'(F,M,_,_),_).
 

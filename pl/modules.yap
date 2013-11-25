@@ -77,21 +77,22 @@ module(N) :-
 	'$add_module_on_file'(N, F, Ps).
 
 '$add_module_on_file'(Mod, F, Exports) :-
-	recorded('$module','$module'(F0,Mod,_),R), !,
+	recorded('$module','$module'(F0,Mod,_,_),R), !,
 	'$add_preexisting_module_on_file'(F, F0, Mod, Exports, R).
 '$add_module_on_file'(Module, F, Exports) :-
 	'$convert_for_export'(all, Exports, Module, Module, TranslationTab, AllExports0, load_files),
 	'$add_to_imports'(TranslationTab, Module, Module), % insert ops, at least for now
 	sort( AllExports0, AllExports ),
-	recorda('$module','$module'(F,Module,AllExports),_).
+	( source_location(_, Line) -> true ; Line = 0 ),
+	recorda('$module','$module'(F,Module,AllExports, Line),_).
 
 '$extend_exports'(Module, NewExports) :-
 	'$convert_for_export'(all, NewExports, Module, Module, _TranslationTab, NewExports1, load_files),
-	recorded('$module','$module'(F,Module,OriginalExports),R),
+	recorded('$module','$module'(F,Module,OriginalExports,Line),R),
 	'$add_exports'( NewExports1, OriginalExports, Exports ),
 	erase(R),
 	sort( Exports, AllExports ),
-	recorda('$module','$module'(F,Module,AllExports),_),
+	recorda('$module','$module'(F,Module,AllExports,Line),_),
 	fail.
 '$extend_exports'(_F, _Module, _NewExports).
 
@@ -105,7 +106,8 @@ module(N) :-
 '$add_preexisting_module_on_file'(F, F, Mod, Exports, R) :- !,
 	erase(R),
 	( recorded('$import','$import'(Mod,_,_,_,_,_),R), erase(R), fail; true),
-	recorda('$module','$module'(F,Mod,Exports),_).
+	( source_location(_, Line) -> true ; Line = 0 ),
+	recorda('$module','$module'(F,Mod,Exports, Line),_).
 '$add_preexisting_module_on_file'(F,F0,Mod,Exports,R) :-
 	repeat,
 	format(user_error, "The module ~a is being redefined.~n    Old file:  ~a~n    New file:  ~a~nDo you really want to redefine it? (y or n)",[Mod,F0,F]),
@@ -505,7 +507,7 @@ current_module(Mod) :-
 
 current_module(Mod,TFN) :-
 	'$all_current_modules'(Mod),
-	( recorded('$module','$module'(TFN,Mod,_Publics),_) -> true ; TFN = user ).
+	( recorded('$module','$module'(TFN,Mod,_Publics, _),_) -> true ; TFN = user ).
 
 source_module(Mod) :-
 	'$current_module'(Mod).
@@ -617,7 +619,7 @@ source_module(Mod) :-
 % get rid of a module and of all predicates included in the module.
 %
 abolish_module(Mod) :-
-	recorded('$module','$module'(_,Mod,_),R), erase(R),
+	recorded('$module','$module'(_,Mod,_,_),R), erase(R),
 	fail.
 abolish_module(Mod) :-
 	recorded('$import','$import'(Mod,_,_,_,_,_),R), erase(R),
@@ -644,23 +646,23 @@ export_resource(Resource) :-
 export_resource(P) :-
 	P = F/N, atom(F), number(N), N >= 0, !,
 	'$current_module'(Mod), 
-	(	recorded('$module','$module'(File,Mod,ExportedPreds),R) ->
+	(	recorded('$module','$module'(File,Mod,ExportedPreds,Line),R) ->
 		erase(R), 
-		recorda('$module','$module'(File,Mod,[P|ExportedPreds]),_)
+		recorda('$module','$module'(File,Mod,[P|ExportedPreds],Line),_)
 	;	prolog_load_context(file, File) ->
-		recorda('$module','$module'(File,Mod,[P]),_)
-	;	recorda('$module','$module'(user_input,Mod,[P]),_)
+		recorda('$module','$module'(File,Mod,[P],Line),_)
+	;	recorda('$module','$module'(user_input,Mod,[P],1),_)
 	).
 export_resource(P0) :-
 	P0 = F//N, atom(F), number(N), N >= 0, !,
 	N1 is N+2, P = F/N1,
 	'$current_module'(Mod), 
-	(	recorded('$module','$module'(File,Mod,ExportedPreds),R) ->
+	(	recorded('$module','$module'(File,Mod,ExportedPreds,Line),R) ->
 		erase(R), 
-		recorda('$module','$module'(File,Mod,[P|ExportedPreds]),_)
+		recorda('$module','$module'(File,Mod,[P|ExportedPreds],Line ),_)
 	;	prolog_load_context(file, File) ->
-		recorda('$module','$module'(File,Mod,[P]),_)
-	;	recorda('$module','$module'(user_input,Mod,[P]),_)
+		recorda('$module','$module'(File,Mod,[P],Line),_)
+	;	recorda('$module','$module'(user_input,Mod,[P],1),_)
 	).
 export_resource(op(Prio,Assoc,Name)) :- !,
 	op(Prio,Assoc,prolog:Name).
@@ -668,7 +670,7 @@ export_resource(Resource) :-
 	'$do_error'(type_error(predicate_indicator,Resource),export(Resource)).
 	
 export_list(Module, List) :-
-	recorded('$module','$module'(_,Module,List),_).
+	recorded('$module','$module'(_,Module,List,_),_).
 
 '$convert_for_export'(all, Exports, _Module, _ContextModule, Tab, MyExports, _) :-
 	'$simple_conversion'(Exports, Tab, MyExports).
@@ -792,7 +794,7 @@ export_list(Module, List) :-
 	op(Prio,Assoc,ContextMod:Name).
 '$do_import'(N0/K0-N0/K0, Mod, Mod) :- !.
 '$do_import'(_N/K-N1/K, _Mod, ContextMod) :-
-       recorded('$module','$module'(_F, ContextMod, MyExports),_),
+       recorded('$module','$module'(_F, ContextMod, MyExports,_),_),
        once(lists:member(N1/K, MyExports)),
        functor(S, N1, K),
        %  reexport predicates if they are undefined in the current module.
@@ -838,7 +840,7 @@ export_list(Module, List) :-
 	( C =:= 0'e -> halt(1) ;
 	  C =:= 0'y ).  
 '$redefine_action'(true, M1, _, _, _) :- !,
-	recorded('$module','$module'(F, M1, _MyExports),_),
+	recorded('$module','$module'(F, M1, _MyExports,_Line),_),
 	unload_file(F).
 '$redefine_action'(false, M1,M2, M, N/K) :-
 	'$do_error'(permission_error(import,M1:N/K,redefined,M2),module(M)).
@@ -944,10 +946,12 @@ Start a new (source-)module
 '$declare_module'(Name, _Test, Context, _File, _Line) :-
 	add_import_module(Name, Context, start).
 
+module_property(Mod, line_count(L)) :-
+	recorded('$module','$module'(_F,Mod,_,L),_).
 module_property(Mod, file(F)) :-
-	recorded('$module','$module'(F,Mod,_),_).
+	recorded('$module','$module'(F,Mod,_,_),_).
 module_property(Mod, exports(Es)) :-
-	recorded('$module','$module'(_,Mod,Es),_).
+	recorded('$module','$module'(_,Mod,Es,_),_).
 
 ls_imports :-
 	recorded('$import','$import'(M0,M,G0,G,_N,_K),_R),

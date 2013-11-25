@@ -299,34 +299,34 @@ writeln(M:B),
 	 
 
 qsave_file(File) :-
-	recorded('$module', '$module'(F,Mod,Exps), _),
+	recorded('$module', '$module'(F,Mod,Exps,Line), _),
 	'$fetch_parents_module'(Mod, Parents),
 	'$fetch_imports_module'(Mod, Imps),
 	'$fetch_multi_files_module'(Mod, MFs),
 	'$fetch_meta_predicates_module'(Mod, Metas),
 	'$fetch_module_transparents_module'(Mod, ModTransps),
-	asserta(Mod:'@mod_info'(F, Exps, Parents, Imps, Metas, ModTransps)),
+	asserta(Mod:'@mod_info'(F, Exps, Line, Parents, Imps, Metas, ModTransps)),
 	atom_concat(Mod,'.qly',OF),
 	open(OF, write, S, [type(binary)]),
 	'$qsave_module_preds'(S, Mod),
 	close(S),
-	abolish(Mod:'@mod_info'/6),
+	abolish(Mod:'@mod_info'/7),
 	fail.
 qsave_file(_).
 
 qsave_module(Mod) :-
-	recorded('$module', '$module'(F,Mod,Exps), _),
+	recorded('$module', '$module'(F,Mod,Exps,L), _),
 	'$fetch_parents_module'(Mod, Parents),
 	'$fetch_imports_module'(Mod, Imps),
 	'$fetch_multi_files_module'(Mod, MFs),
 	'$fetch_meta_predicates_module'(Mod, Metas),
 	'$fetch_module_transparents_module'(Mod, ModTransps),
-	asserta(Mod:'@mod_info'(F, Exps, Parents, Imps, Metas, ModTransps)),
+	asserta(Mod:'@mod_info'(F, Exps, L, Parents, Imps, Metas, ModTransps)),
 	atom_concat(Mod,'.qly',OF),
 	open(OF, write, S, [type(binary)]),
 	'$qsave_module_preds'(S, Mod),
 	close(S),
-	abolish(Mod:'@mod_info'/6),
+	abolish(Mod:'@mod_info'/7),
 	fail.
 qsave_module(_).
 
@@ -345,9 +345,9 @@ qload_module(Mod) :-
 	'$complete_read'(Mod).
 
 '$complete_read'(Mod) :-
-	retract(Mod:'@mod_info'(F, Exps, Parents, Imps, Metas, ModTransps)),
-	abolish(Mod:'$mod_info'/6),
-	recorda('$module', '$module'(F,Mod,Exps), _),
+	retract(Mod:'@mod_info'(F, Exps, Line,Parents, Imps, Metas, ModTransps)),
+	abolish(Mod:'$mod_info'/7),
+	recorda('$module', '$module'(F,Mod,Exps,Line), _),
 	'$install_parents_module'(Mod, Parents),
 	'$install_imports_module'(Mod, Imps),
 	'$install_multi_files_module'(Mod, MFs),
