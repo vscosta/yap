@@ -379,8 +379,7 @@ nth_clause(V,I,R) :-
 	between(1, N, I),
 	'$nth_clause'(P,M,I,R).
 '$nth_clause'(P,M,I,R) :-
-	( '$is_log_updatable'(P,M) ; '$is_source'(P,M) ), !,
-	'$p_nth_clause'(P,M,I,R).
+	'$p_nth_clause'(P,M,I,R), writeln(R), !.
 '$nth_clause'(P,M,I,R) :-
 	'$is_dynamic'(P,M), !,
 	'$nth_instancep'(M:P,I,R).
