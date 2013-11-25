@@ -349,7 +349,12 @@
 #include <windows.h>
 #endif
 #include "iopreds.h"
+// we cannot consult YapInterface.h, that conflicts with what we declare, though
+// it shouldn't
 #include "yap_structs.h"
+#define _yap_c_interface_h 1
+#include "pl-shared.h"
+#include "pl-read.h"
 #ifdef TABLING
 #include "tab.macros.h"
 #endif /* TABLING */
@@ -1370,18 +1375,6 @@ YAP_PutInSlot(Int slot, Term t)
 }
 
 
-typedef enum
-{ FRG_FIRST_CALL = 0,		/* Initial call */
-  FRG_CUTTED     = 1,		/* Context was cutted */
-  FRG_REDO	 = 2		/* Normal redo */
-} frg_code;
-
-typedef  struct foreign_context
-    { int *		context;	/* context value */
-      frg_code		control;	/* FRG_* action */
-      struct PL_local_data *engine;		/* invoking engine */
-} scontext ;
-
 typedef Int (*CPredicate0)(void);
 typedef Int (*CPredicate1)(Int);
 typedef Int (*CPredicate2)(Int,Int);
@@ -1756,7 +1749,7 @@ YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code)
     PP = pe;
     ctx->control = FRG_FIRST_CALL;
     ctx->engine = NULL; //(PL_local_data *)Yap_regp;
-    ctx->context = NULL;
+    ctx->context = (uintptr_t)NULL;
     if (pe->PredFlags & CArgsPredFlag) {
       val = execute_cargs_back(pe, exec_code, ctx PASS_REGS);
     } else {
@@ -1780,9 +1773,9 @@ YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code)
       return complete_exit(((choiceptr)(LCL0-ocp)), TRUE, FALSE PASS_REGS);
     } else {
       if ((val & REDO_PTR) == REDO_PTR)
-	ctx->context = (int *)(val & ~REDO_PTR);
+	ctx->context = (uintptr_t)(val & ~REDO_PTR);
       else
-	ctx->context = (int *)((val & ~REDO_PTR)>>FRG_REDO_BITS);
+	ctx->context = (uintptr_t)((val & ~REDO_PTR)>>FRG_REDO_BITS);
       return TRUE;
     }
   } else {
@@ -1907,9 +1900,9 @@ YAP_ExecuteNext(PredEntry *pe, CPredicate exec_code)
       return complete_exit(((choiceptr)(LCL0-ocp)), TRUE, FALSE PASS_REGS);
     } else {
       if ((val & REDO_PTR) == REDO_PTR)
-	ctx->context = (int *)(val & ~REDO_PTR);
+	ctx->context = (uintptr_t)(val & ~REDO_PTR);
       else
-	ctx->context = (int *)((val & ~REDO_PTR)>>FRG_REDO_BITS);
+	ctx->context = (uintptr_t)((val & ~REDO_PTR)>>FRG_REDO_BITS);
     }
     return TRUE;
   } else {
@@ -2087,7 +2080,6 @@ X_API Term
 YAP_ReadBuffer(char *s, Term *tp)
 {
   CACHE_REGS
-  Term t; 
   Int sl;
   BACKUP_H();
 
@@ -2765,10 +2757,13 @@ YAP_EndConsult(IOSTREAM *s)
 X_API Term
 YAP_Read(IOSTREAM *inp)
 {
-  CACHE_REGS
+  GET_LD
   Term t, tpos = TermNil;
   TokEntry *tokstart;
-  
+  read_data rd;
+
+  init_read_data(&rd, inp PASS_LD);
+
   BACKUP_MACHINE_REGS();
 
 
@@ -2776,17 +2771,20 @@ YAP_Read(IOSTREAM *inp)
   if (LOCAL_ErrorMessage)
     {
       Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable, LOCAL_Comments);
+      free_read_data(&rd);
       RECOVER_MACHINE_REGS();
       return 0;
     }
   if (inp->flags & (SIO_FEOF|SIO_FEOF2)) {
       Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable, LOCAL_Comments);
       RECOVER_MACHINE_REGS();
+      free_read_data(&rd);
       return MkAtomTerm (AtomEof);
   }
-  t = Yap_Parse();
+  t = Yap_Parse( &rd );
   Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable, LOCAL_Comments);
 
+  free_read_data(&rd);
   RECOVER_MACHINE_REGS();
   return t;
 }
@@ -2907,7 +2905,10 @@ do_bootfile (char *bootfilename)
     }
   while (!eof_found)
     {
+      CACHE_REGS
+      Int CurSlot = Yap_StartSlots( PASS_REGS1 );
       t = YAP_Read(bootfile);
+      LOCAL_CurSlot = CurSlot;
       if (eof_found) {
 	break;
       }
