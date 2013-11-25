@@ -438,7 +438,6 @@ parse_quasi_quotations(ReadData _PL_rd ARG_LD)
 { if ( _PL_rd->qq_tail )
   { term_t av;
     int rc;
-      printf("h5\n");
 
     if ( !PL_unify_nil(_PL_rd->qq_tail) )
       return FALSE;

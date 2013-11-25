@@ -141,9 +141,13 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   Int arity;
   /*  extern int gc_calls; */
 
+
+  // if (!worker_id) return;
   LOCK(Yap_heap_regs->low_level_trace_lock);
   sc = Yap_heap_regs;
   vsc_count++;
+  //if (vsc_count == 54) jmp_deb(1);
+  //  fprintf(stderr,"B=%p ", B);
 #ifdef THREADS
   LOCAL_ThreadHandle.thread_inst_count++;
 #endif  
