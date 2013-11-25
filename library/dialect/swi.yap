@@ -217,8 +217,6 @@ compile_aux_clauses([Cl|Cls]) :-
 	compile_aux_clauses(Cls).
 
 
-'$set_predicate_attribute'(_, _, _).
-
 flag(Key, Old, New) :-
 	recorded(Key, Old, R), !,
 	(
