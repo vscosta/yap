@@ -863,7 +863,6 @@ ParseTerm(read_data *rd, int prio, JMPBUFF *FailBuff USES_REGS)
 	FAIL;
     }
     NextToken;
-    Yap_DebugPlWrite(t); printf("\n");
     break;
   default:
     
