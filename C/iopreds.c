@@ -89,7 +89,6 @@ static char SccsId[] = "%W% %G%";
 
 static Int p_set_read_error_handler( USES_REGS1 );
 static Int p_get_read_error_handler( USES_REGS1 );
-static Int p_read( USES_REGS1 );
 static Int p_startline( USES_REGS1 );
 static Int p_change_type_of_char( USES_REGS1 );
 static Int p_type_of_char( USES_REGS1 );
@@ -272,6 +271,7 @@ syntax_error (TokEntry * tokptr, IOSTREAM *st, Term *outp)
   Term tf[7];
   Term *error = tf+3;
   CELL *Hi = H;
+  int has_qq = FALSE;
 
   /* make sure to globalise variable */
   start = tokptr->TokPos;
@@ -298,6 +298,21 @@ syntax_error (TokEntry * tokptr, IOSTREAM *st, Term *outp)
 	Term t0[1];
 	t0[0] = MkAtomTerm((Atom)info);
 	ts[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomAtom,1),1,t0);
+      }
+      break;
+    case QuasiQuotes_tok:
+      {
+	if (has_qq) {
+	  Term t0[1];
+	  t0[0] = MkAtomTerm(Yap_LookupAtom("{|"));
+	  ts[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomAtom,1),1,t0);
+	  has_qq = FALSE;
+	} else {
+	  Term t0[1];
+	  t0[0] = MkAtomTerm(Yap_LookupAtom("|| ... |}"));
+	  ts[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomAtom,1),1,t0);
+	  has_qq = TRUE;
+	}
       }
       break;
     case Number_tok:
@@ -458,6 +473,8 @@ p_get_read_error_handler( USES_REGS1 )
   return (Yap_unify_constant (ARG1, t));
 }
 
+
+
 int
 Yap_read_term(term_t t0, IOSTREAM *inp_stream, struct read_data_t *rd)
 {
@@ -537,7 +554,7 @@ Yap_read_term(term_t t0, IOSTREAM *inp_stream, struct read_data_t *rd)
     }
   repeat_cycle:
     CurrentModule = tmod;
-    if (LOCAL_ErrorMessage || (t = Yap_Parse()) == 0) {
+    if (LOCAL_ErrorMessage || (t = Yap_Parse(rd)) == 0) {
       CurrentModule = OCurrentModule;
       if (LOCAL_ErrorMessage) {
 	int res;
@@ -614,6 +631,8 @@ Yap_read_term(term_t t0, IOSTREAM *inp_stream, struct read_data_t *rd)
     if (!Yap_unify(v, Yap_GetFromSlot( rd->varnames PASS_REGS)))
       return FALSE;
   }
+
+
   if (rd->variables) {
     while (TRUE) {
       CELL *old_H = H;
@@ -703,8 +722,6 @@ p_force_char_conversion( USES_REGS1 )
 static Int 
 p_disable_char_conversion( USES_REGS1 )
 {
-  int i;
-
   CharConversionTable = NULL;
   return(TRUE);
 }

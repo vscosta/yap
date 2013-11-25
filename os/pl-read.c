@@ -16,7 +16,7 @@ isStringStream(IOSTREAM *s)
 
 
 
-static void
+void
 init_read_data(ReadData _PL_rd, IOSTREAM *in ARG_LD)
 {  CACHE_REGS
    memset(_PL_rd, 0, sizeof(*_PL_rd));	/* optimise! */
@@ -34,7 +34,7 @@ init_read_data(ReadData _PL_rd, IOSTREAM *in ARG_LD)
   _PL_rd->backquoted_string = truePrologFlag(PLFLAG_BACKQUOTED_STRING);
 }
 
-static void
+void
 free_read_data(ReadData _PL_rd)
 { 
 }
@@ -412,35 +412,20 @@ PRED_IMPL("$qq_open", 2, qq_open, 0)
 
   if ( PL_is_functor(A1, FUNCTOR_dquasi_quotation3) )
   { void *ptr;
-    size_t start, len;
+    char * start;
+    size_t len;
     term_t arg = PL_new_term_ref();
+    IOSTREAM *s;
 
     if ( PL_get_arg(1, A1, arg) && PL_get_pointer_ex(arg, &ptr) &&
-	 PL_get_arg(2, A1, arg) && PL_get_size_ex(arg, &start) &&
-	 PL_get_arg(3, A1, arg) && PL_get_size_ex(arg, &len) )
-    { ReadData _PL_rd = ptr;
-
-      if ( _PL_rd->magic == RD_MAGIC )
-      { char *s_start = (char*)rdbase+start;
-	IOSTREAM *s;
-
-	if ( (s=Sopenmem(&s_start, &len, "r")) )
-	{ source_location pos;
-
+	 PL_get_arg(2, A1, arg) && PL_get_intptr(arg, (intptr_t *)&start) &&
+	 PL_get_arg(3, A1, arg) && PL_get_intptr(arg, (intptr_t *)&len) )
+      {  source_location pos;
+      if ( (s=Sopenmem(&start, &len, "r")) )
 	  s->encoding = ENC_UTF8;
-	  ptr_to_location((unsigned char*)s_start, &pos, _PL_rd);
-	  if ( pos.file )
-	    setFileNameStream(s, pos.file);
-	  if ( pos.position.lineno > 0 )
-	  { s->position = &s->posbuf;
-	    *s->position = pos.position;
-	  }
 
 	  return PL_unify_stream(A2, s);
 	}
-      } else
-	PL_existence_error("read_context", A1);
-    }
   } else
     PL_type_error("read_context", A1);
 
@@ -453,6 +438,7 @@ parse_quasi_quotations(ReadData _PL_rd ARG_LD)
 { if ( _PL_rd->qq_tail )
   { term_t av;
     int rc;
+      printf("h5\n");
 
     if ( !PL_unify_nil(_PL_rd->qq_tail) )
       return FALSE;
@@ -467,7 +453,6 @@ parse_quasi_quotations(ReadData _PL_rd ARG_LD)
 #endif
 	   PL_cons_functor_v(av, FUNCTOR_dparse_quasi_quotations2, av) )
       { term_t ex;
-
 	rc = callProlog(MODULE_system, av+0, PL_Q_CATCH_EXCEPTION, &ex);
 	if ( rc )
 	  return TRUE;
@@ -484,55 +469,8 @@ parse_quasi_quotations(ReadData _PL_rd ARG_LD)
 }
 
 
-static int
-is_quasi_quotation_syntax(term_t type, ReadData _PL_rd)
-{ GET_LD
-  term_t plain = PL_new_term_ref();
-  term_t ex;
-  Module m = _PL_rd->module;
-  atom_t name;
-  int arity;
-
-  PL_strip_module(type, &m, plain);
-
-  if ( PL_get_name_arity(plain, &name, &arity) )
-  { if ( _PL_rd->quasi_quotations )
-    { return TRUE;
-    } else
-    { Procedure proc;
-
-      if ( (proc=resolveProcedure(PL_new_functor(name, 4), m)) &&
-#if __YAP_PROLOG__
-	   proc->PredFlags & QuasiQuotationPredFlag
-#else
-	   true(proc->definition, P_QUASI_QUOTATION_SYNTAX)
-#endif
-	   )
-	return TRUE;
-
-      if ( (ex = PL_new_term_ref()) &&
-	   PL_unify_term(ex,
-			 PL_FUNCTOR_CHARS, "unknown_quasi_quotation_syntax", 2,
-			   PL_TERM, type,
-#if __YAP_PROLOG__
-			   PL_ATOM, YAP_SWIAtomFromAtom(m->AtomOfME)
-#else
-			   PL_ATOM, m->name
-#endif
-			 ) )
-	return errorWarning(NULL, ex, _PL_rd);
-    }
-  } else
-  { if ( (ex = PL_new_term_ref()) &&
-	 PL_unify_term(ex, PL_FUNCTOR_CHARS, "invalid_quasi_quotation_syntax", 1,
-		       PL_TERM, type) )
-      return errorWarning(NULL, ex, _PL_rd);
-  }
-
-  return FALSE;
-}
-
 #endif /*O_QUASIQUOTATIONS*/
+
 
 
 
@@ -1242,12 +1180,10 @@ retry:
     free_read_data(&rd);
     return FALSE;
   }
-
 #ifdef O_QUASIQUOTATIONS
-  if ( rval)
+  if ( rval )
     rval = parse_quasi_quotations(&rd PASS_LD);
 #endif
-
   if ( rval )
   { if ( tpos )
       rval = unify_read_term_position(tpos PASS_LD);
