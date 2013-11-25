@@ -2679,13 +2679,13 @@ purge_clauses(PredEntry *pred)
     Yap_PutValue(AtomAbol, MkAtomTerm(AtomTrue));
     retract_all(pred, static_in_use(pred,TRUE));
   }
-  pred->src.OwnerFile = AtomNil;
 }
 
 void
 Yap_Abolish(PredEntry *pred)
 {
   purge_clauses(pred);
+  pred->src.OwnerFile = AtomNil;
 }
 
 static Int 
@@ -3032,6 +3032,8 @@ p_owner_file( USES_REGS1 )
   }
   owner =  pe->src.OwnerFile;
   UNLOCKPE(49,pe);
+  if (owner == AtomNil)
+    return FALSE;
   return Yap_unify(ARG3, MkAtomTerm(owner));
 }
 
@@ -3047,6 +3049,7 @@ p_mk_d( USES_REGS1 )
   if (pe->OpcodeOfPred == UNDEF_OPCODE) {
     pe->OpcodeOfPred = FAIL_OPCODE;
   }
+  pe->src.OwnerFile = YapConsultingFile( PASS_REGS1 );
   UNLOCKPE(50,pe);
   return TRUE;
 }
