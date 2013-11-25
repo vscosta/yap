@@ -48,6 +48,10 @@
 '$hide'('$declare_module') :- !, fail.		
 '$hide'('$store_clause') :- !, fail.		
 '$hide'('$skip_list') :- !, fail.		
-'$hide'('$win_insert_menu_item') :- !, fail.		
+'$hide'('$win_insert_menu_item') :- !, fail.
+'$hide'('$set_predicate_attribute') :- !, fail.
+'$hide'('$parse_quasi_quotations') :- !, fail.
+'$hide'('$quasi_quotation') :- !, fail.
+'$hide'('$qq_open') :- !, fail.
 '$hide'(Name) :- hide(Name), fail.
 

@@ -157,30 +157,27 @@ redo_dif(Done, X, Y) :-
 	dif_suspend_on_lvars(LVars, redo_dif(Done, X, Y)).
 redo_dif('$done', _, _).
 
+redo_freeze(Done, V, G0) :-
 % If you called nonvar as condition for when, then you may find yourself
 % here.
 %
 % someone else (that is Cond had ;) did the work, do nothing
 %
-redo_freeze(Done, _, _) :- nonvar(Done), !.
+	(nonvar(Done) -> true ;
 %
 % We still have some more conditions: continue the analysis.
 %
-redo_freeze(Done, _, when(C, G, Done)) :- !,
-	when(C, G, Done).
-	
+	 G0 = when(C, G, Done) -> when(C, G, Done) ;
 %
 % check if the variable was really bound
 %
-redo_freeze(Done, V, G) :- var(V), !,
-	internal_freeze(V, redo_freeze(Done,V,G)).
+	var(V) -> internal_freeze(V, redo_freeze(Done,V,G0)) ;
 %
 % I can't believe it: we're done and can actually execute our
 % goal. Notice we have to say we are done, otherwise someone else in
 % the disjunction might decide to wake up the goal themselves.
 %
-redo_freeze('$done', _, G) :-
-	'$execute'(G).
+	Done = '$done', '$execute'(G0) ).
 
 %
 % eq is a combination of dif and freeze

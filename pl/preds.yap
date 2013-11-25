@@ -1093,3 +1093,9 @@ clause_property(ClauseRef, erased) :-
 	'$instance_property'(ClauseRef, 0, true).
 clause_property(ClauseRef, predicate(PredicateIndicator)) :-
 	'$instance_property'(ClauseRef, 1, PredicateIndicator).
+
+'$set_predicate_attribute'(M:N/Ar, Flag, V) :-
+	functor(P, N, Ar),
+	'$set_flag'(P, M, Flag, V).
+
+
