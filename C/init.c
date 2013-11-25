@@ -25,10 +25,10 @@ static char     SccsId[] = "%W% %G%";
 
 #include <stdlib.h>
 #include "Yap.h"
+#include "clause.h"
 #include "pl-shared.h"
 #include "yapio.h"
 #include "alloc.h"
-#include "clause.h"
 #include "Foreign.h"
 #include "SWI-Prolog.h"
 
