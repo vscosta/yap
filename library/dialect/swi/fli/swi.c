@@ -1422,8 +1422,11 @@ static Atom
 LookupMaxWideAtom(size_t n, wchar_t *s)
 {
   Atom catom;
-  wchar_t *buf = (wchar_t *)Yap_AllocCodeSpace((n+1)*sizeof(wchar_t));
-  
+  size_t sz = wcslen(s);
+  wchar_t *buf;
+
+  if (sz+1 < n) n = sz+1;
+  buf = (wchar_t *)Yap_AllocCodeSpace((n+1)*sizeof(wchar_t));
   if (!buf)
     return FALSE;
   wcsncpy(buf, s, n);
@@ -1547,6 +1550,9 @@ int PL_unify_termv(term_t l, va_list ap)
 	break;
       case PL_POINTER:
 	*pt++ = MkIntegerTerm((Int)va_arg(ap, void *));
+	break;
+      case PL_INTPTR:
+	*pt++ = MkIntegerTerm((Int)va_arg(ap, intptr_t));
 	break;
       case PL_INT64:
 #if SIZEOF_LONG_INT==8
@@ -2082,12 +2088,15 @@ X_API int
 PL_strip_module(term_t raw, module_t *m, term_t plain)
 {
   CACHE_REGS
-    YAP_Term m0;
-  if (*m) 
-    m0 = MkAtomTerm((*m)->AtomOfME);
-  else
+  Term m0, t;
+  if (m) {
+    if (*m)
+      m0 = MkAtomTerm((*m)->AtomOfME);
+    else
+      m0 = MkAtomTerm(AtomProlog);
+  } else
     m0 = USER_MODULE;
-  YAP_Term t =  YAP_StripModule(Yap_GetFromSlot(raw PASS_REGS), &m0);
+  t =  Yap_StripModule(Yap_GetFromSlot(raw PASS_REGS), &m0);
   if (!t)
     return FALSE;
   *m = Yap_GetModuleEntry(m0);
@@ -2367,7 +2376,6 @@ X_API int PL_call_predicate(module_t ctx, int flags, predicate_t p, term_t t0)
   qid_t qi = PL_open_query(ctx, flags, p, t0);
   int ret = PL_next_solution(qi);
   PL_cut_query(qi);
-  Yap_FreeCodeSpace( qi );
   PL_close_foreign_frame(f);
   return ret;
 }
