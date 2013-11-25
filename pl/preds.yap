@@ -871,8 +871,8 @@ predicate_property(Pred,Prop) :-
 	'$current_predicate'(M,Na,Ar),
 	'$ifunctor'(Pred,Na,Ar).
 '$generate_all_preds_from_mod'(Pred, SourceMod, Mod) :-
-	recorded('$import','$import'(SourceMod,Mod,_,Pred,_,_),_).
-
+	recorded('$import','$import'(SourceMod, Mod, Orig, Pred,_,_),_),
+	'$pred_exists'(Orig, SourceMod).
 
 '$predicate_property'(P,M,_,built_in) :- 
 	'$system_predicate'(P,M).
@@ -900,6 +900,8 @@ predicate_property(Pred,Prop) :-
 	lists:memberchk(N/A,Publics).
 '$predicate_property'(P,Mod,_,number_of_clauses(NCl)) :-
 	'$number_of_clauses'(P,Mod,NCl).
+'$predicate_property'(P,Mod,_,file(F)) :-
+	'$owner_file'(P,Mod,F).
 
 
 predicate_statistics(V,NCls,Sz,ISz) :- var(V), !,
@@ -933,24 +935,21 @@ predicate_erased_statistics(P,NCls,Sz,ISz) :-
 	'$predicate_erased_statistics'(M:P,NCls,Sz,_,ISz).
 
 current_predicate(A,T) :-
-	'$current_predicate_inside'(A,T).
-
-'$current_predicate_inside'(A,T) :-
 	var(T), !,		% only for the predicate
 	'$current_module'(M),
 	'$current_predicate_no_modules'(M,A,T).
-'$current_predicate_inside'(A,M:T) :-			% module specified
+current_predicate(A,M:T) :-			% module unspecified
 	var(M), !,
 	'$current_predicate_var'(A,M,T).
-'$current_predicate_inside'(A,M:T) :- % module specified
+current_predicate(A,M:T) :- % module specified
 	nonvar(T),
 	!,
 	functor(T,A,_),
 	'$pred_exists'(T,M).
-'$current_predicate_inside'(A,M:T) :- % module specified
+current_predicate(A,M:T) :- % module specified
 	!,
 	'$current_predicate_no_modules'(M,A,T).
-'$current_predicate_inside'(A,T) :-			% only for the predicate
+current_predicate(A,T) :-			% only for the predicate
 	'$current_module'(M),
 	'$current_predicate_no_modules'(M,A,T).
 
@@ -965,25 +964,18 @@ current_predicate(A,T) :-
 	M \= prolog,
 	'$pred_exists'(T,M).
 
-current_predicate(A) :-
-	'$current_predicate_inside'(A).
+current_predicate(F) :-
+	strip_module(F, M, F0),
+	'$$current_predicate'(F0,M).
 
-'$current_predicate_inside'(F) :-
-	var(F), !,		% only for the predicate
+'$$current_predicate'(F0,M) :-
+        ( var(M) ->			% only for the predicate
 	'$current_module'(M),
-	'$current_predicate3'(M,F).
-'$current_predicate_inside'(M:F) :-			% module specified
-	var(M), !,
-	'$current_module'(M),
-	M \= prolog,
-	'$current_predicate3'(M,F).
-'$current_predicate_inside'(M:F) :- % module specified
-	!,
-	'$current_predicate3'(M,F).
-'$current_predicate_inside'(S) :-			% only for the predicate
-	'$current_module'(M),
-	'$current_predicate3'(M,S).
-	
+	M \= prolog
+	;
+	true ),
+	'$current_predicate3'(M, F0).
+
 system_predicate(A,P) :-
 	'$current_predicate_no_modules'(prolog,A,P),
 	\+ '$hidden'(A).
@@ -1005,35 +997,13 @@ system_predicate(P) :-
 	'$pred_exists'(Pred,M).
 '$current_predicate3'(M,A/Arity) :-
 	nonvar(A), nonvar(Arity), !,
-	(
-	 '$current_predicate'(M,A,Arity)
-	->
+	'$current_predicate'(M,A,Arity),
 	'$ifunctor'(T,A,Arity),
-	'$pred_exists'(T,M)
-%	;
-%	 '$current_predicate'(prolog,A,Arity)
-%	->
-%	 functor(T,A,Arity),
-%	'$pred_exists'(T,M)
-%	;
-%	 recorded('$import','$import'(NM,M,G,T,A,Arity),_)
-%	->
-%	'$pred_exists'(G,NM)
-	).
+	'$pred_exists'(T,M).
 '$current_predicate3'(M,A/Arity) :- !,
-	(
-	 '$current_predicate'(M,A,Arity),
-	 '$ifunctor'(T,A,Arity),
-	 '$pred_exists'(T,M)
-%	;
-%	 '$current_predicate'(prolog,A,Arity),
-%	 functor(T,A,Arity),
-%	'$pred_exists'(T,M)
-%	;
-%	 recorded('$import','$import'(NM,M,G,T,A,Arity),_),
-%	 functor(T,A,Arity),
-%	'$pred_exists'(G,NM)
-	).
+	'$current_predicate'(M,A,Arity),
+	'$ifunctor'(T,A,Arity),
+	'$pred_exists'(T,M).
 '$current_predicate3'(M,BadSpec) :-			% only for the predicate
 	'$do_error'(type_error(predicate_indicator,BadSpec),current_predicate(M:BadSpec)).
 
