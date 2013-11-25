@@ -53,6 +53,8 @@ static char SccsId[] = "%W% %G%";
 #include "eval.h"
 /* stuff we want to use in standard YAP code */
 #include "pl-shared.h"
+#include "pl-read.h"
+#include "pl-text.h"
 #if HAVE_STRING_H
 #include <string.h>
 #endif
@@ -72,9 +74,9 @@ typedef struct jmp_buff_struct {
 
 static void GNextToken( CACHE_TYPE1 );
 static void checkfor(wchar_t, JMPBUFF * CACHE_TYPE);
-static Term ParseArgs(Atom, wchar_t, JMPBUFF *, Term CACHE_TYPE);
-static Term ParseList(JMPBUFF * CACHE_TYPE);
-static Term ParseTerm(int, JMPBUFF * CACHE_TYPE);
+static Term ParseArgs(read_data *, Atom, wchar_t, JMPBUFF *, Term CACHE_TYPE);
+static Term ParseList(read_data *, JMPBUFF * CACHE_TYPE);
+static Term ParseTerm(read_data *, int, JMPBUFF * CACHE_TYPE);
 
 
 #define TRY(S,P)                               \
@@ -385,8 +387,67 @@ checkfor(wchar_t c, JMPBUFF *FailBuff USES_REGS)
   NextToken;
 }
 
+#ifdef O_QUASIQUOTATIONS
+
+
+static int
+is_quasi_quotation_syntax(Term goal, ReadData _PL_rd, Atom *pat)
+{ GET_LD
+  Term m = CurrentModule, t;
+  Atom at;
+  UInt arity;
+  Functor f;
+
+  t = Yap_StripModule(goal, &m);
+  f = FunctorOfTerm( t );
+  *pat = at = NameOfFunctor( f );
+  arity = ArityOfFunctor( f );
+  if ( arity > 0 )
+    return TRUE;
+  return FALSE;
+}
+
+static int
+get_quasi_quotation(term_t t, unsigned char **here, unsigned char *ein,
+		    ReadData _PL_rd)
+{ unsigned char *in, *start = *here;
+
+  for(in=start; in <= ein; in++)
+    { if ( in[0] == '}' &&
+	   in[-1] == '|' )
+	{ *here = in+1;			/* after } */
+	  in--;				/* Before | */
+
+	  if ( _PL_rd->quasi_quotations )	/* option; must return strings */
+	    { PL_chars_t txt;
+	      int rc;
+
+	      txt.text.t    = (char*)start;
+	      txt.length    = in-start;
+	      txt.storage   = PL_CHARS_HEAP;
+	      txt.encoding  = ENC_UTF8;
+	      txt.canonical = FALSE;
+
+	      rc = PL_unify_text(t, 0, &txt, PL_CODE_LIST);
+	      PL_free_text(&txt);
+
+	      return rc;
+	    } else
+	    { return PL_unify_term(t, PL_FUNCTOR, FUNCTOR_dquasi_quotation3,
+				   PL_POINTER, _PL_rd,
+				   PL_INTPTR, (intptr_t)(start),
+				   PL_INTPTR, (intptr_t)(in-start));
+	    }
+	}
+    }
+
+  return FALSE; //errorWarning("end_of_file_in_quasi_quotation", 0, _PL_rd);
+}
+#endif /*O_QUASIQUOTATIONS*/
+
+
 static Term
-ParseArgs(Atom a, wchar_t close, JMPBUFF *FailBuff, Term arg1 USES_REGS)
+ParseArgs(read_data *rd, Atom a, wchar_t close, JMPBUFF *FailBuff, Term arg1 USES_REGS)
 {
   int nargs = 0;
   Term *p, t;
@@ -424,7 +485,7 @@ ParseArgs(Atom a, wchar_t close, JMPBUFF *FailBuff, Term arg1 USES_REGS)
       LOCAL_ErrorMessage = "Trail Overflow";
       FAIL;
     }
-    *tp++ = Unsigned(ParseTerm(999, FailBuff PASS_REGS));
+    *tp++ = Unsigned(ParseTerm(rd, 999, FailBuff PASS_REGS));
     ParserAuxSp = (char *)tp;
     ++nargs;
     if (LOCAL_tokptr->Tok != Ord(Ponctuation_tok))
@@ -481,7 +542,7 @@ static Term MakeAccessor( Term t, Functor f USES_REGS )
 }
 
 static Term
-ParseList(JMPBUFF *FailBuff USES_REGS)
+ParseList(read_data *rd, JMPBUFF *FailBuff USES_REGS)
 {
   Term o;
   CELL *to_store;
@@ -489,14 +550,14 @@ ParseList(JMPBUFF *FailBuff USES_REGS)
  loop:
   to_store = H;
   H+=2;
-  to_store[0] = ParseTerm(999, FailBuff PASS_REGS);
+  to_store[0] = ParseTerm(rd, 999, FailBuff PASS_REGS);
   if (LOCAL_tokptr->Tok == Ord(Ponctuation_tok)) {
     if (((int) LOCAL_tokptr->TokInfo) == ',') {
       NextToken;
       if (LOCAL_tokptr->Tok == Ord(Name_tok)
 	  && strcmp(RepAtom((Atom)(LOCAL_tokptr->TokInfo))->StrOfAE, "..") == 0) {
 	NextToken;
-	to_store[1] = ParseTerm(999, FailBuff PASS_REGS);
+	to_store[1] = ParseTerm(rd, 999, FailBuff PASS_REGS);
       } else {
 	/* check for possible overflow against local stack */
 	if (H > ASP-4096) {
@@ -510,7 +571,7 @@ ParseList(JMPBUFF *FailBuff USES_REGS)
       }
     } else if (((int) LOCAL_tokptr->TokInfo) == '|') {
       NextToken;
-      to_store[1] = ParseTerm(999, FailBuff PASS_REGS);
+      to_store[1] = ParseTerm(rd, 999, FailBuff PASS_REGS);
     } else {
       to_store[1] = MkAtomTerm(AtomNil);
     }
@@ -528,7 +589,7 @@ ParseList(JMPBUFF *FailBuff USES_REGS)
 #endif
 
 static Term
-ParseTerm(int prio, JMPBUFF *FailBuff USES_REGS)
+ParseTerm(read_data *rd, int prio, JMPBUFF *FailBuff USES_REGS)
 {
   /* parse term with priority prio */
   Volatile Term t;
@@ -599,7 +660,7 @@ ParseTerm(int prio, JMPBUFF *FailBuff USES_REGS)
 	    LOCAL_ErrorMessage = "Heap Overflow";
 	    FAIL;
 	  }
-	  t = ParseTerm(oprprio, FailBuff PASS_REGS);
+	  t = ParseTerm(rd, oprprio, FailBuff PASS_REGS);
 	  t = Yap_MkApplTerm(func, 1, &t);
 	  /* check for possible overflow against local stack */
 	  if (H > ASP-4096) {
@@ -614,7 +675,7 @@ ParseTerm(int prio, JMPBUFF *FailBuff USES_REGS)
     }
     if (LOCAL_tokptr->Tok == Ord(Ponctuation_tok)
 	&& Unsigned(LOCAL_tokptr->TokInfo) == 'l')
-      t = ParseArgs((Atom) t, ')', FailBuff, 0L PASS_REGS);
+      t = ParseArgs(rd, (Atom) t, ')', FailBuff, 0L PASS_REGS);
     else
       t = MkAtomTerm((Atom)t);
     break;
@@ -694,7 +755,7 @@ ParseTerm(int prio, JMPBUFF *FailBuff USES_REGS)
     case '(':
     case 'l':	/* non solo ( */
       NextToken;
-      t = ParseTerm(1200, FailBuff PASS_REGS);
+      t = ParseTerm(rd, 1200, FailBuff PASS_REGS);
       checkfor(')', FailBuff PASS_REGS);
       break;
     case '[':
@@ -705,7 +766,7 @@ ParseTerm(int prio, JMPBUFF *FailBuff USES_REGS)
 	NextToken;
 	break;
       }
-      t = ParseList(FailBuff PASS_REGS);
+      t = ParseList(rd, FailBuff PASS_REGS);
       checkfor(']', FailBuff PASS_REGS);
       break;
     case '{':
@@ -716,7 +777,7 @@ ParseTerm(int prio, JMPBUFF *FailBuff USES_REGS)
 	NextToken;
 	break;
       }
-      t = ParseTerm(1200, FailBuff PASS_REGS);
+      t = ParseTerm(rd, 1200, FailBuff PASS_REGS);
       t = Yap_MkApplTerm(FunctorBraces, 1, &t);
       /* check for possible overflow against local stack */
       if (H > ASP-4096) {
@@ -730,6 +791,80 @@ ParseTerm(int prio, JMPBUFF *FailBuff USES_REGS)
     }
     break;
     
+  case QuasiQuotes_tok:
+    {
+      qq_t *qq = (qq_t *)(LOCAL_tokptr->TokInfo);
+      term_t pv, positions = rd->subtpos, to;
+      Atom at;
+      Term tn;
+      CELL *tnp;
+
+      // from SWI, enter the list
+      /* prepare (if we are the first in term) */
+      if ( !rd->varnames )
+	rd->varnames = PL_new_term_ref();
+      if ( !rd->qq )
+      { if ( rd->quasi_quotations )
+	{ rd->qq = rd->quasi_quotations;
+	} else
+	{ if ( !(rd->qq = PL_new_term_ref()) )
+	    return FALSE;
+	}
+	//  create positions term
+      if ( positions )
+      { if ( !(pv = PL_new_term_refs(3)) ||
+	     !PL_unify_term(positions,
+			    PL_FUNCTOR, FUNCTOR_quasi_quotation_position5,
+			    PL_INTPTR, qq->start.charno,
+			    PL_VARIABLE,
+			    PL_TERM, pv+0, // leave three open slots
+			    PL_TERM, pv+1,
+			    PL_TERM, pv+2) )
+	  return FALSE;
+      } else
+	pv = 0;
+						/* push type */
+      
+      if ( !(rd->qq_tail = PL_copy_term_ref(rd->qq)) )
+	return FALSE;
+      }
+
+      NextToken;
+      t = ParseTerm(rd, 1200, FailBuff PASS_REGS);
+      if (LOCAL_tokptr->Tok != QuasiQuotes_tok) {
+	FAIL;
+      }
+      if ( !( is_quasi_quotation_syntax(t, rd, &at))  )
+	FAIL;
+						/* Arg 2: the content */
+      tn = Yap_MkNewApplTerm( SWIFunctorToFunctor(FUNCTOR_quasi_quotation4), 4 );
+      tnp = RepAppl(tn)+1;
+      tnp[0] = MkAtomTerm(at);
+      if ( !get_quasi_quotation(Yap_InitSlot( ArgOfTerm(2, tn) PASS_REGS), &qq->text, qq->text+strlen((const char *)qq->text), rd) )
+	FAIL;
+
+      if ( positions )
+      { intptr_t qqend = qq->end.charno;
+
+	// set_range_position(positions, -1, qqend PASS_LD);
+	if ( !PL_unify_term( Yap_InitSlot( ArgOfTerm(2, t) PASS_REGS),
+			    PL_FUNCTOR, FUNCTOR_minus2,
+			      PL_INTPTR, qq->mid.charno+2,	/* end of | token */
+			      PL_INTPTR, qqend-2) )     /* end minus "|}" */
+	  FAIL;
+      }
+
+      tnp[2] = Yap_GetFromSlot(rd->varnames PASS_REGS);	/* Arg 3: the var dictionary */
+      /* Arg 4: the result */
+      t = ArgOfTerm(4, tn);
+      if ( !(to = PL_new_term_ref()) ||
+	   !PL_unify_list(rd->qq_tail, to, rd->qq_tail) ||
+	   !PL_unify(to, Yap_InitSlot(tn PASS_REGS)) )
+	FAIL;
+    }
+    NextToken;
+    Yap_DebugPlWrite(t); printf("\n");
+    break;
   default:
     
     FAIL;
@@ -754,7 +889,7 @@ ParseTerm(int prio, JMPBUFF *FailBuff USES_REGS)
 	     {
 	       Term args[2];
 	       args[0] = t;
-	       args[1] = ParseTerm(oprprio, FailBuff PASS_REGS);
+	       args[1] = ParseTerm(rd, oprprio, FailBuff PASS_REGS);
 	       t = Yap_MkApplTerm(func, 2, args);
 	       /* check for possible overflow against local stack */
 	       if (H > ASP-4096) {
@@ -796,7 +931,7 @@ ParseTerm(int prio, JMPBUFF *FailBuff USES_REGS)
 	Volatile Term args[2];
 	NextToken;
 	args[0] = t;
-	args[1] = ParseTerm(1000, FailBuff PASS_REGS);
+	args[1] = ParseTerm(rd, 1000, FailBuff PASS_REGS);
 	t = Yap_MkApplTerm(FunctorComma, 2, args);
 	/* check for possible overflow against local stack */
 	if (H > ASP-4096) {
@@ -811,7 +946,7 @@ ParseTerm(int prio, JMPBUFF *FailBuff USES_REGS)
 	Volatile Term args[2];
 	NextToken;
 	args[0] = t;
-	args[1] = ParseTerm(oprprio, FailBuff PASS_REGS);
+	args[1] = ParseTerm(rd, oprprio, FailBuff PASS_REGS);
 	t = Yap_MkApplTerm(FunctorVBar, 2, args);
 	/* check for possible overflow against local stack */
 	if (H > ASP-4096) {
@@ -823,20 +958,20 @@ ParseTerm(int prio, JMPBUFF *FailBuff USES_REGS)
       } else if (Unsigned(LOCAL_tokptr->TokInfo) == '(' &&
                 IsPosfixOp(AtomEmptyBrackets, &opprio, &oplprio PASS_REGS)
                 && opprio <= prio && oplprio >= curprio) {
-	t = ParseArgs(AtomEmptyBrackets, ')', FailBuff, t PASS_REGS);
+	t = ParseArgs(rd, AtomEmptyBrackets, ')', FailBuff, t PASS_REGS);
 	curprio = opprio;
 	continue;
        } else if (Unsigned(LOCAL_tokptr->TokInfo) == '[' &&
                 IsPosfixOp(AtomEmptySquareBrackets, &opprio, &oplprio PASS_REGS)
                 && opprio <= prio && oplprio >= curprio) {
-	t = ParseArgs(AtomEmptySquareBrackets, ']', FailBuff, t PASS_REGS);
+	t = ParseArgs(rd, AtomEmptySquareBrackets, ']', FailBuff, t PASS_REGS);
 	t = MakeAccessor(t, FunctorEmptySquareBrackets PASS_REGS);
 	curprio = opprio;
 	continue;
       } else if (Unsigned(LOCAL_tokptr->TokInfo) == '{' &&
                 IsPosfixOp(AtomEmptyCurlyBrackets, &opprio, &oplprio PASS_REGS)
                 && opprio <= prio && oplprio >= curprio) {
-	t = ParseArgs(AtomEmptyCurlyBrackets, '}', FailBuff, t PASS_REGS);
+	t = ParseArgs(rd, AtomEmptyCurlyBrackets, '}', FailBuff, t PASS_REGS);
 	t = MakeAccessor(t, FunctorEmptyCurlyBrackets PASS_REGS);
 	curprio = opprio;
 	continue;
@@ -859,14 +994,14 @@ ParseTerm(int prio, JMPBUFF *FailBuff USES_REGS)
 
 
 Term
-Yap_Parse(void)
+Yap_Parse(read_data *rd)
 {
   CACHE_REGS
   Volatile Term t;
   JMPBUFF FailBuff;
 
   if (!sigsetjmp(FailBuff.JmpBuff, 0)) {
-    t = ParseTerm(1200, &FailBuff PASS_REGS);
+    t = ParseTerm(rd, 1200, &FailBuff PASS_REGS);
     if (LOCAL_tokptr->Tok != Ord(eot_tok))
       return (0L);
     return (t);

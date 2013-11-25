@@ -41,6 +41,8 @@
 #include "eval.h"
 /* stuff we want to use in standard YAP code */
 #include "pl-shared.h"
+#include "pl-read.h"
+#include "pl-utf8.h"
 #if _MSC_VER || defined(__MINGW32__) 
 #if HAVE_FINITE==1
 #undef HAVE_FINITE
@@ -813,6 +815,10 @@ ch_to_wide(char *base, char *charp)
     } else { if (charp >= (char *)AuxSp-1024) goto huge_var_error; *charp++ = ch; }	\
   }
 
+#define  add_ch_to_utf8_buff(ch) \
+  { if ( (ch &0xff) == ch) { *charp++ = ch; } else \
+  { charp = _PL__utf8_put_char(charp, ch); } }
+
 TokEntry *
 Yap_tokenizer(IOSTREAM *inp_stream, int store_comments, Term *tposp)
 {
@@ -822,6 +828,7 @@ Yap_tokenizer(IOSTREAM *inp_stream, int store_comments, Term *tposp)
   int solo_flag = TRUE;
   int ch;
   wchar_t *wcharp;
+  struct qq_struct_t	       *cur_qq = NULL;
 
   LOCAL_ErrorMessage = NULL;
   LOCAL_Error_Size = 0;
@@ -963,7 +970,11 @@ Yap_tokenizer(IOSTREAM *inp_stream, int store_comments, Term *tposp)
 	  solo_flag = FALSE;
 	t->Tok = Ord(kind = Name_tok);
       } else {
-	t->TokInfo = Unsigned(Yap_LookupVar(TokImage));
+	VarEntry *ve = Yap_LookupVar(TokImage);
+	t->TokInfo = Unsigned(ve);
+	if (cur_qq) {
+	  ve->refs++;
+	}
 	Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
 	t->Tok = Ord(kind = Var_tok);
       }
@@ -1313,18 +1324,131 @@ Yap_tokenizer(IOSTREAM *inp_stream, int store_comments, Term *tposp)
 	  break;
 	}
       } else if (och == '{')  {
-	while (chtype(ch) == BS) {  ch = getchr(inp_stream); };
-	if (ch == '}') {
-	  t->TokInfo = Unsigned(AtomBraces);
-	  t->Tok = Ord(kind = Name_tok);
-	  ch = getchr(inp_stream);
-	  solo_flag = FALSE;
-	  break;
+       if (ch == '|') {
+	 qq_t *qq = (qq_t *)calloc(sizeof(qq_t), 1);
+	 if (!qq) {
+	  LOCAL_ErrorMessage = "not enough heap space to read in quasi quote";
+	  Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
+	  t->Tok = Ord(kind = eot_tok);
+	  return l;
+	 }
+	 if (cur_qq) {
+	  LOCAL_ErrorMessage = "quasi quote in quasi quote";
+	  Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
+	  t->Tok = Ord(kind = eot_tok);
+	  free( qq );
+	  return l;
+	 } else {
+	   cur_qq = qq;
+	 }
+	 t->TokInfo = (CELL)qq;
+	 qq->start.byteno = inp_stream->position->byteno;
+	 qq->start.lineno = inp_stream->position->lineno;
+	 qq->start.linepos = inp_stream->position->linepos - 1;
+	 qq->start.charno = inp_stream->position->charno - 1;
+         t->Tok = Ord(kind = QuasiQuotes_tok);
+         ch = getchr(inp_stream);
+         solo_flag = FALSE;
+         break;
+       }
+       while (chtype(ch) == BS) {  ch = getchr(inp_stream); };
+       if (ch == '}') {
+         t->TokInfo = Unsigned(AtomBraces);
+         t->Tok = Ord(kind = Name_tok);
+         ch = getchr(inp_stream);
+         solo_flag = FALSE;
+         break;
+       }
+      } else if (och == '|' && ch == '|') {
+	qq_t *qq = cur_qq;
+	if (!qq) {
+	  LOCAL_ErrorMessage = "quasi quoted's || without {|";
+	  Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
+	  free( cur_qq );
+	  cur_qq = NULL;
+	  t->Tok = Ord(kind = eot_tok);
+	  return l;
 	}
+	cur_qq = NULL;
+	t->TokInfo = (CELL)qq;
+	qq->mid.byteno = inp_stream->position->byteno;
+	qq->mid.lineno = inp_stream->position->lineno;
+	qq->mid.linepos = inp_stream->position->linepos - 1;
+	qq->mid.charno = inp_stream->position->charno - 1;
+	t->Tok = Ord(kind = QuasiQuotes_tok);
+	ch = getchr(inp_stream);
+
+	TokImage = Yap_PreAllocCodeSpace();
+	if (!TokImage) {
+	  LOCAL_ErrorMessage = "not enough heap space to read in a quasi quoted atom";
+	  Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
+	  t->Tok = Ord(kind = eot_tok);
+	  return l;
+	}
+	charp = TokImage;
+	quote = ch;
+	len = 0;
+	ch = getchrq(inp_stream);
+	wcharp = NULL;
+
+	while (TRUE) {
+	  if (ch == '|') {
+	    ch = getchrq(inp_stream);
+	    if (ch != '}') {
+	    } else {
+	      add_ch_to_utf8_buff(och);
+	      add_ch_to_utf8_buff(ch);
+	      /* we're done */
+	      break;
+	    }
+	  } else if (chtype(ch) == EF) {
+	    Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
+	    t->Tok = Ord(kind = eot_tok);
+	    break;
+	  } else {
+	    add_ch_to_utf8_buff(ch);
+	    ch = getchrq(inp_stream);
+	  }
+	  if (charp > (char *)AuxSp - 1024) {
+	    /* Not enough space to read in the string. */
+	    LOCAL_Error_TYPE = OUT_OF_AUXSPACE_ERROR;	  
+	    LOCAL_ErrorMessage = "not enough space to read in string or quoted atom";
+	    /* serious error now */
+	    Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
+	    t->Tok = Ord(kind = eot_tok);
+	    return l;
+	  }
+	}
+	len = charp-TokImage;
+	mp = malloc(len + 1);
+	if (mp == NULL) {
+	  LOCAL_ErrorMessage = "not enough heap space to read in quasi quote";
+	  Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
+	  t->Tok = Ord(kind = eot_tok);
+	  return l;
+	}
+	strncpy(mp, TokImage, len+1);
+	qq->text = (unsigned char *)mp;
+	Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
+	qq->end.byteno = inp_stream->position->byteno;
+	qq->end.lineno = inp_stream->position->lineno;
+	qq->end.linepos = inp_stream->position->linepos - 1;
+	qq->end.charno = inp_stream->position->charno - 1;
+	if (!(t->TokInfo)) {
+	  LOCAL_Error_TYPE = OUT_OF_HEAP_ERROR;	  
+	  LOCAL_ErrorMessage = "Code Space Overflow";
+	  if (p)
+	    t->Tok = Ord(kind = eot_tok);
+	  /* serious error now */
+	  return l;
+	}
+	Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
+	solo_flag = FALSE;
+	ch = getchr(inp_stream);
+	break;
       }
       t->Tok = Ord(kind = Ponctuation_tok);
       break;
-
     case EF:
       t->Tok = Ord(kind = eot_tok);
       break;
