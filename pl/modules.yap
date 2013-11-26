@@ -105,7 +105,7 @@ module(N) :-
 % redefining a previously-defined file, no problem.
 '$add_preexisting_module_on_file'(F, F, Mod, Exports, R) :- !,
 	erase(R),
-	( recorded('$import','$import'(Mod,M,_,_,N,A),R), erase(R), abolish(M:N/A), fail; true),
+	( recorded('$import','$import'(Mod,_,_,_,_,_),R), erase(R), fail; true),
 	( source_location(_, Line) -> true ; Line = 0 ),
 	recorda('$module','$module'(F,Mod,Exports, Line),_).
 '$add_preexisting_module_on_file'(F,F0,Mod,Exports,R) :-
@@ -622,7 +622,7 @@ abolish_module(Mod) :-
 	recorded('$module','$module'(_,Mod,_,_),R), erase(R),
 	fail.
 abolish_module(Mod) :-
-	recorded('$import','$import'(Mod,M,_,_,N,A),R), erase(R), abolish(M:N/A),
+	recorded('$import','$import'(Mod,_,_,_,_,_),R), erase(R),
 	fail.
 abolish_module(Mod) :-
 	'$current_predicate'(Mod,Na,Ar),
@@ -806,9 +806,9 @@ export_list(Module, List) :-
 	G1=..[N1|Args],
 	( '$check_import'(M0,ContextMod,N1,K) ->
 	  ( ContextMod = user ->
-	    ( recordzifnot('$import','$import'(M0,user,G0,G1,N1,K),_) -> true ; true )
+	    ( recordzifnot('$import','$import'(M0,user,G0,G1,N1,K),_) -> true ; true)
 	  ;
-	    ( recordaifnot('$import','$import'(M0,ContextMod,G0,G1,N1,K),_)  -> true ; true )
+	    ( recordaifnot('$import','$import'(M0,ContextMod,G0,G1,N1,K),_) -> true ; true )
 	  )
 	;
 	  true

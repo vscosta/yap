@@ -379,7 +379,7 @@ nth_clause(V,I,R) :-
 	between(1, N, I),
 	'$nth_clause'(P,M,I,R).
 '$nth_clause'(P,M,I,R) :-
-	'$p_nth_clause'(P,M,I,R), writeln(R), !.
+	'$p_nth_clause'(P,M,I,R), !.
 '$nth_clause'(P,M,I,R) :-
 	'$is_dynamic'(P,M), !,
 	'$nth_instancep'(M:P,I,R).
@@ -1068,9 +1068,15 @@ compile_predicates(Ps) :-
 
 
 clause_property(ClauseRef, file(FileName)) :-
-	'$instance_property'(ClauseRef, 2, FileName).
+	( recorded('$mf','$mf_clause'(FileName,_Name,_Arity,_Module,ClauseRef),_R)
+	-> true
+	;
+	'$instance_property'(ClauseRef, 2, FileName) ).
 clause_property(ClauseRef, source(FileName)) :-
-	'$instance_property'(ClauseRef, 2, FileName).
+	( recorded('$mf','$mf_clause'(FileName,_Name,_Arity,_Module,ClauseRef),_R)
+	-> true
+	;
+	'$instance_property'(ClauseRef, 2, FileName) ).
 clause_property(ClauseRef, line_count(LineNumber)) :-
 	'$instance_property'(ClauseRef, 4, LineNumber),
 	LineNumber > 0.

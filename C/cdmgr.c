@@ -2941,6 +2941,7 @@ p_new_multifile( USES_REGS1 )
     /* static */
     pe->PredFlags |= (SourcePredFlag|CompiledPredFlag);
   }
+  pe->src.OwnerFile = YapConsultingFile( PASS_REGS1 );
   UNLOCKPE(43,pe);
   return (TRUE);
 }
@@ -5197,7 +5198,7 @@ p_static_clause( USES_REGS1 )
   return fetch_next_static_clause(pe, pe->CodeOfPred, ARG1, ARG3, ARG4, new_cp, TRUE);
 }
 
-static Int			/* $hidden_predicate(P) */
+static Int			/* $nth_clause(P) */
 p_nth_clause( USES_REGS1 )
 {
   PredEntry      *pe;
@@ -6153,6 +6154,42 @@ p_instance_property( USES_REGS1 )
 	  } else {
 	    return Yap_unify(ARG3, MkIntTerm(cl->usc.ClSource->ag.line_number));
 	  }
+	}
+    } else if (FunctorOfTerm(t1) == FunctorMegaClause) {
+      PredEntry *ap = (PredEntry *)IntegerOfTerm(ArgOfTerm(1, t1));
+      MegaClause *mcl = ClauseCodeToMegaClause(ap->cs.p_code.FirstClause);
+
+	if (op == CL_PROP_ERASED) {
+	  return FALSE;
+	}
+	if (op == CL_PROP_PRED || op == CL_PROP_FILE || op == CL_PROP_STREAM) {
+	  if (op == CL_PROP_FILE) {
+	    if (ap->src.OwnerFile)
+	      return Yap_unify(ARG3,MkAtomTerm(ap->src.OwnerFile));
+	    else
+	      return FALSE;
+	  } else {
+	    Functor nf = ap->FunctorOfPred;
+	    UInt arity = ArityOfFunctor(nf);
+	    Atom name = NameOfFunctor(nf);
+	    Term t[2];
+	    
+	    t[0] = MkAtomTerm(name);
+	    t[1] = MkIntegerTerm(arity);
+	    t[1] = Yap_MkApplTerm(FunctorSlash, 2, t);
+	    if (ap->ModuleOfPred == PROLOG_MODULE) {
+	      t[0] = MkAtomTerm(AtomProlog);
+	    } else {
+	      t[0] = ap->ModuleOfPred;
+	    }
+	    return Yap_unify( ARG3, Yap_MkApplTerm(FunctorModule, 2, t) );
+	  }
+	}
+	if (op == CL_PROP_FACT) {
+	  return Yap_unify(ARG3, MkAtomTerm(AtomTrue));
+	}
+	if (op == CL_PROP_LINE) {
+	  return Yap_unify(ARG3, MkIntTerm(mcl->ClLine));
 	}
       }
     }

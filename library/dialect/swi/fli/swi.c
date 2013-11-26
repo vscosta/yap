@@ -1360,6 +1360,9 @@ X_API int PL_unify_wchars(term_t t, int type, size_t len, const pl_wchar_t *char
   case PL_STRING:
     chterm = Yap_MkBlobWideStringTerm(chars, len);
     break;
+  case PL_UTF8_STRING:
+    chterm = Yap_MkBlobWideStringTerm(chars, len);
+    break;
   case PL_CODE_LIST:
     chterm = YAP_NWideBufferToString(chars, len);
     break;
