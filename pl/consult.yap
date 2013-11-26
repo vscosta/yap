@@ -756,7 +756,7 @@ remove_from_path(New) :- '$check_path'(New,Path),
 	( Reconsult \== consult, Reconsult \== not_loaded, Reconsult \== changed, recorded('$lf_loaded','$lf_loaded'(F, _),R), erase(R), fail ; var(Reconsult) -> Reconsult = consult ; true ),
 	( Reconsult \== consult, recorded('$lf_loaded','$lf_loaded'(F, _, _, _, _, _, _),R), erase(R), fail ; var(Reconsult) -> Reconsult = consult ; true ),
 	( F == user_input -> Age = 0 ; time_file64(F, Age) ),
-	recorda('$lf_loaded','$lf_loaded'( F, Age), _),
+	( recordaifnot('$lf_loaded','$lf_loaded'( F, Age), _) -> true ; true ),
 	recorda('$lf_loaded','$lf_loaded'( F, M, Reconsult, UserFile, OldF, Line, Opts), _).
 
 '$set_encoding'(Encoding) :-
