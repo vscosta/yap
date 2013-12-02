@@ -324,6 +324,8 @@ mark_global_cell(CELL *pt)
 #else
       return pt + 3;
 #endif
+    case (CELL)FunctorString:
+      return pt + 3 + pt[1];
     case (CELL)FunctorBigInt:
       {
 	Int sz = 3 +

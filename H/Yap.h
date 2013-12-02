@@ -230,7 +230,6 @@ typedef char *ADDR;
 typedef CELL OFFSET;
 typedef unsigned char *CODEADDR;
 
-#define ALIGN_YAPTYPE(X,TYPE) (((CELL)(X)+(sizeof(TYPE)-1)) & ~(sizeof(TYPE)-1))
 
 #define TermPtr(V)	((Term *) (V))
 #define	Addr(V)		((ADDR) (V))

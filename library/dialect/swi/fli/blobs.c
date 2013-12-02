@@ -24,7 +24,7 @@
 #define _WITH_DPRINTF
 #include <stdio.h>
 
-#include	<SWI-Prolog.h>
+#include	<pl-shared.h>
 
 #include "swi.h"
 
@@ -113,10 +113,10 @@ lookupBlob(void *blob, size_t len, PL_blob_t *type, int *new)
   ae->rep.blob->length = len;
   memcpy(ae->rep.blob->data, blob, len);
   SWI_Blobs = ae;
-  UNLOCK(SWI_Blobs_Lock);
   if (NOfBlobs > NOfBlobsMax) {
     Yap_signal(YAP_CDOVF_SIGNAL);
   }
+  UNLOCK(SWI_Blobs_Lock);
   return ae;
 }
 

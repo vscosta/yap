@@ -66,6 +66,8 @@
 #define AtomBetween Yap_heap_regs->AtomBetween_
   Atom AtomHugeInt_;
 #define AtomHugeInt Yap_heap_regs->AtomHugeInt_
+  Atom AtomBigNum_;
+#define AtomBigNum Yap_heap_regs->AtomBigNum_
   Atom AtomBinaryStream_;
 #define AtomBinaryStream Yap_heap_regs->AtomBinaryStream_
   Atom AtomBraces_;
@@ -590,6 +592,8 @@
 #define AtomStreamPosition Yap_heap_regs->AtomStreamPosition_
   Atom AtomString_;
 #define AtomString Yap_heap_regs->AtomString_
+  Atom AtomSTRING_;
+#define AtomSTRING Yap_heap_regs->AtomSTRING_
   Atom AtomSwi_;
 #define AtomSwi Yap_heap_regs->AtomSwi_
   Atom AtomSyntaxError_;

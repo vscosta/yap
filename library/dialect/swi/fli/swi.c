@@ -36,10 +36,10 @@
 
 #define PL_KERNEL 1
 
-#include	<SWI-Stream.h>
-#include	<SWI-Prolog.h>
+#include	<pl-shared.h>
 
 #include	<yapio.h>
+#include	<YapMirror.h>
 
 #ifdef USE_GMP
 #include <gmp.h>
@@ -352,6 +352,19 @@ X_API int PL_get_float(term_t ts, double *f) /* SAM type check*/
   return 1;
 }
 
+X_API int PL_get_string_chars(term_t t, char **s, size_t *len)
+{
+  CACHE_REGS
+  Term tt = Yap_GetFromSlot(t PASS_REGS);
+  if (!IsStringTerm(tt)) {
+    return 0;
+  }
+  *s = (char *)StringOfTerm(tt);
+  *len = utf8_strlen(*s, strlen(*s));
+  return TRUE;
+}
+
+
 X_API int PL_get_head(term_t ts, term_t h)
 {
   CACHE_REGS
@@ -367,18 +380,6 @@ X_API int PL_get_string(term_t t, char **s, size_t *len)
 {
   return PL_get_string_chars(t, s, len);
 }
-
-X_API int PL_get_string_chars(term_t t, char **s, size_t *len)
-{
-  CACHE_REGS
-  Term tt = Yap_GetFromSlot(t PASS_REGS);
-  if (!IsBlobStringTerm(tt)) {
-    return 0;
-  }
-  *s = Yap_BlobStringOfTermAndLength(tt, len);
-  return TRUE;
-}
-
 
 /* SWI: int PL_get_integer(term_t t, int *i)
    YAP: long int  YAP_IntOfTerm(Term) */
@@ -624,103 +625,47 @@ X_API int PL_get_tail(term_t ts, term_t tl)
       */
 X_API atom_t PL_new_atom(const char *c)
 {
+  CACHE_REGS
   Atom at;
-  while ((at = Yap_LookupAtom((char *)c)) == NULL) {
-    if (!Yap_growheap(FALSE, 0L, NULL)) {
-      CACHE_REGS
-      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
-      return 0L;
-    }
+  atom_t sat;
+
+  while((at = Yap_CharsToAtom(c PASS_REGS)) == 0L) {
+    if (LOCAL_Error_TYPE && !Yap_SWIHandleError( "PL_new_atom" ))
+      return FALSE;
   }
   Yap_AtomIncreaseHold(at);
-  return AtomToSWIAtom(at);
+  sat = AtomToSWIAtom(at);
+  return sat;
 }
 
 X_API atom_t PL_new_atom_nchars(size_t len, const char *c)
 {
+  CACHE_REGS
   Atom at;
-  char *pt;
-  if (strlen(c) > len) {
-    while ((pt = (char *)Yap_AllocCodeSpace(len+1)) == NULL) {
-      if (!Yap_growheap(FALSE, 0L, NULL)) {
-	CACHE_REGS
-	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
-	return 0L;
-      }
-    }
-    memcpy(pt, c, len);
-    pt[len] = '\0';
-  } else {
-    pt = (char *)c;
-  }
-  while ((at = Yap_LookupAtom(pt)) == NULL) {
-    if (!Yap_growheap(FALSE, 0L, NULL)) {
-      CACHE_REGS
-      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
-      return 0L;
-    }
+  atom_t sat;
+
+  while((at = Yap_NCharsToAtom(c, len PASS_REGS)) == 0L) {
+    if (LOCAL_Error_TYPE && !Yap_SWIHandleError( "PL_new_atom_nchars" ))
+      return FALSE;
   }
   Yap_AtomIncreaseHold(at);
-  return AtomToSWIAtom(at);
+  sat = AtomToSWIAtom(at);
+  return sat;
 }
 
 X_API atom_t PL_new_atom_wchars(size_t len, const wchar_t *c)
 {
-  atom_t at;
-  int i;
+  CACHE_REGS
+  Atom at;
+  atom_t sat;
 
-  for (i=0;i<len;i++) {
-    if (c[i] > 255) break;
+  while((at = Yap_NWCharsToAtom(c, len PASS_REGS)) == 0L) {
+    if (LOCAL_Error_TYPE && !Yap_SWIHandleError( "PL_new_atom_wchars" ))
+      return FALSE;
   }
-  if (i!=len) {
-    Atom at0;
-    wchar_t *nbf;
-    while (!(nbf = (wchar_t *)YAP_AllocSpaceFromYap((len+1)*sizeof(wchar_t)))) {
-      if (!Yap_growheap(FALSE, 0L, NULL)) {
-	CACHE_REGS
-	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
-	return 0;
-      }
-    }
-    for (i=0;i<len;i++)
-      nbf[i] = c[i];
-    nbf[len]='\0';
-    while ((at0 = Yap_LookupWideAtom(nbf)) == NULL) {
-      if (!Yap_growheap(FALSE, 0L, NULL)) {
-	CACHE_REGS
-	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
-	return 0L;
-      }
-    }
-    at = AtomToSWIAtom(at0);
-    Yap_AtomIncreaseHold(at0);
-    YAP_FreeSpaceFromYap(nbf);
-  } else {
-    char *nbf;
-    Atom at0;
-
-    while (!(nbf = (char *)YAP_AllocSpaceFromYap((len+1)*sizeof(char)))) {
-      if (!Yap_growheap(FALSE, 0L, NULL)) {
-	CACHE_REGS
-	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
-	return 0;
-      }
-    }
-    for (i=0;i<len;i++)
-      nbf[i] = c[i];
-    nbf[len]='\0';
-    while (!(at0 = Yap_LookupAtom(nbf))) {
-      if (!Yap_growheap(FALSE, 0L, NULL)) {
-	CACHE_REGS
-	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
-	return 0;
-      }
-    }
-    at = AtomToSWIAtom(at0);
-    Yap_AtomIncreaseHold(at0);
-    YAP_FreeSpaceFromYap(nbf);
-  }
-  return at;
+  Yap_AtomIncreaseHold(at);
+  sat = AtomToSWIAtom(at);
+  return sat;
 }
 
 X_API wchar_t *PL_atom_wchars(atom_t name, size_t *sp)
@@ -855,12 +800,9 @@ X_API int PL_put_atom_chars(term_t t, const char *s)
 {
   CACHE_REGS
   Atom at;
-  if (!(at = Yap_LookupAtom((char *)s))) {
-    if (!Yap_growheap(FALSE, 0L, NULL)) {
-      CACHE_REGS
-      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
+  while((at = Yap_CharsToAtom(s PASS_REGS)) == 0L) {
+    if (LOCAL_Error_TYPE && !Yap_SWIHandleError( "PL_unify_atom_nchars" ))
       return FALSE;
-    }
   }
   Yap_AtomIncreaseHold(at);
   Yap_PutInSlot(t,MkAtomTerm(at) PASS_REGS);
@@ -871,25 +813,9 @@ X_API int PL_put_atom_nchars(term_t t, size_t len, const char *s)
 {
   CACHE_REGS
   Atom at;
-  char *buf;
-
-  if (strlen(s) > len) {
-    while (!(buf = (char *)Yap_AllocCodeSpace(len+1))) {
-      if (!Yap_growheap(FALSE, 0L, NULL)) {
-	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
-	return FALSE;
-      }
-    }
-    memcpy(buf, s, len);
-    buf[len] = 0;
-  } else {
-    buf = (char *)s;
-  }
-  while (!(at = Yap_LookupAtom(buf))) {
-    if (!Yap_growheap(FALSE, 0L, NULL)) {
-      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
+  while((at = Yap_NCharsToAtom(s, len PASS_REGS)) == 0L) {
+    if (LOCAL_Error_TYPE && !Yap_SWIHandleError( "PL_unify_atom_nchars" ))
       return FALSE;
-    }
   }
   Yap_AtomIncreaseHold(at);
   Yap_PutInSlot(t,MkAtomTerm(at) PASS_REGS);
@@ -973,12 +899,12 @@ X_API int PL_put_list(term_t t)
 X_API int PL_put_list_chars(term_t t, const char *s)
 {
   CACHE_REGS
-  Yap_PutInSlot(t,YAP_BufferToString((char *)s) PASS_REGS);
-  if (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
-    if (!do_gc(0)) {
+  Term nt;
+  while((nt = Yap_CharsToListOfAtoms(s PASS_REGS)) == 0L) {
+    if (LOCAL_Error_TYPE && !Yap_SWIHandleError( "PL_put_string_nchars" ))
       return FALSE;
-    }
   }
+  Yap_PutInSlot(t, nt PASS_REGS);
   return TRUE;
 }
 
@@ -1002,11 +928,12 @@ X_API int PL_put_pointer(term_t t, void *ptr)
 X_API int PL_put_string_nchars(term_t t, size_t len, const char *chars)
 {
   CACHE_REGS
-  Term tt;
-
-  if ((tt = Yap_MkBlobStringTerm(chars, len)) == TermNil)
-    return FALSE;
-  Yap_PutInSlot(t,tt PASS_REGS);
+  Term nt;
+  while((nt = Yap_NCharsToString(chars, len PASS_REGS)) == 0L) {
+    if (LOCAL_Error_TYPE && !Yap_SWIHandleError( "PL_put_string_nchars" ))
+      return FALSE;
+  }
+  Yap_PutInSlot(t, nt PASS_REGS);
   return TRUE;
 }
 
@@ -1084,17 +1011,13 @@ X_API int PL_unify_atom(term_t t, atom_t at)
 X_API int PL_unify_atom_chars(term_t t, const char *s)
 {
   CACHE_REGS
-  Atom catom;
-  Term cterm;
-  while (!(catom = Yap_LookupAtom((char *)s))) {
-    if (!Yap_growheap(FALSE, 0L, NULL)) {
-      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
+  Atom at;
+  while((at = Yap_CharsToAtom(s PASS_REGS)) == 0L) {
+    if (LOCAL_Error_TYPE && !Yap_SWIHandleError( "PL_unify_atom_nchars" ))
       return FALSE;
-    }
   }
-  Yap_AtomIncreaseHold(catom);
-  cterm = MkAtomTerm(catom);
-  return Yap_unify(Yap_GetFromSlot(t PASS_REGS),cterm);
+  Yap_AtomIncreaseHold(at);
+  return Yap_unify(Yap_GetFromSlot(t PASS_REGS), MkAtomTerm(at));
 }
 
 /* SWI: int PL_unify_atom_chars(term_t ?t, const char *chars)
@@ -1102,24 +1025,13 @@ X_API int PL_unify_atom_chars(term_t t, const char *s)
 X_API int PL_unify_atom_nchars(term_t t, size_t len, const char *s)
 {
   CACHE_REGS
-  Atom catom;
-  YAP_Term cterm;
-  char *buf = (char *)malloc(len+1);
-
-  if (!buf)
-    return FALSE;
-  memcpy(buf, s, len);
-  buf[len] = '\0';
-  while (!(catom = Yap_LookupAtom(buf))) {
-    if (!Yap_growheap(FALSE, 0L, NULL)) {
-      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
+  Atom at;
+  while((at = Yap_NCharsToAtom(s, len PASS_REGS)) == 0L) {
+    if (LOCAL_Error_TYPE && !Yap_SWIHandleError( "PL_unify_atom_nchars" ))
       return FALSE;
-    }
   }
-  free(buf);
-  Yap_AtomIncreaseHold(catom);
-  cterm = MkAtomTerm(catom);
-  return YAP_Unify(Yap_GetFromSlot(t PASS_REGS),cterm);
+  Yap_AtomIncreaseHold(at);
+  return Yap_unify(Yap_GetFromSlot(t PASS_REGS), MkAtomTerm(at));
 }
 
 /* SWI: int PL_unify_float(term_t ?t, double f)
@@ -1252,14 +1164,12 @@ X_API int PL_unify_arg(int index, term_t tt, term_t arg)
 X_API int PL_unify_list_chars(term_t t, const char *chars)
 {
   CACHE_REGS
-  YAP_Term chterm;
-  if (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
-    if (!do_gc(0)) {
+  Term chterm;
+  while((chterm = Yap_CharsToListOfAtoms(chars PASS_REGS)) == 0L) {
+    if (LOCAL_Error_TYPE && !Yap_SWIHandleError( "PL_unify_list_chars" ))
       return FALSE;
-    }
   }
-  chterm = YAP_BufferToString((char *)chars);
-  return YAP_Unify(Yap_GetFromSlot(t PASS_REGS), chterm);
+  return Yap_unify(Yap_GetFromSlot(t PASS_REGS), chterm);
 }
 
 /* SWI: int PL_unify_list(term_t ?t, term_t +h, term_t -t)
@@ -1268,27 +1178,31 @@ X_API int PL_unify_list_ncodes(term_t t, size_t len, const char *chars)
 {
   CACHE_REGS
   Term chterm;
-  if (Unsigned(H) > Unsigned(ASP+len*2)-CreepFlag) {
-    if (!do_gc(0)) {
+  while((chterm = Yap_NCharsToListOfCodes(chars, len PASS_REGS)) == 0L) {
+    if (LOCAL_Error_TYPE && !Yap_SWIHandleError( "PL_unify_list_ncodes" ))
       return FALSE;
-    }
   }
-  chterm = Yap_NStringToList((char *)chars, len);
   return Yap_unify(Yap_GetFromSlot(t PASS_REGS), chterm);
 }
 
 X_API int
-PL_unify_list_codes(term_t l, const char *chars)
-{ return PL_unify_list_ncodes(l, strlen(chars), chars);
+PL_unify_list_codes(term_t t, const char *chars)
+{ 
+  CACHE_REGS
+  Term chterm;
+  while((chterm = Yap_CharsToListOfCodes(chars PASS_REGS)) == 0L) {
+    if (LOCAL_Error_TYPE && !Yap_SWIHandleError( "PL_unify_list_codes" ))
+      return FALSE;
+  }
+  return Yap_unify(Yap_GetFromSlot(t PASS_REGS), chterm);
 }
 
 /* SWI: int PL_unify_nil(term_t ?l)
    YAP long int  unify(YAP_Term* a, Term* b) */
-X_API int PL_unify_nil(term_t l)
+X_API int PL_unify_nil(term_t t)
 {
   CACHE_REGS
-  YAP_Term nilterm = TermNil;
-  return YAP_Unify(Yap_GetFromSlot(l PASS_REGS), nilterm);
+  return Yap_unify(Yap_GetFromSlot(t PASS_REGS), TermNil);
 }
 
 /* SWI: int PL_unify_pointer(term_t ?t, void *ptr)
@@ -1306,28 +1220,23 @@ X_API int PL_unify_pointer(term_t t, void *ptr)
 X_API int PL_unify_string_chars(term_t t, const char *chars)
 {
   CACHE_REGS
-  YAP_Term chterm;
-  if (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
-    if (!do_gc(0)) {
+  Term chterm;
+  while((chterm = Yap_CharsToString(chars PASS_REGS)) == 0L) {
+    if (LOCAL_Error_TYPE && !Yap_SWIHandleError( "PL_unify_list_ncodes" ))
       return FALSE;
-    }
   }
-  chterm = YAP_BufferToString((char *)chars);
-  return YAP_Unify(Yap_GetFromSlot(t PASS_REGS), chterm);
+  return Yap_unify(Yap_GetFromSlot(t PASS_REGS), chterm);
 }
 
 X_API int PL_unify_string_nchars(term_t t, size_t len, const char *chars)
 {
   CACHE_REGS
-  YAP_Term chterm;
-
-  if (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
-    if (!do_gc(0)) {
+  Term chterm;
+  while((chterm = Yap_NCharsToString(chars, len PASS_REGS)) == 0L) {
+    if (LOCAL_Error_TYPE && !Yap_SWIHandleError( "PL_unify_list_ncodes" ))
       return FALSE;
-    }
   }
-  chterm = YAP_NBufferToString((char *)chars, len);
-  return YAP_Unify(Yap_GetFromSlot(t PASS_REGS), chterm);
+  return Yap_unify(Yap_GetFromSlot(t PASS_REGS), chterm);
 }
 
 /* SWI: int PL_unify_wchars(term_t ?t, int type, size_t len,, const pl_wchar_t *s)
@@ -1337,43 +1246,42 @@ X_API int PL_unify_wchars(term_t t, int type, size_t len, const pl_wchar_t *char
   CACHE_REGS
   YAP_Term chterm;
 
-  if (len == (size_t)-1)
-    len = wcslen(chars);
-
-  if (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
-    if (!do_gc(0)) return FALSE;
-  }
-  switch (type) {
-  case PL_ATOM:
+  while (TRUE) {
+    switch (type) {
+    case PL_ATOM:
     {
       Atom at;
-      while ((at = Yap_LookupMaybeWideAtomWithLength((wchar_t *)chars, len)) == NULL) {
-	if (!Yap_growheap(FALSE, 0L, NULL)) {
-	  Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
-	  return FALSE;
-	}
+      at = Yap_NWCharsToAtom(chars, len PASS_REGS);
+      if (at) {
+	Yap_AtomIncreaseHold(at);
+	chterm = MkAtomTerm(at);
+	return Yap_unify(Yap_GetFromSlot(t PASS_REGS), chterm);
       }
-      Yap_AtomIncreaseHold(at);
-      chterm = MkAtomTerm(at);
     }
     break;
-  case PL_STRING:
-    chterm = Yap_MkBlobWideStringTerm(chars, len);
-    break;
-  case PL_UTF8_STRING:
-    chterm = Yap_MkBlobWideStringTerm(chars, len);
-    break;
-  case PL_CODE_LIST:
-    chterm = YAP_NWideBufferToString(chars, len);
-    break;
-  case PL_CHAR_LIST:
-    chterm = YAP_NWideBufferToAtomList(chars, len);
-    break;
-  default:
-    /* should give error?? */
-    return FALSE;
+    case PL_UTF8_STRING:
+    case PL_STRING:
+      if ((chterm = Yap_NWCharsToString(chars, len PASS_REGS)) != 0) {
+	return YAP_Unify(Yap_GetFromSlot(t PASS_REGS), chterm);
+      }
+      break;
+    case PL_CODE_LIST:
+      if ((chterm = Yap_NWCharsToListOfCodes(chars, len PASS_REGS)) != 0) {
+	return YAP_Unify(Yap_GetFromSlot(t PASS_REGS), chterm);
+      }
+      break;
+    case PL_CHAR_LIST:
+      if ((chterm = Yap_NWCharsToListOfAtoms(chars, len PASS_REGS)) != 0) {
+	return YAP_Unify(Yap_GetFromSlot(t PASS_REGS), chterm);
+      }
+      break;
+    default:
+      /* should give error?? */
+      return FALSE;
+    }
+    if (LOCAL_Error_TYPE && !Yap_SWIHandleError( "PL_unify_wchars" ))
+      return FALSE;
   }
-  return YAP_Unify(Yap_GetFromSlot(t PASS_REGS), chterm);
 }
 
 typedef struct {
@@ -1399,52 +1307,6 @@ typedef struct {
   } arg;
 } arg_types;
 
-static Atom
-LookupMaxAtom(size_t n, char *s)
-{
-  CACHE_REGS
-  Atom catom;
-  char *buf = (char *)Yap_AllocCodeSpace(n+1);
-  
-  if (!buf)
-    return FALSE;
-  memcpy(buf, s, n);
-  buf[n] = '\0';
-  while (!(catom = Yap_LookupAtom(buf))) {
-    if (!Yap_growheap(FALSE, 0L, NULL)) {
-      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
-      return NULL;
-    }
-  }
-  Yap_AtomIncreaseHold(catom);
-  Yap_FreeCodeSpace(buf);
-  return catom;
-}
-
-static Atom
-LookupMaxWideAtom(size_t n, wchar_t *s)
-{
-  Atom catom;
-  size_t sz = wcslen(s);
-  wchar_t *buf;
-
-  if (sz+1 < n) n = sz+1;
-  buf = (wchar_t *)Yap_AllocCodeSpace((n+1)*sizeof(wchar_t));
-  if (!buf)
-    return FALSE;
-  wcsncpy(buf, s, n);
-  buf[n] = '\0';
-  while (!(catom = Yap_LookupMaybeWideAtom(buf))) {
-    if (!Yap_growheap(FALSE, 0L, NULL)) {
-      CACHE_REGS
-      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
-      return NULL;
-    }
-  }
-  Yap_AtomIncreaseHold(catom);
-  Yap_FreeAtomSpace((ADDR)buf);
-  return catom;
-}
 
 static YAP_Term
 MkBoolTerm(int b)
@@ -1511,33 +1373,52 @@ int PL_unify_termv(term_t l, va_list ap)
 	*pt++ = MkFloatTerm(va_arg(ap, double));
 	break;
       case PL_STRING:
-	*pt++ = Yap_MkBlobStringTerm(va_arg(ap, char *), -1);
+	{
+	  Term chterm;
+	  const char *chars = va_arg(ap, char *);
+	  while((chterm = Yap_CharsToString(chars PASS_REGS)) == 0L) {
+	    if (LOCAL_Error_TYPE && !Yap_SWIHandleError( "PL_unify_term" ))
+	      return FALSE;
+	  }
+	  *pt++ = chterm;
+	}
 	break;
       case PL_CHARS:
 	{
 	  Atom at;
-	  char *s = va_arg(ap, char *);
-	  while (!(at = Yap_LookupAtom(s))) {
-	    if (!Yap_growheap(FALSE, 0L, NULL)) {
-	      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
+	  const char *chars = va_arg(ap, char *);
+	  while((at = Yap_CharsToAtom(chars PASS_REGS)) == 0L) {
+	    if (LOCAL_Error_TYPE && !Yap_SWIHandleError( "PL_unify_term" ))
 	      return FALSE;
-	    }
 	  }
-	  Yap_AtomIncreaseHold(at);
 	  *pt++ = MkAtomTerm(at);
+	  Yap_AtomIncreaseHold(at);
 	}
 	break;
       case PL_NCHARS:
 	{
+	  Atom at;
 	  size_t sz = va_arg(ap, size_t);
-	  *pt++ = MkAtomTerm(LookupMaxAtom(sz,va_arg(ap, char *)));
+	  const char *chars = va_arg(ap, char *);
+	  while((at = Yap_NCharsToAtom(chars, sz PASS_REGS)) == 0L) {
+	    if (LOCAL_Error_TYPE && !Yap_SWIHandleError( "PL_unify_term" ))
+	      return FALSE;
+	  }
+	  *pt++ = MkAtomTerm(at);
+	  Yap_AtomIncreaseHold(at);
 	}
 	break;
       case PL_NWCHARS:
 	{
+	  Atom at;
 	  size_t sz = va_arg(ap, size_t);
-	  wchar_t * arg = va_arg(ap, wchar_t *);
-	  *pt++ = MkAtomTerm(LookupMaxWideAtom(sz,arg));
+	  const wchar_t *chars = va_arg(ap, wchar_t *);
+	  while((at = Yap_NWCharsToAtom(chars, sz PASS_REGS)) == 0L) {
+	    if (LOCAL_Error_TYPE && !Yap_SWIHandleError( "PL_unify_term" ))
+	      return FALSE;
+	  }
+	  *pt++ = MkAtomTerm(at);
+	  Yap_AtomIncreaseHold(at);
 	}
 	break;
       case PL_TERM:
@@ -1612,29 +1493,19 @@ int PL_unify_termv(term_t l, va_list ap)
 	{
 	  char *fname = va_arg(ap, char *);
 	  size_t arity = va_arg(ap, size_t);
+	  Atom at;
 
+	  while((at = Yap_CharsToAtom(fname PASS_REGS)) == 0L) {
+	    if (LOCAL_Error_TYPE && !Yap_SWIHandleError( "PL_unify_term" ))
+	      return FALSE;
+	  }
+	  Yap_AtomIncreaseHold(at);
 	  if (!arity) {
-	    Atom at;
-
-	    while (!(at = Yap_LookupAtom(fname))) {
-	      if (!Yap_growheap(FALSE, 0L, NULL)) {
-		Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
-		return FALSE;
-	      }
-	    }
-	    Yap_AtomIncreaseHold(at);
 	    *pt++ = MkAtomTerm(at);
 	  } else {
-	    Atom at;
 	    Functor ff;
 	    Term t;
 
-	    while (!(at = Yap_LookupAtom(fname))) {
-	      if (!Yap_growheap(FALSE, 0L, NULL)) {
-		Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
-		return FALSE;
-	      }
-	    }
 	    ff = Yap_MkFunctor(at,arity);
 	    t = Yap_MkNewApplTerm(ff, arity);
 	    if (nels) {
@@ -1864,7 +1735,7 @@ X_API int PL_is_string(term_t ts)
 {
   CACHE_REGS
   Term t = Yap_GetFromSlot(ts PASS_REGS);
-  return Yap_IsStringTerm(t);
+  return IsStringTerm(t);
 }
 
 X_API int PL_is_variable(term_t ts)
@@ -2354,7 +2225,7 @@ X_API void PL_cut_query(qid_t qi)
   if (qi->open != 1 || qi->state == 0) return;
   YAP_LeaveGoal(FALSE, &qi->h);
   qi->open = 0;
-  Yap_FreeCodeSpace( qi );
+  Yap_FreeCodeSpace( (char *)qi );
 }
 
 X_API void PL_close_query(qid_t qi)
@@ -2370,7 +2241,7 @@ X_API void PL_close_query(qid_t qi)
   }
   YAP_LeaveGoal(FALSE, &qi->h);
   qi->open = 0;
-  Yap_FreeCodeSpace( qi );
+  Yap_FreeCodeSpace( (char *)qi );
 }
 
 X_API int PL_call_predicate(module_t ctx, int flags, predicate_t p, term_t t0)
@@ -2906,7 +2777,6 @@ str_prefix(const char *p0, char *s)
 static int
 atom_generator(const char *prefix, char **hit, int state)
 {
-  CACHE_REGS
   struct scan_atoms *index;
   Atom            catom;
   Int            i;

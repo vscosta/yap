@@ -53,6 +53,7 @@ static char SccsId[] = "%W% %G%";
 #include "eval.h"
 /* stuff we want to use in standard YAP code */
 #include "pl-shared.h"
+#include "YapMirror.h"
 #include "pl-read.h"
 #include "pl-text.h"
 #if HAVE_STRING_H
@@ -392,7 +393,7 @@ checkfor(wchar_t c, JMPBUFF *FailBuff USES_REGS)
 
 static int
 is_quasi_quotation_syntax(Term goal, ReadData _PL_rd, Atom *pat)
-{ GET_LD
+{ CACHE_REGS
   Term m = CurrentModule, t;
   Atom at;
   UInt arity;
@@ -688,23 +689,9 @@ ParseTerm(read_data *rd, int prio, JMPBUFF *FailBuff USES_REGS)
   case String_tok:	/* build list on the heap */
     {
       Volatile char *p = (char *) LOCAL_tokptr->TokInfo;
-      if (*p == 0)
-	t = MkAtomTerm(AtomNil);
-      else {
-	unsigned int flags = Yap_GetModuleEntry(CurrentModule)->flags;
-	if (flags &  DBLQ_CHARS)
-	  t = Yap_StringToListOfAtoms(p);
-	else if (flags & DBLQ_ATOM) {
-	  Atom at = Yap_LookupAtom(p);
-	  if (at == NIL) {
-	    LOCAL_ErrorMessage = "Heap Overflow";
-	    FAIL;	  
-	  }
-	  t = MkAtomTerm(at);
-	} else if (flags & DBLQ_STRING) {
-	  t = Yap_MkBlobStringTerm(p, strlen(p));
-	} else
-	  t = Yap_StringToList(p);
+      t = Yap_CharsToTDQ(p, CurrentModule PASS_REGS);
+      if (!t) {
+	FAIL;
       }
       NextToken;
     }
@@ -713,26 +700,8 @@ ParseTerm(read_data *rd, int prio, JMPBUFF *FailBuff USES_REGS)
   case WString_tok:	/* build list on the heap */
     {
       Volatile wchar_t *p = (wchar_t *) LOCAL_tokptr->TokInfo;
-      if (*p == 0)
-	t = MkAtomTerm(AtomNil);
-      else {
-	unsigned int flags = Yap_GetModuleEntry(CurrentModule)->flags;
-	if (flags &  DBLQ_CHARS)
-	  t = Yap_WideStringToListOfAtoms(p);
-	else if (flags & DBLQ_ATOM) {
-	  Atom at = Yap_LookupWideAtom(p);
-	  if (at == NIL) {
-	    LOCAL_ErrorMessage = "Heap Overflow";
-	    FAIL;	  
-	  }
-	  t = MkAtomTerm(at);
-	} else if (flags & DBLQ_STRING) {
-	  t = Yap_MkBlobWideStringTerm(p, wcslen(p));
-	} else
-	  t = Yap_WideStringToList(p);
-      }
-      if (t == 0L) {
-	LOCAL_ErrorMessage = "Stack Overflow";
+      t = Yap_WCharsToTDQ(p, CurrentModule PASS_REGS);
+      if (!t) {
 	FAIL;
       }
       NextToken;

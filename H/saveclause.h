@@ -406,6 +406,13 @@
       CHECK(save_ConstantTerm(stream, pc->u.osc.c));
       pc = NEXTOP(pc,osc);
       break;
+      /* instructions type ou */
+    case _unify_l_string:
+    case _unify_string:
+      CHECK(save_Opcode(stream, pc->u.ou.opcw));
+      CHECK(save_BlobTermInCode(stream, pc->u.ou.u));
+      pc = NEXTOP(pc,ou);
+      break;
       /* instructions type ox */
     case _save_appl_x:
     case _save_appl_x_write:
@@ -652,6 +659,12 @@
       CHECK(save_PtoPred(stream, pc->u.xps.p0));
       CHECK(save_Constant(stream, pc->u.xps.s));
       pc = NEXTOP(pc,xps);
+      break;
+      /* instructions type xu */
+    case _get_string:
+      CHECK(save_X(stream, pc->u.xu.x));
+      CHECK(save_BlobTermInCode(stream, pc->u.xu.u));
+      pc = NEXTOP(pc,xu);
       break;
       /* instructions type xx */
     case _get_x_val:

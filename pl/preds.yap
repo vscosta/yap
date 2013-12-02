@@ -983,9 +983,9 @@ current_predicate(F0) :-
 
 '$$current_predicate'(F, M) :-
         ( var(M) ->			% only for the predicate
-	'$current_module'(M),
-	M \= prolog
+	'$current_module'(M)
 	; true),
+	M \= prolog,
 	'$current_predicate3'(F,M).
 
 '$current_predicate3'(A/Arity,M) :-

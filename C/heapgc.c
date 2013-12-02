@@ -1378,6 +1378,23 @@ mark_variable(CELL_PTR current USES_REGS)
 	  MARK(next+sz);
 	}
 	POP_CONTINUATION();
+      case (CELL)FunctorString:
+	MARK(next);
+	PUSH_POINTER(next PASS_REGS);
+	{
+	  UInt sz = 2+next[1];
+	  if (next < LOCAL_HGEN) {
+	    LOCAL_total_oldies+= 1+sz;
+	  } else {
+	    DEBUG_printf0("%p 1\n", next);
+	    DEBUG_printf1("%p %ld\n", next, (long int)(sz+1));
+	  }
+	  //fprintf(stderr,"%p M %d\n", next,1+sz);
+	  LOCAL_total_marked += 1+sz;
+	  PUSH_POINTER(next+sz PASS_REGS);
+	  MARK(next+sz);
+	}
+	POP_CONTINUATION();
       case (CELL)FunctorBigInt:
 	{
 	  Opaque_CallOnGCMark f;

@@ -376,6 +376,12 @@
     case _unify_n_atoms_write:
       cl = NEXTOP(cl,osc);
       break;
+    case _unify_l_string:
+      cl = NEXTOP(cl,ou);
+      break;
+    case _unify_string:
+      cl = NEXTOP(cl,ou);
+      break;
     case _save_appl_x:
       if (iarg == cl->u.ox.x) {
 	clause->Tag = (CELL)NULL;
@@ -651,6 +657,14 @@
 	return;
       }
       cl = NEXTOP(cl,xi);
+      break;
+    case _get_string:
+      if (iarg == cl->u.xu.x) {
+	clause->Tag = AbsAppl((CELL *)FunctorString);
+	clause->u.t_ptr = (CELL)NULL;
+	return;
+      }
+      cl = NEXTOP(cl,xu);
       break;
     case _get_x_val:
       if (cl->u.xx.xl == iarg ||

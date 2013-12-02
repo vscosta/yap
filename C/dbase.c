@@ -596,6 +596,16 @@ copy_double(CELL *st, CELL *pt)
   return st+(2+SIZEOF_DOUBLE/SIZEOF_LONG_INT);
 }
 
+static CELL *
+copy_string(CELL *st, CELL *pt)
+{
+  UInt sz = pt[1]+3;
+  /* first thing, store a link to the list before we move on */
+  memcpy(st,pt,sizeof(CELL)*sz);
+  /* now reserve space */
+  return st+sz;
+}
+
 #ifdef USE_GMP
 static CELL *
 copy_big_int(CELL *st, CELL *pt)
@@ -711,6 +721,17 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 	  ++pt0;
 	  continue;
 #endif
+	case (CELL)FunctorString:
+	  {
+	    CELL *st = CodeMax;
+
+	    CheckDBOverflow(3+ap2[1]);
+	    /* first thing, store a link to the list before we move on */
+	    *StoPoint++ = AbsAppl(st);
+	    CodeMax = copy_string(CodeMax, ap2);
+	    ++pt0;
+	    continue;
+	  }
 	case (CELL)FunctorDouble:
 	  {
 	    CELL *st = CodeMax;
@@ -1477,6 +1498,9 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat, UInt extra_size, struc
 	switch((CELL)fun) {
 	case (CELL)FunctorDouble:
 	  ntp = copy_double(ntp0, RepAppl(Tm));
+	  break;
+	case (CELL)FunctorString:
+	  ntp = copy_string(ntp0, RepAppl(Tm));
 	  break;
 	case (CELL)FunctorDBRef:
 	  Yap_ReleasePreAllocCodeSpace((ADDR)pp0);

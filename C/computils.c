@@ -435,6 +435,8 @@ write_functor(Functor f)
       Yap_DebugPlWrite(MkAtomTerm(AtomLONGINT));
     } else if (f == FunctorDouble) {
       Yap_DebugPlWrite(MkAtomTerm(AtomDOUBLE));
+    } else if (f == FunctorString) {
+      Yap_DebugPlWrite(MkAtomTerm(AtomSTRING));
     }
   } else {
     Yap_DebugPlWrite(MkAtomTerm(NameOfFunctor (f)));

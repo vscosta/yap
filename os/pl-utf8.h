@@ -59,4 +59,12 @@ extern char *_PL__utf8_put_char(char *out, int chr);
 
 extern size_t utf8_strlen(const char *s, size_t len);
 
+typedef enum {
+  S_ASCII,
+  S_LATIN,
+  S_WIDE
+} unicode_type_t;
+
+extern unicode_type_t _PL__utf8_type(const char *in0, size_t len);
+
 #endif /*UTF8_H_INCLUDED*/

@@ -261,6 +261,7 @@ get_op(0'O,"OrArg").
 get_op(0'p,"PtoPred").
 get_op(0's,"Constant").
 get_op(0't,"TabEntry").
+get_op(0'u,"BlobTermInCode").
 get_op(0'x,"X").
 get_op(0'y,"Y").
 % '
@@ -884,6 +885,7 @@ opinfo("gl_void_vary",[bind("y","AbsPair(NULL)",workpc=currentop),new("y")]).
 opinfo("get_struct",[bind("x","AbsAppl((CELL *)cl->u.xfa.f)",workpc=nextop)]).
 opinfo("get_float",[bind("x","AbsAppl((CELL *)FunctorDouble)",t_ptr="d")]).
 opinfo("get_longint",[bind("x","AbsAppl((CELL *)FunctorLongInt)",t_ptr="i")]).
+opinfo("get_string",[bind("x","AbsAppl((CELL *)FunctorString)",t_ptr=[])]).
 opinfo("get_bigint",[bind("x","AbsAppl((CELL *)FunctorBigInt)",t_ptr=[])]).
 opinfo("copy_idb_term",[logical]).
 opinfo("unify_idb_term",[logical]).
@@ -892,6 +894,7 @@ opinfo("put_dbterm",[new("x")]).
 opinfo("put_bigint",[new("x")]).
 opinfo("put_float",[new("x")]).
 opinfo("put_longint",[new("x")]).
+opinfo("put_string",[new("x")]).
 opinfo("put_list",[new("x")]).
 opinfo("put_struct",[new("x")]).
 opinfo("get_2atoms",[bind(1,"c1",[]),
@@ -1059,6 +1062,11 @@ opinfo("unify_bigint_write",[]).
 opinfo("unify_l_bigint",[]).
 opinfo("unify_l_bigint_write",[]).
 opinfo("write_bigint",[body]).
+opinfo("unify_string",[]).
+opinfo("unify_string_write",[]).
+opinfo("unify_l_string",[]).
+opinfo("unify_l_string_write",[]).
+opinfo("write_string",[body]).
 opinfo("unify_dbterm",[]).
 opinfo("unify_dbterm_write",[]).
 opinfo("unify_l_dbterm",[]).

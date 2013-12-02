@@ -325,6 +325,8 @@ eq(Term t1, Term t2 USES_REGS)
 	    return (d0 == d1);
 	  case (CELL)FunctorLongInt:
 	    return(LongIntOfTerm(d0) == LongIntOfTerm(d1));
+	  case (CELL)FunctorString:
+	    return(strcmp(StringOfTerm(d0), StringOfTerm(d1)) == 0);
 #ifdef USE_GMP
 	  case (CELL)FunctorBigInt:
 	    return (Yap_gmp_tcmp_big_big(d0, d1) == 0);
@@ -610,6 +612,8 @@ p_functor( USES_REGS1 )			/* functor(?,?,?) */
       if (d1 == (CELL)FunctorDouble) {
 	d1 = MkIntTerm(0);
       } else if (d1 == (CELL)FunctorLongInt) {
+	d1 = MkIntTerm(0);
+      } else if (d1 == (CELL)FunctorString) {
 	d1 = MkIntTerm(0);
       } else
 	  return(FALSE);

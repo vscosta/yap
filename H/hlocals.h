@@ -235,4 +235,5 @@ typedef struct worker_local {
 
   Int  CurSlot_;
   Term  SourceModule_;
+  size_t  MAX_SIZE_;
 } w_local;

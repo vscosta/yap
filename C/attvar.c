@@ -950,6 +950,9 @@ AllAttVars( USES_REGS1 ) {
       pt += 3;
 #endif
       break;
+    case (CELL)FunctorString:
+      pt += 3+pt[1];
+      break;
     case (CELL)FunctorBigInt:
       {
 	Int sz = 3 +

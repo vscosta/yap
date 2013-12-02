@@ -26,6 +26,8 @@ Term	Yap_GetValue(Atom);
 int     Yap_HasOp(Atom);
 struct operator_entry *Yap_GetOpPropForAModuleHavingALock(AtomEntry *, Term);
 Atom	Yap_LookupAtom(char *);
+Atom	Yap_LookupAtomWithLength(char *, size_t);
+Atom	Yap_LookupUTF8Atom(char *);
 Atom	Yap_LookupMaybeWideAtom(wchar_t *);
 Atom	Yap_LookupMaybeWideAtomWithLength(wchar_t *, size_t);
 Atom	Yap_FullLookupAtom(char *);
@@ -39,19 +41,6 @@ Functor	Yap_MkFunctor(Atom,unsigned int);
 void	Yap_MkFunctorWithAddress(Atom,unsigned int,FunctorEntry *);
 void	Yap_PutValue(Atom,Term);
 void	Yap_ReleaseAtom(Atom);
-Term	Yap_StringToList(char *);
-Term	Yap_NStringToList(char *, size_t);
-Term	Yap_WideStringToList(wchar_t *);
-Term	Yap_NWideStringToList(wchar_t *, size_t);
-Term	Yap_StringToDiffList(char *,Term CACHE_TYPE);
-Term	Yap_NStringToDiffList(char *,Term, size_t);
-Term	Yap_WideStringToDiffList(wchar_t *,Term);
-Term	Yap_NWideStringToDiffList(wchar_t *,Term, size_t);
-Term	Yap_StringToListOfAtoms(char *);
-Term	Yap_NStringToListOfAtoms(char *, size_t);
-Term	Yap_WideStringToListOfAtoms(wchar_t *);
-Term	Yap_NWideStringToListOfAtoms(wchar_t *, size_t);
-Term	Yap_NWideStringToDiffListOfAtoms(wchar_t *, Term, size_t);
 int     Yap_AtomIncreaseHold(Atom);
 int     Yap_AtomDecreaseHold(Atom);
 struct operator_entry *Yap_OpPropForModule(Atom, Term);
@@ -169,6 +158,8 @@ void	Yap_RestartYap(int);
 void	Yap_exit(int);
 yamop  *Yap_Error(yap_error_number,Term,char *msg, ...);
 yamop  *Yap_NilError(yap_error_number,char *msg, ...);
+int     Yap_HandleError( const char *msg, ... );
+int     Yap_SWIHandleError( const char *, ... );
 
 /* eval.c */
 void	Yap_InitEval(void);
@@ -348,6 +339,7 @@ void	Yap_InitSignalCPreds(void);
 /* sort.c */
 void    Yap_InitSortPreds(void);
 
+
 /* stdpreds.c */
 void	Yap_InitBackCPreds(void);
 void	Yap_InitCPreds(void);
@@ -430,7 +422,7 @@ Int     Yap_SkipList(Term *, Term **);
 
 /* write.c */
 void	Yap_plwrite(Term, void *, int, int, int);
-
+int     Yap_FormatFloat( Float f, const char *s, size_t sz );
 
 /* MYDDAS */
 

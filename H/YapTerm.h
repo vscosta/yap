@@ -21,6 +21,9 @@ typedef void *Atom;
 
 #endif
 
+#define ALIGN_YAPTYPE(X,TYPE) (((CELL)(X)+(sizeof(TYPE)-1)) & ~(sizeof(TYPE)-1))
+
+
 #ifndef EXTERN
 #define EXTERN extern
 #endif

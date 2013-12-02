@@ -21,6 +21,8 @@ static char     SccsId[] = "%W% %G%.2";
 #include "Yatom.h"
 #include "YapHeap.h"
 #include "yapio.h"
+#include "pl-shared.h"
+#include "YapMirror.h"
 #include <stdlib.h>
 #if HAVE_STRING_H
 #include <string.h>
@@ -211,7 +213,7 @@ p_call_shared_object_function( USES_REGS1 ) {
 
 static Int
 p_obj_suffix( USES_REGS1 ) {
-  return Yap_unify(Yap_StringToList(SO_EXT),ARG1);
+  return Yap_unify(Yap_CharsToListOfCodes(SO_EXT PASS_REGS),ARG1);
 }
 
 static Int

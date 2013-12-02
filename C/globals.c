@@ -395,6 +395,14 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, int share, int cop
 	    H += 3;
 #endif
 	    break;
+	  case (CELL)FunctorString:
+	    if (ASP - H > MIN_ARENA_SIZE+3+ap2[1]) {
+	      goto overflow;
+	    }
+	    *ptf++ = AbsAppl(H);
+	    memcpy(H, ap2, sizeof(CELL)*(3+ap2[1]));
+	    H+=ap2[1]+3;
+	    break;
 	  default:
 	    {
 	      /* big int */
@@ -679,6 +687,14 @@ CopyTermToArena(Term t, Term arena, int share, int copy_att_vars, UInt arity, Te
 	H[2] = EndSpecials;
 	H += 3;
 #endif
+	break;
+      case (CELL)FunctorString:
+	if (H > ASP - MIN_ARENA_SIZE+3+ap[1]) {
+	  res = -1;
+	  goto error_handler;
+	}
+	memcpy(H, ap, sizeof(CELL)*(3+ap[1]));
+	H += ap[1]+3;
 	break;
       default:
 	{

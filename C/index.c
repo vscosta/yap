@@ -1203,6 +1203,16 @@ add_arg_info(ClauseDef *clause, PredEntry *ap, UInt argno)
       cl = NEXTOP(cl,oc);
       argno--;
       break;
+    case _unify_string:
+    case _unify_l_string:
+      if (argno == 1) {
+	clause->Tag = AbsAppl((CELL *)FunctorString);
+	clause->u.t_ptr = cl->u.ou.u;
+	return;
+      }
+      cl = NEXTOP(cl,ou);
+      argno--;
+      break;
     case _unify_n_atoms:
       if (argno <= cl->u.osc.s) {
 	clause->Tag = cl->u.osc.c;
@@ -2919,6 +2929,10 @@ install_clause(ClauseDef *cls, PredEntry *ap, istack_entry *stack)
 	  } else if (f == FunctorDouble) {
 	    if (cls->u.t_ptr &&
 		Yap_Double_key(sp->extra) != Yap_Double_key(cls->u.t_ptr))
+		break;
+	  } else if (f == FunctorString) {
+	    if (cls->u.t_ptr &&
+		Yap_String_key(sp->extra) != Yap_String_key(cls->u.t_ptr))
 		break;
 	  } else {
 	    if (cls->u.t_ptr && 

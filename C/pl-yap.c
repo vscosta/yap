@@ -7,6 +7,7 @@
 #include "Yap.h"
 #include "Yatom.h"
 #include "pl-incl.h"
+#include "YapMirror.h"
 #if HAVE_MATH_H
 #include <math.h>
 #endif
@@ -84,13 +85,17 @@ codeToAtom(int chrcode)
 word
 globalString(size_t size, char *s)
 {
-  return Yap_MkBlobStringTerm(s, size);
+  CACHE_REGS
+
+  return Yap_CharsToString(s PASS_REGS);
 }
 
 word
 globalWString(size_t size, wchar_t *s)
 {
-  return Yap_MkBlobWideStringTerm(s, size);
+  CACHE_REGS
+
+  return Yap_WCharsToString(s PASS_REGS);
 }
 
 int
@@ -414,16 +419,9 @@ get_atom_text(atom_t atom, PL_chars_t *text)
 int
 get_string_text(word w, PL_chars_t *text ARG_LD)
 {
-  CELL fl = RepAppl(w)[1];
-  if (fl == BLOB_STRING) {
-    text->text.t = Yap_BlobStringOfTerm(w);
-    text->encoding = ENC_ISO_LATIN_1;
-    text->length = strlen(text->text.t);
-  } else {
-    text->text.w = Yap_BlobWideStringOfTerm(w);
-    text->encoding = ENC_WCHAR;
-    text->length = wcslen(text->text.w);
-  }
+  text->text.t = (char *)StringOfTerm(w);
+  text->encoding = ENC_ISO_LATIN_1;
+  text->length = strlen(text->text.t);
   text->storage = PL_CHARS_STACK;
   text->canonical = TRUE;
   return TRUE;

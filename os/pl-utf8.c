@@ -65,6 +65,54 @@ _PL__utf8_get_char(const char *in, int *chr)
   return (char *)in+1;
 }
 
+unicode_type_t
+_PL__utf8_type(const char *in0, size_t len)
+{ 					/* 2-byte, 0x80-0x7ff */
+  int chr;
+  char *in = (char *) in0;
+  int type = S_ASCII;
+
+  while (in[0] != '\0' && in-in0 < len) {
+    if ( (in[0]&0xe0) == 0xc0 && CONT(1) )
+      { chr = ((in[0]&0x1f) << 6)|VAL(1,0);
+	if (chr > 255) return S_WIDE;
+	if (chr > 127) type = S_LATIN;
+	in += 2;
+	break;
+      }
+    /* 3-byte, 0x800-0xffff */
+    if ( (in[0]&0xf0) == 0xe0 && CONT(1) && CONT(2) )
+      { chr = ((in[0]&0xf) << 12)|VAL(1,6)|VAL(2,0);
+	if (chr > 255) return S_WIDE;
+	if (chr > 127) type = S_LATIN;
+	in += 3;
+      }
+    /* 4-byte, 0x10000-0x1FFFFF */
+    if ( (in[0]&0xf8) == 0xf0 && CONT(1) && CONT(2) && CONT(3) )
+      { chr = ((in[0]&0x7) << 18)|VAL(1,12)|VAL(2,6)|VAL(3,0);
+	if (chr > 255) return S_WIDE;
+	if (chr > 127) type = S_LATIN;
+	in += 4;
+      }
+    /* 5-byte, 0x200000-0x3FFFFFF */
+    if ( (in[0]&0xfc) == 0xf8 && CONT(1) && CONT(2) && CONT(3) && CONT(4) )
+      { chr = ((in[0]&0x3) << 24)|VAL(1,18)|VAL(2,12)|VAL(3,6)|VAL(4,0);
+	if (chr > 255) return S_WIDE;
+	if (chr > 127) type = S_LATIN;
+	in += 5;
+      }
+    /* 6-byte, 0x400000-0x7FFFFFF */
+    if ( (in[0]&0xfe) == 0xfc && CONT(1) && CONT(2) && CONT(3) && CONT(4) && CONT(5) )
+      { chr = ((in[0]&0x1) << 30)|VAL(1,24)|VAL(2,18)|VAL(3,12)|VAL(4,6)|VAL(5,0);
+	if (chr > 255) return S_WIDE;
+	if (chr > 127) type = S_LATIN;
+	in += 6;
+      }
+    in ++;
+  }
+  return type;
+}
+
 
 char *
 _PL__utf8_put_char(char *out, int chr)

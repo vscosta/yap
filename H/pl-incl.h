@@ -511,7 +511,6 @@ typedef struct wakeup_state
 Defining built-in predicates using the new interface 
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#define EOS '\0'
 #define ESC			((char) 27)
 #define streq(s, q)		((strcmp((s), (q)) == 0))
 
@@ -726,7 +725,6 @@ extern atom_t	lookupUCSAtom(const pl_wchar_t *s, size_t len);
 extern int toIntegerNumber(Number n, int flags);
 extern int get_atom_ptr_text(Atom a, PL_chars_t *text);
 extern int warning(const char *fm, ...);
-extern int raiseSignal(PL_local_data_t *ld, int sig);
 
 /**** stuff from pl-files.c ****/
 void initFiles(void);

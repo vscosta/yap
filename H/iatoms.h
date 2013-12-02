@@ -34,6 +34,7 @@
   AtomBatched = Yap_LookupAtom("batched");
   AtomBetween = Yap_LookupAtom("between");
   AtomHugeInt = Yap_LookupAtom("huge_int");
+  AtomBigNum = Yap_LookupAtom("big_num");
   AtomBinaryStream = Yap_LookupAtom("binary_stream");
   AtomBraces = Yap_LookupAtom("{}");
   AtomBreak = Yap_FullLookupAtom("$break");
@@ -296,6 +297,7 @@
   AtomStreamPos = Yap_FullLookupAtom("$stream_position");
   AtomStreamPosition = Yap_LookupAtom("stream_position");
   AtomString = Yap_LookupAtom("string");
+  AtomSTRING = Yap_FullLookupAtom("String");
   AtomSwi = Yap_LookupAtom("swi");
   AtomSyntaxError = Yap_LookupAtom("syntax_error");
   AtomSyntaxErrorHandler = Yap_LookupAtom("syntax_error_handler");

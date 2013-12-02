@@ -293,6 +293,11 @@
     case _unify_n_atoms_write:
       pc = NEXTOP(pc,osc);
       break;
+      /* instructions type ou */
+    case _unify_l_string:
+    case _unify_string:
+      pc = NEXTOP(pc,ou);
+      break;
       /* instructions type ox */
     case _save_appl_x:
     case _save_appl_x_write:
@@ -477,6 +482,10 @@
       /* instructions type xps */
     case _commit_b_x:
       pc = NEXTOP(pc,xps);
+      break;
+      /* instructions type xu */
+    case _get_string:
+      pc = NEXTOP(pc,xu);
       break;
       /* instructions type xx */
     case _get_x_val:

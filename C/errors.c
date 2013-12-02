@@ -29,6 +29,100 @@
 #endif
 #include "Foreign.h"
 
+static Term
+gen_syntax_error(Atom InpAtom, char *s)
+{
+  CACHE_REGS
+  Term ts[7], ti[2];
+  ti[0] = ARG1;
+  ti[1] = ARG2;
+  ts[0] = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom(s),2),2,ti);
+  ts[1] = ts[4] = ts[5] = MkIntTerm(0);
+  ts[2] = MkAtomTerm(AtomExpectedNumber);
+  ts[3] = TermNil;
+  ts[6] = MkAtomTerm(InpAtom);
+  return(Yap_MkApplTerm(FunctorSyntaxError,7,ts));
+}
+
+
+int Yap_HandleError( const char *s, ... ) {
+  CACHE_REGS
+    yap_error_number err = LOCAL_Error_TYPE;
+  char *serr;
+
+  LOCAL_Error_TYPE = YAP_NO_ERROR;
+  if (LOCAL_ErrorMessage) {
+    serr = LOCAL_ErrorMessage;
+  } else {
+    serr = (char *)s;
+  }
+  switch (err) {
+  case OUT_OF_STACK_ERROR:
+    if (!Yap_gc(2, ENV, gc_P(P,CP))) {
+      Yap_Error(OUT_OF_STACK_ERROR, TermNil, serr);
+      return(FALSE);
+    }
+    return TRUE;
+  case OUT_OF_AUXSPACE_ERROR:
+    if (LOCAL_MAX_SIZE < (char *)AuxSp-AuxBase) {
+      LOCAL_MAX_SIZE += 1024;
+    }
+    if (!Yap_ExpandPreAllocCodeSpace(0,NULL, TRUE)) {
+      /* crash in flames */
+      Yap_Error(OUT_OF_AUXSPACE_ERROR, ARG1, serr);
+      return FALSE;
+    }
+    return TRUE;
+  case OUT_OF_HEAP_ERROR:
+    if (!Yap_growheap(FALSE, 0, NULL)) {
+      Yap_Error(OUT_OF_HEAP_ERROR, ARG2, serr);
+      return FALSE;
+    }
+  default:
+    Yap_Error(err, LOCAL_Error_Term, serr);
+    return(FALSE);
+  }
+}
+  
+int Yap_SWIHandleError( const char *s, ... )
+{
+  CACHE_REGS
+    yap_error_number err = LOCAL_Error_TYPE;
+  char *serr;
+
+  LOCAL_Error_TYPE = YAP_NO_ERROR;
+  if (LOCAL_ErrorMessage) {
+    serr = LOCAL_ErrorMessage;
+  } else {
+    serr = (char *)s;
+  }
+  switch (err) {
+  case OUT_OF_STACK_ERROR:
+    if (!Yap_gc(2, ENV, gc_P(P,CP))) {
+      Yap_Error(OUT_OF_STACK_ERROR, TermNil, serr);
+      return(FALSE);
+    }
+    return TRUE;
+  case OUT_OF_AUXSPACE_ERROR:
+    if (LOCAL_MAX_SIZE < (char *)AuxSp-AuxBase) {
+      LOCAL_MAX_SIZE += 1024;
+    }
+    if (!Yap_ExpandPreAllocCodeSpace(0,NULL, TRUE)) {
+      /* crash in flames */
+      Yap_Error(OUT_OF_AUXSPACE_ERROR, ARG1, serr);
+      return FALSE;
+    }
+    return TRUE;
+  case OUT_OF_HEAP_ERROR:
+    if (!Yap_growheap(FALSE, 0, NULL)) {
+      Yap_Error(OUT_OF_HEAP_ERROR, ARG2, serr);
+      return FALSE;
+    }
+  default:
+    Yap_Error(err, LOCAL_Error_Term, serr);
+    return(FALSE);
+  }
+}
 
 void
 Yap_RestartYap ( int flag )
@@ -1454,7 +1548,7 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
 
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(AtomSyntaxError);
-      nt[0] = Yap_MkApplTerm(FunctorShortSyntaxError, 1, ti);
+      nt[0] = gen_syntax_error(AtomNil, tmpbuf);
       psize -= i;
       fun = FunctorError;
       serious = TRUE;
@@ -1528,6 +1622,20 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
 
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(AtomAtomic);
+      ti[1] = where;
+      nt[0] = Yap_MkApplTerm(FunctorTypeError, 2, ti);
+      psize -= i;
+      fun = FunctorError;
+      serious = TRUE;
+    }
+    break;
+  case TYPE_ERROR_BIGNUM:
+    {
+      int i;
+      Term ti[2];
+
+      i = strlen(tmpbuf);
+      ti[0] = MkAtomTerm(AtomBigNum);
       ti[1] = where;
       nt[0] = Yap_MkApplTerm(FunctorTypeError, 2, ti);
       psize -= i;

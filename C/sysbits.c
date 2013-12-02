@@ -186,12 +186,14 @@ Yap_InitSysPath(void) {
   int commons_done = FALSE;
   {
     char *dir;
-    if ((dir = Yap_RegistryGetString("library"))) {
+    if ((dir = Yap_RegistryGetString("library")) &&
+	is_directory(dir)) {
       Yap_PutValue(AtomSystemLibraryDir,
 		   MkAtomTerm(Yap_LookupAtom(dir)));
       dir_done = TRUE;
     }
-    if ((dir = Yap_RegistryGetString("prolog_commons"))) {
+    if ((dir = Yap_RegistryGetString("prolog_commons")) &&
+	is_directory(dir)) {
       Yap_PutValue(AtomPrologCommonsDir,
 		   MkAtomTerm(Yap_LookupAtom(dir)));
       commons_done = TRUE;
@@ -207,8 +209,7 @@ Yap_InitSysPath(void) {
     int buflen;
     char *pt;
 
-    if ((fatts = GetFileAttributes(LOCAL_FileNameBuf)) == 0xFFFFFFFFL ||
-	!(fatts & FILE_ATTRIBUTE_DIRECTORY)) {
+    if (!is_directory(LOCAL_FileNameBuf)) {
       /* couldn't find it where it was supposed to be,
 	 let's try using the executable */
       if (!GetModuleFileNameEx( GetCurrentProcess(), NULL, LOCAL_FileNameBuf, YAP_FILENAME_MAX)) {

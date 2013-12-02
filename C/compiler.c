@@ -668,7 +668,7 @@ c_arg(Int argno, Term t, unsigned int arity, unsigned int level, compiler_struct
       Yap_emit((cglobs->onhead ? (argno == (Int)arity ? unify_last_atom_op
 		      : unify_atom_op) :
 	    write_atom_op), (CELL) t, Zero, &cglobs->cint);
-  } else  if (IsIntegerTerm(t) || IsFloatTerm(t) || IsBigIntTerm(t)) {
+  } else  if (IsIntegerTerm(t) || IsFloatTerm(t) || IsBigIntTerm(t) || IsStringTerm(t)) {
     if (!IsIntTerm(t)) {
       if (IsFloatTerm(t)) {
 	if (level == 0)
@@ -684,6 +684,41 @@ c_arg(Int argno, Term t, unsigned int arity, unsigned int level, compiler_struct
 	  Yap_emit((cglobs->onhead ? (argno == (Int)arity ? unify_last_longint_op
 			  : unify_longint_op) :
 		write_longint_op), t, Zero, &cglobs->cint);
+      } else if (IsStringTerm(t)) {
+	/* we are taking a string, that is supposed to be
+	 guarded in the clause itself. . */
+	CELL l1 = ++cglobs->labelno;
+	CELL *src = RepAppl(t);
+	PInstr *ocpc = cglobs->cint.cpc, *OCodeStart = cglobs->cint.CodeStart;
+	Int sz = (3+src[1])*sizeof(CELL);
+	CELL *dest;
+
+	/* use a special list to store the blobs */
+	cglobs->cint.cpc = cglobs->cint.icpc;
+	/*      if (IsFloatTerm(t)) {
+		Yap_emit(align_float_op, Zero, Zero, &cglobs->cint);
+		}*/
+	Yap_emit(label_op, l1, Zero, &cglobs->cint);
+	dest = 
+	  Yap_emit_extra_size(blob_op, sz/CellSize, sz, &cglobs->cint);
+
+	/* copy the bignum */
+	memcpy(dest, src, sz);
+	/* note that we don't need to copy size info, unless we wanted
+	 to garbage collect clauses ;-) */
+	cglobs->cint.icpc = cglobs->cint.cpc;
+	if (cglobs->cint.BlobsStart == NULL)
+	  cglobs->cint.BlobsStart = cglobs->cint.CodeStart;
+	cglobs->cint.cpc = ocpc;
+	cglobs->cint.CodeStart = OCodeStart;
+	/* The argument to pass to the structure is now the label for
+	   where we are storing the blob */
+	if (level == 0)
+	  Yap_emit((cglobs->onhead ? get_string_op : put_string_op), t, argno, &cglobs->cint);
+	else
+	  Yap_emit((cglobs->onhead ? (argno == (Int)arity ? unify_last_string_op
+			  : unify_string_op) :
+		write_string_op), t, Zero, &cglobs->cint);
       } else {
 	/* we are taking a blob, that is a binary that is supposed to be
 	 guarded in the clause itself. Possible examples include
@@ -2585,6 +2620,7 @@ CheckVoids(compiler_struct *cglobs)
     case get_float_op:
     case get_dbterm_op:
     case get_longint_op:
+    case get_string_op:
     case get_bigint_op:
     case get_list_op:
     case get_struct_op:
@@ -2935,6 +2971,7 @@ c_layout(compiler_struct *cglobs)
     case get_num_op:
     case get_float_op:
     case get_longint_op:
+    case get_string_op:
     case get_dbterm_op:
     case get_bigint_op:
       --cglobs->Uses[rn];
@@ -3013,6 +3050,7 @@ c_layout(compiler_struct *cglobs)
     case put_num_op:
     case put_float_op:
     case put_longint_op:
+    case put_string_op:
     case put_dbterm_op:
     case put_bigint_op:
       rn = checkreg(arg, rn, ic, FALSE, cglobs);
@@ -3311,10 +3349,13 @@ c_optimize(PInstr *pc)
     case unify_last_float_op:
     case write_float_op:
     case unify_longint_op:
+    case unify_string_op:
     case unify_bigint_op:
     case unify_last_longint_op:
+    case unify_last_string_op:
     case unify_last_bigint_op:
     case write_longint_op:
+    case write_string_op:
     case write_bigint_op:
     case unify_list_op:
     case write_list_op:

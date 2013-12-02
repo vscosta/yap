@@ -409,6 +409,12 @@
     case _unify_n_atoms_write:
       cl = NEXTOP(cl,osc);
       break;
+    case _unify_l_string:
+      cl = NEXTOP(cl,ou);
+      break;
+    case _unify_string:
+      cl = NEXTOP(cl,ou);
+      break;
     case _save_appl_x:
       if (!(nofregs = delete_regcopy(myregs, nofregs, cl->u.ox.x))) {
 	clause->Tag = (CELL)NULL;
@@ -872,6 +878,14 @@
 	return;
       }
       cl = NEXTOP(cl,xl);
+      break;
+    case _get_string:
+      if (is_regcopy(myregs, nofregs, cl->u.xu.x)) {
+	clause->Tag = AbsAppl((CELL *)FunctorString);
+	clause->u.t_ptr = (CELL)NULL;
+	return;
+      }
+      cl = NEXTOP(cl,xu);
       break;
     case _get_x_val:
       if (!(nofregs = link_regcopies(myregs, nofregs, cl->u.xx.xl, cl->u.xx.xr))) {

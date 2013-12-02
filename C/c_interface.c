@@ -354,6 +354,7 @@
 #include "yap_structs.h"
 #define _yap_c_interface_h 1
 #include "pl-shared.h"
+#include "YapMirror.h"
 #include "pl-read.h"
 #ifdef TABLING
 #include "tab.macros.h"
@@ -1984,42 +1985,16 @@ YAP_FreeSpaceFromYap(void *ptr)
 X_API int
 YAP_StringToBuffer(Term t, char *buf, unsigned int bufsize)
 {
-  unsigned int j = 0;
-
-  while (t != TermNil) {
-    register Term   Head;
-    register Int    i;
-
-    Head = HeadOfTerm(t);
-    if (IsVarTerm(Head)) {
-      Yap_Error(INSTANTIATION_ERROR,Head,"user defined procedure");
-      return(FALSE);
-    } else if (!IsIntTerm(Head)) {
-      Yap_Error(REPRESENTATION_ERROR_CHARACTER_CODE,Head,"user defined procedure");
-      return FALSE;		
-    }
-    i = IntOfTerm(Head);
-    if (i < 0 || i > 255) {
-      Yap_Error(REPRESENTATION_ERROR_CHARACTER_CODE,Head,"user defined procedure");
-      return FALSE;		
-    }
-    if (j == bufsize) {
-      buf[bufsize-1] = '\0';
-      return FALSE;
-    } else {
-      buf[j++] = i;
-    }
-    t = TailOfTerm(t);
-    if (IsVarTerm(t)) {
-      Yap_Error(INSTANTIATION_ERROR,t,"user defined procedure");
-      return FALSE;
-    } else if (!IsPairTerm(t) && t != TermNil) {
-      Yap_Error(TYPE_ERROR_LIST, t, "user defined procedure");
-      return FALSE;
-    }
-  }
-  buf[j] = '\0';
-  return(TRUE);
+  CACHE_REGS
+  seq_tv_t inp, out;
+  inp.val.t = t;
+  inp.type = YAP_STRING_CODES|YAP_STRING_TRUNC;
+  inp.max = bufsize;
+  out.type = YAP_STRING_CHARS;
+  out.val.c = buf;
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+    return FALSE;
+  return TRUE;
 }
 
 
@@ -2030,7 +2005,14 @@ YAP_BufferToString(char *s)
   Term t; 
   BACKUP_H();
 
-  t = Yap_StringToList(s);
+  CACHE_REGS
+  seq_tv_t inp, out;
+  inp.val.c = s;
+  inp.type = YAP_STRING_CHARS;
+  out.type = YAP_STRING_CODES;
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+    return 0L;
+  t = out.val.t;
 
   RECOVER_H();
   return t;
@@ -2043,7 +2025,16 @@ YAP_NBufferToString(char *s, size_t len)
   Term t; 
   BACKUP_H();
 
-  t = Yap_NStringToList(s, len);
+  CACHE_REGS
+  seq_tv_t inp, out;
+  inp.val.c = s;
+  inp.type = YAP_STRING_CHARS;
+  out.type = YAP_STRING_CODES|YAP_STRING_NCHARS|YAP_STRING_TRUNC;
+  out.sz = len;
+  out.max = len;
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+    return 0L;
+  t = out.val.t;
 
   RECOVER_H();
   return t;
@@ -2056,7 +2047,14 @@ YAP_WideBufferToString(wchar_t *s)
   Term t; 
   BACKUP_H();
 
-  t = Yap_WideStringToList(s);
+  CACHE_REGS
+  seq_tv_t inp, out;
+  inp.val.w = s;
+  inp.type = YAP_STRING_WCHARS;
+  out.type = YAP_STRING_CODES;
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+    return 0L;
+  t = out.val.t;
 
   RECOVER_H();
   return t;
@@ -2069,7 +2067,16 @@ YAP_NWideBufferToString(wchar_t *s, size_t len)
   Term t; 
   BACKUP_H();
 
-  t = Yap_NWideStringToList(s, len);
+  CACHE_REGS
+  seq_tv_t inp, out;
+  inp.val.w = s;
+  inp.type = YAP_STRING_WCHARS;
+  out.type = YAP_STRING_CODES|YAP_STRING_NCHARS|YAP_STRING_TRUNC;
+  out.sz = len;
+  out.max = len;
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+    return 0L;
+  t = out.val.t;
 
   RECOVER_H();
   return t;
@@ -2131,7 +2138,14 @@ YAP_BufferToAtomList(char *s)
   Term t; 
   BACKUP_H();
 
-  t = Yap_StringToListOfAtoms(s);
+  CACHE_REGS
+  seq_tv_t inp, out;
+  inp.val.c = s;
+  inp.type = YAP_STRING_CHARS;
+  out.type = YAP_STRING_ATOMS;
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+    return 0L;
+  t = out.val.t;
 
   RECOVER_H();
   return t;
@@ -2144,7 +2158,16 @@ YAP_NBufferToAtomList(char *s, size_t len)
   Term t; 
   BACKUP_H();
 
-  t = Yap_NStringToListOfAtoms(s, len);
+  CACHE_REGS
+  seq_tv_t inp, out;
+  inp.val.c = s;
+  inp.type = YAP_STRING_CHARS;
+  out.type = YAP_STRING_ATOMS|YAP_STRING_NCHARS|YAP_STRING_TRUNC;
+  out.sz = len;
+  out.max = len;
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+    return 0L;
+  t = out.val.t;
 
   RECOVER_H();
   return t;
@@ -2157,7 +2180,14 @@ YAP_WideBufferToAtomList(wchar_t *s)
   Term t; 
   BACKUP_H();
 
-  t = Yap_WideStringToListOfAtoms(s);
+  CACHE_REGS
+  seq_tv_t inp, out;
+  inp.val.w = s;
+  inp.type = YAP_STRING_WCHARS;
+  out.type = YAP_STRING_ATOMS;
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+    return 0L;
+  t = out.val.t;
 
   RECOVER_H();
   return t;
@@ -2170,7 +2200,16 @@ YAP_NWideBufferToAtomList(wchar_t *s, size_t len)
   Term t; 
   BACKUP_H();
 
-  t = Yap_NWideStringToListOfAtoms(s, len);
+  CACHE_REGS
+  seq_tv_t inp, out;
+  inp.val.w = s;
+  inp.type = YAP_STRING_WCHARS;
+  out.type = YAP_STRING_ATOMS|YAP_STRING_NCHARS|YAP_STRING_TRUNC;
+  out.sz = len;
+  out.max = len;
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+    return 0L;
+  t = out.val.t;
 
   RECOVER_H();
   return t;
@@ -2183,7 +2222,17 @@ YAP_NWideBufferToAtomDiffList(wchar_t *s, Term t0, size_t len)
   Term t; 
   BACKUP_H();
 
-  t = Yap_NWideStringToDiffListOfAtoms(s, t0, len);
+  CACHE_REGS
+  seq_tv_t inp, out;
+  inp.val.w = s;
+  inp.type = YAP_STRING_WCHARS;
+  out.type = YAP_STRING_ATOMS|YAP_STRING_NCHARS|YAP_STRING_TRUNC|YAP_STRING_DIFF;
+  out.sz = len;
+  out.max = len;
+  out.dif = t0;
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+    return 0L;
+  t = out.val.t;
 
   RECOVER_H();
   return t;
@@ -2193,11 +2242,18 @@ YAP_NWideBufferToAtomDiffList(wchar_t *s, Term t0, size_t len)
 X_API Term
 YAP_BufferToDiffList(char *s, Term t0)
 {
-  CACHE_REGS
   Term t; 
   BACKUP_H();
 
-  t = Yap_StringToDiffList(s, t0 PASS_REGS);
+  CACHE_REGS
+  seq_tv_t inp, out;
+  inp.val.c = s;
+  inp.type = YAP_STRING_CHARS;
+  out.type = YAP_STRING_CODES|YAP_STRING_DIFF;
+  out.dif = t0;
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+    return 0L;
+  t = out.val.t;
 
   RECOVER_H();
   return t;
@@ -2210,7 +2266,17 @@ YAP_NBufferToDiffList(char *s, Term t0, size_t len)
   Term t; 
   BACKUP_H();
 
-  t = Yap_NStringToDiffList(s, t0, len);
+  CACHE_REGS
+  seq_tv_t inp, out;
+  inp.val.c = s;
+  inp.type = YAP_STRING_CHARS;
+  out.type = YAP_STRING_CODES|YAP_STRING_NCHARS|YAP_STRING_TRUNC|YAP_STRING_DIFF;
+  out.sz = len;
+  out.max = len;
+  out.dif = t0;
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+    return 0L;
+  t = out.val.t;
 
   RECOVER_H();
   return t;
@@ -2223,7 +2289,15 @@ YAP_WideBufferToDiffList(wchar_t *s, Term t0)
   Term t; 
   BACKUP_H();
 
-  t = Yap_WideStringToDiffList(s, t0);
+  CACHE_REGS
+  seq_tv_t inp, out;
+  inp.val.w = s;
+  inp.type = YAP_STRING_WCHARS;
+  out.type = YAP_STRING_CODES|YAP_STRING_DIFF;
+  out.dif = t0;
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+    return 0L;
+  t = out.val.t;
 
   RECOVER_H();
   return t;
@@ -2236,7 +2310,17 @@ YAP_NWideBufferToDiffList(wchar_t *s, Term t0, size_t len)
   Term t; 
   BACKUP_H();
 
-  t = Yap_NWideStringToDiffList(s, t0, len);
+  CACHE_REGS
+  seq_tv_t inp, out;
+  inp.val.w = s;
+  inp.type = YAP_STRING_WCHARS;
+  out.type = YAP_STRING_CODES|YAP_STRING_NCHARS|YAP_STRING_TRUNC|YAP_STRING_DIFF;
+  out.sz = len;
+  out.max = len;
+  out.dif = t0;
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+    return 0L;
+  t = out.val.t;
 
   RECOVER_H();
   return t;

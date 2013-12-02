@@ -98,6 +98,7 @@ typedef enum
   TYPE_ERROR_ARRAY,
   TYPE_ERROR_ATOM,
   TYPE_ERROR_ATOMIC,
+  TYPE_ERROR_BIGNUM,
   TYPE_ERROR_BYTE,
   TYPE_ERROR_CALLABLE,
   TYPE_ERROR_CHAR,
@@ -119,6 +120,68 @@ typedef enum
   TYPE_ERROR_VARIABLE,
   UNKNOWN_ERROR
 } yap_error_number;
+
+#define LOCAL_ERROR(v) \
+  if (H + 2*(v) > ASP-1024) { \
+    LOCAL_Error_TYPE = OUT_OF_STACK_ERROR;\
+    LOCAL_Error_Term = t;\
+    LOCAL_Error_Size = 2*(v)*sizeof(CELL);\
+    return 0L;				  \
+  }
+
+#define JMP_LOCAL_ERROR(v, LAB)   \
+  if (H + 2*(v) > ASP-1024) { \
+    LOCAL_Error_TYPE = OUT_OF_STACK_ERROR;\
+    LOCAL_Error_Term = t;\
+    LOCAL_Error_Size = 2*(v)*sizeof(CELL);\
+    goto LAB;				  \
+  }
+
+#define AUX_ERROR(t, n, s, TYPE)      \
+    if (s + (n+1) > (TYPE *)AuxSp) {  \
+    LOCAL_Error_TYPE = OUT_OF_AUXSPACE_ERROR;\
+    LOCAL_Error_Term = t;\
+    LOCAL_Error_Size = n*sizeof(TYPE);\
+    return NULL; \
+    }
+
+#define AUX_TERM_ERROR(t, n, s, TYPE)      \
+    if (s + (n+1) > (TYPE *)AuxSp) {  \
+    LOCAL_Error_TYPE = OUT_OF_AUXSPACE_ERROR;\
+    LOCAL_Error_Term = t;\
+    LOCAL_Error_Size = n*sizeof(TYPE);\
+    return 0L; \
+    }
+
+#define JMP_AUX_ERROR(n, s, t, TYPE, LAB)	\
+    if (s + (n+1) > (TYPE *)AuxSp) {  \
+    LOCAL_Error_TYPE = OUT_OF_AUXSPACE_ERROR;\
+    LOCAL_Error_Term = t;\
+    LOCAL_Error_Size = n*sizeof(TYPE);\
+    goto LAB; \
+    }
+
+#define HEAP_ERROR(a,TYPE) if( a == NIL) {	\
+    LOCAL_Error_TYPE = OUT_OF_HEAP_ERROR;\
+    LOCAL_Error_Term = t;\
+    LOCAL_Error_Size = n*sizeof(TYPE);\
+    return NULL;\
+    }
+
+#define HEAP_TERM_ERROR(a,TYPE) if( a == NIL) {	\
+    LOCAL_Error_TYPE = OUT_OF_HEAP_ERROR;\
+    LOCAL_Error_Term = t;\
+    LOCAL_Error_Size = n*sizeof(TYPE);\
+    return 0L;\
+    }
+
+#define JMP_HEAP_ERROR(a,n,t,TYPE, LAB) if( a == NIL) {	\
+    LOCAL_Error_TYPE = OUT_OF_HEAP_ERROR;\
+    LOCAL_Error_Term = t;\
+    LOCAL_Error_Size = n*sizeof(TYPE);\
+    goto LAB;\
+    }
+
 
 
 #endif

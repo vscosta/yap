@@ -45,18 +45,20 @@ typedef enum
 {
   db_ref_e = sizeof (Functor *),
   attvar_e = 2*sizeof (Functor *),
-  long_int_e = 3 * sizeof (Functor *),
-  big_int_e = 4 * sizeof (Functor *),
-  double_e = 5 * sizeof (Functor *)
+  double_e = 3 * sizeof (Functor *),
+  long_int_e = 4 * sizeof (Functor *),
+  big_int_e = 5 * sizeof (Functor *),
+  string_e = 6 * sizeof (Functor *)
 }
 blob_type;
 
 #define   FunctorDBRef    ((Functor)(db_ref_e))
 #define   FunctorAttVar   ((Functor)(attvar_e))
+#define   FunctorDouble   ((Functor)(double_e))
 #define   FunctorLongInt  ((Functor)(long_int_e))
 #define   FunctorBigInt   ((Functor)(big_int_e))
-#define   FunctorDouble   ((Functor)(double_e))
-#define   EndSpecials     (double_e+sizeof(Functor *))
+#define   FunctorString   ((Functor)(string_e))
+#define   EndSpecials     (string_e+sizeof(Functor *))
 
 #include "inline-only.h"
 
@@ -92,8 +94,6 @@ typedef enum
     ARRAY_INT =    0x21,
     ARRAY_FLOAT =  0x22,
     CLAUSE_LIST =  0x40,
-    BLOB_STRING =  0x80, /* SWI style strings */
-    BLOB_WIDE_STRING =  0x81, /* SWI style strings */
     EXTERNAL_BLOB =  0x100, /* generic data */
     USER_BLOB_START =  0x1000, /* user defined blob */
     USER_BLOB_END =  0x1100 /* end of user defined blob */
@@ -295,13 +295,6 @@ OOPS
 #include <stddef.h>
 #endif
 
-Term Yap_MkBlobStringTerm(const char *, size_t len);
-Term Yap_MkBlobWideStringTerm(const wchar_t *, size_t len);
-char *Yap_BlobStringOfTerm(Term);
-wchar_t *Yap_BlobWideStringOfTerm(Term);
-char *Yap_BlobStringOfTermAndLength(Term, size_t *);
-
-
 
 INLINE_ONLY inline EXTERN int IsFloatTerm (Term);
 
@@ -310,8 +303,6 @@ IsFloatTerm (Term t)
 {
   return (int) (IsApplTerm (t) && FunctorOfTerm (t) == FunctorDouble);
 }
-
-
 
 
 /* extern Functor FunctorLongInt; */
@@ -350,6 +341,53 @@ IsLongIntTerm (Term t)
 }
 
 
+/****************************************************/
+
+/*********** strings, coded as UTF-8 ****************/
+
+#include <string.h>
+
+/* extern Functor FunctorString; */
+
+#define MkStringTerm(i) __MkStringTerm((i) PASS_REGS)
+
+INLINE_ONLY inline EXTERN Term __MkStringTerm (const char *s USES_REGS);
+
+INLINE_ONLY inline EXTERN Term
+__MkStringTerm (const char *s USES_REGS)
+{
+  Term t = AbsAppl(H);
+  size_t sz = ALIGN_YAPTYPE(strlen(s)+1,CELL);
+  H[0] = (CELL) FunctorString;
+  H[1] = (CELL) sz;
+  strcpy((char *)(H+2), s);
+  H[2+sz] =  EndSpecials;
+  H += 3+sz;
+  return t;
+}
+
+
+INLINE_ONLY inline EXTERN const char *StringOfTerm (Term t);
+
+INLINE_ONLY inline EXTERN const char *
+StringOfTerm (Term t)
+{
+  return (const char *) (RepAppl (t)+2);
+}
+
+
+
+INLINE_ONLY inline EXTERN int IsStringTerm (Term);
+
+INLINE_ONLY inline EXTERN int
+IsStringTerm (Term t)
+{
+  return (int) (IsApplTerm (t) && FunctorOfTerm (t) == FunctorString);
+}
+
+
+
+/****************************************************/
 
 #ifdef USE_GMP
 
@@ -438,30 +476,6 @@ IsLargeIntTerm (Term t)
 
 #endif
 
-typedef struct string_struct {
-  UInt len;
-}  blob_string_t;
-
-INLINE_ONLY inline EXTERN int IsBlobStringTerm (Term);
-
-INLINE_ONLY inline EXTERN int
-IsBlobStringTerm (Term t)
-{
-  return (int) (IsApplTerm (t) &&
-		FunctorOfTerm (t) == FunctorBigInt &&
-		(RepAppl(t)[1] & BLOB_STRING) == BLOB_STRING);
-}
-
-INLINE_ONLY inline EXTERN int IsWideBlobStringTerm (Term);
-
-INLINE_ONLY inline EXTERN int
-IsWideBlobStringTerm (Term t)
-{
-  return (int) (IsApplTerm (t) &&
-		FunctorOfTerm (t) == FunctorBigInt &&
-		RepAppl(t)[1] == BLOB_WIDE_STRING);
-}
-
 /* extern Functor FunctorLongInt; */
 
 INLINE_ONLY inline EXTERN int IsLargeNumTerm (Term);
@@ -470,8 +484,8 @@ INLINE_ONLY inline EXTERN int
 IsLargeNumTerm (Term t)
 {
   return (int) (IsApplTerm (t)
-		&& ((FunctorOfTerm (t) <= FunctorDouble)
-		    && (FunctorOfTerm (t) >= FunctorLongInt)));
+		&& ((FunctorOfTerm (t) <= FunctorBigInt)
+		    && (FunctorOfTerm (t) >= FunctorDouble)));
 }
 
 INLINE_ONLY inline EXTERN int IsExternalBlobTerm (Term, CELL);
@@ -523,7 +537,7 @@ INLINE_ONLY inline EXTERN Int IsExtensionFunctor (Functor);
 INLINE_ONLY inline EXTERN Int
 IsExtensionFunctor (Functor f)
 {
-  return (Int) (f <= FunctorDouble);
+  return (Int) (f <= FunctorString);
 }
 
 
@@ -533,7 +547,7 @@ INLINE_ONLY inline EXTERN Int IsBlobFunctor (Functor);
 INLINE_ONLY inline EXTERN Int
 IsBlobFunctor (Functor f)
 {
-  return (Int) ((f <= FunctorDouble && f >= FunctorDBRef));
+  return (Int) ((f <= FunctorString && f >= FunctorDBRef));
 }
 
 
@@ -665,6 +679,8 @@ unify_extension (Functor f, CELL d0, CELL * pt0, CELL d1)
       return (d0 == d1);
     case long_int_e:
       return (pt0[1] == RepAppl (d1)[1]);
+    case string_e:
+      return strcmp( (char *)pt0[2], (char *)RepAppl (d1)[2] ) == 0;
     case big_int_e:
 #ifdef USE_GMP
       return (Yap_gmp_tcmp_big_big(d0,d1) == 0);
@@ -719,6 +735,23 @@ static inline
 CELL Yap_Double_key(Term t)
 {
   return Yap_DoubleP_key(RepAppl(t)+1);
+}
+
+static inline
+CELL Yap_StringP_key(CELL *pt)
+{
+  UInt n = pt[1], i;
+  CELL val = pt[2];
+  for (i=1; i<n; i++) {
+    val ^= pt[i+1];
+  }
+  return MkIntTerm(val & (MAX_ABS_INT-1));  
+}
+
+static inline
+CELL Yap_String_key(Term t)
+{
+  return Yap_StringP_key(RepAppl(t)+1);
 }
 
 #endif

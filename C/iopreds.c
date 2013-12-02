@@ -31,6 +31,7 @@ static char SccsId[] = "%W% %G%";
 #include "eval.h"
 /* stuff we want to use in standard YAP code */
 #include "pl-shared.h"
+#include "YapMirror.h"
 #include <stdlib.h>
 #if HAVE_STDARG_H
 #include <stdarg.h>
@@ -324,7 +325,7 @@ syntax_error (TokEntry * tokptr, IOSTREAM *st, Term *outp)
 	VarEntry *varinfo = (VarEntry *)info;
 
 	t[0] = MkIntTerm(0);
-	t[1] = Yap_StringToList(varinfo->VarRep);
+	t[1] = Yap_CharsToListOfCodes((const char *)varinfo->VarRep PASS_REGS);
 	if (varinfo->VarAdr == TermNil) {
 	  t[2] = varinfo->VarAdr = MkVarTerm();
 	} else {
@@ -335,13 +336,13 @@ syntax_error (TokEntry * tokptr, IOSTREAM *st, Term *outp)
       break;
     case String_tok:
       {
-	Term t0 = Yap_StringToList((char *)info);
+	Term t0 = Yap_CharsToListOfCodes((const char *)info PASS_REGS);
 	ts[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomString,1),1,&t0);
       }
       break;
     case WString_tok:
       {
-	Term t0 = Yap_WideStringToList((wchar_t *)info);
+	Term t0 = Yap_WCharsToListOfCodes((const wchar_t *)info PASS_REGS);
 	ts[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomString,1),1,&t0);
       }
       break;

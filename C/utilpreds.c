@@ -169,6 +169,8 @@ copy_complex_term(CELL *pt0, CELL *pt0_end, int share, int newattvs, CELL *ptf, 
 	      sz = sizeof(Float)/sizeof(CELL)+2;
 	    } else if (f== FunctorLongInt) {
 	      sz = 3;
+	    } else if (f== FunctorString) {
+	      sz = 3+ap2[1];
 	    } else {
 	      CELL *pt = ap2+1;
 	      sz = 2+sizeof(MP_INT)+(((MP_INT *)(pt+1))->_mp_alloc*sizeof(mp_limb_t));
@@ -1333,6 +1335,8 @@ export_complex_term(Term tf, CELL *pt0, CELL *pt0_end, char * buf, size_t len0, 
 	    sz = sizeof(Float)/sizeof(CELL)+2;
 	  } else if (f== FunctorLongInt) {
 	    sz = 3;
+	  } else if (f== FunctorString) {
+	    sz = 3+ap2[1];
 	  } else {
 	    CELL *pt = ap2+1;
 	    sz = 2+sizeof(MP_INT)+(((MP_INT *)(pt+1))->_mp_alloc*sizeof(mp_limb_t));
@@ -3331,6 +3335,9 @@ SizeOfExtension(Term t)
   if (f== FunctorDouble) {
     return 2 + sizeof(Float)/sizeof(CELL);
   }
+  if (f== FunctorString) {
+    return 3 + RepAppl(t)[1];
+  }
   if (f== FunctorLongInt) {
     return 2 + sizeof(Float)/sizeof(CELL);
   }
@@ -3818,6 +3825,10 @@ hash_complex_term(register CELL *pt0,
 	    break;
 	  case (CELL)FunctorLongInt:
 	    *st++ = LongIntOfTerm(d0);
+	    break;
+	  case (CELL)FunctorString:
+	    memcpy(st, RepAppl(d0), (3+RepAppl(d0)[1])*sizeof(CELL));
+	    st += 3+RepAppl(d0)[1];
 	    break;
 #ifdef USE_GMP
 	  case (CELL)FunctorBigInt:
@@ -5497,6 +5508,7 @@ Yap_SkipList(Term *l, Term **tailp)
 
   return length;
 }
+
 
 static Int 
 p_skip_list( USES_REGS1 ) {

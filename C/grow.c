@@ -559,6 +559,9 @@ AdjustGlobal(long sz, int thread_copying USES_REGS)
 	  pt += 2;
 #endif
 	  break;
+	case (CELL)FunctorString:
+	  pt += 3+pt[1];
+	  break;
 	case (CELL)FunctorBigInt:
 	  {
 	    Int sz = 2+
@@ -1082,7 +1085,9 @@ fix_compiler_instructions(PInstr *pcpc USES_REGS)
     case get_float_op:
     case put_float_op:
     case get_longint_op:
+    case get_string_op:
     case put_longint_op:
+    case put_string_op:
     case unify_float_op:
     case unify_last_float_op:
     case write_float_op:
@@ -1112,8 +1117,11 @@ fix_compiler_instructions(PInstr *pcpc USES_REGS)
     case unify_last_num_op:
     case write_num_op:
     case unify_longint_op:
+    case unify_string_op:
     case unify_last_longint_op:
+    case unify_last_string_op:
     case write_longint_op:
+    case write_string_op:
     case unify_bigint_op:
     case unify_last_bigint_op:
     case unify_dbterm_op:
@@ -1416,6 +1424,18 @@ Yap_growheap(int fix_code, size_t in_size, void *cip)
   int res;
   int blob_overflow = (NOfBlobs > NOfBlobsMax);
 
+#if (THREADS) || YAPOR
+  res = FALSE;
+  if (NOfAtoms > 2*AtomHashTableSize || blob_overflow) {
+      LOCK(LOCAL_SignalLock);
+      if (LOCAL_ActiveSignals == YAP_CDOVF_SIGNAL) {
+	CreepFlag = CalculateStackGap();
+      }
+      LOCAL_ActiveSignals &= ~YAP_CDOVF_SIGNAL;
+      UNLOCK(LOCAL_SignalLock);
+      return TRUE;
+    }
+#else
   if (NOfAtoms > 2*AtomHashTableSize || blob_overflow) {
     UInt n = NOfAtoms;
     if (GLOBAL_AGcThreshold)
@@ -1446,6 +1466,7 @@ Yap_growheap(int fix_code, size_t in_size, void *cip)
   res=do_growheap(fix_code, in_size, (struct intermediates *)cip, NULL, NULL, NULL PASS_REGS);
 #endif
   LeaveGrowMode(GrowHeapMode);
+#endif
   return res;
 }
 

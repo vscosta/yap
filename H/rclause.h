@@ -389,6 +389,13 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
       pc->u.osc.c = ConstantTermAdjust(pc->u.osc.c);
       pc = NEXTOP(pc,osc);
       break;
+      /* instructions type ou */
+    case _unify_l_string:
+    case _unify_string:
+      pc->u.ou.opcw = OpcodeAdjust(pc->u.ou.opcw);
+      pc->u.ou.u = BlobTermInCodeAdjust(pc->u.ou.u);
+      pc = NEXTOP(pc,ou);
+      break;
       /* instructions type ox */
     case _save_appl_x:
     case _save_appl_x_write:
@@ -636,6 +643,12 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
       pc->u.xps.p0 = PtoPredAdjust(pc->u.xps.p0);
       pc->u.xps.s = ConstantAdjust(pc->u.xps.s);
       pc = NEXTOP(pc,xps);
+      break;
+      /* instructions type xu */
+    case _get_string:
+      pc->u.xu.x = XAdjust(pc->u.xu.x);
+      pc->u.xu.u = BlobTermInCodeAdjust(pc->u.xu.u);
+      pc = NEXTOP(pc,xu);
       break;
       /* instructions type xx */
     case _get_x_val:

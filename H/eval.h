@@ -233,6 +233,8 @@ ETypeOfTerm(Term t)
 }
 
 #if USE_GMP
+char *Yap_mpz_to_string(MP_INT *b, char *s, size_t sz, int base);
+
 Term  Yap_gmq_rdiv_int_int(Int, Int);
 Term  Yap_gmq_rdiv_int_big(Int, Term);
 Term  Yap_gmq_rdiv_big_int(Term, Int);

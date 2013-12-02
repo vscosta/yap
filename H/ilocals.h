@@ -235,4 +235,5 @@ static void InitWorker(int wid) {
 
   REMOTE_CurSlot(wid) = 0;
   REMOTE_SourceModule(wid) = 0;
+  REMOTE_MAX_SIZE(wid) = 1024L;
 }

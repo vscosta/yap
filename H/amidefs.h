@@ -273,6 +273,7 @@ typedef enum {
   p: predicate, struct pred_entry *
   s: small integer, COUNT
   t: pointer to table entry, used by yaptab, struct table_entry *
+  u: utf-8 string
   x: wam register, wamreg
   y: environment slot
 
@@ -560,6 +561,11 @@ typedef struct yami {
     } os;
     struct {
       OPCODE              opcw;
+      Term    u;
+      CELL next;
+    } ou;
+    struct {
+      OPCODE              opcw;
       wamreg                x;
       CELL next;
     } ox;
@@ -783,6 +789,11 @@ typedef struct yami {
       wamreg                xr;
       CELL next;
     } xx;
+    struct {
+      wamreg                x;
+      Term                  u;
+      CELL next;
+    } xu;
     struct {
       wamreg                x;
       wamreg                xi;

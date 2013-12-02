@@ -376,6 +376,8 @@ oc_unify_nvar_nvar:
 	  return(pt0[1] == pt1[1]);
 	case (CELL)FunctorDouble:
 	  return(FloatOfTerm(AbsAppl(pt0)) == FloatOfTerm(AbsAppl(pt1)));
+	case (CELL)FunctorString:
+	  return(strcmp( (const char *)(pt0+2),  (const char )(pt1+2)) == 0);
 #ifdef USE_GMP
 	case (CELL)FunctorBigInt:
 	  return(Yap_gmp_tcmp_big_big(AbsAppl(pt0),AbsAppl(pt0)) == 0);
@@ -505,6 +507,8 @@ unify_nvar_nvar:
 	  return(pt0 == pt1);
 	case (CELL)FunctorLongInt:
 	  return(pt0[1] == pt1[1]);
+	case (CELL)FunctorString:
+	  return(strcmp( (const char *)(pt0+2),  (const char )(pt1+2)) == 0);
 	case (CELL)FunctorDouble:
 	  return(FloatOfTerm(AbsAppl(pt0)) == FloatOfTerm(AbsAppl(pt1)));
 #ifdef USE_GMP
@@ -870,6 +874,8 @@ unifiable_nvar_nvar:
 	  return(pt0 == pt1);
 	case (CELL)FunctorLongInt:
 	  return(pt0[1] == pt1[1]);
+	case (CELL)FunctorString:
+	  return(strcmp( (const char *)(pt0+2),  (const char )(pt1+2)) == 0);
 	case (CELL)FunctorDouble:
 	  return(FloatOfTerm(AbsAppl(pt0)) == FloatOfTerm(AbsAppl(pt1)));
 #ifdef USE_GMP

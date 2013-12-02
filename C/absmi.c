@@ -4409,6 +4409,52 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
+      Op(get_string, xu);
+      BEGD(d0);
+      d0 = XREG(PREG->u.xu.x);
+      deref_head(d0, gstring_unk);
+
+    gstring_nonvar:
+      if (!IsApplTerm(d0))
+	FAIL();
+      /* we have met a preexisting string */
+      START_PREFETCH(xu);
+      BEGP(pt0);
+      pt0 = RepAppl(d0);
+      /* check functor */
+      if (*pt0 != (CELL)FunctorString) {
+	FAIL();
+      }
+      BEGP(pt1);
+      pt1 = RepAppl(PREG->u.xu.u);
+      PREG = NEXTOP(PREG, xu);
+      if (
+	  pt1[1] != pt0[1] ||
+	  strcmp((const char *)(pt1+2), (const char *)(pt0+2))
+	  ) FAIL();
+      ENDP(pt1);
+      ENDP(pt0);
+      /* enter read mode */
+      GONext();
+      END_PREFETCH();
+
+      BEGP(pt0);
+      deref_body(d0, pt0, gstring_unk, gstring_nonvar);
+      /* Enter Write mode */
+      /* set d1 to be the new structure we are going to create */
+      START_PREFETCH(xc);
+      BEGD(d1);
+      d1 = PREG->u.xu.u;
+      PREG = NEXTOP(PREG, xu);
+      Bind(pt0, d1);
+      GONext();
+      ENDD(d1);
+      END_PREFETCH();
+      ENDP(pt0);
+
+      ENDD(d0);
+      ENDOp();
+
       Op(get_longint, xi);
       BEGD(d0);
       d0 = XREG(PREG->u.xi.x);
@@ -6070,6 +6116,87 @@ Yap_absmi(int inp)
       SREG[0] = AbsAppl(PREG->u.od.d);
       PREG = NEXTOP(PREG, od);
       GONext();
+      ENDOp();
+
+      Op(unify_string, ou);
+      BEGD(d0);
+      BEGP(pt0);
+      pt0 = SREG++;
+      d0 = *pt0;
+      deref_head(d0, ustring_unk);
+    ustring_nonvar:
+      if (!IsApplTerm(d0)) {
+	FAIL();	
+      }
+      /* look inside term */
+      BEGP(pt0);
+      pt0 = RepAppl(d0);
+      BEGD(d0);
+      d0 = *pt0;
+      if (d0 != (CELL)FunctorString) {
+	FAIL();
+      }
+      ENDD(d0);
+      BEGP(pt1);
+      pt1 = RepAppl(PREG->u.ou.u);
+      PREG = NEXTOP(PREG, ou);
+      if (
+	  pt1[1] != pt0[1]
+	  || strcmp( (const char *)(pt1 + 2), (const char *)(pt0+2) )
+	  ) FAIL();
+      ENDP(pt1);
+      ENDP(pt0);
+      GONext();
+
+      derefa_body(d0, pt0, ustring_unk, ustring_nonvar);
+      BEGD(d1);
+      d1 = PREG->u.ou.u;
+      PREG = NEXTOP(PREG, ou);
+      Bind_Global(pt0, d1);
+      GONext();
+      ENDD(d1);
+      ENDP(pt0);
+      ENDD(d0);
+      ENDOp();
+
+      Op(unify_l_string, ou);
+      BEGD(d0);
+      CACHE_S();
+      READ_IN_S();
+      d0 = *S_SREG;
+      deref_head(d0, ulstring_unk);
+    ulstring_nonvar:
+      if (!IsApplTerm(d0)) {
+	FAIL();	
+      }
+      BEGP(pt0);
+      pt0 = RepAppl(d0);
+      BEGD(d0);
+      d0 = *pt0;
+      if (d0 != (CELL)FunctorString) {
+	FAIL();
+      }
+      ENDD(d0);
+      BEGP(pt1);
+      pt1 = RepAppl(PREG->u.ou.u);
+      PREG = NEXTOP(PREG, ou);
+      if (
+	  pt1[1] != pt0[1]
+	  || strcmp( (const char *)(pt1 + 2), (const char *)(pt0+2) )
+	  ) FAIL();
+      ENDP(pt1);
+      ENDP(pt0);
+      GONext();
+
+      derefa_body(d0, S_SREG, ulstring_unk, ulstring_nonvar);
+      BEGD(d1);
+      d1 = PREG->u.ou.u;
+      PREG = NEXTOP(PREG, ou);
+      Bind_Global(S_SREG, d1);
+      GONext();
+      ENDD(d1);
+      ENDCACHE_S();
+      ENDD(d0);
       ENDOp();
 
       Op(unify_longint, oi);
@@ -11689,6 +11816,17 @@ Yap_absmi(int inp)
 	      GONext();
 	    }
 	    if (LongIntOfTerm(d0) == LongIntOfTerm(d1)) {
+	      PREG = NEXTOP(PREG, l);
+	      GONext();
+	    }
+	    PREG = PREG->u.l.l;
+	    GONext();
+	  case (CELL)FunctorString:
+	    if (f1 != FunctorString) {
+	      PREG = PREG->u.l.l;
+	      GONext();
+	    }
+	    if (strcmp((char *)(RepAppl(d0)+2),(char *)(RepAppl(d1)+2)) == 0) {
 	      PREG = NEXTOP(PREG, l);
 	      GONext();
 	    }

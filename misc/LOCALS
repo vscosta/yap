@@ -271,4 +271,6 @@ Int				CurSlot					=0
 
 Term				SourceModule				=0
 
+size_t				MAX_SIZE				=1024L
+
 END_WORKER_LOCAL

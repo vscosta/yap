@@ -189,6 +189,7 @@ HEADERS = \
 	$(srcdir)/H/tracer.h \
 	$(srcdir)/H/trim_trail.h \
 	$(srcdir)/H/yapio.h \
+	$(srcdir)/H/YapMirrorn.h \
 	$(srcdir)/BEAM/eam.h $(srcdir)/BEAM/eamamasm.h \
 	$(srcdir)/OPTYap/opt.config.h \
 	$(srcdir)/OPTYap/opt.proto.h $(srcdir)/OPTYap/opt.structs.h \
@@ -227,7 +228,7 @@ IOLIB_SOURCES=$(srcdir)/os/pl-buffer.c $(srcdir)/os/pl-ctype.c \
 	$(srcdir)/os/pl-tai.c  \
 	$(srcdir)/os/pl-text.c \
 	$(srcdir)/os/pl-version.c \
-	$(srcdir)/os/pl-write.c \
+		$(srcdir)/os/pl-write.c \
 	$(srcdir)/C/pl-yap.c @ENABLE_WINCONSOLE@$(srcdir)/os/windows/uxnt.c
 
 C_SOURCES= \
@@ -262,6 +263,7 @@ C_SOURCES= \
 	$(srcdir)/C/qlyw.c \
 	$(srcdir)/C/range.c \
 	$(srcdir)/C/save.c $(srcdir)/C/scanner.c $(srcdir)/C/signals.c \
+	$(srcdir)/C/strings.c \
 	$(srcdir)/C/sort.c $(srcdir)/C/stdpreds.c $(srcdir)/C/sysbits.c \
 	$(srcdir)/C/threads.c \
 	$(srcdir)/C/tracer.c $(srcdir)/C/unify.c $(srcdir)/C/userpreds.c  \
@@ -370,7 +372,7 @@ ENGINE_OBJECTS = \
 	myddas_util.o myddas_statistics.o myddas_top_level.o \
 	myddas_wkb2prolog.o modules.o other.o   \
 	parser.o qlyr.o qlyw.o range.o \
-	save.o scanner.o signals.o sort.o stdpreds.o \
+	save.o scanner.o signals.o strings.o sort.o stdpreds.o \
 	sysbits.o threads.o tracer.o \
 	udi.o\
 	unify.o userpreds.o utilpreds.o \

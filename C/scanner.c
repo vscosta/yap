@@ -42,7 +42,7 @@
 /* stuff we want to use in standard YAP code */
 #include "pl-shared.h"
 #include "pl-read.h"
-#include "pl-utf8.h"
+#include "YapMirror.h"
 #if _MSC_VER || defined(__MINGW32__) 
 #if HAVE_FINITE==1
 #undef HAVE_FINITE
@@ -780,7 +780,7 @@ extend_comment(int ch USES_REGS) {
 static void
 close_comment( USES_REGS1 ) {
   LOCAL_CommentsBuff[LOCAL_CommentsBuffPos] = '\0';
-  *LOCAL_CommentsNextChar = Yap_MkBlobWideStringTerm(LOCAL_CommentsBuff, LOCAL_CommentsBuffPos);
+  *LOCAL_CommentsNextChar = Yap_WCharsToString(LOCAL_CommentsBuff PASS_REGS);
   free(LOCAL_CommentsBuff);
   LOCAL_CommentsBuff = NULL;
   LOCAL_CommentsBuffLim = 0;

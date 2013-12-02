@@ -1023,7 +1023,7 @@ bootstrap(F) :-
 	close(Stream).
 
 '$read_vars'(Stream, T, Mod, Pos, V, _Prompt, false) :- !,
-       read_term(Stream, T, [ /* module(Mod), */ variable_names(V), term_position(Pos), syntax_errors(dec10)  ]).
+       read_term(Stream, T, [  module(Mod), variable_names(V), term_position(Pos), syntax_errors(dec10)  ]).
 '$read_vars'(Stream, T, Mod, Pos, V, _Prompt, ReadComments) :-
        read_term(Stream, T, [module(Mod), variable_names(V), term_position(Pos), syntax_errors(dec10),  comments( ReadComments ) ]).
 

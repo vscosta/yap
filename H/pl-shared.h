@@ -141,6 +141,8 @@ typedef struct redir_context
 
 #include "pl-file.h"
 
+#define EOS '\0'
+
 		/********************************
 		*       HASH TABLES             *
 		*********************************/
@@ -264,7 +266,30 @@ COMMON(int)		debugmode(debug_type new, debug_type *old);
 COMMON(int)		tracemode(debug_type new, debug_type *old);
 COMMON(void)		Yap_setCurrentSourceLocation(IOSTREAM **s);
 
-#define SWIAtomToAtom(X) SWI_Atoms[(X)>>1]
+extern int raiseSignal(PL_local_data_t *ld, int sig);
+
+#ifdef YATOM_H
+
+static inline atom_t
+AtomToSWIAtom(Atom at)
+{
+  TranslationEntry *p;
+
+  if ((p = Yap_GetTranslationProp(at)) != NULL)
+    return (atom_t)(p->Translation*2+1);
+  return (atom_t)at;
+}
+
+#endif
+
+static inline Atom
+SWIAtomToAtom(atom_t at)
+{
+  if ((CELL)at & 1)
+    return SWI_Atoms[at/2];
+  return (Atom)at;
+}
+
 Atom                  YAP_AtomFromSWIAtom(atom_t at);
 atom_t                YAP_SWIAtomFromAtom(Atom at);
 

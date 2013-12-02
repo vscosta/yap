@@ -34,6 +34,7 @@
   AtomBatched = AtomAdjust(AtomBatched);
   AtomBetween = AtomAdjust(AtomBetween);
   AtomHugeInt = AtomAdjust(AtomHugeInt);
+  AtomBigNum = AtomAdjust(AtomBigNum);
   AtomBinaryStream = AtomAdjust(AtomBinaryStream);
   AtomBraces = AtomAdjust(AtomBraces);
   AtomBreak = AtomAdjust(AtomBreak);
@@ -296,6 +297,7 @@
   AtomStreamPos = AtomAdjust(AtomStreamPos);
   AtomStreamPosition = AtomAdjust(AtomStreamPosition);
   AtomString = AtomAdjust(AtomString);
+  AtomSTRING = AtomAdjust(AtomSTRING);
   AtomSwi = AtomAdjust(AtomSwi);
   AtomSyntaxError = AtomAdjust(AtomSyntaxError);
   AtomSyntaxErrorHandler = AtomAdjust(AtomSyntaxErrorHandler);
