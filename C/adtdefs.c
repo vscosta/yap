@@ -302,17 +302,17 @@ Yap_LookupMaybeWideAtom(wchar_t *atom)
 }
 
 Atom
-Yap_LookupMaybeWideAtomWithLength(wchar_t *atom, size_t len)
+Yap_LookupMaybeWideAtomWithLength(wchar_t *atom, size_t len0)
 {				/* lookup atom in atom table            */
   wchar_t *p = atom, c;
-  size_t len0 = 0;
+  size_t len = 0;
   Atom at;
   int wide = FALSE;
 
   while ((c = *p++)) { 
     if (c > 255) wide = TRUE;
-    len0++;
-    if (len0 == len) break;
+    len++;
+    if (len == len0) break;
   }
   if (p[0] == '\0' && wide) return LookupWideAtom(atom);
   else if (wide) {

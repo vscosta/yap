@@ -714,7 +714,7 @@ c_arg(Int argno, Term t, unsigned int arity, unsigned int level, compiler_struct
 	/* The argument to pass to the structure is now the label for
 	   where we are storing the blob */
 	if (level == 0)
-	  Yap_emit((cglobs->onhead ? get_string_op : put_string_op), t, argno, &cglobs->cint);
+	  Yap_emit((cglobs->onhead ? get_string_op : put_string_op), l1, argno, &cglobs->cint);
 	else
 	  Yap_emit((cglobs->onhead ? (argno == (Int)arity ? unify_last_string_op
 			  : unify_string_op) :

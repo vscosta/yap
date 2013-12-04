@@ -338,39 +338,54 @@ current_atom(A) :-				% generate
 current_atom(A) :-				% generate
 	'$current_wide_atom'(A).
 
-atom_concat(X,Y,At) :-
-	(
-	  nonvar(X),  nonvar(Y)
-	->
-	  atom_concat([X,Y],At)
-	;
-	  atom(At) ->
-	  '$atom_contact_split'(At,X,Y)
-	;
-	  var(At) ->
-	  '$do_error'(instantiation_error,atom_concat(X,Y,At))
-	;
-	  '$do_error'(type_error(atom,At),atomic_concat(X,Y,At))
-	).
+atom_concat(Xs,At) :-
+	( var(At) ->
+	   '$atom_concat'(Xs, At )
+        ;
+	 '$atom_concat_constraints'(Xs, start, At, Unbound),
+	 '$process_atom_holes'(Unbound)
+        ).
 
-'$atom_contact_split'(At,X,Y) :-
-	nonvar(X), !,
-	atom_codes(At, Codes),
-	atom_codes(X, Xs),
-	lists:append(Xs,Ys,Codes),
-	atom_codes(Y, Ys).
-'$atom_contact_split'(At,X,Y) :-
-	nonvar(Y), !,
-	atom_codes(At, Codes),
-	atom_codes(Y, Ys),
-	once(lists:append(Xs,Ys,Codes)),
-	atom_codes(X, Xs).
-'$atom_contact_split'(At,X,Y) :-
-	atom_codes(At, Codes),
-	lists:append(Xs, Ys, Codes),
-	atom_codes(X, Xs),
-	atom_codes(Y, Ys).
+% the constraints are of the form hole: HoleAtom, Begin, Atom, End
+'$atom_concat_constraints'([At], start, At, _, []) :- !.
+'$atom_concat_constraints'([At0], mid(Next, At), At, [hole(At0, Next, At, end)]) :-  !.
+% just slice first atom
+'$atom_concat_constraints'([At0|Xs], start, At, Unbound) :-
+	atom(At0), !,
+	sub_atom(At, 0, Sz, L, At0),
+	sub_atom(At, _, L, 0, Atr), %remainder
+	'$atom_concat_constraints'(Xs, start, Atr, Unbound).
+% first hole: Follow says whether we have two holes in a row, At1 will be our atom
+'$atom_concat_constraints'([At0|Xs], start, At, [hole(At0, 0, At1, Next)|Unbound]) :-
+	 '$atom_concat_constraints'(Xs, mid(Next,At1), Atr, Unbound).
+% end of a run
+'$atom_concat_constraints'([At0|Xs], mid(end, At1), At, Unbound) :-
+	atom(At0), !,
+	sub_atom(At, Next, Sz, L, At0),
+	sub_atom(At, 0, Next, Next, At1),
+	sub_atom(At, _, L, 0, Atr), %remainder
+	'$atom_concat_constraints'(Xs, start, Atr, _, Unbound).
+'$atom_concat_constraints'([At0|Xs], mid(Next,At1), At, Next, [hole(At0, Next, At1, Follow)|Unbound]) :-
+	 '$atom_concat_constraints'(Xs, mid(NextFollow, At1), At, Unbound).
 
+'$process_atom_holes'([]).
+'$process_atom_holes'([hole(At0, Next, At1, end)|Unbound]) :-
+	sub_atom(At1, Next, _, 0, At0),
+	 '$process_atom_holes'(Unbound).
+'$process_atom_holes'([hole(At0, Next, At1, Follow)|Unbound]) :-
+	sub_atom(At1, Next, Sz, _Left, At0),
+	Follow is Next+Sz,
+	 '$process_atom_holes'(Unbound).
+
+	  
+string_concat(X,Y,St) :-
+	( var(St) ->
+	   '$string_concat'(X, Y, At )
+        ;
+	  sub_string(At, 0, _, Left, X),
+	  sub_string(At, Left, _, 0, Y)
+        ).
+	  
 callable(A) :-
 	( var(A) -> fail ; number(A) -> fail ; true ).
 
@@ -412,53 +427,9 @@ atomic_list_concat(L, El, At) :-
 	atom_codes(A, S),
 	'$atomify_list'(SubS, L).
 	
-atomic_concat(X,Y,At) :-
-	(
-	  nonvar(X),  nonvar(Y)
-	->
-	  atomic_concat([X,Y],At)
-	;
-	  atom(At) ->
-	  atom_length(At,Len),
-	  '$atom_contact_split'(At,X,Y)
-	;
-	  number(At) ->
-	  '$number_contact_split'(At,X,Y)
-	;
-	  var(At) ->
-	  '$do_error'(instantiation_error,atomic_concat(X,Y,At))
-	;
-	  '$do_error'(type_error(atomic,At),atomic_concat(X,Y,At))
-	).
-
-'$number_contact_split'(At,X,Y) :-
-	nonvar(X), !,
-	number_codes(At, Codes),
-	name(X, Xs),
-	lists:append(Xs,Ys,Codes),
-	name(Y, Ys).
-'$number_contact_split'(At,X,Y) :-
-	nonvar(Y), !,
-	number_codes(At, Codes),
-	name(Y, Ys),
-	once(lists:append(Xs,Ys,Codes)),
-	name(X, Xs).
-'$number_contact_split'(At,X,Y) :-
-	number_codes(At, Codes),
-	lists:append(Xs, Ys, Codes),
-	name(X, Xs),
-	name(Y, Ys).
-
 
 %
 % small compatibility hack
-%
-sub_string(String, Bef, Size, After, SubStr) :-
-	catch(string_to_atom(String, A), _, true),
-	catch(string_to_atom(SubStr, SubA), _, true),
-	sub_atom(A, Bef, Size, After, SubA),
-	catch(string_to_atom(String, A), _, true),
-	catch(string_to_atom(SubStr, SubA), _, true).	
 
 '$singletons_in_term'(T,VL) :-
 	'$variables_in_term'(T,[],V10),

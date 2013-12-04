@@ -283,6 +283,7 @@
 #undef  HAVE_USLEEP
 #undef  HAVE_VSNPRINTF
 #undef  HAVE_WAITPID
+#undef  HAVE_WCSDUP
 #undef  HAVE_MPZ_XOR
 
 #if HAVE_GETHOSTNAME==1

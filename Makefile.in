@@ -189,7 +189,7 @@ HEADERS = \
 	$(srcdir)/H/tracer.h \
 	$(srcdir)/H/trim_trail.h \
 	$(srcdir)/H/yapio.h \
-	$(srcdir)/H/YapMirrorn.h \
+	$(srcdir)/H/YapMirror.h \
 	$(srcdir)/BEAM/eam.h $(srcdir)/BEAM/eamamasm.h \
 	$(srcdir)/OPTYap/opt.config.h \
 	$(srcdir)/OPTYap/opt.proto.h $(srcdir)/OPTYap/opt.structs.h \

@@ -121,20 +121,28 @@ typedef enum
   UNKNOWN_ERROR
 } yap_error_number;
 
-#define LOCAL_ERROR(v) \
-  if (H + 2*(v) > ASP-1024) { \
-    LOCAL_Error_TYPE = OUT_OF_STACK_ERROR;\
-    LOCAL_Error_Term = t;\
-    LOCAL_Error_Size = 2*(v)*sizeof(CELL);\
-    return 0L;				  \
-  }
-
 #define JMP_LOCAL_ERROR(v, LAB)   \
   if (H + 2*(v) > ASP-1024) { \
     LOCAL_Error_TYPE = OUT_OF_STACK_ERROR;\
     LOCAL_Error_Term = t;\
     LOCAL_Error_Size = 2*(v)*sizeof(CELL);\
     goto LAB;				  \
+  }
+
+#define LOCAL_ERROR(v)   \
+  if (H + (v) > ASP-1024) { \
+    LOCAL_Error_TYPE = OUT_OF_STACK_ERROR;\
+    LOCAL_Error_Term = t;\
+    LOCAL_Error_Size = 2*(v)*sizeof(CELL);\
+    return NULL; \
+  }
+
+#define LOCAL_TERM_ERROR(v)   \
+  if (H + (v) > ASP-1024) { \
+    LOCAL_Error_TYPE = OUT_OF_STACK_ERROR;\
+    LOCAL_Error_Term = t;\
+    LOCAL_Error_Size = 2*(v)*sizeof(CELL);\
+    return 0L; \
   }
 
 #define AUX_ERROR(t, n, s, TYPE)      \

@@ -163,3 +163,64 @@ utf8_strlen(const char *s, size_t len)
 
   return l;
 }
+
+size_t
+utf8_strlen1(const char *s)
+{ 
+  unsigned int l = 0;
+
+  while(1)
+  { int chr;
+
+    s = utf8_get_char(s, &chr);
+    if (!chr) break;
+    l++;
+  }
+
+  return l;
+}
+
+const char *
+utf8_n(const char *s, int n)
+{ 
+  while(n--)
+  { int chr;
+
+    s = utf8_get_char(s, &chr);
+    if (!chr) return NULL;
+  }
+
+  return s;
+}
+
+int
+utf8_strncmp(const char *s1, const char *s2, size_t n)
+{ 
+  
+  while(n-- >0)
+    { int chr1, chr2;
+
+    s1 = utf8_get_char(s1, &chr1);
+    s2 = utf8_get_char(s2, &chr2);
+    if (chr1-chr2) return chr1-chr2;
+    if (!chr1) return 0;
+  }
+
+  return 0;
+}
+
+int
+utf8_strprefix(const char *s1, const char *s2)
+{ 
+  
+  while(1)
+    { int chr1, chr2;
+
+    s1 = utf8_get_char(s1, &chr1);
+    s2 = utf8_get_char(s2, &chr2);
+    if (!chr2) return 1;
+    if (chr1-chr2) return 0;
+  }
+
+  return 0;
+}

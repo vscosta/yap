@@ -3280,7 +3280,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       code_p = a_rb(_get_bigint, clause_has_blobsp, code_p, pass_no, cip);
       break;
     case get_string_op:
-      code_p = a_rb(_get_string, clause_has_blobsp, code_p, pass_no, cip);
+      code_p = a_rstring(_get_string, clause_has_blobsp, code_p, pass_no, cip);
       break;
     case get_dbterm_op:
       code_p = a_dbt(_get_dbterm, clause_has_dbtermp, code_p, pass_no, cip);
@@ -3364,7 +3364,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       code_p = a_ublob(cip->cpc->rnd1, _unify_bigint, _unify_atom_write, clause_has_blobsp, code_p, pass_no, cip);
       break;
     case unify_string_op:
-      code_p = a_ublob(cip->cpc->rnd1, _unify_string, _unify_atom_write, clause_has_blobsp, code_p, pass_no, cip);
+      code_p = a_ustring(cip->cpc->rnd1, _unify_string, _unify_atom_write, clause_has_blobsp, code_p, pass_no, cip);
       break;
     case unify_dbterm_op:
       code_p = a_udbt(cip->cpc->rnd1, _unify_dbterm, _unify_atom_write, clause_has_dbtermp, code_p, pass_no, cip);
@@ -3385,7 +3385,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       code_p = a_ublob(cip->cpc->rnd1, _unify_l_bigint, _unify_l_atom_write, clause_has_blobsp, code_p, pass_no, cip);
       break;
     case unify_last_string_op:
-      code_p = a_ublob(cip->cpc->rnd1, _unify_l_bigint, _unify_l_atom_write, clause_has_blobsp, code_p, pass_no, cip);
+      code_p = a_ustring(cip->cpc->rnd1, _unify_l_bigint, _unify_l_atom_write, clause_has_blobsp, code_p, pass_no, cip);
       break;
     case unify_last_dbterm_op:
       code_p = a_udbt(cip->cpc->rnd1, _unify_l_dbterm, _unify_l_atom_write, clause_has_dbtermp, code_p, pass_no, cip);
