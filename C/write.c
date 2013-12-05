@@ -174,21 +174,18 @@ wrpututf8(const char *s, struct write_globs *wglb)	/* writes an integer	 */
   IOSTREAM *stream = wglb->stream;
 
 
+  int chr;
+  char *ptr = (char *)s;
+  
   if (wglb->Write_strings)
     wrputc('`', stream);
   else
     wrputc('"', stream);
-  if (stream->encoding == ENC_UTF8) {
-    wrputs( s, stream);
-  } else {
-    int chr;
-    char *ptr = (char *)s;
-    do {
-      ptr = utf8_get_char(ptr, &chr);
-      if (chr == '\0') break;
-      wrputc(chr, stream);
-    } while (TRUE);
-  }
+  do {
+    ptr = utf8_get_char(ptr, &chr);
+    if (chr == '\0') break;
+    wrputc(chr, stream);
+  } while (TRUE);
   if (wglb->Write_strings)
     wrputc('`', stream);
   else

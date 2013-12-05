@@ -592,6 +592,8 @@ ShowOp (char *f, struct PSEUDO *cpc)
 		  Yap_DebugPlWrite(MkAtomTerm(AtomLONGINT));
 		} else if (fun == FunctorDouble) {
 		  Yap_DebugPlWrite(MkAtomTerm(AtomDOUBLE));
+		} else if (fun == FunctorString) {
+		  Yap_DebugPlWrite(MkAtomTerm(AtomSTRING));
 		}
 	      } else {
 		Yap_DebugPlWrite (MkAtomTerm(NameOfFunctor(fun)));

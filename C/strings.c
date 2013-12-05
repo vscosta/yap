@@ -25,7 +25,7 @@
 
 #include <string.h>
 
-static inline char *get_char(char *p, int *c) { *c = *p; return p+1; }
+static inline unsigned char *get_char(unsigned char *p, int *c) { *c = *p; return p+1; }
 
 static inline wchar_t *get_wchar(wchar_t *p, int *c) { *c = *p; return p+1; }
 
@@ -527,9 +527,10 @@ write_strings( void *s0, seq_tv_t *out, encoding_t enc, int minimal USES_REGS)
     }
     break;
   case YAP_CHAR:
-    { char *s = s0, *lim = s + (max = strnlen(s, max));
+    { unsigned char *s = s0, *lim = s + (max = strnlen(s0, max));
       Term t = init_tstring( PASS_REGS1  );
-      char *cp = s, *buf;
+      unsigned char *cp = s;
+      char *buf;
 
       LOCAL_TERM_ERROR( 2*(lim-s) );
       buf = buf_from_tstring(H);
@@ -569,6 +570,7 @@ write_strings( void *s0, seq_tv_t *out, encoding_t enc, int minimal USES_REGS)
       out->val.t = t;
     }
   }
+
   return out->val.t;
 }
 
@@ -602,8 +604,8 @@ write_atoms( void *s0, seq_tv_t *out, encoding_t enc, int minimal USES_REGS)
       break;
     }
   case YAP_CHAR:
-    { char *s = s0, *lim = s + strnlen(s, max);
-      char *cp = s;
+    { unsigned char *s = s0, *lim = s + strnlen(s0, max);
+      unsigned char *cp = s;
       char w[2];
       w[1] = '\0';
 
@@ -683,8 +685,8 @@ write_codes( void *s0, seq_tv_t *out, encoding_t enc, int minimal USES_REGS)
       break;
     }
   case YAP_CHAR:
-    { char *s = s0, *lim = s + strnlen(s, max);
-      char *cp = s;
+    { unsigned char *s = s0, *lim = s + strnlen(s0, max);
+      unsigned char *cp = s;
 
       LOCAL_TERM_ERROR( 2*(lim-s) );
       while (cp < lim) {
@@ -1280,7 +1282,7 @@ Yap_Splice_Text( int n,  size_t cuts[], seq_tv_t *inp, seq_tv_t outv[] USES_REGS
 
 	l1 = l-l0;
 	slice(l0, l, buf, outv+1, enc PASS_REGS);
-	return buf1;
+	return buf0;
       } else /* if (outv[1].val.t) */ {
 	buf1 = read_Text( buf, outv, &enc1, &minimal1 PASS_REGS );
 	l1 = write_length( buf1, outv, enc1, minimal1 PASS_REGS);
@@ -1288,7 +1290,7 @@ Yap_Splice_Text( int n,  size_t cuts[], seq_tv_t *inp, seq_tv_t outv[] USES_REGS
 	if (cmp_Text( advance_Text(buf, l0, enc), buf1, l1, enc, enc1) == 0)
 	  return NULL;
 	slice(0, l0, buf, outv, enc PASS_REGS);
-	return buf0;
+	return buf1;
       }
     }
   }

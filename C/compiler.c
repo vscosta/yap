@@ -693,6 +693,7 @@ c_arg(Int argno, Term t, unsigned int arity, unsigned int level, compiler_struct
 	Int sz = (3+src[1])*sizeof(CELL);
 	CELL *dest;
 
+	char *ptr = src+2; int chr;
 	/* use a special list to store the blobs */
 	cglobs->cint.cpc = cglobs->cint.icpc;
 	/*      if (IsFloatTerm(t)) {
