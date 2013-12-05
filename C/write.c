@@ -167,31 +167,6 @@ wrputn(Int n, struct write_globs *wglb)	/* writes an integer	 */
 
 #define wrputs(s, stream) Sfputs(s, stream)
 
-static void 
-wrpututf8(const char *s, struct write_globs *wglb)	/* writes an integer	 */
-                
-{
-  IOSTREAM *stream = wglb->stream;
-
-
-  int chr;
-  char *ptr = (char *)s;
-  
-  if (wglb->Write_strings)
-    wrputc('`', stream);
-  else
-    wrputc('"', stream);
-  do {
-    ptr = utf8_get_char(ptr, &chr);
-    if (chr == '\0') break;
-    wrputc(chr, stream);
-  } while (TRUE);
-  if (wglb->Write_strings)
-    wrputc('`', stream);
-  else
-    wrputc('"', stream);
-}
-
 
 static void 
 wrputws(wchar_t *s, wrf stream)		/* writes a string	 */
@@ -497,7 +472,7 @@ AtomIsSymbols(unsigned char *s)		/* Is this atom just formed by symbols ? */
 }
 
 static void
-write_quoted(int ch, int quote, wrf stream)
+write_quoted(wchar_t ch, wchar_t quote, wrf stream)
 {
   CACHE_REGS
   if (!(Yap_GetModuleEntry(CurrentModule)->flags & M_CHARESCAPE)) {
@@ -511,8 +486,17 @@ write_quoted(int ch, int quote, wrf stream)
   } else {
     switch (ch) {
     case '\\':
-    case '\'':
       wrputc('\\', stream);	
+      wrputc('\\', stream);	
+      break;
+    case '\'':
+      if (ch == quote)
+	wrputc('\\', stream);	
+      wrputc(ch, stream);	
+      break;
+    case '"':
+      if (ch == quote)
+	wrputc('\\', stream);	
       wrputc(ch, stream);	
       break;
     case 7:
@@ -557,6 +541,28 @@ write_quoted(int ch, int quote, wrf stream)
       }
     }
   }
+}
+
+static void 
+write_string(const char *s, struct write_globs *wglb)	/* writes an integer	 */
+{
+  IOSTREAM *stream = wglb->stream;
+  int chr;
+  char *ptr = (char *)s;
+  
+  if (wglb->Write_strings)
+    wrputc('`', stream);
+  else
+    wrputc('"', stream);
+  do {
+    ptr = utf8_get_char(ptr, &chr);
+    if (chr == '\0') break;
+    write_quoted(chr, '"', stream);
+  } while (TRUE);
+  if (wglb->Write_strings)
+    wrputc('`', stream);
+  else
+    wrputc('"', stream);
 }
 
 
@@ -645,7 +651,7 @@ putString(Term string, struct write_globs *wglb)
   wrf stream = wglb->stream;
   wrputc('"', stream);
   while (string != TermNil) {
-    int ch = IntOfTerm(HeadOfTerm(string));
+    wchar_t ch = IntOfTerm(HeadOfTerm(string));
     write_quoted(ch, '"', stream);
     string = TailOfTerm(string);
   }
@@ -927,7 +933,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
 	wrputf(FloatOfTerm(t),wglb);
 	return;
       case (CELL)FunctorString:
-	wrpututf8(StringOfTerm(t),wglb);
+	write_string(StringOfTerm(t),wglb);
 	return;
       case (CELL)FunctorAttVar:	
 	write_var(RepAppl(t)+1, wglb, &nrwt);
