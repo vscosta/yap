@@ -133,7 +133,7 @@ void PL_license(const char *license, const char *module);
 #define isVar(A) IsVarTerm((A))
 #define valReal(w) FloatOfTerm((w))
 #define valFloat(w) FloatOfTerm((w))
-#define atomValue(atom) YAP_AtomFromSWIAtom(atom)
+#define atomValue(atom) AtomOfTerm(atom)
 #define atomFromTerm(term) YAP_SWIAtomFromAtom(AtomOfTerm(term))
 
 inline static char *
@@ -184,7 +184,7 @@ charCode(Term w)
 	return -1;
       }
       if (strlen(a->StrOfAE) == 1)
-	return a->StrOfAE[0];
+	return ((unsigned char *)(a->StrOfAE))[0];
       return -1;
     }
   return -1;

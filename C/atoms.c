@@ -65,6 +65,10 @@ p_char_code( USES_REGS1 )
       Yap_Error(INSTANTIATION_ERROR,t0,"char_code/2");
       return(FALSE);
     } else if (!IsIntegerTerm(t1)) {
+      if (!IsBigIntTerm(t1)) {
+	Yap_Error(REPRESENTATION_ERROR_INT,t1,"char_code/2");
+	return(FALSE);
+      }
       Yap_Error(TYPE_ERROR_INTEGER,t1,"char_code/2");
       return(FALSE);
     } else {
@@ -78,6 +82,10 @@ p_char_code( USES_REGS1 )
       if (code > MAX_ISO_LATIN1) {
 	wchar_t wcodes[2];
 
+	if (code > CHARCODE_MAX) {
+	  Yap_Error(REPRESENTATION_ERROR_INT,t1,"char_code/2");
+	  return(FALSE);
+	}
 	wcodes[0] = code;
 	wcodes[1] = '\0';
 	tout = MkAtomTerm(Yap_LookupWideAtom(wcodes));
@@ -184,12 +192,12 @@ p_string_to_atom( USES_REGS1 )
   if (!IsVarTerm(t1)) {
     Atom at;
     // verify if an atom, int, float or bignnum
-    at = Yap_StringToAtom( t1 PASS_REGS );
+    at = Yap_StringSWIToAtom( t1 PASS_REGS );
     if (at)
       return Yap_unify(MkAtomTerm(at), t2);
     // else
   } else {
-    Term t0 = Yap_AtomToString( t2 PASS_REGS );
+    Term t0 = Yap_AtomSWIToString( t2 PASS_REGS );
     if (t0) return Yap_unify(t0, t1);
   }
   if (LOCAL_Error_TYPE && Yap_HandleError( "string_to_atom/2" )) {
@@ -284,6 +292,30 @@ p_atom_codes( USES_REGS1 )
   return FALSE;
 }
 
+static Int 
+p_string_codes( USES_REGS1 )
+{
+  Term t1;
+ restart_aux:
+  t1  = Deref(ARG1);
+  if (!IsVarTerm(t1)) {
+    Term tf = Yap_StringSWIToListOfCodes(t1 PASS_REGS);
+    if (tf)
+      return Yap_unify( ARG2, tf );
+  } else {
+    /* ARG1 unbound */
+    Term   t = Deref(ARG2);
+    Term tf = Yap_ListSWIToString(t PASS_REGS);
+    if (tf)
+      return Yap_unify( ARG1, tf );
+  }
+  /* error handling */
+  if (LOCAL_Error_TYPE && Yap_HandleError( "atom_codes/2" )) {
+    t1 = Deref(ARG1);
+    goto restart_aux;
+  }
+  return FALSE;
+}
 
 static Int 
 p_number_chars( USES_REGS1 )
@@ -330,6 +362,31 @@ p_number_atom( USES_REGS1 )
   }
   /* error handling */
   if (LOCAL_Error_TYPE && Yap_HandleError( "number_atom/2")) {
+    goto restart_aux;
+  }
+  return FALSE;
+}
+
+static Int 
+p_number_string( USES_REGS1 )
+{
+  Term t1;
+ restart_aux:
+  t1  = Deref(ARG1);
+  if (!IsVarTerm(t1)) {
+    Term tf;
+    tf = Yap_NumberToString(t1 PASS_REGS);
+    if (tf)
+      return Yap_unify( ARG2, tf );
+  } else {
+    /* ARG1 unbound */
+    Term   t = Deref(ARG2);
+    Term tf = Yap_StringToNumber(t PASS_REGS);
+    if (tf)
+      return Yap_unify( ARG1, tf );
+  }
+  /* error handling */
+  if (LOCAL_Error_TYPE && Yap_HandleError( "number_string/2")) {
     goto restart_aux;
   }
   return FALSE;
@@ -559,7 +616,7 @@ p_atom_length( USES_REGS1 )
       Yap_Error(TYPE_ERROR_INTEGER, t2, "atom_length/2");
       return(FALSE);
     }
-    if ((len = IntegerOfTerm(t2)) < 0) {
+    if (FALSE && (len = IntegerOfTerm(t2)) < 0) {
       Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t2, "atom_length/2");
       return(FALSE);
     }
@@ -589,7 +646,7 @@ p_atomic_length( USES_REGS1 )
       Yap_Error(TYPE_ERROR_INTEGER, t2, "atomic_length/2");
       return(FALSE);
     }
-    if ((len = IntegerOfTerm(t2)) < 0) {
+    if (FALSE && (len = IntegerOfTerm(t2)) < 0) {
       Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t2, "atomic_length/2");
       return(FALSE);
     }
@@ -619,7 +676,7 @@ p_string_length( USES_REGS1 )
       Yap_Error(TYPE_ERROR_INTEGER, t2, "string_length/2");
       return(FALSE);
     }
-    if ((len = IntegerOfTerm(t2)) < 0) {
+    if (FALSE && (len = IntegerOfTerm(t2)) < 0) {
       Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t2, "string_length/2");
       return(FALSE);
     }
@@ -1514,12 +1571,14 @@ Yap_InitAtomPreds(void)
   Yap_InitCPred("char_code", 2, p_char_code, SafePredFlag);
   Yap_InitCPred("atom_chars", 2, p_atom_chars, 0);
   Yap_InitCPred("atom_codes", 2, p_atom_codes, 0);
+  Yap_InitCPred("string_codes", 2, p_string_codes, 0);
   Yap_InitCPred("atom_length", 2, p_atom_length, SafePredFlag);
   Yap_InitCPred("atomic_length", 2, p_atomic_length, SafePredFlag);
   Yap_InitCPred("string_length", 2, p_string_length, SafePredFlag);
   Yap_InitCPred("$atom_split", 4, p_atom_split, SafePredFlag);
   Yap_InitCPred("number_chars", 2, p_number_chars, 0);
   Yap_InitCPred("number_atom", 2, p_number_atom, 0);
+  Yap_InitCPred("number_string", 2, p_number_string, 0);
   Yap_InitCPred("number_codes", 2, p_number_codes, 0);
   Yap_InitCPred("atom_number", 2, p_atom_number, 0);
   Yap_InitCPred("string_number", 2, p_string_number, 0);

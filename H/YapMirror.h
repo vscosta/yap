@@ -18,6 +18,12 @@
 static char SccsId[] = "%W% %G%";
 #endif
 
+#if SIZEOF_WCHAR_T == 2
+#define CHARCODE_MAX 0xffff
+#else
+#define CHARCODE_MAX 0x10ffff
+#endif
+
 /*
  * This file defines main data-structure for text conversion and
  * mirroring
@@ -224,6 +230,20 @@ Yap_AtomToString(Term t0 USES_REGS)
 }
 
 static inline Term
+Yap_AtomSWIToString(Term t0 USES_REGS)
+{
+  seq_tv_t inp, out;
+
+  inp.val.t = t0;
+  inp.type = YAP_STRING_ATOM|YAP_STRING_STRING|YAP_STRING_INT|YAP_STRING_FLOAT|YAP_STRING_BIG|YAP_STRING_ATOMS_CODES|YAP_STRING_TERM;
+  out.type = YAP_STRING_STRING;
+  
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+    return 0L;
+  return out.val.t;
+}
+
+static inline Term
 Yap_AtomicToString(Term t0 USES_REGS)
 {
   seq_tv_t inp, out;
@@ -375,6 +395,21 @@ Yap_ListToString(Term t0 USES_REGS)
 
   inp.val.t = t0;
   inp.type = YAP_STRING_STRING|YAP_STRING_ATOMS_CODES|YAP_STRING_TERM;
+  out.type = YAP_STRING_STRING;
+  
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+    return 0L;
+  return out.val.t;
+}
+
+
+static inline Term
+Yap_ListSWIToString(Term t0 USES_REGS)
+{
+  seq_tv_t inp, out;
+
+  inp.val.t = t0;
+  inp.type = YAP_STRING_STRING|YAP_STRING_ATOM|YAP_STRING_ATOMS_CODES|YAP_STRING_INT|YAP_STRING_FLOAT|YAP_STRING_BIG|YAP_STRING_TERM;
   out.type = YAP_STRING_STRING;
   
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
@@ -584,6 +619,18 @@ Yap_StringToAtom(Term t0 USES_REGS)
   return out.val.a;
 }
 
+static inline Atom
+Yap_StringSWIToAtom(Term t0 USES_REGS)
+{
+  seq_tv_t inp, out;
+  inp.val.t = t0;
+  inp.type = YAP_STRING_STRING|YAP_STRING_ATOM|YAP_STRING_INT|YAP_STRING_FLOAT|YAP_STRING_BIG|YAP_STRING_ATOMS_CODES|YAP_STRING_TERM;
+  out.type = YAP_STRING_ATOM;
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+    return 0L;
+  return out.val.a;
+}
+
 static inline size_t
 Yap_StringToAtomic(Term t0 USES_REGS)
 {
@@ -626,6 +673,18 @@ Yap_StringToListOfCodes(Term t0 USES_REGS)
   seq_tv_t inp, out;
   inp.val.t = t0;
   inp.type = YAP_STRING_STRING;
+  out.type = YAP_STRING_CODES;
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+    return 0L;
+  return out.val.t;
+}
+
+static inline size_t
+Yap_StringSWIToListOfCodes(Term t0 USES_REGS)
+{
+  seq_tv_t inp, out;
+  inp.val.t = t0;
+  inp.type = YAP_STRING_STRING|YAP_STRING_ATOM|YAP_STRING_INT|YAP_STRING_FLOAT|YAP_STRING_BIG|YAP_STRING_ATOMS_CODES|YAP_STRING_TERM;
   out.type = YAP_STRING_CODES;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return 0L;

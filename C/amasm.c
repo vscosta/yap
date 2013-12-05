@@ -1152,8 +1152,7 @@ a_ustring(CELL rnd1, op_numbers opcode, op_numbers opcode_w, int *clause_has_blo
     code_p->opc = emit_op(opcode);
     code_p->u.ou.opcw = emit_op(opcode_w);
     code_p->u.ou.u = 
-      AbsAppl((CELL *)(Unsigned(cip->code_addr) + cip->label_offset[rnd1]));
-      
+      AbsAppl((CELL *)(Unsigned(cip->code_addr) + cip->label_offset[rnd1]));      
   }
   *clause_has_blobsp = TRUE;
   GONEXT(ou);

@@ -1476,6 +1476,19 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
       serious = TRUE;
     }
     break;
+  case REPRESENTATION_ERROR_INT:
+    {
+      int i;
+      Term ti[1];
+
+      i = strlen(tmpbuf);
+      ti[0] = MkAtomTerm(AtomInt);
+      nt[0] = Yap_MkApplTerm(FunctorRepresentationError, 1, ti);
+      psize -= i;
+      fun = FunctorError;
+      serious = TRUE;
+    }
+    break;
   case REPRESENTATION_ERROR_MAX_ARITY:
     {
       int i;

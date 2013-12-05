@@ -693,7 +693,6 @@ c_arg(Int argno, Term t, unsigned int arity, unsigned int level, compiler_struct
 	Int sz = (3+src[1])*sizeof(CELL);
 	CELL *dest;
 
-	char *ptr = src+2; int chr;
 	/* use a special list to store the blobs */
 	cglobs->cint.cpc = cglobs->cint.icpc;
 	/*      if (IsFloatTerm(t)) {
@@ -719,7 +718,7 @@ c_arg(Int argno, Term t, unsigned int arity, unsigned int level, compiler_struct
 	else
 	  Yap_emit((cglobs->onhead ? (argno == (Int)arity ? unify_last_string_op
 			  : unify_string_op) :
-		write_string_op), t, Zero, &cglobs->cint);
+		write_string_op), l1, Zero, &cglobs->cint);
       } else {
 	/* we are taking a blob, that is a binary that is supposed to be
 	 guarded in the clause itself. Possible examples include

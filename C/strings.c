@@ -60,7 +60,7 @@ get_string_from_list( Term t, seq_tv_t *inp, char *s, int atoms USES_REGS)
       Atom at;
       if (IsWideAtom(at = AtomOfTerm(HeadOfTerm(t)))) {
 	int i = RepAtom(at)->WStrOfAE[0];
-	if (i <= 0 || i > 255) {
+	if (i <= 0) {
 	  LOCAL_Error_TYPE = REPRESENTATION_ERROR_CHARACTER_CODE;
 	  return NULL;		
 	}
@@ -116,7 +116,12 @@ get_wide_from_list( Term t, seq_tv_t *inp, wchar_t *s, int atoms USES_REGS)
     }
   } else {
     while (t != TermNil) {
-      *s++ = IntOfTerm(HeadOfTerm(t));
+      int code;
+      *s++ = code = IntOfTerm(HeadOfTerm(t));
+      if (code <= 0) {
+	LOCAL_Error_TYPE = REPRESENTATION_ERROR_CHARACTER_CODE;
+	return NULL;		
+      }
       if (--max == 0) {
 	*s++ = 0;
 	return s0;
@@ -456,7 +461,7 @@ read_Text( void *buf, seq_tv_t *inp, encoding_t *enc, int *minimal USES_REGS)
       } else if (IsAtomTerm(t)) {
 	if (inp->type & (YAP_STRING_ATOM)) {
 	  inp->type &= (YAP_STRING_ATOM);
-	  inp->val.a = AtomOfTerm(t);
+	  inp->val.t = t;
 	  return read_Text( buf, inp, enc, minimal PASS_REGS);
 	} else {
 	  LOCAL_Error_TYPE = TYPE_ERROR_ATOM;
@@ -511,7 +516,7 @@ write_strings( void *s0, seq_tv_t *out, encoding_t enc, int minimal USES_REGS)
 
       LOCAL_TERM_ERROR( 2*(lim-s) );
       buf = buf_from_tstring(H);
-      while (cp < lim) {
+      while (*cp && cp < lim) {
 	int chr;
 	cp = utf8_get_char(cp, &chr);
 	buf = utf8_put_char(buf, chr);
@@ -629,7 +634,7 @@ write_atoms( void *s0, seq_tv_t *out, encoding_t enc, int minimal USES_REGS)
       w[1] = '\0';
 
       LOCAL_TERM_ERROR( 2*(lim-s) );
-      while (cp < lim) {
+      while (*cp && cp < lim) {
 	int chr;
 	cp = get_wchar(cp, &chr);
 	w[0] = chr;
@@ -673,7 +678,7 @@ write_codes( void *s0, seq_tv_t *out, encoding_t enc, int minimal USES_REGS)
     { char *s = s0, *lim = s + strnlen(s, max);
       char *cp = s;
       LOCAL_TERM_ERROR( 2*(lim-s) );
-      while (cp < lim) {
+      while (*cp && cp < lim) {
 	int chr;
 	cp = utf8_get_char(cp, &chr);
 	H[0] = MkIntTerm(chr);
@@ -750,11 +755,12 @@ write_atom( void *s0, seq_tv_t *out, encoding_t enc, int minimal USES_REGS)
       wchar_t *buf = malloc(sizeof(wchar_t)*((lim+1)-s)), *ptr = buf;
       Atom at;
 
-      while (s < lim) {
+      while (*s && s < lim) {
 	int chr;
 	s = utf8_get_char(s, &chr);
 	*ptr++ = chr;
       }
+      *ptr++ = '\0';
       if (min > max) max = min;
       at = Yap_LookupMaybeWideAtomWithLength( buf, max );
       free( buf );

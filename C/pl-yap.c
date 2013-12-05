@@ -390,14 +390,13 @@ typedef union
 int
 get_atom_ptr_text(Atom a, PL_chars_t *text)
 { 
-  YAP_Atom ya = (YAP_Atom)a;
-  if (YAP_IsWideAtom(ya)) {
-    pl_wchar_t *name = (pl_wchar_t *)YAP_WideAtomName(ya);
+  if (IsWideAtom(a)) {
+    pl_wchar_t *name = (pl_wchar_t *)a->WStrOfAE;
     text->text.w   = name;
     text->length   = wcslen(name);
     text->encoding = ENC_WCHAR;
   } else
-    { char *name = (char *)YAP_AtomName(ya);
+    { char *name = a->StrOfAE;
     text->text.t   = name;
     text->length   = strlen(name);
     text->encoding = ENC_ISO_LATIN_1;
@@ -411,7 +410,7 @@ get_atom_ptr_text(Atom a, PL_chars_t *text)
 
 int
 get_atom_text(atom_t atom, PL_chars_t *text)
-{ Atom a = (Atom)atomValue(atom);
+{ Atom a = YAP_AtomFromSWIAtom(atom);
 
   return get_atom_ptr_text(a, text);
 }
