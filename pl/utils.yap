@@ -342,12 +342,12 @@ atom_concat(Xs,At) :-
 	( var(At) ->
 	   '$atom_concat'(Xs, At )
         ;
-	 '$atom_concat_constraints'(Xs, start, At, Unbound),
+	 '$atom_concat_constraints'(Xs, 0, At, Unbound),
 	 '$process_atom_holes'(Unbound)
         ).
 
 % the constraints are of the form hole: HoleAtom, Begin, Atom, End
-'$atom_concat_constraints'([At], 0, At, _, []) :- !.
+'$atom_concat_constraints'([At], 0, At, []) :- !.
 '$atom_concat_constraints'([At0], mid(Next, At), At, [hole(At0, Next, At, end)]) :-  !.
 % just slice first atom
 '$atom_concat_constraints'([At0|Xs], 0, At, Unbound) :-
@@ -356,7 +356,7 @@ atom_concat(Xs,At) :-
 	sub_atom(At, _, L, 0, Atr ), %remainder
 	'$atom_concat_constraints'(Xs, 0, Atr, Unbound).
 % first hole: Follow says whether we have two holes in a row, At1 will be our atom
-'$atom_concat_constraints'([At0|Xs], start, At, [hole(At0, 0, At, Next)|Unbound]) :-
+'$atom_concat_constraints'([At0|Xs], 0, At, [hole(At0, 0, At, Next)|Unbound]) :-
 	 '$atom_concat_constraints'(Xs, mid(Next,At1), At, Unbound).
 % end of a run
 '$atom_concat_constraints'([At0|Xs], mid(end, At1), At, Unbound) :-
@@ -364,7 +364,7 @@ atom_concat(Xs,At) :-
 	sub_atom(At, Next, Sz, L, At0),
 	sub_atom(At, 0, Next, Next, At1),
 	sub_atom(At, _, L, 0, Atr), %remainder
-	'$atom_concat_constraints'(Xs, 0, Atr, _, Unbound).
+	'$atom_concat_constraints'(Xs, 0, Atr, Unbound).
 '$atom_concat_constraints'([At0|Xs], mid(Next,At1), At, Next, [hole(At0, Next, At, Follow)|Unbound]) :-
 	 '$atom_concat_constraints'(Xs, mid(NextFollow, At1), At, Unbound).
 

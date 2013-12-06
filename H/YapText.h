@@ -46,6 +46,7 @@ typedef enum {
   YAP_STRING_BIG = 0x100,
   YAP_STRING_LITERAL = 0x200,
   YAP_STRING_LENGTH = 0x400,
+  YAP_STRING_NTH = 0x800,
   YAP_STRING_TERM = 0x1000, // joint with other flags that define possible values 
   YAP_STRING_DIFF = 0x2000,  // difference list
   YAP_STRING_NCHARS= 0x4000,  // size of input/result
@@ -63,6 +64,7 @@ typedef union {
   const wchar_t *w;
   Atom   a;
   size_t l;
+  int d;
   Term   t;// depends on other flags
 }
 seq_val_t;
@@ -968,3 +970,4 @@ Yap_SubtractTailAtomic(Term t1, Term th USES_REGS)
   else
     return 0L;
 }
+

@@ -21,7 +21,7 @@
 #include "eval.h"
 #include "yapio.h"
 #include "pl-shared.h"
-#include "YapMirror.h"
+#include "YapText.h"
 
 #include <string.h>
 
@@ -1013,7 +1013,7 @@ advance_Text( void *s, int l, encoding_t enc )
   case YAP_CHAR:
     return ((char *)s)+l;
   case YAP_UTF8:
-    return (char *)utf8_n((const char *)s,l);
+    return (char *)utf8_skip((const char *)s,l);
   case YAP_WCHAR:
     return ((wchar_t *)s)+l;
   }
@@ -1198,7 +1198,7 @@ slice( int min, int max, void *buf, seq_tv_t *out, encoding_t enc USES_REGS )
       int chr;
       while ( min++ < max ) { chr = *ptr++; nbuf = utf8_put_char(nbuf, chr); }
     } else {
-      const char *ptr = utf8_n ( (const char *)buf, min );
+      const char *ptr = utf8_skip ( (const char *)buf, min );
       int chr;
       while ( min++ < max ) { ptr = utf8_get_char(ptr, & chr); nbuf = utf8_put_char(nbuf, chr); }
     }
@@ -1231,7 +1231,7 @@ slice( int min, int max, void *buf, seq_tv_t *out, encoding_t enc USES_REGS )
       /*  atom */
       wchar_t *nbuf = (wchar_t *)H;
       Term t = ARG1;
-      const char *ptr = utf8_n ( (const char *)buf, min );
+      const char *ptr = utf8_skip ( (const char *)buf, min );
       int chr;
 
       LOCAL_ERROR( max-min );

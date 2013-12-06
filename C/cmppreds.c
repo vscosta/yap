@@ -360,7 +360,7 @@ compare(Term t1, Term t2) /* compare terms t1 and t2	 */
 	case db_ref_e:
 	  return 1;
 	case string_e:
-	  return 1;
+	  return -1;
 	}
       }
       return -1;
@@ -437,10 +437,22 @@ compare(Term t1, Term t2) /* compare terms t1 and t2	 */
       case string_e:
 	{
 	  if (IsApplTerm(t2)) {
-	    Functor f2 = FunctorOfTerm(t2);
-	    if (f2 == FunctorString)
+	    Functor fun2 = FunctorOfTerm(t2);
+	    switch ((CELL)fun2) {
+	    case double_e:
+	      return 1;
+	    case long_int_e:
+	      return 1;
+#ifdef USE_GMP
+	    case big_int_e:
+	      return 1;
+#endif
+	    case db_ref_e:
+	      return 1;
+	    case string_e:
 	      return strcmp(StringOfTerm(t1), StringOfTerm(t2));
-	    return 1;
+	    }
+	    return -1;
 	  }
 	  return -1;
 	}

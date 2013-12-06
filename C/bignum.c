@@ -349,6 +349,17 @@ p_is_bignum( USES_REGS1 )
 }
 
 static Int 
+p_is_string( USES_REGS1 )
+{
+  Term t = Deref(ARG1);
+  return(
+	 IsNonVarTerm(t) && 
+	 IsApplTerm(t) && 
+	 FunctorOfTerm(t) == FunctorString
+	 );
+}
+
+static Int 
 p_nb_set_bit( USES_REGS1 )
 {
 #ifdef USE_GMP
@@ -476,6 +487,7 @@ Yap_InitBigNums(void)
   Yap_InitCPred("$bignum", 1, p_is_bignum, SafePredFlag);
   Yap_InitCPred("rational", 3, p_rational, 0);
   Yap_InitCPred("rational", 1, p_is_rational, SafePredFlag);
+  Yap_InitCPred("string", 1, p_is_string, SafePredFlag);
   Yap_InitCPred("opaque", 1, p_is_opaque, SafePredFlag);
   Yap_InitCPred("nb_set_bit", 2, p_nb_set_bit, SafePredFlag);
 }

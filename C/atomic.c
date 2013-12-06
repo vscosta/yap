@@ -31,7 +31,8 @@ static char     SccsId[] = "%W% %G%";
 #include "eval.h"
 #include "yapio.h"
 #include "pl-shared.h"
-#include "YapMirror.h"
+#include "pl-utf8.h"
+#include "YapText.h"
 #ifdef TABLING
 #include "tab.macros.h"
 #endif /* TABLING */
@@ -564,7 +565,7 @@ init_atomic_concat3( USES_REGS1 )
     else cut_fail();
   }
   /* Error handling */
-  if (LOCAL_Error_TYPE && Yap_HandleError( "atoicm_concat/3" )) {
+  if (LOCAL_Error_TYPE && Yap_HandleError( "atomic_concat/3" )) {
     goto restart_aux;
   }
   return FALSE;
@@ -627,12 +628,92 @@ init_string_concat3( USES_REGS1 )
     else cut_fail();
   }
   /* Error handling */
-  if (LOCAL_Error_TYPE && Yap_HandleError( "atom_concat/3" )) {
+  if (LOCAL_Error_TYPE && Yap_HandleError( "string_concat/3" )) {
     goto restart_aux;
   }
   return FALSE;
 }
 
+static Int 
+cont_string_code3( USES_REGS1 )
+{
+  Term t2;
+  Int i, j;
+  int chr;
+  char *s;
+  const char *s0;
+ restart_aux:
+  t2 = Deref(ARG2);
+  s0 = StringOfTerm( t2 );
+  i = IntOfTerm(EXTRA_CBACK_ARG(3,1)); // offset in coded string, increases by 1..6
+  j = IntOfTerm(EXTRA_CBACK_ARG(3,2)); // offset in UNICODE string, always increases by 1
+  s = utf8_get_char( s0+i, &chr );
+  if (s[0]) {
+    EXTRA_CBACK_ARG(3,1) = MkIntTerm(s-s0);
+    EXTRA_CBACK_ARG(3,2) = MkIntTerm(j+1);
+    return Yap_unify(MkIntegerTerm( chr ), ARG3) && Yap_unify(MkIntegerTerm( j ), ARG1);
+  }
+  if (Yap_unify(MkIntegerTerm( chr ), ARG3) && Yap_unify(MkIntegerTerm( j ), ARG1))
+    cut_succeed();
+  else
+    cut_fail();
+  /* Error handling */
+  if (LOCAL_Error_TYPE && Yap_HandleError( "get_code/3" )) {
+    goto restart_aux;
+  }
+  return FALSE;
+}
+
+
+static Int 
+init_string_code3( USES_REGS1 )
+{
+  Term t1;
+  Term t2;
+  const char *s;
+ restart_aux:
+  t1 = Deref(ARG1);
+  t2 = Deref(ARG2);
+  if (IsVarTerm(t2)) {
+    LOCAL_Error_TYPE = INSTANTIATION_ERROR;
+    LOCAL_Error_Term = t2;
+  } else if (!IsStringTerm(t2)) {
+    LOCAL_Error_TYPE = TYPE_ERROR_STRING;
+    LOCAL_Error_Term = t2;
+  } else {
+    s = StringOfTerm( t2 );
+    t1 = Deref(ARG1);
+    if (IsVarTerm(t1)) {
+      EXTRA_CBACK_ARG(3,1) = MkIntTerm(0);
+      EXTRA_CBACK_ARG(3,2) = MkIntTerm(0);
+      return cont_string_code3( PASS_REGS1 );
+    } else if (!IsIntegerTerm( t1 )) {
+      LOCAL_Error_TYPE = TYPE_ERROR_INTEGER;
+      LOCAL_Error_Term = t1;
+    } else {
+      const char *ns = s;
+      int chr;
+      Int indx = IntegerOfTerm( t1 );
+      if (indx < 0) {
+	LOCAL_Error_TYPE = DOMAIN_ERROR_NOT_LESS_THAN_ZERO;
+	LOCAL_Error_Term = t1;
+      }
+      ns = utf8_skip(s,indx);
+      if (ns == NULL) {
+	cut_fail(); // silently fail?
+      }
+      utf8_get_char( ns,  &chr);
+      if ( chr == '\0') cut_fail();
+      if (Yap_unify(ARG3, MkIntegerTerm(chr))) cut_succeed();
+      cut_fail();
+    }
+  }
+  /* Error handling */
+  if (LOCAL_Error_TYPE && Yap_HandleError( "get_code/3" )) {
+    goto restart_aux;
+  }
+  return FALSE;
+}
 
 static Int 
 p_atom_concat2( USES_REGS1 )
@@ -1083,7 +1164,7 @@ check_sub_string_at(int min, Term at, Term nat)
   const char *p1, *p2;
   int c1;
 
-  p1 = utf8_n(StringOfTerm(at), min);
+  p1 = utf8_skip(StringOfTerm(at), min);
   p2 = StringOfTerm(nat);
   while ( (c1 = *p1++) == *p2++ && c1);
   return c1 == 0;
@@ -1137,7 +1218,7 @@ check_sub_string_bef(int max, Term at, Term nat)
 
   if ((Int)(min - len) < 0) return FALSE;
 
-  p1 = utf8_n(StringOfTerm(at),min);
+  p1 = utf8_skip(StringOfTerm(at),min);
   p2 = StringOfTerm(nat);
   while ( (c1 = *p1++) == *p2++ && c1);
   return c1 == 0;
@@ -1241,7 +1322,7 @@ cont_sub_atomic( USES_REGS1 )
       }
     } else {
       while (!found) {
-	p = (char *)utf8_n(p, min);
+	p = (char *)utf8_skip(p, min);
         if (utf8_strncmp(p, StringOfTerm(nat), len) == 0) {
           Yap_unify(ARG2, MkIntegerTerm(min));
           Yap_unify(ARG3, MkIntegerTerm(len));
@@ -1455,14 +1536,14 @@ init_sub_atomic( int sub_atom USES_REGS )
       if (!sub_atom) {
 	out = (utf8_strlen1(StringOfTerm(tout)) == len);
 	if (!out) cut_fail();
-      } else if (IsWideAtom(AtomOfTerm(nat))) {
+      } else if (IsWideAtom(AtomOfTerm(tout))) {
 	if (!(mask & SUB_ATOM_HAS_VAL)) {
 	  cut_fail();
 	}
 	/* just check length, they may still be several occurrences :( */
-	out = (wcslen(RepAtom(AtomOfTerm(nat))->WStrOfAE) == len);
+	out = (wcslen(RepAtom(AtomOfTerm(tout))->WStrOfAE) == len);
       } else {
-	out = (strlen(RepAtom(AtomOfTerm(nat))->StrOfAE) == len);
+	out = (strlen(RepAtom(AtomOfTerm(tout))->StrOfAE) == len);
 	if (!out) cut_fail();
       }
       if (len == sz) {
@@ -1681,6 +1762,7 @@ Yap_InitBackAtoms(void)
   Yap_InitCPredBack("string_concat", 3, 2, init_string_concat3, cont_string_concat3, 0);
   Yap_InitCPredBack("sub_atom", 5, 5, init_sub_atom, cont_sub_atomic, 0);
   Yap_InitCPredBack("sub_string", 5, 5, init_sub_string, cont_sub_atomic, 0);
+  Yap_InitCPredBack("string_code", 3, 1, init_string_code3, cont_string_code3, 0);
 
 }
 
