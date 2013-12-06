@@ -50,16 +50,20 @@
 #define utf8_get_char(in, chr) \
 	(*(in) & 0x80 ? _PL__utf8_get_char(in, chr) \
 		      : (*(chr) = *(in), (char *)(in)+1))
+#define utf8_skip_char(in) \
+	(*(in) & 0x80 ? _PL__utf8_skip_char(in) \
+		      : (char *)(in)+1)
 #define utf8_put_char(out, chr) \
 	((chr) < 0x80 ? out[0]=(char)(chr), out+1 \
 		      : _PL__utf8_put_char(out, (chr)))
 
 extern char *_PL__utf8_get_char(const char *in, int *chr);
 extern char *_PL__utf8_put_char(char *out, int chr);
+extern char *_PL__utf8_skip_char(const char *out);
 
 extern size_t utf8_strlen(const char *s, size_t len);
 extern size_t utf8_strlen1(const char *s);
-extern const char * utf8_n(const char *s, int n);
+extern const char * utf8_skip(const char *s, int n);
 extern int    utf8_strncmp(const char *s1, const char *s2, size_t n);
 extern int    utf8_strprefix(const char *s1, const char *s2);
 

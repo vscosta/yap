@@ -148,6 +148,37 @@ _PL__utf8_put_char(char *out, int chr)
   return out;
 }
 
+char *
+_PL__utf8_skip_char(const char *in)
+{ 					/* 2-byte, 0x80-0x7ff */
+  if ( (in[0]&0xe0) == 0xc0 && CONT(1) )
+  { 
+    return (char *)in+2;
+  }
+					/* 3-byte, 0x800-0xffff */
+  if ( (in[0]&0xf0) == 0xe0 && CONT(1) && CONT(2) )
+  { 
+    return (char *)in+3;
+  }
+					/* 4-byte, 0x10000-0x1FFFFF */
+  if ( (in[0]&0xf8) == 0xf0 && CONT(1) && CONT(2) && CONT(3) )
+  { 
+    return (char *)in+4;
+  }
+					/* 5-byte, 0x200000-0x3FFFFFF */
+  if ( (in[0]&0xfc) == 0xf8 && CONT(1) && CONT(2) && CONT(3) && CONT(4) )
+  { 
+    return (char *)in+5;
+  }
+					/* 6-byte, 0x400000-0x7FFFFFF */
+  if ( (in[0]&0xfe) == 0xfc && CONT(1) && CONT(2) && CONT(3) && CONT(4) && CONT(5) )
+  { 
+    return (char *)in+4;
+  }
+
+  return (char *)in+1;
+}
+
 
 size_t
 utf8_strlen(const char *s, size_t len)
@@ -169,11 +200,9 @@ utf8_strlen1(const char *s)
 { 
   unsigned int l = 0;
 
-  while(1)
-  { int chr;
-
-    s = utf8_get_char(s, &chr);
-    if (!chr) break;
+  while( s [0] )
+  { 
+    s = utf8_skip_char(s);
     l++;
   }
 
@@ -181,13 +210,12 @@ utf8_strlen1(const char *s)
 }
 
 const char *
-utf8_n(const char *s, int n)
+utf8_skip(const char *s, int n)
 { 
   while(n--)
-  { int chr;
-
-    s = utf8_get_char(s, &chr);
-    if (!chr) return NULL;
+  { 
+    if (!s[0]) return NULL;
+    s = utf8_skip_char(s);
   }
 
   return s;
