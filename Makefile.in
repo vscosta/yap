@@ -189,7 +189,7 @@ HEADERS = \
 	$(srcdir)/H/tracer.h \
 	$(srcdir)/H/trim_trail.h \
 	$(srcdir)/H/yapio.h \
-	$(srcdir)/H/YapMirror.h \
+	$(srcdir)/H/YapText.h \
 	$(srcdir)/BEAM/eam.h $(srcdir)/BEAM/eamamasm.h \
 	$(srcdir)/OPTYap/opt.config.h \
 	$(srcdir)/OPTYap/opt.proto.h $(srcdir)/OPTYap/opt.structs.h \
@@ -237,7 +237,8 @@ C_SOURCES= \
 	$(srcdir)/C/agc.c $(srcdir)/C/alloc.c \
 	$(srcdir)/C/amasm.c $(srcdir)/C/analyst.c \
 	$(srcdir)/C/arith0.c $(srcdir)/C/arith1.c $(srcdir)/C/arith2.c \
-	$(srcdir)/C/arrays.c $(srcdir)/C/atoms.c \
+	$(srcdir)/C/atomic.c \
+	$(srcdir)/C/arrays.c \
 	$(srcdir)/C/attvar.c $(srcdir)/C/bb.c \
 	$(srcdir)/C/bignum.c \
 	$(srcdir)/C/c_interface.c $(srcdir)/C/cdmgr.c $(srcdir)/C/cmppreds.c \
@@ -263,8 +264,8 @@ C_SOURCES= \
 	$(srcdir)/C/qlyw.c \
 	$(srcdir)/C/range.c \
 	$(srcdir)/C/save.c $(srcdir)/C/scanner.c $(srcdir)/C/signals.c \
-	$(srcdir)/C/strings.c \
 	$(srcdir)/C/sort.c $(srcdir)/C/stdpreds.c $(srcdir)/C/sysbits.c \
+	$(srcdir)/C/text.c \
 	$(srcdir)/C/threads.c \
 	$(srcdir)/C/tracer.c $(srcdir)/C/unify.c $(srcdir)/C/userpreds.c  \
 	$(srcdir)/C/udi.c \
@@ -361,7 +362,7 @@ IOLIB_OBJECTS=pl-buffer.o pl-codelist.o pl-ctype.o pl-dtoa.o pl-error.o  \
 
 ENGINE_OBJECTS = \
 	agc.o absmi.o adtdefs.o alloc.o amasm.o analyst.o arrays.o \
-	arith0.o arith1.o arith2.o atoms.o attvar.o \
+	arith0.o arith1.o arith2.o atomic.o attvar.o \
 	bignum.o bb.o \
 	cdmgr.o cmppreds.o compiler.o computils.o \
 	corout.o cut_c.o dbase.o dlmalloc.o errors.o eval.o \
@@ -372,7 +373,7 @@ ENGINE_OBJECTS = \
 	myddas_util.o myddas_statistics.o myddas_top_level.o \
 	myddas_wkb2prolog.o modules.o other.o   \
 	parser.o qlyr.o qlyw.o range.o \
-	save.o scanner.o signals.o strings.o sort.o stdpreds.o \
+	save.o scanner.o signals.o text.o sort.o stdpreds.o \
 	sysbits.o threads.o tracer.o \
 	udi.o\
 	unify.o userpreds.o utilpreds.o \
