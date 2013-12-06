@@ -310,6 +310,17 @@ Yap_ListToBuffer(void *buf, Term t, seq_tv_t *inp, int *widep USES_REGS)
   }
 }
 
+static yap_error_number 
+gen_type_error(int flags) {
+  if (flags & YAP_STRING_ATOM)
+    return TYPE_ERROR_ATOM;
+  if (flags & YAP_STRING_STRING)
+    return TYPE_ERROR_STRING;
+  if (flags & (YAP_STRING_CODES|YAP_STRING_ATOMS))
+    return TYPE_ERROR_LIST;
+  return TYPE_ERROR_NUMBER;
+}
+
 static void *
 read_Text( void *buf, seq_tv_t *inp, encoding_t *enc, int *minimal USES_REGS)
 {
@@ -447,7 +458,7 @@ read_Text( void *buf, seq_tv_t *inp, encoding_t *enc, int *minimal USES_REGS)
 	  inp->type &= (YAP_STRING_STRING);
 	  return read_Text( buf, inp, enc, minimal PASS_REGS);
 	} else {
-	  LOCAL_Error_TYPE = TYPE_ERROR_STRING;
+	  LOCAL_Error_TYPE = gen_type_error( inp->type );
 	  LOCAL_Error_Term = t;
 	}	 
       } else if (IsPairTerm(t)) {
@@ -455,7 +466,7 @@ read_Text( void *buf, seq_tv_t *inp, encoding_t *enc, int *minimal USES_REGS)
 	  inp->type &= (YAP_STRING_CODES|YAP_STRING_ATOMS);
 	  return read_Text( buf, inp, enc, minimal PASS_REGS);
 	} else {
-	  LOCAL_Error_TYPE = TYPE_ERROR_LIST;
+	  LOCAL_Error_TYPE = gen_type_error( inp->type );
 	  LOCAL_Error_Term = t;
 	}
       } else if (IsAtomTerm(t)) {
@@ -464,7 +475,7 @@ read_Text( void *buf, seq_tv_t *inp, encoding_t *enc, int *minimal USES_REGS)
 	  inp->val.t = t;
 	  return read_Text( buf, inp, enc, minimal PASS_REGS);
 	} else {
-	  LOCAL_Error_TYPE = TYPE_ERROR_ATOM;
+	  LOCAL_Error_TYPE = gen_type_error( inp->type );
 	  LOCAL_Error_Term = t;
 	}	 
       } else if (IsIntegerTerm(t)) {
@@ -473,7 +484,7 @@ read_Text( void *buf, seq_tv_t *inp, encoding_t *enc, int *minimal USES_REGS)
 	  inp->val.i = IntegerOfTerm(t);
 	  return read_Text( buf, inp, enc, minimal PASS_REGS);
 	} else {
-	  LOCAL_Error_TYPE = TYPE_ERROR_INTEGER;
+	  LOCAL_Error_TYPE = gen_type_error( inp->type );
 	  LOCAL_Error_Term = t;
 	}	 
       } else if (IsFloatTerm(t)) {
@@ -482,7 +493,7 @@ read_Text( void *buf, seq_tv_t *inp, encoding_t *enc, int *minimal USES_REGS)
 	  inp->val.f = FloatOfTerm(t);
 	  return read_Text( buf, inp, enc, minimal PASS_REGS);
 	} else {
-	  LOCAL_Error_TYPE = TYPE_ERROR_FLOAT;
+	  LOCAL_Error_TYPE = gen_type_error( inp->type );
 	  LOCAL_Error_Term = t;
 	}	 
       } else if (IsBigIntTerm(t)) {
@@ -491,9 +502,14 @@ read_Text( void *buf, seq_tv_t *inp, encoding_t *enc, int *minimal USES_REGS)
 	  inp->val.b = Yap_BigIntOfTerm(t);
 	  return read_Text( buf, inp, enc, minimal PASS_REGS);
 	} else {
-	  LOCAL_Error_TYPE = TYPE_ERROR_BIGNUM;
+	  LOCAL_Error_TYPE = gen_type_error( inp->type );
 	  LOCAL_Error_Term = t;
 	}	 
+      } else {
+	if (!Yap_IsGroundTerm(t)) {
+	  LOCAL_Error_TYPE = INSTANTIATION_ERROR;
+	  LOCAL_Error_Term = t;
+	}
       }
       return NULL;
     }
@@ -809,7 +825,7 @@ write_length( void *s0, seq_tv_t *out, encoding_t enc, int minimal USES_REGS)
   case YAP_UTF8:
     {
       const char *s = s0;
-      return utf8_strlen(s, strlen(s));
+      return utf8_strlen1(s);
     }
   case YAP_CHAR:
     {
@@ -895,7 +911,8 @@ write_term( void *s0, seq_tv_t *out, encoding_t enc, int minimal USES_REGS)
   return 0L;
 }
 
-static int
+
+int
 write_Text( void *inp, seq_tv_t *out, encoding_t enc, int minimal USES_REGS)
 {
 
@@ -1223,7 +1240,7 @@ slice( int min, int max, void *buf, seq_tv_t *out, encoding_t enc USES_REGS )
       at = Yap_LookupMaybeWideAtom( (wchar_t*)H );
     }
     out->val.a = at;
-    return at;
+    return at->StrOfAE;
   }
   return NULL;
 }
@@ -1261,18 +1278,25 @@ Yap_Concat_Text( int n,  seq_tv_t inp[], seq_tv_t *out USES_REGS)
 //                                                                                                                                   
 // out must be an atom or a string                                                                                                   
 void *
-Yap_Splice_Text( int n,  size_t cuts[], seq_tv_t *inp, seq_tv_t outv[] USES_REGS)
+Yap_Splice_Text( int n,  size_t cuts[], seq_tv_t *inp, encoding_t encv[], seq_tv_t outv[] USES_REGS)
 {
   encoding_t enc;
   int minimal = FALSE;
-  void *buf;
+  void *buf, *store;
   size_t l;
   int i, min;
 
   buf = read_Text( NULL, inp, &enc, &minimal PASS_REGS );
-  l = write_length( buf, inp, enc, minimal PASS_REGS);
   if (!buf)
     return NULL;
+  l = write_length( buf, inp, enc, minimal PASS_REGS);
+  /* where to allocate next is the most complicated part */
+  if ((char *)buf >= AuxBase &&  (char *)buf < AuxTop) {
+    store = compute_end( buf, enc );
+  } else {
+    store = NULL;
+  }
+
 
   if (!cuts) {
     if (n == 2) {
@@ -1280,32 +1304,43 @@ Yap_Splice_Text( int n,  size_t cuts[], seq_tv_t *inp, seq_tv_t outv[] USES_REGS
       encoding_t enc0, enc1;
       int minimal0, minimal1;
       void *buf0, *buf1;
+
       if (outv[0].val.t) {
-	buf0 = read_Text( buf, outv, &enc0, &minimal0 PASS_REGS );
+	buf0 = read_Text( store, outv, &enc0, &minimal0 PASS_REGS );
+	if (!buf0)
+	  return NULL;
 	l0 = write_length( buf0, outv, enc, minimal0 PASS_REGS);
-	if (cmp_Text( buf, buf0, l0, enc, enc0) == 0)
+	if (cmp_Text( buf, buf0, l0, enc, enc0) != 0)
 	  return NULL;
 
 	l1 = l-l0;
-	slice(l0, l, buf, outv+1, enc PASS_REGS);
-	return buf0;
-      } else /* if (outv[1].val.t) */ {
-	buf1 = read_Text( buf, outv, &enc1, &minimal1 PASS_REGS );
-	l1 = write_length( buf1, outv, enc1, minimal1 PASS_REGS);
-	l0 = l-l1;		
-	if (cmp_Text( advance_Text(buf, l0, enc), buf1, l1, enc, enc1) == 0)
-	  return NULL;
-	slice(0, l0, buf, outv, enc PASS_REGS);
+	buf1 = slice(l0, l, buf, outv+1, enc PASS_REGS);
+	if (encv)
+	  encv[1] = enc;
 	return buf1;
+      } else /* if (outv[1].val.t) */ {
+	buf1 = read_Text( store, outv+1, &enc1, &minimal1 PASS_REGS );
+	if (!buf1)
+	  return NULL;
+	l1 = write_length( buf1, outv+1, enc1, minimal1 PASS_REGS);
+	l0 = l-l1;		
+	if (cmp_Text( advance_Text(buf, l0, enc), buf1, l1, enc, enc1) != 0)
+	  return NULL;
+	buf0 = slice(0, l0, buf, outv, enc PASS_REGS);
+	if (encv)
+	  encv[0] = enc;
+	return buf0;
       }
     }
   }
-  for (i = 0; i < n-1; i++) {
+  for (i = 0; i < n; i++) {
     if (i == 0) min = 0;
     else min = cuts[i-1];
     slice(min, cuts[i], buf, outv+i, enc PASS_REGS);
     if (!(outv[i].val.a))
       return NULL;
+    if (encv)
+      encv[i] = enc;
   }
   return (void *)outv;;
 }

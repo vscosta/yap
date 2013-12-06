@@ -124,9 +124,10 @@ mod_to_type( Term mod USES_REGS )
 
 // the routines
 
+extern int write_Text( void *inp, seq_tv_t *out, encoding_t enc, int minimal USES_REGS);
 extern int   Yap_CVT_Text( seq_tv_t *inp, seq_tv_t *out USES_REGS);
 extern void *Yap_Concat_Text( int n,  seq_tv_t inp[], seq_tv_t *out USES_REGS);
-extern void *Yap_Splice_Text( int n,  size_t cuts[], seq_tv_t *inp, seq_tv_t outv[] USES_REGS);
+extern void *Yap_Splice_Text( int n,  size_t cuts[], seq_tv_t *inp, encoding_t encv[], seq_tv_t outv[] USES_REGS);
 
 // user friendly interface
 
@@ -135,7 +136,7 @@ Yap_AtomicToLength(Term t0 USES_REGS)
 {
   seq_tv_t inp, out;
   inp.val.t = t0;
-  inp.type = YAP_STRING_STRING|YAP_STRING_CODES|YAP_STRING_ATOMS|YAP_STRING_ATOM|YAP_STRING_FLOAT|YAP_STRING_BIG|YAP_STRING_TERM;
+  inp.type = YAP_STRING_STRING|YAP_STRING_CODES|YAP_STRING_ATOMS|YAP_STRING_ATOM|YAP_STRING_INT|YAP_STRING_FLOAT|YAP_STRING_BIG|YAP_STRING_TERM;
   out.type = YAP_STRING_LENGTH;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return 0L;
@@ -153,7 +154,6 @@ Yap_AtomicToListOfAtoms(Term t0 USES_REGS)
     return 0L;
   return out.val.t;
 }
-
 
 static inline Term
 Yap_AtomicToListOfCodes(Term t0 USES_REGS)
@@ -175,8 +175,8 @@ Yap_AtomToLength(Term t0 USES_REGS)
   inp.type = YAP_STRING_ATOM;
   out.type = YAP_STRING_LENGTH;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
-  return out.val.t;
+    return (size_t)(-1L);
+  return out.val.l;
 }
 
 static inline Term
@@ -190,6 +190,21 @@ Yap_AtomToListOfAtoms(Term t0 USES_REGS)
     return 0L;
   return out.val.t;
 }
+
+static inline Term
+Yap_AtomSWIToListOfAtoms(Term t0 USES_REGS)
+{
+  seq_tv_t inp, out;
+
+  inp.val.t = t0;
+  inp.type = YAP_STRING_ATOM|YAP_STRING_STRING|YAP_STRING_INT|YAP_STRING_FLOAT|YAP_STRING_BIG|YAP_STRING_ATOMS_CODES|YAP_STRING_TERM;
+  out.type = YAP_STRING_ATOMS;
+  
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+    return 0L;
+  return out.val.t;
+}
+
 
 static inline Term
 Yap_AtomToListOfCodes(Term t0 USES_REGS)
@@ -651,8 +666,8 @@ Yap_StringToLength(Term t0 USES_REGS)
   inp.type = YAP_STRING_STRING;
   out.type = YAP_STRING_LENGTH;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
-  return out.val.t;
+    return (size_t)(-1L);
+  return out.val.l;
 }
 
 static inline size_t
@@ -661,6 +676,18 @@ Yap_StringToListOfAtom(Term t0 USES_REGS)
   seq_tv_t inp, out;
   inp.val.t = t0;
   inp.type = YAP_STRING_STRING;
+  out.type = YAP_STRING_ATOMS;
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+    return 0L;
+  return out.val.t;
+}
+
+static inline size_t
+Yap_StringSWIToListOfAtoms(Term t0 USES_REGS)
+{
+  seq_tv_t inp, out;
+  inp.val.t = t0;
+  inp.type = YAP_STRING_STRING|YAP_STRING_ATOM|YAP_STRING_INT|YAP_STRING_FLOAT|YAP_STRING_BIG|YAP_STRING_ATOMS_CODES|YAP_STRING_TERM;
   out.type = YAP_STRING_ATOMS;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return 0L;
@@ -785,14 +812,17 @@ Yap_ConcatStrings(Term t1, Term t2 USES_REGS)
 
 
 static inline Atom
-Yap_SpliceAtom(Term t1, Atom ats[], size_t cut USES_REGS)
+Yap_SpliceAtom(Term t1, Atom ats[], size_t cut, size_t max USES_REGS)
 {
   seq_tv_t outv[2], inp;
+  size_t cuts[2];
+  cuts[0] = cut;
+  cuts[1] = max;
   inp.type = YAP_STRING_ATOM;
   inp.val.t = t1;
   outv[0].type = YAP_STRING_ATOM;
   outv[1].type = YAP_STRING_ATOM;
-  if (!Yap_Splice_Text(2, &cut, &inp, outv PASS_REGS))
+  if (!Yap_Splice_Text(2, cuts, &inp, NULL, outv PASS_REGS))
     return NULL;
   ats[0] = outv[0].val.a;
   ats[1] = outv[1].val.a;
@@ -809,10 +839,11 @@ Yap_SubtractHeadAtom(Term t1, Term th USES_REGS)
   outv[0].val.t = th;
   outv[1].type = YAP_STRING_ATOM;
   outv[1].val.t = 0;
-  if (!Yap_Splice_Text(2, NULL, &inp, outv PASS_REGS))
+  if (!Yap_Splice_Text(2, NULL, &inp, NULL, outv PASS_REGS))
     return NULL;
   return outv[1].val.a;
 }
+
 
 static inline Atom
 Yap_SubtractTailAtom(Term t1, Term th USES_REGS)
@@ -824,7 +855,116 @@ Yap_SubtractTailAtom(Term t1, Term th USES_REGS)
   outv[0].val.t = 0;
   outv[1].type = YAP_STRING_ATOM;
   outv[1].val.t = th;
-  if (!Yap_Splice_Text(2, NULL, &inp, outv PASS_REGS))
+  if (!Yap_Splice_Text(2, NULL, &inp, NULL, outv PASS_REGS))
     return NULL;
   return outv[0].val.a;
+}
+
+static inline Term
+Yap_SpliceString(Term t1, Term ts[], size_t cut, size_t max USES_REGS)
+{
+  seq_tv_t outv[2], inp;
+  size_t cuts[2];
+  inp.type = YAP_STRING_STRING;
+  inp.val.t = t1;
+  outv[0].type = YAP_STRING_STRING;
+  outv[1].type = YAP_STRING_STRING;
+  if (!Yap_Splice_Text(2, cuts, &inp, NULL, outv PASS_REGS))
+    return 0L;
+  ts[0] = outv[0].val.t;
+  ts[1] = outv[1].val.t;
+  return ts[0];
+}
+
+static inline Term
+Yap_SubtractHeadString(Term t1, Term th USES_REGS)
+{
+  seq_tv_t outv[2], inp;
+  inp.type = YAP_STRING_STRING;
+  inp.val.t = t1;
+  outv[0].type = YAP_STRING_STRING;
+  outv[0].val.t = th;
+  outv[1].type = YAP_STRING_STRING;
+  outv[1].val.t = 0;
+  if (!Yap_Splice_Text(2, NULL, &inp, NULL, outv PASS_REGS))
+    return 0L;
+  return outv[1].val.t;
+}
+
+static inline Term
+Yap_SubtractTailString(Term t1, Term th USES_REGS)
+{
+  seq_tv_t outv[2], inp;
+  inp.type = YAP_STRING_STRING;
+  inp.val.t = t1;
+  outv[0].type = YAP_STRING_STRING;
+  outv[0].val.t = 0;
+  outv[1].type = YAP_STRING_STRING;
+  outv[1].val.t = th;
+  if (!Yap_Splice_Text(2, NULL, &inp, NULL, outv PASS_REGS))
+    return 0L;
+  return outv[0].val.t;
+}
+
+
+static inline Term
+Yap_SpliceAtomic(Term t1, Term ts[], size_t cut, size_t max USES_REGS)
+{
+  seq_tv_t outv[2], inp;
+  size_t cuts[2];
+  inp.type = YAP_STRING_ATOM;
+  inp.val.t = t1;
+  outv[0].type = YAP_STRING_STRING|YAP_STRING_ATOM|YAP_STRING_INT|YAP_STRING_FLOAT|YAP_STRING_BIG|YAP_STRING_TERM;
+  outv[1].type = YAP_STRING_STRING|YAP_STRING_ATOM|YAP_STRING_INT|YAP_STRING_FLOAT|YAP_STRING_BIG|YAP_STRING_TERM;
+  if (!Yap_Splice_Text(2, cuts, &inp, NULL, outv PASS_REGS))
+    return 0L;
+  ts[0] = outv[0].val.t;
+  ts[1] = outv[1].val.t;
+  return ts[0];
+}
+
+static inline Term
+Yap_SubtractHeadAtomic(Term t1, Term th USES_REGS)
+{
+  seq_tv_t outv[2], inp;
+  encoding_t encv[2];
+  void *buf;
+  int minimal = FALSE;
+
+  inp.type = YAP_STRING_ATOM;
+  inp.val.t = t1;
+  outv[0].type = YAP_STRING_STRING|YAP_STRING_ATOM|YAP_STRING_INT|YAP_STRING_FLOAT|YAP_STRING_BIG|YAP_STRING_TERM;
+  outv[0].val.t = th;
+  outv[1].type = YAP_STRING_STRING|YAP_STRING_ATOM|YAP_STRING_INT|YAP_STRING_FLOAT|YAP_STRING_BIG|YAP_STRING_TERM;
+  outv[1].val.t = 0;
+  if (!(buf = Yap_Splice_Text(2, NULL, &inp, encv, outv PASS_REGS)))
+    return 0L;
+  outv[0].type = YAP_STRING_ATOM|YAP_STRING_INT|YAP_STRING_FLOAT|YAP_STRING_BIG|YAP_STRING_TERM;
+  if ( write_Text( buf, outv, encv[0], minimal PASS_REGS ) )
+    return outv[0].val.t;
+  else
+    return 0L;
+}
+
+static inline Term
+Yap_SubtractTailAtomic(Term t1, Term th USES_REGS)
+{
+  seq_tv_t outv[2], inp;
+  encoding_t encv[2];
+  void *buf;
+  int minimal = FALSE;
+
+  inp.type = YAP_STRING_ATOM;
+  inp.val.t = t1;
+  outv[0].type = YAP_STRING_STRING|YAP_STRING_ATOM|YAP_STRING_INT|YAP_STRING_FLOAT|YAP_STRING_BIG|YAP_STRING_TERM;
+  outv[0].val.t = 0;
+  outv[1].type = YAP_STRING_STRING|YAP_STRING_ATOM|YAP_STRING_INT|YAP_STRING_FLOAT|YAP_STRING_BIG|YAP_STRING_TERM;
+  outv[1].val.t = th;
+  if (!(buf = Yap_Splice_Text(2, NULL, &inp, encv, outv PASS_REGS)))
+    return 0L;
+  outv[1].type = YAP_STRING_ATOM|YAP_STRING_INT|YAP_STRING_FLOAT|YAP_STRING_BIG|YAP_STRING_TERM;
+  if (write_Text( buf, outv+1, encv[1], minimal PASS_REGS ) )
+    return outv[1].val.t;
+  else
+    return 0L;
 }

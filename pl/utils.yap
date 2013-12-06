@@ -347,29 +347,29 @@ atom_concat(Xs,At) :-
         ).
 
 % the constraints are of the form hole: HoleAtom, Begin, Atom, End
-'$atom_concat_constraints'([At], start, At, _, []) :- !.
+'$atom_concat_constraints'([At], 0, At, _, []) :- !.
 '$atom_concat_constraints'([At0], mid(Next, At), At, [hole(At0, Next, At, end)]) :-  !.
 % just slice first atom
-'$atom_concat_constraints'([At0|Xs], start, At, Unbound) :-
+'$atom_concat_constraints'([At0|Xs], 0, At, Unbound) :-
 	atom(At0), !,
-	sub_atom(At, 0, Sz, L, At0),
-	sub_atom(At, _, L, 0, Atr), %remainder
-	'$atom_concat_constraints'(Xs, start, Atr, Unbound).
+	sub_atom(At, 0, Sz, L, At0 ),
+	sub_atom(At, _, L, 0, Atr ), %remainder
+	'$atom_concat_constraints'(Xs, 0, Atr, Unbound).
 % first hole: Follow says whether we have two holes in a row, At1 will be our atom
-'$atom_concat_constraints'([At0|Xs], start, At, [hole(At0, 0, At1, Next)|Unbound]) :-
-	 '$atom_concat_constraints'(Xs, mid(Next,At1), Atr, Unbound).
+'$atom_concat_constraints'([At0|Xs], start, At, [hole(At0, 0, At, Next)|Unbound]) :-
+	 '$atom_concat_constraints'(Xs, mid(Next,At1), At, Unbound).
 % end of a run
 '$atom_concat_constraints'([At0|Xs], mid(end, At1), At, Unbound) :-
 	atom(At0), !,
 	sub_atom(At, Next, Sz, L, At0),
 	sub_atom(At, 0, Next, Next, At1),
 	sub_atom(At, _, L, 0, Atr), %remainder
-	'$atom_concat_constraints'(Xs, start, Atr, _, Unbound).
-'$atom_concat_constraints'([At0|Xs], mid(Next,At1), At, Next, [hole(At0, Next, At1, Follow)|Unbound]) :-
+	'$atom_concat_constraints'(Xs, 0, Atr, _, Unbound).
+'$atom_concat_constraints'([At0|Xs], mid(Next,At1), At, Next, [hole(At0, Next, At, Follow)|Unbound]) :-
 	 '$atom_concat_constraints'(Xs, mid(NextFollow, At1), At, Unbound).
 
 '$process_atom_holes'([]).
-'$process_atom_holes'([hole(At0, Next, At1, end)|Unbound]) :-
+'$process_atom_holes'([hole(At0, Next, At1, End)|Unbound]) :- End == end, !,
 	sub_atom(At1, Next, _, 0, At0),
 	 '$process_atom_holes'(Unbound).
 '$process_atom_holes'([hole(At0, Next, At1, Follow)|Unbound]) :-
@@ -377,14 +377,6 @@ atom_concat(Xs,At) :-
 	Follow is Next+Sz,
 	 '$process_atom_holes'(Unbound).
 
-	  
-string_concat(X,Y,St) :-
-	( var(St) ->
-	   '$string_concat'(X, Y, At )
-        ;
-	  sub_string(At, 0, _, Left, X),
-	  sub_string(At, Left, _, 0, Y)
-        ).
 	  
 callable(A) :-
 	( var(A) -> fail ; number(A) -> fail ; true ).
