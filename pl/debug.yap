@@ -28,7 +28,7 @@
 '$init_debugger' :-
 	nb_setval('$trace',off),
 	nb_setval('$if_skip_mode',no_skip),
-	b_setval('$spy_glist',[]),
+	nb_setval('$spy_glist',[]),
 	nb_setval('$spy_gn',1),
 	nb_setval('$debug_run',off),
 	nb_setval('$debug_jump',off).
@@ -182,7 +182,7 @@ nodebug :-
  % remove any debugging info after an abort.
  %
 	
-trace :- 
+trace :-
 	'$init_debugger',
 	'$nb_getval'('$trace', on, fail), !.
 trace :-
@@ -191,7 +191,8 @@ trace :-
 	print_message(informational,debug(trace)),
 	'$meta_creep'.
 
-'$do_trace' :- 
+'$do_trace' :-
+	'$init_debugger',
 	'$nb_getval'('$trace', on, fail), !.
 '$do_trace' :-
 	nb_setval('$trace',on),
