@@ -141,6 +141,7 @@
   PredIs = PtoPredAdjust(PredIs);
   PredSafeCallCleanup = PtoPredAdjust(PredSafeCallCleanup);
   PredRestoreRegs = PtoPredAdjust(PredRestoreRegs);
+  PredCommentHook = PtoPredAdjust(PredCommentHook);
 #ifdef YAPOR
   PredGetwork = PtoPredAdjust(PredGetwork);
   PredGetworkSeq = PtoPredAdjust(PredGetworkSeq);

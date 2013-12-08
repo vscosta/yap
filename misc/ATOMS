@@ -60,6 +60,7 @@ A	Colomn			N	":"
 A	CodeSpace		N	"code_space"
 A	Codes			N	"codes"
 A	Comma			N	","
+A	CommentHook		N	"comment_hook"
 A	Compound		N	"compound"
 A	ConsistencyError	N	"consistency_error"
 A	ConsultOnBoot		F	"$consult_on_boot"
@@ -366,6 +367,7 @@ F	CleanCall		CleanCall	2
 F	Clist			When		4
 F	Codes			Codes		2
 F	Comma			Comma		2
+F	CommentHook		CommentHook	3
 F	Context2		Context		2
 F	ConsistencyError	ConsistencyError	1
 F	Creep			Creep		1

@@ -141,6 +141,7 @@
   PredIs = RepPredProp(PredPropByFunc(FunctorIs,PROLOG_MODULE));
   PredSafeCallCleanup = RepPredProp(PredPropByFunc(FunctorSafeCallCleanup,PROLOG_MODULE));
   PredRestoreRegs = RepPredProp(PredPropByFunc(FunctorRestoreRegs,PROLOG_MODULE));
+  PredCommentHook = RepPredProp(PredPropByFunc(FunctorCommentHook,PROLOG_MODULE));
 #ifdef YAPOR
   PredGetwork = RepPredProp(PredPropByAtom(AtomGetwork,PROLOG_MODULE));
   PredGetworkSeq = RepPredProp(PredPropByAtom(AtomGetworkSeq,PROLOG_MODULE));

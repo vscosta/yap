@@ -108,6 +108,8 @@
 #define AtomCodes Yap_heap_regs->AtomCodes_
   Atom AtomComma_;
 #define AtomComma Yap_heap_regs->AtomComma_
+  Atom AtomCommentHook_;
+#define AtomCommentHook Yap_heap_regs->AtomCommentHook_
   Atom AtomCompound_;
 #define AtomCompound Yap_heap_regs->AtomCompound_
   Atom AtomConsistencyError_;
@@ -720,6 +722,8 @@
 #define FunctorCodes Yap_heap_regs->FunctorCodes_
   Functor FunctorComma_;
 #define FunctorComma Yap_heap_regs->FunctorComma_
+  Functor FunctorCommentHook_;
+#define FunctorCommentHook Yap_heap_regs->FunctorCommentHook_
   Functor FunctorContext2_;
 #define FunctorContext2 Yap_heap_regs->FunctorContext2_
   Functor FunctorConsistencyError_;

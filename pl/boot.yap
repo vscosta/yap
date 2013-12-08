@@ -1022,11 +1022,6 @@ bootstrap(F) :-
 	!,
 	close(Stream).
 
-'$read_vars'(Stream, T, Mod, Pos, V, _Prompt, false) :- !,
-       read_term(Stream, T, [  module(Mod), variable_names(V), term_position(Pos), syntax_errors(dec10)  ]).
-'$read_vars'(Stream, T, Mod, Pos, V, _Prompt, ReadComments) :-
-       read_term(Stream, T, [module(Mod), variable_names(V), term_position(Pos), syntax_errors(dec10),  comments( ReadComments ) ]).
-
 '$loop'(Stream,exo) :-
 	prolog_flag(agc_margin,Old,0),	
 	prompt1('|     '), prompt(_,'| '),
@@ -1046,36 +1041,15 @@ bootstrap(F) :-
 	prolog_flag(agc_margin,_,Old),
 	!.
 '$loop'(Stream,Status) :-
-	(
-	 Status = top
-	;
-	 '$undefined'(comment_hook(_,_,_),prolog)
-	;
-	 '$number_of_clauses'(comment_hook(_,_,_),prolog,0)
-	), !,
 	repeat,
 		prompt1('|     '), prompt(_,'| '),
 		'$current_module'(OldModule),
 		'$system_catch'('$enter_command'(Stream,OldModule,Status), OldModule, Error,
 			 user:'$LoopError'(Error, Status)),
 	!.
-% support comment hook
-'$loop'(Stream,Status) :-
-	repeat,
-		prompt1('|     '), prompt(_,'| '),
-		'$current_module'(OldModule),
-		'$system_catch'('$enter_command_with_hook'(Stream,OldModule,Status), OldModule, Error,
-			 user:'$LoopError'(Error, Status)),
-	!.
 
 '$enter_command'(Stream,Mod,Status) :-
-	'$read_vars'(Stream,Command,Mod,Pos,Vars, '|: ', false),
-	'$command'(Command,Vars,Pos,Status).
-
-% support SWI hook in a separate predicate, to avoid slow down standard consult.
-'$enter_command_with_hook'(Stream,Mod,Status) :-
-	'$read_vars'(Stream,Command,Mod,Pos,Vars, '|: ', Comments),
-	( prolog:comment_hook(Comments,Pos,Command) -> true ; true ),
+	read_term(Stream, Command, [module(Mod), variable_names(Vars), term_position(Pos), syntax_errors(dec10), process_comment(true) ]),
 	'$command'(Command,Vars,Pos,Status).
 
 '$abort_loop'(Stream) :-

@@ -55,6 +55,7 @@
   AtomCodeSpace = AtomAdjust(AtomCodeSpace);
   AtomCodes = AtomAdjust(AtomCodes);
   AtomComma = AtomAdjust(AtomComma);
+  AtomCommentHook = AtomAdjust(AtomCommentHook);
   AtomCompound = AtomAdjust(AtomCompound);
   AtomConsistencyError = AtomAdjust(AtomConsistencyError);
   AtomConsultOnBoot = AtomAdjust(AtomConsultOnBoot);
@@ -361,6 +362,7 @@
   FunctorClist = FuncAdjust(FunctorClist);
   FunctorCodes = FuncAdjust(FunctorCodes);
   FunctorComma = FuncAdjust(FunctorComma);
+  FunctorCommentHook = FuncAdjust(FunctorCommentHook);
   FunctorContext2 = FuncAdjust(FunctorContext2);
   FunctorConsistencyError = FuncAdjust(FunctorConsistencyError);
   FunctorCreep = FuncAdjust(FunctorCreep);

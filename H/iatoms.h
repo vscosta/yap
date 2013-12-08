@@ -55,6 +55,7 @@
   AtomCodeSpace = Yap_LookupAtom("code_space");
   AtomCodes = Yap_LookupAtom("codes");
   AtomComma = Yap_LookupAtom(",");
+  AtomCommentHook = Yap_LookupAtom("comment_hook");
   AtomCompound = Yap_LookupAtom("compound");
   AtomConsistencyError = Yap_LookupAtom("consistency_error");
   AtomConsultOnBoot = Yap_FullLookupAtom("$consult_on_boot");
@@ -361,6 +362,7 @@
   FunctorClist = Yap_MkFunctor(AtomWhen,4);
   FunctorCodes = Yap_MkFunctor(AtomCodes,2);
   FunctorComma = Yap_MkFunctor(AtomComma,2);
+  FunctorCommentHook = Yap_MkFunctor(AtomCommentHook,3);
   FunctorContext2 = Yap_MkFunctor(AtomContext,2);
   FunctorConsistencyError = Yap_MkFunctor(AtomConsistencyError,1);
   FunctorCreep = Yap_MkFunctor(AtomCreep,1);

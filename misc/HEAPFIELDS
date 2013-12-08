@@ -149,6 +149,7 @@ struct pred_entry *pred_handle_throw	PredHandleThrow		MkPred FunctorHandleThrow 
 struct pred_entry *pred_is		PredIs			MkPred FunctorIs PROLOG_MODULE
 struct pred_entry *pred_safe_call_cleanup PredSafeCallCleanup	MkPred FunctorSafeCallCleanup PROLOG_MODULE
 struct pred_entry *pred_restore_regs	PredRestoreRegs		MkPred FunctorRestoreRegs PROLOG_MODULE
+struct pred_entry *pred_comment_hook	PredCommentHook		MkPred FunctorCommentHook PROLOG_MODULE
 #ifdef YAPOR
 struct pred_entry *pred_getwork		PredGetwork		MkPred AtomGetwork 0 PROLOG_MODULE
 struct pred_entry *pred_getwork_seq	PredGetworkSeq		MkPred AtomGetworkSeq 0 PROLOG_MODULE
