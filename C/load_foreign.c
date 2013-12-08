@@ -22,7 +22,7 @@ static char     SccsId[] = "%W% %G%.2";
 #include "YapHeap.h"
 #include "yapio.h"
 #include "pl-shared.h"
-#include "YapMirror.h"
+#include "YapText.h"
 #include <stdlib.h>
 #if HAVE_STRING_H
 #include <string.h>

@@ -53,7 +53,7 @@ static char SccsId[] = "%W% %G%";
 #include "eval.h"
 /* stuff we want to use in standard YAP code */
 #include "pl-shared.h"
-#include "YapMirror.h"
+#include "YapText.h"
 #include "pl-read.h"
 #include "pl-text.h"
 #if HAVE_STRING_H

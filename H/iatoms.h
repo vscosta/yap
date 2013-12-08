@@ -307,6 +307,7 @@
   AtomTerm = Yap_LookupAtom("term");
   AtomTerms = Yap_LookupAtom("terms");
   AtomTermExpansion = Yap_LookupAtom("term_expansion");
+  AtomText = Yap_LookupAtom("text");
   AtomTextStream = Yap_LookupAtom("text_stream");
   AtomThreads = Yap_LookupAtom("threads");
   AtomThrow = Yap_LookupAtom("throw");

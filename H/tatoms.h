@@ -612,6 +612,8 @@
 #define AtomTerms Yap_heap_regs->AtomTerms_
   Atom AtomTermExpansion_;
 #define AtomTermExpansion Yap_heap_regs->AtomTermExpansion_
+  Atom AtomText_;
+#define AtomText Yap_heap_regs->AtomText_
   Atom AtomTextStream_;
 #define AtomTextStream Yap_heap_regs->AtomTextStream_
   Atom AtomThreads_;

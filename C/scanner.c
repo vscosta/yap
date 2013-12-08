@@ -42,7 +42,7 @@
 /* stuff we want to use in standard YAP code */
 #include "pl-shared.h"
 #include "pl-read.h"
-#include "YapMirror.h"
+#include "YapText.h"
 #if _MSC_VER || defined(__MINGW32__) 
 #if HAVE_FINITE==1
 #undef HAVE_FINITE

@@ -354,7 +354,7 @@
 #include "yap_structs.h"
 #define _yap_c_interface_h 1
 #include "pl-shared.h"
-#include "YapMirror.h"
+#include "YapText.h"
 #include "pl-read.h"
 #ifdef TABLING
 #include "tab.macros.h"

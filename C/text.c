@@ -107,7 +107,7 @@ get_wide_from_list( Term t, seq_tv_t *inp, wchar_t *s, int atoms USES_REGS)
       if (IsWideAtom(at = AtomOfTerm(HeadOfTerm(t))))
 	*s++ = RepAtom(at)->WStrOfAE[0];
       else
-	*s++ = RepAtom(at)->StrOfAE[0];
+	*s++ = (unsigned char)(RepAtom(at)->StrOfAE[0]);
       if (--max == 0) {
 	*s++ = 0;
 	return s0;
@@ -165,7 +165,8 @@ SkipListCodes(Term *l, Term **tailp, Int *atoms, int *wide)
 	    if ((RepAtom(AtomOfTerm(hd))->WStrOfAE)[1] != '\0') { length = -REPRESENTATION_ERROR_CHARACTER; }
 	    *wide = TRUE;
 	  } else {
-	    if ((RepAtom(AtomOfTerm(hd))->StrOfAE)[1] != '\0') { length = -REPRESENTATION_ERROR_CHARACTER_CODE; }
+	    AtomEntry *ae = RepAtom(AtomOfTerm(hd));
+	    if ((ae->StrOfAE)[1] != '\0') { length = -REPRESENTATION_ERROR_CHARACTER_CODE; }
 	  }
 	} else if (IsIntTerm(hd)) {
 	  Int ch = IntOfTerm(hd);
@@ -312,6 +313,12 @@ Yap_ListToBuffer(void *buf, Term t, seq_tv_t *inp, int *widep USES_REGS)
 
 static yap_error_number 
 gen_type_error(int flags) {
+  if (flags & (YAP_STRING_STRING|YAP_STRING_ATOM|YAP_STRING_INT|YAP_STRING_FLOAT|YAP_STRING_ATOMS_CODES|YAP_STRING_BIG))
+    return TYPE_ERROR_TEXT;
+  if (flags & (YAP_STRING_STRING|YAP_STRING_ATOM|YAP_STRING_INT|YAP_STRING_FLOAT|YAP_STRING_BIG))
+    return TYPE_ERROR_ATOMIC;
+  if (flags & (YAP_STRING_INT|YAP_STRING_FLOAT|YAP_STRING_BIG))
+    return TYPE_ERROR_NUMBER;
   if (flags & YAP_STRING_ATOM)
     return TYPE_ERROR_ATOM;
   if (flags & YAP_STRING_STRING)
@@ -817,7 +824,7 @@ write_length( void *s0, seq_tv_t *out, encoding_t enc, int minimal USES_REGS)
   size_t max = -1;
   
   if (out->type & (YAP_STRING_NCHARS|YAP_STRING_TRUNC)) {
-    if (out->type & YAP_STRING_NCHARS) return out->sz;
+    if (out->type & YAP_STRING_NCHARS && out->sz != (size_t)-1) return out->sz;
     if (out->type & YAP_STRING_TRUNC) max = out->max;
   }
 
@@ -1021,9 +1028,9 @@ advance_Text( void *s, int l, encoding_t enc )
 }
 
 static int
-cmp_Text( void *s1, void *s2, encoding_t enc1, encoding_t enc2, int l )
+cmp_Text( void *s1, void *s2, int l, encoding_t enc1, encoding_t enc2 )
 {
-  int i;
+  Int i;
   switch (enc1) {
   case YAP_CHAR:
     {
@@ -1152,7 +1159,7 @@ concat( int n, seq_tv_t *out, void *sv[], encoding_t encv[] USES_REGS )
 	} else if (encv[i] == YAP_CHAR) {
 	  char *ptr = sv[i];
 	  int chr;
-	  while ( (chr = *ptr++) != '\0' ) *buf++ = chr;
+	  while ( (chr = *ptr++) != '\0' ) *buf++ = (unsigned char)chr;
 	} else {
 	  char *ptr = sv[i];
 	  int chr;
@@ -1183,7 +1190,7 @@ concat( int n, seq_tv_t *out, void *sv[], encoding_t encv[] USES_REGS )
 }
 
 static void *
-slice( int min, int max, void *buf, seq_tv_t *out, encoding_t enc USES_REGS )
+slice( size_t min, size_t max, void *buf, seq_tv_t *out, encoding_t enc USES_REGS )
 {
   if (out->type == YAP_STRING_STRING) {
     /* we assume we concatenate strings only, or ASCII stuff like numbers */
@@ -1200,31 +1207,37 @@ slice( int min, int max, void *buf, seq_tv_t *out, encoding_t enc USES_REGS )
     } else {
       const char *ptr = utf8_skip ( (const char *)buf, min );
       int chr;
+      if (!ptr) return NULL;
       while ( min++ < max ) { ptr = utf8_get_char(ptr, & chr); nbuf = utf8_put_char(nbuf, chr); }
     }
     *nbuf ++ = '\0';
-    close_tstring( buf  PASS_REGS );
+    close_tstring( nbuf  PASS_REGS );
     out->val.t = t;
-    return H;
+    return (void *)StringOfTerm(t);
   } else {
     Atom at;
      /* atom */
     if (enc == YAP_WCHAR) {
       /* wide atom */
       wchar_t *nbuf = (wchar_t *)H;
-      Term t = ARG1;
+      Term t = TermNil;
       wchar_t *ptr = (wchar_t *)buf + min;
-      LOCAL_ERROR( (max-min)*sizeof(wchar_t) );
-      memcpy( nbuf, ptr, (max - min)*sizeof(wchar_t));
+      if (max>min) {
+	LOCAL_ERROR( (max-min)*sizeof(wchar_t) );
+	memcpy( nbuf, ptr, (max - min)*sizeof(wchar_t));
+      }
       nbuf[max-min] = '\0';
       at = Yap_LookupMaybeWideAtom( nbuf );
     } else if (enc == YAP_CHAR) {
       /*  atom */
       char *nbuf = (char *)H;
-      Term t = ARG1;
-      char *ptr = (char *)buf + min;
-      LOCAL_ERROR( max-min );
-      memcpy( nbuf, ptr, (max - min));
+      
+      if (max>min) {
+	Term t = TermNil;
+	char *ptr = (char *)buf + min;
+	LOCAL_ERROR( max-min );
+	memcpy( nbuf, ptr, (max - min));
+      }
       nbuf[max-min] = '\0';
       at = Yap_LookupAtom( nbuf );
     } else {
@@ -1264,6 +1277,7 @@ Yap_Concat_Text( int n,  seq_tv_t inp[], seq_tv_t *out USES_REGS)
   buf = NULL;
   for (i = 0 ; i < n ; i++) {
     void *nbuf = read_Text( buf, inp+i, encv+i, &minimal PASS_REGS );
+  
     if (!nbuf)
       return 0L;
     bufv[i] = nbuf;
@@ -1314,6 +1328,7 @@ Yap_Splice_Text( int n,  size_t cuts[], seq_tv_t *inp, encoding_t encv[], seq_tv
 	  return NULL;
 
 	l1 = l-l0;
+
 	buf1 = slice(l0, l, buf, outv+1, enc PASS_REGS);
 	if (encv)
 	  encv[1] = enc;
@@ -1323,6 +1338,7 @@ Yap_Splice_Text( int n,  size_t cuts[], seq_tv_t *inp, encoding_t encv[], seq_tv
 	if (!buf1)
 	  return NULL;
 	l1 = write_length( buf1, outv+1, enc1, minimal1 PASS_REGS);
+	if (l < l1) return NULL;
 	l0 = l-l1;		
 	if (cmp_Text( advance_Text(buf, l0, enc), buf1, l1, enc, enc1) != 0)
 	  return NULL;

@@ -464,10 +464,14 @@ cont_atom_concat3( USES_REGS1 )
     cut_fail();
   }
   /* Error handling */
-  if (LOCAL_Error_TYPE && Yap_HandleError( "atom_concat/3" )) {
-    goto restart_aux;
+  if (LOCAL_Error_TYPE) {
+    if (Yap_HandleError( "atom_concat/3" )) {
+      goto restart_aux;
+    } else {
+      return FALSE;
+    }
   }
-  return FALSE;
+  cut_fail();
 }
 
 
@@ -500,69 +504,30 @@ init_atom_concat3( USES_REGS1 )
     else cut_fail();
   }
   /* Error handling */
-  if (LOCAL_Error_TYPE && Yap_HandleError( "atom_concat/3" )) {
-    goto restart_aux;
+  if (LOCAL_Error_TYPE) {
+    if (Yap_HandleError( "atom_concat/3" )) {
+      goto restart_aux;
+    } else {
+      return FALSE;
+    }
   }
-  return FALSE;
+  cut_fail();
 }
 
 static Int 
-cont_atomic_concat3( USES_REGS1 )
-{
-  Term t3;
-  Atom ats[2];
-  Int i, max;
- restart_aux:
-  t3 = Deref(ARG3);
-  i = IntOfTerm(EXTRA_CBACK_ARG(3,1));
-  max = IntOfTerm(EXTRA_CBACK_ARG(3,2));
-  EXTRA_CBACK_ARG(3,1) = MkIntTerm(i+1);
-  if ( ! Yap_SpliceAtom( t3, ats, i, max PASS_REGS ) ) {
-    cut_fail();
-  } else {
-    if (i < max) return Yap_unify( ARG1, MkAtomTerm(ats[0])) &&
-		   Yap_unify( ARG2, MkAtomTerm(ats[1])) ;
-    if (Yap_unify( ARG1, MkAtomTerm(ats[0])) &&
-	Yap_unify( ARG2, MkAtomTerm(ats[1]))) cut_succeed();
-    cut_fail();
-  }
-  /* Error handling */
-  if (LOCAL_Error_TYPE && Yap_HandleError( "atom_concat/3" )) {
-    goto restart_aux;
-  }
-  return FALSE;
-}
-
-
-static Int 
-init_atomic_concat3( USES_REGS1 )
+p_atomic_concat3( USES_REGS1 )
 {
   Term t1;
-  Term t2, t3, ot;
+  Term t2;
   Term t;
+  Atom at;
  restart_aux:
   t1 = Deref(ARG1);
   t2 = Deref(ARG2);
-  t3 = Deref(ARG3);
-  if (Yap_IsGroundTerm(t1) && Yap_IsGroundTerm(t2)) {
-    Atom at = Yap_ConcatAtomics( t1, t2 PASS_REGS );
-    if (at) t = MkAtomTerm(at);
-    else t=0L;
-    ot = ARG3;
-  } else if (Yap_IsGroundTerm(t1) && Yap_IsGroundTerm(t3) ) {
-    t = Yap_SubtractHeadAtomic( Deref(ARG3), t1 PASS_REGS );
-    ot = ARG2;
-  } else if (Yap_IsGroundTerm(t2) && Yap_IsGroundTerm(t3)) {
-    t = Yap_SubtractTailAtomic( Deref(ARG3), t2 PASS_REGS );
-    ot = ARG1;
-  } else {
-    EXTRA_CBACK_ARG(3,1) = MkIntTerm(0);
-    EXTRA_CBACK_ARG(3,2) = MkIntTerm(Yap_AtomToLength(t3 PASS_REGS));
-    return cont_atomic_concat3( PASS_REGS1 );
-  }
-  if (t) {
-    if (Yap_unify(ot, t)) cut_succeed();
-    else cut_fail();
+  at = Yap_ConcatAtomics( t1, t2 PASS_REGS );
+  if (at) {
+    t = MkAtomTerm(at);
+    return Yap_unify(ARG3, t);
   }
   /* Error handling */
   if (LOCAL_Error_TYPE && Yap_HandleError( "atomic_concat/3" )) {
@@ -576,7 +541,7 @@ cont_string_concat3( USES_REGS1 )
 {
   Term t3;
   Term ts[2];
-  Int i, max;
+  size_t i, max;
  restart_aux:
   t3 = Deref(ARG3);
   i = IntOfTerm(EXTRA_CBACK_ARG(3,1));
@@ -592,10 +557,14 @@ cont_string_concat3( USES_REGS1 )
     cut_fail();
   }
   /* Error handling */
-  if (LOCAL_Error_TYPE && Yap_HandleError( "atom_concat/3" )) {
-    goto restart_aux;
+  if (LOCAL_Error_TYPE) {
+    if (Yap_HandleError( "string_concat/3" )) {
+      goto restart_aux;
+    } else {
+      return FALSE;
+    }
   }
-  return FALSE;
+  cut_fail();
 }
 
 
@@ -613,10 +582,10 @@ init_string_concat3( USES_REGS1 )
     tf = Yap_ConcatStrings( t1, t2 PASS_REGS );
     ot = ARG3;
   } else if (Yap_IsGroundTerm(t1) && Yap_IsGroundTerm(t3) ) {
-    tf = Yap_SubtractHeadString( Deref(ARG3), t1 PASS_REGS );
+    tf = Yap_SubtractHeadString(t3, t1 PASS_REGS );
     ot = ARG2;
   } else if (Yap_IsGroundTerm(t2) && Yap_IsGroundTerm(t3)) {
-    tf = Yap_SubtractTailString( Deref(ARG3), t2 PASS_REGS );
+    tf = Yap_SubtractTailString( t3, t2 PASS_REGS );
     ot = ARG1;
   } else {
     EXTRA_CBACK_ARG(3,1) = MkIntTerm(0);
@@ -624,14 +593,18 @@ init_string_concat3( USES_REGS1 )
     return cont_string_concat3( PASS_REGS1 );
   }
   if (tf) {
-    if (Yap_unify(ot, tf)) cut_succeed();
-    else cut_fail();
+    if (Yap_unify(ot, tf)) { cut_succeed(); }
+    else { cut_fail(); }
   }
   /* Error handling */
-  if (LOCAL_Error_TYPE && Yap_HandleError( "string_concat/3" )) {
-    goto restart_aux;
+  if (LOCAL_Error_TYPE) {
+    if (Yap_HandleError( "string_concat/3" )) {
+      goto restart_aux;
+    } else {
+      return FALSE;
+    }
   }
-  return FALSE;
+  cut_fail();
 }
 
 static Int 
@@ -651,17 +624,21 @@ cont_string_code3( USES_REGS1 )
   if (s[0]) {
     EXTRA_CBACK_ARG(3,1) = MkIntTerm(s-s0);
     EXTRA_CBACK_ARG(3,2) = MkIntTerm(j+1);
-    return Yap_unify(MkIntegerTerm( chr ), ARG3) && Yap_unify(MkIntegerTerm( j ), ARG1);
+    return Yap_unify(MkIntegerTerm( chr ), ARG3) && Yap_unify(MkIntegerTerm( j+1 ), ARG1);
   }
   if (Yap_unify(MkIntegerTerm( chr ), ARG3) && Yap_unify(MkIntegerTerm( j ), ARG1))
     cut_succeed();
   else
     cut_fail();
   /* Error handling */
-  if (LOCAL_Error_TYPE && Yap_HandleError( "get_code/3" )) {
-    goto restart_aux;
+  if (LOCAL_Error_TYPE) {
+    if (Yap_HandleError( "string_code/3" )) {
+      goto restart_aux;
+    } else {
+      return FALSE;
+    }
   }
-  return FALSE;
+  cut_fail();
 }
 
 
@@ -694,9 +671,12 @@ init_string_code3( USES_REGS1 )
       const char *ns = s;
       int chr;
       Int indx = IntegerOfTerm( t1 );
-      if (indx < 0) {
-	LOCAL_Error_TYPE = DOMAIN_ERROR_NOT_LESS_THAN_ZERO;
-	LOCAL_Error_Term = t1;
+      if (indx <= 0) {
+	if (indx < 0) {
+	  LOCAL_Error_TYPE = DOMAIN_ERROR_NOT_LESS_THAN_ZERO;
+	  LOCAL_Error_Term = t1;
+	}
+	cut_fail();
       }
       ns = utf8_skip(s,indx);
       if (ns == NULL) {
@@ -709,10 +689,73 @@ init_string_code3( USES_REGS1 )
     }
   }
   /* Error handling */
-  if (LOCAL_Error_TYPE && Yap_HandleError( "get_code/3" )) {
-    goto restart_aux;
+  if (LOCAL_Error_TYPE) {
+    if (Yap_HandleError( "string_code/3" )) {
+      goto restart_aux;
+    } else {
+      return FALSE;
+    }
   }
-  return FALSE;
+  cut_fail();
+}
+
+
+static Int 
+p_get_string_code3( USES_REGS1 )
+{
+  Term t1;
+  Term t2;
+  const char *s;
+ restart_aux:
+  t1 = Deref(ARG1);
+  t2 = Deref(ARG2);
+  if (IsVarTerm(t2)) {
+    LOCAL_Error_TYPE = INSTANTIATION_ERROR;
+    LOCAL_Error_Term = t2;
+  } else if (!IsStringTerm(t2)) {
+    LOCAL_Error_TYPE = TYPE_ERROR_STRING;
+    LOCAL_Error_Term = t2;
+  } else {
+    s = StringOfTerm( t2 );
+    t1 = Deref(ARG1);
+    if (IsVarTerm(t1)) {
+      LOCAL_Error_TYPE = INSTANTIATION_ERROR;
+      LOCAL_Error_Term = t1;
+    } else if (!IsIntegerTerm( t1 )) {
+      LOCAL_Error_TYPE = TYPE_ERROR_INTEGER;
+      LOCAL_Error_Term = t1;
+    } else {
+      const char *ns = s;
+      int chr;
+      Int indx = IntegerOfTerm( t1 );
+      if (indx <= 0) {
+	if (indx < 0) {
+	  LOCAL_Error_TYPE = DOMAIN_ERROR_NOT_LESS_THAN_ZERO;
+	  LOCAL_Error_Term = t1;
+	} else {
+	  return FALSE;
+	}
+      } else {
+	ns = utf8_skip(s,indx);
+	if (ns == NULL) {
+	  return FALSE;
+	} else {
+	  utf8_get_char( ns,  &chr);
+	  if ( chr != '\0')  return Yap_unify(ARG3, MkIntegerTerm(chr));
+	}
+      }
+      return FALSE; // replace by error code
+    }
+  }
+  /* Error handling */
+  if (LOCAL_Error_TYPE) {
+    if (Yap_HandleError( "string_code/3" )) {
+      goto restart_aux;
+    } else {
+      return FALSE;
+    }
+  }
+  cut_fail();
 }
 
 static Int 
@@ -754,10 +797,14 @@ p_atom_concat2( USES_REGS1 )
   }
  error:
   /* Error handling */
-  if (LOCAL_Error_TYPE && Yap_HandleError( "atom_concat/3" )) {
-    goto restart_aux;
+  if (LOCAL_Error_TYPE) {
+    if (Yap_HandleError( "string_code/3" )) {
+      goto restart_aux;
+    } else {
+      return FALSE;
+    }
   }
-  return FALSE;
+  cut_fail();
 }
 
 
@@ -801,6 +848,100 @@ p_atomic_concat2( USES_REGS1 )
  error:
   /* Error handling */
   if (LOCAL_Error_TYPE && Yap_HandleError( "atom_concat/3" )) {
+    goto restart_aux;
+  }
+  return FALSE;
+}
+
+static Int 
+p_atomics_to_string2( USES_REGS1 )
+{
+  Term t1;
+  Term *tailp;
+  Int n;
+ restart_aux:
+  t1 = Deref(ARG1);
+  n = Yap_SkipList(&t1, &tailp);
+  if (*tailp != TermNil) {
+    LOCAL_Error_TYPE = TYPE_ERROR_LIST;
+  } else {
+    seq_tv_t *inpv = (seq_tv_t *)malloc(n*sizeof(seq_tv_t)), out;
+    int i = 0;
+    Atom at;
+    
+    if (!inpv) {
+      LOCAL_Error_TYPE = OUT_OF_HEAP_ERROR;
+      free(inpv);
+      goto error;
+    }
+
+    while (t1 != TermNil) {
+      inpv[i].type = YAP_STRING_STRING|YAP_STRING_ATOM|YAP_STRING_INT|YAP_STRING_FLOAT|YAP_STRING_BIG|YAP_STRING_TERM;
+      inpv[i].val.t = HeadOfTerm(t1);
+      i++;
+      t1 = TailOfTerm(t1);
+    }
+    out.type = YAP_STRING_STRING;
+    if (!Yap_Concat_Text(n, inpv, &out PASS_REGS)) {
+      free(inpv);
+      goto error;
+    }
+    free(inpv);
+    at =  out.val.a;
+    if (at) return Yap_unify(ARG2, MkAtomTerm(at));
+  }
+ error:
+  /* Error handling */
+  if (LOCAL_Error_TYPE && Yap_HandleError( "atomics_to_string/2" )) {
+    goto restart_aux;
+  }
+  return FALSE;
+}
+
+static Int 
+p_atomics_to_string3( USES_REGS1 )
+{
+  Term t1, t2;
+  Term *tailp;
+  Int n;
+ restart_aux:
+  t1 = Deref(ARG1);
+  t2 = Deref(ARG2);
+  n = Yap_SkipList(&t1, &tailp);
+  if (*tailp != TermNil) {
+    LOCAL_Error_TYPE = TYPE_ERROR_LIST;
+  } else {
+    seq_tv_t *inpv = (seq_tv_t *)malloc((n*2-1)*sizeof(seq_tv_t)), out;
+    int i = 0;
+    Atom at;
+    
+    if (!inpv) {
+      LOCAL_Error_TYPE = OUT_OF_HEAP_ERROR;
+      free(inpv);
+      goto error;
+    }
+
+    while (t1 != TermNil) {
+      inpv[i].type = YAP_STRING_STRING|YAP_STRING_ATOM|YAP_STRING_INT|YAP_STRING_FLOAT|YAP_STRING_BIG|YAP_STRING_TERM;
+      inpv[i].val.t = HeadOfTerm(t1);
+      i++;
+      inpv[i].type = YAP_STRING_STRING|YAP_STRING_ATOM|YAP_STRING_INT|YAP_STRING_FLOAT|YAP_STRING_BIG|YAP_STRING_TERM;
+      inpv[i].val.t = t2;
+      i++;
+      t1 = TailOfTerm(t1);
+    }
+    out.type = YAP_STRING_STRING;
+    if (!Yap_Concat_Text(2*n-1, inpv, &out PASS_REGS)) {
+      free(inpv);
+      goto error;
+    }
+    free(inpv);
+    at =  out.val.a;
+    if (at) return Yap_unify(ARG3, MkAtomTerm(at));
+  }
+ error:
+  /* Error handling */
+  if (LOCAL_Error_TYPE && Yap_HandleError( "atomics_to_string/3" )) {
     goto restart_aux;
   }
   return FALSE;
@@ -1758,7 +1899,6 @@ Yap_InitBackAtoms(void)
 		    cont_current_wide_atom,
 		    SafePredFlag|SyncPredFlag);
   Yap_InitCPredBack("atom_concat", 3, 2, init_atom_concat3, cont_atom_concat3, 0);
-  Yap_InitCPredBack("atomic_concat", 3, 2, init_atomic_concat3, cont_atomic_concat3, 0);
   Yap_InitCPredBack("string_concat", 3, 2, init_string_concat3, cont_string_concat3, 0);
   Yap_InitCPredBack("sub_atom", 5, 5, init_sub_atom, cont_sub_atomic, 0);
   Yap_InitCPredBack("sub_string", 5, 5, init_sub_string, cont_sub_atomic, 0);
@@ -1791,4 +1931,8 @@ Yap_InitAtomPreds(void)
   Yap_InitCPred("string_number", 2, p_string_number, 0);
   Yap_InitCPred("$atom_concat", 2, p_atom_concat2, 0);
   Yap_InitCPred("atomic_concat", 2, p_atomic_concat2, 0);
+  Yap_InitCPred("atomic_concat", 3, p_atomic_concat3, 0);
+  Yap_InitCPred("atomics_to_string", 2, p_atomics_to_string2, 0);
+  Yap_InitCPred("atomics_to_string", 3, p_atomics_to_string3, 0);
+  Yap_InitCPred("get_string_code", 3, p_get_string_code3, 0);
 }

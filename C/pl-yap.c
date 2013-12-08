@@ -7,7 +7,7 @@
 #include "Yap.h"
 #include "Yatom.h"
 #include "pl-incl.h"
-#include "YapMirror.h"
+#include "YapText.h"
 #if HAVE_MATH_H
 #include <math.h>
 #endif

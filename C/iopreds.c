@@ -31,7 +31,7 @@ static char SccsId[] = "%W% %G%";
 #include "eval.h"
 /* stuff we want to use in standard YAP code */
 #include "pl-shared.h"
-#include "YapMirror.h"
+#include "YapText.h"
 #include <stdlib.h>
 #if HAVE_STDARG_H
 #include <stdarg.h>

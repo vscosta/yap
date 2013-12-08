@@ -39,7 +39,7 @@
 #include	<pl-shared.h>
 
 #include	<yapio.h>
-#include	<YapMirror.h>
+#include	<YapText.h>
 
 #ifdef USE_GMP
 #include <gmp.h>
