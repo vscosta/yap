@@ -3973,6 +3973,7 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
     }
     cl = (LogUpdClause *)((CODEADDR)x-(UInt)size);
     cl->lusl.ClSource = x;
+    cl->ClFlags |= SrcMask;
     x->ag.line_number = Yap_source_line_no();
     cl->ClSize = osize;
     cip->code_addr = (yamop *)cl;
@@ -3991,6 +3992,7 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
     code_p = do_pass(1, &entry_code, mode, &clause_has_blobs, &clause_has_dbterm, cip, size PASS_REGS);
     /* make sure we copy after second pass */
     cl->usc.ClSource = x;
+    cl->ClFlags |= SrcMask;
     x->ag.line_number = Yap_source_line_no();
     cl->ClSize = osize;
     LOCAL_ProfEnd=code_p;
