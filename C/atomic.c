@@ -434,7 +434,7 @@ p_number_codes( USES_REGS1 )
     Term   t = Deref(ARG2);
     Term tf = Yap_ListToNumber(t PASS_REGS);
     if (tf)
-      return Yap_unify( ARG2, tf );
+      return Yap_unify( ARG1, tf );
   }
   /* error handling */
   if (LOCAL_Error_TYPE && Yap_HandleError( "number_codes/2" )) {
