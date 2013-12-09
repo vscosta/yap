@@ -475,7 +475,7 @@ read_Text( void *buf, seq_tv_t *inp, encoding_t *enc, int *minimal USES_REGS)
 	  LOCAL_Error_TYPE = gen_type_error( inp->type );
 	  LOCAL_Error_Term = t;
 	}	 
-      } else if (IsPairTerm(t) || t == TermNil) {
+      } else if (IsPairTerm(t) ) {
 	if (inp->type & (YAP_STRING_CODES|YAP_STRING_ATOMS)) {
 	  inp->type &= (YAP_STRING_CODES|YAP_STRING_ATOMS);
 	  return read_Text( buf, inp, enc, minimal PASS_REGS);
@@ -487,6 +487,10 @@ read_Text( void *buf, seq_tv_t *inp, encoding_t *enc, int *minimal USES_REGS)
 	if (inp->type & (YAP_STRING_ATOM)) {
 	  inp->type &= (YAP_STRING_ATOM);
 	  inp->val.t = t;
+	  return read_Text( buf, inp, enc, minimal PASS_REGS);
+	  // [] is special...
+	} else if (t == TermNil && inp->type & (YAP_STRING_CODES|YAP_STRING_ATOMS)) {
+	  inp->type &= (YAP_STRING_CODES|YAP_STRING_ATOMS);
 	  return read_Text( buf, inp, enc, minimal PASS_REGS);
 	} else {
 	  LOCAL_Error_TYPE = gen_type_error( inp->type );
