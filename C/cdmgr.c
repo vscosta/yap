@@ -5198,79 +5198,6 @@ p_static_clause( USES_REGS1 )
   return fetch_next_static_clause(pe, pe->CodeOfPred, ARG1, ARG3, ARG4, new_cp, TRUE);
 }
 
-static Int			/* $nth_clause(P) */
-p_nth_clause( USES_REGS1 )
-{
-  PredEntry      *pe;
-  Term t1 = Deref(ARG1);
-  Term tn = Deref(ARG3);
-  LogUpdClause *cl;
-  Int ncls;
-
-  Int CurSlot, sl;
-  if (!IsIntegerTerm(tn))
-    return FALSE;
-  ncls = IntegerOfTerm(tn);
-  pe = get_pred(t1, Deref(ARG2), "clause/3");
-  if (pe == NULL || EndOfPAEntr(pe))
-    return FALSE;
-  PELOCK(47,pe);
-  if (!(pe->PredFlags & (SourcePredFlag|LogUpdatePredFlag))) {
-    UNLOCK(pe->PELock);
-    return FALSE;
-  }
-  CurSlot = Yap_StartSlots( PASS_REGS1 );
-  sl = Yap_InitSlot( ARG4 PASS_REGS );
-  /* in case we have to index or to expand code */
-  if (pe->ModuleOfPred != IDB_MODULE) {
-    UInt i;
-
-    for (i = 1; i <= pe->ArityOfPE; i++) {
-      XREGS[i] = MkVarTerm();
-    }
-  } else {
-      XREGS[2] = MkVarTerm();
-  }
-  if(pe->OpcodeOfPred == INDEX_OPCODE) {
-    IPred(pe, 0, CP);
-  }
-  cl = Yap_NthClause(pe, ncls);
-  ARG4 = Yap_GetFromSlot( sl PASS_REGS );
-  LOCAL_CurSlot = CurSlot;  
-  if (cl == NULL) {
-    UNLOCK(pe->PELock);
-    return FALSE;
-  }
-  if (pe->PredFlags & LogUpdatePredFlag) {
-#if MULTIPLE_STACKS
-    TRAIL_CLREF(cl);		/* So that fail will erase it */
-    INC_CLREF_COUNT(cl);
-#else
-    if (!(cl->ClFlags & InUseMask)) {
-      cl->ClFlags |= InUseMask;
-      TRAIL_CLREF(cl);	/* So that fail will erase it */
-    }
-#endif
-    UNLOCK(pe->PELock);
-    return Yap_unify(MkDBRefTerm((DBRef)cl), ARG4);
-  } else if (pe->PredFlags & MegaClausePredFlag) {
-    MegaClause *mcl = ClauseCodeToMegaClause(pe->cs.p_code.FirstClause);
-    if (mcl->ClFlags & ExoMask) {
-      Term tf[2];
-      tf[0] = pe->ModuleOfPred;
-      tf[1] = Yap_MkApplTerm(pe->FunctorOfPred, pe->ArityOfPE, (CELL *)((char *)mcl->ClCode+(ncls-1)*mcl->ClItemSize));
-      UNLOCK(pe->PELock);
-      return Yap_unify(Yap_MkApplTerm(FunctorExoClause, 2, tf), ARG4);
-    }
-    /* fast access to nth element, all have same size */
-    UNLOCK(pe->PELock);
-    return Yap_unify(Yap_MkMegaRefTerm(pe,(yamop *)cl), ARG4);
-  } else {
-    UNLOCK(pe->PELock);
-    return Yap_unify(Yap_MkStaticRefTerm((StaticClause *)cl, pe), ARG4);
-  }
-}
-
 static Int			/* $hidden_predicate(P) */
 p_continue_static_clause( USES_REGS1 )
 {
@@ -6251,6 +6178,213 @@ p_instance_property( USES_REGS1 )
   return FALSE;
 }
 
+static Int
+p_nth_instance( USES_REGS1 )
+{
+  PredEntry      *pe;
+  UInt pred_arity;
+  Functor pred_f;
+  Term pred_module;
+  Term t4 = Deref(ARG4);
+
+  if (IsVarTerm(t4)) {
+    // we must know I or count;
+    Term            TCount;
+    Int             Count;
+
+    TCount = Deref(ARG3);
+    if (IsVarTerm(TCount)) {
+      return FALSE; // backtrack?
+    }
+    if (!IsIntegerTerm(TCount)) {
+      Yap_Error(TYPE_ERROR_INTEGER, TCount, "nth_instance/3");
+      return FALSE;
+    }
+    Count = IntegerOfTerm(TCount);
+    if (Count <= 0) {
+      if (Count) 
+	Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, TCount, "nth_clause/3");
+      else
+	Yap_Error(DOMAIN_ERROR_NOT_ZERO, TCount, "nth_clause/3");
+      return FALSE;
+    }
+    pe = get_pred(Deref(ARG1), Deref(ARG2), "nth_clause/3");
+    if (pe) {
+      PELOCK(47,pe); 
+    }
+    if (Deref(ARG2) == IDB_MODULE) {
+      return Yap_db_nth_recorded( pe, Count PASS_REGS );
+    } else {
+      Int CurSlot, sl4;
+      UInt i;
+      void *cl0;
+
+      if (!pe)
+	return FALSE;
+      if (!(pe->PredFlags & (SourcePredFlag|LogUpdatePredFlag))) {
+	UNLOCK(pe->PELock);
+	return FALSE;
+      }
+      CurSlot = Yap_StartSlots( PASS_REGS1 );
+      /* I have pe and n */
+      sl4 = Yap_InitSlot( ARG4 PASS_REGS );
+      /* in case we have to index or to expand code */
+      for (i = 1; i <= pe->ArityOfPE; i++) {
+	XREGS[i] = MkVarTerm();
+      }
+      if(pe->OpcodeOfPred == INDEX_OPCODE) {
+	IPred(pe, 0, CP);
+      }
+      cl0 = Yap_NthClause(pe, Count);
+      ARG4 = Yap_GetFromSlot( sl4 PASS_REGS );
+      LOCAL_CurSlot = CurSlot;  
+      if (cl0 == NULL) {
+	UNLOCK(pe->PELock);
+	return FALSE;
+      }
+      if (pe->PredFlags & LogUpdatePredFlag) {
+	LogUpdClause *cl = cl0;
+	
+#if MULTIPLE_STACKS
+	TRAIL_CLREF(cl);		/* So that fail will erase it */
+	INC_CLREF_COUNT(cl);
+#else
+	if (!(cl->ClFlags & InUseMask)) {
+	  cl->ClFlags |= InUseMask;
+	  TRAIL_CLREF(cl);	/* So that fail will erase it */
+	}
+#endif
+	UNLOCK(pe->PELock);
+	return Yap_unify(MkDBRefTerm((DBRef)cl), ARG4);
+      } else if (pe->PredFlags & MegaClausePredFlag) {
+	MegaClause *mcl = ClauseCodeToMegaClause(pe->cs.p_code.FirstClause);
+	if (mcl->ClFlags & ExoMask) {
+	  UNLOCK(pe->PELock);
+	  return Yap_unify(Yap_MkExoRefTerm(pe,Count-1), ARG4);
+	}
+	/* fast access to nth element, all have same size */
+	UNLOCK(pe->PELock);
+	return Yap_unify(Yap_MkMegaRefTerm(pe,cl0), ARG4);
+      } else {
+	UNLOCK(pe->PELock);
+	return Yap_unify(Yap_MkStaticRefTerm(cl0, pe), ARG4);
+      }
+    }
+  }
+  /* t4 is bound, we have a reference */
+  if (IsDBRefTerm(t4)) {
+    DBRef ref = DBRefOfTerm(t4);
+    if (ref->Flags & LogUpdMask) {
+      LogUpdClause *cl = (LogUpdClause *)ref;
+      LogUpdClause *ocl;
+      UInt icl = 0;
+
+      pe = cl->ClPred;
+      PELOCK(66,pe);
+      if (cl->ClFlags & ErasedMask) {
+	UNLOCK(pe->PELock);
+	return FALSE;
+      }
+      ocl = ClauseCodeToLogUpdClause(pe->cs.p_code.FirstClause);
+      do {
+	icl++;
+	if (cl == ocl) break;
+	ocl = ocl->ClNext;
+      } while (ocl != NULL);
+      UNLOCK(pe->PELock);
+      if (ocl == NULL) {
+	return FALSE;
+      }
+      if (!Yap_unify(ARG3,MkIntegerTerm(icl))) {
+	return FALSE;
+      }
+    } else {
+      return Yap_unify_immediate_ref(ref PASS_REGS);
+    }
+  } else if (IsApplTerm(t4)) {
+    Functor f = FunctorOfTerm(t4);
+    
+    if (f == FunctorStaticClause) {
+      StaticClause *cl = Yap_ClauseFromTerm(t4), *cl0;
+      pe = (PredEntry *)IntegerOfTerm(ArgOfTerm(2, t4));
+      Int i;
+
+      if (!pe) {
+	return FALSE;
+      }
+      if (! pe->cs.p_code.NOfClauses )
+	return FALSE;
+      cl0 = ClauseCodeToStaticClause(pe->cs.p_code.FirstClause);
+      //linear scan
+      for (i = 1; i < pe->cs.p_code.NOfClauses; i++) {
+	if (cl0 == cl) {
+	  if (!Yap_unify(MkIntTerm(i), ARG3))
+	    return FALSE;
+	  break;
+	}
+      }
+    } else if (f == FunctorMegaClause) {
+      MegaClause *mcl;
+      yamop *cl = Yap_MegaClauseFromTerm(t4);
+      Int i;
+
+      pe = Yap_MegaClausePredicateFromTerm(t4);
+      mcl = ClauseCodeToMegaClause(pe->cs.p_code.FirstClause);
+      i = ((char *)cl-(char *)mcl->ClCode)/mcl->ClItemSize;
+      if (!Yap_unify(MkIntTerm(i), ARG3))
+	return FALSE;
+    } else if (f == FunctorExoClause) {
+      Int i;
+
+      pe = Yap_ExoClausePredicateFromTerm(t4);
+      i = Yap_ExoClauseFromTerm(t4);
+      if (!Yap_unify(MkIntTerm(i+1), ARG3)) {
+	return FALSE;
+      }
+    } else {
+      Yap_Error(TYPE_ERROR_REFERENCE, t4, "nth_clause/3");
+      return FALSE;
+    }
+  } else {
+    Yap_Error(TYPE_ERROR_REFERENCE, t4, "nth_clause/3");
+    return FALSE;
+  }
+  pred_module = pe->ModuleOfPred;
+  if (pred_module != IDB_MODULE) {
+    pred_f = pe->FunctorOfPred;
+    pred_arity = pe->ArityOfPE;
+  } else {
+    if (pe->PredFlags & NumberDBPredFlag) {
+      pred_f = (Functor)MkIntegerTerm(pe->src.IndxId);
+      pred_arity = 0;
+    } else {
+      pred_f = pe->FunctorOfPred;
+      if (pe->PredFlags & AtomDBPredFlag) {
+	pred_arity = 0;
+      } else {
+	pred_arity = ArityOfFunctor(pred_f);
+      }
+    }
+  }
+  if (pred_arity) {
+    if (!Yap_unify(ARG1,Yap_MkNewApplTerm(pred_f, pred_arity)))
+      return FALSE;
+  } else {
+    if (!Yap_unify(ARG1,MkAtomTerm((Atom)pred_f)))
+      return FALSE;
+  }
+  if (pred_module == PROLOG_MODULE) {
+    if (!Yap_unify(ARG2,TermProlog))
+      return FALSE;
+  } else {
+    if (!Yap_unify(ARG2,pred_module))
+      return FALSE;
+  }	
+  return TRUE;    
+
+}
+
+
 void 
 Yap_InitCdMgr(void)
 {
@@ -6310,9 +6444,9 @@ Yap_InitCdMgr(void)
   Yap_InitCPred("$static_clause", 4, p_static_clause, SyncPredFlag);
   Yap_InitCPred("$continue_static_clause", 5, p_continue_static_clause, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$static_pred_statistics", 5, p_static_pred_statistics, SyncPredFlag);
-  Yap_InitCPred("$p_nth_clause", 4, p_nth_clause, SyncPredFlag);
   Yap_InitCPred("$program_continuation", 3, p_program_continuation, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$instance_property", 3, p_instance_property, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$fetch_nth_clause", 4, p_nth_instance, SyncPredFlag);
   CurrentModule = HACKS_MODULE;
   Yap_InitCPred("current_choicepoints", 1, p_all_choicepoints, 0);
   Yap_InitCPred("current_continuations", 1, p_all_envs, 0);

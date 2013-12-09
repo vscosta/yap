@@ -281,6 +281,8 @@ void	Yap_ErCl(DynamicClause *);
 void	Yap_ErLogUpdCl(LogUpdClause *);
 void    Yap_ErLogUpdIndex(LogUpdIndex *);
 Int	Yap_Recordz(Atom, Term);
+Int     Yap_db_nth_recorded( PredEntry *, Int USES_REGS );
+Int     Yap_unify_immediate_ref(DBRef ref USES_REGS );
 
 /* exec.c */
 Term    Yap_cp_as_integer(choiceptr);
@@ -394,6 +396,32 @@ Yap_MegaClausePredicateFromTerm(Term t)
 {
   return (PredEntry *)IntegerOfTerm(ArgOfTerm(1,t));
 }
+
+#define Yap_MkExoRefTerm(ap, i) __Yap_MkExoRefTerm((ap), (i) PASS_REGS)
+
+static inline Term 
+__Yap_MkExoRefTerm(PredEntry *ap,Int i USES_REGS)
+{
+  Term t[2];
+  t[0] = MkIntegerTerm((Int)ap);
+  t[1] = MkIntegerTerm((Int)i);
+  return Yap_MkApplTerm(FunctorExoClause,2,t);
+}
+
+static inline Int 
+Yap_ExoClauseFromTerm(Term t)
+{
+  return IntegerOfTerm(ArgOfTerm(2,t));
+}
+
+static inline PredEntry * 
+Yap_ExoClausePredicateFromTerm(Term t)
+{
+  return (PredEntry *)IntegerOfTerm(ArgOfTerm(1,t));
+}
+
+#define DEAD_REF(ref) FALSE
+
 
 typedef enum {
   FIND_PRED_FROM_ANYWHERE,

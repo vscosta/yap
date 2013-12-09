@@ -355,47 +355,18 @@ clause(V,Q,R) :-
 
 :- '$init_preds'.
 
-nth_clause(V,I,R) :- var(V), var(R), !,
-	'$do_error'(instantiation_error,nth_clause(V,I,R)).
-nth_clause(M:V,I,R) :- !,
-	'$nth_clause'(V,M,I,R).
 nth_clause(V,I,R) :-
 	'$current_module'(M),
-	'$nth_clause'(V,M,I,R).
+	strip_module(M:V, M1, P), !,
+	'$nth_clause'(P, M1, I, R).
 
 
-'$nth_clause'(V,M,I,R) :- var(V), var(R), !, 
-	'$do_error'(instantiation_error,M:nth_clause(V,I,R)).
-'$nth_clause'(P1,_,I,R) :- nonvar(P1), P1 = M:P, !,
-	'$nth_clause'(P,M,I,R).
-'$nth_clause'(P,M,I,R) :- nonvar(R), !,
-	'$nth_clause_ref'(P,M,I,R).
-'$nth_clause'(C,M,I,R) :- number(C), !,
-	'$do_error'(type_error(callable,C),M:nth_clause(C,I,R)).
-'$nth_clause'(R,M,I,R) :- db_reference(R), !,
-	'$do_error'(type_error(callable,R),M:nth_clause(R,I,R)).
-'$nth_clause'(P,M,I,R) :- var(I), var(R), !,
-	'$number_of_clauses'(P,M,N), N > 0,
-	between(1, N, I),
-	'$nth_clause'(P,M,I,R).
 '$nth_clause'(P,M,I,R) :-
-	'$p_nth_clause'(P,M,I,R), !.
+	var(I), var(R), !,
+	'$clause'(P,M,_,R),
+	'$fetch_nth_clause'(P,M,I,R).
 '$nth_clause'(P,M,I,R) :-
-	'$is_dynamic'(P,M), !,
-	'$nth_instancep'(M:P,I,R).
-'$nth_clause'(P,M,I,R) :-
-	( '$system_predicate'(P,M) -> true ;
-	    '$number_of_clauses'(P,M,N), N > 0 ),
-	functor(P,Name,Arity),
-	'$do_error'(permission_error(access,private_procedure,Name/Arity),
-	      nth_clause(M:P,I,R)).
-
-'$nth_clause_ref'(Cl,M,I,R) :-
-	'$pred_for_code'(R, _, _, M1, I), I > 0, !,
-	instance(R, Cl),
-	M1 = M.
-'$nth_clause_ref'(P,M,I,R) :-
-	'$nth_instancep'(M:P,I,R).
+	'$fetch_nth_clause'(P,M,I,R).
 
 retract(M:C) :- !,
 	'$retract'(C,M).

@@ -92,8 +92,6 @@ static char     SccsId[] = "%W% %G%";
 #define ToSmall(V)	((link_entry)(Unsigned(V)>>3))
 #endif
 
-#define DEAD_REF(ref) FALSE
-
 #ifdef SFUNC
 
 #define MaxSFs		256
@@ -2473,6 +2471,22 @@ UnifyDBNumber(DBRef DBSP, Term t)
   return Yap_unify(MkIntegerTerm(i),t);
 }
 
+Int
+Yap_unify_immediate_ref(DBRef ref USES_REGS)
+{
+  // old immediate semantics style
+  LOCK(ref->lock);
+  if (ref == NULL
+      || DEAD_REF(ref)
+      || !UnifyDBKey(ref,0,ARG1)
+      || !UnifyDBNumber(ref,ARG2)) {
+    UNLOCK(ref->lock);
+    return FALSE;
+  } else {
+    UNLOCK(ref->lock);
+    return TRUE;
+  }
+}
 
 static Term 
 GetDBTerm(DBTerm *DBSP, int src USES_REGS)
@@ -2949,17 +2963,16 @@ lu_nth_recorded(PredEntry *pe, Int Count USES_REGS)
   if (cl == NULL)
     return FALSE;
 #if MULTIPLE_STACKS
-  PELOCK(65,pe);
   TRAIL_CLREF(cl);		/* So that fail will erase it */
   INC_CLREF_COUNT(cl);
-  UNLOCK(pe->PELock);
 #else
   if (!(cl->ClFlags & InUseMask)) {
     cl->ClFlags |= InUseMask;
     TRAIL_CLREF(cl);	/* So that fail will erase it */
   }
 #endif
-  return Yap_unify(MkDBRefTerm((DBRef)cl),ARG3);
+  UNLOCK(pe->PELock);
+  return Yap_unify(MkDBRefTerm((DBRef)cl),ARG4);
 }
 
 
@@ -3003,175 +3016,22 @@ nth_recorded(DBProp AtProp, Int Count USES_REGS)
   }
   READ_UNLOCK(AtProp->DBRWLock);
 #endif
-  return Yap_unify(MkDBRefTerm(ref),ARG3);
+  return Yap_unify(MkDBRefTerm(ref),ARG4);
 }
 
-static Int
-p_nth_instance( USES_REGS1 )
+Int
+Yap_db_nth_recorded( PredEntry *pe, Int Count USES_REGS )
 {
   DBProp          AtProp;
-  Term            TCount;
-  Int             Count;
-  PredEntry      *pe;
-  Term t3 = Deref(ARG3);
 
-  if (!IsVarTerm(t3)) {
-    if (!IsDBRefTerm(t3)) {
-      Yap_Error(TYPE_ERROR_DBREF,t3,"nth_instance/3");
-      return FALSE;
-    } else {
-      DBRef ref = DBRefOfTerm(t3);
-      if (ref->Flags & LogUpdMask) {
-	LogUpdClause *cl = (LogUpdClause *)ref;
-	PredEntry *pe;
-	LogUpdClause *ocl;
-	UInt pred_arity, icl = 0;
-	Functor pred_f;
-	Term tpred;
-	Term pred_module;
-
-	pe = cl->ClPred;
-	PELOCK(66,pe);
-	if (cl->ClFlags & ErasedMask) {
-	  UNLOCK(pe->PELock);
-	  return FALSE;
-	}
-	ocl = ClauseCodeToLogUpdClause(pe->cs.p_code.FirstClause);
-	pred_module = pe->ModuleOfPred;
-	if (pred_module != IDB_MODULE) {
-	  pred_f = pe->FunctorOfPred;
-	  pred_arity = pe->ArityOfPE;
-	} else {
-	  if (pe->PredFlags & NumberDBPredFlag) {
-	    pred_f = (Functor)MkIntegerTerm(pe->src.IndxId);
-	    pred_arity = 0;
-	  } else {
-	    pred_f = pe->FunctorOfPred;
-	    if (pe->PredFlags & AtomDBPredFlag) {
-	      pred_arity = 0;
-	    } else {
-	      pred_arity = ArityOfFunctor(pred_f);
-	    }
-	  }
-	}
-	do {
-	  icl++;
-	  if (cl == ocl) break;
-	  ocl = ocl->ClNext;
-	} while (ocl != NULL);
-	UNLOCK(pe->PELock);
-	if (ocl == NULL) {
-	  return FALSE;
-	}
-	if (!Yap_unify(ARG2,MkIntegerTerm(icl))) {
-	  return FALSE;
-	}
-	if (pred_arity) {
-	  tpred = Yap_MkNewApplTerm(pred_f,pred_arity);
-	} else {
-	  tpred = MkAtomTerm((Atom)pred_f);
-	}
-	if (pred_module == IDB_MODULE) {
-	  return Yap_unify(ARG1,tpred);
-	} else {
-	  Term ttpred, ts[2];
-	  ts[0] = pred_module;
-	  ts[1] = tpred;
-	  ttpred = Yap_MkApplTerm(FunctorModule,pred_arity,ts);
-	  return Yap_unify(ARG1,ttpred);
-	}
-      } else {
-	LOCK(ref->lock);
-	if (ref == NULL
-	    || DEAD_REF(ref)
-	    || !UnifyDBKey(ref,0,ARG1)
-	    || !UnifyDBNumber(ref,ARG2)) {
-	  UNLOCK(ref->lock);
-	  return FALSE;
-	} else {
-	  UNLOCK(ref->lock);
-	  return TRUE;
-	}
-      }
-    }
-  }
-  TCount = Deref(ARG2);
-  if (IsVarTerm(TCount)) {
-    Yap_Error(INSTANTIATION_ERROR, TCount, "nth_instance/3");
-    return FALSE;
-  }
-  if (!IsIntegerTerm(TCount)) {
-    Yap_Error(TYPE_ERROR_INTEGER, TCount, "nth_instance/3");
-    return FALSE;
-  }
-  Count = IntegerOfTerm(TCount);
-  if (Count <= 0) {
-    if (Count) 
-      Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, TCount, "nth_instance/3");
-    else
-      Yap_Error(DOMAIN_ERROR_NOT_ZERO, TCount, "nth_instance/3");
-    return FALSE;
-  }
-  if ((pe = find_lu_entry(Deref(ARG1))) != NULL) {
+  if (pe == NULL) {
     return lu_nth_recorded(pe,Count PASS_REGS);
   }
   if (EndOfPAEntr(AtProp = FetchDBPropFromKey(Deref(ARG1), 0, FALSE, "nth_instance/3"))) {
+    UNLOCK(pe->PELock);
     return FALSE;
   }
-  return nth_recorded(AtProp,Count PASS_REGS);
-}
-
-static Int
-p_nth_instancep( USES_REGS1 )
-{
-  DBProp          AtProp;
-  Term            TCount;
-  Int             Count;
-  Term            t3 = Deref(ARG3);
-
-  if (!IsVarTerm(t3)) {
-    if (!IsDBRefTerm(t3)) {
-      Yap_Error(TYPE_ERROR_DBREF,t3,"nth_instance/3");
-      return FALSE;
-    } else {
-      DBRef ref = DBRefOfTerm(t3);
-      LOCK(ref->lock);
-      if (ref == NULL
-	  || DEAD_REF(ref)
-	  || !UnifyDBKey(ref,CodeDBBit,ARG1)
-	  || !UnifyDBNumber(ref,ARG2)) {
-	UNLOCK(ref->lock);
-	return
-	  FALSE;
-      } else {
-	UNLOCK(ref->lock);
-	return
-	  TRUE;
-      }
-    }
-  }
-  if (EndOfPAEntr(AtProp = FetchDBPropFromKey(Deref(ARG1), MkCode, FALSE, "nth_instance/3"))) {
-    return
-      FALSE;
-  }
-  TCount = Deref(ARG2);
-  if (IsVarTerm(TCount)) {
-    Yap_Error(INSTANTIATION_ERROR, TCount, "recorded_at/4");
-    return (FALSE);
-  }
-  if (!IsIntegerTerm(TCount)) {
-    Yap_Error(TYPE_ERROR_INTEGER, TCount, "recorded_at/4");
-    return (FALSE);
-  }
-  Count = IntegerOfTerm(TCount);
-  if (Count <= 0) {
-    if (Count) 
-      Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, TCount, "recorded_at/4");
-    else
-      Yap_Error(DOMAIN_ERROR_NOT_ZERO, TCount, "recorded_at/4");
-    return (FALSE);
-  }
-  return nth_recorded(AtProp,Count PASS_REGS);
+  return nth_recorded(AtProp, Count PASS_REGS);
 }
 
 static Int
@@ -4679,6 +4539,36 @@ static_instance(StaticClause *cl, PredEntry *ap USES_REGS)
 }
 
 static Int
+exo_instance(Int i, PredEntry *ap USES_REGS)
+{
+  if (ap->ArityOfPE == 0) {
+    return Yap_unify(ARG2,MkAtomTerm((Atom)ap->FunctorOfPred));
+  } else {
+    MegaClause *mcl = ClauseCodeToMegaClause(ap->cs.p_code.FirstClause);
+    Functor f = ap->FunctorOfPred;
+    UInt arity = ArityOfFunctor(ap->FunctorOfPred);
+    Term t2 = Deref(ARG2);
+    CELL *ptr = (CELL *)((ADDR)mcl->ClCode+2*sizeof(struct index_t *)+i*(mcl->ClItemSize));
+    if (IsVarTerm(t2)) {
+      // fresh slate
+      t2 = Yap_MkApplTerm(f,arity,ptr);
+      Yap_unify(ARG2, t2);
+    } else if (!IsApplTerm(t2) || FunctorOfTerm(t2) != f) {
+      return FALSE;
+    }
+    for (i=0; i<arity; i++) {
+      XREGS[i+1] = ptr[i];
+    }
+    S = ptr;
+    CP = P;
+    YENV = ASP;
+    YENV[E_CB] = (CELL) B;
+    P = mcl->ClCode;
+    return TRUE;
+  }
+}
+
+static Int
 mega_instance(yamop *code, PredEntry *ap USES_REGS)
 {
   if (ap->ArityOfPE == 0) {
@@ -4723,7 +4613,7 @@ p_instance( USES_REGS1 )
 	return mega_instance(Yap_MegaClauseFromTerm(t1), Yap_MegaClausePredicateFromTerm(t1) PASS_REGS);
       }
       if (FunctorOfTerm(t1) == FunctorExoClause) {
-	return Yap_unify(ARG2,ArgOfTerm(2,t1));
+	return exo_instance(Yap_ExoClauseFromTerm(t1), Yap_ExoClausePredicateFromTerm(t1) PASS_REGS);
       }
     }
     return FALSE;
@@ -4825,6 +4715,8 @@ p_instance( USES_REGS1 )
     return Yap_unify(ARG2, TermDB);
   }
 }
+
+
 
 Term
 Yap_LUInstance(LogUpdClause *cl, UInt arity)
@@ -5617,8 +5509,6 @@ Yap_InitDBPreds(void)
   Yap_InitCPred("total_erased", 4, p_total_erased, SyncPredFlag);
   Yap_InitCPred("key_erased_statistics", 5, p_key_erased_statistics, SyncPredFlag);
   Yap_InitCPred("heap_space_info", 3, p_heap_space_info, SyncPredFlag);
-  Yap_InitCPred("$nth_instance", 3, p_nth_instance, SyncPredFlag);
-  Yap_InitCPred("$nth_instancep", 3, p_nth_instancep, SyncPredFlag);
   Yap_InitCPred("$jump_to_next_dynamic_clause", 0, p_jump_to_next_dynamic_clause, SyncPredFlag);
   Yap_InitCPred("$install_thread_local", 2, p_install_thread_local, SafePredFlag);
 }
