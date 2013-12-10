@@ -1840,11 +1840,20 @@ p_set_yap_flags( USES_REGS1 )
 static Int
 p_system_mode( USES_REGS1 )
 {
-  Int i = IntegerOfTerm(Deref(ARG1));
-  if (i == 0) 
-    LOCAL_PrologMode &= ~SystemMode;
-  else
-    LOCAL_PrologMode |= SystemMode;
+  Term t1 = Deref(ARG1);
+
+  if (IsVarTerm(t1)) {
+    if (LOCAL_PrologMode & SystemMode)
+      return Yap_unify( t1, MkAtomTerm(AtomTrue));
+    else
+      return Yap_unify( t1, MkAtomTerm(AtomFalse));
+  } else {
+    Atom at = AtomOfTerm(t1);
+    if (at == AtomFalse) 
+      LOCAL_PrologMode &= ~SystemMode;
+    else
+      LOCAL_PrologMode |= SystemMode;
+  }
   return TRUE;
 }
 
@@ -2002,7 +2011,7 @@ Yap_InitCPreds(void)
   Yap_InitCPred("$walltime", 2, p_walltime, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$access_yap_flags", 2, p_access_yap_flags, SafePredFlag);
   Yap_InitCPred("$set_yap_flags", 2, p_set_yap_flags, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$p_system_mode", 1, p_system_mode, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$system_mode", 1, p_system_mode, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("abort", 0, p_abort, SyncPredFlag);
   Yap_InitCPred("$break", 1, p_break, SafePredFlag);
 #ifdef BEAM

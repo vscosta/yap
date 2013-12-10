@@ -193,7 +193,9 @@ trace :-
 
 '$do_trace' :-
 	'$init_debugger',
-	'$nb_getval'('$trace', on, fail), !.
+	'$nb_getval'('$trace', on, fail), !,
+	'$start_debugging'(on),
+	'$creep'.
 '$do_trace' :-
 	nb_setval('$trace',on),
 	'$start_debugging'(on),

@@ -2384,9 +2384,9 @@ run_emulator(YAP_dogoalinfo *dgi USES_REGS)
 {
   int out;
 
-  LOCAL_PrologMode = UserMode;
+  LOCAL_PrologMode &= ~(UserCCallMode|CCallMode);
   out = Yap_absmi(0);
-  LOCAL_PrologMode = UserCCallMode;
+  LOCAL_PrologMode |= UserCCallMode;
   return out;
 }
 

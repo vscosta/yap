@@ -401,8 +401,8 @@ use_module(M,F,Is) :-
 	  '$extend_exports'(ContextModule, Imports)
 	),
 	( LC == 0 -> prompt(_,'   |: ') ; true),
-        ( OldMode == off -> '$exit_system_mode' ; true ),
 	'$exec_initialisation_goals',
+        ( OldMode == true -> '$enter_system_mode' ; true ),
 %	format( 'O=~w~n', [Mod=UserFile] ),
 	!.
 
@@ -436,8 +436,8 @@ use_module(M,F,Is) :-
 '$get_if'(0).
 
 '$into_system_mode'(OldMode) :-
-	( '$nb_getval'('$system_mode', OldMode, fail) -> true ; OldMode = off),
-        ( OldMode == off -> '$enter_system_mode' ; true ).
+	'$system_mode'(OldMode),	
+	'$system_mode'(true).
 
 '$bind_module'(_, load_files).
 '$bind_module'(Mod, use_module(Mod)).

@@ -7527,7 +7527,7 @@ Yap_absmi(int inp)
 	/* make sure that we can still have access to our old PREG after calling user defined goals and backtracking or failing */
 	yamop *savedP;
 
-	LOCAL_PrologMode = UserCCallMode;
+	LOCAL_PrologMode |= UserCCallMode;
 	{
 	  PredEntry *p = PREG->u.Osbpp.p;
 
@@ -7539,7 +7539,7 @@ Yap_absmi(int inp)
 	  SREG = (CELL *) YAP_Execute(p, p->cs.f_code);
 	}
 	setregs();
-	LOCAL_PrologMode = UserMode;
+	LOCAL_PrologMode &= ~UserCCallMode;
 	restore_machine_regs();
 	PREG = savedP;
       }
@@ -7708,7 +7708,7 @@ Yap_absmi(int inp)
 #endif
       SET_BB(B_YREG);
       ENDCACHE_Y();
-      LOCAL_PrologMode = UserCCallMode;
+      LOCAL_PrologMode |= UserCCallMode;
       ASP = YREG;
       saveregs();
       save_machine_regs();
@@ -7716,7 +7716,7 @@ Yap_absmi(int inp)
       EX = NULL;
       restore_machine_regs();
       setregs();
-      LOCAL_PrologMode = UserMode;
+      LOCAL_PrologMode &= ~UserCCallMode;
       if (!SREG) {
 	FAIL();
       }
@@ -7748,7 +7748,7 @@ Yap_absmi(int inp)
       restore_args(PREG->u.OtapFs.s);
       ENDCACHE_Y();
 
-      LOCAL_PrologMode = UserCCallMode;
+      LOCAL_PrologMode |= UserCCallMode;
       SET_ASP(YREG, E_CB*sizeof(CELL));
       saveregs();
       save_machine_regs();
@@ -7756,7 +7756,7 @@ Yap_absmi(int inp)
       EX = NULL;
       restore_machine_regs();
       setregs();
-      LOCAL_PrologMode = UserMode;
+      LOCAL_PrologMode &= ~UserCCallMode;
       if (!SREG) {
 #ifdef CUT_C
 	/* Removes the cut functions from the stack

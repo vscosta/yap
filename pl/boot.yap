@@ -95,7 +95,7 @@ true :- true.
 	'$init_consult',
 	% '$swi_set_prolog_flag'(break_level, 0),
 	% '$set_read_error_handler'(error), let the user do that 
-	nb_setval('$system_mode',off),
+	'$system_mode'(true),
 	nb_setval('$chr_toplevel_show_store',false).
 
 '$init_consult' :-
@@ -1200,58 +1200,26 @@ catch_ball(C, C).
 
 '$enter_system_mode' :-
 	'$stop_creeping',
-	nb_setval('$system_mode',on).
+	'$system_mode'(true).
 
 '$in_system_mode' :-
-	'$nb_getval'('$system_mode',on,fail).
+	'$system_mode'(State),
+	State = true.
 
 '$execute_outside_system_mode'(G,M) :-
-	CP is '$last_choice_pt',	
-	'$execute_outside_system_mode'(G,M,CP).
-
-'$execute_outside_system_mode'(V,M,_) :-
-	var(V), !,
-	call(M:V).
-'$execute_outside_system_mode'(M:G, _M, CP) :- !,
-	'$execute_outside_system_mode'(G, M, CP).
-'$execute_outside_system_mode'((G1,G2), M, CP) :- !,
-	'$execute_outside_system_mode'(G1, M, CP),
-	'$execute_outside_system_mode'(G2, M, CP).
-'$execute_outside_system_mode'((G1;G2), M, CP) :- !,
-	(
-	 '$execute_outside_system_mode'(G1, M, CP)
-	;
-	 '$execute_outside_system_mode'(G2, M, CP)
-	).
-'$execute_outside_system_mode'(G, M, CP) :-
-	'$nb_getval'('$trace', on, fail), !,
-	(
-	   '$$save_by'(CP1),
-	  '$do_spy'(G, M, CP, meta_creep),
-	   % we may exit system mode...
+	 ( '$$save_by'(CP1),
+	   '$exit_system_mode',
+	   '$call'(G, CP, M:G, M),
 	   '$$save_by'(CP2),
-	   (CP1 == CP2 -> ! ; ( true ; '$exit_system_mode', fail ) ),
+	    (CP1 == CP2 -> ! ; ( true ; '$exit_system_mode', fail ) ),
 	   '$enter_system_mode'
-	;
-	   '$enter_system_mode',
-	   fail
-	).
-'$execute_outside_system_mode'(G, M, CP) :-
-	(
-	 '$$save_by'(CP1),
-	 '$exit_system_mode',
-	 '$call'(G, CP, M:G, M),
-	 '$$save_by'(CP2),
-	 (CP1 == CP2 -> ! ; ( true ; '$exit_system_mode', fail ) ),
-	 '$enter_system_mode'
 	;
 	  '$enter_system_mode',
 	  fail
 	).
 
-
 '$exit_system_mode' :-
-	nb_setval('$system_mode',off),
+	'$system_mode'(false),
 	( '$nb_getval'('$trace',on,fail) -> '$meta_creep' ; true).
 
 '$run_at_thread_start' :-
