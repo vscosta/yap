@@ -2108,6 +2108,9 @@ PL_close_foreign_frame(fid_t f)
   CACHE_REGS
   choiceptr cp_b = (choiceptr)(LCL0-(UInt)f);
   LOCAL_CurSlot = IntOfTerm(cp_b->cp_a1);
+  B = cp_b;
+  HB = B->cp_h;
+  Yap_TrimTrail();
   B = cp_b->cp_b;
   CP = cp_b->cp_cp;
   ENV = cp_b->cp_env;
@@ -2115,7 +2118,6 @@ PL_close_foreign_frame(fid_t f)
   DEPTH = cp_b->cp_depth;
 #endif /* DEPTH_LIMIT */
   HB = B->cp_h;
-  Yap_TrimTrail();
   if (LOCAL_CurSlot) {
   /* we can assume there was a slot before */
     CELL *old_slot;
