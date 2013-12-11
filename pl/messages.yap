@@ -551,8 +551,8 @@ prefix(warning,	      '% ',      user_error) -->
 	(   { Id == main }
 	->  [ 'Warning: ', nl ]
 	;   { atom(Id) }
-	->  ['Warning: [Thread ~a ]' - Id, nl ]
-	;   ['Warning: [Thread ~d ]' - Id, nl ]
+	->  ['Warning: [Thread ~a ]' - [Id], nl ]
+	;   ['Warning: [Thread ~d ]' - [Id], nl ]
 	).
 prefix(error,	      '     ',   user_error) -->
 	{ recorded(sp_info,local_sp(P,_,_,_),_) },
@@ -560,8 +560,8 @@ prefix(error,	      '     ',   user_error) -->
 	(   { Id == main }
 	->  [ 'ERROR at ' ]
 	;   { atom(Id) }
-	->  [ 'ERROR [Thread ~a ] at ' - Id ]
-	;   [ 'ERROR [Thread ~d ] at ' - Id ]
+	->  [ 'ERROR [ Thread ~a ] at ' - [Id] ]
+	;   [ 'ERROR [ Thread ~d ] at ' - [Id] ]
 	),
 	'$hacks':display_pc(P),
 	!,
@@ -571,8 +571,8 @@ prefix(error,	      '     ',   user_error) -->
 	(   { Id == main }
 	->  [ 'ERROR!!', nl ]
 	;   { atom(Id) }
-	->  [ 'ERROR!! [Thread ~a ]' - Id, nl ]
-	;   [ 'ERROR!! [Thread ~d ]' - Id, nl ]
+	->  [ 'ERROR!! [ Thread ~a ]' - [Id], nl ]
+	;   [ 'ERROR!! [ Thread ~d ]' - [Id], nl ]
 	).
 prefix(banner,	      '',	   user_error) --> [].
 prefix(informational, '~*|% '-[LC],     user_error) -->
