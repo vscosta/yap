@@ -72,6 +72,19 @@ p_creep( USES_REGS1 )
 }
 
 static Int 
+p_creep_fail( USES_REGS1 )
+{
+  Atom            at;
+  PredEntry      *pred;
+
+  at = AtomCreep;
+  pred = RepPredProp(PredPropByFunc(Yap_MkFunctor(at, 1),0));
+  CreepCode = pred;
+  do_signal(YAP_CREEP_SIGNAL PASS_REGS);
+  return FALSE;
+}
+
+static Int 
 p_stop_creeping( USES_REGS1 )
 {
   LOCK(LOCAL_SignalLock);
@@ -316,6 +329,7 @@ Yap_InitSignalCPreds(void)
 {
   /* Basic predicates for the debugger */
   Yap_InitCPred("$creep", 0, p_creep, SafePredFlag);
+  Yap_InitCPred("$creep_fail", 0, p_creep_fail, SafePredFlag);
   Yap_InitCPred("$meta_creep", 0, p_meta_creep, SafePredFlag);
   Yap_InitCPred("$stop_creeping", 0, p_stop_creeping, SafePredFlag);
   Yap_InitCPred ("$first_signal", 1, p_first_signal, SafePredFlag|SyncPredFlag);

@@ -205,4 +205,5 @@ read_sig.
 :- '$set_no_trace'('$enter_system_mode', prolog).
 :- '$set_no_trace'('$do_trace', prolog).
 :- '$set_no_trace'('$call'(_,_,_,_), prolog).
+:- '$set_no_trace'('$execute_nonstop'(_,_), prolog).
 

@@ -174,7 +174,6 @@ do_execute(Term t, Term mod USES_REGS)
     return CallMetaCall(ARG1, mod PASS_REGS);
   } else if (LOCAL_ActiveSignals  && !LOCAL_InterruptsDisabled &&
 	     !(LOCAL_PrologMode & (AbortMode|InterruptMode|SystemMode))) {
-    printf("here %lx\n", LOCAL_PrologMode);
     return EnterCreepMode(t, mod PASS_REGS);
   }
  restart_exec:

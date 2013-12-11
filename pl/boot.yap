@@ -1220,7 +1220,7 @@ catch_ball(C, C).
 
 '$exit_system_mode' :-
 	'$system_mode'(false),
-	( '$nb_getval'('$trace',on,fail) -> '$creep' ; true).
+	( '$nb_getval'('$trace',on,fail) -> '$meta_creep' ; true).
 
 '$run_at_thread_start' :-
 	recorded('$thread_initialization',M:D,_),

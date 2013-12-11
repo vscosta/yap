@@ -31,7 +31,7 @@
 	nb_setval('$spy_glist',[]),
 	nb_setval('$spy_gn',1),
 	nb_setval('$debug_run',off),
-	nb_setval('$debug_jump',off).
+	nb_setval('$debug_jump',false).
 
 
 % First part : setting and reseting spy points
@@ -193,9 +193,7 @@ trace :-
 
 '$do_trace' :-
 	'$init_debugger',
-	'$nb_getval'('$trace', on, fail), !,
-	'$start_debugging'(on),
-	'$creep'.
+	'$nb_getval'('$trace', on, fail), !.
 '$do_trace' :-
 	nb_setval('$trace',on),
 	'$start_debugging'(on),
@@ -778,18 +776,22 @@ debugging :-
 '$continue_debugging'(_, debugger) :- !.
 % do not need to debug!
 % go back to original sequence.
-'$continue_debugging'(zip, _) :- !, '$exit_system_mode'.
-'$continue_debugging'(fail, _) :- !.
 '$continue_debugging'(exit, meta_creep) :- !,
-	 '$exit_system_mode',
+	 '$system_mode'(false),
 	'$meta_creep'.
+'$continue_debugging'(zip, _) :- !, '$exit_system_mode'.
+'$continue_debugging'(fail, creep) :- !,
+	'$system_mode'(false),
+	'$creep_fail'.
 '$continue_debugging'(_, creep) :- !,
-	 '$exit_system_mode',
-	'$creep'.
+	'$creep',
+	'$system_mode'(false).
+'$continue_debugging'(fail, _) :- !.
 '$continue_debugging'(_, spy) :- !,
-	 '$exit_system_mode',
+	 '$system_mode'(false),
 	'$creep'.
-'$continue_debugging'(_, _) :- '$exit_system_mode'.
+'$continue_debugging'(_, _) :-
+	'$exit_system_mode'.
 
 % if we are in the interpreter, don't need to care about forcing a trace, do we?
 '$continue_debugging_goal'(yes,G) :- !,
