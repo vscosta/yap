@@ -102,6 +102,7 @@ typedef enum {
 } qlf_tag_t;
 
 #define STATIC_PRED_FLAGS (SourcePredFlag|DynamicPredFlag|LogUpdatePredFlag|CompiledPredFlag|MultiFileFlag|TabledPredFlag|MegaClausePredFlag|CountPredFlag|ProfiledPredFlag|ThreadLocalPredFlag|AtomDBPredFlag|ModuleTransparentPredFlag|NumberDBPredFlag|MetaPredFlag|SyncPredFlag|BackCPredFlag)
+#define EXTRA_PRED_FLAGS (QuasiQuotationPredFlag|NoTracePredFlag)
 
 #define SYSTEM_PRED_FLAGS (BackCPredFlag|UserCPredFlag|CArgsPredFlag|AsmPredFlag|CPredFlag|BinaryPredFlag)
 

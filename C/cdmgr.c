@@ -2736,6 +2736,57 @@ p_purge_clauses( USES_REGS1 )
 ******************************************************************/
 
 static Int 
+p_is_no_trace( USES_REGS1 )
+{				/* '$undefined'(P,Mod)	 */
+  PredEntry      *pe;
+
+  pe = get_pred(Deref(ARG1), Deref(ARG2), "undefined/1");
+  if (EndOfPAEntr(pe))
+    return TRUE;
+  PELOCK(36,pe);
+  if (pe->ExtraPredFlags & NoTracePredFlag) {
+    UNLOCKPE(57,pe);
+    return TRUE;
+  }
+  UNLOCKPE(59,pe);
+  return FALSE;
+}
+
+
+static Int 
+p_set_no_trace( USES_REGS1 )
+{				/* '$set_no_trace'(+Fun,+M)	 */
+  PredEntry      *pe;
+
+  pe = get_pred(Deref(ARG1), Deref(ARG2), "undefined/1");
+  if (EndOfPAEntr(pe))
+    return FALSE;
+  PELOCK(36,pe);
+  pe->ExtraPredFlags |= NoTracePredFlag;
+  UNLOCKPE(57,pe);
+  return TRUE;
+}
+
+int
+Yap_SetNoTrace(char *name, UInt arity, Term tmod)
+{
+  PredEntry      *pe;
+
+  if (arity == 0) {
+    pe = get_pred(MkAtomTerm(Yap_LookupAtom(name)), tmod, "no_trace");
+  } else {
+    pe = RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_LookupAtom(name), arity),tmod));
+  }
+  if (EndOfPAEntr(pe))
+    return FALSE;
+  PELOCK(36,pe);
+  pe->ExtraPredFlags |= NoTracePredFlag;
+  UNLOCKPE(57,pe);
+  return TRUE;
+}
+
+
+static Int 
 p_setspy( USES_REGS1 )
 {				/* '$set_spy'(+Fun,+M)	 */
   Atom            at;
@@ -6420,6 +6471,8 @@ Yap_InitCdMgr(void)
   Yap_InitCPred("$kill_dynamic", 2, p_kill_dynamic, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$new_multifile", 3, p_new_multifile, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$is_multifile", 2, p_is_multifile, TestPredFlag | SafePredFlag);
+  Yap_InitCPred("$is_no_trace", 2, p_is_no_trace, TestPredFlag | SafePredFlag);
+  Yap_InitCPred("$set_no_trace", 2, p_set_no_trace, TestPredFlag | SafePredFlag);
   Yap_InitCPred("$is_profiled", 1, p_is_profiled, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$profile_info", 3, p_profile_info, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$profile_reset", 2, p_profile_reset, SafePredFlag|SyncPredFlag);

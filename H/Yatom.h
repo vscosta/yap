@@ -650,10 +650,13 @@ IsValProperty (int flags)
 	    for	the pred.
     C_Preds are	things write, read, ...	implemented in C. In this case
 	    CodeOfPred holds the address of the	correspondent C-function.
+
+don;t forget to also add in qly.h
 */
 typedef enum
 {
-  QuasiQuotationPredFlag = ((UInt)0x00000001 << EXTRA_FLAG_BASE),		/* SWI-like quasi quotations */
+  NoTracePredFlag = ((UInt)0x00000002L << EXTRA_FLAG_BASE),		/* cannot trace this preducate */
+  QuasiQuotationPredFlag = ((UInt)0x00000001L << EXTRA_FLAG_BASE),		/* SWI-like quasi quotations */
   MegaClausePredFlag =   0x80000000L, /* predicate is implemented as a mega-clause */
   ThreadLocalPredFlag = 0x40000000L,	/* local to a thread */
   MultiFileFlag = 0x20000000L,	/* is multi-file */

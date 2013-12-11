@@ -89,8 +89,9 @@
 	'$execute0'((Goal,M:G),M0).
 
 % we may be creeping outside and coming back to system mode.
-'$start_creep'([_|'$enter_system_mode'], _) :- !,
-	'$enter_system_mode'.
+'$start_creep'([M|G], _) :-
+	'$is_no_trace'(G, M), !,
+	'$execute0'(G, M).
 '$start_creep'([Mod|G], _) :-
 	'$in_system_mode', !,
 	'$execute0'(G, Mod).
@@ -197,5 +198,11 @@ read_sig :-
 	fail.
 read_sig.
 
+%
+% make thes predicates non-traceable.
 
+:- '$set_no_trace'(true, prolog).
+:- '$set_no_trace'('$enter_system_mode', prolog).
+:- '$set_no_trace'('$do_trace', prolog).
+:- '$set_no_trace'('$call'(_,_,_,_), prolog).
 

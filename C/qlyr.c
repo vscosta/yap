@@ -932,18 +932,32 @@ read_clauses(IOSTREAM *stream, PredEntry *pp, UInt nclauses, UInt flags) {
 static void
 read_pred(IOSTREAM *stream, Term mod) {
   UInt flags;
+#if SIZEOF_INT_P==4
+  UInt eflags;
+#endif
   UInt nclauses, fl1;
   PredEntry *ap;
 
   ap = LookupPredEntry((PredEntry *)read_uint(stream));
   flags = read_uint(stream);
+#if SIZEOF_INT_P==4
+  eflags = read_uint(stream);
+#endif
   nclauses = read_uint(stream);
   if (ap->PredFlags & IndexedPredFlag) {
     Yap_RemoveIndexation(ap);
   }
-  fl1 = flags & STATIC_PRED_FLAGS;
-  ap->PredFlags &= ~STATIC_PRED_FLAGS;
+
+#if SIZEOF_INT_P==4
+  fl1 = flags & ((UInt)STATIC_PRED_FLAGS);
+  ap->PredFlags &= ~((UInt)STATIC_PRED_FLAGS);
   ap->PredFlags |= fl1;
+  ap->ExtraPredFlags = eflags;
+#else
+  fl1 = flags & ((UInt)STATIC_PRED_FLAGS|(UInt)EXTRA_PRED_FLAGS);
+  ap->PredFlags &= ~((UInt)STATIC_PRED_FLAGS|(UInt)EXTRA_PRED_FLAGS);
+  ap->PredFlags |= fl1;
+#endif
   if (flags & NumberDBPredFlag) {
     ap->src.IndxId = read_uint(stream);
   } else {
@@ -957,7 +971,7 @@ read_pred(IOSTREAM *stream, Term mod) {
   if (flags & MultiFileFlag && ap->ModuleOfPred == PROLOG_MODULE)
     ap->ModuleOfPred = TermProlog;
   read_clauses(stream, ap, nclauses, flags);
-  if (flags & HiddenPredFlag) {
+  if (flags & HiddenPredFlag) {  
     Yap_HidePred(ap);
   }
 }

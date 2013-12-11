@@ -688,6 +688,9 @@ static size_t
 save_pred(IOSTREAM *stream, PredEntry *ap) {
   CHECK(save_uint(stream, (UInt)ap));
   CHECK(save_uint(stream, ap->PredFlags));
+#if SIZEOF_INT_P==4
+  CHECK(save_uint(stream, ap->ExtraPredFlags));
+#endif
   CHECK(save_uint(stream, ap->cs.p_code.NOfClauses));
   CHECK(save_uint(stream, ap->src.IndxId));
   CHECK(save_uint(stream, ap->TimeStampOfPred));
