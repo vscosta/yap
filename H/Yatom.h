@@ -655,6 +655,7 @@ don;t forget to also add in qly.h
 */
 typedef enum
 {
+  NoDebugPredFlag = ((UInt)0x00000004L << EXTRA_FLAG_BASE),		/* cannot trace this preducate */
   NoTracePredFlag = ((UInt)0x00000002L << EXTRA_FLAG_BASE),		/* cannot trace this preducate */
   QuasiQuotationPredFlag = ((UInt)0x00000001L << EXTRA_FLAG_BASE),		/* SWI-like quasi quotations */
   MegaClausePredFlag =   0x80000000L, /* predicate is implemented as a mega-clause */

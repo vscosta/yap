@@ -2511,7 +2511,8 @@ GetDBTerm(DBTerm *DBSP, int src USES_REGS)
       return t;
     }
     pt = CellPtr(DBSP->Contents);
-    if (H+NOf > ASP-CalculateStackGap()/sizeof(CELL)) {
+    CalculateStackGap( PASS_REGS1 );
+    if (H+NOf > ASP-EventFlag/sizeof(CELL)) {
       if (LOCAL_PrologMode & InErrorMode) {
 	if (H+NOf > ASP)
 	  fprintf(GLOBAL_stderr, "\n\n [ FATAL ERROR: No Stack for Error Handling ]\n");

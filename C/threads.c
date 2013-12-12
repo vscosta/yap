@@ -915,6 +915,7 @@ p_thread_signal( USES_REGS1 )
   }
   LOCK(REMOTE_SignalLock(wid));
   REMOTE_ThreadHandle(wid).current_yaam_regs->CreepFlag_ = 
+    REMOTE_ThreadHandle(wid).current_yaam_regs->EventFlag_ = 
     Unsigned(REMOTE_ThreadHandle(wid).current_yaam_regs->LCL0_);
   REMOTE_ActiveSignals(wid) |= YAP_ITI_SIGNAL;
   UNLOCK(REMOTE_SignalLock(wid));

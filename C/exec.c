@@ -168,7 +168,7 @@ do_execute(Term t, Term mod USES_REGS)
     /* disable creeping when we do goal expansion */
     if (LOCAL_ActiveSignals & (YAP_CREEP_SIGNAL|YAP_DELAY_CREEP_SIGNAL) && !LOCAL_InterruptsDisabled) {
       LOCAL_ActiveSignals &= ~(YAP_CREEP_SIGNAL|YAP_DELAY_CREEP_SIGNAL);
-      CreepFlag = CalculateStackGap();
+      CalculateStackGap( PASS_REGS1 );
     }
     UNLOCK(LOCAL_SignalLock);
     return CallMetaCall(ARG1, mod PASS_REGS);
@@ -341,7 +341,7 @@ do_execute_n(Term t, Term mod, unsigned int n USES_REGS)
     /* disable creeping when we do goal expansion */
     if (LOCAL_ActiveSignals & (YAP_CREEP_SIGNAL|YAP_DELAY_CREEP_SIGNAL) && !LOCAL_InterruptsDisabled) {
       LOCAL_ActiveSignals &= ~(YAP_CREEP_SIGNAL|YAP_DELAY_CREEP_SIGNAL);
-      CreepFlag = CalculateStackGap();
+      CalculateStackGap( PASS_REGS1 );
     }
     UNLOCK(LOCAL_SignalLock);
     t = copy_execn_to_heap(f, pt, n, arity, mod PASS_REGS);
@@ -405,7 +405,7 @@ EnterCreepMode(Term t, Term mod USES_REGS) {
     }
   }
   LOCK(LOCAL_SignalLock);
-  CreepFlag = CalculateStackGap();
+  CalculateStackGap( PASS_REGS1 );
   UNLOCK(LOCAL_SignalLock);
   P_before_spy = P;
   return CallPredicate(PredCreep, B, PredCreep->CodeOfPred PASS_REGS);
@@ -667,7 +667,7 @@ p_do_goal_expansion( USES_REGS1 )
   LOCK(LOCAL_SignalLock);
   LOCAL_ActiveSignals &= ~(YAP_CREEP_SIGNAL|YAP_DELAY_CREEP_SIGNAL);    
   if (!LOCAL_ActiveSignals)
-    CreepFlag = CalculateStackGap();
+    CalculateStackGap( PASS_REGS1 );
   UNLOCK(LOCAL_SignalLock);
   
   /* CurMod:goal_expansion(A,B) */
@@ -729,7 +729,7 @@ p_do_term_expansion( USES_REGS1 )
   LOCK(LOCAL_SignalLock);
   LOCAL_ActiveSignals &= ~(YAP_CREEP_SIGNAL|YAP_DELAY_CREEP_SIGNAL);
   if (!LOCAL_ActiveSignals)
-    CreepFlag = CalculateStackGap();
+    CalculateStackGap( PASS_REGS1 );
   UNLOCK(LOCAL_SignalLock);
   
   /* CurMod:term_expansion(A,B) */
@@ -1093,7 +1093,7 @@ exec_absmi(int top USES_REGS)
 	LOCK(LOCAL_SignalLock);
 	/* forget any signals active, we're reborne */
 	LOCAL_ActiveSignals = 0;
-	CreepFlag = CalculateStackGap();
+	CalculateStackGap( PASS_REGS1 );
 	LOCAL_PrologMode = UserMode;
 	UNLOCK(LOCAL_SignalLock);
 	P = (yamop *)FAILCODE;
@@ -1127,7 +1127,7 @@ exec_absmi(int top USES_REGS)
   /* make sure we don't leave a FAIL signal hanging around */ 
   LOCAL_ActiveSignals &= ~YAP_FAIL_SIGNAL;
   if (!LOCAL_ActiveSignals)
-    CreepFlag = CalculateStackGap();
+    CalculateStackGap( PASS_REGS1 );
   return out;
 }
 
@@ -1778,7 +1778,7 @@ Yap_InitYaamRegs( int myworker_id )
   TR = TR_FZ = (tr_fr_ptr) REMOTE_TrailBase(myworker_id);
 #endif /* FROZEN_STACKS */
   LOCK(REMOTE_SignalLock(myworker_id));
-  CreepFlag = CalculateStackGap();
+  CalculateStackGap( PASS_REGS1 );
   /* the first real choice-point will also have AP=FAIL */ 
   /* always have an empty slots for people to use */
   REMOTE_GlobalArena(myworker_id) = TermNil;

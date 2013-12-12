@@ -92,6 +92,7 @@ INLINE_ONLY inline EXTERN void save_B(void);
 
 typedef struct regstore_t
   {
+    CELL    EventFlag_;		/* 13                                         */
     CELL    CreepFlag_;		/* 13                                         */
     CELL   *HB_;		/* 4 heap (global) stack top at latest c.p.   */
 #if defined(YAPOR_SBA) || defined(TABLING)
@@ -666,6 +667,7 @@ INLINE_ONLY EXTERN inline void restore_B(void) {
 #define Yap_isint     Yap_REGS.isint_
 #define Yap_Floats    Yap_REGS.Floats_
 #define Yap_Ints      Yap_REGS.Ints_
+#define EventFlag Yap_REGS.EventFlag_
 
 #define REG_SIZE	sizeof(REGS)/sizeof(CELL *)
 
@@ -713,13 +715,18 @@ extern REGSTORE Yap_standard_regs;
 
 /******************* controlling debugging ****************************/
 static inline UInt
-CalculateStackGap(void)
+StackGap( USES_REGS1 )
 {
-  CACHE_REGS
   UInt gmin = (LCL0-H0)>>2;
 
   if (gmin < MinStackGap) gmin = MinStackGap; 
   //  if (gmin > 1024*1024) return 1024*1024; 
   return gmin;
+}
+
+static inline void
+CalculateStackGap( USES_REGS1 )
+{
+  CreepFlag = EventFlag = StackGap( PASS_REGS1 );
 }
 

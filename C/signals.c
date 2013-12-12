@@ -41,8 +41,11 @@ inline static void
 do_signal(yap_signals sig USES_REGS)
 {
   LOCK(LOCAL_SignalLock);
-  if (!LOCAL_InterruptsDisabled)
+  if (!LOCAL_InterruptsDisabled) {
     CreepFlag = Unsigned(LCL0);
+    if (sig != YAP_CREEP_SIGNAL)
+      EventFlag = Unsigned(LCL0);
+  }
   LOCAL_ActiveSignals |= sig;
   UNLOCK(LOCAL_SignalLock);
 }
@@ -52,7 +55,7 @@ undo_signal(yap_signals sig USES_REGS)
 {
   LOCK(LOCAL_SignalLock);
   if ((LOCAL_ActiveSignals & ~(YAP_CREEP_SIGNAL|YAP_DELAY_CREEP_SIGNAL)) == sig) {
-    CreepFlag = CalculateStackGap();
+    CalculateStackGap( PASS_REGS1 );
   }
   LOCAL_ActiveSignals &= ~sig;
   UNLOCK(LOCAL_SignalLock);
@@ -90,7 +93,7 @@ p_stop_creeping( USES_REGS1 )
   LOCK(LOCAL_SignalLock);
   LOCAL_ActiveSignals &= ~(YAP_CREEP_SIGNAL|YAP_DELAY_CREEP_SIGNAL);
   if (!LOCAL_ActiveSignals) {
-    CreepFlag = CalculateStackGap();
+    CalculateStackGap( PASS_REGS1 );
   }
   UNLOCK(LOCAL_SignalLock);
   return TRUE;
@@ -119,7 +122,7 @@ p_creep_allowed( USES_REGS1 )
     if (LOCAL_ActiveSignals & YAP_CREEP_SIGNAL  && !LOCAL_InterruptsDisabled) {
       LOCAL_ActiveSignals &= ~YAP_CREEP_SIGNAL;    
       if (!LOCAL_ActiveSignals)
-	CreepFlag = CalculateStackGap();
+	CalculateStackGap( PASS_REGS1 );
       UNLOCK(LOCAL_SignalLock);
     } else {
       UNLOCK(LOCAL_SignalLock);

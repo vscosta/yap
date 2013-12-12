@@ -4247,8 +4247,9 @@ call_gc(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop USES_REGS)
       effectiveness < 20) {
     LeaveGCMode( PASS_REGS1 );
 #ifndef YAPOR
-    if (gc_margin < 2*CalculateStackGap())
-      gc_margin = 2*CalculateStackGap();
+    CalculateStackGap( PASS_REGS1 );
+    if (gc_margin < 2*EventFlag)
+      gc_margin = 2*EventFlag;
     return Yap_growstack(gc_margin);
 #endif
   }
@@ -4294,8 +4295,10 @@ Yap_gcl(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop)
 {
   CACHE_REGS
   int res;
-  UInt min = CalculateStackGap()*sizeof(CELL);
+  UInt min;
 
+  CalculateStackGap( PASS_REGS1 );
+  min = EventFlag*sizeof(CELL);
   LOCAL_PrologMode |= GCMode;
   if (gc_lim < min)
     gc_lim = min;

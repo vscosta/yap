@@ -1607,4 +1607,13 @@ void SET_ASP__(CELL *yreg, Int sz USES_REGS) {
      }
 
 
-#define CHECK_ALARM(CONT)
+#define PROCESS_INT( F, C ) \
+      BEGD(d0); \
+      saveregs(); \
+      d0 = F ( PASS_REGS1 );\
+      setregs(); \
+      if (!d0) FAIL(); \
+      if (d0 == 2) goto C; \
+      JMPNext(); \
+      ENDD(d0);
+

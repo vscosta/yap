@@ -67,7 +67,6 @@ true :- true.
 %	;
 %	 true
 %	),
-    '$enter_system_mode',
     '$init_globals',
     '$swi_set_prolog_flag'(fileerrors, true),
     set_value('$gc',on),

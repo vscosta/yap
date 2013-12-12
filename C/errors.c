@@ -1996,7 +1996,7 @@ E);
   if (serious) {
     /* disable active signals at this point */
     LOCAL_ActiveSignals = 0;
-    CreepFlag = CalculateStackGap();
+    CalculateStackGap( PASS_REGS1 );
     LOCAL_PrologMode &= ~InErrorMode;
     LOCK(LOCAL_SignalLock);
     /* we might be in the middle of a critical region */

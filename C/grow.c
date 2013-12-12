@@ -814,7 +814,7 @@ static_growheap(long size, int fix_code, struct intermediates *cip, tr_fr_ptr *o
   /* CreepFlag is set to force heap expansion */
   if (LOCAL_ActiveSignals == YAP_CDOVF_SIGNAL) {
     LOCK(LOCAL_SignalLock);
-    CreepFlag = CalculateStackGap();
+    CalculateStackGap( PASS_REGS1 );
     UNLOCK(LOCAL_SignalLock);
   }
   ASP -= 256;
@@ -896,7 +896,7 @@ static_growglobal(long request, CELL **ptr, CELL *hsplit USES_REGS)
     else if (hsplit == (CELL *)omax)
       hsplit = NULL;
     if (size < 0 ||
-	(Unsigned(H)+size < Unsigned(ASP)-CreepFlag &&
+	(Unsigned(H)+size < Unsigned(ASP)-StackGap( PASS_REGS1 ) &&
 	 hsplit > H0)) {
       /* don't need to expand stacks */
       insert_in_delays = FALSE;
@@ -1313,7 +1313,7 @@ do_growheap(int fix_code, UInt in_size, struct intermediates *cip, tr_fr_ptr *ol
     LOCK(LOCAL_SignalLock);
     LOCAL_ActiveSignals &= ~YAP_CDOVF_SIGNAL;
     if (!LOCAL_ActiveSignals)
-	CreepFlag = CalculateStackGap();
+	CalculateStackGap( PASS_REGS1 );
     UNLOCK(LOCAL_SignalLock);
     return TRUE;
   }
@@ -1369,7 +1369,7 @@ growatomtable( USES_REGS1 )
 
   LOCK(LOCAL_SignalLock);
   if (LOCAL_ActiveSignals == YAP_CDOVF_SIGNAL) {
-    CreepFlag = CalculateStackGap();
+    CalculateStackGap( PASS_REGS1 );
   }
   LOCAL_ActiveSignals &= ~YAP_CDOVF_SIGNAL;
   UNLOCK(LOCAL_SignalLock);
@@ -1429,7 +1429,7 @@ Yap_growheap(int fix_code, size_t in_size, void *cip)
   if (NOfAtoms > 2*AtomHashTableSize || blob_overflow) {
       LOCK(LOCAL_SignalLock);
       if (LOCAL_ActiveSignals == YAP_CDOVF_SIGNAL) {
-	CreepFlag = CalculateStackGap();
+	CalculateStackGap( PASS_REGS1 );
       }
       LOCAL_ActiveSignals &= ~YAP_CDOVF_SIGNAL;
       UNLOCK(LOCAL_SignalLock);
@@ -1449,7 +1449,7 @@ Yap_growheap(int fix_code, size_t in_size, void *cip)
     } else {
       LOCK(LOCAL_SignalLock);
       if (LOCAL_ActiveSignals == YAP_CDOVF_SIGNAL) {
-	CreepFlag = CalculateStackGap();
+	CalculateStackGap( PASS_REGS1 );
       }
       LOCAL_ActiveSignals &= ~YAP_CDOVF_SIGNAL;
       UNLOCK(LOCAL_SignalLock);
@@ -1785,7 +1785,7 @@ static int do_growtrail(long size, int contiguous_only, int in_parser, tr_fr_ptr
   }
   LOCK(LOCAL_SignalLock);
   if (LOCAL_ActiveSignals == YAP_TROVF_SIGNAL) {
-    CreepFlag = CalculateStackGap();
+    CalculateStackGap( PASS_REGS1 );
   }
   LOCAL_ActiveSignals &= ~YAP_TROVF_SIGNAL;
   UNLOCK(LOCAL_SignalLock);

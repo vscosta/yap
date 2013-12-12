@@ -412,6 +412,8 @@ save_regs(int mode USES_REGS)
       return -1;
     if (putout(CreepFlag) < 0)
       return -1;
+    if (putout(EventFlag) < 0)
+      return -1;
     if (putcellptr((CELL *)EX) < 0)
       return -1;
 #if defined(YAPOR_SBA) || defined(TABLING)
@@ -854,6 +856,9 @@ get_regs(int flag USES_REGS)
     if (LOCAL_ErrorMessage)
       return -1;
     CreepFlag = get_cell();
+    if (LOCAL_ErrorMessage)
+      return -1;
+    EventFlag = get_cell();
     if (LOCAL_ErrorMessage)
       return -1;
     EX = (struct DB_TERM *)get_cellptr();

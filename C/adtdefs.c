@@ -30,7 +30,7 @@ static Prop	PredPropByFunc(Functor, Term);
 static Prop	PredPropByAtom(Atom, Term);
 #include "Yatom.h"
 #include "yapio.h"
-#include "pl-utf8.h"
+#include "pl-shared.h"
 #include <stdio.h>
 #include <wchar.h>
 #if HAVE_STRING_H
@@ -790,7 +790,7 @@ ExpandPredHash(void)
 /* fe is supposed to be locked */
 Prop
 Yap_NewPredPropByFunctor(FunctorEntry *fe, Term cur_mod)
-{
+{ GET_LD
   PredEntry *p = (PredEntry *) Yap_AllocAtomSpace(sizeof(*p));
 
   if (p == NULL) {
@@ -841,6 +841,9 @@ Yap_NewPredPropByFunctor(FunctorEntry *fe, Term cur_mod)
   p->cs.p_code.FirstClause = p->cs.p_code.LastClause = NULL;
   p->cs.p_code.NOfClauses = 0;
   p->PredFlags = 0L;
+#if SIZEOF_INT_P==4
+  p->ExtraPredFlags = 0L;
+#endif
   p->src.OwnerFile = AtomNil;
   p->OpcodeOfPred = UNDEF_OPCODE;
   p->CodeOfPred = p->cs.p_code.TrueCodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
@@ -869,6 +872,9 @@ Yap_NewPredPropByFunctor(FunctorEntry *fe, Term cur_mod)
       p->PredFlags |= GoalExPredFlag;
     }
   }
+  if (LOCAL_PL_local_data_p== NULL || truePrologFlag(PLFLAG_DEBUGINFO)) {
+    p->ExtraPredFlags |= NoDebugPredFlag;
+  }
   p->FunctorOfPred = fe;
   WRITE_UNLOCK(fe->FRWLock);
   {
@@ -883,7 +889,7 @@ Yap_NewPredPropByFunctor(FunctorEntry *fe, Term cur_mod)
 #if THREADS
 Prop
 Yap_NewThreadPred(PredEntry *ap USES_REGS)
-{
+{ LD_FROM_REGS
   PredEntry *p = (PredEntry *) Yap_AllocAtomSpace(sizeof(*p));
 
   if (p == NULL) {
@@ -895,6 +901,9 @@ Yap_NewThreadPred(PredEntry *ap USES_REGS)
   p->cs.p_code.FirstClause = p->cs.p_code.LastClause = NULL;
   p->cs.p_code.NOfClauses = 0;
   p->PredFlags = ap->PredFlags & ~(IndexedPredFlag|SpiedPredFlag);
+#if SIZEOF_INT_P==4
+  p->ExtraPredFlags = 0L;
+#endif
   p->src.OwnerFile = ap->src.OwnerFile;
   p->OpcodeOfPred = UNDEF_OPCODE;
   p->CodeOfPred = p->cs.p_code.TrueCodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
@@ -918,6 +927,9 @@ Yap_NewThreadPred(PredEntry *ap USES_REGS)
   LOCAL_ThreadHandle.local_preds = p;
   p->FunctorOfPred = ap->FunctorOfPred;
   Yap_inform_profiler_of_clause(&(p->OpcodeOfPred), &(p->OpcodeOfPred)+1, p, GPROF_NEW_PRED_THREAD);
+  if (LOCAL_PL_local_data_p== NULL || truePrologFlag(PLFLAG_DEBUGINFO)) {
+    p->ExtraPredFlags |= NoDebugPredFlag;
+  }
   if (!(p->PredFlags & (CPredFlag|AsmPredFlag))) {
     Yap_inform_profiler_of_clause(&(p->cs.p_code.ExpandCode), &(p->cs.p_code.ExpandCode)+1, p, GPROF_NEW_PRED_THREAD);
   }
@@ -927,7 +939,7 @@ Yap_NewThreadPred(PredEntry *ap USES_REGS)
 
 Prop
 Yap_NewPredPropByAtom(AtomEntry *ae, Term cur_mod)
-{
+{ GET_LD
   Prop p0;
   PredEntry *p = (PredEntry *) Yap_AllocAtomSpace(sizeof(*p));
 
@@ -943,6 +955,9 @@ Yap_NewPredPropByAtom(AtomEntry *ae, Term cur_mod)
   p->cs.p_code.FirstClause = p->cs.p_code.LastClause = NULL;
   p->cs.p_code.NOfClauses = 0;
   p->PredFlags = 0L;
+#if SIZEOF_INT_P==4
+  p->ExtraPredFlags = 0L;
+#endif
   p->src.OwnerFile = AtomNil;
   p->OpcodeOfPred = UNDEF_OPCODE;
   p->cs.p_code.ExpandCode = EXPAND_OP_CODE; 
@@ -983,6 +998,9 @@ Yap_NewPredPropByAtom(AtomEntry *ae, Term cur_mod)
   AddPropToAtom(ae, (PropEntry *)p);
   p0 = AbsPredProp(p);
   p->FunctorOfPred = (Functor)AbsAtom(ae);
+  if (LOCAL_PL_local_data_p== NULL || truePrologFlag(PLFLAG_DEBUGINFO)) {
+    p->ExtraPredFlags |= NoDebugPredFlag;
+  }
   WRITE_UNLOCK(ae->ARWLock);
   {
     Yap_inform_profiler_of_clause(&(p->OpcodeOfPred), &(p->OpcodeOfPred)+1, p, GPROF_NEW_PRED_ATOM);

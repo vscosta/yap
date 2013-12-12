@@ -2550,7 +2550,7 @@ p_alarm( USES_REGS1 )
     if (LOCAL_ActiveSignals & YAP_ALARM_SIGNAL) {
       LOCAL_ActiveSignals &= ~YAP_ALARM_SIGNAL;
       if (!LOCAL_ActiveSignals) {
-	CreepFlag = CalculateStackGap();
+	CalculateStackGap( PASS_REGS1 );
       }
     }
     UNLOCK(LOCAL_SignalLock);
@@ -2862,6 +2862,8 @@ p_enable_interrupts( USES_REGS1 )
   LOCAL_InterruptsDisabled--;
   if (LOCAL_ActiveSignals && !LOCAL_InterruptsDisabled) {
     CreepFlag = Unsigned(LCL0);
+    if ( LOCAL_ActiveSignals != YAP_CREEP_SIGNAL )
+      EventFlag = Unsigned( LCL0 );
   }
   UNLOCK(LOCAL_SignalLock);
   return TRUE;
@@ -2873,7 +2875,7 @@ p_disable_interrupts( USES_REGS1 )
   LOCK(LOCAL_SignalLock);
   LOCAL_InterruptsDisabled++;
   if (LOCAL_ActiveSignals) {
-    CreepFlag = CalculateStackGap();
+    CalculateStackGap( PASS_REGS1 );
   }
   UNLOCK(LOCAL_SignalLock);
   return TRUE;
