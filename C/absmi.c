@@ -890,8 +890,8 @@ interrupt_deallocate( USES_REGS1 )
     PP = PREVOP(P,p)->u.p.p;
     ASP = YENV+E_CB;
     /* cut_e */
-    if (S <= ASP) {
-      ASP = S-EnvSizeInCells;
+    if (YENV <= ASP) {
+      ASP = YENV-EnvSizeInCells;
     }
     if (ASP > (CELL *)PROTECT_FROZEN_B(B))
       ASP = (CELL *)PROTECT_FROZEN_B(B);
