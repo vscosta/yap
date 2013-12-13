@@ -166,8 +166,8 @@ do_execute(Term t, Term mod USES_REGS)
   if (PRED_GOAL_EXPANSION_ALL) {
     LOCK(LOCAL_SignalLock);
     /* disable creeping when we do goal expansion */
-    if (LOCAL_ActiveSignals & (YAP_CREEP_SIGNAL|YAP_DELAY_CREEP_SIGNAL) && !LOCAL_InterruptsDisabled) {
-      LOCAL_ActiveSignals &= ~(YAP_CREEP_SIGNAL|YAP_DELAY_CREEP_SIGNAL);
+    if (LOCAL_ActiveSignals & (YAP_CREEP_SIGNAL) && !LOCAL_InterruptsDisabled) {
+      LOCAL_ActiveSignals &= ~(YAP_CREEP_SIGNAL);
       CalculateStackGap( PASS_REGS1 );
     }
     UNLOCK(LOCAL_SignalLock);
@@ -339,8 +339,8 @@ do_execute_n(Term t, Term mod, unsigned int n USES_REGS)
   if (PRED_GOAL_EXPANSION_ALL) {
     LOCK(LOCAL_SignalLock);
     /* disable creeping when we do goal expansion */
-    if (LOCAL_ActiveSignals & (YAP_CREEP_SIGNAL|YAP_DELAY_CREEP_SIGNAL) && !LOCAL_InterruptsDisabled) {
-      LOCAL_ActiveSignals &= ~(YAP_CREEP_SIGNAL|YAP_DELAY_CREEP_SIGNAL);
+    if (LOCAL_ActiveSignals & (YAP_CREEP_SIGNAL) && !LOCAL_InterruptsDisabled) {
+      LOCAL_ActiveSignals &= ~(YAP_CREEP_SIGNAL);
       CalculateStackGap( PASS_REGS1 );
     }
     UNLOCK(LOCAL_SignalLock);
@@ -641,8 +641,8 @@ p_execute_clause( USES_REGS1 )
   } else {
     code = Yap_ClauseFromTerm(clt)->ClCode;
   }
-  if (LOCAL_ActiveSignals & (YAP_CREEP_SIGNAL|YAP_DELAY_CREEP_SIGNAL)) {
-    LOCAL_ActiveSignals &= ~(YAP_CREEP_SIGNAL|YAP_DELAY_CREEP_SIGNAL);
+  if (LOCAL_ActiveSignals & (YAP_CREEP_SIGNAL)) {
+    LOCAL_ActiveSignals &= ~(YAP_CREEP_SIGNAL);
     Yap_signal(YAP_CREEP_SIGNAL);
   }
   return CallPredicate(RepPredProp(pe), cut_cp, code PASS_REGS);
@@ -657,7 +657,7 @@ p_execute_in_mod( USES_REGS1 )
 static Int
 p_do_goal_expansion( USES_REGS1 )
 {
-  Int creeping = LOCAL_ActiveSignals & (YAP_CREEP_SIGNAL|YAP_DELAY_CREEP_SIGNAL);
+  Int creeping = LOCAL_ActiveSignals & (YAP_CREEP_SIGNAL);
   Int out = FALSE;
   PredEntry *pe;
   Term cmod = Deref(ARG2);
@@ -665,7 +665,7 @@ p_do_goal_expansion( USES_REGS1 )
   ARG2 = ARG3;
   /* disable creeping */
   LOCK(LOCAL_SignalLock);
-  LOCAL_ActiveSignals &= ~(YAP_CREEP_SIGNAL|YAP_DELAY_CREEP_SIGNAL);    
+  LOCAL_ActiveSignals &= ~(YAP_CREEP_SIGNAL);    
   if (!LOCAL_ActiveSignals)
     CalculateStackGap( PASS_REGS1 );
   UNLOCK(LOCAL_SignalLock);
@@ -720,14 +720,14 @@ p_do_goal_expansion( USES_REGS1 )
 static Int
 p_do_term_expansion( USES_REGS1 )
 {
-  Int creeping = LOCAL_ActiveSignals & (YAP_CREEP_SIGNAL|YAP_DELAY_CREEP_SIGNAL);
+  Int creeping = LOCAL_ActiveSignals & (YAP_CREEP_SIGNAL);
   Int out = FALSE;
   PredEntry *pe;
   Term cmod = CurrentModule;
 
   /* disable creeping */
   LOCK(LOCAL_SignalLock);
-  LOCAL_ActiveSignals &= ~(YAP_CREEP_SIGNAL|YAP_DELAY_CREEP_SIGNAL);
+  LOCAL_ActiveSignals &= ~(YAP_CREEP_SIGNAL);
   if (!LOCAL_ActiveSignals)
     CalculateStackGap( PASS_REGS1 );
   UNLOCK(LOCAL_SignalLock);
@@ -903,8 +903,8 @@ p_execute_nonstop( USES_REGS1 )
   /*	N = arity; */
   /* call may not define new system predicates!! */
   if (RepPredProp(pe)->PredFlags & SpiedPredFlag) {
-    if (LOCAL_ActiveSignals & (YAP_CREEP_SIGNAL|YAP_DELAY_CREEP_SIGNAL)  && !LOCAL_InterruptsDisabled) {
-      LOCAL_ActiveSignals &= ~(YAP_CREEP_SIGNAL|YAP_DELAY_CREEP_SIGNAL);
+    if (LOCAL_ActiveSignals & (YAP_CREEP_SIGNAL)  && !LOCAL_InterruptsDisabled) {
+      LOCAL_ActiveSignals &= ~(YAP_CREEP_SIGNAL);
       Yap_signal(YAP_CREEP_SIGNAL);
     }
 #if defined(YAPOR) || defined(THREADS)

@@ -657,6 +657,7 @@ interrupt_handler( USES_REGS1 )
   int v;
   PredEntry *pe = (PredEntry *)S;
   
+  //  printf("D %lx %p\n", LOCAL_ActiveSignals, P);
   if ((v = check_alarm_fail_int( FALSE PASS_REGS )) != 1)
     return v;
   /* tell whether we can creep or not, this is hard because we will
@@ -833,6 +834,7 @@ interrupt_call( USES_REGS1 )
   int v;
   
   check_alarm_fail_int( TRUE PASS_REGS );
+  //  printf("%lx %p %p %lx\n", LOCAL_ActiveSignals, P->u.Osbpp.p, P->u.Osbpp.p0, P->u.Osbpp.p0->ExtraPredFlags);
   PP = P->u.Osbpp.p0;
   if ((PP->ExtraPredFlags & NoDebugPredFlag) && (LOCAL_ActiveSignals == YAP_CREEP_SIGNAL))
     return 2;
@@ -850,9 +852,9 @@ interrupt_pexecute( PredEntry *pen USES_REGS )
 
   check_alarm_fail_int( 2 PASS_REGS );
   PP = NULL;
-  if ((PP->ExtraPredFlags & NoDebugPredFlag) && (LOCAL_ActiveSignals == YAP_CREEP_SIGNAL))
-    return 2;
-  S = (CELL *) P->u.Osbpp.p;
+  if (LOCAL_ActiveSignals == YAP_CREEP_SIGNAL)
+    return 2; /* keep on creeping */
+  S = (CELL *) pen;
   ASP = YENV;
   if (ASP > (CELL *)PROTECT_FROZEN_B(B))
     ASP = (CELL *)PROTECT_FROZEN_B(B);
@@ -3220,6 +3222,14 @@ Yap_absmi(int inp)
 	PredEntry *pt0;
 	CACHE_Y_AS_ENV(YREG);
 	pt0 = PREG->u.pp.p;
+#ifndef NO_CHECKING
+	check_stack(NoStackExecute, H);
+	goto skip_do_execute;
+#endif
+      do_execute:
+	FETCH_Y_FROM_ENV(YREG);	
+	pt0 = PREG->u.pp.p;
+      skip_do_execute:
 #ifdef LOW_LEVEL_TRACER
 	if (Yap_do_low_level_trace) {
 	  low_level_trace(enter_pred,pt0,XREGS+1);
@@ -3229,15 +3239,6 @@ Yap_absmi(int inp)
 	ALWAYS_LOOKAHEAD(pt0->OpcodeOfPred);
 	BEGD(d0);
 	d0 = (CELL)B;
-#ifndef NO_CHECKING
-	check_stack(NoStackExecute, H);
-	goto skip_do_execute;
-#endif
-      do_execute:
-	FETCH_Y_FROM_ENV(YREG);	
-	pt0 = PREG->u.pp.p;
-	d0 = (CELL)B;
-      skip_do_execute:
 	PREG = pt0->CodeOfPred;
 	/* for profiler */
 	save_pc();
@@ -3258,6 +3259,10 @@ Yap_absmi(int inp)
 	ALWAYS_END_PREFETCH();
 	ENDCACHE_Y_AS_ENV();
       }
+
+    NoStackExecute:
+      PROCESS_INT(interrupt_execute, do_execute);
+
       ENDBOp();
 
       /* dexecute    Label               */
@@ -7387,6 +7392,10 @@ Yap_absmi(int inp)
 
 	BEGD(d0);
 	CACHE_Y_AS_ENV(YREG);
+#ifndef NO_CHECKING
+	check_stack(NoStackExecuteC, H);
+      do_executec:
+#endif
 #ifdef FROZEN_STACKS
 	{ 
 	  choiceptr top_b = PROTECT_FROZEN_B(B);
@@ -7411,9 +7420,6 @@ Yap_absmi(int inp)
 	CACHE_A1();
 	BEGD(d0);
 	d0 = (CELL)B;
-#ifndef NO_CHECKING
-	check_stack(NoStackExecute, H);
-#endif
 	/* for profiler */
 	save_pc();
 	ENV_YREG[E_CB] = d0;
@@ -7461,8 +7467,8 @@ Yap_absmi(int inp)
 	ENDD(d0);
       }
 
-    NoStackExecute:
-      PROCESS_INT(interrupt_execute, do_execute);
+    NoStackExecuteC:
+      PROCESS_INT(interrupt_execute, do_executec);
       ENDBOp();
 
       /* Like previous, the only difference is that we do not */
@@ -13595,6 +13601,7 @@ Yap_absmi(int inp)
 #ifndef NO_CHECKING
 	check_stack(NoStackPExecute, H);
 #endif
+      execute_stack_checked:
 	CPREG = NEXTOP(PREG, Osbmp);
 	ALWAYS_LOOKAHEAD(pen->OpcodeOfPred);
 	PREG = pen->CodeOfPred;
@@ -13645,8 +13652,8 @@ Yap_absmi(int inp)
 	d0 = interrupt_pexecute( pen PASS_REGS );
 	setregs();
 	if (!d0) FAIL();
-	if (d0 == 2) goto execute_end;
-	JMPNext();
+	if (d0 == 2) goto execute_stack_checked;
+	goto execute_end;
 	ENDBOp();
 
 	ENDD(d0);

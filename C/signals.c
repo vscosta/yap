@@ -54,7 +54,7 @@ inline static void
 undo_signal(yap_signals sig USES_REGS)
 {
   LOCK(LOCAL_SignalLock);
-  if ((LOCAL_ActiveSignals & ~(YAP_CREEP_SIGNAL|YAP_DELAY_CREEP_SIGNAL)) == sig) {
+  if ((LOCAL_ActiveSignals & ~(YAP_CREEP_SIGNAL)) == sig) {
     CalculateStackGap( PASS_REGS1 );
   }
   LOCAL_ActiveSignals &= ~sig;
@@ -91,25 +91,10 @@ static Int
 p_stop_creeping( USES_REGS1 )
 {
   LOCK(LOCAL_SignalLock);
-  LOCAL_ActiveSignals &= ~(YAP_CREEP_SIGNAL|YAP_DELAY_CREEP_SIGNAL);
+  LOCAL_ActiveSignals &= ~(YAP_CREEP_SIGNAL);
   if (!LOCAL_ActiveSignals) {
     CalculateStackGap( PASS_REGS1 );
   }
-  UNLOCK(LOCAL_SignalLock);
-  return TRUE;
-}
-
-static Int 
-p_meta_creep( USES_REGS1 )
-{
-  Atom            at;
-  PredEntry      *pred;
-
-  at = AtomCreep;
-  pred = RepPredProp(PredPropByFunc(Yap_MkFunctor(at, 1),0));
-  CreepCode = pred;
-  LOCK(LOCAL_SignalLock);
-  LOCAL_ActiveSignals |= YAP_DELAY_CREEP_SIGNAL;
   UNLOCK(LOCAL_SignalLock);
   return TRUE;
 }
@@ -221,12 +206,6 @@ p_first_signal( USES_REGS1 )
     UNLOCK(LOCAL_SignalLock);
     return Yap_unify(ARG1, MkAtomTerm(AtomSigVTAlarm));
   }
-  if (LOCAL_ActiveSignals & YAP_DELAY_CREEP_SIGNAL) {
-    LOCAL_ActiveSignals &= ~(YAP_CREEP_SIGNAL|YAP_DELAY_CREEP_SIGNAL);
-    MUTEX_UNLOCK(&(LOCAL_ThreadHandle.tlock));
-    UNLOCK(LOCAL_SignalLock);
-    return Yap_unify(ARG1, MkAtomTerm(AtomSigDelayCreep));
-  }
   if (LOCAL_ActiveSignals & YAP_CREEP_SIGNAL) {
     LOCAL_ActiveSignals &= ~YAP_CREEP_SIGNAL;
     MUTEX_UNLOCK(&(LOCAL_ThreadHandle.tlock));
@@ -302,12 +281,6 @@ p_continue_signals( USES_REGS1 )
   if (LOCAL_ActiveSignals & YAP_CREEP_SIGNAL) {
     Yap_signal(YAP_CREEP_SIGNAL);
   }
-  if (LOCAL_ActiveSignals & YAP_DELAY_CREEP_SIGNAL) {
-    Yap_signal(YAP_DELAY_CREEP_SIGNAL|YAP_CREEP_SIGNAL);
-  }
-  if (LOCAL_ActiveSignals & YAP_TRACE_SIGNAL) {
-    Yap_signal(YAP_TRACE_SIGNAL);
-  }
   if (LOCAL_ActiveSignals & YAP_DEBUG_SIGNAL) {
     Yap_signal(YAP_DEBUG_SIGNAL);
   }
@@ -333,7 +306,6 @@ Yap_InitSignalCPreds(void)
   /* Basic predicates for the debugger */
   Yap_InitCPred("$creep", 0, p_creep, SafePredFlag);
   Yap_InitCPred("$creep_fail", 0, p_creep_fail, SafePredFlag);
-  Yap_InitCPred("$meta_creep", 0, p_meta_creep, SafePredFlag);
   Yap_InitCPred("$stop_creeping", 0, p_stop_creeping, SafePredFlag);
   Yap_InitCPred ("$first_signal", 1, p_first_signal, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$continue_signals", 0, p_continue_signals, SafePredFlag|SyncPredFlag);

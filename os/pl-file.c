@@ -5210,6 +5210,7 @@ init_yap(void)
 #endif
   initCharTypes();
   initPrologFlags();
+  clearPrologFlagMask(PLFLAG_DEBUGINFO);
   setPrologFlagMask(PLFLAG_TTY_CONTROL);
   initFiles();
   PL_register_extensions(PL_predicates_from_ctype);

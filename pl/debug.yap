@@ -34,167 +34,158 @@
 	nb_setval('$debug_jump',false).
 
 
-% First part : setting and reseting spy points
+ % First part : setting and reseting spy points
 
-% $suspy does most of the work
-'$suspy'(V,S,M) :- var(V) , !,
-	'$do_error'(instantiation_error,M:spy(V,S)).
-'$suspy'((M:S),P,_) :- !,
-    '$suspy'(S,P,M).
-'$suspy'([],_,_) :- !.
-'$suspy'([F|L],S,M) :- !, ( '$suspy'(F,S,M) ; '$suspy'(L,S,M) ).
-'$suspy'(F/N,S,M) :- !,
-	functor(T,F,N),
-	'$do_suspy'(S, F, N, T, M).
-'$suspy'(A,S,M) :- atom(A), !,
-	'$suspy_predicates_by_name'(A,S,M).
-'$suspy'(P,spy,M) :- !,
-	 '$do_error'(domain_error(predicate_spec,P),spy(M:P)).
-'$suspy'(P,nospy,M) :-
-	 '$do_error'(domain_error(predicate_spec,P),nospy(M:P)).
+ % $suspy does most of the work
+ '$suspy'(V,S,M) :- var(V) , !,
+	 '$do_error'(instantiation_error,M:spy(V,S)).
+ '$suspy'((M:S),P,_) :- !,
+     '$suspy'(S,P,M).
+ '$suspy'([],_,_) :- !.
+ '$suspy'([F|L],S,M) :- !, ( '$suspy'(F,S,M) ; '$suspy'(L,S,M) ).
+ '$suspy'(F/N,S,M) :- !,
+	 functor(T,F,N),
+	 '$do_suspy'(S, F, N, T, M).
+ '$suspy'(A,S,M) :- atom(A), !,
+	 '$suspy_predicates_by_name'(A,S,M).
+ '$suspy'(P,spy,M) :- !,
+	  '$do_error'(domain_error(predicate_spec,P),spy(M:P)).
+ '$suspy'(P,nospy,M) :-
+	  '$do_error'(domain_error(predicate_spec,P),nospy(M:P)).
 
-'$suspy_predicates_by_name'(A,S,M) :-
-	% just check one such predicate exists
-	(
-	  current_predicate(A,M:_)
-	->
-	 M = EM,
-	 A = NA
-	;
-	 recorded('$import','$import'(EM,M,GA,_,A,_),_),
-	 functor(GA,NA,_)
-	),
-	!,
-	'$do_suspy_predicates_by_name'(NA,S,EM).
-'$suspy_predicates_by_name'(A,spy,M) :- !,
-	print_message(warning,no_match(spy(M:A))).
-'$suspy_predicates_by_name'(A,nospy,M) :-
-	print_message(warning,no_match(nospy(M:A))).
-	
-'$do_suspy_predicates_by_name'(A,S,M) :-
-	current_predicate(A,M:T),
-	functor(T,A,N),
-	'$do_suspy'(S, A, N, T, M).
-'$do_suspy_predicates_by_name'(A, S, M) :-
-	recorded('$import','$import'(EM,M,T0,_,A,N),_),
-	functor(T0,A0,N0),
-	'$do_suspy'(S, A0, N0, T, EM).
-
-
-%
-% protect against evil arguments.
-%
-'$do_suspy'(S, F, N, T, M) :-
-	recorded('$import','$import'(EM,M,T0,_,F,N),_), !,
-	functor(T0, F0, N0),
-	'$do_suspy'(S, F0, N0, T, EM).
-'$do_suspy'(S, F, N, T, M) :-
-	 '$undefined'(T,M), !,
-	 ( S = spy ->
-	     print_message(warning,no_match(spy(M:F/N)))
+ '$suspy_predicates_by_name'(A,S,M) :-
+	 % just check one such predicate exists
+	 (
+	   current_predicate(A,M:_)
+	 ->
+	  M = EM,
+	  A = NA
 	 ;
-	     print_message(warning,no_match(nospy(M:F/N)))
-	 ).
-'$do_suspy'(S, F, N, T, M) :-
-	 '$system_predicate'(T,M),
-	'$flags'(T,M,F,F),
-	F /\ 0x118dd080 =\= 0,
-	 ( S = spy ->
-	     '$do_error'(permission_error(access,private_procedure,T),spy(M:F/N))
-	 ;
-	     '$do_error'(permission_error(access,private_procedure,T),nospy(M:F/N))
-	 ).
-'$do_suspy'(S, F, N, T, M) :-
-	 '$undefined'(T,M), !,
-	 ( S = spy ->
-	     print_message(warning,no_match(spy(M:F/N)))
-	 ;
-	     print_message(warning,no_match(nospy(M:F/N)))
-	 ).
-'$do_suspy'(S,F,N,T,M) :-
-	'$suspy2'(S,F,N,T,M).
+	  recorded('$import','$import'(EM,M,GA,_,A,_),_),
+	  functor(GA,NA,_)
+	 ),
+	 !,
+	 '$do_suspy_predicates_by_name'(NA,S,EM).
+ '$suspy_predicates_by_name'(A,spy,M) :- !,
+	 print_message(warning,no_match(spy(M:A))).
+ '$suspy_predicates_by_name'(A,nospy,M) :-
+	 print_message(warning,no_match(nospy(M:A))).
 
-'$suspy2'(spy,F,N,T,M) :- 
-	recorded('$spy','$spy'(T,M),_), !,
-	print_message(informational,breakp(bp(debugger,plain,M:T,M:F/N,N),add,already)).
-'$suspy2'(spy,F,N,T,M) :- !,
-	recorda('$spy','$spy'(T,M),_), 
-	'$set_spy'(T,M),
-	print_message(informational,breakp(bp(debugger,plain,M:T,M:F/N,N),add,ok)).
-'$suspy2'(nospy,F,N,T,M) :- 
-	recorded('$spy','$spy'(T,M),R), !,
-	erase(R),
-	'$rm_spy'(T,M),
-	print_message(informational,breakp(bp(debugger,plain,M:T,M:F/N,N),remove,last)).
-'$suspy2'(nospy,F,N,_,M) :-
-	print_message(informational,breakp(no,breakpoint_for,M:F/N)).
+ '$do_suspy_predicates_by_name'(A,S,M) :-
+	 current_predicate(A,M:T),
+	 functor(T,A,N),
+	 '$do_suspy'(S, A, N, T, M).
+ '$do_suspy_predicates_by_name'(A, S, M) :-
+	 recorded('$import','$import'(EM,M,T0,_,A,N),_),
+	 functor(T0,A0,N0),
+	 '$do_suspy'(S, A0, N0, T, EM).
 
-'$pred_being_spied'(G, M) :-
-	recorded('$spy','$spy'(G,M),_), !.
-
-spy Spec :-
-	'$init_debugger',
-	prolog:debug_action_hook(spy(Spec)), !.
-spy L :-
-	'$current_module'(M),
-	'$suspy'(L, spy, M), fail.
-spy _ :- debug.
-
-nospy Spec :-
-	'$init_debugger',
-	prolog:debug_action_hook(nospy(Spec)), !.
-nospy L :-
-	'$current_module'(M),
-	'$suspy'(L, nospy, M), fail.
-nospy _.
-
-nospyall :-
-	'$init_debugger',
-	prolog:debug_action_hook(nospyall), !.
-nospyall :-
-	recorded('$spy','$spy'(T,M),_), functor(T,F,N), '$suspy'(F/N,nospy,M), fail.
-nospyall.
-
-% debug mode -> debug flag = 1
-
-debug :-
-	'$init_debugger',
-	( nb_getval('$spy_gn',L) -> true ; nb_setval('$spy_gn',1) ),
-	'$start_debugging'(on),
-	print_message(informational,debug(debug)).
-
-'$start_debugging'(Mode) :-
-	(Mode == on ->
-	 '$swi_set_prolog_flag'(debug, true)
-	;
-	 '$swi_set_prolog_flag'(debug, false)
-	),
-	nb_setval('$debug_run',off),
-	nb_setval('$debug_jump',false).
-	
-nodebug :-
-	'$init_debugger',
-	'$swi_set_prolog_flag'(debug, false),
-	nb_setval('$trace',off),
-	print_message(informational,debug(off)).
 
  %
- % remove any debugging info after an abort.
+ % protect against evil arguments.
  %
-	
-trace :-
-	'$init_debugger',
-	'$nb_getval'('$trace', on, fail), !.
-trace :-
-	nb_setval('$trace',on),
-	'$start_debugging'(on),
-	print_message(informational,debug(trace)),
-	'$meta_creep'.
+ '$do_suspy'(S, F, N, T, M) :-
+	 recorded('$import','$import'(EM,M,T0,_,F,N),_), !,
+	 functor(T0, F0, N0),
+	 '$do_suspy'(S, F0, N0, T, EM).
+ '$do_suspy'(S, F, N, T, M) :-
+	  '$undefined'(T,M), !,
+	  ( S = spy ->
+	      print_message(warning,no_match(spy(M:F/N)))
+	  ;
+	      print_message(warning,no_match(nospy(M:F/N)))
+	  ).
+ '$do_suspy'(S, F, N, T, M) :-
+	  '$system_predicate'(T,M),
+	 '$flags'(T,M,F,F),
+	 F /\ 0x118dd080 =\= 0,
+	  ( S = spy ->
+	      '$do_error'(permission_error(access,private_procedure,T),spy(M:F/N))
+	  ;
+	      '$do_error'(permission_error(access,private_procedure,T),nospy(M:F/N))
+	  ).
+ '$do_suspy'(S, F, N, T, M) :-
+	  '$undefined'(T,M), !,
+	  ( S = spy ->
+	      print_message(warning,no_match(spy(M:F/N)))
+	  ;
+	      print_message(warning,no_match(nospy(M:F/N)))
+	  ).
+ '$do_suspy'(S,F,N,T,M) :-
+	 '$suspy2'(S,F,N,T,M).
 
-'$do_trace' :-
-	'$init_debugger',
+ '$suspy2'(spy,F,N,T,M) :- 
+	 recorded('$spy','$spy'(T,M),_), !,
+	 print_message(informational,breakp(bp(debugger,plain,M:T,M:F/N,N),add,already)).
+ '$suspy2'(spy,F,N,T,M) :- !,
+	 recorda('$spy','$spy'(T,M),_), 
+	 '$set_spy'(T,M),
+	 print_message(informational,breakp(bp(debugger,plain,M:T,M:F/N,N),add,ok)).
+ '$suspy2'(nospy,F,N,T,M) :- 
+	 recorded('$spy','$spy'(T,M),R), !,
+	 erase(R),
+	 '$rm_spy'(T,M),
+	 print_message(informational,breakp(bp(debugger,plain,M:T,M:F/N,N),remove,last)).
+ '$suspy2'(nospy,F,N,_,M) :-
+	 print_message(informational,breakp(no,breakpoint_for,M:F/N)).
+
+ '$pred_being_spied'(G, M) :-
+	 recorded('$spy','$spy'(G,M),_), !.
+
+ spy Spec :-
+	 '$init_debugger',
+	 prolog:debug_action_hook(spy(Spec)), !.
+ spy L :-
+	 '$current_module'(M),
+	 '$suspy'(L, spy, M), fail.
+ spy _ :- debug.
+
+ nospy Spec :-
+	 '$init_debugger',
+	 prolog:debug_action_hook(nospy(Spec)), !.
+ nospy L :-
+	 '$current_module'(M),
+	 '$suspy'(L, nospy, M), fail.
+ nospy _.
+
+ nospyall :-
+	 '$init_debugger',
+	 prolog:debug_action_hook(nospyall), !.
+ nospyall :-
+	 recorded('$spy','$spy'(T,M),_), functor(T,F,N), '$suspy'(F/N,nospy,M), fail.
+ nospyall.
+
+ % debug mode -> debug flag = 1
+
+ debug :-
+	 '$init_debugger',
+	 ( nb_getval('$spy_gn',L) -> true ; nb_setval('$spy_gn',1) ),
+	 '$start_debugging'(on),
+	 print_message(informational,debug(debug)).
+
+ '$start_debugging'(Mode) :-
+	 (Mode == on ->
+	  '$swi_set_prolog_flag'(debug, true)
+	 ;
+	  '$swi_set_prolog_flag'(debug, false)
+	 ),
+	 nb_setval('$debug_run',off),
+	 nb_setval('$debug_jump',false).
+
+ nodebug :-
+	 '$init_debugger',
+	 '$swi_set_prolog_flag'(debug, false),
+	 nb_setval('$trace',off),
+	 print_message(informational,debug(off)).
+
+  %
+  % remove any debugging info after an abort.
+  %
+
+ trace :-
+	 '$init_debugger',
 	'$nb_getval'('$trace', on, fail), !.
-'$do_trace' :-
+trace :-
 	nb_setval('$trace',on),
 	'$start_debugging'(on),
 	print_message(informational,debug(trace)),
@@ -311,12 +302,7 @@ debugging :-
 	'$swi_current_prolog_flag'(debug, false), !,
 	'$execute_nonstop'(G,Mod).
 '$spy'([Mod|G]) :-
-	'$in_system_mode', !,
-	 '$exit_system_mode',
-	'$execute_nonstop'(G,Mod).
-'$spy'([Mod|G]) :-
 	CP is '$last_choice_pt',	
-	'$enter_system_mode',
 	'$do_spy'(G, Mod, CP, spy).
 
 % last argument to do_spy says that we are at the end of a context. It
@@ -437,7 +423,6 @@ debugging :-
 	    '$enter_goal'(GoalNumber, G, Module),
 	    '$spycall'(G, Module, CalledFromDebugger, Retry),
 	    % make sure we are in system mode when running the debugger.
-	    '$enter_system_mode',
 	    (
 	      '$debugger_deterministic_goal'(G) ->
 	      Det=true
@@ -463,7 +448,6 @@ debugging :-
 	      '$continue_debugging'(exit, CalledFromDebugger)	   
 	     ;
 	       % make sure we are in system mode when running the debugger.
-	       '$enter_system_mode',
 		/* backtracking from exit				*/
 	        /* we get here when we want to redo a goal		*/
 		/* redo port */
@@ -479,7 +463,6 @@ debugging :-
 	     fail			/* to backtrack to spycalls	*/
 	     )
 	  ;
-	    '$enter_system_mode',
 	    '$show_trace'(fail,G,Module,GoalNumber,_), /* inform at fail port		*/
 	    '$continue_debugging'(fail, CalledFromDebugger),
 	    /* fail port */
@@ -521,7 +504,6 @@ debugging :-
 '$spycall'(G, M, _, _) :-
 	nb_getval('$debug_jump',true),
 	!,
-	'$exit_system_mode',
 	'$execute_nonstop'(G,M).
 '$spycall'(G, M, _, _) :-
         (
@@ -533,7 +515,7 @@ debugging :-
 	(
 	   '$is_metapredicate'(G,M)
 	->
-	   '$meta_creep'(G,M)
+	   '$creep'(G,M)
 	;
 	    '$execute'(M:G)
 	).
@@ -564,17 +546,18 @@ debugging :-
 	 InRedo = true
 	).
 
-'$meta_creep'(G,M) :-
+%
+% execute a built-in in creep mode
+%
+'$creep'(G,M) :-
 	(
 	 '$$save_by'(CP1),
-	 '$exit_system_mode',
-	 '$meta_creep',
+	 '$creep',
 	 '$execute_nonstop'(G,M),
 	 '$$save_by'(CP2),
-	 (CP1 == CP2 -> ! ; ( true ; '$exit_system_mode', '$meta_creep', fail ) ),
-	 '$enter_system_mode'
+	 (CP1 == CP2 -> ! ; ( true ; '$creep', fail ) ),
+	  '$stop_creeping'
 	;
-	  '$enter_system_mode',
 	  fail
 	).
 
@@ -776,22 +759,11 @@ debugging :-
 '$continue_debugging'(_, debugger) :- !.
 % do not need to debug!
 % go back to original sequence.
-'$continue_debugging'(exit, meta_creep) :- !,
-	 '$system_mode'(false),
-	'$meta_creep'.
-'$continue_debugging'(zip, _) :- !, '$exit_system_mode'.
-'$continue_debugging'(fail, creep) :- !,
-	'$system_mode'(false),
-	'$creep_fail'.
+'$continue_debugging'(zip, _) :- !.
 '$continue_debugging'(_, creep) :- !,
-	'$creep',
-	'$system_mode'(false).
-'$continue_debugging'(fail, _) :- !.
-'$continue_debugging'(_, spy) :- !,
-	 '$system_mode'(false),
 	'$creep'.
-'$continue_debugging'(_, _) :-
-	'$exit_system_mode'.
+'$continue_debugging'(fail, _) :- !.
+'$continue_debugging'(_, _).
 
 % if we are in the interpreter, don't need to care about forcing a trace, do we?
 '$continue_debugging_goal'(yes,G) :- !,
@@ -805,10 +777,8 @@ debugging :-
 	'$execute_creep_dgoal'(G).
 	
 '$execute_dgoal'('$execute_nonstop'(G,M)) :-
-	 '$exit_system_mode',
 	 '$execute_nonstop'(G,M).
 '$execute_dgoal'('$execute_clause'(G, M, R, CP)) :-
-	 '$exit_system_mode',
 	 '$execute_clause'(G, M, R, CP).
 
 '$execute_creep_dgoal'('$execute_nonstop'(G,M)) :-

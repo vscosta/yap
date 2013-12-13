@@ -336,7 +336,6 @@ use_module(M,F,Is) :-
 	% export to process
 	b_setval('$lf_status', TOpts),
 	'$reset_if'(OldIfLevel),
-	'$into_system_mode'(OldMode),
 	% take care with [a:f], a is the ContextModule
 	'$current_module'(SourceModule, ContextModule),
 	'$lf_opt'(consult, TOpts, Reconsult),
@@ -402,7 +401,6 @@ use_module(M,F,Is) :-
 	),
 	( LC == 0 -> prompt(_,'   |: ') ; true),
 	'$exec_initialisation_goals',
-        ( OldMode == true -> '$enter_system_mode' ; true ),
 %	format( 'O=~w~n', [Mod=UserFile] ),
 	!.
 
@@ -434,10 +432,6 @@ use_module(M,F,Is) :-
 	'$nb_getval'('$if_level', Level, fail), !,
 	Level0 = Level.
 '$get_if'(0).
-
-'$into_system_mode'(OldMode) :-
-	'$system_mode'(OldMode),	
-	'$system_mode'(true).
 
 '$bind_module'(_, load_files).
 '$bind_module'(Mod, use_module(Mod)).
@@ -539,15 +533,12 @@ initialization(G,OPT) :-
 	        '$fetch_init_goal'(Level, G),
 		LGs),
 	lists:member(G,LGs),
-	'$nb_getval'('$system_mode', OldMode, fail),
-        ( OldMode == on -> '$exit_system_mode' ; true ),
 	% run initialization under user control (so allow debugging this stuff).
 	(
-	  '$system_catch'(once(M:G), M, Error, user:'$LoopError'(Error, top)),
+	  '$system_catch'(('$user_call'(G,M) -> true), M, Error, user:'$LoopError'(Error, top)),
 	  fail
 	;
           OldMode = on,
-	  '$enter_system_mode',
 	  fail
 	).
 '$exec_initialisation_goals' :-

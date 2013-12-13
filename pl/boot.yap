@@ -94,7 +94,6 @@ true :- true.
 	'$init_consult',
 	% '$swi_set_prolog_flag'(break_level, 0),
 	% '$set_read_error_handler'(error), let the user do that 
-	'$system_mode'(true),
 	nb_setval('$chr_toplevel_show_store',false).
 
 '$init_consult' :-
@@ -478,7 +477,7 @@ true :- true.
 	 (
 	  '$current_choice_point'(CP),
 	  '$current_module'(M),
-	  '$execute_outside_system_mode'(G, M),
+	  '$user_call'(G, M),
 	  '$current_choice_point'(NCP),
 	  '$delayed_goals'(G, V, NV, LGs, DCP),
 	  '$write_answer'(NV, LGs, Written),
@@ -542,7 +541,7 @@ true :- true.
 	!,
 	'$csult'([X|L], M).
 '$do_yes_no'(G, M) :-
-	'$execute_outside_system_mode'(G, M).
+	'$user_call'(G, M).
 
 '$write_query_answer_true'([]) :- !,
 	format(user_error,'true',[]).
@@ -749,6 +748,28 @@ incore(G) :- '$execute'(G).
 '$meta_call'(G, M) :-
 	'$current_choice_point'(CP),
 	'$call'(G, CP, G, M).
+
+'$user_call'(G, M) :-
+	 ( '$$save_by'(CP1),
+	 '$enable_debugging',
+	 '$call'(G, CP, M:G, M),
+	 '$$save_by'(CP2),
+	 (CP1 == CP2 -> ! ; ( true ; '$enable_debugging', fail ) ),
+	 '$disable_debugging'
+     ;
+	'$disable_debugging',
+	fail
+    ).
+
+'$enable_debugging' :-
+	'$swi_current_prolog_flag'(debug, false), !.
+'$enable_debugging' :-
+	'$nb_getval'('$trace', on, fail), !,
+	'$creep'.
+'$enable_debugging'.
+
+'$disable_debugging' :-
+	'$stop_creeping'.
 
 
 ','(X,Y) :-
@@ -1197,33 +1218,9 @@ catch_ball(C, C).
 	( call(user:H1) -> true ; true).
 '$run_toplevel_hooks'.
 
-'$enter_system_mode' :-
-	'$stop_creeping',
-	'$system_mode'(true).
-
-'$in_system_mode' :-
-	'$system_mode'(State),
-	State = true.
-
-'$execute_outside_system_mode'(G,M) :-
-	 ( '$$save_by'(CP1),
-	   '$exit_system_mode',
-	   '$call'(G, CP, M:G, M),
-	   '$$save_by'(CP2),
-	    (CP1 == CP2 -> ! ; ( true ; '$exit_system_mode', fail ) ),
-	   '$enter_system_mode'
-	;
-	  '$enter_system_mode',
-	  fail
-	).
-
-'$exit_system_mode' :-
-	'$system_mode'(false),
-	( '$nb_getval'('$trace',on,fail) -> '$meta_creep' ; true).
-
 '$run_at_thread_start' :-
 	recorded('$thread_initialization',M:D,_),
-	'$execute_outside_sysem_mode'(D, M),
+	'$meta_call'(D, M),
 	fail.
 '$run_at_thread_start'.
 

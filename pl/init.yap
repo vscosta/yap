@@ -153,6 +153,9 @@ yap_hacks:cut_by(CP) :- '$$cut_by'(CP).
 
 :- '$change_type_of_char'(36,7). % Make $ a symbol character
 
+:-	'$swi_set_prolog_flag'(generate_debug_info,true).
+
+
 :- multifile user:library_directory/1.
 
 :- dynamic user:library_directory/1.

@@ -119,7 +119,6 @@ setup_call_catcher_cleanup(Setup, Goal, Catcher, Cleanup) :-
 	 yap_hacks:enable_interrupts,
 	 '$current_choice_point'(CP0),
 	 '$execute'(Goal),
-         '$stop_creeping',
 	 '$current_choice_point'(CPF),
 	 (
 	  CP0 =:= CPF
@@ -130,7 +129,6 @@ setup_call_catcher_cleanup(Setup, Goal, Catcher, Cleanup) :-
 	  true
 	 )
 	;
-         '$stop_creeping',
 	 Catcher = fail,
 	 fail
 	).
@@ -266,7 +264,6 @@ b_getval(GlobalVariable, Val) :-
 
 break :-
 	'$init_debugger',
-	nb_getval('$system_mode',SystemMode),
 	nb_getval('$trace',Trace),
 	nb_setval('$trace',off),
 	nb_getval('$debug_jump',Jump),
@@ -291,8 +288,7 @@ break :-
 	nb_setval('$debug_jump',Jump),
 	nb_setval('$debug_run',Run),
 	nb_setval('$trace',Trace),
-	'$break'( false ),
-	nb_setval('$system_mode',SystemMode).
+	'$break'( false ).
 
 
 at_halt(G) :-
