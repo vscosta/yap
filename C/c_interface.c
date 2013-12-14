@@ -1645,7 +1645,7 @@ complete_fail(choiceptr ptr, int has_cp USES_REGS)
 static int
 complete_exit(choiceptr ptr, int has_cp, int cut_all USES_REGS)
 {
-  // the user often leaves open frames, especially in forward execuryion
+  // the user often leaves open frames, especially in forward execution
   while (B && (!ptr ||  B < ptr)) {
     if (cut_all || B->cp_ap == NOCODE) {/* separator */
       do_cut( TRUE ); // pushes B up
