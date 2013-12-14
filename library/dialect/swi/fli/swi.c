@@ -2291,7 +2291,7 @@ X_API void PL_register_foreign_in_module(const char *module, const char *name, i
   Int nflags = 0;
 
 #ifdef DEBUG
-  if (flags & (PL_FA_NOTRACE|PL_FA_CREF)) {
+  if (flags & (PL_FA_CREF)) {
     fprintf(stderr,"PL_register_foreign_in_module called with non-implemented flag %x when creating predicate %s:%s/%d\n", flags, module, name, arity);
   }      
 #endif

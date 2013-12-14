@@ -793,9 +793,16 @@ interrupt_handler_either( USES_REGS1 )
   return interrupt_handler( PASS_REGS1 );
 }
 
+/* trave interrupt calls */
+//#define DEBUG_INTERRUPTS 1
+
 static int
 interrupt_fail( USES_REGS1 )
 {
+#ifdef DEBUG_INTERRUPTS
+  fprintf(stderr,"[%d] %s:%d: INTERRUPT %lx (YENV=%p ENV=%p ASP=%p)\n",  (int)pthread_self(), \
+	  __FUNCTION__, __LINE__,LOCAL_ActiveSignals,YENV,ENV,ASP);
+#endif
   check_alarm_fail_int( FALSE PASS_REGS );
   /* don't do debugging and stack expansion here: space will
      be recovered. automatically by fail, so
@@ -817,6 +824,10 @@ interrupt_execute( USES_REGS1 )
 {
   int v;
   
+#ifdef DEBUG_INTERRUPTS
+  fprintf(stderr,"[%d] %s:%d: INTERRUPT %lx (YENV=%p ENV=%p ASP=%p)\n",  (int)pthread_self(), \
+	  __FUNCTION__, __LINE__,LOCAL_ActiveSignals,YENV,ENV,ASP);
+#endif
   check_alarm_fail_int( TRUE PASS_REGS );
   PP  = P->u.pp.p0;
   if ((PP->ExtraPredFlags & NoDebugPredFlag) && (LOCAL_ActiveSignals == YAP_CREEP_SIGNAL))
@@ -833,6 +844,10 @@ interrupt_call( USES_REGS1 )
 {
   int v;
   
+#ifdef DEBUG_INTERRUPTS
+  fprintf(stderr,"[%d] %s:%d: INTERRUPT %lx (YENV=%p ENV=%p ASP=%p)\n",  (int)pthread_self(), \
+	  __FUNCTION__, __LINE__,LOCAL_ActiveSignals,YENV,ENV,ASP);
+#endif
   check_alarm_fail_int( TRUE PASS_REGS );
   //  printf("%lx %p %p %lx\n", LOCAL_ActiveSignals, P->u.Osbpp.p, P->u.Osbpp.p0, P->u.Osbpp.p0->ExtraPredFlags);
   PP = P->u.Osbpp.p0;
@@ -850,6 +865,10 @@ interrupt_pexecute( PredEntry *pen USES_REGS )
 {
   int v;
 
+#ifdef DEBUG_INTERRUPTS
+  fprintf(stderr,"[%d] %s:%d: INTERRUPT %lx (YENV=%p ENV=%p ASP=%p)\n",  (int)pthread_self(), \
+	  __FUNCTION__, __LINE__,LOCAL_ActiveSignals,YENV,ENV,ASP);
+#endif
   check_alarm_fail_int( 2 PASS_REGS );
   PP = NULL;
   if (LOCAL_ActiveSignals == YAP_CREEP_SIGNAL)
@@ -875,6 +894,10 @@ interrupt_deallocate( USES_REGS1 )
 {
   int v;
   
+#ifdef DEBUG_INTERRUPTS
+  fprintf(stderr,"[%d] %s:%d: INTERRUPT %lx (YENV=%p ENV=%p ASP=%p)\n",  (int)pthread_self(), \
+	  __FUNCTION__, __LINE__,LOCAL_ActiveSignals,YENV,ENV,ASP);
+#endif
   check_alarm_fail_int( TRUE PASS_REGS );
   /* 
      don't do a creep here; also, if our instruction is followed by
@@ -918,6 +941,10 @@ interrupt_deallocate( USES_REGS1 )
 static int
 interrupt_cut( USES_REGS1 )
 {
+#ifdef DEBUG_INTERRUPTS
+  fprintf(stderr,"[%d] %s:%d: INTERRUPT %lx (YENV=%p ENV=%p ASP=%p)\n",  (int)pthread_self(), \
+	  __FUNCTION__, __LINE__,LOCAL_ActiveSignals,YENV,ENV,ASP);
+#endif
   check_alarm_fail_int( 2 PASS_REGS );
   if (!LOCAL_ActiveSignals || (LOCAL_ActiveSignals & (YAP_CDOVF_SIGNAL|YAP_CREEP_SIGNAL)) == LOCAL_ActiveSignals) {
     return 2;
@@ -932,6 +959,10 @@ interrupt_cut( USES_REGS1 )
 static int
 interrupt_cut_t( USES_REGS1 )
 {
+#ifdef DEBUG_INTERRUPTS
+  fprintf(stderr,"[%d] %s:%d: INTERRUPT %lx (YENV=%p ENV=%p ASP=%p)\n",  (int)pthread_self(), \
+	  __FUNCTION__, __LINE__,LOCAL_ActiveSignals,YENV,ENV,ASP);
+#endif
   check_alarm_fail_int( 2 PASS_REGS );
   if (!LOCAL_ActiveSignals || (LOCAL_ActiveSignals & (YAP_CDOVF_SIGNAL|YAP_CREEP_SIGNAL)) == LOCAL_ActiveSignals) {
     return 2;
@@ -946,7 +977,10 @@ interrupt_cut_t( USES_REGS1 )
 static int
 interrupt_commit_y( USES_REGS1 )
 {
-  check_alarm_fail_int( 2 PASS_REGS );
+#ifdef DEBUG_INTERRUPTS
+  fprintf(stderr,"[%d] %s:%d: INTERRUPT %lx (YENV=%p ENV=%p ASP=%p)\n",  (int)pthread_self(), \
+	  __FUNCTION__, __LINE__,LOCAL_ActiveSignals,YENV,ENV,ASP);
+#endif
   if (!LOCAL_ActiveSignals || (LOCAL_ActiveSignals & (YAP_CDOVF_SIGNAL|YAP_CREEP_SIGNAL)) == LOCAL_ActiveSignals) {
     return 2;
   }
@@ -960,6 +994,10 @@ interrupt_commit_y( USES_REGS1 )
 static int
 interrupt_commit_x( USES_REGS1 )
 {
+#ifdef DEBUG_INTERRUPTS
+  fprintf(stderr,"[%d] %s:%d: INTERRUPT %lx (YENV=%p ENV=%p ASP=%p)\n",  (int)pthread_self(), \
+	  __FUNCTION__, __LINE__,LOCAL_ActiveSignals,YENV,ENV,ASP);
+#endif
   check_alarm_fail_int( 2 PASS_REGS );
   if (!LOCAL_ActiveSignals || (LOCAL_ActiveSignals & (YAP_CDOVF_SIGNAL|YAP_CREEP_SIGNAL)) == LOCAL_ActiveSignals) {
     return 2;
@@ -987,6 +1025,10 @@ interrupt_either( USES_REGS1 )
 {
   int v;
   
+#ifdef DEBUG_INTERRUPTS
+  fprintf(stderr,"[%d] %s:%d: INTERRUPT %lx (YENV=%p ENV=%p ASP=%p)\n",  (int)pthread_self(), \
+	  __FUNCTION__, __LINE__,LOCAL_ActiveSignals,YENV,ENV,ASP);
+#endif
   check_alarm_fail_int( 2 PASS_REGS );
   if (LOCAL_ActiveSignals == YAP_CREEP_SIGNAL)
     return 2;
@@ -1006,6 +1048,10 @@ interrupt_dexecute( USES_REGS1 )
 {
   int v;
 
+#ifdef DEBUG_INTERRUPTS
+  fprintf(stderr,"[%d] %s:%d: INTERRUPT %lx (YENV=%p ENV=%p ASP=%p)\n",  (int)pthread_self(), \
+	  __FUNCTION__, __LINE__,LOCAL_ActiveSignals,YENV,ENV,ASP);
+#endif
   check_alarm_fail_int( 2 PASS_REGS );
   PP = P->u.pp.p0;
   if (LOCAL_ActiveSignals & YAP_CREEP_SIGNAL &&
@@ -3009,9 +3055,15 @@ Yap_absmi(int inp)
 #ifdef COROUTINING
     NoStackFail:
       BEGD(d0);
+#ifdef SHADOW_S
+      Yap_REGS.S_ = SREG;
+#endif
       saveregs();
       d0 = interrupt_fail( PASS_REGS1 );
       setregs();
+#ifdef SHADOW_S
+      SREG = Yap_REGS.S_;
+#endif
       if (!d0) FAIL();
       JMPNext();
       ENDD(d0);
@@ -3480,9 +3532,15 @@ Yap_absmi(int inp)
 
     NoStackDeallocate:
       BEGD(d0);
+#ifdef SHADOW_S
+      Yap_REGS.S_ = SREG;
+#endif
       saveregs();
       d0 = interrupt_deallocate( PASS_REGS1 );
       setregs();
+#ifdef SHADOW_S
+      SREG = Yap_REGS.S_;
+#endif
       if (!d0) FAIL();
       JMPNext();
       ENDD(d0);
@@ -13648,9 +13706,15 @@ Yap_absmi(int inp)
 	/* at this point, we have the arguments all set in the argument registers, pen says who is the current predicate. don't remove. */
       NoStackPExecute:
 	WRITEBACK_Y_AS_ENV();
+#ifdef SHADOW_S
+      Yap_REGS.S_ = SREG;
+#endif
 	saveregs();
 	d0 = interrupt_pexecute( pen PASS_REGS );
 	setregs();
+#ifdef SHADOW_S
+      SREG = Yap_REGS.S_;
+#endif
 	if (!d0) FAIL();
 	if (d0 == 2) goto execute_stack_checked;
 	goto execute_end;

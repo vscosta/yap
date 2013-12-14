@@ -159,7 +159,6 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
     gc_ENV = (CELL *) gc_ENV[E_E];	/* link to prev
 					 * environment */
   }
-  UNLOCK(Yap_heap_regs->low_level_trace_lock);
   return;
   {
     choiceptr b_p = B;

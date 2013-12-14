@@ -1607,6 +1607,19 @@ void SET_ASP__(CELL *yreg, Int sz USES_REGS) {
      }
 
 
+#ifdef SHADOW_S
+#define PROCESS_INT( F, C ) \
+      BEGD(d0); \
+      Yap_REGS.S_ = SREG; \
+      saveregs(); \
+      d0 = F ( PASS_REGS1 );\
+      setregs(); \
+      SREG = Yap_REGS.S_; \
+      if (!d0) FAIL(); \
+      if (d0 == 2) goto C; \
+      JMPNext(); \
+      ENDD(d0);
+#else
 #define PROCESS_INT( F, C ) \
       BEGD(d0); \
       saveregs(); \
@@ -1616,4 +1629,5 @@ void SET_ASP__(CELL *yreg, Int sz USES_REGS) {
       if (d0 == 2) goto C; \
       JMPNext(); \
       ENDD(d0);
+#endif
 
