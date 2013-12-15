@@ -793,14 +793,18 @@ interrupt_handler_either( USES_REGS1 )
   return interrupt_handler( PASS_REGS1 );
 }
 
-/* trave interrupt calls */
+/* totrace interrupt calls */
 //#define DEBUG_INTERRUPTS 1
+
+#ifdef DEBUG_INTERRUPTS
+static int trace_interrupts;
+#endif
 
 static int
 interrupt_fail( USES_REGS1 )
 {
 #ifdef DEBUG_INTERRUPTS
-  fprintf(stderr,"[%d] %s:%d: INTERRUPT %lx (YENV=%p ENV=%p ASP=%p)\n",  (int)pthread_self(), \
+  if (trace_interrupts) fprintf(stderr,"[%d] %s:%d: INTERRUPT %lx (YENV=%p ENV=%p ASP=%p)\n",  (int)pthread_self(), \
 	  __FUNCTION__, __LINE__,LOCAL_ActiveSignals,YENV,ENV,ASP);
 #endif
   check_alarm_fail_int( FALSE PASS_REGS );
@@ -825,7 +829,7 @@ interrupt_execute( USES_REGS1 )
   int v;
   
 #ifdef DEBUG_INTERRUPTS
-  fprintf(stderr,"[%d] %s:%d: INTERRUPT %lx (YENV=%p ENV=%p ASP=%p)\n",  (int)pthread_self(), \
+  if (trace_interrupts) fprintf(stderr,"[%d] %s:%d: INTERRUPT %lx (YENV=%p ENV=%p ASP=%p)\n",  (int)pthread_self(), \
 	  __FUNCTION__, __LINE__,LOCAL_ActiveSignals,YENV,ENV,ASP);
 #endif
   check_alarm_fail_int( TRUE PASS_REGS );
@@ -845,7 +849,7 @@ interrupt_call( USES_REGS1 )
   int v;
   
 #ifdef DEBUG_INTERRUPTS
-  fprintf(stderr,"[%d] %s:%d: INTERRUPT %lx (YENV=%p ENV=%p ASP=%p)\n",  (int)pthread_self(), \
+  if (trace_interrupts) fprintf(stderr,"[%d] %s:%d: INTERRUPT %lx (YENV=%p ENV=%p ASP=%p)\n",  (int)pthread_self(), \
 	  __FUNCTION__, __LINE__,LOCAL_ActiveSignals,YENV,ENV,ASP);
 #endif
   check_alarm_fail_int( TRUE PASS_REGS );
@@ -866,7 +870,7 @@ interrupt_pexecute( PredEntry *pen USES_REGS )
   int v;
 
 #ifdef DEBUG_INTERRUPTS
-  fprintf(stderr,"[%d] %s:%d: INTERRUPT %lx (YENV=%p ENV=%p ASP=%p)\n",  (int)pthread_self(), \
+  if (trace_interrupts) fprintf(stderr,"[%d] %s:%d: INTERRUPT %lx (YENV=%p ENV=%p ASP=%p)\n",  (int)pthread_self(), \
 	  __FUNCTION__, __LINE__,LOCAL_ActiveSignals,YENV,ENV,ASP);
 #endif
   check_alarm_fail_int( 2 PASS_REGS );
@@ -895,7 +899,7 @@ interrupt_deallocate( USES_REGS1 )
   int v;
   
 #ifdef DEBUG_INTERRUPTS
-  fprintf(stderr,"[%d] %s:%d: INTERRUPT %lx (YENV=%p ENV=%p ASP=%p)\n",  (int)pthread_self(), \
+  if (trace_interrupts) fprintf(stderr,"[%d] %s:%d: INTERRUPT %lx (YENV=%p ENV=%p ASP=%p)\n",  (int)pthread_self(), \
 	  __FUNCTION__, __LINE__,LOCAL_ActiveSignals,YENV,ENV,ASP);
 #endif
   check_alarm_fail_int( TRUE PASS_REGS );
@@ -942,7 +946,7 @@ static int
 interrupt_cut( USES_REGS1 )
 {
 #ifdef DEBUG_INTERRUPTS
-  fprintf(stderr,"[%d] %s:%d: INTERRUPT %lx (YENV=%p ENV=%p ASP=%p)\n",  (int)pthread_self(), \
+  if (trace_interrupts) fprintf(stderr,"[%d] %s:%d: INTERRUPT %lx (YENV=%p ENV=%p ASP=%p)\n",  (int)pthread_self(), \
 	  __FUNCTION__, __LINE__,LOCAL_ActiveSignals,YENV,ENV,ASP);
 #endif
   check_alarm_fail_int( 2 PASS_REGS );
@@ -960,7 +964,7 @@ static int
 interrupt_cut_t( USES_REGS1 )
 {
 #ifdef DEBUG_INTERRUPTS
-  fprintf(stderr,"[%d] %s:%d: INTERRUPT %lx (YENV=%p ENV=%p ASP=%p)\n",  (int)pthread_self(), \
+  if (trace_interrupts) fprintf(stderr,"[%d] %s:%d: INTERRUPT %lx (YENV=%p ENV=%p ASP=%p)\n",  (int)pthread_self(), \
 	  __FUNCTION__, __LINE__,LOCAL_ActiveSignals,YENV,ENV,ASP);
 #endif
   check_alarm_fail_int( 2 PASS_REGS );
@@ -978,7 +982,7 @@ static int
 interrupt_commit_y( USES_REGS1 )
 {
 #ifdef DEBUG_INTERRUPTS
-  fprintf(stderr,"[%d] %s:%d: INTERRUPT %lx (YENV=%p ENV=%p ASP=%p)\n",  (int)pthread_self(), \
+  if (trace_interrupts) fprintf(stderr,"[%d] %s:%d: INTERRUPT %lx (YENV=%p ENV=%p ASP=%p)\n",  (int)pthread_self(), \
 	  __FUNCTION__, __LINE__,LOCAL_ActiveSignals,YENV,ENV,ASP);
 #endif
   if (!LOCAL_ActiveSignals || (LOCAL_ActiveSignals & (YAP_CDOVF_SIGNAL|YAP_CREEP_SIGNAL)) == LOCAL_ActiveSignals) {
@@ -995,7 +999,7 @@ static int
 interrupt_commit_x( USES_REGS1 )
 {
 #ifdef DEBUG_INTERRUPTS
-  fprintf(stderr,"[%d] %s:%d: INTERRUPT %lx (YENV=%p ENV=%p ASP=%p)\n",  (int)pthread_self(), \
+  if (trace_interrupts) fprintf(stderr,"[%d] %s:%d: INTERRUPT %lx (YENV=%p ENV=%p ASP=%p)\n",  (int)pthread_self(), \
 	  __FUNCTION__, __LINE__,LOCAL_ActiveSignals,YENV,ENV,ASP);
 #endif
   check_alarm_fail_int( 2 PASS_REGS );
@@ -1026,7 +1030,7 @@ interrupt_either( USES_REGS1 )
   int v;
   
 #ifdef DEBUG_INTERRUPTS
-  fprintf(stderr,"[%d] %s:%d: INTERRUPT %lx (YENV=%p ENV=%p ASP=%p)\n",  (int)pthread_self(), \
+  if (trace_interrupts) fprintf(stderr,"[%d] %s:%d: INTERRUPT %lx (YENV=%p ENV=%p ASP=%p)\n",  (int)pthread_self(), \
 	  __FUNCTION__, __LINE__,LOCAL_ActiveSignals,YENV,ENV,ASP);
 #endif
   check_alarm_fail_int( 2 PASS_REGS );
@@ -1049,7 +1053,7 @@ interrupt_dexecute( USES_REGS1 )
   int v;
 
 #ifdef DEBUG_INTERRUPTS
-  fprintf(stderr,"[%d] %s:%d: INTERRUPT %lx (YENV=%p ENV=%p ASP=%p)\n",  (int)pthread_self(), \
+  if (trace_interrupts) fprintf(stderr,"[%d] %s:%d: INTERRUPT %lx (YENV=%p ENV=%p ASP=%p)\n",  (int)pthread_self(), \
 	  __FUNCTION__, __LINE__,LOCAL_ActiveSignals,YENV,ENV,ASP);
 #endif
   check_alarm_fail_int( 2 PASS_REGS );
