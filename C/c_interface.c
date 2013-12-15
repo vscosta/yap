@@ -2397,6 +2397,7 @@ YAP_EnterGoal(PredEntry *pe, Term *ptr, YAP_dogoalinfo *dgi)
   int out;
 
   BACKUP_MACHINE_REGS();
+  LOCAL_PrologMode = UserMode;
   dgi->p = P;
   dgi->cp = CP;
   dgi->CurSlot = LOCAL_CurSlot;
@@ -3252,12 +3253,13 @@ YAP_Init(YAP_init_args *yap_init)
       Yap_AttsSize = Atts*1024;
     else
       Yap_AttsSize = 2048*sizeof(CELL);
+      /* reset stacks */
+    //    Yap_StartSlots( PASS_REGS1 );
     if (restore_result == DO_ONLY_CODE) {
       /* first, initialise the saved state */
       Term t_goal = MkAtomTerm(AtomInitProlog);
       YAP_RunGoalOnce(t_goal);
-      //      Yap_InitYaamRegs( 0 );
-      /* reset stacks */
+      Yap_InitYaamRegs( 0 );
       return YAP_BOOT_FROM_SAVED_CODE;
     } else {
       return YAP_BOOT_FROM_SAVED_STACKS;
