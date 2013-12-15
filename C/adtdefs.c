@@ -313,29 +313,24 @@ Yap_LookupMaybeWideAtomWithLength(wchar_t *atom, size_t len0)
     len++;
     if (len == len0) break;
   }
-  if (p[0] == '\0' && wide) return LookupWideAtom(atom);
-  else if (wide) {
-    wchar_t *ptr, *ptr0;
-    len = 0;
-    p = atom;
-    ptr0 = ptr = (wchar_t *)Yap_AllocCodeSpace(sizeof(wchar_t)*(len0+1));
-    if (!ptr)
+  if (wide) {
+    wchar_t *ptr0;
+    ptr0 = (wchar_t *)Yap_AllocCodeSpace(sizeof(wchar_t)*(len0+1));
+    if (!ptr0)
       return NIL;
-    while (len++ < len0) {int ch = *ptr++ = *p++; if (ch == '\0') break;}
-    ptr[0] = '\0';
+    memcpy(ptr0, atom, len0*sizeof(wchar_t));
+    ptr0[len0] = '\0';
     at = LookupWideAtom(ptr0);
     Yap_FreeCodeSpace((char *)ptr0);
     return at;
   } else {
-    char *ptr, *ptr0;
-    len = 0;
-    /* not really a wide atom */
-    p = atom;
-    ptr0 = ptr = Yap_AllocCodeSpace(len0+1);
-    if (!ptr)
+    char *ptr0;
+    Int i;
+    ptr0 = (char *)Yap_AllocCodeSpace((len0+1));
+    if (!ptr0)
       return NIL;
-    while (len++ < len0) {int ch = *ptr++ = *p++; if (ch == '\0') break;}
-    ptr[0] = '\0';
+    for (i=0; i < len0; i++) ptr0[i] = atom[i];
+    ptr0[len0] = '\0';
     at = LookupAtom(ptr0);
     Yap_FreeCodeSpace(ptr0);
     return at;
