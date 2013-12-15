@@ -1354,6 +1354,7 @@ atom_to_term(term_t atom, term_t term, term_t bindings)
     Sclose(stream);
     LD->read_source = oldsrc;
 
+    //   getchar();
     return rval;
   }
 

@@ -58,6 +58,11 @@ Yap_StartSlots( USES_REGS1 ) {
   return CurSlot;
 }
 
+static inline void
+Yap_CloseSlots( Int slot USES_REGS ) {
+  LOCAL_CurSlot = slot;
+}
+
 static inline Int
 Yap_CurrentSlot( USES_REGS1 ) {
   return IntOfTerm(ASP[0]);
