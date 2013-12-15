@@ -200,39 +200,6 @@ kill_thread_engine (int wid, int always_die)
   free(REMOTE_ThreadHandle(wid).default_yaam_regs);
   REMOTE_ThreadHandle(wid).default_yaam_regs = NULL;
   LOCK(GLOBAL_ThreadHandlesLock);
-#ifdef TABLING
-  CACHE_REGS
-  tab_ent_ptr tab_ent;
-
-  tab_ent = GLOBAL_root_tab_ent;
-  while (tab_ent) {
-    abolish_table(tab_ent);
-    tab_ent = TabEnt_next(tab_ent);
-  }
-  FREE_DEPENDENCY_FRAME(LOCAL_top_dep_fr);
-  LOCAL_top_dep_fr = NULL;
-#ifdef USE_PAGES_MALLOC
-  DETACH_PAGES(_pages_void);
-#endif /* USE_PAGES_MALLOC */
-  DETACH_PAGES(_pages_tab_ent);
-#if defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
-  DETACH_PAGES(_pages_sg_ent);
-#endif /* THREADS_FULL_SHARING || THREADS_CONSUMER_SHARING */
-  DETACH_PAGES(_pages_sg_fr);
-  DETACH_PAGES(_pages_dep_fr);
-  DETACH_PAGES(_pages_sg_node);
-  DETACH_PAGES(_pages_sg_hash);
-  DETACH_PAGES(_pages_ans_node);
-  DETACH_PAGES(_pages_ans_hash);
-#if defined(THREADS_FULL_SHARING)
-  DETACH_PAGES(_pages_ans_ref_node);
-#endif /* THREADS_FULL_SHARING */
-  DETACH_PAGES(_pages_gt_node);
-  DETACH_PAGES(_pages_gt_hash);
-#ifdef OUTPUT_THREADS_TABLING 
-  fclose(LOCAL_thread_output);
-#endif /* OUTPUT_THREADS_TABLING */
-#endif /* TABLING */
   GLOBAL_NOfThreads--;
   if (!always_die) {
     /* called by thread itself */
@@ -337,6 +304,41 @@ thread_run(void *widp)
   tgs[1] = LOCAL_ThreadHandle.tdetach;
   tgoal = Yap_MkApplTerm(FunctorThreadRun, 2, tgs);
   Yap_RunTopGoal(tgoal);
+#ifdef TABLING
+  {
+    tab_ent_ptr tab_ent;
+
+    tab_ent = GLOBAL_root_tab_ent;
+    while (tab_ent) {
+      abolish_table(tab_ent);
+      tab_ent = TabEnt_next(tab_ent);
+    }
+    FREE_DEPENDENCY_FRAME(REMOTE_top_dep_fr(worker_id));
+    REMOTE_top_dep_fr(worker_id) = NULL;
+#ifdef USE_PAGES_MALLOC
+    DETACH_PAGES(_pages_void);
+#endif /* USE_PAGES_MALLOC */
+    DETACH_PAGES(_pages_tab_ent);
+#if defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
+    DETACH_PAGES(_pages_sg_ent);
+#endif /* THREADS_FULL_SHARING || THREADS_CONSUMER_SHARING */
+    DETACH_PAGES(_pages_sg_fr);
+    DETACH_PAGES(_pages_dep_fr);
+    DETACH_PAGES(_pages_sg_node);
+    DETACH_PAGES(_pages_sg_hash);
+    DETACH_PAGES(_pages_ans_node);
+    DETACH_PAGES(_pages_ans_hash);
+#if defined(THREADS_FULL_SHARING)
+    DETACH_PAGES(_pages_ans_ref_node);
+#endif /* THREADS_FULL_SHARING */
+    DETACH_PAGES(_pages_gt_node);
+    DETACH_PAGES(_pages_gt_hash);
+#ifdef OUTPUT_THREADS_TABLING 
+    fclose(LOCAL_thread_output);
+#endif /* OUTPUT_THREADS_TABLING */
+
+  }
+#endif /* TABLING */
   thread_die(worker_id, FALSE);
   return NULL;
 }
