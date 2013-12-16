@@ -36,7 +36,7 @@
 	url = git://git.code.sf.net/p/yap/pldoc
 [submodule "packages/real"]
 	path = packages/real
-	url = git://www.swi-prolog.org/home/pl/git/packages/real.git
+	url = git://git.code.sf.net/p/yap/real
 [submodule "packages/archive"]
 	path = packages/archive
 	url = git://git.code.sf.net/p/yap/archive
