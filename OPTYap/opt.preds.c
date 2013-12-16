@@ -159,7 +159,7 @@ struct page_statistics {
 #endif /* USE_PAGES_MALLOC */
 
 
-#ifdef THREADS
+#if defined(THREADS) && defined(TABLING)
 #define GET_ALL_PAGE_STATS(STATS, STR_TYPE, _PAGES)                    \
         LOCK(GLOBAL_ThreadHandlesLock);                                \
         CHECK_PAGE_FREE_STRUCTS(STR_TYPE, GLOBAL##_PAGES);             \

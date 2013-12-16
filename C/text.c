@@ -450,6 +450,7 @@ read_Text( void *buf, seq_tv_t *inp, encoding_t *enc, int *minimal, size_t *leng
     *lengp = strlen(s);
     *enc = YAP_CHAR;
     return s;
+#if USE_GMP
   case YAP_STRING_BIG:
     if (buf) s = buf;
     else s = Yap_PreAllocCodeSpace();
@@ -459,6 +460,7 @@ read_Text( void *buf, seq_tv_t *inp, encoding_t *enc, int *minimal, size_t *leng
     *enc = YAP_CHAR;
     *lengp = strlen(s);
     return s;
+#endif
   case YAP_STRING_CHARS:
     *enc = YAP_CHAR;
     if (inp->sz)
@@ -551,6 +553,7 @@ read_Text( void *buf, seq_tv_t *inp, encoding_t *enc, int *minimal, size_t *leng
 	  LOCAL_Error_TYPE = gen_type_error( inp->type );
 	  LOCAL_Error_Term = t;
 	}	 
+#if USE_GMP
       } else if (IsBigIntTerm(t)) {
 	if (inp->type & (YAP_STRING_BIG)) {
 	  inp->type &= (YAP_STRING_BIG);
@@ -560,6 +563,7 @@ read_Text( void *buf, seq_tv_t *inp, encoding_t *enc, int *minimal, size_t *leng
 	  LOCAL_Error_TYPE = gen_type_error( inp->type );
 	  LOCAL_Error_Term = t;
 	}	 
+#endif
       } else {
 	if (!Yap_IsGroundTerm(t)) {
 	  LOCAL_Error_TYPE = INSTANTIATION_ERROR;

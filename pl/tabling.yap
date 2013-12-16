@@ -132,6 +132,9 @@ table(Pred) :-
    '$c_table'(Mod,PredFunctor,PredModeList).
 '$set_table'(Mod,PredFunctor,PredModeList) :-
    '$flags'(PredFunctor,Mod,Flags,Flags),
+   Flags /\ 0x00000040 =:= 0x00000040, !.
+'$set_table'(Mod,PredFunctor,PredModeList) :-
+   '$flags'(PredFunctor,Mod,Flags,Flags),
    Flags /\ 0x1991F8C0 =:= 0,
    '$c_table'(Mod,PredFunctor,PredModeList), !.
 '$set_table'(Mod,PredFunctor,PredModeList) :-
