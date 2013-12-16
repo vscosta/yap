@@ -593,7 +593,7 @@ static int
 check_alarm_fail_int(int CONT USES_REGS) 
 {
 #if  defined(_MSC_VER) || defined(__MINGW32__)
-  /* I need this for Windows and other systems where SIGINT    
+  /* I need this for Windows and any system where SIGINT    
      is not proceesed by same thread as absmi */
   LOCK(LOCAL_SignalLock);			
   if (LOCAL_PrologMode & (AbortMode|InterruptMode)) 
@@ -605,15 +605,19 @@ check_alarm_fail_int(int CONT USES_REGS)
   UNLOCK(LOCAL_SignalLock);
 #endif
   if (LOCAL_ActiveSignals & (YAP_FAIL_SIGNAL|YAP_INT_SIGNAL)) { 
+    /* these should fail, INT should go up to top-level */
     if (LOCAL_ActiveSignals & YAP_INT_SIGNAL) { 
       Yap_Error(PURE_ABORT, TermNil, "abort from console"); 
     } 
     LOCAL_ActiveSignals &= ~(YAP_FAIL_SIGNAL|YAP_INT_SIGNAL); 
-    if (!LOCAL_ActiveSignals) 
+    if (!LOCAL_ActiveSignals) {
+      /* no need to look into GC */
       CalculateStackGap( PASS_REGS1 ); 
+    }
+    // fail even if there are more signals, they will have to be dealt later.
     return FALSE;
   }
-  return TRUE;
+  return -1;
 }
 
 static int
@@ -621,6 +625,7 @@ stack_overflow( CELL *env, yamop *cp USES_REGS )
 {
   if ((Int)(Unsigned(YREG) - Unsigned(H)) < StackGap( PASS_REGS1 ) ||
       LOCAL_ActiveSignals & YAP_STOVF_SIGNAL) {
+    LOCAL_ActiveSignals &= ~YAP_STOVF_SIGNAL;
     if (!Yap_gc(((PredEntry *)(S))->ArityOfPE, env, cp)) {
 	Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage);
 	return 0;
@@ -654,12 +659,9 @@ code_overflow( CELL *yenv USES_REGS )
 static int
 interrupt_handler( USES_REGS1 )
 {
-  int v;
   PredEntry *pe = (PredEntry *)S;
   
   //  printf("D %lx %p\n", LOCAL_ActiveSignals, P);
-  if ((v = check_alarm_fail_int( FALSE PASS_REGS )) != 1)
-    return v;
   /* tell whether we can creep or not, this is hard because we will
      lose the info RSN
   */
@@ -832,7 +834,8 @@ interrupt_execute( USES_REGS1 )
   if (trace_interrupts) fprintf(stderr,"[%d] %s:%d: INTERRUPT %lx (YENV=%p ENV=%p ASP=%p)\n",  (int)pthread_self(), \
 	  __FUNCTION__, __LINE__,LOCAL_ActiveSignals,YENV,ENV,ASP);
 #endif
-  check_alarm_fail_int( TRUE PASS_REGS );
+  if ((v = check_alarm_fail_int(  TRUE PASS_REGS )) >= 0)
+    return v;
   PP  = P->u.pp.p0;
   if ((PP->ExtraPredFlags & NoDebugPredFlag) && (LOCAL_ActiveSignals == YAP_CREEP_SIGNAL))
     return 2;
@@ -852,7 +855,8 @@ interrupt_call( USES_REGS1 )
   if (trace_interrupts) fprintf(stderr,"[%d] %s:%d: INTERRUPT %lx (YENV=%p ENV=%p ASP=%p)\n",  (int)pthread_self(), \
 	  __FUNCTION__, __LINE__,LOCAL_ActiveSignals,YENV,ENV,ASP);
 #endif
-  check_alarm_fail_int( TRUE PASS_REGS );
+  if ((v = check_alarm_fail_int( TRUE PASS_REGS )) >= 0)
+    return v;
   //  printf("%lx %p %p %lx\n", LOCAL_ActiveSignals, P->u.Osbpp.p, P->u.Osbpp.p0, P->u.Osbpp.p0->ExtraPredFlags);
   PP = P->u.Osbpp.p0;
   if ((PP->ExtraPredFlags & NoDebugPredFlag) && (LOCAL_ActiveSignals == YAP_CREEP_SIGNAL))
@@ -873,7 +877,8 @@ interrupt_pexecute( PredEntry *pen USES_REGS )
   if (trace_interrupts) fprintf(stderr,"[%d] %s:%d: INTERRUPT %lx (YENV=%p ENV=%p ASP=%p)\n",  (int)pthread_self(), \
 	  __FUNCTION__, __LINE__,LOCAL_ActiveSignals,YENV,ENV,ASP);
 #endif
-  check_alarm_fail_int( 2 PASS_REGS );
+  if ((v = check_alarm_fail_int( 2 PASS_REGS )) >= 0)
+    return v;
   PP = NULL;
   if (LOCAL_ActiveSignals == YAP_CREEP_SIGNAL)
     return 2; /* keep on creeping */
@@ -902,7 +907,8 @@ interrupt_deallocate( USES_REGS1 )
   if (trace_interrupts) fprintf(stderr,"[%d] %s:%d: INTERRUPT %lx (YENV=%p ENV=%p ASP=%p)\n",  (int)pthread_self(), \
 	  __FUNCTION__, __LINE__,LOCAL_ActiveSignals,YENV,ENV,ASP);
 #endif
-  check_alarm_fail_int( TRUE PASS_REGS );
+  if ((v = check_alarm_fail_int( TRUE PASS_REGS )) >= 0)
+    return v;
   /* 
      don't do a creep here; also, if our instruction is followed by
      a execute_c, just wait a bit more */
@@ -945,11 +951,13 @@ interrupt_deallocate( USES_REGS1 )
 static int
 interrupt_cut( USES_REGS1 )
 {
+  int v;
 #ifdef DEBUG_INTERRUPTS
   if (trace_interrupts) fprintf(stderr,"[%d] %s:%d: INTERRUPT %lx (YENV=%p ENV=%p ASP=%p)\n",  (int)pthread_self(), \
 	  __FUNCTION__, __LINE__,LOCAL_ActiveSignals,YENV,ENV,ASP);
 #endif
-  check_alarm_fail_int( 2 PASS_REGS );
+  if ((v = check_alarm_fail_int( 2 PASS_REGS )) >= 0)
+    return v;
   if (!LOCAL_ActiveSignals || (LOCAL_ActiveSignals & (YAP_CDOVF_SIGNAL|YAP_CREEP_SIGNAL)) == LOCAL_ActiveSignals) {
     return 2;
   }
@@ -963,11 +971,13 @@ interrupt_cut( USES_REGS1 )
 static int
 interrupt_cut_t( USES_REGS1 )
 {
+  int v;
 #ifdef DEBUG_INTERRUPTS
   if (trace_interrupts) fprintf(stderr,"[%d] %s:%d: INTERRUPT %lx (YENV=%p ENV=%p ASP=%p)\n",  (int)pthread_self(), \
 	  __FUNCTION__, __LINE__,LOCAL_ActiveSignals,YENV,ENV,ASP);
 #endif
-  check_alarm_fail_int( 2 PASS_REGS );
+  if ((v = check_alarm_fail_int( 2 PASS_REGS )) >= 0)
+    return v;
   if (!LOCAL_ActiveSignals || (LOCAL_ActiveSignals & (YAP_CDOVF_SIGNAL|YAP_CREEP_SIGNAL)) == LOCAL_ActiveSignals) {
     return 2;
   }
@@ -981,13 +991,13 @@ interrupt_cut_t( USES_REGS1 )
 static int
 interrupt_commit_y( USES_REGS1 )
 {
+  int v;
 #ifdef DEBUG_INTERRUPTS
   if (trace_interrupts) fprintf(stderr,"[%d] %s:%d: INTERRUPT %lx (YENV=%p ENV=%p ASP=%p)\n",  (int)pthread_self(), \
 	  __FUNCTION__, __LINE__,LOCAL_ActiveSignals,YENV,ENV,ASP);
 #endif
-  if (!LOCAL_ActiveSignals || (LOCAL_ActiveSignals & (YAP_CDOVF_SIGNAL|YAP_CREEP_SIGNAL)) == LOCAL_ActiveSignals) {
-    return 2;
-  }
+  if ((v = check_alarm_fail_int( 2 PASS_REGS )) >= 0)
+    return v;
   /* find something to fool S */
   S = (CELL *)PredRestoreRegs;
   XREGS[0] = YENV[P->u.yps.y];
@@ -998,11 +1008,13 @@ interrupt_commit_y( USES_REGS1 )
 static int
 interrupt_commit_x( USES_REGS1 )
 {
+  int v;
 #ifdef DEBUG_INTERRUPTS
   if (trace_interrupts) fprintf(stderr,"[%d] %s:%d: INTERRUPT %lx (YENV=%p ENV=%p ASP=%p)\n",  (int)pthread_self(), \
 	  __FUNCTION__, __LINE__,LOCAL_ActiveSignals,YENV,ENV,ASP);
 #endif
-  check_alarm_fail_int( 2 PASS_REGS );
+  if ((v = check_alarm_fail_int( 2 PASS_REGS )) >= 0)
+    return v;
   if (!LOCAL_ActiveSignals || (LOCAL_ActiveSignals & (YAP_CDOVF_SIGNAL|YAP_CREEP_SIGNAL)) == LOCAL_ActiveSignals) {
     return 2;
   }
@@ -1033,7 +1045,8 @@ interrupt_either( USES_REGS1 )
   if (trace_interrupts) fprintf(stderr,"[%d] %s:%d: INTERRUPT %lx (YENV=%p ENV=%p ASP=%p)\n",  (int)pthread_self(), \
 	  __FUNCTION__, __LINE__,LOCAL_ActiveSignals,YENV,ENV,ASP);
 #endif
-  check_alarm_fail_int( 2 PASS_REGS );
+  if ((v = check_alarm_fail_int( 2 PASS_REGS )) >= 0)
+    return v;
   if (LOCAL_ActiveSignals == YAP_CREEP_SIGNAL)
     return 2;
   PP = P->u.Osblp.p0;
@@ -1056,7 +1069,6 @@ interrupt_dexecute( USES_REGS1 )
   if (trace_interrupts) fprintf(stderr,"[%d] %s:%d: INTERRUPT %lx (YENV=%p ENV=%p ASP=%p)\n",  (int)pthread_self(), \
 	  __FUNCTION__, __LINE__,LOCAL_ActiveSignals,YENV,ENV,ASP);
 #endif
-  check_alarm_fail_int( 2 PASS_REGS );
   PP = P->u.pp.p0;
   if (LOCAL_ActiveSignals & YAP_CREEP_SIGNAL &&
       PP->ExtraPredFlags & NoDebugPredFlag) {
