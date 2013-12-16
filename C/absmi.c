@@ -3084,11 +3084,9 @@ Yap_absmi(int inp)
       /* cut                              */
       Op(cut, s);
 #ifdef COROUTINING
-      if (FALSE) {
-	CACHE_Y_AS_ENV(YREG);
-	check_stack(NoStackCut, H);
-	ENDCACHE_Y_AS_ENV();
-      }
+      CACHE_Y_AS_ENV(YREG);
+      check_stack(NoStackCut, H);
+      ENDCACHE_Y_AS_ENV();
     do_cut:
 #endif
       SET_ASP(YREG, PREG->u.s.s);
@@ -3110,11 +3108,9 @@ Yap_absmi(int inp)
       /* cut_t does the same as cut */
       Op(cut_t, s);
 #ifdef COROUTINING
-      if (FALSE) {
-	CACHE_Y_AS_ENV(YREG);
-	check_stack(NoStackCutT, H);
-	ENDCACHE_Y_AS_ENV();
-      }
+      CACHE_Y_AS_ENV(YREG);
+      check_stack(NoStackCutT, H);
+      ENDCACHE_Y_AS_ENV();
     do_cut_t:
 #endif
       SET_ASP(YREG, PREG->u.s.s);
@@ -3135,11 +3131,9 @@ Yap_absmi(int inp)
       /* cut_e                            */
       Op(cut_e, s);
 #ifdef COROUTINING
-      if (FALSE) {
-	CACHE_Y_AS_ENV(YREG);
-	check_stack(NoStackCutE, H);
-	ENDCACHE_Y_AS_ENV();
-      }
+      CACHE_Y_AS_ENV(YREG);
+      check_stack(NoStackCutE, H);
+      ENDCACHE_Y_AS_ENV();
     do_cut_e:
 #endif
       SET_ASP(YREG, PREG->u.s.s);

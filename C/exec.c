@@ -1815,6 +1815,9 @@ Yap_InitYaamRegs( int myworker_id )
     DepFr_cons_cp(REMOTE_top_dep_fr(myworker_id)) = NORM_CP(B);
 #endif
   UNLOCK(REMOTE_SignalLock(myworker_id));
+  // make sure we have slots in case we don go through the top-level */
+  Yap_StartSlots( PASS_REGS1 );
+
 }
 
 static Int
