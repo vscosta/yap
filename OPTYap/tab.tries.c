@@ -163,12 +163,6 @@ static struct trie_statistics{
         free_global_trie_branch(NODE PASS_REGS)
 #endif /* GLOBAL_TRIE_FOR_SUBTERMS */
 
-/******************************
-** Rational Terms Support    **
-******************************/
-#ifdef TRIE_RATIONAL_TERMS
-#include "tab.rational.i"
-#endif /* RATIONAL TERM SUPPORT FOR TRIES */
 
 
 /******************************
@@ -206,13 +200,7 @@ static struct trie_statistics{
 #define MODE_TERMS_LOOP
 #define INCLUDE_SUBGOAL_SEARCH_LOOP        /* subgoal_search_terms_loop */
 #define INCLUDE_ANSWER_SEARCH_LOOP         /* answer_search_terms_loop */
-#ifdef TRIE_RATIONAL_TERMS
-#undef TRIE_RATIONAL_TERMS
 #include "tab.tries.i"
-#define TRIE_RATIONAL_TERMS
-#else
-#include "tab.tries.i"
-#endif
 #undef INCLUDE_ANSWER_SEARCH_LOOP
 #undef INCLUDE_SUBGOAL_SEARCH_LOOP
 #undef MODE_TERMS_LOOP
@@ -221,13 +209,7 @@ static struct trie_statistics{
 #define INCLUDE_SUBGOAL_SEARCH_LOOP        /* subgoal_search_global_trie_(terms)_loop */
 #define INCLUDE_ANSWER_SEARCH_LOOP         /* answer_search_global_trie_(terms)_loop */
 #define INCLUDE_LOAD_ANSWER_LOOP           /* load_substitution_loop */
-#ifdef TRIE_RATIONAL_TERMS
-#undef TRIE_RATIONAL_TERMS
 #include "tab.tries.i"
-#define TRIE_RATIONAL_TERMS
-#else
-#include "tab.tries.i"
-#endif
 #undef INCLUDE_LOAD_ANSWER_LOOP
 #undef INCLUDE_ANSWER_SEARCH_LOOP
 #undef INCLUDE_SUBGOAL_SEARCH_LOOP
@@ -917,13 +899,6 @@ static inline void traverse_trie_node(Term t, char *str, int *str_index_ptr, int
   } else if (mode == TRAVERSE_MODE_LONGINT_END) {
     mode = TRAVERSE_MODE_NORMAL;
   } else if (IsVarTerm(t)) {
-#ifdef TRIE_RATIONAL_TERMS
-    if (t > VarIndexOfTableTerm(MAX_TABLE_VARS) && TrNode_child((gt_node_ptr) t) != 1)  { //TODO: substitute the != 1 test to something more appropriate
-      /* Rational term */
-  	  str_index += sprintf(& str[str_index], "**");
-      traverse_update_arity(str, &str_index, arity);
-    } else    
-#endif /* RATIONAL TERM SUPPORT FOR TRIES */
     if (t > VarIndexOfTableTerm(MAX_TABLE_VARS)) {
       TrStat_gt_refs++;
       /* (type % 2 + 2): TRAVERSE_TYPE_ANSWER  --> TRAVERSE_TYPE_GT_ANSWER  */
