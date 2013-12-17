@@ -219,8 +219,11 @@ Yap_ListOfAtomsToBuffer(void *buf, Term t, seq_tv_t *inp, int *widep, size_t *le
     LOCAL_Error_Term = *r;
     return NULL;
   }
-  if (n && !atoms)
+  if (n && !atoms) {
+    LOCAL_Error_Term = t;
+    LOCAL_Error_TYPE = TYPE_ERROR_CHARACTER;
     return NULL;
+  }
   *lenp = n;
   if (*widep) {
     wchar_t *s;
@@ -351,6 +354,11 @@ read_Text( void *buf, seq_tv_t *inp, encoding_t *enc, int *minimal, size_t *leng
   switch (inp->type &  YAP_TYPE_MASK) {
   case YAP_STRING_STRING:
     { const char *s;
+      if (IsVarTerm(inp->val.t)) {
+	LOCAL_Error_TYPE = INSTANTIATION_ERROR;
+	LOCAL_Error_Term = inp->val.t;
+	return 0L;     	
+      }
       if (!IsStringTerm(inp->val.t)) {
 	LOCAL_Error_TYPE = TYPE_ERROR_STRING;
 	LOCAL_Error_Term = inp->val.t;
@@ -399,7 +407,11 @@ read_Text( void *buf, seq_tv_t *inp, encoding_t *enc, int *minimal, size_t *leng
   case YAP_STRING_ATOM:
     // this is a term, extract to a buffer, and representation is wide
     *minimal = TRUE;
-    if (!IsAtomTerm(inp->val.t)) {
+    if (IsVarTerm(inp->val.t)) {
+      LOCAL_Error_TYPE = INSTANTIATION_ERROR;
+      LOCAL_Error_Term = inp->val.t;
+      return 0L;     	
+    } else if (!IsAtomTerm(inp->val.t)) {
       LOCAL_Error_TYPE = TYPE_ERROR_ATOM;
       LOCAL_Error_Term = inp->val.t;
       return NULL;     
@@ -490,7 +502,11 @@ read_Text( void *buf, seq_tv_t *inp, encoding_t *enc, int *minimal, size_t *leng
       return NULL;
     } else {
       Term t = inp->val.t;
-      if (IsStringTerm(t)) {
+      if (IsVarTerm(t)) {
+	LOCAL_Error_TYPE = INSTANTIATION_ERROR;
+	LOCAL_Error_Term = t;
+	return NULL;
+      } else if (IsStringTerm(t)) {
 	if (inp->type & (YAP_STRING_STRING)) {
 	  inp->type &= (YAP_STRING_STRING);
 	  return read_Text( buf, inp, enc, minimal, lengp PASS_REGS);
@@ -507,14 +523,14 @@ read_Text( void *buf, seq_tv_t *inp, encoding_t *enc, int *minimal, size_t *leng
 	  LOCAL_Error_Term = t;
 	}
       } else if (IsAtomTerm(t)) {
-	if (inp->type & (YAP_STRING_ATOM)) {
+	if (t == TermNil && inp->type & (YAP_STRING_CODES|YAP_STRING_ATOMS)) {
+	  inp->type &= (YAP_STRING_CODES|YAP_STRING_ATOMS);
+	  return read_Text( buf, inp, enc, minimal, lengp PASS_REGS);
+	} else if (inp->type & (YAP_STRING_ATOM)) {
 	  inp->type &= (YAP_STRING_ATOM);
 	  inp->val.t = t;
 	  return read_Text( buf, inp, enc, minimal, lengp PASS_REGS);
 	  // [] is special...
-	} else if (t == TermNil && inp->type & (YAP_STRING_CODES|YAP_STRING_ATOMS)) {
-	  inp->type &= (YAP_STRING_CODES|YAP_STRING_ATOMS);
-	  return read_Text( buf, inp, enc, minimal, lengp PASS_REGS);
 	} else {
 	  LOCAL_Error_TYPE = gen_type_error( inp->type );
 	  LOCAL_Error_Term = t;
