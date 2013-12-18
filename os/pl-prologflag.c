@@ -118,10 +118,11 @@ indexOfBoolMask(unsigned int mask)
   return i;
 }
 
-
 void
 setPrologFlag(const char *name, int flags, ...)
 { GET_LD
+    if (!strcmp("file_name_variables",name))
+      printf("hello\n");
   atom_t an = PL_new_atom(name);
   prolog_flag *f;
   Symbol s;

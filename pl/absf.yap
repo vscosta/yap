@@ -224,7 +224,7 @@ absolute_file_name(File,Opts,TrueFileName) :-
 	(Type == directory ->
 	 exists_directory(F0)
 	;
-	 \+ exists_directory(F0) % if it has a type cannot be a directory.
+	\+ exists_directory(F0) % if it has a type cannot be a directory.
 	).
 
 '$add_extensions'([Ext|_],File,F) :-

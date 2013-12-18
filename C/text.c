@@ -463,14 +463,14 @@ read_Text( void *buf, seq_tv_t *inp, encoding_t *enc, int *minimal, size_t *leng
 #endif
   case YAP_STRING_CHARS:
     *enc = YAP_CHAR;
-    if (inp->sz)
+    if (inp->type & YAP_STRING_NCHARS)
       *lengp = inp->sz;
     else
       *lengp = strlen(inp->val.c);
     return (void *)inp->val.c;
   case YAP_STRING_WCHARS:
     *enc = YAP_WCHAR;
-    if (inp->sz)
+    if (inp->type & YAP_STRING_NCHARS)
       *lengp = inp->sz;
     else
       *lengp = wcslen(inp->val.w);
