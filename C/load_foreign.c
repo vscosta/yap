@@ -83,7 +83,9 @@ p_load_foreign( USES_REGS1 )
   
   /* call the OS specific function for dynamic loading */
   if(Yap_LoadForeign(ofiles,libs,InitProcName,&InitProc)==LOAD_SUCCEEDED) {
+    Int CurSlot =   Yap_StartSlots( PASS_REGS1 );
     (*InitProc)();
+    LOCAL_CurSlot = CurSlot;
     returncode = TRUE;
   }
   
