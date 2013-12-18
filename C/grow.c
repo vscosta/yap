@@ -147,6 +147,16 @@ SetHeapRegs(int copying_threads USES_REGS)
     LOCAL_OpenArray = PtoGloAdjust(LOCAL_OpenArray);
   if (B)
     B = ChoicePtrAdjust(B);
+#ifdef YAPOR_THREADS
+  {
+    choiceptr cpt;
+    cpt = Get_LOCAL_top_cp();
+    if (cpt) {
+      //      cpt = ChoicePtrAdjust( cpt );
+      Set_LOCAL_top_cp( cpt );
+    }
+  }
+#endif
 #ifdef TABLING
   if (B_FZ)
     B_FZ = ChoicePtrAdjust(B_FZ);
@@ -1899,11 +1909,59 @@ Yap_CopyThreadStacks(int worker_q, int worker_p, int incremental)
   /* make sure both stacks have same size */
   Int p_size = REMOTE_ThreadHandle(worker_p).ssize+REMOTE_ThreadHandle(worker_p).tsize;
   Int q_size = REMOTE_ThreadHandle(worker_q).ssize+REMOTE_ThreadHandle(worker_q).tsize;
-  if (p_size != q_size) {
-    if (!(REMOTE_ThreadHandle(worker_q).stack_address = realloc(REMOTE_ThreadHandle(worker_q).stack_address,p_size*K1))) {
-      exit(1);
+   if (p_size != q_size) {
+    UInt start_growth_time, growth_time;
+    int gc_verbose;
+    size_t ssiz = REMOTE_ThreadHandle(worker_q).ssize*K1;
+    size_t tsiz = REMOTE_ThreadHandle(worker_q).tsize*K1;
+    size_t diff = (REMOTE_ThreadHandle(worker_p).ssize-REMOTE_ThreadHandle(worker_q).ssize)*K1;
+    char *oldq = (char *)REMOTE_ThreadHandle(worker_q).stack_address, *newq;
+
+    if (!(newq = REMOTE_ThreadHandle(worker_q).stack_address = realloc(REMOTE_ThreadHandle(worker_q).stack_address,p_size*K1))) {
+      Yap_Error(OUT_OF_STACK_ERROR,TermNil,"cannot expand slave thread to match master thread");
+    }
+    start_growth_time = Yap_cputime();
+    gc_verbose = Yap_is_gc_verbose();
+    LOCAL_stack_overflows++;
+    if (gc_verbose) {
+#if  defined(YAPOR) || defined(THREADS)
+      fprintf(GLOBAL_stderr, "%% Worker Id %d:\n", worker_id);
+#endif
+      fprintf(GLOBAL_stderr, "%% Stack Overflow %d\n", LOCAL_stack_overflows);
+      fprintf(GLOBAL_stderr, "%%   Stack: %8ld cells (%p-%p)\n", (unsigned long int)(LCL0-(CELL *)LOCAL_GlobalBase),LOCAL_GlobalBase,LCL0);
+      fprintf(GLOBAL_stderr, "%%   Trail:%8ld cells (%p-%p)\n",
+	      (unsigned long int)(TR-(tr_fr_ptr)LOCAL_TrailBase),LOCAL_TrailBase,TR);
+      fprintf(GLOBAL_stderr, "%% Growing the stacks %ld bytes\n", diff);
+    }
+    LOCAL_GDiff = LOCAL_GDiff0 = LOCAL_DelayDiff = LOCAL_BaseDiff = (newq-oldq);
+    LOCAL_TrDiff = LOCAL_LDiff = diff + LOCAL_GDiff;
+    LOCAL_XDiff = LOCAL_HDiff = 0;
+    LOCAL_GSplit = NULL;
+    YAPEnterCriticalSection();
+    SetHeapRegs(FALSE PASS_REGS);
+    {
+        choiceptr imageB; 
+
+	LOCAL_OldLCL0 = LCL0;
+	LCL0 = REMOTE_ThreadHandle(0).current_yaam_regs->LCL0_;
+	imageB = Get_GLOBAL_root_cp();
+	/* we know B */
+	B->cp_tr = TR = 
+	  (tr_fr_ptr)((CELL)(imageB->cp_tr)+((CELL)LOCAL_OldLCL0-(CELL)LCL0));
+	LCL0 = LOCAL_OldLCL0;
+	B->cp_h = H0;
+	B->cp_ap = GETWORK;
+	B->cp_or_fr = GLOBAL_root_or_fr;
+    }
+    YAPLeaveCriticalSection();
+    growth_time = Yap_cputime()-start_growth_time;
+    LOCAL_total_stack_overflow_time += growth_time;
+    if (gc_verbose) {
+      fprintf(GLOBAL_stderr, "%%   took %g sec\n", (double)growth_time/1000);
+      fprintf(GLOBAL_stderr, "%% Total of %g sec expanding stacks \n", (double)LOCAL_total_stack_overflow_time/1000);
     }
   }
+
   REMOTE_ThreadHandle(worker_q).ssize = REMOTE_ThreadHandle(worker_p).ssize;
   REMOTE_ThreadHandle(worker_q).tsize = REMOTE_ThreadHandle(worker_p).tsize;
   /* compute offset indicators */
