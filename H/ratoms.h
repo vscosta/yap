@@ -54,6 +54,7 @@
   AtomColomn = AtomAdjust(AtomColomn);
   AtomCodeSpace = AtomAdjust(AtomCodeSpace);
   AtomCodes = AtomAdjust(AtomCodes);
+  AtomCoInductive = AtomAdjust(AtomCoInductive);
   AtomComma = AtomAdjust(AtomComma);
   AtomCommentHook = AtomAdjust(AtomCommentHook);
   AtomCompound = AtomAdjust(AtomCompound);

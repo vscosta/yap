@@ -1676,6 +1676,8 @@ p_access_yap_flags( USES_REGS1 )
       tout = MkPairTerm(MkAtomTerm(AtomLocal), tout);
     else if (IsMode_Batched(yap_flags[flag]))
       tout = MkPairTerm(MkAtomTerm(AtomBatched), tout);
+    else if (IsMode_CoInductive(yap_flags[flag]))
+      tout = MkPairTerm(MkAtomTerm(AtomCoInductive), tout);
 #else
     tout = MkAtomTerm(AtomFalse);
 #endif /* TABLING */
@@ -1818,6 +1820,13 @@ p_set_yap_flags( USES_REGS1 )
 	tab_ent = TabEnt_next(tab_ent);
       }
       SetMode_GlobalTrie(yap_flags[TABLING_MODE_FLAG]);
+    } else if (value == 7) {  /* CoInductive */
+      tab_ent_ptr tab_ent = GLOBAL_root_tab_ent;
+      while(tab_ent) {
+        SetMode_CoInductive(TabEnt_mode(tab_ent));
+        tab_ent = TabEnt_next(tab_ent);
+      }
+      SetMode_CoInductive(yap_flags[TABLING_MODE_FLAG]);
     } 
     break;
 #endif /* TABLING */
