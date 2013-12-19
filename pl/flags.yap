@@ -185,6 +185,7 @@ yap_flag(tabling_mode,Options) :-
 '$transl_to_yap_flag_tabling_mode'(4,load_answers).
 '$transl_to_yap_flag_tabling_mode'(5,local_trie).
 '$transl_to_yap_flag_tabling_mode'(6,global_trie).
+'$transl_to_yap_flag_tabling_mode'(7,coinductive).
 
 yap_flag(informational_messages,X) :- var(X), !,
 	 yap_flag(verbose, X).
