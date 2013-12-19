@@ -513,8 +513,9 @@
       GONext();
 #ifdef INCOMPLETE_TABLING
     } else if (SgFr_state(sg_fr) == incomplete) {
-printf("Yoho1\n");
-
+      if (IsMode_CoInductive(TabEnt_mode(tab_ent))) {
+        printf("Currently Unsupported\n");
+      } else {
         /* subgoal incomplete --> start by loading the answers already found */
         ans_node_ptr ans_node = SgFr_first_answer(sg_fr);
         CELL *subs_ptr = YENV;
@@ -527,50 +528,32 @@ printf("Yoho1\n");
         load_answer(ans_node, subs_ptr);
         YENV = ENV;
         GONext();
-
-
-
+      }
 #endif /* INCOMPLETE_TABLING */
     } else if (SgFr_state(sg_fr) == evaluating) {
-    if (IsMode_CoInductive(TabEnt_mode(tab_ent))) {
-      printf("Hi!\n");
-    } else {
-      printf("Ok\n");
-    }
-
-printf("Yoho2\n");
-      /* Used for coinductive tabling strategy */
-      CELL *subs_ptr;
-      subs_ptr = (CELL *) (GEN_CP(SgFr_gen_cp(sg_fr)) + 1);
-      subs_ptr += SgFr_arity(sg_fr); // Points at the Parent goal Variables
-      int i;
-      for (i = 0; i < subs_ptr[0]; i++)
-        Yap_unify(subs_ptr[i+1], YENV[i+1]);
-      /* yes answer --> procceed */
-      UNLOCK_SG_FR(sg_fr);
-      PREG = (yamop *) CPREG;
-      PREFETCH_OP(PREG);
-      YENV = ENV; // Consume the variables
-      GONext(); // Succeed the goal :-D
-
-//        printf("I'm here\n Arity: %i Count: %i\n", subs_ptr[0], sg_fr->TempVariables.Count);
-//        printf("YENV: %i, ENV: %i, YENV+1: %i, ENV+1: %i\n", YENV[0], ENV[0], YENV[1], ENV[1]);
-/*        for (i = 0; i < sg_fr->TempVariables.Count; i++) {
-          Yap_unify(sg_fr->TempVariables.OriginalVariables[i], sg_fr->TempVariables.CycleVariables[i]);
-          printf("Variable: %i is O: %i C: %i H: %i E: %i\n", i, sg_fr->TempVariables.OriginalVariables[i], sg_fr->TempVariables.CycleVariables[i], subs_ptr[i+1], YENV[i+1]);
-        }
-        printf("I'm out of here\n");*/
-
-
+      if (IsMode_CoInductive(TabEnt_mode(tab_ent))) {
+        /* Used for coinductive tabling strategy */
+        CELL *subs_ptr;
+        subs_ptr = (CELL *) (GEN_CP(SgFr_gen_cp(sg_fr)) + 1);
+        subs_ptr += SgFr_arity(sg_fr); // Points at the Parent goal Variables
+        int i;
+        for (i = 0; i < subs_ptr[0]; i++)
+          Yap_unify(subs_ptr[i+1], YENV[i+1]);
+        /* yes answer --> procceed */
+        UNLOCK_SG_FR(sg_fr);
+        PREG = (yamop *) CPREG;
+        PREFETCH_OP(PREG);
+        YENV = ENV; // Consume the variables
+        GONext(); // Succeed the goal :-D
+      } else {
         /* subgoal in evaluation */
-/*        choiceptr leader_cp;
+        choiceptr leader_cp;
         int leader_dep_on_stack;
         find_dependency_node(sg_fr, leader_cp, leader_dep_on_stack);
         UNLOCK_SG_FR(sg_fr);
         find_leader_node(leader_cp, leader_dep_on_stack);
         store_consumer_node(tab_ent, sg_fr, leader_cp, leader_dep_on_stack);
-      */
-
+      }
 #ifdef DEBUG_OPTYAP
       if (GLOBAL_parallel_mode == PARALLEL_MODE_RUNNING) {
 	choiceptr aux_cp;
@@ -690,7 +673,9 @@ printf("Yoho2\n");
       GONext();
 #ifdef INCOMPLETE_TABLING
     } else if (SgFr_state(sg_fr) == incomplete) {
-printf("Yoho3\n");
+      if (IsMode_CoInductive(TabEnt_mode(tab_ent))) {
+        printf("Currently Unsupported\n");
+      } else {
         /* subgoal incomplete --> start by loading the answers already found */
         ans_node_ptr ans_node = SgFr_first_answer(sg_fr);
         CELL *subs_ptr = YENV;
@@ -703,11 +688,12 @@ printf("Yoho3\n");
         load_answer(ans_node, subs_ptr);
         YENV = ENV;
         GONext();
+      }
 #endif /* INCOMPLETE_TABLING */
     } else if (SgFr_state(sg_fr) == evaluating) {
-printf("Yoho4\n");
-    
-
+      if (IsMode_CoInductive(TabEnt_mode(tab_ent))) {
+        printf("Currently Unsupported\n");
+      } else {
         /* subgoal in evaluation */
         choiceptr leader_cp;
         int leader_dep_on_stack;
@@ -715,6 +701,7 @@ printf("Yoho4\n");
         UNLOCK_SG_FR(sg_fr);
         find_leader_node(leader_cp, leader_dep_on_stack);
         store_consumer_node(tab_ent, sg_fr, leader_cp, leader_dep_on_stack);
+      }
 #ifdef DEBUG_OPTYAP
       if (GLOBAL_parallel_mode == PARALLEL_MODE_RUNNING) {
 	choiceptr aux_cp;
@@ -834,44 +821,47 @@ printf("Yoho4\n");
       GONext();
 #ifdef INCOMPLETE_TABLING
     } else if (SgFr_state(sg_fr) == incomplete) {
-printf("Yoho5\n");
-      /* subgoal incomplete --> start by loading the answers already found */
-      ans_node_ptr ans_node = SgFr_first_answer(sg_fr);
-      CELL *subs_ptr = YENV;
-      init_subgoal_frame(sg_fr);
-      UNLOCK_SG_FR(sg_fr);
-      SgFr_try_answer(sg_fr) = ans_node;
-      store_generator_node(tab_ent, sg_fr, PREG->u.Otapl.s, TRY_ANSWER);
-      PREG = (yamop *) CPREG;
-      PREFETCH_OP(PREG);
-      load_answer(ans_node, subs_ptr);
-      YENV = ENV;
-      GONext();
+      if (IsMode_CoInductive(TabEnt_mode(tab_ent))) {
+        printf("Currently Unsupported\n");
+      } else {
+        /* subgoal incomplete --> start by loading the answers already found */
+        ans_node_ptr ans_node = SgFr_first_answer(sg_fr);
+        CELL *subs_ptr = YENV;
+        init_subgoal_frame(sg_fr);
+        UNLOCK_SG_FR(sg_fr);
+        SgFr_try_answer(sg_fr) = ans_node;
+        store_generator_node(tab_ent, sg_fr, PREG->u.Otapl.s, TRY_ANSWER);
+        PREG = (yamop *) CPREG;
+        PREFETCH_OP(PREG);
+        load_answer(ans_node, subs_ptr);
+        YENV = ENV;
+        GONext();
+      }
 #endif /* INCOMPLETE_TABLING */
     } else if (SgFr_state(sg_fr) == evaluating) {
-printf("Yoho6\n");
-
-          /* Used for coinductive tabling strategy */
-      CELL *subs_ptr;
-      subs_ptr = (CELL *) (GEN_CP(SgFr_gen_cp(sg_fr)) + 1);
-      subs_ptr += SgFr_arity(sg_fr); // Points at the Parent goal Variables
-      int i;
-      for (i = 0; i < subs_ptr[0]; i++)
-        Yap_unify(subs_ptr[i+1], YENV[i+1]);
-      /* yes answer --> procceed */
-      UNLOCK_SG_FR(sg_fr);
-      PREG = (yamop *) CPREG;
-      PREFETCH_OP(PREG);
-      YENV = ENV; // Consume the variables
-      GONext(); // Succeed the goal :-D
-
-      /* subgoal in evaluation */
-/*      choiceptr leader_cp;
-      int leader_dep_on_stack;
-      find_dependency_node(sg_fr, leader_cp, leader_dep_on_stack);
-      UNLOCK_SG_FR(sg_fr);
-      find_leader_node(leader_cp, leader_dep_on_stack);
-      store_consumer_node(tab_ent, sg_fr, leader_cp, leader_dep_on_stack);*/
+      if (IsMode_CoInductive(TabEnt_mode(tab_ent))) {
+        /* Used for coinductive tabling strategy */
+        CELL *subs_ptr;
+        subs_ptr = (CELL *) (GEN_CP(SgFr_gen_cp(sg_fr)) + 1);
+        subs_ptr += SgFr_arity(sg_fr); // Points at the Parent goal Variables
+        int i;
+        for (i = 0; i < subs_ptr[0]; i++)
+          Yap_unify(subs_ptr[i+1], YENV[i+1]);
+        /* yes answer --> procceed */
+        UNLOCK_SG_FR(sg_fr);
+        PREG = (yamop *) CPREG;
+        PREFETCH_OP(PREG);
+        YENV = ENV; // Consume the variables
+        GONext(); // Succeed the goal :-D
+      } else {
+        /* subgoal in evaluation */
+        choiceptr leader_cp;
+        int leader_dep_on_stack;
+        find_dependency_node(sg_fr, leader_cp, leader_dep_on_stack);
+        UNLOCK_SG_FR(sg_fr);
+        find_leader_node(leader_cp, leader_dep_on_stack);
+        store_consumer_node(tab_ent, sg_fr, leader_cp, leader_dep_on_stack);
+      }
 #ifdef DEBUG_OPTYAP
       if (GLOBAL_parallel_mode == PARALLEL_MODE_RUNNING) {
 	choiceptr aux_cp;
