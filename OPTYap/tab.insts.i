@@ -513,7 +513,7 @@
       GONext();
 #ifdef INCOMPLETE_TABLING
     } else if (SgFr_state(sg_fr) == incomplete) {
-      if (IsMode_CoInductive(TabEnt_mode(tab_ent))) {
+      if (IsMode_CoInductive(TabEnt_flags(tab_ent))) {
         printf("Currently Unsupported\n");
       } else {
         /* subgoal incomplete --> start by loading the answers already found */
@@ -531,7 +531,7 @@
       }
 #endif /* INCOMPLETE_TABLING */
     } else if (SgFr_state(sg_fr) == evaluating) {
-      if (IsMode_CoInductive(TabEnt_mode(tab_ent))) {
+      if (IsMode_CoInductive(TabEnt_flags(tab_ent))) {
         /* Used for coinductive tabling strategy */
         CELL *subs_ptr;
         subs_ptr = (CELL *) (GEN_CP(SgFr_gen_cp(sg_fr)) + 1);
@@ -673,7 +673,7 @@
       GONext();
 #ifdef INCOMPLETE_TABLING
     } else if (SgFr_state(sg_fr) == incomplete) {
-      if (IsMode_CoInductive(TabEnt_mode(tab_ent))) {
+      if (IsMode_CoInductive(TabEnt_flags(tab_ent))) {
         printf("Currently Unsupported\n");
       } else {
         /* subgoal incomplete --> start by loading the answers already found */
@@ -691,7 +691,7 @@
       }
 #endif /* INCOMPLETE_TABLING */
     } else if (SgFr_state(sg_fr) == evaluating) {
-      if (IsMode_CoInductive(TabEnt_mode(tab_ent))) {
+      if (IsMode_CoInductive(TabEnt_flags(tab_ent))) {
         printf("Currently Unsupported\n");
       } else {
         /* subgoal in evaluation */
@@ -821,7 +821,7 @@
       GONext();
 #ifdef INCOMPLETE_TABLING
     } else if (SgFr_state(sg_fr) == incomplete) {
-      if (IsMode_CoInductive(TabEnt_mode(tab_ent))) {
+      if (IsMode_CoInductive(TabEnt_flags(tab_ent))) {
         printf("Currently Unsupported\n");
       } else {
         /* subgoal incomplete --> start by loading the answers already found */
@@ -839,7 +839,7 @@
       }
 #endif /* INCOMPLETE_TABLING */
     } else if (SgFr_state(sg_fr) == evaluating) {
-      if (IsMode_CoInductive(TabEnt_mode(tab_ent))) {
+      if (IsMode_CoInductive(TabEnt_flags(tab_ent))) {
         /* Used for coinductive tabling strategy */
         CELL *subs_ptr;
         subs_ptr = (CELL *) (GEN_CP(SgFr_gen_cp(sg_fr)) + 1);
