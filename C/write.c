@@ -437,7 +437,7 @@ legalAtom(unsigned char *s)			/* Is this a legal atom ? */
 	return (s[1] == '}' && !s[2]);
     } else if (Yap_chtype[ch] == SL) {
       return (!s[1]);
-    } else if ((ch == ',' /* || ch == '.' */) && !s[1]) {
+    } else if ((ch == ',' || ch == '.') && !s[1]) {
       return FALSE;
     } else {
       if (ch == '/') {
