@@ -1666,15 +1666,15 @@ p_access_yap_flags( USES_REGS1 )
     tout = TermNil;
     if (IsMode_LocalTrie(yap_flags[flag]))
       tout = MkPairTerm(MkAtomTerm(AtomLocalTrie), tout);
-    else // if (IsMode_GlobalTrie(yap_flags[flag]))
+    else if (IsMode_GlobalTrie(yap_flags[flag]))
       tout = MkPairTerm(MkAtomTerm(AtomGlobalTrie), tout);
     if (IsMode_LoadAnswers(yap_flags[flag]))
       tout = MkPairTerm(MkAtomTerm(AtomLoadAnswers), tout);
-    else // if (IsMode_ExecAnswers(yap_flags[flag]))
+    else if (IsMode_ExecAnswers(yap_flags[flag]))
       tout = MkPairTerm(MkAtomTerm(AtomExecAnswers), tout);
     if (IsMode_Local(yap_flags[flag]))
       tout = MkPairTerm(MkAtomTerm(AtomLocal), tout);
-    else // if (IsMode_Batched(yap_flags[flag]))
+    else if (IsMode_Batched(yap_flags[flag]))
       tout = MkPairTerm(MkAtomTerm(AtomBatched), tout);
 #else
     tout = MkAtomTerm(AtomFalse);

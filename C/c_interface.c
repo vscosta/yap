@@ -3172,7 +3172,11 @@ YAP_Init(YAP_init_args *yap_init)
 #endif /* YAPOR || TABLING */
 #ifdef YAPOR
     Yap_init_yapor_workers();
+#if YAPOR_THREADS
+    if (Yap_thread_self() != 0) {
+#else
     if (worker_id != 0) {
+#endif
 #if defined(YAPOR_COPY) || defined(YAPOR_SBA)
       /*
 	In the SBA we cannot just happily inherit registers
@@ -3390,6 +3394,9 @@ YAP_Reset(void)
   /* the first real choice-point will also have AP=FAIL */ 
   /* always have an empty slots for people to use */
   P = CP = YESCODE;
+  // ensure that we have slots where we need them
+  LOCAL_CurSlot = 0;
+  Yap_StartSlots( PASS_REGS1 );
   RECOVER_MACHINE_REGS();
   return res;
 }

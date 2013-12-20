@@ -127,7 +127,7 @@ store_specs(int new_worker_id, UInt ssize, UInt tsize, UInt sysize, Term *tpgoal
     REMOTE_c_output_stream(new_worker_id) = REMOTE_c_output_stream(0);
     REMOTE_c_error_stream(new_worker_id) = REMOTE_c_error_stream(0);
   }
-  pm = (ssize + tsize)*1024;
+  pm = (ssize + tsize)*K1;
   if (!(REMOTE_ThreadHandle(new_worker_id).stack_address = malloc(pm))) {
     return FALSE;
   }
