@@ -708,8 +708,8 @@ ResizeStaticArray(StaticArrayEntry *pp, size_t dim USES_REGS)
 {
   statarray_elements old_v = pp->ValueOfVE;
   static_array_types type = pp->ArrayType;
-  Int old_dim = - pp->ArrayEArity;
-  Int mindim = (dim < old_dim ? dim : old_dim), i;
+  size_t old_dim = pp->ArrayEArity;
+  size_t mindim = (dim < old_dim ? dim : old_dim), i;
 
   /* change official size */
   if (pp->ArrayEArity == 0){
@@ -773,7 +773,7 @@ ClearStaticArray(StaticArrayEntry *pp)
 {
   statarray_elements old_v = pp->ValueOfVE;
   static_array_types type = pp->ArrayType;
-  Int dim = - pp->ArrayEArity, i;
+  Int dim = pp->ArrayEArity, i;
 
   /* change official size */
   if (pp->ArrayEArity == 0){
@@ -2260,7 +2260,7 @@ p_static_array_to_term( USES_REGS1 )
       return (FALSE);
     } else {
       static_array_types tp = pp->ArrayType;
-      Int dim = -pp->ArrayEArity, indx;
+      Int dim = pp->ArrayEArity, indx;
       CELL *base;
 
       while (H+1+dim > ASP-1024) {
