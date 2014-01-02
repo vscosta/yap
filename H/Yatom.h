@@ -1281,6 +1281,12 @@ IsTranslationProperty (int flags)
 }
 
 
+typedef enum {
+  STATIC_ARRAY = 1,
+  DYNAMIC_ARRAY = 2,
+  MMAP_ARRAY = 4,
+  FIXED_ARRAY = 8
+} array_type;
 
 
 /*		array property entry structure				*/
@@ -1290,6 +1296,7 @@ typedef struct array_entry
   Prop NextOfPE;		/* used to chain properties             */
   PropFlags KindOfPE;		/* kind of property                     */
   Int ArrayEArity;		/* Arity of Array (positive)            */
+  array_type TypeOfAE;
 #if defined(YAPOR) || defined(THREADS)
   rwlock_t ArRWLock;		/* a read-write lock to protect the entry */
 #if THREADS
@@ -1341,6 +1348,7 @@ typedef struct static_array_entry
   Prop NextOfPE;		/* used to chain properties             */
   PropFlags KindOfPE;		/* kind of property                     */
   Int ArrayEArity;		/* Arity of Array (negative)            */
+  array_type TypeOfAE;
 #if defined(YAPOR) || defined(THREADS)
   rwlock_t ArRWLock;		/* a read-write lock to protect the entry */
 #endif
@@ -1441,7 +1449,7 @@ INLINE_ONLY inline EXTERN int ArrayIsDynamic (ArrayEntry *);
 INLINE_ONLY inline EXTERN int
 ArrayIsDynamic (ArrayEntry * are)
 {
-  return (int) (((are)->ArrayEArity > 0));
+  return (int) (((are)->TypeOfAE & DYNAMIC_ARRAY));
 }
 
 
