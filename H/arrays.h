@@ -26,5 +26,3 @@ typedef struct array_access_struct {
 				   keep it as an integer! */
 } array_access;
 
-
-

@@ -330,7 +330,7 @@ AccessNamedArray(Atom a, Int indx USES_REGS)
       StaticArrayEntry *ptr = (StaticArrayEntry *)pp;
 
       READ_LOCK(ptr->ArRWLock);
-      if (-(pp->ArrayEArity) <= indx || indx < 0) {
+      if (pp->ArrayEArity <= indx || indx < 0) {
 	/*	Yap_Error(DOMAIN_ERROR_ARRAY_OVERFLOW, MkIntegerTerm(indx), "access_array");*/
 	READ_UNLOCK(ptr->ArRWLock);
 	P = (yamop *)FAILCODE;
@@ -566,6 +566,7 @@ CreateNamedArray(PropEntry * pp, Int dim, AtomEntry *ae USES_REGS)
 
   p = (ArrayEntry *) Yap_AllocAtomSpace(sizeof(*p));
   p->KindOfPE = ArrayProperty;
+  p->TypeOfAE = DYNAMIC_ARRAY;
   AddPropToAtom(ae, (PropEntry *)p);
   INIT_RWLOCK(p->ArRWLock);
 #if THREADS
@@ -578,9 +579,9 @@ CreateNamedArray(PropEntry * pp, Int dim, AtomEntry *ae USES_REGS)
 }
 
 static void
-AllocateStaticArraySpace(StaticArrayEntry *p, static_array_types atype, Int array_size USES_REGS)
+AllocateStaticArraySpace(StaticArrayEntry *p, static_array_types atype, void *old, size_t array_size USES_REGS)
 {
-  Int asize = 0;
+  size_t asize = 0;
   switch (atype) {
   case array_of_doubles:
     asize = array_size*sizeof(Float);
@@ -606,22 +607,33 @@ AllocateStaticArraySpace(StaticArrayEntry *p, static_array_types atype, Int arra
     asize = array_size*sizeof(DBRef);
     break;
   }
-  while ((p->ValueOfVE.floats = (Float *) Yap_AllocAtomSpace(asize) ) == NULL) {
-    YAPLeaveCriticalSection();
-    if (!Yap_growheap(FALSE, asize, NULL)) {
-      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
-      return;
+  if (old == NULL) {
+    while ((p->ValueOfVE.floats = (Float *) Yap_AllocCodeSpace(asize) ) == NULL) {
+      YAPLeaveCriticalSection();
+      if (!Yap_growheap(FALSE, asize, NULL)) {
+	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
+	return;
+      }
+      YAPEnterCriticalSection();
     }
-    YAPEnterCriticalSection();
+  } else {
+    while ((p->ValueOfVE.floats = (Float *) Yap_ReallocCodeSpace(old, asize) ) == NULL) {
+      YAPLeaveCriticalSection();
+      if (!Yap_growheap(FALSE, asize, NULL)) {
+	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
+	return;
+      }
+      YAPEnterCriticalSection();
+    }
   }
 }
 
 /* ae and p are assumed to be locked, if they exist */
 static StaticArrayEntry *
-CreateStaticArray(AtomEntry *ae, Int dim, static_array_types type, CODEADDR start_addr, StaticArrayEntry *p USES_REGS)
+CreateStaticArray(AtomEntry *ae, size_t dim, static_array_types type, CODEADDR start_addr, StaticArrayEntry *p USES_REGS)
 {
   if (EndOfPAEntr(p)) {
-    while ((p = (StaticArrayEntry *) Yap_AllocAtomSpace(sizeof(*p))) == NULL) {
+    while ((p = (StaticArrayEntry *) Yap_AllocCodeSpace(sizeof(*p))) == NULL) {
       if (!Yap_growheap(FALSE, sizeof(*p), NULL)) {
 	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
 	return NULL;
@@ -634,12 +646,13 @@ CreateStaticArray(AtomEntry *ae, Int dim, static_array_types type, CODEADDR star
     LOCAL_StaticArrays = p;
   }
   WRITE_LOCK(p->ArRWLock);
-  p->ArrayEArity = -dim;
+  p->ArrayEArity = dim;
   p->ArrayType = type;
+  p->TypeOfAE = STATIC_ARRAY;
   if (start_addr == NULL) {
     Int i;
 
-    AllocateStaticArraySpace(p, type, dim PASS_REGS);
+    AllocateStaticArraySpace(p, type, NULL, dim PASS_REGS);
     if (p->ValueOfVE.ints == NULL) {
       WRITE_UNLOCK(p->ArRWLock);
       return p;
@@ -683,6 +696,7 @@ CreateStaticArray(AtomEntry *ae, Int dim, static_array_types type, CODEADDR star
     }
   } else {
     /* external array */
+    p->TypeOfAE |= MMAP_ARRAY;
     p->ValueOfVE.chars = (char *)start_addr;
   }
   WRITE_UNLOCK(p->ArRWLock);
@@ -690,86 +704,64 @@ CreateStaticArray(AtomEntry *ae, Int dim, static_array_types type, CODEADDR star
 }
 
 static void
-ResizeStaticArray(StaticArrayEntry *pp, Int dim USES_REGS)
+ResizeStaticArray(StaticArrayEntry *pp, size_t dim USES_REGS)
 {
   statarray_elements old_v = pp->ValueOfVE;
   static_array_types type = pp->ArrayType;
-  Int old_dim = - pp->ArrayEArity;
-  Int mindim = (dim < old_dim ? dim : old_dim), i;
+  size_t old_dim = pp->ArrayEArity;
+  size_t mindim = (dim < old_dim ? dim : old_dim), i;
 
   /* change official size */
-  if (pp->ArrayEArity >= 0){
+  if (pp->ArrayEArity == 0){
     return;
   }
   WRITE_LOCK(pp->ArRWLock);
-  pp->ArrayEArity = -dim;
+  pp->ArrayEArity = dim;
 #if HAVE_MMAP
-  if (pp->ValueOfVE.chars < (char *)Yap_HeapBase || 
-      pp->ValueOfVE.chars > (char *)HeapTop) {
+  if (pp->TypeOfAE & MMAP_ARRAY) {
     ResizeMmappedArray(pp, dim, (void *)(pp->ValueOfVE.chars) PASS_REGS);
     WRITE_UNLOCK(pp->ArRWLock);
     return;
   }
 #endif
-  AllocateStaticArraySpace(pp, type, dim PASS_REGS);
+  AllocateStaticArraySpace(pp, type, old_v.chars, dim PASS_REGS);
   switch(type) {
   case array_of_ints:
-    for (i = 0; i <mindim; i++)
-      pp->ValueOfVE.ints[i] = old_v.ints[i];
     for (i = mindim; i<dim; i++)
       pp->ValueOfVE.ints[i] = 0;
     break;
   case array_of_chars:
-    for (i = 0; i <mindim; i++)
-      pp->ValueOfVE.chars[i] = old_v.chars[i];
     for (i = mindim; i<dim; i++)
       pp->ValueOfVE.chars[i] = '\0';
     break;
   case array_of_uchars:
-    for (i = 0; i <mindim; i++)
-      pp->ValueOfVE.uchars[i] = old_v.uchars[i];
     for (i = mindim; i<dim; i++)
       pp->ValueOfVE.uchars[i] = '\0';
     break;
   case array_of_doubles:
-    for (i = 0; i <mindim; i++)
-      pp->ValueOfVE.floats[i] = old_v.floats[i];
     for (i = mindim; i<dim; i++)
       pp->ValueOfVE.floats[i] = 0.0;
     break;
   case array_of_ptrs:
-    for (i = 0; i <mindim; i++)
-      pp->ValueOfVE.ptrs[i] = old_v.ptrs[i];
     for (i = mindim; i<dim; i++)
       pp->ValueOfVE.ptrs[i] = NULL;
     break;
   case array_of_atoms:
-    for (i = 0; i <mindim; i++)
-      pp->ValueOfVE.atoms[i] = old_v.atoms[i];
     for (i = mindim; i<dim; i++)
       pp->ValueOfVE.atoms[i] = TermNil;
     break;
   case array_of_dbrefs:
-    for (i = 0; i <mindim; i++)
-      pp->ValueOfVE.dbrefs[i] = old_v.dbrefs[i];
     for (i = mindim; i<dim; i++)
       pp->ValueOfVE.dbrefs[i] = 0L;
     break;
   case array_of_terms:
-    for (i = 0; i <mindim; i++)
-      pp->ValueOfVE.terms[i] = old_v.terms[i];
     for (i = mindim; i<dim; i++)
       pp->ValueOfVE.terms[i] = NULL;
     break;
   case array_of_nb_terms:
-    for (i = 0; i <mindim; i++) {
-      Term tlive = pp->ValueOfVE.lterms[i].tlive;
-      if (IsVarTerm(tlive) && IsUnboundVar(&(pp->ValueOfVE.lterms[i].tlive))) {
-	RESET_VARIABLE(&(pp->ValueOfVE.lterms[i].tlive));
-      } else {
-	pp->ValueOfVE.lterms[i].tlive = tlive;
-      }
-      pp->ValueOfVE.lterms[i].tstore = old_v.lterms[i].tstore;
+    for (i = mindim; i <dim; i++) {
+      RESET_VARIABLE(&(pp->ValueOfVE.lterms[i].tlive));
+      pp->ValueOfVE.lterms[i].tstore = TermNil;
     }
     break;
   }
@@ -781,10 +773,10 @@ ClearStaticArray(StaticArrayEntry *pp)
 {
   statarray_elements old_v = pp->ValueOfVE;
   static_array_types type = pp->ArrayType;
-  Int dim = - pp->ArrayEArity, i;
+  Int dim = pp->ArrayEArity, i;
 
   /* change official size */
-  if (pp->ArrayEArity >= 0){
+  if (pp->ArrayEArity == 0){
     return;
   }
   WRITE_LOCK(pp->ArRWLock);
@@ -949,8 +941,7 @@ p_create_array( USES_REGS1 )
       WRITE_UNLOCK(ae->ARWLock);
       if (!IsVarTerm(app->ValueOfVE)
 	  || !IsUnboundVar(&app->ValueOfVE)) {
-	if (size == app->ArrayEArity ||
-	    size == -app->ArrayEArity)
+	if (size == app->ArrayEArity)
 	  return TRUE;
 	Yap_Error(PERMISSION_ERROR_CREATE_ARRAY,t,"create_array",
 	      ae->StrOfAE);
@@ -1064,7 +1055,7 @@ p_create_static_array( USES_REGS1 )
 	return FALSE;
       }
     } else {
-      if (pp->ArrayEArity  == -size &&
+      if (pp->ArrayEArity  == size &&
 	  pp->ArrayType == props) {
 	WRITE_UNLOCK(ae->ARWLock);
 	return TRUE;
@@ -1101,7 +1092,7 @@ p_static_array_properties( USES_REGS1 )
       return (FALSE);
     } else {
       static_array_types tp = pp->ArrayType;
-      Int dim = -pp->ArrayEArity;
+      Int dim = pp->ArrayEArity;
 
       READ_UNLOCK(ae->ARWLock);
       if (dim <= 0 || !Yap_unify(ARG2,MkIntegerTerm(dim)))
@@ -1169,7 +1160,7 @@ p_resize_static_array( USES_REGS1 )
       Yap_Error(PERMISSION_ERROR_RESIZE_ARRAY,t,"resize a static array");
       return(FALSE);
     } else {
-      Int osize =  - pp->ArrayEArity;
+      size_t osize =   pp->ArrayEArity;
       ResizeStaticArray(pp, size PASS_REGS);
       return(Yap_unify(ARG2,MkIntegerTerm(osize)));
     }
@@ -1237,11 +1228,9 @@ p_close_static_array( USES_REGS1 )
       StaticArrayEntry *ptr = (StaticArrayEntry *)pp;
       if (ptr->ValueOfVE.ints != NULL) {
 #if HAVE_MMAP
-	if (ptr->ValueOfVE.chars < (char *)Yap_HeapBase || 
-	    ptr->ValueOfVE.chars > (char *)HeapTop) {
-	  Int val = CloseMmappedArray(ptr, (void *)ptr->ValueOfVE.chars PASS_REGS);
+	Int val = CloseMmappedArray(ptr, (void *)ptr->ValueOfVE.chars PASS_REGS);
 #if USE_SYSTEM_MALLOC
-	  if (val)
+	if (val) {
 #endif
 	    return(val);
 	}
@@ -1651,7 +1640,7 @@ p_assign_static( USES_REGS1 )
     WRITE_LOCK(ptr->ArRWLock);
     READ_UNLOCK(ae->ARWLock);
     /* a static array */
-    if (indx < 0 || indx >= - ptr->ArrayEArity) {
+    if (indx < 0 || indx >= ptr->ArrayEArity) {
       WRITE_UNLOCK(ptr->ArRWLock);
       Yap_Error(DOMAIN_ERROR_ARRAY_OVERFLOW,t2,"assign_static");
       return FALSE;
@@ -1980,7 +1969,7 @@ p_assign_dynamic( USES_REGS1 )
 
   WRITE_LOCK(ptr->ArRWLock);
   /* a static array */
-  if (indx < 0 || indx >= - ptr->ArrayEArity) {
+  if (indx < 0 || indx >= ptr->ArrayEArity) {
     WRITE_UNLOCK(ptr->ArRWLock);
     Yap_Error(DOMAIN_ERROR_ARRAY_OVERFLOW,t2,"assign_static");
     return FALSE;
@@ -2179,7 +2168,7 @@ p_add_to_array_element( USES_REGS1 )
 
   WRITE_LOCK(ptr->ArRWLock);
   /* a static array */
-  if (indx < 0 || indx >= - ptr->ArrayEArity) {
+  if (indx < 0 || indx >= ptr->ArrayEArity) {
     WRITE_UNLOCK(ptr->ArRWLock);
     Yap_Error(DOMAIN_ERROR_ARRAY_OVERFLOW,t2,"add_to_array_element");
     return FALSE;
@@ -2271,7 +2260,7 @@ p_static_array_to_term( USES_REGS1 )
       return (FALSE);
     } else {
       static_array_types tp = pp->ArrayType;
-      Int dim = -pp->ArrayEArity, indx;
+      Int dim = pp->ArrayEArity, indx;
       CELL *base;
 
       while (H+1+dim > ASP-1024) {
