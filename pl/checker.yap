@@ -141,22 +141,18 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 '$init_style_check'(_).
 
 % style checker proper..
-'$check_term'(T, _, VL,P,_) :-
-	get_value('$syntaxchecksinglevar',on),
-	'$singletons_in_clause'(T, VL, Sv),
-	Sv = [_|_],
-	'$sv_warning'(Sv,T),
-         fail.
 '$check_term'(_, T, _,P,M) :-
 	get_value('$syntaxcheckdiscontiguous',on),
-	'$xtract_head'(T,M,NM,_,F,A),
+	strip_module(T, M, T1),
+	'$pred_arity'( T1, Name, Arity ),
 	% should always fail
-	'$handle_discontiguous'(F,A,NM),
+	'$handle_discontiguous'(Name, Arity, M),
 	fail.
 '$check_term'(_, T,_,P,M) :-
 	get_value('$syntaxcheckmultiple',on),
-	'$xtract_head'(T,M,NM,_,F,A),
-	'$handle_multiple'(F,A,NM), 
+	strip_module(T, M, T1),
+	'$pred_arity'( T1, Name, Arity ),
+	'$handle_multiple'( Name , Arity, M), 
 	fail.
 '$check_term'(_, T,_,_,M) :-
 	( 
@@ -167,7 +163,8 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 	    get_value('$syntaxcheckmultiple',on)
 	),
 	source_location( File, _ ),
-	'$xtract_head'(T,M,NM,_,F,A),
+	strip_module(T, M, T1),
+	'$pred_arity'( T1, Name, Arity ),
 	\+ (
 	    % allow duplicates if we are not the last predicate to have
 	    % been asserted.
@@ -178,48 +175,19 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 	fail.
 '$check_term'(_,_,_,_,_).
 
-%
-% output a list of singleton variables...
-%
-'$singletons_in_clause'(T, VL, Sv) :-
-        % first check which variables are not singleton
-	'$non_singletons_in_term'(T, [], V2L),
-        % bound them
-	'$ground_vars'(V2L),
-        % the remainder which do not start by _ are our target! 
-	'$sv_list'(VL, Sv).
-
-'$ground_vars'([]).
-'$ground_vars'([ground|V2L]) :-
-	'$ground_vars'(V2L).
-
-'$sv_list'([],[]).
-'$sv_list'([(_=V)|T],L) :- nonvar(V), !,
-	'$sv_list'(T,L).
-'$sv_list'([(X=_)|T], L) :-
-	atom_concat('_',_,X), !,
-	'$sv_list'(T,L).
-'$sv_list'([(Name=_)|T], [Name|L]) :-
-	'$sv_list'(T,L).
-
 '$sv_warning'([], _) :- !.
-'$sv_warning'(SVs, T) :-
-	'$current_module'(OM),
-	'$xtract_head'(T, OM, M, H, Name, Arity),
+'$sv_warning'(SVs,  T) :-
+	strip_module(T, M, T1),
+	'$pred_arity'( T1, Name, Arity ),
 	print_message(warning,singletons(SVs,(M:Name/Arity))).
 
-'$xtract_head'(V,M,M,V,call,1) :- var(V), !.
-'$xtract_head'((H:-_),OM,M,NH,Name,Arity) :- !,
-        '$xtract_head'(H,OM,M,NH,Name,Arity).
-'$xtract_head'((H,_),OM,M,H1,Name,Arity) :- !,
-	'$xtract_head'(H,OM,M,H1,Name,Arity).
-'$xtract_head'((H-->_),OM,M,HL,Name,Arity) :- !,
-	'$xtract_head'(H,M,OM,_,Name,A1),
-	Arity is A1+2,
-	functor(HL,Name,Arity).
-'$xtract_head'(M:H,_,NM,NH,Name,Arity) :- !,
-	'$xtract_head'(H,M,NM,NH,Name,Arity).
-'$xtract_head'(H,M,M,H,Name,Arity) :-
+'$pred_arity'(V,M,M,V,call,1) :- var(V), !.
+'$pred_arity'((H:-_),Name,Arity) :- !,
+	functor(H,Name,Arity).
+'$pred_arity'((H-->_),Name,Arity) :- !,
+	functor(HL,Name,1).
+	Arity is A1+2.
+'$pred_arity'(H,Name,Arity) :-
 	functor(H,Name,Arity).
 
 % check if a predicate is discontiguous.

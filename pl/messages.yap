@@ -155,7 +155,7 @@ system_message(no_match(P)) -->
 	[ 'No matching predicate for ~w.' - [P] ].
 system_message(leash([A|B])) -->
 	[ 'Leashing set to ~w.' - [[A|B]] ].
-system_message(singletons([SV],P)) -->
+system_message(singletons([SV=_],P)) -->
 	[ 'Singleton variable ~s in ~q.' - [SV,P] ].
 system_message(singletons(SVs,P)) -->
 	[  'Singleton variables ~s in ~q.' - [SVsL, P] ],
@@ -443,8 +443,8 @@ object_name(unsigned_byte, 'unsigned byte').
 object_name(unsigned_char, 'unsigned char').
 object_name(variable, 'unbound variable').
 
-svs([A]) --> !, { atom_codes(A, H) }, H.
-svs([A|L]) -->
+svs([A=_]) --> !, { atom_codes(A, H) }, H.
+svs([A=_|L]) -->
 	{ atom_codes(A, H) },
 	H,
 	", ",
