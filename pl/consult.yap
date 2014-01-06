@@ -257,12 +257,14 @@ load_files(Files,Opts) :-
 	'$file_loaded'(Stream, Mod, Imports, TOpts), !,
 	'$lf_opt'('$options', TOpts, Opts),
 	'$lf_opt'('$location', TOpts, ParentF:Line),
-	'$loaded'(Stream, UserFile, Mod, ParentF, Line, not_loaded, _File, _Dir, Opts).
+	'$loaded'(Stream, UserFile, Mod, ParentF, Line, not_loaded, _File, _Dir, Opts),
+	'$reexport'( TOpts, UserFile, Imports, Mod ).
 '$start_lf'(changed, Mod, Stream, TOpts, UserFile, Imports) :-
 	'$file_unchanged'(Stream, Mod, Imports, TOpts), !,
 	'$lf_opt'('$options', TOpts, Opts),
 	'$lf_opt'('$location', TOpts, ParentF:Line),
-	'$loaded'(Stream, UserFile, Mod, ParentF, Line, changed, _File, _Dir, Opts).
+	'$loaded'(Stream, UserFile, Mod, ParentF, Line, changed, _File, _Dir, Opts),
+	'$reexport'( TOpts, UserFile, Imports, Mod ).
 '$start_lf'(_, Mod, Stream, TOpts, File, _) :-
 	'$do_lf'(Mod, Stream, File, TOpts).
 
@@ -392,13 +394,7 @@ use_module(M,F,Is) :-
 %	( File = '/Users/vsc/Yap/bins/threads/share/Yap/error.pl' -> start_low_level_trace ; stop_low_level_trace ),
 	'$lf_opt'(imports, TOpts, Imports),
 	'$import_to_current_module'(File, ContextModule, Imports, _, TOpts),
-	'$lf_opt'(reexport, TOpts, Reexport),
-	( Reexport == false -> true ;
-	  '$lf_opt'('$parent_topts', TOpts, OldTOpts),
-	  '$lf_opt'('$context_module', OldTOpts, OldContextModule),
-	  '$import_to_current_module'(File, OldContextModule, Imports, _, TOpts),
-	  '$extend_exports'(ContextModule, Imports)
-	),
+	'$reexport'( TOpts, File, Imports, ContextModule ),
 	( LC == 0 -> prompt(_,'   |: ') ; true),
 	'$exec_initialisation_goals',
 %	format( 'O=~w~n', [Mod=UserFile] ),
@@ -581,6 +577,15 @@ initialization(G,OPT) :-
 	H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
 	print_message(Verbosity, loaded(included, Y, Mod, T, H)),
 	nb_setval('$included_file',OY).
+
+'$reexport'( TOpts, File, Imports, ContextModule ) :-
+	'$lf_opt'(reexport, TOpts, Reexport),
+	( Reexport == false -> true ;
+	  '$lf_opt'('$parent_topts', TOpts, OldTOpts),
+	  '$lf_opt'('$context_module', OldTOpts, OldContextModule),
+	  '$import_to_current_module'(File, OldContextModule, Imports, _, TOpts),
+	  '$extend_exports'(ContextModule, Imports)
+	).
 
 '$do_startup_reconsult'(X) :-
 	( '$access_yap_flags'(15, 0) ->
