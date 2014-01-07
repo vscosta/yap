@@ -820,7 +820,7 @@ ch_to_wide(char *base, char *charp)
   { charp = _PL__utf8_put_char(charp, ch); } }
 
 TokEntry *
-Yap_tokenizer(IOSTREAM *inp_stream, int store_comments, Term *tposp)
+Yap_tokenizer(IOSTREAM *inp_stream, int store_comments, Term *tposp,  void *rd0)
 {
   GET_LD
   TokEntry *t, *l, *p;
@@ -829,6 +829,7 @@ Yap_tokenizer(IOSTREAM *inp_stream, int store_comments, Term *tposp)
   int ch;
   wchar_t *wcharp;
   struct qq_struct_t	       *cur_qq = NULL;
+  struct read_data_t *rd = rd0;
 
   LOCAL_ErrorMessage = NULL;
   LOCAL_Error_Size = 0;
@@ -843,7 +844,7 @@ Yap_tokenizer(IOSTREAM *inp_stream, int store_comments, Term *tposp)
     ch = getchr(inp_stream);
   }
   *tposp = Yap_StreamPosition(inp_stream);
-  Yap_setCurrentSourceLocation(&inp_stream);
+  Yap_setCurrentSourceLocation( rd );
   LOCAL_StartLine = inp_stream->posbuf.lineno;
   do {
     wchar_t och;
@@ -907,7 +908,7 @@ Yap_tokenizer(IOSTREAM *inp_stream, int store_comments, Term *tposp)
 	  }
 	  CHECK_SPACE();
 	  *tposp = Yap_StreamPosition(inp_stream);
-	  Yap_setCurrentSourceLocation(&inp_stream);
+	  Yap_setCurrentSourceLocation( rd );
 	}
 	goto restart;
       } else {
@@ -1230,7 +1231,7 @@ Yap_tokenizer(IOSTREAM *inp_stream, int store_comments, Term *tposp)
 	    }
 	    CHECK_SPACE();
 	    *tposp = Yap_StreamPosition(inp_stream);
-	    Yap_setCurrentSourceLocation(&inp_stream);
+	    Yap_setCurrentSourceLocation( rd );
 	  }
 	}
 	goto restart;

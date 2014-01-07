@@ -234,10 +234,6 @@ user:prolog_file_type(A, executable) :-
 
 :- dynamic file_search_path/2.
 
-:- multifile generate_message_hook/3.
-
-:- dynamic generate_message_hook/3.
-
 :- multifile swi:swi_predicate_table/4.
 
 :- multifile user:message_hook/3.

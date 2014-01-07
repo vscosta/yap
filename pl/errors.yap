@@ -275,15 +275,16 @@ print_message(_, Term) :-
 '$print_system_message'(_, banner, _) :-
 	current_prolog_flag(verbose, silent), !.
 '$print_system_message'(Term, Level, Lines) :-
-	'$messages':prefix(Level, LinePrefix, Stream, Prefix),
-	'$messages':file_location(Prefix, LinesF, Lines), !,
+	( Level == error -> Term \= error(syntax_error(_), _) ; Level == warning ),
+	'$messages':prefix(Level, LinePrefix, Stream, LinesF, Lines2),
+	'$messages':file_location(Lines2, Lines), !,
 	flush_output(user_output),
 	flush_output(user_error),
-	print_message_lines(Stream, LinePrefix, LinesF).
+	print_message_lines(Stream, LinePrefix, [nl|LinesF]).
 '$print_system_message'(Error, Level, Lines) :-
 	flush_output(user_output),
 	flush_output(user_error),
 	'$messages':prefix(Level, LinePrefix, Stream, LinesF, Lines), !,
 	print_message_lines(Stream, LinePrefix, LinesF).
-
+s
 

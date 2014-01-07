@@ -24,18 +24,17 @@
 
 :- multifile prolog:message/3.
 
-file_location(Prefix) -->
-	{
-	 prolog_load_context(file, FileName)
-	},
-	{ '$start_line'(LN) },
-	file_position(FileName,LN,Prefix),
+:- multifile user:generate_message_hook/3.
+
+file_location -->
+	{ source_location(FileName, LN) },
+	file_position(FileName,LN),
 	[ nl ].
 
-file_position(user_input,LN,MsgCodes) -->
-	[ '~a (user_input:~d).' - [MsgCodes,LN] ].
-file_position(FileName,LN,MsgCodes) -->
-	[ '~a (~a:~d).' - [MsgCodes,FileName,LN] ].
+file_position(user_input,LN) -->
+	[ 'at line ~d in user_input,' - [LN] ].
+file_position(FileName,LN) -->
+	[ 'at line ~d in ~a,' - [LN,FileName] ].
 
 
 translate_message(Term) -->
@@ -499,7 +498,7 @@ syntax_error_token(A) --> !,
 %	Quintus/SICStus/SWI compatibility predicate to print message lines
 %       using  a prefix.
 
-prolog:print_message_lines(_, _, []) :- !.
+prolog:print_message_lines(S, _, []) :- !.
 prolog:print_message_lines(S, P, [at_same_line|Lines]) :- !,
 	print_message_line(S, Lines, Rest),
 	prolog:print_message_lines(S, P, Rest).
@@ -517,7 +516,7 @@ prolog:print_message_lines(S, P-Opts, Lines) :- !,
 	atom_concat('~N', P, Prefix),
 	format(S, Prefix, Opts),
 	print_message_line(S, Lines, Rest),
-	prolog:print_message_lines(S, P-Opts, Rest).
+	prolog:print_message_lines(S, P-Opts, Rest)x.
 prolog:print_message_lines(S, P, Lines) :-
 	atom(P), !,
 	atom_concat('~N', P, Prefix),

@@ -185,7 +185,7 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 '$pred_arity'((H:-_),Name,Arity) :- !,
 	functor(H,Name,Arity).
 '$pred_arity'((H-->_),Name,Arity) :- !,
-	functor(HL,Name,1).
+	functor(HL,Name,1),
 	Arity is A1+2.
 '$pred_arity'(H,Name,Arity) :-
 	functor(H,Name,Arity).

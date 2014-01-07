@@ -20,7 +20,7 @@ void
 init_read_data(ReadData _PL_rd, IOSTREAM *in ARG_LD)
 {  CACHE_REGS
    memset(_PL_rd, 0, sizeof(*_PL_rd));	/* optimise! */
-
+  
   _PL_rd->magic = RD_MAGIC;
   _PL_rd->varnames = 0;
   _PL_rd->module = Yap_GetModuleEntry(CurrentModule);
@@ -356,14 +356,10 @@ addToBuffer(int c, ReadData _PL_rd)
 
 #if __YAP_PROLOG__
 void
-Yap_setCurrentSourceLocation(IOSTREAM ** rd)
+Yap_setCurrentSourceLocation( void *rd )
 {
   GET_LD
-  if (*rd) {
-    read_data rdt;
-    rdt._rb.stream = *rd;
-    setCurrentSourceLocation(&rdt PASS_LD);
-  }
+  setCurrentSourceLocation(rd PASS_LD);
 }
 #endif
 
