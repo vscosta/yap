@@ -286,5 +286,5 @@ print_message(_, Term) :-
 	flush_output(user_error),
 	'$messages':prefix(Level, LinePrefix, Stream, LinesF, Lines), !,
 	print_message_lines(Stream, LinePrefix, LinesF).
-s
+
 

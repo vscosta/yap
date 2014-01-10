@@ -511,12 +511,12 @@ prolog:print_message_lines(S, kind(Kind), Lines) :- !,
 		  ],
 		  AllLines),
 	print_message_lines(S, Prefix, AllLines).
-prolog:print_message_lines(S, P-Opts, Lines) :- !,
+prolog:print_message_lines(S, P-Opts, Lines) :-
 	atom(P), !,
 	atom_concat('~N', P, Prefix),
 	format(S, Prefix, Opts),
 	print_message_line(S, Lines, Rest),
-	prolog:print_message_lines(S, P-Opts, Rest)x.
+	prolog:print_message_lines(S, P-Opts, Rest).
 prolog:print_message_lines(S, P, Lines) :-
 	atom(P), !,
 	atom_concat('~N', P, Prefix),
