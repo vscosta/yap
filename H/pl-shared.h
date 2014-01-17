@@ -264,7 +264,7 @@ getUnknownModule(module_t m);
 
 COMMON(int)		debugmode(debug_type new, debug_type *old);
 COMMON(int)		tracemode(debug_type new, debug_type *old);
-COMMON(void)		Yap_setCurrentSourceLocation(IOSTREAM **s);
+COMMON(void)		Yap_setCurrentSourceLocation( void *rd );
 
 extern int raiseSignal(PL_local_data_t *ld, int sig);
 

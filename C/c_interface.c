@@ -2859,7 +2859,7 @@ YAP_Read(IOSTREAM *inp)
   BACKUP_MACHINE_REGS();
 
 
-  tokstart = LOCAL_tokptr = LOCAL_toktide = Yap_tokenizer(inp, FALSE, &tpos);
+  tokstart = LOCAL_tokptr = LOCAL_toktide = Yap_tokenizer(inp, FALSE, &tpos, &rd);
   if (LOCAL_ErrorMessage)
     {
       Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable, LOCAL_Comments);

@@ -504,7 +504,7 @@ Yap_read_term(term_t t0, IOSTREAM *inp_stream, struct read_data_t *rd)
       old_H = H;
       LOCAL_Comments = TermNil;
       LOCAL_CommentsNextChar = LOCAL_CommentsTail = NULL;
-      tokstart = LOCAL_tokptr = LOCAL_toktide = Yap_tokenizer(inp_stream, store_comments, &tpos);
+      tokstart = LOCAL_tokptr = LOCAL_toktide = Yap_tokenizer(inp_stream, store_comments, &tpos, rd);
       if (LOCAL_Error_TYPE != YAP_NO_ERROR && seekable) {
 	H = old_H;
 	Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable, LOCAL_Comments);

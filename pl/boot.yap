@@ -1069,7 +1069,17 @@ bootstrap(F) :-
 	!.
 
 '$enter_command'(Stream,Mod,Status) :-
-	read_term(Stream, Command, [module(Mod), variable_names(Vars), term_position(Pos), syntax_errors(dec10), process_comment(true) ]),
+	read_term(Stream, Command, [module(Mod), variable_names(Vars), term_position(Pos), syntax_errors(dec10), process_comment(true), singletons( Singletons ) ]),
+	( Singletons == []
+         -> 
+	 true
+        ;
+	  get_value('$syntaxchecksinglevar',on)
+        ->
+	 '$sv_warning'(Singletons, Command )
+        ;
+	  true
+        ),
 	'$command'(Command,Vars,Pos,Status).
 
 '$abort_loop'(Stream) :-

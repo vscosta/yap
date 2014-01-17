@@ -240,7 +240,7 @@ Term Yap_Variables(VarEntry *,Term);
 Term Yap_Singletons(VarEntry *,Term);
 
 /* routines in scanner.c */
-TokEntry *Yap_tokenizer(struct io_stream *, int, Term *);
+TokEntry *Yap_tokenizer(struct io_stream *, int, Term *, void *rd);
 void     Yap_clean_tokenizer(TokEntry *, VarEntry *, VarEntry *,Term);
 Term     Yap_scan_num(struct io_stream *);
 char	 *Yap_AllocScannerMemory(unsigned int);

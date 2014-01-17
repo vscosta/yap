@@ -24,18 +24,17 @@
 
 :- multifile prolog:message/3.
 
-file_location(Prefix) -->
-	{
-	 prolog_load_context(file, FileName)
-	},
-	{ '$start_line'(LN) },
-	file_position(FileName,LN,Prefix),
+:- multifile user:generate_message_hook/3.
+
+file_location -->
+	{ source_location(FileName, LN) },
+	file_position(FileName,LN),
 	[ nl ].
 
-file_position(user_input,LN,MsgCodes) -->
-	[ '~a (user_input:~d).' - [MsgCodes,LN] ].
-file_position(FileName,LN,MsgCodes) -->
-	[ '~a (~a:~d).' - [MsgCodes,FileName,LN] ].
+file_position(user_input,LN) -->
+	[ 'at line ~d in user_input,' - [LN] ].
+file_position(FileName,LN) -->
+	[ 'at line ~d in ~a,' - [LN,FileName] ].
 
 
 translate_message(Term) -->
@@ -155,7 +154,7 @@ system_message(no_match(P)) -->
 	[ 'No matching predicate for ~w.' - [P] ].
 system_message(leash([A|B])) -->
 	[ 'Leashing set to ~w.' - [[A|B]] ].
-system_message(singletons([SV],P)) -->
+system_message(singletons([SV=_],P)) -->
 	[ 'Singleton variable ~s in ~q.' - [SV,P] ].
 system_message(singletons(SVs,P)) -->
 	[  'Singleton variables ~s in ~q.' - [SVsL, P] ],
@@ -443,8 +442,8 @@ object_name(unsigned_byte, 'unsigned byte').
 object_name(unsigned_char, 'unsigned char').
 object_name(variable, 'unbound variable').
 
-svs([A]) --> !, { atom_codes(A, H) }, H.
-svs([A|L]) -->
+svs([A=_]) --> !, { atom_codes(A, H) }, H.
+svs([A=_|L]) -->
 	{ atom_codes(A, H) },
 	H,
 	", ",
@@ -499,7 +498,7 @@ syntax_error_token(A) --> !,
 %	Quintus/SICStus/SWI compatibility predicate to print message lines
 %       using  a prefix.
 
-prolog:print_message_lines(_, _, []) :- !.
+prolog:print_message_lines(S, _, []) :- !.
 prolog:print_message_lines(S, P, [at_same_line|Lines]) :- !,
 	print_message_line(S, Lines, Rest),
 	prolog:print_message_lines(S, P, Rest).
@@ -512,7 +511,7 @@ prolog:print_message_lines(S, kind(Kind), Lines) :- !,
 		  ],
 		  AllLines),
 	print_message_lines(S, Prefix, AllLines).
-prolog:print_message_lines(S, P-Opts, Lines) :- !,
+prolog:print_message_lines(S, P-Opts, Lines) :-
 	atom(P), !,
 	atom_concat('~N', P, Prefix),
 	format(S, Prefix, Opts),
