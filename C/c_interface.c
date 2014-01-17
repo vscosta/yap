@@ -567,6 +567,7 @@ X_API void    *YAP_ExternalDataInStackFromTerm(Term);
 X_API int      YAP_NewOpaqueType(void *);
 X_API Term     YAP_NewOpaqueObject(int, size_t);
 X_API void    *YAP_OpaqueObjectFromTerm(Term);
+X_API CELL    *YAP_HeapStoreOpaqueTerm(Term t);
 X_API int      YAP_Argv(char *** argvp);
 X_API YAP_tag_t YAP_TagOfTerm(Term);
 X_API size_t   YAP_ExportTerm(Term, char *, size_t);
@@ -2589,6 +2590,12 @@ X_API void *
 YAP_OpaqueObjectFromTerm(Term t)
 {
   return ExternalBlobFromTerm (t);
+}
+
+X_API CELL *
+YAP_HeapStoreOpaqueTerm(Term t)
+{
+  return Yap_HeapStoreOpaqueTerm(t);
 }
 
 X_API Int

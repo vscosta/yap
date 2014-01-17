@@ -1160,10 +1160,15 @@ static inline sg_node_ptr subgoal_search_loop(tab_ent_ptr tab_ent, sg_node_ptr c
 #ifdef MODE_GLOBAL_TRIE_LOOP
 	SUBGOAL_CHECK_INSERT_ENTRY(tab_ent, current_node, AbsAppl((Term *)f));
 #endif /* MODE_GLOBAL_TRIE_LOOP */
+      } else if (f == FunctorBigInt || f == FunctorString) {
+	CELL *new = Yap_HeapStoreOpaqueTerm(t);
+	SUBGOAL_CHECK_INSERT_ENTRY(tab_ent, current_node, AbsAppl((Term *)f));
+	SUBGOAL_CHECK_INSERT_ENTRY(tab_ent, current_node, (CELL)new);
+#ifdef MODE_GLOBAL_TRIE_LOOP
+	SUBGOAL_CHECK_INSERT_ENTRY(tab_ent, current_node, AbsAppl((Term *)f));
+#endif /* MODE_GLOBAL_TRIE_LOOP */	
       } else if (f == FunctorDBRef) {
 	Yap_Error(INTERNAL_ERROR, TermNil, "subgoal_search_loop: unsupported type tag FunctorDBRef");
-      } else if (f == FunctorBigInt) {
-	Yap_Error(INTERNAL_ERROR, TermNil, "subgoal_search_loop: unsupported type tag FunctorBigInt");
       } else {
 	int i;
 	CELL *aux_appl = RepAppl(t);
@@ -1374,10 +1379,13 @@ static inline ans_node_ptr answer_search_loop(sg_fr_ptr sg_fr, ans_node_ptr curr
 	ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_null + in_pair);
 	ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, li, _trie_retry_extension);
 	ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_longint);
+      } else if (f == FunctorBigInt || FunctorString) {
+	CELL *opq = Yap_HeapStoreOpaqueTerm(t);
+	ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_null + in_pair);
+	ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, (CELL)opq, _trie_retry_extension);
+	ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_bigint);
       } else if (f == FunctorDBRef) {
 	Yap_Error(INTERNAL_ERROR, TermNil, "answer_search_loop: unsupported type tag FunctorDBRef");
-      } else if (f == FunctorBigInt) {
-	Yap_Error(INTERNAL_ERROR, TermNil, "answer_search_loop: unsupported type tag FunctorBigInt");
       } else {
 	int i;
 	CELL *aux_appl = RepAppl(t);
@@ -1416,18 +1424,19 @@ static inline ans_node_ptr answer_search_loop(sg_fr_ptr sg_fr, ans_node_ptr curr
 static inline ans_node_ptr answer_search_min_max(sg_fr_ptr sg_fr, ans_node_ptr current_node, Term t, int mode USES_REGS) {
   ans_node_ptr child_node;
   Term child_term;
-  Float trie_value = 0, term_value = 0;
+  Term trie_value = 0, term_value = t;
+  int cmp;
 
   /* start by computing the current value on the trie (trie_value) */
   child_node = TrNode_child(current_node);
   child_term = TrNode_entry(child_node);
   if (IsIntTerm(child_term)) {
-    trie_value = (Float) IntOfTerm(child_term);
+    trie_value = child_term;
   } else if (IsApplTerm(child_term)) {
     Functor f = (Functor) RepAppl(child_term);
     child_node = TrNode_child(child_node);
     if (f == FunctorLongInt) {
-      trie_value = (Float) TrNode_entry(child_node);
+      trie_value = MkLongIntTerm( (Int) TrNode_entry(child_node) );
     } else if (f == FunctorDouble) {
       union {
 	Term t_dbl[sizeof(Float)/sizeof(Term)];
@@ -1438,30 +1447,20 @@ static inline ans_node_ptr answer_search_min_max(sg_fr_ptr sg_fr, ans_node_ptr c
       child_node = TrNode_child(child_node);
       u.t_dbl[1] = TrNode_entry(child_node);
 #endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
-      trie_value = u.dbl;
+      trie_value = MkFloatTerm(u.dbl);
+    } else if (f == FunctorBigInt) {
+      trie_value = AbsAppl( (CELL *) TrNode_entry(child_node) );
     } else
       Yap_Error(INTERNAL_ERROR, TermNil, "answer_search_min_max: invalid arithmetic value");
     child_node = TrNode_child(child_node);
   }
 
-  /* then compute the value for the new term (term_value) */
-  if (IsAtomOrIntTerm(t))
-    term_value = (Float) IntOfTerm(t);
-  else if (IsApplTerm(t)) {
-    Functor f = FunctorOfTerm(t);
-    if (f == FunctorLongInt)
-      term_value = (Float) LongIntOfTerm(t);
-    else if (f == FunctorDouble)
-      term_value = FloatOfTerm(t);
-    else
-      Yap_Error(INTERNAL_ERROR, TermNil, "answer_search_min_max: invalid arithmetic value");
-  }
-
+  cmp = Yap_acmp( term_value, trie_value PASS_REGS);
   /* worse answer */
-  if ((mode == MODE_DIRECTED_MIN && term_value > trie_value) || (mode == MODE_DIRECTED_MAX && term_value < trie_value))
+  if ((mode == MODE_DIRECTED_MIN && cmp > 0) || (mode == MODE_DIRECTED_MAX && cmp < 0))
     return NULL;
   /* equal answer */
-  if (term_value == trie_value)
+  if (cmp == 0)
     return child_node;
   /* better answer */
   if (IsAtomOrIntTerm(t)) {
@@ -1485,6 +1484,11 @@ static inline ans_node_ptr answer_search_min_max(sg_fr_ptr sg_fr, ans_node_ptr c
       ANSWER_SAFE_INSERT_ENTRY(current_node, AbsAppl((Term *)f), _trie_retry_null);
       ANSWER_SAFE_INSERT_ENTRY(current_node, li, _trie_retry_extension);
       ANSWER_SAFE_INSERT_ENTRY(current_node, AbsAppl((Term *)f), _trie_retry_longint);
+    } else if (f == FunctorBigInt) {
+      CELL *li = Yap_HeapStoreOpaqueTerm(t);
+      ANSWER_SAFE_INSERT_ENTRY(current_node, AbsAppl((Term *)f), _trie_retry_null);
+      ANSWER_SAFE_INSERT_ENTRY(current_node, (CELL)li, _trie_retry_extension);
+      ANSWER_SAFE_INSERT_ENTRY(current_node, AbsAppl((Term *)f), _trie_retry_bigint);
     }
   }
   return current_node;
@@ -1501,19 +1505,18 @@ static inline ans_node_ptr answer_search_min_max(sg_fr_ptr sg_fr, ans_node_ptr c
 static inline ans_node_ptr answer_search_sum(sg_fr_ptr sg_fr, ans_node_ptr current_node, Term t USES_REGS) {
   ans_node_ptr child_node;
   Term child_term;
-  Float trie_value = 0, term_value = 0, sum_value = 0;
-  int sum_value_as_int;
+  Term trie_value = 0, term_value = t, sum_value = 0;
 
   /* start by computing the current value on the trie (trie_value) */
   child_node = TrNode_child(current_node);
   child_term = TrNode_entry(child_node);
   if (IsIntTerm(child_term)) {
-    trie_value = (Float) IntOfTerm(child_term);
+    trie_value = child_term;
   } else if (IsApplTerm(child_term)) {
     Functor f = (Functor) RepAppl(child_term);
     child_node = TrNode_child(child_node);
     if (f == FunctorLongInt) {
-      trie_value = (Float) TrNode_entry(child_node);
+      trie_value = MkLongIntTerm( (Int) TrNode_entry(child_node) );
     } else if (f == FunctorDouble) {
       union {
 	Term t_dbl[sizeof(Float)/sizeof(Term)];
@@ -1524,41 +1527,43 @@ static inline ans_node_ptr answer_search_sum(sg_fr_ptr sg_fr, ans_node_ptr curre
       child_node = TrNode_child(child_node);
       u.t_dbl[1] = TrNode_entry(child_node);
 #endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
-      trie_value = u.dbl;
+      trie_value = MkFloatTerm(u.dbl);
+    } else if (f == FunctorBigInt) {
+      trie_value = AbsAppl( (CELL *) TrNode_entry(child_node) );
     } else
-      Yap_Error(INTERNAL_ERROR, TermNil, "answer_search_sum: invalid arithmetic value");
+      Yap_Error(INTERNAL_ERROR, TermNil, "answer_search_min_max: invalid arithmetic value");
     child_node = TrNode_child(child_node);
   }
 
-  /* then compute the value for the new term (term_value) */
-  if (IsAtomOrIntTerm(t))
-    term_value = (Float) IntOfTerm(t);
-  else if (IsApplTerm(t)) {
-    Functor f = FunctorOfTerm(t);
-    if (f == FunctorLongInt)
-      term_value = (Float) LongIntOfTerm(t);
-    else if (f == FunctorDouble)
-      term_value = FloatOfTerm(t);
-    else
-      Yap_Error(INTERNAL_ERROR, TermNil, "answer_search_sum: invalid arithmetic value");
-  }
-  sum_value = trie_value + term_value;
-  sum_value_as_int = (int) sum_value;
-  if (sum_value == (float) sum_value_as_int && IntInBnd(sum_value_as_int)) {
-    ANSWER_SAFE_INSERT_ENTRY(current_node, MkIntegerTerm(sum_value_as_int), _trie_retry_atom);
-  } else {
-    union {
-      Term t_dbl[sizeof(Float)/sizeof(Term)];
-      Float dbl;
-    } u;
-    u.dbl = sum_value;
-    ANSWER_SAFE_INSERT_ENTRY(current_node, AbsAppl((Term *)FunctorDouble), _trie_retry_null);
+  sum_value = p_plus(trie_value, term_value PASS_REGS); 
+  if (IsAtomOrIntTerm(sum_value)) {
+    ANSWER_SAFE_INSERT_ENTRY(current_node, sum_value, _trie_retry_atom);
+  } else if (IsApplTerm(sum_value)) {
+    Functor f = FunctorOfTerm(sum_value);
+    if (f == FunctorDouble) {
+      union {
+	Term t_dbl[sizeof(Float)/sizeof(Term)];
+	Float dbl;
+      } u;
+      u.dbl = FloatOfTerm(sum_value);
+      ANSWER_SAFE_INSERT_ENTRY(current_node, AbsAppl((Term *)f), _trie_retry_null);
 #if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
-    ANSWER_SAFE_INSERT_ENTRY(current_node, u.t_dbl[1], _trie_retry_extension);
+      ANSWER_SAFE_INSERT_ENTRY(current_node, u.t_dbl[1], _trie_retry_extension);
 #endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
-    ANSWER_SAFE_INSERT_ENTRY(current_node, u.t_dbl[0], _trie_retry_extension);
-    ANSWER_SAFE_INSERT_ENTRY(current_node, AbsAppl((Term *)FunctorDouble), _trie_retry_double);
-  }  
+      ANSWER_SAFE_INSERT_ENTRY(current_node, u.t_dbl[0], _trie_retry_extension);
+      ANSWER_SAFE_INSERT_ENTRY(current_node, AbsAppl((Term *)f), _trie_retry_double);
+    } else if (f == FunctorLongInt) {
+      Int li = LongIntOfTerm(sum_value);
+      ANSWER_SAFE_INSERT_ENTRY(current_node, AbsAppl((Term *)f), _trie_retry_null);
+      ANSWER_SAFE_INSERT_ENTRY(current_node, li, _trie_retry_extension);
+      ANSWER_SAFE_INSERT_ENTRY(current_node, AbsAppl((Term *)f), _trie_retry_longint);
+    } else if (f == FunctorBigInt) {
+      CELL *li = Yap_HeapStoreOpaqueTerm(sum_value);
+      ANSWER_SAFE_INSERT_ENTRY(current_node, AbsAppl((Term *)f), _trie_retry_null);
+      ANSWER_SAFE_INSERT_ENTRY(current_node, (CELL)li, _trie_retry_extension);
+      ANSWER_SAFE_INSERT_ENTRY(current_node, AbsAppl((Term *)f), _trie_retry_bigint);
+    }
+  }
   return current_node;
 }
 #endif /* INCLUDE_ANSWER_SEARCH_MODE_DIRECTED */
@@ -1757,6 +1762,11 @@ static inline CELL *load_answer_loop(ans_node_ptr current_node USES_REGS) {
 	current_node = TrNode_parent(current_node);
 	current_node = TrNode_parent(current_node);
 	t = MkLongIntTerm(li);
+      } else if (f == FunctorBigInt || f == FunctorString) {
+	CELL *ptr = (CELL *)TrNode_entry(current_node);
+	current_node = TrNode_parent(current_node);
+	current_node = TrNode_parent(current_node);
+	t = AbsAppl( ptr );
       } else {
 	int f_arity = ArityOfFunctor(f);
 	t = Yap_MkApplTerm(f, f_arity, stack_terms);

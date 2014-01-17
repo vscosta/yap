@@ -347,28 +347,82 @@ __Yap_Mk64IntegerTerm(YAP_LONG_LONG i USES_REGS)
 }
 
 
-
-inline static int
-add_overflow(Int x, Int i, Int j)
-{
-  return ((i & j & ~x) | (~i & ~j & x)) < 0;
-}
+#if __clang__ && FALSE  /* not in OSX yet */
+#define DO_ADD() if (__builtin_sadd_overflow( i1, i2, & z ) ) { goto overflow; }
+#endif
 
 inline static Term
 add_int(Int i, Int j USES_REGS)
 {
-  Int x = i+j;
 #if USE_GMP
-  /* Integer overflow, we need to use big integers */
-  Int overflow = (i & j & ~x) | (~i & ~j & x);
-  if (overflow < 0) {
-    return(Yap_gmp_add_ints(i, j));
+  UInt w = (UInt)i+(UInt)j;
+  if (i > 0) {
+    if (j > 0 && (Int)w < 0) goto overflow;
+  } else {
+    if (j < 0 && (Int)w > 0) goto overflow;
   }
-#endif
-#ifdef BEAM
-  RINT(x);
-  return( MkIntegerTerm (x));
+  RINT( (Int)w);
+  /* Integer overflow, we need to use big integers */
+ overflow:
+    return Yap_gmp_add_ints(i, j);
 #else
   RINT(x);
 #endif
 }
+
+static inline Term
+p_plus(Term t1, Term t2 USES_REGS) {
+  switch (ETypeOfTerm(t1)) {
+  case long_int_e:
+    switch (ETypeOfTerm(t2)) {
+    case long_int_e:
+      /* two integers */
+      return add_int(IntegerOfTerm(t1),IntegerOfTerm(t2) PASS_REGS);
+    case double_e:
+      {
+	/* integer, double */
+	Float fl1 = (Float)IntegerOfTerm(t1);
+	Float fl2 = FloatOfTerm(t2);
+	RFLOAT(fl1+fl2);
+      }
+    case big_int_e:
+#ifdef USE_GMP
+      return(Yap_gmp_add_int_big(IntegerOfTerm(t1), t2));
+#endif
+    default:
+      RERROR();
+    }
+  case double_e:
+    switch (ETypeOfTerm(t2)) {
+    case long_int_e:
+      /* float * integer */
+      RFLOAT(FloatOfTerm(t1)+IntegerOfTerm(t2));
+    case double_e:
+      RFLOAT(FloatOfTerm(t1)+FloatOfTerm(t2));
+    case big_int_e:
+#ifdef USE_GMP
+      return Yap_gmp_add_float_big(FloatOfTerm(t1),t2);
+#endif
+    default:
+      RERROR();
+    }
+  case big_int_e:
+#ifdef USE_GMP
+    switch (ETypeOfTerm(t2)) {
+    case long_int_e:
+      return Yap_gmp_add_int_big(IntegerOfTerm(t2), t1);
+    case big_int_e:
+      /* two bignums */
+      return Yap_gmp_add_big_big(t1, t2);
+    case double_e:
+      return Yap_gmp_add_float_big(FloatOfTerm(t2),t1);
+    default:
+      RERROR();
+    }
+#endif
+  default:
+    RERROR();
+  }
+  RERROR();
+}
+

@@ -1149,6 +1149,37 @@
   ENDBOp();
 
 
+  PBOp(trie_do_bigint, e)
+    register ans_node_ptr node = (ans_node_ptr) PREG;
+    register CELL *aux_stack = TOP_STACK;
+    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+    Term t = AbsAppl((CELL*)aux_stack[HEAP_ENTRY(1)]);
+
+    heap_arity -= 2;
+    TOP_STACK = aux_stack = &aux_stack[2];  /* jump until the extension mark */
+    TOP_STACK[HEAP_ARITY_ENTRY] = heap_arity;
+    aux_stack_term_instr();
+  ENDPBOp();
+
+
+  BOp(trie_trust_bigint, e)
+    Yap_Error(INTERNAL_ERROR, TermNil, "trie_trust_bigint: invalid instruction");
+  ENDBOp();
+
+
+  BOp(trie_try_bigint, e)
+    Yap_Error(INTERNAL_ERROR, TermNil, "trie_try_bigint: invalid instruction");
+  ENDBOp();
+
+
+  BOp(trie_retry_bigint, e)
+    Yap_Error(INTERNAL_ERROR, TermNil, "trie_retry_bigint: invalid instruction");
+  ENDBOp();
+
+
+
   PBOp(trie_do_gterm, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = TOP_STACK;

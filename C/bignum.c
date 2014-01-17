@@ -31,6 +31,7 @@ static char     SccsId[] = "%W% %G%";
 
 #include "eval.h"
 #include "alloc.h"
+#include "pl-utf8.h"
 
 Term
 Yap_MkBigIntTerm(MP_INT *big)
@@ -330,6 +331,82 @@ Yap_MkULLIntTerm(YAP_ULONG_LONG n)
     CACHE_REGS
     return MkIntegerTerm(n);
 #endif
+}
+
+CELL *
+Yap_HeapStoreOpaqueTerm(Term t)
+{
+  CELL *ptr = RepAppl(t);
+  size_t sz;
+  void *new;
+
+  if (ptr[0] == (CELL)FunctorBigInt) {
+    sz = sizeof(MP_INT)+2*CellSize+
+      ((MP_INT *)(ptr+2))->_mp_alloc*sizeof(mp_limb_t);
+  } else { /* string */
+    sz = sizeof(CELL)*(2+ptr[1]);
+  }
+  new = Yap_AllocCodeSpace(sz);
+  if (!new) {
+    Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "subgoal_search_loop: no space for %s", StringOfTerm(t) );
+  } else {
+    if (ptr[0] == (CELL)FunctorBigInt) {
+      MP_INT *new = (MP_INT *)(RepAppl(t)+2);
+
+      new->_mp_d = (mp_limb_t *)(new+1);
+    }
+    memmove(new, ptr, sz);
+  }
+  return new; 
+}
+
+
+size_t
+Yap_OpaqueTermToString(Term t, char *str, size_t max)
+{
+  size_t str_index = 0;
+  CELL * li = RepAppl(t);
+  if (li[0] == (CELL)FunctorString) {
+    str_index += sprintf(& str[str_index], "\"");
+    do {
+      int chr;
+      char *ptr = (char *)StringOfTerm(AbsAppl(li));
+      ptr = utf8_get_char(ptr, &chr);
+      if (chr == '\0') break;
+      str_index += sprintf(& str[str_index], "%C", chr);
+    } while (TRUE);
+    str_index += sprintf(& str[str_index], "\"");
+  } else {
+    CELL big_tag = li[1];
+
+    if (big_tag == ARRAY_INT || big_tag == ARRAY_FLOAT) {
+      str_index += sprintf(& str[str_index], "{...}");
+#ifdef USE_GMP
+    } else if (big_tag == BIG_INT) {
+      MP_INT *big = Yap_BigIntOfTerm(AbsAppl(li));
+      char *s = mpz_get_str(&str[str_index], 10, big);
+      str_index += strlen(&s[str_index]);
+    } else if (big_tag == BIG_RATIONAL) {
+      MP_RAT *big = Yap_BigRatOfTerm(AbsAppl(li));
+      char *s = mpq_get_str(&str[str_index], 10, big);
+      str_index += strlen(&s[str_index]);
+#endif
+    } 
+    /*
+      else if (big_tag >= USER_BLOB_START && big_tag < USER_BLOB_END) {
+      Opaque_CallOnWrite f;
+      CELL blob_info;
+      
+      blob_info = big_tag - USER_BLOB_START;
+      if (GLOBAL_OpaqueHandlers &&
+      (f= GLOBAL_OpaqueHandlers[blob_info].write_handler)) {
+      (f)(wglb->stream, big_tag, ExternalBlobFromTerm(t), 0);
+      return;
+      }
+      } */
+    str_index += sprintf(& str[str_index], "0");
+  }
+  return str_index;
 }
 
 static Int 

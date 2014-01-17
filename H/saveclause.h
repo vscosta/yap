@@ -904,6 +904,7 @@
     case _trie_do_appl_in_pair:
     case _trie_do_atom:
     case _trie_do_atom_in_pair:
+    case _trie_do_bigint:
     case _trie_do_double:
     case _trie_do_extension:
     case _trie_do_gterm:
@@ -919,6 +920,7 @@
     case _trie_retry_appl_in_pair:
     case _trie_retry_atom:
     case _trie_retry_atom_in_pair:
+    case _trie_retry_bigint:
     case _trie_retry_double:
     case _trie_retry_extension:
     case _trie_retry_gterm:
@@ -934,6 +936,7 @@
     case _trie_trust_appl_in_pair:
     case _trie_trust_atom:
     case _trie_trust_atom_in_pair:
+    case _trie_trust_bigint:
     case _trie_trust_double:
     case _trie_trust_extension:
     case _trie_trust_gterm:
@@ -949,6 +952,7 @@
     case _trie_try_appl_in_pair:
     case _trie_try_atom:
     case _trie_try_atom_in_pair:
+    case _trie_try_bigint:
     case _trie_try_double:
     case _trie_try_extension:
     case _trie_try_gterm:

@@ -106,6 +106,8 @@ Term   Yap_RatTermToApplTerm(Term);
 void   Yap_InitBigNums(void);
 Term   Yap_AllocExternalDataInStack(CELL, size_t);
 int    Yap_CleanOpaqueVariable(CELL *);
+CELL  *Yap_HeapStoreOpaqueTerm(Term t);
+size_t Yap_OpaqueTermToString(Term t, char *str, size_t max);
 
 /* c_interface.c */
 Int    YAP_Execute(struct pred_entry *, CPredicate);

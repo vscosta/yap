@@ -19,6 +19,7 @@
 #ifdef TABLING
 #include "Yatom.h"
 #include "YapHeap.h"
+#include "eval.h"
 #include "tab.macros.h"
 
 static inline sg_node_ptr subgoal_trie_check_insert_entry(tab_ent_ptr, sg_node_ptr, Term USES_REGS);
@@ -376,6 +377,11 @@ static inline CELL *exec_substitution_loop(gt_node_ptr current_node, CELL **stac
 	current_node = TrNode_parent(current_node);
 	current_node = TrNode_parent(current_node);
 	t = MkLongIntTerm(li);
+      } else if (f == FunctorBigInt || f == FunctorString) {
+	CELL *li = (CELL *)TrNode_entry(current_node);
+	current_node = TrNode_parent(current_node);
+	current_node = TrNode_parent(current_node);
+	t = AbsAppl(li);
       } else {
 	int f_arity = ArityOfFunctor(f);
 	t = Yap_MkApplTerm(f, f_arity, stack_terms);
@@ -517,12 +523,16 @@ static void free_global_trie_branch(gt_node_ptr current_node USES_REGS) {
 		mode = TRAVERSE_MODE_DOUBLE;
 	      else if (f == FunctorLongInt)
 		mode = TRAVERSE_MODE_LONGINT;
+	      else if (f == FunctorBigInt || f == FunctorString)
+		mode = TRAVERSE_MODE_BIGINT_OR_STRING;
 	      else
 		mode = TRAVERSE_MODE_NORMAL;
 	    } else
 	      mode = TRAVERSE_MODE_NORMAL;
 	  } else if (mode == TRAVERSE_MODE_LONGINT)
 	    mode = TRAVERSE_MODE_LONGINT_END;
+	  } else if (mode == TRAVERSE_MODE_BIGINT_OR_STRING)
+	    mode = TRAVERSE_MODE_BIGINT_OR_STRING_END;
 	  else if (mode == TRAVERSE_MODE_DOUBLE)
 #if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
 	    mode = TRAVERSE_MODE_DOUBLE2;
@@ -555,12 +565,16 @@ static void free_global_trie_branch(gt_node_ptr current_node USES_REGS) {
 	    mode = TRAVERSE_MODE_DOUBLE;
 	  else if (f == FunctorLongInt)
 	    mode = TRAVERSE_MODE_LONGINT;
+	  else if (f == FunctorBigInt || f == FunctorString)
+	    mode = TRAVERSE_MODE_BIGINT_OR_STRING;
 	  else
 	    mode = TRAVERSE_MODE_NORMAL;
 	} else
 	  mode = TRAVERSE_MODE_NORMAL;
       } else if (mode == TRAVERSE_MODE_LONGINT)
 	mode = TRAVERSE_MODE_LONGINT_END;
+      } else if (mode == TRAVERSE_MODE_BIGINT_OR_STRING)
+	mode = TRAVERSE_MODE_BIGINT_OR_STRING_END;
       else if (mode == TRAVERSE_MODE_DOUBLE)
 #if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
 	mode = TRAVERSE_MODE_DOUBLE2;
@@ -898,6 +912,15 @@ static inline void traverse_trie_node(Term t, char *str, int *str_index_ptr, int
       mode = TRAVERSE_MODE_LONGINT_END;
   } else if (mode == TRAVERSE_MODE_LONGINT_END) {
     mode = TRAVERSE_MODE_NORMAL;
+  }  else if (mode == TRAVERSE_MODE_BIGINT_OR_STRING) {
+    str_index += Yap_OpaqueTermToString(AbsAppl((CELL *)t), str+str_index, 0);
+    traverse_update_arity(str, &str_index, arity);
+    if (type == TRAVERSE_TYPE_SUBGOAL)
+      mode = TRAVERSE_MODE_NORMAL;
+    else  /* TRAVERSE_TYPE_ANSWER || TRAVERSE_TYPE_GT_SUBGOAL || TRAVERSE_TYPE_GT_ANSWER */
+      mode = TRAVERSE_MODE_BIGINT_OR_STRING_END;
+  } else if (mode == TRAVERSE_MODE_BIGINT_OR_STRING_END) {
+    mode = TRAVERSE_MODE_NORMAL;
   } else if (IsVarTerm(t)) {
     if (t > VarIndexOfTableTerm(MAX_TABLE_VARS)) {
       TrStat_gt_refs++;
@@ -950,6 +973,8 @@ static inline void traverse_trie_node(Term t, char *str, int *str_index_ptr, int
       mode = TRAVERSE_MODE_DOUBLE;
     } else if (f == FunctorLongInt) {
       mode = TRAVERSE_MODE_LONGINT;
+    } else if (f == FunctorBigInt || f == FunctorString) {
+      mode = TRAVERSE_MODE_BIGINT_OR_STRING;
     } else if (f == FunctorComma) {
       if (arity[arity[0]] != -3) {
 	str_index += sprintf(& str[str_index], "(");
@@ -1369,20 +1394,26 @@ void free_subgoal_trie(sg_node_ptr current_node, int mode, int position) {
 	  child_mode = TRAVERSE_MODE_DOUBLE;
 	else if (f == FunctorLongInt)
 	  child_mode = TRAVERSE_MODE_LONGINT;
+	else if (f == FunctorBigInt || f == FunctorString)
+	  child_mode = TRAVERSE_MODE_BIGINT_OR_STRING;
 	else
 	  child_mode = TRAVERSE_MODE_NORMAL;
       } else
 	child_mode = TRAVERSE_MODE_NORMAL;
-    } else if (mode == TRAVERSE_MODE_LONGINT)
+    } else if (mode == TRAVERSE_MODE_LONGINT) {
       child_mode = TRAVERSE_MODE_LONGINT_END;
-    else if (mode == TRAVERSE_MODE_DOUBLE)
+    } else if (mode == TRAVERSE_MODE_BIGINT_OR_STRING) {
+      Yap_FreeCodeSpace((char *)TrNode_entry(current_node));
+      child_mode = TRAVERSE_MODE_BIGINT_OR_STRING_END;
+    } else if (mode == TRAVERSE_MODE_DOUBLE) {
 #if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
       child_mode = TRAVERSE_MODE_DOUBLE2;
-    else if (mode == TRAVERSE_MODE_DOUBLE2)
+    } else if (mode == TRAVERSE_MODE_DOUBLE2) {
 #endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
       child_mode = TRAVERSE_MODE_DOUBLE_END;
-    else
+    } else {
       child_mode = TRAVERSE_MODE_NORMAL;
+    }
     free_subgoal_trie(TrNode_child(current_node), child_mode, TRAVERSE_POSITION_FIRST);
   } else {
     sg_fr_ptr sg_fr = get_subgoal_frame_for_abolish(current_node PASS_REGS);
@@ -1461,20 +1492,26 @@ void free_answer_trie(ans_node_ptr current_node, int mode, int position) {
 	  child_mode = TRAVERSE_MODE_DOUBLE;
 	else if (f == FunctorLongInt)
 	  child_mode = TRAVERSE_MODE_LONGINT;
+	else if (f == FunctorBigInt || f == FunctorString)
+	  child_mode = TRAVERSE_MODE_BIGINT_OR_STRING;
 	else
 	  child_mode = TRAVERSE_MODE_NORMAL;
       } else
 	child_mode = TRAVERSE_MODE_NORMAL;
-    } else if (mode == TRAVERSE_MODE_LONGINT)
+    } else if (mode == TRAVERSE_MODE_LONGINT) {
       child_mode = TRAVERSE_MODE_LONGINT_END;
-    else if (mode == TRAVERSE_MODE_DOUBLE)
+    } else if (mode == TRAVERSE_MODE_BIGINT_OR_STRING) {
+      Yap_FreeCodeSpace((char *)TrNode_entry(current_node));
+      child_mode = TRAVERSE_MODE_BIGINT_OR_STRING_END;
+    } else if (mode == TRAVERSE_MODE_DOUBLE) {
 #if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
       child_mode = TRAVERSE_MODE_DOUBLE2;
-    else if (mode == TRAVERSE_MODE_DOUBLE2)
+    } else if (mode == TRAVERSE_MODE_DOUBLE2) {
 #endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
       child_mode = TRAVERSE_MODE_DOUBLE_END;
-    else
+    } else {
       child_mode = TRAVERSE_MODE_NORMAL;
+    }
     free_answer_trie(TrNode_child(current_node), child_mode, TRAVERSE_POSITION_FIRST);
   }
   if (position == TRAVERSE_POSITION_FIRST) {

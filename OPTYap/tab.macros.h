@@ -111,12 +111,16 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
 /* traverse macros */
 #define SHOW_MODE_STRUCTURE        0
 #define SHOW_MODE_STATISTICS       1
-#define TRAVERSE_MODE_NORMAL       0
-#define TRAVERSE_MODE_DOUBLE       1
-#define TRAVERSE_MODE_DOUBLE2      2
-#define TRAVERSE_MODE_DOUBLE_END   3
-#define TRAVERSE_MODE_LONGINT      4
-#define TRAVERSE_MODE_LONGINT_END  5
+typedef enum {
+  TRAVERSE_MODE_NORMAL =       0,
+  TRAVERSE_MODE_DOUBLE =       1,
+  TRAVERSE_MODE_DOUBLE2 =      2,
+  TRAVERSE_MODE_DOUBLE_END =   3,
+  TRAVERSE_MODE_BIGINT_OR_STRING =      4,
+  TRAVERSE_MODE_BIGINT_OR_STRING_END =  5,
+  TRAVERSE_MODE_LONGINT =      6,
+  TRAVERSE_MODE_LONGINT_END =  7
+} traverse_mode_t;
 /* do not change order !!! */
 #define TRAVERSE_TYPE_SUBGOAL      0
 #define TRAVERSE_TYPE_ANSWER       1
