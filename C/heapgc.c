@@ -1010,7 +1010,7 @@ static void
 inc_vars_of_type(CELL *curr,gc_types val) {
   if (curr >= H0 && curr < TrueHB) {
     old_vars++;
-  } else if (curr >= TrueHB && curr < H) {
+  } else if (curr >= TrueHB && curr < HR) {
     new_vars++;
   } else {
     return;
@@ -2371,7 +2371,7 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose 
       case _count_trust_me:
       case _retry:
       case _trust:
-	if (IN_BETWEEN(H0,(CELL *)(gc_B->cp_ap),H)) {
+	if (IN_BETWEEN(H0,(CELL *)(gc_B->cp_ap),HR)) {
 	  fprintf(stderr,"OOPS in GC: gc not supported in this case!!!\n");
 	  exit(1);
 	}
@@ -3895,7 +3895,7 @@ compaction_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp USES_REGS)
 	-LOCAL_total_smarked
 #endif
 	!= LOCAL_iptop-(CELL_PTR *)H && LOCAL_iptop < (CELL_PTR *)ASP -1024)
-      fprintf(GLOBAL_stderr,"%% Oops on LOCAL_iptop-H (%ld) vs %ld\n", (unsigned long int)(LOCAL_iptop-(CELL_PTR *)H), LOCAL_total_marked);
+      fprintf(GLOBAL_stderr,"%% Oops on LOCAL_iptop-H (%ld) vs %ld\n", (unsigned long int)(LOCAL_iptop-(CELL_PTR *)HR), LOCAL_total_marked);
     */
 #endif
 #if DEBUGX
