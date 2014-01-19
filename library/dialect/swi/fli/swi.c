@@ -724,7 +724,7 @@ X_API int PL_cons_functor(term_t d, functor_t f,...)
     return TRUE;
   }
   arity = ArityOfFunctor(ff);
-  if (Unsigned(H)+arity > Unsigned(ASP)-CreepFlag) {
+  if (Unsigned(HR)+arity > Unsigned(ASP)-CreepFlag) {
     if (!do_gc(arity*sizeof(CELL))) {
       return FALSE;
     }
@@ -757,7 +757,7 @@ X_API int PL_cons_functor_v(term_t d, functor_t f, term_t a0)
     return TRUE;
   }
   arity = ArityOfFunctor(ff);
-  if (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
+  if (Unsigned(HR) > Unsigned(ASP)-CreepFlag) {
     if (!do_gc(0)) {
       return FALSE;
     }
@@ -780,7 +780,7 @@ X_API int PL_cons_functor_v(term_t d, functor_t f, term_t a0)
 X_API int PL_cons_list(term_t d, term_t h, term_t t)
 {
   CACHE_REGS
-  if (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
+  if (Unsigned(HR) > Unsigned(ASP)-CreepFlag) {
     if (!do_gc(0)) {
       return FALSE;
     }
@@ -839,7 +839,7 @@ X_API int PL_put_functor(term_t t, functor_t f)
     Yap_PutInSlot(t,(Term)ff PASS_REGS);
   } else {
     arity = ArityOfFunctor(ff);
-    if (Unsigned(H)+arity > Unsigned(ASP)-CreepFlag) {
+    if (Unsigned(HR)+arity > Unsigned(ASP)-CreepFlag) {
       if (!do_gc(arity*sizeof(CELL))) {
 	return FALSE;
       }
@@ -888,7 +888,7 @@ X_API int PL_put_list(term_t t)
 {
   CACHE_REGS
   Yap_PutInSlot(t,YAP_MkNewPairTerm() PASS_REGS);
-  if (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
+  if (Unsigned(HR) > Unsigned(ASP)-CreepFlag) {
     if (!do_gc(0)) {
       return FALSE;
     }
@@ -1060,7 +1060,7 @@ X_API int PL_unify_functor(term_t t, functor_t f)
   Term tt = Yap_GetFromSlot(t PASS_REGS);
   Functor ff = SWIFunctorToFunctor(f);
   if (IsVarTerm(tt)) {
-    if (Unsigned(H)+ArityOfFunctor(ff) > Unsigned(ASP)-CreepFlag) {
+    if (Unsigned(HR)+ArityOfFunctor(ff) > Unsigned(ASP)-CreepFlag) {
       if (!do_gc(0)) {
 	return FALSE;
       }
@@ -1112,7 +1112,7 @@ X_API int PL_unify_list(term_t tt, term_t h, term_t tail)
 {
   CACHE_REGS
   Term t;
-  if (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
+  if (Unsigned(HR) > Unsigned(ASP)-CreepFlag) {
     if (!do_gc(0)) {
       return FALSE;
     }
@@ -1336,7 +1336,7 @@ int PL_unify_termv(term_t l, va_list ap)
   stack_el stack[MAX_DEPTH];
   
   BACKUP_MACHINE_REGS();
-  if (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
+  if (Unsigned(HR) > Unsigned(ASP)-CreepFlag) {
     if (!do_gc(0)) {
       RECOVER_MACHINE_REGS();
       return FALSE;
@@ -2086,7 +2086,7 @@ PL_open_foreign_frame(void)
   /* initialise a new marker choicepoint */
     choiceptr cp_b = ((choiceptr)(ASP-1))-1;
     cp_b->cp_tr = TR;
-    cp_b->cp_h = H;
+    cp_b->cp_h = HR;
     cp_b->cp_b = B;
     cp_b->cp_cp = CP;
     cp_b->cp_env = ENV;
@@ -2095,7 +2095,7 @@ PL_open_foreign_frame(void)
     cp_b->cp_depth = DEPTH;
 #endif /* DEPTH_LIMIT */
     cp_b->cp_a1 = MkIntTerm(LOCAL_CurSlot);
-    HB = H;
+    HB = HR;
     B = cp_b;
     ASP = (CELL *)B;
     Yap_StartSlots( PASS_REGS1 );

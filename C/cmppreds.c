@@ -82,7 +82,7 @@ static int compare_complex(register CELL *pt0, register CELL *pt0_end, register
 		   CELL *pt1)
 {
   CACHE_REGS
-  register CELL **to_visit = (CELL **)H;
+  register CELL **to_visit = (CELL **)HR;
   register int out = 0;
 
  loop:
@@ -289,7 +289,7 @@ static int compare_complex(register CELL *pt0, register CELL *pt0_end, register
     }
   }
   /* Do we still have compound terms to visit */
-  if (to_visit > (CELL **)H) {
+  if (to_visit > (CELL **)HR) {
 #ifdef RATIONAL_TREES
     to_visit -= 4;
     pt0 = to_visit[0];
@@ -308,7 +308,7 @@ static int compare_complex(register CELL *pt0, register CELL *pt0_end, register
  done:
   /* failure */
 #ifdef RATIONAL_TREES
-  while (to_visit > (CELL **)H) {
+  while (to_visit > (CELL **)HR) {
     to_visit -= 4;
     pt0 = to_visit[0];
     pt0_end = to_visit[1];

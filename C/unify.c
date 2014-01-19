@@ -397,7 +397,7 @@ oc_unify_nvar_nvar:
   /* d0 is bound and d1 is unbound */
   Bind(pt1, d0);
   /* local variables cannot be in a term */
-  if (pt1 > H && pt1 < LCL0)
+  if (pt1 > HR && pt1 < LCL0)
     return TRUE;
   if (rational_tree(d0))
     return(FALSE);
@@ -410,7 +410,7 @@ oc_unify_var_nvar:
   /* pt0 is unbound and d1 is bound */
   Bind(pt0, d1);
   /* local variables cannot be in a term */
-  if (pt0 > H && pt0 < LCL0)
+  if (pt0 > HR && pt0 < LCL0)
     return TRUE;
   if (rational_tree(d1))
     return(FALSE);
@@ -587,7 +587,7 @@ InitReverseLookupOpcode(void)
       }
     }
   }
-  bzero(OP_RTABLE, sz);
+  memset(OP_RTABLE, 0, sz);
   opeptr = OP_RTABLE;
   /* clear up table */
   {

@@ -73,8 +73,8 @@ BuildNewAttVar( USES_REGS1 )
   attvar_record *newv;
 
   /* add a new attributed variable */
-  newv = (attvar_record *)H;
-  H = (CELL *)(newv+1);
+  newv = (attvar_record *)HR;
+  HR = (CELL *)(newv+1);
   newv->AttFunc = FunctorAttVar;
   RESET_VARIABLE(&(newv->Value));
   RESET_VARIABLE(&(newv->Done));
@@ -97,9 +97,9 @@ CopyAttVar(CELL *orig, struct cp_frame **to_visit_ptr, CELL *res USES_REGS)
   to_visit->start_cp = vt-1;
   to_visit->end_cp = vt;
   if (IsVarTerm(attv->Atts)) {
-    Bind_Global_NonAtt(&newv->Atts, (CELL)H);
-    to_visit->to = H;
-    H++;
+    Bind_Global_NonAtt(&newv->Atts, (CELL)HR);
+    to_visit->to = HR;
+    HR++;
   } else {
     to_visit->to = &(newv->Atts);
   }
@@ -156,7 +156,7 @@ WakeAttVar(CELL* pt1, CELL reg2 USES_REGS)
   
   /* if bound to someone else, follow until we find the last one */
   attvar_record *attv = RepAttVar(pt1);
-  CELL *myH = H;
+  CELL *myH = HR;
   CELL *bind_ptr;
 
   if (IsVarTerm(Deref(attv->Atts))) {
@@ -201,9 +201,9 @@ WakeAttVar(CELL* pt1, CELL reg2 USES_REGS)
   bind_ptr = AddToQueue(attv PASS_REGS);
   if (IsNonVarTerm(reg2)) {
     if (IsPairTerm(reg2) && RepPair(reg2) == myH)
-      reg2 = AbsPair(H);
+      reg2 = AbsPair(HR);
     else if (IsApplTerm(reg2) && RepAppl(reg2) == myH)
-      reg2 = AbsAppl(H);
+      reg2 = AbsAppl(HR);
   }
   *bind_ptr = reg2;
   Bind_Global_NonAtt(&(attv->Value), reg2);
@@ -227,19 +227,19 @@ mark_attvar(CELL *orig)
 static Term
 BuildAttTerm(Functor mfun, UInt ar USES_REGS)
 {
-  CELL *h0 = H;
+  CELL *h0 = HR;
   UInt i;
 
-  if (H+(1024+ar) > ASP) {
+  if (HR+(1024+ar) > ASP) {
     LOCAL_Error_Size=ar*sizeof(CELL);
     return 0L;
   }
-  H[0] = (CELL)mfun;
-  RESET_VARIABLE(H+1);
-  H += 2;
+  HR[0] = (CELL)mfun;
+  RESET_VARIABLE(HR+1);
+  HR += 2;
   for (i = 1; i< ar; i++) {
-    *H = TermVoidAtt;
-    H++;
+    *HR = TermVoidAtt;
+    HR++;
   }
   return AbsAppl(h0);
 }
@@ -390,7 +390,7 @@ DelAtts(attvar_record *attv, Term oatt USES_REGS)
 static void 
 PutAtt(Int pos, Term atts, Term att USES_REGS)
 {
-  if (IsVarTerm(att) && VarOfTerm(att) > H && VarOfTerm(att) < LCL0) {
+  if (IsVarTerm(att) && VarOfTerm(att) > HR && VarOfTerm(att) < LCL0) {
     /* globalise locals */
     Term tnew = MkVarTerm();
     Bind_NonAtt(VarOfTerm(att), tnew);
@@ -850,23 +850,23 @@ p_modules_with_atts( USES_REGS1 ) {
   if (IsVarTerm(inp)) {
     if (IsAttachedTerm(inp)) {
       attvar_record *attv = RepAttVar(VarOfTerm(inp));
-      CELL *h0 = H;
+      CELL *h0 = HR;
       Term tatt;
 
       if (IsVarTerm(tatt = attv->Atts))
 	  return Yap_unify(ARG2,TermNil);
       while (!IsVarTerm(tatt)) {
 	Functor f = FunctorOfTerm(tatt);
-	if (H != h0)
-	  H[-1] = AbsPair(H);
+	if (HR != h0)
+	  HR[-1] = AbsPair(HR);
 	if (ActiveAtt(tatt, ArityOfFunctor(f))) {
-	  *H = MkAtomTerm(NameOfFunctor(f));
-	  H+=2;
+	  *HR = MkAtomTerm(NameOfFunctor(f));
+	  HR+=2;
 	}
 	tatt = ArgOfTerm(1,tatt);
       }
-      if (h0 != H) {
-	H[-1] = TermNil;
+      if (h0 != HR) {
+	HR[-1] = TermNil;
 	return Yap_unify(ARG2,AbsPair(h0));
       }
     }
@@ -887,7 +887,7 @@ p_swi_all_atts( USES_REGS1 ) {
   if (IsVarTerm(inp)) {
     if (IsAttachedTerm(inp)) {
       attvar_record *attv = RepAttVar(VarOfTerm(inp));
-      CELL *h0 = H;
+      CELL *h0 = HR;
       Term tatt;
 
       if (IsVarTerm(tatt = attv->Atts))
@@ -896,21 +896,21 @@ p_swi_all_atts( USES_REGS1 ) {
 	Functor f = FunctorOfTerm(tatt);
 	UInt ar = ArityOfFunctor(f);
 
-	if (H != h0)
-	  H[-1] = AbsAppl(H);
-	H[0] = (CELL) attf;
-	H[1] = MkAtomTerm(NameOfFunctor(f));
+	if (HR != h0)
+	  HR[-1] = AbsAppl(HR);
+	HR[0] = (CELL) attf;
+	HR[1] = MkAtomTerm(NameOfFunctor(f));
 	/* SWI */
 	if (ar == 2) 
-	  H[2] =  ArgOfTerm(2,tatt);
+	  HR[2] =  ArgOfTerm(2,tatt);
 	else
-	  H[2] =  tatt;
-	H += 4;
-	H[-1] = AbsAppl(H);
+	  HR[2] =  tatt;
+	HR += 4;
+	HR[-1] = AbsAppl(HR);
 	tatt = ArgOfTerm(1,tatt);
       }
-      if (h0 != H) {
-	H[-1] = TermNil;
+      if (h0 != HR) {
+	HR[-1] = TermNil;
 	return Yap_unify(ARG2,AbsAppl(h0));
       }
     }
@@ -925,17 +925,17 @@ p_swi_all_atts( USES_REGS1 ) {
 static Term
 AllAttVars( USES_REGS1 ) {
   CELL *pt = H0;
-  CELL *myH = H;
+  CELL *myH = HR;
   
   while (pt < myH) {
     switch(*pt) {
     case (CELL)FunctorAttVar:
       if (IsUnboundVar(pt+1)) {
 	if (ASP - myH < 1024) {
-	  LOCAL_Error_Size = (ASP-H)*sizeof(CELL);
+	  LOCAL_Error_Size = (ASP-HR)*sizeof(CELL);
 	  return 0L;
 	}
-	if (myH != H) {
+	if (myH != HR) {
 	  myH[-1] = AbsPair(myH);
 	}
 	myH[0] = AbsAttVar((attvar_record *)pt);
@@ -944,7 +944,7 @@ AllAttVars( USES_REGS1 ) {
       pt += (1+ATT_RECORD_ARITY);
       break;
     case (CELL)FunctorDouble:
-#if SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
+#if SIZEOF_DOUBLE == 2*SIZEOF_INT_P
       pt += 4;
 #else
       pt += 3;
@@ -968,10 +968,10 @@ AllAttVars( USES_REGS1 ) {
       pt++;
     }
   }
-  if (myH != H) {
-    Term out = AbsPair(H);
+  if (myH != HR) {
+    Term out = AbsPair(HR);
     myH[-1] = TermNil;
-    H = myH;
+    HR = myH;
     return out;
   } else {
     return TermNil;

@@ -88,10 +88,10 @@
         { register choiceptr cp;                                        \
           TOP_STACK = (CELL *) (NORM_CP(TOP_STACK) - 1);                \
           cp = NORM_CP(TOP_STACK);                                      \
-          HBREG = H;                                                    \
+          HBREG = HR;                                                    \
           store_yaam_reg_cpdepth(cp);                                   \
           cp->cp_tr = TR;                                               \
-          cp->cp_h  = H;                                                \
+          cp->cp_h  = HR;						\
           cp->cp_b  = B;                                                \
           cp->cp_cp = CPREG;                                            \
           cp->cp_ap = (yamop *) AP;                                     \
@@ -104,7 +104,7 @@
         copy_aux_stack()
 
 #define restore_trie_node(AP)                                           \
-        H = HBREG = PROTECT_FROZEN_H(B);                                \
+        HR = HBREG = PROTECT_FROZEN_H(B);                                \
         restore_yaam_reg_cpdepth(B);                                    \
         CPREG = B->cp_cp;                                               \
         ENV = B->cp_env;                                                \
@@ -116,7 +116,7 @@
 
 #define really_pop_trie_node()                                          \
         TOP_STACK = (CELL *) PROTECT_FROZEN_B((B + 1));                 \
-        H = PROTECT_FROZEN_H(B);                                        \
+        HR = PROTECT_FROZEN_H(B);                                        \
         pop_yaam_reg_cpdepth(B);                                        \
 	CPREG = B->cp_cp;                                               \
         TABLING_close_alt(B);                                           \
@@ -182,16 +182,16 @@
 
 #define aux_stack_term_in_pair_instr()                                  \
         if (heap_arity) {                                               \
-          Bind_Global((CELL *) aux_stack[HEAP_ENTRY(1)], AbsPair(H));   \
+          Bind_Global((CELL *) aux_stack[HEAP_ENTRY(1)], AbsPair(HR));   \
         } else {                                                        \
-          Bind((CELL *) aux_stack[SUBS_ENTRY(1)], AbsPair(H));          \
+          Bind((CELL *) aux_stack[SUBS_ENTRY(1)], AbsPair(HR));          \
           aux_stack[SUBS_ARITY_ENTRY] = subs_arity - 1;                 \
           TOP_STACK = &aux_stack[-1];                                   \
           TOP_STACK[HEAP_ARITY_ENTRY] = 1;                              \
         }                                                               \
-        Bind_Global(H, TrNode_entry(node));                             \
-        TOP_STACK[HEAP_ENTRY(1)] = (CELL) (H + 1);                      \
-        H += 2;                                                         \
+        Bind_Global(HR, TrNode_entry(node));                             \
+        TOP_STACK[HEAP_ENTRY(1)] = (CELL) (HR + 1);                      \
+        HR += 2;                                                         \
         next_trie_instruction(node)
 
 
@@ -202,33 +202,33 @@
 
 #define aux_stack_new_pair_instr()    /* for term 'CompactPairInit' */  \
         if (heap_arity) {                                               \
-          Bind_Global((CELL *) aux_stack[HEAP_ENTRY(1)], AbsPair(H));   \
+          Bind_Global((CELL *) aux_stack[HEAP_ENTRY(1)], AbsPair(HR));   \
           TOP_STACK = &aux_stack[-1];                                   \
           TOP_STACK[HEAP_ARITY_ENTRY] = heap_arity + 1;                 \
         } else {                                                        \
-          Bind((CELL *) aux_stack[SUBS_ENTRY(1)], AbsPair(H));          \
+          Bind((CELL *) aux_stack[SUBS_ENTRY(1)], AbsPair(HR));          \
           aux_stack[SUBS_ARITY_ENTRY] = subs_arity - 1;                 \
           TOP_STACK = &aux_stack[-2];                                   \
           TOP_STACK[HEAP_ARITY_ENTRY] = 2;                              \
 	}                                                               \
-        TOP_STACK[HEAP_ENTRY(1)] = (CELL) H;                            \
-        TOP_STACK[HEAP_ENTRY(2)] = (CELL) (H + 1);                      \
-        H += 2;                                                         \
+        TOP_STACK[HEAP_ENTRY(1)] = (CELL) HR;                            \
+        TOP_STACK[HEAP_ENTRY(2)] = (CELL) (HR + 1);                      \
+        HR += 2;                                                         \
         next_trie_instruction(node)
 
 #ifdef TRIE_COMPACT_PAIRS
 #define aux_stack_pair_instr()	   /* for term 'CompactPairEndList' */  \
         if (heap_arity) {                                               \
-          Bind_Global((CELL *) aux_stack[HEAP_ENTRY(1)], AbsPair(H));   \
+          Bind_Global((CELL *) aux_stack[HEAP_ENTRY(1)], AbsPair(HR));   \
 	} else {                                                        \
-          Bind((CELL *) aux_stack[SUBS_ENTRY(1)], AbsPair(H));          \
+          Bind((CELL *) aux_stack[SUBS_ENTRY(1)], AbsPair(HR));          \
           aux_stack[SUBS_ARITY_ENTRY] = subs_arity - 1;                 \
           TOP_STACK = &aux_stack[-1];                                   \
           TOP_STACK[HEAP_ARITY_ENTRY] = 1;                              \
 	}                                                               \
-        TOP_STACK[HEAP_ENTRY(1)] = (CELL) H;                            \
-        Bind_Global(H + 1, TermNil);                                    \
-        H += 2;                                                         \
+        TOP_STACK[HEAP_ENTRY(1)] = (CELL) HR;                            \
+        Bind_Global(HR + 1, TermNil);                                    \
+        HR += 2;                                                         \
         next_trie_instruction(node)
 #else
 #define aux_stack_pair_instr()                                          \
@@ -243,43 +243,43 @@
 
 #define aux_stack_appl_instr()                                          \
         if (heap_arity) {                                               \
-          Bind_Global((CELL *) aux_stack[HEAP_ENTRY(1)], AbsAppl(H));   \
+          Bind_Global((CELL *) aux_stack[HEAP_ENTRY(1)], AbsAppl(HR));   \
           TOP_STACK = &aux_stack[-func_arity + 1];                      \
           TOP_STACK[HEAP_ARITY_ENTRY] = heap_arity + func_arity - 1;    \
         } else {                                                        \
-          Bind((CELL *) aux_stack[SUBS_ENTRY(1)], AbsAppl(H));          \
+          Bind((CELL *) aux_stack[SUBS_ENTRY(1)], AbsAppl(HR));          \
           aux_stack[SUBS_ARITY_ENTRY] = subs_arity - 1;                 \
           TOP_STACK = &aux_stack[-func_arity];                          \
           TOP_STACK[HEAP_ARITY_ENTRY] = func_arity;                     \
 	}                                                               \
-        *H = (CELL) func;                                               \
+        *HR = (CELL) func;                                               \
         { int i;                                                        \
           for (i = 1; i <= func_arity; i++)	       	                \
-            TOP_STACK[HEAP_ENTRY(i)] = (CELL) (H + i);                  \
+            TOP_STACK[HEAP_ENTRY(i)] = (CELL) (HR + i);                  \
 	}                                                               \
-        H += 1 + func_arity;                                            \
+        HR += 1 + func_arity;                                            \
         next_trie_instruction(node)
 
 #define aux_stack_appl_in_pair_instr()	                                \
         if (heap_arity) {                                               \
-          Bind_Global((CELL *) aux_stack[HEAP_ENTRY(1)], AbsPair(H));   \
+          Bind_Global((CELL *) aux_stack[HEAP_ENTRY(1)], AbsPair(HR));   \
           TOP_STACK = &aux_stack[-func_arity];                          \
           TOP_STACK[HEAP_ARITY_ENTRY] = heap_arity + func_arity;        \
         } else {                                                        \
-          Bind((CELL *) aux_stack[SUBS_ENTRY(1)], AbsPair(H));          \
+          Bind((CELL *) aux_stack[SUBS_ENTRY(1)], AbsPair(HR));          \
           aux_stack[SUBS_ARITY_ENTRY] = subs_arity - 1;                 \
           TOP_STACK = &aux_stack[-func_arity - 1];                      \
           TOP_STACK[HEAP_ARITY_ENTRY] = func_arity + 1;                 \
         }                                                               \
-        TOP_STACK[HEAP_ENTRY(func_arity + 1)] = (CELL) (H + 1);         \
-        Bind_Global(H, AbsAppl(H + 2));                                 \
-        H += 2;                                                         \
-        *H = (CELL) func;                                               \
+        TOP_STACK[HEAP_ENTRY(func_arity + 1)] = (CELL) (HR + 1);         \
+        Bind_Global(HR, AbsAppl(HR + 2));                                 \
+        HR += 2;                                                         \
+        *HR = (CELL) func;                                               \
         { int i;                                                        \
           for (i = 1; i <= func_arity; i++)		                \
-            TOP_STACK[HEAP_ENTRY(i)] = (CELL) (H + i);                  \
+            TOP_STACK[HEAP_ENTRY(i)] = (CELL) (HR + i);                  \
 	}                                                               \
-        H += 1 + func_arity;                                            \
+        HR += 1 + func_arity;                                            \
         next_trie_instruction(node)
 
 
@@ -312,23 +312,23 @@
 #define aux_stack_var_in_pair_instr()                                   \
         if (heap_arity) {                                               \
 	  int i;                                                        \
-          Bind_Global((CELL *) aux_stack[HEAP_ENTRY(1)], AbsPair(H));   \
+          Bind_Global((CELL *) aux_stack[HEAP_ENTRY(1)], AbsPair(HR));   \
           TOP_STACK = &aux_stack[-1];                                   \
           TOP_STACK[HEAP_ARITY_ENTRY] = heap_arity;                     \
-          TOP_STACK[HEAP_ENTRY(1)] = (CELL) (H + 1);                    \
+          TOP_STACK[HEAP_ENTRY(1)] = (CELL) (HR + 1);                    \
           for (i = 2; i <= heap_arity; i++)                             \
             TOP_STACK[HEAP_ENTRY(i)] = aux_stack[HEAP_ENTRY(i)];        \
         } else {                                                        \
-          Bind((CELL *) aux_stack[SUBS_ENTRY(1)], AbsPair(H));		\
+          Bind((CELL *) aux_stack[SUBS_ENTRY(1)], AbsPair(HR));		\
           aux_stack[SUBS_ARITY_ENTRY] = subs_arity - 1;                 \
           TOP_STACK = &aux_stack[-2];                                   \
           TOP_STACK[HEAP_ARITY_ENTRY] = 1;                              \
-          TOP_STACK[HEAP_ENTRY(1)] = (CELL) (H + 1);                    \
+          TOP_STACK[HEAP_ENTRY(1)] = (CELL) (HR + 1);                    \
         }                                                               \
         aux_stack[VARS_ARITY_ENTRY - 1] = vars_arity + 1;               \
-        aux_stack[VARS_ENTRY(vars_arity + 1)] = (CELL) H;		\
-        RESET_VARIABLE((CELL) H);                                       \
-        H += 2;                                                         \
+        aux_stack[VARS_ENTRY(vars_arity + 1)] = (CELL) HR;		\
+        RESET_VARIABLE((CELL) HR);                                       \
+        HR += 2;                                                         \
         next_trie_instruction(node)
 
 
@@ -358,19 +358,19 @@
           aux_stack[SUBS_ARITY_ENTRY] = subs_arity - 1;                 \
           aux_var = aux_stack[VARS_ENTRY(var_index + 1)];		\
           if (aux_sub > aux_var) {                                      \
-	    if ((CELL *) aux_sub <= H) {                                \
+	    if ((CELL *) aux_sub <= HR) {                                \
               Bind_Global((CELL *) aux_sub, aux_var);                   \
-            } else if ((CELL *) aux_var <= H) {                         \
+            } else if ((CELL *) aux_var <= HR) {                         \
               Bind_Local((CELL *) aux_sub, aux_var);                    \
             } else {                                                    \
               Bind_Local((CELL *) aux_var, aux_sub);                    \
               aux_stack[VARS_ENTRY(var_index + 1)] = aux_sub;           \
             }                                                           \
           } else {                                                      \
-	    if ((CELL *) aux_var <= H) {                                \
+	    if ((CELL *) aux_var <= HR) {                                \
               Bind_Global((CELL *) aux_var, aux_sub);                   \
               aux_stack[VARS_ENTRY(var_index + 1)] = aux_sub;           \
-            } else if ((CELL *) aux_sub <= H) {                         \
+            } else if ((CELL *) aux_sub <= HR) {                         \
               Bind_Local((CELL *) aux_var, aux_sub);                    \
               aux_stack[VARS_ENTRY(var_index + 1)] = aux_sub;           \
             } else {                                                    \
@@ -382,15 +382,15 @@
 
 #define aux_stack_val_in_pair_instr()                                   \
         if (heap_arity) {                                               \
-          Bind_Global((CELL *) aux_stack[HEAP_ENTRY(1)], AbsPair(H));   \
+          Bind_Global((CELL *) aux_stack[HEAP_ENTRY(1)], AbsPair(HR));   \
         } else {                                                        \
-          Bind((CELL *) aux_stack[SUBS_ENTRY(1)], AbsPair(H));		\
+          Bind((CELL *) aux_stack[SUBS_ENTRY(1)], AbsPair(HR));		\
           aux_stack[SUBS_ARITY_ENTRY] = subs_arity - 1;                 \
           TOP_STACK = &aux_stack[-1];                                   \
           TOP_STACK[HEAP_ARITY_ENTRY] = 1;                              \
 	}                                                               \
         { CELL aux_sub, aux_var;                                        \
-          aux_sub = (CELL) H;                                           \
+          aux_sub = (CELL) HR;                                          \
           aux_var = aux_stack[VARS_ENTRY(var_index + 1)];               \
           if (aux_sub > aux_var) {                                      \
             Bind_Global((CELL *) aux_sub, aux_var);                     \
@@ -400,8 +400,8 @@
             aux_stack[VARS_ENTRY(var_index + 1)] = aux_sub;             \
           }                                                             \
         }                                                               \
-        TOP_STACK[HEAP_ENTRY(1)] = (CELL) (H + 1);                      \
-        H += 2;                                                         \
+        TOP_STACK[HEAP_ENTRY(1)] = (CELL) (HR + 1);                      \
+        HR += 2;                                                         \
         next_trie_instruction(node)
 
 

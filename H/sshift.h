@@ -1116,7 +1116,7 @@ INLINE_ONLY inline EXTERN int IsGlobal__ (CELL CACHE_TYPE);
 INLINE_ONLY inline EXTERN int
 IsGlobal__ (CELL reg USES_REGS)
 {
-  return (int) (IN_BETWEEN (LOCAL_GlobalBase, reg, H));
+  return (int) (IN_BETWEEN (LOCAL_GlobalBase, reg, HR));
 }
 
 

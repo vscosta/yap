@@ -133,7 +133,7 @@ typedef enum
   }
 
 #define LOCAL_ERROR(v)   \
-  if (H + (v) > ASP-1024) { \
+  if (HR + (v) > ASP-1024) { \
     LOCAL_Error_TYPE = OUT_OF_STACK_ERROR;\
     LOCAL_Error_Term = t;\
     LOCAL_Error_Size = 2*(v)*sizeof(CELL);\
@@ -141,7 +141,7 @@ typedef enum
   }
 
 #define LOCAL_TERM_ERROR(v)   \
-  if (H + (v) > ASP-1024) { \
+  if (HR + (v) > ASP-1024) { \
     LOCAL_Error_TYPE = OUT_OF_STACK_ERROR;\
     LOCAL_Error_Term = t;\
     LOCAL_Error_Size = 2*(v)*sizeof(CELL);\

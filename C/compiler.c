@@ -510,10 +510,10 @@ optimize_ce(Term t, unsigned int arity, unsigned int level, compiler_struct *cgl
   if (IsApplTerm(t) && IsExtensionFunctor(FunctorOfTerm(t)))
     return (t);
   while (p != NULL) {
-    CELL *oldH = H;
-    H = (CELL *)cglobs->cint.freep;
+    CELL *oldH = HR;
+    HR = (CELL *)cglobs->cint.freep;
     cmp = Yap_compare_terms(t, (p->TermOfCE));
-    H = oldH;
+    HR = oldH;
 
     if (cmp) {
       p = p->NextCE;
@@ -533,7 +533,7 @@ optimize_ce(Term t, unsigned int arity, unsigned int level, compiler_struct *cgl
 
   p->TermOfCE = t;
   p->VarOfCE = MkVarTerm();
-  if (H >= (CELL *)cglobs->cint.freep0) {
+  if (HR >= (CELL *)cglobs->cint.freep0) {
     /* oops, too many new variables */
     save_machine_regs();
     siglongjmp(cglobs->cint.CompilerBotch,OUT_OF_TEMPS_BOTCH);
@@ -614,7 +614,7 @@ try_store_as_dbterm(Term t, Int argno, unsigned int arity, int level, compiler_s
   CACHE_REGS
   DBTerm *dbt;
   int g;
-  CELL *h0 = H;
+  CELL *h0 = HR;
 
   while ((g=Yap_SizeGroundTerm(t,TRUE)) < 0) {
     /* oops, too deep a term */
@@ -625,9 +625,9 @@ try_store_as_dbterm(Term t, Int argno, unsigned int arity, int level, compiler_s
   if (g < 16)
     return FALSE;
   /* store ground term away */
-  H = CellPtr(cglobs->cint.freep);
+  HR = CellPtr(cglobs->cint.freep);
   if ((dbt = Yap_StoreTermInDB(t, -1)) == NULL) {
-    H = h0;
+    HR = h0;
     switch(LOCAL_Error_TYPE) {
     case OUT_OF_STACK_ERROR:
       LOCAL_Error_TYPE = YAP_NO_ERROR;
@@ -645,7 +645,7 @@ try_store_as_dbterm(Term t, Int argno, unsigned int arity, int level, compiler_s
       siglongjmp(cglobs->cint.CompilerBotch,COMPILER_ERR_BOTCH);
     }
   }
-  H = h0;
+  HR = h0;
   if (level == 0)
     Yap_emit((cglobs->onhead ? get_dbterm_op : put_dbterm_op), dbt->Entry, argno, &cglobs->cint);
   else
@@ -1123,29 +1123,29 @@ c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal, Term mod, compiler
 	if (i2 == 0)
 	  c_eq(t1, t3, cglobs);
 	else {
-	  CELL *hi = H;
+	  CELL *hi = HR;
 	  Int i;
 
 	  if (t1 == TermDot && i2 == 2) {
-	    if (H+2 >= (CELL *)cglobs->cint.freep0) {
+	    if (HR+2 >= (CELL *)cglobs->cint.freep0) {
 	      /* oops, too many new variables */
 	      save_machine_regs();
 	      siglongjmp(cglobs->cint.CompilerBotch,OUT_OF_TEMPS_BOTCH);
 	    }
-	    RESET_VARIABLE(H);
-	    RESET_VARIABLE(H+1);
-	    H += 2;
-	    c_eq(AbsPair(H-2),t3, cglobs);
+	    RESET_VARIABLE(HR);
+	    RESET_VARIABLE(HR+1);
+	    HR += 2;
+	    c_eq(AbsPair(HR-2),t3, cglobs);
 	  } else if (i2 < 256 && IsAtomTerm(t1)) {
-	    *H++ = (CELL)Yap_MkFunctor(AtomOfTerm(t1),i2);
+	    *HR++ = (CELL)Yap_MkFunctor(AtomOfTerm(t1),i2);
 	    for (i=0; i < i2; i++) {
-	      if (H >= (CELL *)cglobs->cint.freep0) {
+	      if (HR >= (CELL *)cglobs->cint.freep0) {
 		/* oops, too many new variables */
 		save_machine_regs();
 		siglongjmp(cglobs->cint.CompilerBotch,OUT_OF_TEMPS_BOTCH);
 	      }
-	      RESET_VARIABLE(H);
-	      H++;	    
+	      RESET_VARIABLE(HR);
+	      HR++;	    
 	    }
 	    c_eq(AbsAppl(hi),t3, cglobs);
 	  } else {
@@ -1267,16 +1267,16 @@ c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal, Term mod, compiler
 	      save_machine_regs();
 	      siglongjmp(cglobs->cint.CompilerBotch,1);
 	    }
-	    if (H+1+arity >= (CELL *)cglobs->cint.freep0) {
+	    if (HR+1+arity >= (CELL *)cglobs->cint.freep0) {
 	      /* oops, too many new variables */
 	      save_machine_regs();
 	      siglongjmp(cglobs->cint.CompilerBotch,OUT_OF_TEMPS_BOTCH);
 	    }
-	    tnew = AbsAppl(H);
-	    *H++ = (CELL)Yap_MkFunctor(AtomOfTerm(t1),arity);
+	    tnew = AbsAppl(HR);
+	    *HR++ = (CELL)Yap_MkFunctor(AtomOfTerm(t1),arity);
 	    while (arity--) {
-	      RESET_VARIABLE(H);
-	      H++;
+	      RESET_VARIABLE(HR);
+	      HR++;
 	    }
 	    c_eq(tnew, t3, cglobs);
 	  } else {
@@ -1316,7 +1316,7 @@ c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal, Term mod, compiler
   if (!IsVarTerm(t3)) {
     if (Op == _arg) {
       Term tmpvar = MkVarTerm();
-      if (H == (CELL *)cglobs->cint.freep0) {
+      if (HR == (CELL *)cglobs->cint.freep0) {
 	/* oops, too many new variables */
 	save_machine_regs();
 	siglongjmp(cglobs->cint.CompilerBotch,OUT_OF_TEMPS_BOTCH);
@@ -1716,7 +1716,7 @@ c_goal(Term Goal, Term mod, compiler_struct *cglobs)
 	    cglobs->goalno = savegoalno;
 	    commitflag = cglobs->labelno;
 	    commitvar = MkVarTerm();
-	    if (H == (CELL *)cglobs->cint.freep0) {
+	    if (HR == (CELL *)cglobs->cint.freep0) {
 	      /* oops, too many new variables */
 	      save_machine_regs();
 	      siglongjmp(cglobs->cint.CompilerBotch,OUT_OF_TEMPS_BOTCH);
@@ -1800,7 +1800,7 @@ c_goal(Term Goal, Term mod, compiler_struct *cglobs)
       /* for now */
       cglobs->needs_env = TRUE;
       commitvar = MkVarTerm();
-      if (H == (CELL *)cglobs->cint.freep0) {
+      if (HR == (CELL *)cglobs->cint.freep0) {
 	/* oops, too many new variables */
 	save_machine_regs();
 	siglongjmp(cglobs->cint.CompilerBotch,OUT_OF_TEMPS_BOTCH);
@@ -1836,7 +1836,7 @@ c_goal(Term Goal, Term mod, compiler_struct *cglobs)
       int save = cglobs->onlast;
 
       commitvar = MkVarTerm();
-      if (H == (CELL *)cglobs->cint.freep0) {
+      if (HR == (CELL *)cglobs->cint.freep0) {
 	/* oops, too many new variables */
 	save_machine_regs();
 	siglongjmp(cglobs->cint.CompilerBotch,OUT_OF_TEMPS_BOTCH);
@@ -1963,7 +1963,7 @@ c_goal(Term Goal, Term mod, compiler_struct *cglobs)
 	}
 	else {
 	  Term t2 = MkVarTerm();
-	  if (H == (CELL *)cglobs->cint.freep0) {
+	  if (HR == (CELL *)cglobs->cint.freep0) {
 	    /* oops, too many new variables */
 	    save_machine_regs();
 	    siglongjmp(cglobs->cint.CompilerBotch,OUT_OF_TEMPS_BOTCH);
@@ -1976,7 +1976,7 @@ c_goal(Term Goal, Term mod, compiler_struct *cglobs)
       } else {
 	Term a2 = ArgOfTerm(2,Goal);
 	Term t1 = MkVarTerm();
-	if (H == (CELL *)cglobs->cint.freep0) {
+	if (HR == (CELL *)cglobs->cint.freep0) {
 	  /* oops, too many new variables */
 	  save_machine_regs();
 	  siglongjmp(cglobs->cint.CompilerBotch,OUT_OF_TEMPS_BOTCH);
@@ -1990,7 +1990,7 @@ c_goal(Term Goal, Term mod, compiler_struct *cglobs)
 	}
 	else {
 	  Term t2 = MkVarTerm();
-	  if (H == (CELL *)cglobs->cint.freep0) {
+	  if (HR == (CELL *)cglobs->cint.freep0) {
 	    /* oops, too many new variables */
 	    save_machine_regs();
 	    siglongjmp(cglobs->cint.CompilerBotch,OUT_OF_TEMPS_BOTCH);
@@ -3416,7 +3416,7 @@ Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod, volatile Term src)
     case OUT_OF_STACK_BOTCH:
       /* out of local stack, just duplicate the stack */
       {
-	Int osize = 2*sizeof(CELL)*(ASP-H);
+	Int osize = 2*sizeof(CELL)*(ASP-HR);
 	ARG1 = inp_clause;
 	ARG3 = src;
 
@@ -3425,8 +3425,8 @@ Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod, volatile Term src)
 	  LOCAL_Error_TYPE = OUT_OF_STACK_ERROR;
 	  LOCAL_Error_Term = inp_clause;
 	}
-	if (osize > ASP-H) {
-	  if (!Yap_growstack(2*sizeof(CELL)*(ASP-H))) {
+	if (osize > ASP-HR) {
+	  if (!Yap_growstack(2*sizeof(CELL)*(ASP-HR))) {
 	    LOCAL_Error_TYPE = OUT_OF_STACK_ERROR;
 	    LOCAL_Error_Term = inp_clause;
 	  }
@@ -3490,7 +3490,7 @@ Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod, volatile Term src)
     }
   }
   my_clause = inp_clause;
-  HB = H;
+  HB = HR;
   LOCAL_ErrorMessage = NULL;
   LOCAL_Error_Size = 0;
   LOCAL_Error_TYPE = YAP_NO_ERROR;
@@ -3503,7 +3503,7 @@ Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod, volatile Term src)
   cglobs.cint.label_offset = NULL;
   cglobs.cint.freep =
     cglobs.cint.freep0 =
-    (char *) (H + maxvnum+(sizeof(Int)/sizeof(CELL))*MaxTemps+MaxTemps);
+    (char *) (HR + maxvnum+(sizeof(Int)/sizeof(CELL))*MaxTemps+MaxTemps);
   cglobs.cint.success_handler = 0L;
   if (ASP <= CellPtr (cglobs.cint.freep) + 256) {
     cglobs.vtable = NULL;
@@ -3511,8 +3511,8 @@ Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod, volatile Term src)
     save_machine_regs();
     siglongjmp(cglobs.cint.CompilerBotch,3);
   }
-  cglobs.Uses = (Int *)(H+maxvnum);
-  cglobs.Contents = (Term *)(H+maxvnum+(sizeof(Int)/sizeof(CELL))*MaxTemps);
+  cglobs.Uses = (Int *)(HR+maxvnum);
+  cglobs.Contents = (Term *)(HR+maxvnum+(sizeof(Int)/sizeof(CELL))*MaxTemps);
   cglobs.curbranch = cglobs.onbranch = 0;
   cglobs.branch_pointer = cglobs.parent_branches;
   cglobs.or_found = FALSE;
@@ -3627,7 +3627,7 @@ Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod, volatile Term src)
     }
 
     reset_vars(cglobs.vtable);
-    H = HB;
+    HR = HB;
     if (B != NULL) {
       HB = B->cp_h;
     }

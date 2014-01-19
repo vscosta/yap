@@ -2756,10 +2756,10 @@ compile_index(struct intermediates *cint)
       siglongjmp(cint->CompilerBotch,2);
     }
   }
-  cint->freep = (char *)H;
+  cint->freep = (char *)HR;
 #else
   /* reserve double the space for compiler */
-  cint->cls = (ClauseDef *)H;
+  cint->cls = (ClauseDef *)HR;
   if (cint->cls+2*NClauses > (ClauseDef *)(ASP-4096)) {
     /* tell how much space we need */
     LOCAL_Error_Size += NClauses*sizeof(ClauseDef);
@@ -3809,7 +3809,7 @@ expand_index(struct intermediates *cint) {
       }
     }
 #else
-    cint->cls = (ClauseDef *)H;
+    cint->cls = (ClauseDef *)HR;
     if (cint->cls+2*nclauses > (ClauseDef *)(ASP-4096)) {
       /* tell how much space we need (worst case) */
       LOCAL_Error_Size += 2*NClauses*sizeof(ClauseDef);
@@ -3837,7 +3837,7 @@ expand_index(struct intermediates *cint) {
       }
     }
 #else
-    cint->cls = (ClauseDef *)H;
+    cint->cls = (ClauseDef *)HR;
     if (cint->cls+2*NClauses > (ClauseDef *)(ASP-4096)) {
       /* tell how much space we need (worst case) */
       LOCAL_Error_Size += 2*NClauses*sizeof(ClauseDef);
@@ -3866,7 +3866,7 @@ expand_index(struct intermediates *cint) {
     return labp;
   }
 #if USE_SYSTEM_MALLOC
-  cint->freep = (char *)H;
+  cint->freep = (char *)HR;
 #else
   cint->freep = (char *)(max+1);
 #endif
@@ -6056,7 +6056,7 @@ store_clause_choice_point(Term t1, Term tb, Term tr, yamop *ipc, PredEntry *pe, 
   tsp[3] = tb;
   tsp[4] = tr;
   bptr->cp_tr = TR;
-  HB = bptr->cp_h = H;
+  HB = bptr->cp_h = HR;
 #ifdef DEPTH_LIMIT
   bptr->cp_depth = DEPTH;
 #endif
@@ -6079,7 +6079,7 @@ update_clause_choice_point(yamop *ipc, yamop *ap_pc USES_REGS)
 {
   Term tpc = MkIntegerTerm((Int)ipc);
   B->cp_args[1] = tpc;
-  B->cp_h = H;
+  B->cp_h = HR;
   B->cp_ap = ap_pc;
 }
 

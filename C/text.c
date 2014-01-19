@@ -39,7 +39,7 @@ Globalize(Term v USES_REGS)
   if (!IsVarTerm(v = Deref(v))) {
     return v;
   }
-  if (VarOfTerm(v) > H && VarOfTerm(v) < LCL0) {
+  if (VarOfTerm(v) > HR && VarOfTerm(v) < LCL0) {
     Bind_Local(VarOfTerm(v), MkVarTerm());
     v = Deref(v);
   }
@@ -591,7 +591,7 @@ write_strings( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng
       char *cp = s, *buf;
 
       LOCAL_TERM_ERROR( 2*(lim-s) );
-      buf = buf_from_tstring(H);
+      buf = buf_from_tstring(HR);
       while (*cp && cp < lim) {
 	int chr;
 	cp = utf8_get_char(cp, &chr);
@@ -614,7 +614,7 @@ write_strings( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng
       char *buf;
 
       LOCAL_TERM_ERROR( 2*(lim-s) );
-      buf = buf_from_tstring(H);
+      buf = buf_from_tstring(HR);
       while (cp < lim) {
 	int chr;
 	cp = get_char(cp, &chr);
@@ -636,7 +636,7 @@ write_strings( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng
       char *buf;
 
       LOCAL_TERM_ERROR( 2*(lim-s) );
-      buf = buf_from_tstring(H);
+      buf = buf_from_tstring(HR);
       while (wp < lim) {
 	int chr;
 	wp = get_wchar(wp, &chr);
@@ -658,7 +658,7 @@ write_strings( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng
 static Term
 write_atoms( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng USES_REGS)
 {
-  Term t = AbsPair(H);
+  Term t = AbsPair(HR);
   size_t sz = 0;
   size_t min = 0, max = leng;
   if (out->type & (YAP_STRING_NCHARS|YAP_STRING_TRUNC)) {
@@ -677,9 +677,9 @@ write_atoms( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng U
 	int chr;
 	cp = utf8_get_char(cp, &chr);
 	w[0] = chr;
-	H[0] = MkAtomTerm(Yap_LookupMaybeWideAtom(w));
-	H[1] = AbsPair(H+2);
-	H += 2;
+	HR[0] = MkAtomTerm(Yap_LookupMaybeWideAtom(w));
+	HR[1] = AbsPair(HR+2);
+	HR += 2;
 	sz++;
 	if (sz == max) break;
       }
@@ -696,9 +696,9 @@ write_atoms( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng U
 	int chr;
 	cp = get_char(cp, &chr);
 	w[0] = chr;
-	H[0] = MkAtomTerm(Yap_LookupAtom(w));
-	H[1] = AbsPair(H+2);
-	H += 2;
+	HR[0] = MkAtomTerm(Yap_LookupAtom(w));
+	HR[1] = AbsPair(HR+2);
+	HR += 2;
 	sz++;
 	if (sz == max) break;
       }
@@ -715,26 +715,26 @@ write_atoms( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng U
 	int chr;
 	cp = get_wchar(cp, &chr);
 	w[0] = chr;
-	H[0] = MkAtomTerm(Yap_LookupMaybeWideAtom(w));
-	H[1] = AbsPair(H+2);
-	H += 2;
+	HR[0] = MkAtomTerm(Yap_LookupMaybeWideAtom(w));
+	HR[1] = AbsPair(HR+2);
+	HR += 2;
 	sz++;
 	if (sz == max) break;
       }
     }
   }
   while (sz < min) {
-    H[0] = MkAtomTerm(AtomEmptyAtom);
-    H[1] = AbsPair(H+2);
-    H += 2;
+    HR[0] = MkAtomTerm(AtomEmptyAtom);
+    HR[1] = AbsPair(HR+2);
+    HR += 2;
     sz++;
   }
   if (out->type & YAP_STRING_DIFF) {
     if (sz == 0) t = out->dif;
-    else H[-1] = Globalize(out->dif PASS_REGS);
+    else HR[-1] = Globalize(out->dif PASS_REGS);
   } else {
     if (sz == 0) t = TermNil;
-    else H[-1] = TermNil;
+    else HR[-1] = TermNil;
   } 
   out->val.t = t;
   return (t);
@@ -743,7 +743,7 @@ write_atoms( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng U
 static Term
 write_codes( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng USES_REGS)
 {
-  Term t = AbsPair(H);
+  Term t = AbsPair(HR);
   size_t min = 0, max = leng;
   size_t sz = 0;
 
@@ -760,9 +760,9 @@ write_codes( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng U
       while (*cp && cp < lim) {
 	int chr;
 	cp = utf8_get_char(cp, &chr);
-	H[0] = MkIntTerm(chr);
-	H[1] = AbsPair(H+2);
-	H += 2;
+	HR[0] = MkIntTerm(chr);
+	HR[1] = AbsPair(HR+2);
+	HR += 2;
 	sz++;
 	if (sz == max) break;
       }
@@ -776,9 +776,9 @@ write_codes( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng U
       while (cp < lim) {
 	int chr;
 	cp = get_char(cp, &chr);
-	H[0] = MkIntTerm(chr);
-	H[1] = AbsPair(H+2);
-	H += 2;
+	HR[0] = MkIntTerm(chr);
+	HR[1] = AbsPair(HR+2);
+	HR += 2;
 	sz++;
 	if (sz == max) break;
       }
@@ -792,26 +792,26 @@ write_codes( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng U
       while (cp < lim) {
 	int chr;
 	cp = get_wchar(cp, &chr);
-	H[0] = MkIntTerm(chr);
-	H[1] = AbsPair(H+2);
-	H += 2;
+	HR[0] = MkIntTerm(chr);
+	HR[1] = AbsPair(HR+2);
+	HR += 2;
 	sz++;
 	if (sz == max) break;
       }
     }
   }
   while (sz < min) {
-    H[0] = MkIntTerm(MkIntTerm(0));
-    H[1] = AbsPair(H+2);
-    H += 2;
+    HR[0] = MkIntTerm(MkIntTerm(0));
+    HR[1] = AbsPair(HR+2);
+    HR += 2;
     sz++;
   }
   if (out->type & YAP_STRING_DIFF) {
     if (sz == 0) t = out->dif;
-    else H[-1] = Globalize(out->dif PASS_REGS);
+    else HR[-1] = Globalize(out->dif PASS_REGS);
   } else {
     if (sz == 0) t = TermNil;
-    else H[-1] = TermNil;
+    else HR[-1] = TermNil;
   } 
   out->val.t = t;
   return (t);
@@ -821,10 +821,9 @@ write_codes( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng U
 static Atom
 write_atom( void *s0, seq_tv_t *out, encoding_t enc, int minimal, size_t leng USES_REGS)
 {
-  size_t min = 0, max = leng;
+  size_t max = leng;
   if (out->type & (YAP_STRING_NCHARS|YAP_STRING_TRUNC)) {
-    if (out->type & YAP_STRING_NCHARS) min = out->sz;
-    if (out->type & YAP_STRING_TRUNC && out->max < max) max = out->max;
+     if (out->type & YAP_STRING_TRUNC && out->max < max) max = out->max;
   }
   
   switch (enc) {
@@ -1162,7 +1161,7 @@ concat( int n, seq_tv_t *out, void *sv[], encoding_t encv[], size_t lengv[] USES
   if (out->type == YAP_STRING_STRING) {
     /* we assume we concatenate strings only, or ASCII stuff like numbers */
     Term t = init_tstring( PASS_REGS1  );
-    char *buf = buf_from_tstring(H);
+    char *buf = buf_from_tstring(HR);
     int i;
     for (i = 0; i < n; i++) {
       if (encv[i] == YAP_WCHAR) {
@@ -1182,7 +1181,7 @@ concat( int n, seq_tv_t *out, void *sv[], encoding_t encv[], size_t lengv[] USES
     *buf ++ = '\0';
     close_tstring( buf  PASS_REGS );
     out->val.t = t;
-    return H;
+    return HR;
   } else {
     encoding_t enc = YAP_CHAR;
     size_t sz = 0;
@@ -1196,7 +1195,7 @@ concat( int n, seq_tv_t *out, void *sv[], encoding_t encv[], size_t lengv[] USES
     }
     if (enc == YAP_WCHAR) {
       /* wide atom */
-      wchar_t *buf = (wchar_t *)H;
+      wchar_t *buf = (wchar_t *)HR;
       Atom at;
       Term t = ARG1;
       LOCAL_ERROR( sz+3 );
@@ -1216,11 +1215,11 @@ concat( int n, seq_tv_t *out, void *sv[], encoding_t encv[], size_t lengv[] USES
 	}
       }
       *buf++ = '\0';
-      at = out->val.a = Yap_LookupWideAtom((wchar_t *)H);
+      at = out->val.a = Yap_LookupWideAtom((wchar_t *)HR);
       return at;
     } else {
       /* atom */
-      char *buf = (char *)H;
+      char *buf = (char *)HR;
       Atom at;
       Term t = ARG1;
 
@@ -1231,7 +1230,7 @@ concat( int n, seq_tv_t *out, void *sv[], encoding_t encv[], size_t lengv[] USES
 	while ( (chr = *ptr++) != '\0' ) *buf++ = chr;
       }
       *buf++ = '\0';
-      at = out->val.a = Yap_LookupAtom((char *)H);
+      at = out->val.a = Yap_LookupAtom((char *)HR);
       return at;
     }
   }
@@ -1244,7 +1243,7 @@ slice( size_t min, size_t max, void *buf, seq_tv_t *out, encoding_t enc USES_REG
   if (out->type == YAP_STRING_STRING) {
     /* we assume we concatenate strings only, or ASCII stuff like numbers */
     Term t = init_tstring( PASS_REGS1  );
-    char *nbuf = buf_from_tstring(H);
+    char *nbuf = buf_from_tstring(HR);
     if (enc == YAP_WCHAR) {
       wchar_t *ptr = (wchar_t *)buf + min;
       int chr;
@@ -1268,7 +1267,7 @@ slice( size_t min, size_t max, void *buf, seq_tv_t *out, encoding_t enc USES_REG
      /* atom */
     if (enc == YAP_WCHAR) {
       /* wide atom */
-      wchar_t *nbuf = (wchar_t *)H;
+      wchar_t *nbuf = (wchar_t *)HR;
       Term t = TermNil;
       wchar_t *ptr = (wchar_t *)buf + min;
       if (max>min) {
@@ -1279,7 +1278,7 @@ slice( size_t min, size_t max, void *buf, seq_tv_t *out, encoding_t enc USES_REG
       at = Yap_LookupMaybeWideAtom( nbuf );
     } else if (enc == YAP_CHAR) {
       /*  atom */
-      char *nbuf = (char *)H;
+      char *nbuf = (char *)HR;
       
       if (max>min) {
 	Term t = TermNil;
@@ -1291,7 +1290,7 @@ slice( size_t min, size_t max, void *buf, seq_tv_t *out, encoding_t enc USES_REG
       at = Yap_LookupAtom( nbuf );
     } else {
       /*  atom */
-      wchar_t *nbuf = (wchar_t *)H;
+      wchar_t *nbuf = (wchar_t *)HR;
       Term t = ARG1;
       const char *ptr = utf8_skip ( (const char *)buf, min );
       int chr;
@@ -1299,7 +1298,7 @@ slice( size_t min, size_t max, void *buf, seq_tv_t *out, encoding_t enc USES_REG
       LOCAL_ERROR( max-min );
       while ( min++ < max ) { ptr = utf8_get_char(ptr, & chr); *nbuf++ = chr; }
       nbuf[0] = '\0';
-      at = Yap_LookupMaybeWideAtom( (wchar_t*)H );
+      at = Yap_LookupMaybeWideAtom( (wchar_t*)HR );
     }
     out->val.a = at;
     return at->StrOfAE;

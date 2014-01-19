@@ -39,46 +39,6 @@ free_read_data(ReadData _PL_rd)
 { 
 }
 
-static void
-ptr_to_location(const unsigned char *here, source_location *pos, ReadData _PL_rd)
-{ unsigned char const *s, *ll = NULL;
-  int c;
-
-  *pos = _PL_rd->start_of_term;
-
-						/* update line number */
-  for(s=rdbase; s<here; s = utf8_get_uchar(s, &c))
-  { pos->position.charno++;
-
-    if ( c == '\n' )
-    { pos->position.lineno++;
-      ll = s+1;
-    }
-  }
-						/* update line position */
-  if ( ll )
-  { s = ll;
-    pos->position.linepos = 0;
-  } else
-  { s = rdbase;
-  }
-
-  for(; s<here; s++)
-  { switch(*s)
-    { case '\b':
-	if ( pos->position.linepos > 0 )
-	  pos->position.linepos--;
-      break;
-    case '\t':
-      pos->position.linepos |= 7;		/* TBD: set tab distance */
-    default:
-      pos->position.linepos++;
-    }
-  }
-
-  pos->position.byteno = 0;			/* we do not know */
-}
-
 static int 
 read_term(term_t t, ReadData _PL_rd ARG_LD)
 {

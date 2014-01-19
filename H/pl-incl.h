@@ -573,6 +573,7 @@ extern void PL_cleanup_fork(void);
 extern int PL_rethrow(void);
 extern void PL_get_number(term_t l, number *n);
 extern int PL_unify_atomic(term_t t, PL_atomic_t a);
+extern int PL_unify_termv(term_t l, va_list args);
 extern int _PL_unify_atomic(term_t t, PL_atomic_t a);
 extern int _PL_unify_string(term_t t, word w);
 
@@ -881,6 +882,32 @@ extern void unallocStream(IOSTREAM *s);
 
 extern atom_t accessLevel(void);
 int currentBreakLevel(void);
+
+#ifdef __WINDOWS__
+int hasConsole(void);
+int PL_wait_for_console_input(void *handle);
+void PlMessage(const char *fm, ...);
+const char *WinError(void);
+word pl_win_exec(term_t cmd, term_t how);
+foreign_t pl_win_module_file(term_t module, term_t file);
+
+#ifdef EMULATE_DLOPEN
+	/* file is in UTF-8, POSIX path */
+void *dlopen(const char *file, int flags);
+const char *dlerror(void);
+void *dlsym(void *handle, char *symbol);
+int dlclose(void *handle);
+#endif
+
+int ms_snprintf(char *buffer, size_t count, const char *fmt, ...);
+void getDefaultsFromRegistry(void);
+
+DWORD RunSilent(const char* strCommand);
+FILE *pt_popen(const char *cmd, const char *mode);
+int pt_pclose(FILE *fd);
+
+int PL_w32thread_raise(DWORD id, int sig);
+#endif
 
 extern const PL_extension PL_predicates_from_ctype[];
 extern const PL_extension PL_predicates_from_file[];

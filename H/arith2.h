@@ -77,7 +77,7 @@ mul_overflow(Int z, Int i1, Int i2)
 #ifndef OPTIMIZE_MULTIPLI
 #if __clang__ && FALSE  /* not in OSX yet */
 #define DO_MULTI() if (__builtin_smul_overflow( i1, i2, & z ) ) { goto overflow; }
-#elif  SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
+#elif  SIZEOF_DOUBLE == 2*SIZEOF_INT_P
 #define DO_MULTI() {\
   int64_t w = (int64_t)i1*i2; \
   if (w >= 0) {\

@@ -36,7 +36,7 @@ p_setarg( USES_REGS1 )
   Int i;
 
   if (IsVarTerm(t3) &&
-      VarOfTerm(t3) > H &&VarOfTerm(t3) < ASP) {
+      VarOfTerm(t3) > HR &&VarOfTerm(t3) < ASP) {
     /* local variable */
     Term tn = MkVarTerm();
     Bind_Local(VarOfTerm(t3), tn);
@@ -124,17 +124,17 @@ NewTimedVar(CELL val USES_REGS)
   Term out;
   timed_var *tv;
   if (IsVarTerm(val) &&
-      VarOfTerm(val) > H) {
+      VarOfTerm(val) > HR) {
     Term nval = MkVarTerm();
     Bind_Local(VarOfTerm(val), nval);
     val = nval;
   }
-  out = AbsAppl(H);
-  *H++ = (CELL)FunctorMutable;
-  tv = (timed_var *)H;
+  out = AbsAppl(HR);
+  *HR++ = (CELL)FunctorMutable;
+  tv = (timed_var *)HR;
   RESET_VARIABLE(&(tv->clock));
   tv->value = val;
-  H += sizeof(timed_var)/sizeof(CELL);
+  HR += sizeof(timed_var)/sizeof(CELL);
   return(out);
 }
 
@@ -149,13 +149,13 @@ Term
 Yap_NewEmptyTimedVar( void )
 {
   CACHE_REGS
-  Term out = AbsAppl(H);
+  Term out = AbsAppl(HR);
   timed_var *tv;
-  *H++ = (CELL)FunctorMutable;
-  tv = (timed_var *)H;
+  *HR++ = (CELL)FunctorMutable;
+  tv = (timed_var *)HR;
   RESET_VARIABLE(&(tv->clock));
   RESET_VARIABLE(&(tv->value));
-  H += sizeof(timed_var)/sizeof(CELL);
+  HR += sizeof(timed_var)/sizeof(CELL);
   return(out);
 }
 
@@ -181,7 +181,7 @@ UpdateTimedVar(Term inv, Term new USES_REGS)
   CELL t = tv->value;
   CELL* timestmp = (CELL *)(tv->clock);
   if (IsVarTerm(new) &&
-      VarOfTerm(new) > H) {
+      VarOfTerm(new) > HR) {
     Term nnew = MkVarTerm();
     Bind_Local(VarOfTerm(new), nnew);
     new = nnew;
@@ -200,9 +200,9 @@ UpdateTimedVar(Term inv, Term new USES_REGS)
 #endif
       tv->value = new;
   } else {
-    Term nclock = (Term)H;
+    Term nclock = (Term)HR;
     MaBind(&(tv->value), new);
-    *H++ = TermFoundVar;
+    *HR++ = TermFoundVar;
     MaBind(&(tv->clock), nclock);
   }
   return(t);

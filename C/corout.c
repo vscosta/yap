@@ -60,7 +60,7 @@ static int can_unify_complex(register CELL *pt0,
   saved_TR = TR;
   saved_B = B;
   saved_HB = HB;
-  HB = H;
+  HB = HR;
 
  loop:
   while (pt0 < pt0_end) {

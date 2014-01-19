@@ -634,15 +634,15 @@ p_univ( USES_REGS1 )
     }
   build_compound:
     /* build the term directly on the heap */
-    Ar = H;
-    H++;
+    Ar = HR;
+    HR++;
     
     while (!IsVarTerm(twork) && IsPairTerm(twork)) {
-      *H++ = HeadOfTerm(twork);
-      if (H > ASP - 1024) {
+      *HR++ = HeadOfTerm(twork);
+      if (HR > ASP - 1024) {
 	/* restore space */
-	H = Ar;
-	if (!Yap_gcl((ASP-H)*sizeof(CELL), 2, ENV, gc_P(P,CP))) {
+	HR = Ar;
+	if (!Yap_gcl((ASP-HR)*sizeof(CELL), 2, ENV, gc_P(P,CP))) {
 	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
 	  return FALSE;
 	}
@@ -671,11 +671,11 @@ p_univ( USES_REGS1 )
 			   arity, CellPtr(TR));
     }
 #else
-    arity = H-Ar-1;
+    arity = HR-Ar-1;
     if (at == AtomDot && arity == 2) {
       Ar[0] = Ar[1];
       Ar[1] = Ar[2];
-      H --;
+      HR --;
       twork = AbsPair(Ar);
     } else {      
       *Ar = (CELL)(Yap_MkFunctor(at, arity));
@@ -716,7 +716,7 @@ p_univ( USES_REGS1 )
     } else
 #endif
       {
-	while (H+arity*2 > ASP-1024) {
+	while (HR+arity*2 > ASP-1024) {
 	  if (!Yap_gcl((arity*2)*sizeof(CELL), 2, ENV, gc_P(P,CP))) {
 	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
 	    return(FALSE);
@@ -1301,7 +1301,7 @@ Yap_show_statistics(void)
 	     frag);
   fprintf(GLOBAL_stderr, "Stack Space: %ld (%ld for Global, %ld for local).\n", 
 	     (unsigned long int)(sizeof(CELL)*(LCL0-H0)),
-	     (unsigned long int)(sizeof(CELL)*(H-H0)),
+	     (unsigned long int)(sizeof(CELL)*(HR-H0)),
 	     (unsigned long int)(sizeof(CELL)*(LCL0-ASP)));
   fprintf(GLOBAL_stderr, "Trail Space: %ld (%ld used).\n", 
 	     (unsigned long int)(sizeof(tr_fr_ptr)*(Unsigned(LOCAL_TrailTop)-Unsigned(LOCAL_TrailBase))),
@@ -1376,7 +1376,7 @@ GlobalMax(void)
   CELL *pt;
 
   if (GlobalTide != StkWidth) {
-    pt = H;
+    pt = HR;
     while (pt+2 < ASP) {
       if (pt[0] == 0 &&
 	  pt[1] == 0 &&
@@ -1419,7 +1419,7 @@ LocalMax(void)
 
   if (LocalTide != StkWidth) {
     pt = LCL0;
-    while (pt-3 > H) {
+    while (pt-3 > HR) {
       if (pt[-1] == 0 &&
 	  pt[-2] == 0 &&
 	  pt[-3] == 0)
@@ -1427,7 +1427,7 @@ LocalMax(void)
       else
 	--pt;
     }
-    if (pt-3 > H)
+    if (pt-3 > HR)
       i = Unsigned(LCL0) - Unsigned(pt);
     else
       /* so that both Local and Global have reached maximum width */
@@ -1477,7 +1477,7 @@ static Int
 p_statistics_stacks_info( USES_REGS1 )
 {
   Term tmax = MkIntegerTerm(Unsigned(LCL0) - Unsigned(H0));
-  Term tgusage = MkIntegerTerm(Unsigned(H) - Unsigned(H0));
+  Term tgusage = MkIntegerTerm(Unsigned(HR) - Unsigned(H0));
   Term tlusage = MkIntegerTerm(Unsigned(LCL0) - Unsigned(ASP));
 
   return(Yap_unify(tmax, ARG1) && Yap_unify(tgusage,ARG2) && Yap_unify(tlusage,ARG3));

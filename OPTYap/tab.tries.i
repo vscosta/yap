@@ -18,7 +18,7 @@
 #ifdef MODE_GLOBAL_TRIE_ENTRY
 #define INCREMENT_GLOBAL_TRIE_REFERENCE(ENTRY)                                                          \
         { register gt_node_ptr entry_node = (gt_node_ptr) (ENTRY);                                      \
- 	  TrNode_child(entry_node) = (gt_node_ptr) ((unsigned long int) TrNode_child(entry_node) + 1);  \
+ 	  TrNode_child(entry_node) = (gt_node_ptr) ((UInt) TrNode_child(entry_node) + 1);  \
 	}
 #define NEW_SUBGOAL_TRIE_NODE(NODE, ENTRY, CHILD, PARENT, NEXT)        \
         INCREMENT_GLOBAL_TRIE_REFERENCE(ENTRY);                        \

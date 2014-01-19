@@ -220,7 +220,7 @@ static void init_reg_copies(USES_REGS1)
   LOCAL_OldLCL0 = LCL0;
   LOCAL_OldTR = TR;
   LOCAL_OldGlobalBase = (CELL *)LOCAL_GlobalBase;
-  LOCAL_OldH = H;
+  LOCAL_OldH = HR;
   LOCAL_OldH0 = H0;
   LOCAL_OldTrailBase = LOCAL_TrailBase;
   LOCAL_OldTrailTop = LOCAL_TrailTop;
@@ -319,7 +319,7 @@ mark_global_cell(CELL *pt)
     /* skip bitmaps */
     switch(reg) {
     case (CELL)FunctorDouble:
-#if SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
+#if SIZEOF_DOUBLE == 2*SIZEOF_INT_P
       return pt + 4;
 #else
       return pt + 3;
@@ -378,7 +378,7 @@ mark_global(USES_REGS1)
    * the code 
    */
   pt = H0;
-  while (pt < H) {
+  while (pt < HR) {
     pt = mark_global_cell(pt);
   }
 }

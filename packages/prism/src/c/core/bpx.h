@@ -14,7 +14,7 @@
 
 typedef void *SYM_REC_PTR;
 
-#define heap_top H
+#define heap_top HR
 #define local_top ASP
 #define trail_top TR
 #define trail_up_addr ((tr_fr_ptr)LCL0)
@@ -168,7 +168,7 @@ INLINE_ONLY extern inline int is_IDENTICAL(TERM t1, TERM t2)
 
 #define float_psc ((YAP_Functor)FunctorDouble)
 
-#define NEW_HEAP_FREE   (*H = (CELL)H); H++
+#define NEW_HEAP_FREE   (*HR = (CELL)HR); HR++
 
 #define nil_sym   YAP_TermNil()
 

@@ -527,14 +527,14 @@ push_live_regs(yamop *pco)
   CELL *lab = (CELL *)(pco->u.l.l);
   CELL max = lab[0];
   CELL curr = lab[1];
-  CELL *start = H;
+  CELL *start = HR;
   Int tot = 0;
 
   if (max) {
     CELL i;
 
     lab += 2;
-    H++;
+    HR++;
     for (i=0; i <= max; i++) {
       if (i == 8*CellSize) {
 	curr = lab[0];
@@ -544,29 +544,29 @@ push_live_regs(yamop *pco)
 	CELL d1;
 
 	tot+=2;
-	H[0] = MkIntTerm(i);
+	HR[0] = MkIntTerm(i);
 	d1 = XREGS[i];
 	deref_head(d1, wake_up_unk);
       wake_up_nonvar:
 	/* just copy it to the heap */
-	H[1] = d1;
-	H += 2;
+	HR[1] = d1;
+	HR += 2;
 	continue;
 
 	{
 	  CELL *pt0;
 	  deref_body(d1, pt0, wake_up_unk, wake_up_nonvar);
 	  /* bind it, in case it is a local variable */
-	  if (pt0 <= H) {
+	  if (pt0 <= HR) {
 	    /* variable is safe */
-	    H[1] = (CELL)pt0;
+	    HR[1] = (CELL)pt0;
 	  } else {
-	    d1 = Unsigned(H+1);
-	    RESET_VARIABLE(H+1);
+	    d1 = Unsigned(HR+1);
+	    RESET_VARIABLE(HR+1);
 	    Bind_Local(pt0, d1);
 	  }
 	}
-	H += 2;
+	HR += 2;
       }
       curr >>= 1;
     }
@@ -623,7 +623,7 @@ check_alarm_fail_int(int CONT USES_REGS)
 static int
 stack_overflow( CELL *env, yamop *cp USES_REGS )
 {
-  if ((Int)(Unsigned(YREG) - Unsigned(H)) < StackGap( PASS_REGS1 ) ||
+  if ((Int)(Unsigned(YREG) - Unsigned(HR)) < StackGap( PASS_REGS1 ) ||
       LOCAL_ActiveSignals & YAP_STOVF_SIGNAL) {
     LOCAL_ActiveSignals &= ~YAP_STOVF_SIGNAL;
     if (!Yap_gc(((PredEntry *)(S))->ArityOfPE, env, cp)) {
@@ -668,12 +668,12 @@ interrupt_handler( USES_REGS1 )
   BEGD(d0);
   d0 = pe->ArityOfPE;
   if (d0 == 0) {
-    H[1] = MkAtomTerm((Atom) pe->FunctorOfPred);
+    HR[1] = MkAtomTerm((Atom) pe->FunctorOfPred);
   }
   else {
-    H[d0 + 2] = AbsAppl(H);
-    *H = (CELL) pe->FunctorOfPred;
-    H++;
+    HR[d0 + 2] = AbsAppl(HR);
+    *HR = (CELL) pe->FunctorOfPred;
+    HR++;
     BEGP(pt1);
     pt1 = XREGS + 1;
     for (; d0 > 0; --d0) {
@@ -685,20 +685,20 @@ interrupt_handler( USES_REGS1 )
     creep_nonvar:
       /* just copy it to the heap */
       pt1++;
-      *H++ = d1;
+      *HR++ = d1;
       continue;
 
       derefa_body(d1, pt0, creep_unk, creep_nonvar);
-      if (pt0 <= H) {
+      if (pt0 <= HR) {
 	/* variable is safe */
-	*H++ = (CELL)pt0;
+	*HR++ = (CELL)pt0;
 	pt1++;
       } else {
 	/* bind it, in case it is a local variable */
-	d1 = Unsigned(H);
-	RESET_VARIABLE(H);
+	d1 = Unsigned(HR);
+	RESET_VARIABLE(HR);
 	pt1++;
-	H += 1;
+	HR += 1;
 	Bind_Local(pt0, d1);
       }
       ENDP(pt0);
@@ -707,10 +707,10 @@ interrupt_handler( USES_REGS1 )
     ENDP(pt1);
   }
   ENDD(d0);
-  H[0] = Yap_Module_Name(pe);
-  ARG1 = (Term) AbsPair(H);
+  HR[0] = Yap_Module_Name(pe);
+  ARG1 = (Term) AbsPair(HR);
 
-  H += 2;
+  HR += 2;
   LOCK(LOCAL_SignalLock);
 #ifdef COROUTINING
   if (LOCAL_ActiveSignals & YAP_WAKEUP_SIGNAL) {
@@ -749,7 +749,7 @@ interrupt_handlerc( USES_REGS1 )
   { 
     choiceptr top_b = PROTECT_FROZEN_B(B);
 #ifdef YAPOR_SBA
-    if (YENV > (CELL *) top_b || YENV < H) YENV = (CELL *) top_b;
+    if (YENV > (CELL *) top_b || YENV < HR) YENV = (CELL *) top_b;
 #else
     if (YENV > (CELL *) top_b) YENV = (CELL *) top_b;
 #endif /* YAPOR_SBA */
@@ -777,7 +777,7 @@ interrupt_handler_either( USES_REGS1 )
   { 
     choiceptr top_b = PROTECT_FROZEN_B(B);
 #ifdef YAPOR_SBA
-    if (YENV > (CELL *) top_b || YENV < H) YENV = (CELL *) top_b;
+    if (YENV > (CELL *) top_b || YENV < HR) YENV = (CELL *) top_b;
 #else
     if (YENV > (CELL *) top_b) YENV = (CELL *) top_b;
 #endif /* YAPOR_SBA */
@@ -2524,7 +2524,7 @@ Yap_absmi(int inp)
 	Int sz =  PREG->u.Osbpa.i; 
 	UInt arity = PREG->u.Osbpa.p->ArityOfPE;
 	
-	if (Unsigned(H) + sz > Unsigned(YREG)-StackGap( PASS_REGS1 )) {
+	if (Unsigned(HR) + sz > Unsigned(YREG)-StackGap( PASS_REGS1 )) {
 	  YENV[E_CP] = (CELL) CPREG;
 	  YENV[E_E] = (CELL) ENV;
 #ifdef DEPTH_LIMIT
@@ -2725,7 +2725,7 @@ Yap_absmi(int inp)
       }      
 #ifdef COROUTINING
       CACHE_Y_AS_ENV(YREG);
-      check_stack(NoStackFail, H);
+      check_stack(NoStackFail, HR);
       ENDCACHE_Y_AS_ENV();
 #endif
 
@@ -2925,7 +2925,7 @@ Yap_absmi(int inp)
 	      goto failloop;
 	    } else
 #endif /* FROZEN_STACKS */
-	      if (IN_BETWEEN(H0,pt1,H)) {
+	      if (IN_BETWEEN(H0,pt1,HR)) {
 		if (IsAttVar(pt1)) {
 		  goto failloop;	
 		} else if (*pt1 == (CELL)FunctorBigInt) {
@@ -3097,7 +3097,7 @@ Yap_absmi(int inp)
       Op(cut, s);
 #ifdef COROUTINING
       CACHE_Y_AS_ENV(YREG);
-      check_stack(NoStackCut, H);
+      check_stack(NoStackCut, HR);
       ENDCACHE_Y_AS_ENV();
     do_cut:
 #endif
@@ -3121,7 +3121,7 @@ Yap_absmi(int inp)
       Op(cut_t, s);
 #ifdef COROUTINING
       CACHE_Y_AS_ENV(YREG);
-      check_stack(NoStackCutT, H);
+      check_stack(NoStackCutT, HR);
       ENDCACHE_Y_AS_ENV();
     do_cut_t:
 #endif
@@ -3144,7 +3144,7 @@ Yap_absmi(int inp)
       Op(cut_e, s);
 #ifdef COROUTINING
       CACHE_Y_AS_ENV(YREG);
-      check_stack(NoStackCutE, H);
+      check_stack(NoStackCutE, HR);
       ENDCACHE_Y_AS_ENV();
     do_cut_e:
 #endif
@@ -3191,7 +3191,7 @@ Yap_absmi(int inp)
       Op(commit_b_x, xps);
 #ifdef COROUTINING
       CACHE_Y_AS_ENV(YREG);
-      check_stack(NoStackCommitX, H);
+      check_stack(NoStackCommitX, HR);
       ENDCACHE_Y_AS_ENV();
     do_commit_b_x:
 #endif
@@ -3234,7 +3234,7 @@ Yap_absmi(int inp)
       Op(commit_b_y, yps);
 #ifdef COROUTINING
       CACHE_Y_AS_ENV(YREG);
-      check_stack(NoStackCommitY, H);
+      check_stack(NoStackCommitY, HR);
       ENDCACHE_Y_AS_ENV();
     do_commit_b_y:
 #endif
@@ -3285,7 +3285,7 @@ Yap_absmi(int inp)
 	CACHE_Y_AS_ENV(YREG);
 	pt0 = PREG->u.pp.p;
 #ifndef NO_CHECKING
-	check_stack(NoStackExecute, H);
+	check_stack(NoStackExecute, HR);
 	goto skip_do_execute;
 #endif
       do_execute:
@@ -3342,7 +3342,7 @@ Yap_absmi(int inp)
 	pt0 = PREG->u.pp.p;
 #ifndef NO_CHECKING
 	/* check stacks */
-	check_stack(NoStackDExecute, H);
+	check_stack(NoStackDExecute, HR);
 	goto skip_dexecute;
 #endif
       continue_dexecute:
@@ -3370,7 +3370,7 @@ Yap_absmi(int inp)
 	{ 
 	  choiceptr top_b = PROTECT_FROZEN_B(B);
 #ifdef YAPOR_SBA
-	  if (ENV_YREG > (CELL *) top_b || ENV_YREG < H) ENV_YREG = (CELL *) top_b;
+	  if (ENV_YREG > (CELL *) top_b || ENV_YREG < HR) ENV_YREG = (CELL *) top_b;
 #else
 	  if (ENV_YREG > (CELL *) top_b) ENV_YREG = (CELL *) top_b;
 #endif /* YAPOR_SBA */
@@ -3419,7 +3419,7 @@ Yap_absmi(int inp)
 	CACHE_A1();
 	pt = PREG->u.Osbpp.p;
 #ifndef NO_CHECKING
-	check_stack(NoStackCall, H);
+	check_stack(NoStackCall, HR);
 	goto skip_call;
 #endif
       call_body:
@@ -3449,7 +3449,7 @@ Yap_absmi(int inp)
 	{ 
 	  choiceptr top_b = PROTECT_FROZEN_B(B);
 #ifdef YAPOR_SBA
-	  if (ENV_YREG > (CELL *) top_b || ENV_YREG < H) ENV_YREG = (CELL *) top_b;
+	  if (ENV_YREG > (CELL *) top_b || ENV_YREG < HR) ENV_YREG = (CELL *) top_b;
 #else
 	  if (ENV_YREG > (CELL *) top_b) ENV_YREG = (CELL *) top_b;
 #endif /* YAPOR_SBA */
@@ -3520,7 +3520,7 @@ Yap_absmi(int inp)
       { 
 	choiceptr top_b = PROTECT_FROZEN_B(B);
 #ifdef YAPOR_SBA
-	if (ENV_YREG > (CELL *) top_b || ENV_YREG < H) ENV_YREG = (CELL *) top_b;
+	if (ENV_YREG > (CELL *) top_b || ENV_YREG < HR) ENV_YREG = (CELL *) top_b;
 #else
 	if (ENV_YREG > (CELL *) top_b) ENV_YREG = (CELL *) top_b;
 #endif /* YAPOR_SBA */
@@ -3535,7 +3535,7 @@ Yap_absmi(int inp)
       WRITEBACK_Y_AS_ENV();
 #ifndef NO_CHECKING
       /* check stacks */
-      check_stack(NoStackDeallocate, H);
+      check_stack(NoStackDeallocate, HR);
 #endif
       ENDCACHE_Y_AS_ENV();
       GONext();
@@ -3621,7 +3621,7 @@ Yap_absmi(int inp)
           store_yaam_reg_cpdepth(ccp);
           ccp->cp_tr = TR;
           ccp->cp_ap = BEAM_RETRY_CODE;
-          ccp->cp_h  = H;
+          ccp->cp_h  = HR;
           ccp->cp_b  = B;
           ccp->cp_env= ENV;
           ccp->cp_cp = CPREG;
@@ -4316,15 +4316,15 @@ Yap_absmi(int inp)
       /* glist var */
       /* enter write mode */
       CACHE_S();
-      S_SREG = H;
+      S_SREG = HR;
       START_PREFETCH_W(x);
       PREG = NEXTOP(PREG, x);
       BEGD(d0);
       d0 = AbsPair(S_SREG);
       Bind(pt0, d0);
-      S_SREG = H;
+      S_SREG = HR;
       /* don't put an ENDD just after a label */
-      H = S_SREG + 2;
+      HR = S_SREG + 2;
       ENDD(d0);
       WRITEBACK_S(S_SREG);
       GONextW();
@@ -4367,20 +4367,20 @@ Yap_absmi(int inp)
       /* set d1 to be the new structure we are going to create */
       START_PREFETCH_W(xfa);
       BEGD(d1);
-      d1 = AbsAppl(H);
+      d1 = AbsAppl(HR);
       Bind(pt0, d1);
       /* now, set pt0 to point to the heap where we are going to
        * build our term */
-      pt0 = H;
+      pt0 = HR;
       ENDD(d1);
       /* first, put the functor */
       d0 = (CELL) (PREG->u.xfa.f);
       *pt0++ = d0;
-      H = pt0 + PREG->u.xfa.a;
+      HR = pt0 + PREG->u.xfa.a;
       PREG = NEXTOP(PREG, xfa);
       /* set SREG */
       SREG = pt0;
-      /* update H */
+      /* update HR */
       GONextW();
       END_PREFETCH_W();
       ENDP(pt0);
@@ -4670,7 +4670,7 @@ Yap_absmi(int inp)
       deref_body(d0, pt0, glist_valx_write, glist_valx_read);
       CACHE_S();
       /* enter write mode */
-      S_SREG = H;
+      S_SREG = HR;
       BEGD(d1);
       d1 = XREG(PREG->u.xx.xr);
       d0 = AbsPair(S_SREG);
@@ -4678,7 +4678,7 @@ Yap_absmi(int inp)
       ENDD(d1);
       ALWAYS_START_PREFETCH_W(xx);
       PREG = NEXTOP(PREG, xx);
-      H = S_SREG + 2;
+      HR = S_SREG + 2;
       WRITEBACK_S(S_SREG+1);
       Bind(pt0, d0);
       ALWAYS_GONextW();
@@ -4759,7 +4759,7 @@ Yap_absmi(int inp)
       /* enter write mode */
       START_PREFETCH_W(yx);
       BEGP(pt1);
-      pt1 = H;
+      pt1 = HR;
       d0 = AbsPair(pt1);
       Bind(pt0, d0);
       BEGD(d0);
@@ -4767,7 +4767,7 @@ Yap_absmi(int inp)
       d0 = YREG[PREG->u.yx.y];
       pt1[0] = d0;
       ENDD(d0);
-      H = pt1 + 2;
+      HR = pt1 + 2;
       SREG = pt1 + 1;
       ENDP(pt1);
       PREG = NEXTOP(PREG, yx);
@@ -4801,13 +4801,13 @@ Yap_absmi(int inp)
       deref_body(d0, pt0, glist_void_varx_write, glist_void_varx_read);
       /* enter write mode */
       BEGP(pt1);
-      pt1 = H;
+      pt1 = HR;
       /* include XREG on it */
       XREG(PREG->u.xx.xr) =
 	Unsigned(pt1 + 1);
       RESET_VARIABLE(pt1);
       RESET_VARIABLE(pt1+1);
-      H = pt1 + 2;
+      HR = pt1 + 2;
       BEGD(d0);
       d0 = AbsPair(pt1);
       Bind(pt0, d0);
@@ -4840,14 +4840,14 @@ Yap_absmi(int inp)
       deref_body(d0, pt0, glist_void_vary_write, glist_void_vary_read);
       /* enter write mode */
       BEGP(pt1);
-      pt1 = H;
+      pt1 = HR;
       /* include XREG on it */
       INITIALIZE_PERMVAR(YREG+PREG->u.yx.y,Unsigned(pt1 + 1));
       PREG = NEXTOP(PREG, yx);
       RESET_VARIABLE(pt1);
       RESET_VARIABLE(pt1+1);
       d0 = AbsPair(pt1);
-      H = pt1 + 2;
+      HR = pt1 + 2;
       Bind(pt0, d0);
       GONext();
       ENDP(pt1);
@@ -4920,16 +4920,16 @@ Yap_absmi(int inp)
       deref_body(d0, pt0, glist_void_valx_write, glist_void_valx_read);
       /* enter write mode */
       BEGP(pt1);
-      pt1 = H;
+      pt1 = HR;
       d0 = AbsPair(pt1);
       Bind(pt0, d0);
-      pt1 = H;
+      pt1 = HR;
       BEGD(d0);
       /* include XREG on it */
       d0 = XREG(PREG->u.xx.xr);
       RESET_VARIABLE(pt1);
       pt1[1] = d0;
-      H = pt1 + 2;
+      HR = pt1 + 2;
       ENDD(d0);
       ENDP(pt1);
       PREG = NEXTOP(PREG, xx);
@@ -5004,10 +5004,10 @@ Yap_absmi(int inp)
       deref_body(d0, pt0, glist_void_valy_write, glist_void_valy_read);
       /* enter write mode */
       CACHE_S();
-      S_SREG = H;
+      S_SREG = HR;
       d0 = AbsPair(S_SREG);
       Bind(pt0, d0);
-      S_SREG = H;
+      S_SREG = HR;
       /* include XREG on it */
       BEGD(d1);
       d1 = YREG[PREG->u.yx.y];
@@ -5015,7 +5015,7 @@ Yap_absmi(int inp)
       S_SREG[1] = d1;
       ENDD(d1);
       PREG = NEXTOP(PREG, yx);
-      H = S_SREG + 2;
+      HR = S_SREG + 2;
       ENDCACHE_S();
       GONext();
       ENDP(pt0);
@@ -5588,7 +5588,7 @@ Yap_absmi(int inp)
       /* move ahead in the instructions */
       PREG = NEXTOP(PREG, ox);
       /* d0 is a variable, check whether we need to globalise it */
-      if (pt0 < H) {
+      if (pt0 < HR) {
 	/* variable is global */
 	*SREG++ = Unsigned(pt0);
 	GONextW();
@@ -5673,7 +5673,7 @@ Yap_absmi(int inp)
       deref_body(d0, pt0, ulnify_x_loc_unk, ulnify_x_loc_nonvar);
       /* d0 is a variable, check whether we need to globalise it */
       PREG = NEXTOP(PREG, ox);
-      if (pt0 < H) {
+      if (pt0 < HR) {
 	/* variable is global */
 	SREG[0] = Unsigned(pt0);
 	GONext();
@@ -5764,7 +5764,7 @@ Yap_absmi(int inp)
       derefa_body(d0, pt0, unify_y_loc_unk, unify_y_loc_nonvar);
       /* d0 is a variable, check whether we need to globalise it */
       PREG = NEXTOP(PREG, oy);
-      if (pt0 < H) {
+      if (pt0 < HR) {
 	/* variable is global */
 	*SREG++ = Unsigned(pt0);
 	GONextW();
@@ -5855,7 +5855,7 @@ Yap_absmi(int inp)
       derefa_body(d0, pt0, ulunify_y_loc_unk, ulunify_y_loc_nonvar);
       /* d0 is a variable, check whether we need to globalise it */
       PREG = NEXTOP(PREG, oy);
-      if (pt0 < H) {
+      if (pt0 < HR) {
 	/* variable is global */
 	SREG[0] = Unsigned(pt0);
 	GONext();
@@ -6468,9 +6468,9 @@ Yap_absmi(int inp)
       START_PREFETCH_W(o);
       CACHE_S();
       READ_IN_S();
-      S_SREG = H;
+      S_SREG = HR;
       PREG = NEXTOP(PREG, o);
-      H = S_SREG + 2;
+      HR = S_SREG + 2;
       d0 = AbsPair(S_SREG);
       WRITEBACK_S(S_SREG);
       ENDCACHE_S();
@@ -6486,15 +6486,15 @@ Yap_absmi(int inp)
       OpW(unify_list_write, o);
       PREG = NEXTOP(PREG, o);
       BEGD(d0);
-      d0 = AbsPair(H);
+      d0 = AbsPair(HR);
       CACHE_S();
       READ_IN_S();
       SP -= 2;
       SP[0] = WRITE_MODE;
       SP[1] = Unsigned(S_SREG + 1);
       S_SREG[0] = d0;
-      S_SREG = H;
-      H = S_SREG + 2;
+      S_SREG = HR;
+      HR = S_SREG + 2;
       WRITEBACK_S(S_SREG);
       ENDCACHE_S();
       GONextW();
@@ -6524,8 +6524,8 @@ Yap_absmi(int inp)
       PREG = NEXTOP(PREG, o);
       CACHE_S();
       READ_IN_S();
-      S_SREG = H;
-      H = S_SREG + 2;
+      S_SREG = HR;
+      HR = S_SREG + 2;
       d0 = AbsPair(S_SREG);
       WRITEBACK_S(S_SREG);
       ENDCACHE_S();
@@ -6540,13 +6540,13 @@ Yap_absmi(int inp)
       OpW(unify_l_list_write, o);
       /* we continue in write mode */
       BEGD(d0);
-      d0 = AbsPair(H);
+      d0 = AbsPair(HR);
       PREG = NEXTOP(PREG, o);
       CACHE_S();
       READ_IN_S();
       S_SREG[0] = d0;
-      S_SREG = H;
-      H = S_SREG + 2;
+      S_SREG = HR;
+      HR = S_SREG + 2;
       WRITEBACK_S(S_SREG);
       ENDCACHE_S();
       GONextW();
@@ -6587,17 +6587,17 @@ Yap_absmi(int inp)
       START_PREFETCH_W(ofa);
       /* set d1 to be the new structure we are going to create */
       BEGD(d1);
-      d1 = AbsAppl(H);
+      d1 = AbsAppl(HR);
       /* we know the variable must be in the heap */
       Bind_Global(pt0, d1);
       /* now, set pt0 to point to the heap where we are going to
        * build our term */
-      pt0 = H;
+      pt0 = HR;
       ENDD(d1);
       /* first, put the functor */
       d0 = (CELL) (PREG->u.ofa.f);
       *pt0++ = d0;
-      H = pt0 + PREG->u.ofa.a;
+      HR = pt0 + PREG->u.ofa.a;
       PREG = NEXTOP(PREG, ofa);
       /* set SREG */
       SREG = pt0;
@@ -6617,12 +6617,12 @@ Yap_absmi(int inp)
       *--SP = WRITE_MODE;
       /* we continue in write mode */
       BEGD(d0);
-      d0 = AbsAppl(H);
+      d0 = AbsAppl(HR);
       S_SREG[0] = d0;
-      S_SREG = H;
+      S_SREG = HR;
       d0 = (CELL) (PREG->u.ofa.f);
       *S_SREG++ = d0;
-      H = S_SREG + PREG->u.ofa.a;
+      HR = S_SREG + PREG->u.ofa.a;
       PREG = NEXTOP(PREG, ofa);
       WRITEBACK_S(S_SREG);
       ENDCACHE_S();
@@ -6658,17 +6658,17 @@ Yap_absmi(int inp)
       /* set d1 to be the new structure we are going to create */
       START_PREFETCH_W(ofa);
       BEGD(d1);
-      d1 = AbsAppl(H);
+      d1 = AbsAppl(HR);
       /* we know the variable must be in the heap */
       Bind_Global(pt0, d1);
       /* now, set pt0 to point to the heap where we are going to
        * build our term */
-      pt0 = H;
+      pt0 = HR;
       ENDD(d1);
       /* first, put the functor */
       d0 = (CELL) (PREG->u.ofa.f);
       *pt0++ = d0;
-      H = pt0 + PREG->u.ofa.a;
+      HR = pt0 + PREG->u.ofa.a;
       PREG = NEXTOP(PREG, ofa);
       /* set SREG */
       SREG = pt0;
@@ -6682,14 +6682,14 @@ Yap_absmi(int inp)
 
       OpW(unify_l_struc_write, ofa);
       BEGD(d0);
-      d0 = AbsAppl(H);
+      d0 = AbsAppl(HR);
       CACHE_S();
       READ_IN_S();
       S_SREG[0] = d0;
-      S_SREG = H;
+      S_SREG = HR;
       d0 = (CELL) (PREG->u.ofa.f);
       *S_SREG++ = d0;
-      H = S_SREG + PREG->u.ofa.a;
+      HR = S_SREG + PREG->u.ofa.a;
       PREG = NEXTOP(PREG, ofa);
       WRITEBACK_S(S_SREG);
       ENDCACHE_S();
@@ -6704,9 +6704,9 @@ Yap_absmi(int inp)
 
       Op(put_x_var, xx);
       BEGP(pt0);
-      pt0 = H;
+      pt0 = HR;
       XREG(PREG->u.xx.xl) = Unsigned(pt0);
-      H = pt0 + 1;
+      HR = pt0 + 1;
       XREG(PREG->u.xx.xr) = Unsigned(pt0);
       PREG = NEXTOP(PREG, xx);
       RESET_VARIABLE(pt0);
@@ -6806,7 +6806,7 @@ Yap_absmi(int inp)
 
       derefa_body(d0, pt0, punsafe_unk, punsafe_nonvar);
       /* d0 is a variable, check whether we need to globalise it */
-      if (pt0 <= H || pt0 >= YREG) {
+      if (pt0 <= HR || pt0 >= YREG) {
 	/* variable is safe */
 	XREG(PREG->u.yx.x) = Unsigned(pt0);
 	PREG = NEXTOP(PREG, yx);
@@ -6814,10 +6814,10 @@ Yap_absmi(int inp)
       }
       else {
 	/* create a new Heap variable and bind our variable to it */
-	Bind_Local(pt0, Unsigned(H));
-	XREG(PREG->u.yx.x) = (CELL) H;
-	RESET_VARIABLE(H);
-	H++;
+	Bind_Local(pt0, Unsigned(HR));
+	XREG(PREG->u.yx.x) = (CELL) HR;
+	RESET_VARIABLE(HR);
+	HR++;
 	PREG = NEXTOP(PREG, yx);
 	GONext();
       }
@@ -6873,8 +6873,8 @@ Yap_absmi(int inp)
       Op(put_list, x);
       CACHE_S();
       READ_IN_S();
-      S_SREG = H;
-      H += 2;
+      S_SREG = HR;
+      HR += 2;
       BEGD(d0);
       d0 = AbsPair(S_SREG);
       XREG(PREG->u.x.x) = d0;
@@ -6887,12 +6887,12 @@ Yap_absmi(int inp)
 
       Op(put_struct, xfa);
       BEGD(d0);
-      d0 = AbsAppl(H);
+      d0 = AbsAppl(HR);
       XREG(PREG->u.xfa.x) = d0;
       d0 = (CELL) (PREG->u.xfa.f);
-      *H++ = d0;
-      SREG = H;
-      H += PREG->u.xfa.a;
+      *HR++ = d0;
+      SREG = HR;
+      HR += PREG->u.xfa.a;
       ENDD(d0);
       PREG = NEXTOP(PREG, xfa);
       GONext();
@@ -6958,9 +6958,9 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, w_x_unk, w_x_bound);
 #if defined(YAPOR_SBA) && defined(FROZEN_STACKS)
-      if (pt0 > H && pt0<(CELL *)B_FZ) {
+      if (pt0 > HR && pt0<(CELL *)B_FZ) {
 #else
-      if (pt0 > H) {
+      if (pt0 > HR) {
 #endif /* YAPOR_SBA && FROZEN_STACKS */
 	/* local variable: let us bind it to the list */
 #ifdef FROZEN_STACKS  /* TRAIL */
@@ -7007,7 +7007,7 @@ Yap_absmi(int inp)
       GONext();
 
       derefa_body(d0, pt0, w_y_unk, w_y_bound);
-      if (pt0 > H
+      if (pt0 > HR
 #if defined(YAPOR_SBA) && defined(FROZEN_STACKS)
 	  && pt0<(CELL *)B_FZ
 #endif /* YAPOR_SBA && FROZEN_STACKS */
@@ -7092,14 +7092,14 @@ Yap_absmi(int inp)
 
       Op(write_list, e);
       BEGD(d0);
-      d0 = AbsPair(H);
+      d0 = AbsPair(HR);
       *SREG++ = d0;
       /* I will not actually store the mode in the stack */
       SP[-1] = Unsigned(SREG);
       SP[-2] = 1;		/* Put instructions follow the main stream */
       SP -= 2;
-      SREG = H;
-      H += 2;
+      SREG = HR;
+      HR += 2;
       ENDD(d0);
       PREG = NEXTOP(PREG, e);
       GONext();
@@ -7111,10 +7111,10 @@ Yap_absmi(int inp)
       BEGD(d0);
       CACHE_S();
       READ_IN_S();
-      d0 = AbsPair(H);
+      d0 = AbsPair(HR);
       *S_SREG = d0;
-      WRITEBACK_S(H);
-      H += 2;
+      WRITEBACK_S(HR);
+      HR += 2;
       ENDCACHE_S();
       ENDD(d0);
       ALWAYS_GONext();
@@ -7123,35 +7123,35 @@ Yap_absmi(int inp)
 
       Op(write_struct, fa);
       BEGD(d0);
-      d0 = AbsAppl(H);
+      d0 = AbsAppl(HR);
       *SREG++ = d0;
       SP[-1] = Unsigned(SREG);
       SP[-2] = 1;		/* Put instructions follow the main stream */
       SP -= 2;
       d0 = (CELL) (PREG->u.fa.f);
-      *H++ = d0;
+      *HR++ = d0;
       ENDD(d0);
       BEGD(d0);
       d0 = PREG->u.fa.a;
       PREG = NEXTOP(PREG, fa);
-      SREG = H;
-      H += d0;
+      SREG = HR;
+      HR += d0;
       ENDD(d0);
       GONext();
       ENDOp();
 
       Op(write_l_struc, fa);
       BEGD(d0);
-      d0 = AbsAppl(H);
+      d0 = AbsAppl(HR);
       *SREG = d0;
       d0 = (CELL) (PREG->u.fa.f);
-      *H++ = d0;
-      SREG = H;
+      *HR++ = d0;
+      SREG = HR;
       ENDD(d0);
       BEGD(d0);
       d0 = PREG->u.fa.a;
       PREG = NEXTOP(PREG, fa);
-      H += d0;
+      HR += d0;
       ENDD(d0);
       GONext();
       ENDOp();
@@ -7246,7 +7246,7 @@ Yap_absmi(int inp)
 #endif
 #ifdef COROUTINING
       CACHE_Y_AS_ENV(YREG);
-      check_stack(NoStackEither, H);
+      check_stack(NoStackEither, HR);
       ENDCACHE_Y_AS_ENV();
       either_notest:
 #endif
@@ -7259,7 +7259,7 @@ Yap_absmi(int inp)
       { 
 	choiceptr top_b = PROTECT_FROZEN_B(B);
 #ifdef YAPOR_SBA
-	if (pt1 > top_b || pt1 < (choiceptr)H) pt1 = top_b;
+	if (pt1 > top_b || pt1 < (choiceptr)HR) pt1 = top_b;
 #else
 	if (pt1 > top_b) pt1 = top_b;
 #endif /* YAPOR_SBA */
@@ -7291,7 +7291,7 @@ Yap_absmi(int inp)
       ENDOp();
 
       Op(or_else, Osblp);
-      H = HBREG = PROTECT_FROZEN_H(B);
+      HR = HBREG = PROTECT_FROZEN_H(B);
       ENV = B->cp_env;
       B->cp_cp = PREG;
 #ifdef DEPTH_LIMIT
@@ -7318,7 +7318,7 @@ Yap_absmi(int inp)
       pt0 = B;
 #ifdef YAPOR
       if (SCH_top_shared_cp(B)) {
-	H = HBREG = PROTECT_FROZEN_H(pt0);
+	HR = HBREG = PROTECT_FROZEN_H(pt0);
 	YREG = (CELL *) pt0->cp_a1;
 	ENV = pt0->cp_env;
 #ifdef DEPTH_LIMIT
@@ -7330,7 +7330,7 @@ Yap_absmi(int inp)
 #endif	/* YAPOR */
       {
 	B = pt0->cp_b;
-	H = PROTECT_FROZEN_H(pt0);
+	HR = PROTECT_FROZEN_H(pt0);
 	YREG = (CELL *) pt0->cp_a1;
 	ENV = pt0->cp_env;
 #ifdef DEPTH_LIMIT
@@ -7408,7 +7408,7 @@ Yap_absmi(int inp)
       if (!(PREG->u.Osbpp.p->PredFlags & (SafePredFlag)) &&
 	  !(PREG->u.Osbpp.p0->ExtraPredFlags & (NoDebugPredFlag))) {
 	CACHE_Y_AS_ENV(YREG);
-	check_stack(NoStackCCall, H);
+	check_stack(NoStackCCall, HR);
 	ENDCACHE_Y_AS_ENV();
       }
       do_c_call:
@@ -7417,7 +7417,7 @@ Yap_absmi(int inp)
 	choiceptr top_b = PROTECT_FROZEN_B(B);
 
 #ifdef YAPOR_SBA
-	if (YREG > (CELL *) top_b || YREG < H) ASP = (CELL *)top_b;
+	if (YREG > (CELL *) top_b || YREG < HR) ASP = (CELL *)top_b;
 #else
 	if (YREG > (CELL *) top_b) ASP = (CELL *)top_b;
 #endif /* YAPOR_SBA */
@@ -7461,7 +7461,7 @@ Yap_absmi(int inp)
 	BEGD(d0);
 	CACHE_Y_AS_ENV(YREG);
 #ifndef NO_CHECKING
-	check_stack(NoStackExecuteC, H);
+	check_stack(NoStackExecuteC, HR);
       do_executec:
 #endif
 #ifdef FROZEN_STACKS
@@ -7469,7 +7469,7 @@ Yap_absmi(int inp)
 	  choiceptr top_b = PROTECT_FROZEN_B(B);
 
 #ifdef YAPOR_SBA
-	  if (YREG > (CELL *) top_b || YREG < H) ASP = (CELL *)top_b;
+	  if (YREG > (CELL *) top_b || YREG < HR) ASP = (CELL *)top_b;
 #else
 	  if (YREG > (CELL *) top_b) ASP = (CELL *)top_b;
 #endif /* YAPOR_SBA */
@@ -7545,7 +7545,7 @@ Yap_absmi(int inp)
       /* restored */
       BOp(call_usercpred, Osbpp);
       CACHE_Y_AS_ENV(YREG);
-      check_stack(NoStackUserCall, H);
+      check_stack(NoStackUserCall, HR);
       ENDCACHE_Y_AS_ENV();
       do_user_call:
 #ifdef LOW_LEVEL_TRACER
@@ -7557,7 +7557,7 @@ Yap_absmi(int inp)
       { 
 	choiceptr top_b = PROTECT_FROZEN_B(B);
 #ifdef YAPOR_SBA
-	if (YREG > (CELL *) top_b || YREG < H) ASP = (CELL *) top_b;
+	if (YREG > (CELL *) top_b || YREG < HR) ASP = (CELL *) top_b;
 #else
 	if (YREG > (CELL *) top_b) ASP = (CELL *) top_b;
 #endif /* YAPOR_SBA */
@@ -7616,7 +7616,7 @@ Yap_absmi(int inp)
       { 
 	choiceptr top_b = PROTECT_FROZEN_B(B);
 #ifdef YAPOR_SBA
-	if (YREG > (CELL *) top_b || YREG < H) ASP = (CELL *) top_b;
+	if (YREG > (CELL *) top_b || YREG < HR) ASP = (CELL *) top_b;
 #else
 	if (YREG > (CELL *) top_b) ASP = (CELL *) top_b;
 #endif /* YAPOR_SBA */
@@ -7717,11 +7717,11 @@ Yap_absmi(int inp)
       CACHE_Y(B);
       CPREG = B_YREG->cp_cp;
       ENV = B_YREG->cp_env;
-      H = PROTECT_FROZEN_H(B);
+      HR = PROTECT_FROZEN_H(B);
 #ifdef DEPTH_LIMIT
       DEPTH =B->cp_depth;
 #endif
-      HBREG = H;
+      HBREG = HR;
       restore_args(PREG->u.OtapFs.s);
       ENDCACHE_Y();
       goto TRYCC;
@@ -7788,11 +7788,11 @@ Yap_absmi(int inp)
       CACHE_Y(B);
       CPREG = B_YREG->cp_cp;
       ENV = B_YREG->cp_env;
-      H = PROTECT_FROZEN_H(B);
+      HR = PROTECT_FROZEN_H(B);
 #ifdef DEPTH_LIMIT
       DEPTH =B->cp_depth;
 #endif
-      HBREG = H;
+      HBREG = HR;
       restore_args(PREG->u.OtapFs.s);
       ENDCACHE_Y();
 
@@ -8038,12 +8038,12 @@ Yap_absmi(int inp)
 	d0 = pe->ArityOfPE;
 	UNLOCKPE(19,pe);
 	if (d0 == 0) {
-	  H[1] = MkAtomTerm((Atom)(pe->FunctorOfPred));
+	  HR[1] = MkAtomTerm((Atom)(pe->FunctorOfPred));
 	}
 	else {
-	  H[d0 + 2] = AbsAppl(H);
-	  *H = (CELL) pe->FunctorOfPred;
-	  H++;
+	  HR[d0 + 2] = AbsAppl(HR);
+	  *HR = (CELL) pe->FunctorOfPred;
+	  HR++;
 	  BEGP(pt1);
 	  pt1 = XREGS + 1;
 	  for (; d0 > 0; --d0) {
@@ -8054,18 +8054,18 @@ Yap_absmi(int inp)
 	    deref_head(d1, undef_unk);
 	  undef_nonvar:
 	    /* just copy it to the heap */
-	    *H++ = d1;
+	    *HR++ = d1;
 	    continue;
 
 	    derefa_body(d1, pt0, undef_unk, undef_nonvar);
-	    if (pt0 <= H) {
+	    if (pt0 <= HR) {
 	      /* variable is safe */
-	      *H++ = (CELL)pt0;
+	      *HR++ = (CELL)pt0;
 	    } else {
 	      /* bind it, in case it is a local variable */
-	      d1 = Unsigned(H);
-	      RESET_VARIABLE(H);
-	      H += 1;
+	      d1 = Unsigned(HR);
+	      RESET_VARIABLE(HR);
+	      HR += 1;
 	      Bind_Local(pt0, d1);
 	    }
 	    ENDP(pt0);
@@ -8074,9 +8074,9 @@ Yap_absmi(int inp)
 	  ENDP(pt1);
 	}
 	ENDD(d0);
-	H[0] = Yap_Module_Name(pe);
-	ARG1 = (Term) AbsPair(H);
-	H += 2;
+	HR[0] = Yap_Module_Name(pe);
+	ARG1 = (Term) AbsPair(HR);
+	HR += 2;
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace)
 	low_level_trace(enter_pred,UndefCode,XREGS+1);
@@ -8149,11 +8149,11 @@ Yap_absmi(int inp)
 	d0 = pe->ArityOfPE;
 	/* save S for ModuleName */
 	if (d0 == 0) {
-	  H[1] = MkAtomTerm((Atom)(pe->FunctorOfPred));
+	  HR[1] = MkAtomTerm((Atom)(pe->FunctorOfPred));
 	} else {
-	  *H = (CELL) pe->FunctorOfPred;
-	  H[d0 + 2] = AbsAppl(H);
-	  H++;
+	  *HR = (CELL) pe->FunctorOfPred;
+	  HR[d0 + 2] = AbsAppl(HR);
+	  HR++;
 	  BEGP(pt1);
 	  pt1 = XREGS + 1;
 	  for (; d0 > 0; --d0) {
@@ -8164,18 +8164,18 @@ Yap_absmi(int inp)
 	    deref_head(d1, dospy_unk);
 	  dospy_nonvar:
 	    /* just copy it to the heap */
-	    *H++ = d1;
+	    *HR++ = d1;
 	    continue;
 	    
 	    derefa_body(d1, pt0, dospy_unk, dospy_nonvar);
-	    if (pt0 <= H) {
+	    if (pt0 <= HR) {
 	      /* variable is safe */
-	      *H++ = (CELL)pt0;
+	      *HR++ = (CELL)pt0;
 	    } else {
 	      /* bind it, in case it is a local variable */
-	      d1 = Unsigned(H);
-	      RESET_VARIABLE(H);
-	      H += 1;
+	      d1 = Unsigned(HR);
+	      RESET_VARIABLE(HR);
+	      HR += 1;
 	      Bind_Local(pt0, d1);
 	    }
 	    ENDP(pt0);
@@ -8184,10 +8184,10 @@ Yap_absmi(int inp)
 	  ENDP(pt1);
 	}
 	ENDD(d0);
-	H[0] = Yap_Module_Name(pe);
+	HR[0] = Yap_Module_Name(pe);
       }
-      ARG1 = (Term) AbsPair(H);
-      H += 2;
+      ARG1 = (Term) AbsPair(HR);
+      HR += 2;
       {
 	PredEntry *pt0;
 #ifdef THREADS
@@ -11722,9 +11722,9 @@ Yap_absmi(int inp)
 	/* make B and HB point to H to guarantee all bindings will
 	 * be trailed
 	 */
-	HBREG = H;
-	B = (choiceptr) H;
-	B->cp_h = H;
+	HBREG = HR;
+	B = (choiceptr) HR;
+	B->cp_h = HR;
 	SET_BB(B);
 	save_hb();
 	opresult = Yap_IUnify(d0, d1);
@@ -11739,7 +11739,7 @@ Yap_absmi(int inp)
 	B = pt1;
 	SET_BB(PROTECT_FROZEN_B(pt1));
 #ifdef COROUTINING
-	H = HBREG;
+	HR = HBREG;
 #endif
 	HBREG = B->cp_h;
 	/* untrail all bindings made by Yap_IUnify */
@@ -11968,10 +11968,10 @@ Yap_absmi(int inp)
       Op(p_arg_vv, xxx);
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
-	H[0] = XREG(PREG->u.xxx.x1);
-	H[1] = XREG(PREG->u.xxx.x2);
-	RESET_VARIABLE(H+2);
-	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorArg,0)),H);
+	HR[0] = XREG(PREG->u.xxx.x1);
+	HR[1] = XREG(PREG->u.xxx.x2);
+	RESET_VARIABLE(HR+2);
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorArg,0)),HR);
       }
 #endif	/* LOW_LEVEL_TRACE */
       BEGD(d0);
@@ -12070,13 +12070,13 @@ Yap_absmi(int inp)
       Op(p_arg_cv, xxn);
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
-	CELL *Ho = H;
+	CELL *Ho = HR;
 	Term t = MkIntegerTerm(PREG->u.xxn.c); 
-	H[0] =  t;
-	H[1] = XREG(PREG->u.xxn.xi);
-	RESET_VARIABLE(H+2);
-	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorArg,0)),H);
-	H = Ho;
+	HR[0] =  t;
+	HR[1] = XREG(PREG->u.xxn.xi);
+	RESET_VARIABLE(HR+2);
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorArg,0)),HR);
+	HR = Ho;
       }
 #endif	/* LOW_LEVEL_TRACE */
       BEGD(d0);
@@ -12154,11 +12154,11 @@ Yap_absmi(int inp)
       Op(p_arg_y_vv, yxx);
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
-	H[0] = XREG(PREG->u.yxx.x1);
-	H[1] = XREG(PREG->u.yxx.x2);
-	H[2] = YREG[PREG->u.yxx.y];
-	RESET_VARIABLE(H+2);
-	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorArg,0)),H);
+	HR[0] = XREG(PREG->u.yxx.x1);
+	HR[1] = XREG(PREG->u.yxx.x2);
+	HR[2] = YREG[PREG->u.yxx.y];
+	RESET_VARIABLE(HR+2);
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorArg,0)),HR);
       }
 #endif	/* LOW_LEVEL_TRACE */
       BEGD(d0);
@@ -12263,14 +12263,14 @@ Yap_absmi(int inp)
       Op(p_arg_y_cv, yxn);
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
-	CELL *Ho = H;
+	CELL *Ho = HR;
 	Term t = MkIntegerTerm(PREG->u.yxn.c); 
-	H[0] =  t;
-	H[1] = XREG(PREG->u.yxn.xi);
-	H[2] = YREG[PREG->u.yxn.y];
-	RESET_VARIABLE(H+2);
-	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorArg,0)),H);
-	H = Ho;
+	HR[0] =  t;
+	HR[1] = XREG(PREG->u.yxn.xi);
+	HR[2] = YREG[PREG->u.yxn.y];
+	RESET_VARIABLE(HR+2);
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorArg,0)),HR);
+	HR = Ho;
       }
 #endif	/* LOW_LEVEL_TRACE */
       BEGD(d0);
@@ -12356,10 +12356,10 @@ Yap_absmi(int inp)
     restart_func2s:
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
-	RESET_VARIABLE(H);
-	H[1] = XREG(PREG->u.xxx.x1);
-	H[2] = XREG(PREG->u.xxx.x2);
-	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),H);
+	RESET_VARIABLE(HR);
+	HR[1] = XREG(PREG->u.xxx.x1);
+	HR[2] = XREG(PREG->u.xxx.x2);
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),HR);
       }
 #endif	/* LOW_LEVEL_TRACE */
       /* We have to build the structure */
@@ -12394,10 +12394,10 @@ Yap_absmi(int inp)
       /* We made it!!!!! we got in d0 the name, in d1 the arity and
        * in pt0 the variable to bind it to. */
       if (d0 == TermDot && d1 == 2) {
-	RESET_VARIABLE(H);
-	RESET_VARIABLE(H+1);
-	d0 = AbsPair(H);
-	H += 2;
+	RESET_VARIABLE(HR);
+	RESET_VARIABLE(HR+1);
+	d0 = AbsPair(HR);
+	HR += 2;
 	/* else if arity is 0 just pass d0 through */
 	/* Ding, ding, we made it */
 	XREG(PREG->u.xxx.x) = d0;
@@ -12418,9 +12418,9 @@ Yap_absmi(int inp)
 	}
 	else
 	  d0 = (CELL) Yap_MkFunctor(AtomOfTerm(d0), (Int) d1);
-	pt1 = H;
+	pt1 = HR;
 	*pt1++ = d0;
-	d0 = AbsAppl(H);
+	d0 = AbsAppl(HR);
 	if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
 	  /* make sure we have something to show for our trouble */
 	  saveregs();
@@ -12437,7 +12437,7 @@ Yap_absmi(int inp)
 	  RESET_VARIABLE(pt1);
 	  pt1++;
 	}
-	H = pt1;
+	HR = pt1;
 	/* done building the term */
 	ENDP(pt1);
 	/* else if arity is 0 just pass d0 through */
@@ -12482,10 +12482,10 @@ Yap_absmi(int inp)
     restart_func2s_cv:
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
-	RESET_VARIABLE(H);
-	H[1] = PREG->u.xxc.c;
-	H[2] = XREG(PREG->u.xxc.xi);
-	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),H);
+	RESET_VARIABLE(HR);
+	HR[1] = PREG->u.xxc.c;
+	HR[2] = XREG(PREG->u.xxc.xi);
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),HR);
       }
 #endif	/* LOW_LEVEL_TRACE */
       BEGD(d0);
@@ -12512,10 +12512,10 @@ Yap_absmi(int inp)
       /* We made it!!!!! we got in d0 the name, in d1 the arity and
        * in pt0 the variable to bind it to. */
       if (d0 == TermDot && d1 == 2) {
-	RESET_VARIABLE(H);
-	RESET_VARIABLE(H+1);
-	d0 = AbsPair(H);
-	H += 2;
+	RESET_VARIABLE(HR);
+	RESET_VARIABLE(HR+1);
+	d0 = AbsPair(HR);
+	HR += 2;
 	/* else if arity is 0 just pass d0 through */
 	/* Ding, ding, we made it */
 	XREG(PREG->u.xxc.x) = d0;
@@ -12535,9 +12535,9 @@ Yap_absmi(int inp)
 	}
 	else
 	  d0 = (CELL) Yap_MkFunctor(AtomOfTerm(d0), (Int) d1);
-	pt1 = H;
+	pt1 = HR;
 	*pt1++ = d0;
-	d0 = AbsAppl(H);
+	d0 = AbsAppl(HR);
 	if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
 	  /* make sure we have something to show for our trouble */
 	  saveregs();
@@ -12555,7 +12555,7 @@ Yap_absmi(int inp)
 	  pt1++;
 	}
 	/* done building the term */
-	H = pt1;
+	HR = pt1;
 	ENDP(pt1);
 	/* else if arity is 0 just pass d0 through */
 	/* Ding, ding, we made it */
@@ -12591,14 +12591,14 @@ Yap_absmi(int inp)
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
 	Term ti;
-	CELL *hi = H;
+	CELL *hi = HR;
 
 	ti = MkIntegerTerm(PREG->u.xxn.c);
-	RESET_VARIABLE(H);
-	H[1] = XREG(PREG->u.xxn.xi);
-	H[2] = ti;
-	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),H);
-	H = hi;
+	RESET_VARIABLE(HR);
+	HR[1] = XREG(PREG->u.xxn.xi);
+	HR[2] = ti;
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),HR);
+	HR = hi;
       }
 #endif	/* LOW_LEVEL_TRACE */
       /* We have to build the structure */
@@ -12617,10 +12617,10 @@ Yap_absmi(int inp)
       /* We made it!!!!! we got in d0 the name, in d1 the arity and
        * in pt0 the variable to bind it to. */
       if (d0 == TermDot && d1 == 2) {
-	RESET_VARIABLE(H);
-	RESET_VARIABLE(H+1);
-	d0 = AbsPair(H);
-	H += 2;
+	RESET_VARIABLE(HR);
+	RESET_VARIABLE(HR+1);
+	d0 = AbsPair(HR);
+	HR += 2;
 	/* else if arity is 0 just pass d0 through */
 	/* Ding, ding, we made it */
 	XREG(PREG->u.xxn.x) = d0;
@@ -12645,9 +12645,9 @@ Yap_absmi(int inp)
       }
       else
 	d0 = (CELL) Yap_MkFunctor(AtomOfTerm(d0), (Int) d1);
-      pt1 = H;
+      pt1 = HR;
       *pt1++ = d0;
-      d0 = AbsAppl(H);
+      d0 = AbsAppl(HR);
       if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
 	/* make sure we have something to show for our trouble */
 	saveregs();
@@ -12665,7 +12665,7 @@ Yap_absmi(int inp)
 	pt1++;
       }
       /* done building the term */
-      H = pt1;
+      HR = pt1;
       ENDP(pt1);
       ENDD(d1);
       /* else if arity is 0 just pass d0 through */
@@ -12690,10 +12690,10 @@ Yap_absmi(int inp)
     restart_func2s_y:
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
-	RESET_VARIABLE(H);
-	H[1] = XREG(PREG->u.yxx.x1);
-	H[2] = XREG(PREG->u.yxx.x2);
-	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),H);
+	RESET_VARIABLE(HR);
+	HR[1] = XREG(PREG->u.yxx.x1);
+	HR[2] = XREG(PREG->u.yxx.x2);
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),HR);
       }
 #endif	/* LOW_LEVEL_TRACE */
       /* We have to build the structure */
@@ -12728,10 +12728,10 @@ Yap_absmi(int inp)
       /* We made it!!!!! we got in d0 the name, in d1 the arity and
        * in pt0 the variable to bind it to. */
       if (d0 == TermDot && d1 == 2) {
-	RESET_VARIABLE(H);
-	RESET_VARIABLE(H+1);
-	d0 = AbsPair(H);
-	H += 2;
+	RESET_VARIABLE(HR);
+	RESET_VARIABLE(HR+1);
+	d0 = AbsPair(HR);
+	HR += 2;
 	BEGP(pt1);
 	pt1 = YREG + PREG->u.yxx.y;
 	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxx),Osbpp),l);
@@ -12752,9 +12752,9 @@ Yap_absmi(int inp)
 	}
 	else
 	  d0 = (CELL) Yap_MkFunctor(AtomOfTerm(d0), (Int) d1);
-	pt1 = H;
+	pt1 = HR;
 	*pt1++ = d0;
-	d0 = AbsAppl(H);
+	d0 = AbsAppl(HR);
 	if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
 	  /* make sure we have something to show for our trouble */
 	  saveregs();
@@ -12772,7 +12772,7 @@ Yap_absmi(int inp)
 	  pt1++;
 	}
 	/* done building the term */
-	H = pt1;
+	HR = pt1;
 	ENDP(pt1);
 	/* else if arity is 0 just pass d0 through */
 	/* Ding, ding, we made it */
@@ -12822,10 +12822,10 @@ Yap_absmi(int inp)
     restart_func2s_y_cv:
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
-	RESET_VARIABLE(H);
-	H[1] = PREG->u.yxc.c;
-	H[2] = XREG(PREG->u.yxc.xi);
-	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),H);
+	RESET_VARIABLE(HR);
+	HR[1] = PREG->u.yxc.c;
+	HR[2] = XREG(PREG->u.yxc.xi);
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),HR);
       }
 #endif	/* LOW_LEVEL_TRACE */
       /* We have to build the structure */
@@ -12852,10 +12852,10 @@ Yap_absmi(int inp)
       /* We made it!!!!! we got in d0 the name, in d1 the arity and
        * in pt0 the variable to bind it to. */
       if (d0 == TermDot && d1 == 2) {
-	RESET_VARIABLE(H);
-	RESET_VARIABLE(H+1);
-	d0 = AbsPair(H);
-	H += 2;
+	RESET_VARIABLE(HR);
+	RESET_VARIABLE(HR+1);
+	d0 = AbsPair(HR);
+	HR += 2;
 	/* else if arity is 0 just pass d0 through */
 	/* Ding, ding, we made it */
 	BEGP(pt1);
@@ -12879,9 +12879,9 @@ Yap_absmi(int inp)
 	else
 	  d0 = (CELL) Yap_MkFunctor(AtomOfTerm(d0), (Int) d1);
 	BEGP(pt1);
-	pt1 = H;
+	pt1 = HR;
 	*pt1++ = d0;
-	d0 = AbsAppl(H);
+	d0 = AbsAppl(HR);
 	if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
 	  /* make sure we have something to show for our trouble */
 	  saveregs();
@@ -12899,7 +12899,7 @@ Yap_absmi(int inp)
 	  pt1++;
 	}
 	/* done building the term */
-	H = pt1;
+	HR = pt1;
 	ENDP(pt1);
 	/* else if arity is 0 just pass d0 through */
 	/* Ding, ding, we made it */
@@ -12941,14 +12941,14 @@ Yap_absmi(int inp)
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
 	Term ti;
-	CELL *hi = H;
+	CELL *hi = HR;
 
 	ti = MkIntegerTerm((Int)(PREG->u.yxn.c));
-	RESET_VARIABLE(H);
-	H[1] = XREG(PREG->u.yxn.xi);
-	H[2] = ti;
-	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),H);
-	H = hi;
+	RESET_VARIABLE(HR);
+	HR[1] = XREG(PREG->u.yxn.xi);
+	HR[2] = ti;
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),HR);
+	HR = hi;
       }
 #endif	/* LOW_LEVEL_TRACE */
       /* We have to build the structure */
@@ -12967,10 +12967,10 @@ Yap_absmi(int inp)
       /* We made it!!!!! we got in d0 the name, in d1 the arity and
        * in pt0 the variable to bind it to. */
       if (d0 == TermDot && d1 == 2) {
-	RESET_VARIABLE(H);
-	RESET_VARIABLE(H+1);
-	d0 = AbsPair(H);
-	H += 2;
+	RESET_VARIABLE(HR);
+	RESET_VARIABLE(HR+1);
+	d0 = AbsPair(HR);
+	HR += 2;
 	/* else if arity is 0 just pass d0 through */
 	/* Ding, ding, we made it */
 	BEGP(pt1);
@@ -13007,9 +13007,9 @@ Yap_absmi(int inp)
       }
       else 
 	d0 = (CELL) Yap_MkFunctor(AtomOfTerm(d0), (Int) d1);
-      pt1 = H;
+      pt1 = HR;
       *pt1++ = d0;
-      d0 = AbsAppl(H);
+      d0 = AbsAppl(HR);
       if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
 	/* make sure we have something to show for our trouble */
 	saveregs();
@@ -13027,7 +13027,7 @@ Yap_absmi(int inp)
 	pt1++;
       }
       /* done building the term */
-      H = pt1;
+      HR = pt1;
       ENDP(pt1);
       /* else if arity is 0 just pass d0 through */
       /* Ding, ding, we made it */
@@ -13053,10 +13053,10 @@ Yap_absmi(int inp)
       Op(p_func2f_xx, xxx);
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
-	H[0] = XREG(PREG->u.xxx.x);
-	RESET_VARIABLE(H+1);
-	RESET_VARIABLE(H+2);
-	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),H);
+	HR[0] = XREG(PREG->u.xxx.x);
+	RESET_VARIABLE(HR+1);
+	RESET_VARIABLE(HR+2);
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),HR);
       }
 #endif	/* LOW_LEVEL_TRACE */
       BEGD(d0);
@@ -13101,10 +13101,10 @@ Yap_absmi(int inp)
       Op(p_func2f_xy, xxy);
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
-	H[0] = XREG(PREG->u.xxy.x);
-	RESET_VARIABLE(H+1);
-	RESET_VARIABLE(H+2);
-	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),H);
+	HR[0] = XREG(PREG->u.xxy.x);
+	RESET_VARIABLE(HR+1);
+	RESET_VARIABLE(HR+2);
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),HR);
       }
 #endif	/* LOW_LEVEL_TRACE */
       BEGD(d0);
@@ -13152,10 +13152,10 @@ Yap_absmi(int inp)
       Op(p_func2f_yx, yxx);
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
-	H[0] = XREG(PREG->u.yxx.x2);
-	RESET_VARIABLE(H+1);
-	RESET_VARIABLE(H+2);
-	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),H);
+	HR[0] = XREG(PREG->u.yxx.x2);
+	RESET_VARIABLE(HR+1);
+	RESET_VARIABLE(HR+2);
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),HR);
       }
 #endif	/* LOW_LEVEL_TRACE */
       BEGD(d0);
@@ -13203,10 +13203,10 @@ Yap_absmi(int inp)
       Op(p_func2f_yy, yyx);
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
-	H[0] = XREG(PREG->u.yyx.x);
-	RESET_VARIABLE(H+1);
-	RESET_VARIABLE(H+2);
-	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),H);
+	HR[0] = XREG(PREG->u.yyx.x);
+	RESET_VARIABLE(HR+1);
+	RESET_VARIABLE(HR+2);
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(FunctorFunctor,0)),HR);
       }
 #endif	/* LOW_LEVEL_TRACE */
       BEGD(d0);
@@ -13364,10 +13364,10 @@ Yap_absmi(int inp)
       }      /* We made it!!!!! we got in d0 the name, in d1 the arity and
        * in pt0 the variable to bind it to. */
       if (d0 == TermDot && d1 == 2) {
-	RESET_VARIABLE(H);
-	RESET_VARIABLE(H+1);
-	d0 = AbsPair(H);
-	H += 2;
+	RESET_VARIABLE(HR);
+	RESET_VARIABLE(HR+1);
+	d0 = AbsPair(HR);
+	HR += 2;
       }
       else if ((Int)d1 > 0) {
 	/* now let's build a compound term */
@@ -13383,9 +13383,9 @@ Yap_absmi(int inp)
 	}
 	else
 	  d0 = (CELL) Yap_MkFunctor(AtomOfTerm(d0), (Int) d1);
-	pt1 = H;
+	pt1 = HR;
 	*pt1++ = d0;
-	d0 = AbsAppl(H);
+	d0 = AbsAppl(HR);
 	if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
 	  /* make sure we have something to show for our trouble */
 	  saveregs();
@@ -13403,7 +13403,7 @@ Yap_absmi(int inp)
 	  pt1++;
 	}
 	/* done building the term */
-	H = pt1;
+	HR = pt1;
 	ENDP(pt1);
       }	else if ((Int)d1  < 0) {
 	saveregs();
@@ -13468,7 +13468,7 @@ Yap_absmi(int inp)
 	{ 
 	  choiceptr top_b = PROTECT_FROZEN_B(B);
 #ifdef YAPOR_SBA
-	  if (ENV_YREG > (CELL *) top_b || ENV_YREG < H) ENV_YREG = (CELL *) top_b;
+	  if (ENV_YREG > (CELL *) top_b || ENV_YREG < HR) ENV_YREG = (CELL *) top_b;
 #else
 	  if (ENV_YREG > (CELL *) top_b) ENV_YREG = (CELL *) top_b;
 #endif /* YAPOR_SBA */
@@ -13529,7 +13529,7 @@ Yap_absmi(int inp)
 	{ 
 	  choiceptr top_b = PROTECT_FROZEN_B(B);
 #ifdef YAPOR_SBA
-	  if (ENV_YREG > (CELL *) top_b || ENV_YREG < H) ENV_YREG = (CELL *) top_b;
+	  if (ENV_YREG > (CELL *) top_b || ENV_YREG < HR) ENV_YREG = (CELL *) top_b;
 #else
 	  if (ENV_YREG > (CELL *) top_b) ENV_YREG = (CELL *) top_b;
 #endif /* YAPOR_SBA */
@@ -13667,7 +13667,7 @@ Yap_absmi(int inp)
       execute_end:
 	/* code copied from call */
 #ifndef NO_CHECKING
-	check_stack(NoStackPExecute, H);
+	check_stack(NoStackPExecute, HR);
 #endif
       execute_stack_checked:
 	CPREG = NEXTOP(PREG, Osbmp);

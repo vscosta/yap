@@ -852,7 +852,6 @@ enable_use_malloc
 enable_condor
 enable_chr
 enable_clpqr
-enable_win64
 enable_april
 enable_dlcompat
 enable_clpbn_bp
@@ -1529,7 +1528,6 @@ Optional Features:
  --enable-condor            allow YAP to be used from condor
  --enable-chr            install chr library
  --enable-clpqr            install clpqr library
- --enable-win64            compile YAP for win64
  --enable-april             compile Yap to support April ILP system
  --enable-dlcompat          use dlcompat library for dynamic loading on Mac OS X
  --enable-clpbn-bp           enable belief propagation solver in CLPBN.
@@ -4247,13 +4245,6 @@ else
   use_clpqr=yes
 fi
 
-# Check whether --enable-win64 was given.
-if test "${enable_win64+set}" = set; then :
-  enableval=$enable_win64; target_win64="$enableval"
-else
-  target_win64=no
-fi
-
 
 # Check whether --enable-april was given.
 if test "${enable_april+set}" = set; then :
@@ -5096,9 +5087,7 @@ then
   EXTRA_INCLUDES_FOR_WIN32="-I\$(srcdir)/packages/PLStream/windows"
   if test "$cygwin" = "no" -o "$target_os" = "mingw32"
   then
-    if test "$target_win64" = yes
-    then
-            target_cpu=x86_64
+    if test "$target_cpu" = x86_64; then
       YAP_TARGET=amd64
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lws2_32" >&5
@@ -5219,8 +5208,7 @@ _ACEOF
 fi
 
       EXTRA_LIBS_FOR_DLLS="-lws2_32"
-    elif test "$target_os" = "cygwin"
-    then
+    elif test "$target_os" = "cygwin"; then
       CC="${CC}  -mno-cygwin"
       CXX="${CXX}  -mno-cygwin"
       { $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lcomdlg32" >&5
@@ -11721,7 +11709,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 11724 "configure" */
+/* #line 11712 "configure" */
 public class Test {
 }
 EOF
@@ -11897,7 +11885,7 @@ EOF
 if uudecode$EXEEXT Test.uue; then
         ac_cv_prog_uudecode_base64=yes
 else
-        echo "configure: 11900: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
+        echo "configure: 11888: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
         echo "configure: failed file was:" >&5
         cat Test.uue >&5
         ac_cv_prog_uudecode_base64=no
@@ -12028,7 +12016,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 12031 "configure" */
+/* #line 12019 "configure" */
 public class Test {
 }
 EOF
@@ -12063,7 +12051,7 @@ JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 TEST=Test
 cat << \EOF > $JAVA_TEST
-/* [#]line 12066 "configure" */
+/* [#]line 12054 "configure" */
 public class Test {
 public static void main (String args[]) {
         System.exit (0);

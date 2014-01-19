@@ -85,12 +85,12 @@ typedef enum internal_encoding {
 } encoding_t;
 
 // string construction
-#ifdef H
+#ifdef HR
 static inline Term
 init_tstring( USES_REGS1 ) { 
-  Term t = AbsAppl(H);
+  Term t = AbsAppl(HR);
 
-  H[0] = (CELL)FunctorString;
+  HR[0] = (CELL)FunctorString;
   return t;
 }
 
@@ -102,10 +102,10 @@ buf_from_tstring( CELL *p ) {
 
 static inline void
 close_tstring( char *p USES_REGS ) { 
-  CELL *szp = H+1;
-  H = (CELL *)ALIGN_YAPTYPE( p ,CELL);
-  *szp = (H - szp)-1;
-  *H++ = EndSpecials;
+  CELL *szp = HR+1;
+  HR = (CELL *)ALIGN_YAPTYPE( p ,CELL);
+  *szp = (HR - szp)-1;
+  *HR++ = EndSpecials;
 }
 #endif
 

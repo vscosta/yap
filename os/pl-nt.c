@@ -1051,7 +1051,7 @@ PRED_IMPL("win_registry_get_value", 3, win_registry_get_value, 0)
       case REG_DWORD:
 	return PL_unify_integer(Value, *((DWORD *)data));
       default:
-	warning("get_registry_value/2: Unknown registery-type: %d", type);
+	warning("get_registry_value/2: Unknown registry-type: %d", type);
         fail;
     }
   }

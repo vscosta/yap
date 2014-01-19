@@ -366,7 +366,7 @@ static Int cont_between( USES_REGS1 )
     i1 = IntegerOfTerm(t1);
     tn = add_int(i1, 1 PASS_REGS);
     EXTRA_CBACK_ARG(3,1) = tn;
-    HB = B->cp_h = H;
+    HB = B->cp_h = HR;
     return TRUE;
   } else {
     Term t[2];
@@ -380,7 +380,7 @@ static Int cont_between( USES_REGS1 )
     t[1] = MkIntTerm(1);
     tn = Eval(Yap_MkApplTerm(FunctorPlus, 2, t) PASS_REGS);
     EXTRA_CBACK_ARG(3,1) = tn;
-    HB = B->cp_h = H;
+    HB = B->cp_h = HR;
     return TRUE;
   }
 }

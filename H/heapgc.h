@@ -45,7 +45,7 @@
 #endif
 
 /* is ptr a pointer to the heap? */
-#define ONHEAP(ptr) (CellPtr(ptr) >= H0  && CellPtr(ptr) < H)
+#define ONHEAP(ptr) (CellPtr(ptr) >= H0  && CellPtr(ptr) < HR)
 
 /* is ptr a pointer to code space? */
 #if USE_SYSTEM_MALLOC

@@ -289,8 +289,7 @@ typedef enum {
         DepFr_init_timestamp_field(DEP_FR)
 #else
 #define find_dependency_node(SG_FR, LEADER_CP, DEP_ON_STACK)                      \
-        LEADER_CP = SgFr_gen_cp(SG_FR);                                           \
-        DEP_ON_STACK = TRUE
+        LEADER_CP = SgFr_gen_cp(SG_FR)
 #define find_leader_node(LEADER_CP, DEP_ON_STACK)                                 \
         { dep_fr_ptr chain_dep_fr = LOCAL_top_dep_fr;                             \
           while (YOUNGER_CP(DepFr_cons_cp(chain_dep_fr), LEADER_CP)) {            \
@@ -1127,7 +1126,7 @@ static inline void __unbind_variables(tr_fr_ptr unbind_tr, tr_fr_ptr end_tr USES
 static inline void __rebind_variables(tr_fr_ptr rebind_tr, tr_fr_ptr end_tr USES_REGS) {
   TABLING_ERROR_CHECKING(rebind_variables, rebind_tr < end_tr);
   /* rebind loop */
-  Yap_NEW_MAHASH((ma_h_inner_struct *)H PASS_REGS);
+  Yap_NEW_MAHASH((ma_h_inner_struct *)HR PASS_REGS);
   while (rebind_tr != end_tr) {
     CELL ref = (CELL) TrailTerm(--rebind_tr);
     /* check for global or local variables */
@@ -1162,7 +1161,7 @@ static inline void __restore_bindings(tr_fr_ptr unbind_tr, tr_fr_ptr rebind_tr U
 
   TABLING_ERROR_CHECKING(restore_variables, unbind_tr < rebind_tr);
   end_tr = rebind_tr;
-  Yap_NEW_MAHASH((ma_h_inner_struct *)H PASS_REGS);
+  Yap_NEW_MAHASH((ma_h_inner_struct *)HR PASS_REGS);
   while (unbind_tr != end_tr) {
     /* unbind loop */
     while (unbind_tr > end_tr) {

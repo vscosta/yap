@@ -71,7 +71,7 @@ __IsAttVar (CELL *pt USES_REGS)
 {
 #ifdef YAP_H
   return (pt)[-1] == (CELL)attvar_e
-    && pt < H;
+    && pt < HR;
 #else
   return (pt)[-1] == (CELL)attvar_e;
 #endif
@@ -181,7 +181,7 @@ special_functors;
 
 INLINE_ONLY inline EXTERN Float CpFloatUnaligned(CELL *ptr);
 
-#if SIZEOF_DOUBLE == SIZEOF_LONG_INT
+#if SIZEOF_DOUBLE == SIZEOF_INT_P
 
 #define MkFloatTerm(fl) __MkFloatTerm((fl) PASS_REGS)
 
@@ -190,9 +190,9 @@ INLINE_ONLY inline EXTERN Term __MkFloatTerm (Float USES_REGS);
 INLINE_ONLY inline EXTERN Term
 __MkFloatTerm (Float dbl USES_REGS)
 {
-  return (Term) ((H[0] = (CELL) FunctorDouble, *(Float *) (H + 1) =
-		  dbl, H[2] = EndSpecials, H +=
-		  3, AbsAppl (H - 3)));
+  return (Term) ((HR[0] = (CELL) FunctorDouble, *(Float *) (HR + 1) =
+		  dbl, HR[2] = EndSpecials, HR +=
+		  3, AbsAppl (HR - 3)));
 }
 
 
@@ -216,7 +216,7 @@ CpFloatUnaligned(CELL *ptr)
 
 #else
 
-#if SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
+#if SIZEOF_DOUBLE == 2*SIZEOF_INT_P
 
 #define DOUBLE_ALIGNED(ADDR) ((CELL)(ADDR) & 0x4)
 
@@ -228,9 +228,9 @@ AlignGlobalForDouble( USES_REGS1 )
 {
   /* Force Alignment for floats. Note that garbage collector may
      break the alignment; */
-  if (!DOUBLE_ALIGNED(H)) {
-    RESET_VARIABLE(H);
-    H++;
+  if (!DOUBLE_ALIGNED(HR)) {
+    RESET_VARIABLE(HR);
+    HR++;
   }
 }
 
@@ -260,14 +260,16 @@ CpFloatUnaligned (CELL * ptr)
 
 INLINE_ONLY inline EXTERN Term MkFloatTerm (Float);
 
+#define MkFloatTerm(fl) __MkFloatTerm((fl) PASS_REGS)
+
 INLINE_ONLY inline EXTERN Term
-MkFloatTerm (Float dbl)
+__MkFloatTerm (Float dbl USES_REGS)
 {
   CACHE_REGS
-  return (Term) ((AlignGlobalForDouble ( PASS_REGS1 ), H[0] =
-		  (CELL) FunctorDouble, *(Float *) (H + 1) = dbl, H[3] =
-		  EndSpecials, H +=
-		  4, AbsAppl (H - 4)));
+  return (Term) ((AlignGlobalForDouble ( PASS_REGS1 ), HR[0] =
+		  (CELL) FunctorDouble, *(Float *) (HR + 1) = dbl, HR[3] =
+		  EndSpecials, HR +=
+		  4, AbsAppl (HR - 4)));
 }
 
 
@@ -314,11 +316,11 @@ INLINE_ONLY inline EXTERN Term __MkLongIntTerm (Int USES_REGS);
 INLINE_ONLY inline EXTERN Term
 __MkLongIntTerm (Int i USES_REGS)
 {
-  H[0] = (CELL) FunctorLongInt;
-  H[1] = (CELL) (i);
-  H[2] =  EndSpecials;
-  H += 3;
-  return AbsAppl(H - 3);
+  HR[0] = (CELL) FunctorLongInt;
+  HR[1] = (CELL) (i);
+  HR[2] =  EndSpecials;
+  HR += 3;
+  return AbsAppl(HR - 3);
 }
 
 
@@ -356,13 +358,13 @@ INLINE_ONLY inline EXTERN Term __MkStringTerm (const char *s USES_REGS);
 INLINE_ONLY inline EXTERN Term
 __MkStringTerm (const char *s USES_REGS)
 {
-  Term t = AbsAppl(H);
+  Term t = AbsAppl(HR);
   size_t sz = ALIGN_YAPTYPE(strlen(s)+1,CELL);
-  H[0] = (CELL) FunctorString;
-  H[1] = (CELL) sz;
-  strcpy((char *)(H+2), s);
-  H[2+sz] =  EndSpecials;
-  H += 3+sz;
+  HR[0] = (CELL) FunctorString;
+  HR[1] = (CELL) sz;
+  strcpy((char *)(HR+2), s);
+  HR[2+sz] =  EndSpecials;
+  HR += 3+sz;
   return t;
 }
 
@@ -691,7 +693,7 @@ unify_extension (Functor f, CELL d0, CELL * pt0, CELL d1)
       {
 	CELL *pt1 = RepAppl (d1);
 	return (pt0[1] == pt1[1]
-#if SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
+#if SIZEOF_DOUBLE == 2*SIZEOF_INT_P
 		&& pt0[2] == pt1[2]
 #endif
 	  );
@@ -723,7 +725,7 @@ CELL Yap_Int_key(Term t)
 static inline
 CELL Yap_DoubleP_key(CELL *pt)
 {
-#if SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
+#if SIZEOF_DOUBLE1 == 2*SIZEOF_INT_P
   CELL val = pt[0]^pt[1];
 #else
   CELL val = pt[0];

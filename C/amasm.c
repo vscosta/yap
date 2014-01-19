@@ -3601,7 +3601,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       if (!pass_no) {
 #if !USE_SYSTEM_MALLOC
 	if (CellPtr(cip->label_offset+cip->cpc->rnd1) > ASP-256) {
-	  LOCAL_Error_Size = 256+((char *)(cip->label_offset+cip->cpc->rnd1) - (char *)H);
+	  LOCAL_Error_Size = 256+((char *)(cip->label_offset+cip->cpc->rnd1) - (char *)HR);
 	  save_machine_regs();
 	  siglongjmp(cip->CompilerBotch, 3);	  
 	}
@@ -3791,7 +3791,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       break;
     case align_float_op:
       /* install a blob */
-#if SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
+#if SIZEOF_DOUBLE == 2*SIZEOF_INT_P
       if (!((CELL)code_p & 0x4))
 	GONEXT(e);
 #endif
@@ -3842,18 +3842,18 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
 static DBTerm *
 fetch_clause_space(Term* tp, UInt size, struct intermediates *cip, UInt *osizep USES_REGS)
 {
-  CELL *h0 = H;
+  CELL *h0 = HR;
   DBTerm *x;
 
   /* This stuff should be just about fetching the space from the data-base,
      unfortunately we have to do all sorts of error handling :-( */
-  H = (CELL *)cip->freep;
+  HR = (CELL *)cip->freep;
   while ((x = Yap_StoreTermInDBPlusExtraSpace(*tp, size, osizep)) == NULL) {
 
-    H = h0;
+    HR = h0;
     switch (LOCAL_Error_TYPE) {
     case OUT_OF_STACK_ERROR:
-      LOCAL_Error_Size = 256+((char *)cip->freep - (char *)H);
+      LOCAL_Error_Size = 256+((char *)cip->freep - (char *)HR);
       save_machine_regs();
       siglongjmp(cip->CompilerBotch,3);
     case OUT_OF_TRAIL_ERROR:
@@ -3885,10 +3885,10 @@ fetch_clause_space(Term* tp, UInt size, struct intermediates *cip, UInt *osizep 
     default:
       return NULL;
     }
-    h0 = H;
-    H = (CELL *)cip->freep;
+    h0 = HR;
+    HR = (CELL *)cip->freep;
   }
-  H = h0;
+  HR = h0;
   return x;
 }
 

@@ -584,14 +584,14 @@ copy_double(CELL *st, CELL *pt)
   /* first thing, store a link to the list before we move on */
   st[0] = (CELL)FunctorDouble;
   st[1] = pt[1];
-#if  SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
+#if  SIZEOF_DOUBLE == 2*SIZEOF_INT_P
   st[2] = pt[2];
   st[3] = EndSpecials;
 #else
   st[2] = EndSpecials;
 #endif
   /* now reserve space */
-  return st+(2+SIZEOF_DOUBLE/SIZEOF_LONG_INT);
+  return st+(2+SIZEOF_DOUBLE/SIZEOF_INT_P);
 }
 
 static CELL *
@@ -645,13 +645,13 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 #endif
   register visitel *visited = (visitel *)AuxSp;
   /* store this in H */
-  register CELL **to_visit = (CELL **)H;
+  register CELL **to_visit = (CELL **)HR;
   CELL **to_visit_base = to_visit;
   /* where we are going to add a new pair */
   int vars_found = 0;
 #ifdef COROUTINING
   Term ConstraintsTerm = TermNil;
-  CELL *origH = H;
+  CELL *origH = HR;
 #endif
   CELL *CodeMaxBase = CodeMax;
 
@@ -919,7 +919,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 	  Term t[4];
 	  int sz = to_visit-to_visit_base;
 
-	  H = (CELL *)to_visit;
+	  HR = (CELL *)to_visit;
 	  /* store the constraint away for: we need a back pointer to
 	     the variable, the constraint in some cannonical form, what type
 	     of constraint, and a list pointer */
@@ -928,11 +928,11 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 	  t[2] = MkIntegerTerm(ExtFromCell(ptd0));
 	  t[3] = ConstraintsTerm;
 	  ConstraintsTerm = Yap_MkApplTerm(FunctorClist, 4, t);
-	  if (H+sz >= ASP) {
+	  if (HR+sz >= ASP) {
 	    goto error2;
 	  }
-	  memcpy((void *)H, (void *)(to_visit_base), sz*sizeof(CELL *));
-	  to_visit_base = (CELL **)H;
+	  memcpy((void *)HR, (void *)(to_visit_base), sz*sizeof(CELL *));
+	  to_visit_base = (CELL **)HR;
 	  to_visit = to_visit_base+sz;
 	}
 #endif
@@ -988,7 +988,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
   *vars_foundp = vars_found;
   DB_UNWIND_CUNIF();
 #ifdef COROUTINING
-  H = origH;
+  HR = origH;
 #endif
   return CodeMax;
 
@@ -1007,7 +1007,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 #endif
   DB_UNWIND_CUNIF();
 #ifdef COROUTINING
-  H = origH;
+  HR = origH;
 #endif
   return NULL;
 
@@ -1025,7 +1025,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 #endif
   DB_UNWIND_CUNIF();
 #ifdef COROUTINING
-  H = origH;
+  HR = origH;
 #endif
   return NULL;
 
@@ -1043,7 +1043,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 #endif
   DB_UNWIND_CUNIF();
 #ifdef COROUTINING
-  H = origH;
+  HR = origH;
 #endif
   return NULL;
 #if THREADS
@@ -2502,7 +2502,7 @@ GetDBTerm(DBTerm *DBSP, int src USES_REGS)
   } else if (IsAtomOrIntTerm(t)) {
     return t;
   } else {
-    CELL           *HOld = H;
+    CELL           *HOld = HR;
     CELL           *HeapPtr;
     CELL           *pt;
     CELL            NOf;
@@ -2512,9 +2512,9 @@ GetDBTerm(DBTerm *DBSP, int src USES_REGS)
     }
     pt = CellPtr(DBSP->Contents);
     CalculateStackGap( PASS_REGS1 );
-    if (H+NOf > ASP-EventFlag/sizeof(CELL)) {
+    if (HR+NOf > ASP-EventFlag/sizeof(CELL)) {
       if (LOCAL_PrologMode & InErrorMode) {
-	if (H+NOf > ASP)
+	if (HR+NOf > ASP)
 	  fprintf(GLOBAL_stderr, "\n\n [ FATAL ERROR: No Stack for Error Handling ]\n");
 	  Yap_exit( 1);
       } else {
@@ -2525,7 +2525,7 @@ GetDBTerm(DBTerm *DBSP, int src USES_REGS)
     }
     HeapPtr = cpcells(HOld, pt, NOf);
     pt += HeapPtr - HOld;
-    H = HeapPtr;
+    HR = HeapPtr;
     {
       link_entry *lp = (link_entry *)pt;
       linkblk(lp, HOld-1, (CELL)HOld-(CELL)(DBSP->Contents));
@@ -2533,7 +2533,7 @@ GetDBTerm(DBTerm *DBSP, int src USES_REGS)
 #ifdef COROUTINING
     if (DBSP->ag.attachments != 0L && !src)  {
       if (!copy_attachments((CELL *)AdjustIDBPtr(DBSP->ag.attachments,(CELL)HOld-(CELL)(DBSP->Contents)) PASS_REGS)) {
-	H = HOld;
+	HR = HOld;
 	LOCAL_Error_TYPE = OUT_OF_ATTVARS_ERROR;
 	LOCAL_Error_Size = 0;
 	return (Term)0;
@@ -3069,7 +3069,7 @@ i_recorded(DBProp AtProp, Term t3 USES_REGS)
   if (IsVarTerm(twork)) {
     EXTRA_CBACK_ARG(3,2) = MkIntegerTerm(0);
     EXTRA_CBACK_ARG(3,3) = MkIntegerTerm(0);
-    B->cp_h = H;
+    B->cp_h = HR;
     while ((TermDB = GetDBTermFromDBEntry(ref PASS_REGS)) == (CELL)0) {
       /* make sure the garbage collector sees what we want it to see! */
       EXTRA_CBACK_ARG(3,1) = (CELL)ref;
@@ -3097,7 +3097,7 @@ i_recorded(DBProp AtProp, Term t3 USES_REGS)
   } else if (IsAtomOrIntTerm(twork)) {
     EXTRA_CBACK_ARG(3,2) = MkIntegerTerm(0);
     EXTRA_CBACK_ARG(3,3) = MkIntegerTerm((Int)twork);
-    B->cp_h = H;
+    B->cp_h = HR;
     READ_LOCK(AtProp->DBRWLock);
     do {
       if (((twork == ref->DBT.Entry) || IsVarTerm(ref->DBT.Entry)) &&
@@ -3114,7 +3114,7 @@ i_recorded(DBProp AtProp, Term t3 USES_REGS)
     CELL key;
     CELL mask = EvalMasks(twork, &key);
 
-    B->cp_h = H;
+    B->cp_h = HR;
     READ_LOCK(AtProp->DBRWLock);
     do {
       while ((mask & ref->Key) != (key & ref->Mask) && !DEAD_REF(ref)) {
@@ -3129,7 +3129,7 @@ i_recorded(DBProp AtProp, Term t3 USES_REGS)
 	  /* success */
 	  EXTRA_CBACK_ARG(3,2) = MkIntegerTerm(((Int)mask));
 	  EXTRA_CBACK_ARG(3,3) = MkIntegerTerm(((Int)key));
-	  B->cp_h = H;
+	  B->cp_h = HR;
 	  break;
 	} else {
 	  while ((ref = NextDBRef(ref)) != NULL
@@ -3187,7 +3187,7 @@ c_recorded(int flags USES_REGS)
 {
   Term            TermDB, TRef;
   Register DBRef  ref, ref0;
-  CELL           *PreviousHeap = H;
+  CELL           *PreviousHeap = HR;
   CELL            mask, key;
   Term t1;
 
@@ -3256,7 +3256,7 @@ c_recorded(int flags USES_REGS)
 	}
       }
       LOCAL_Error_Size = 0;
-      PreviousHeap = H;
+      PreviousHeap = HR;
     }
     Yap_unify(ARG2, TermDB);
   } else if (mask == 0) {	/* ARG2 is a constant */
@@ -3272,7 +3272,7 @@ c_recorded(int flags USES_REGS)
     }
   } else
     do {		/* ARG2 is a structure */
-      H = PreviousHeap;
+      HR = PreviousHeap;
       while ((mask & ref->Key) != (key & ref->Mask)) {
 	while ((ref = NextDBRef(ref)) != NIL
 	       && DEAD_REF(ref));
@@ -3299,7 +3299,7 @@ c_recorded(int flags USES_REGS)
 	  }
 	}
 	LOCAL_Error_Size = 0;
-	PreviousHeap = H;
+	PreviousHeap = HR;
       }
       if (Yap_unify(ARG2, TermDB))
 	break;
@@ -4927,7 +4927,7 @@ cont_current_key( USES_REGS1 )
     term = AtT = MkAtomTerm(a);
   } else {
     unsigned int j;
-    CELL *p = H;
+    CELL *p = HR;
 
     for (j = 0; j < arity; j++) {
       p[j] = MkVarTerm();

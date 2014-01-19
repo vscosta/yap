@@ -379,8 +379,6 @@
 
 #if defined(_MSC_VER) && defined(YAP_EXPORTS)
 #define X_API __declspec(dllexport)
-#else
-#define X_API
 #endif
 
 X_API Term    YAP_A(int);
@@ -802,21 +800,21 @@ YAP_MkBlobTerm(unsigned int sz)
   MP_INT *dst;
   BACKUP_H();
 
-  while (H+(sz+sizeof(MP_INT)/sizeof(CELL)+2) > ASP-1024) {
+  while (HR+(sz+sizeof(MP_INT)/sizeof(CELL)+2) > ASP-1024) {
     if (!doexpand((sz+sizeof(MP_INT)/sizeof(CELL)+2)*sizeof(CELL))) {
       Yap_Error(OUT_OF_STACK_ERROR, TermNil, "YAP failed to grow the stack while constructing a blob: %s", LOCAL_ErrorMessage);
       return TermNil;
     }
   }
-  I = AbsAppl(H);
-  H[0] = (CELL)FunctorBigInt;
-  H[1] = ARRAY_INT;
-  dst = (MP_INT *)(H+2);
+  I = AbsAppl(HR);
+  HR[0] = (CELL)FunctorBigInt;
+  HR[1] = ARRAY_INT;
+  dst = (MP_INT *)(HR+2);
   dst->_mp_size = 0L;
   dst->_mp_alloc = sz;
-  H += (2+sizeof(MP_INT)/sizeof(CELL));
-  H[sz] = EndSpecials;
-  H += sz+1;
+  HR += (2+sizeof(MP_INT)/sizeof(CELL));
+  HR[sz] = EndSpecials;
+  HR += sz+1;
   RECOVER_H();
 
   return I;
@@ -982,7 +980,7 @@ YAP_MkPairTerm(Term t1, Term t2)
   Term t; 
   BACKUP_H();
 
-  while (H > ASP-1024) {
+  while (HR > ASP-1024) {
     Int sl1 = Yap_InitSlot(t1 PASS_REGS);
     Int sl2 = Yap_InitSlot(t2 PASS_REGS);
     RECOVER_H();
@@ -1008,7 +1006,7 @@ YAP_MkListFromTerms(Term *ta, Int sz)
   if (sz == 0)
     return TermNil;
   BACKUP_H();
-  while (H+sz*2 > ASP-1024) {
+  while (HR+sz*2 > ASP-1024) {
     Int sl1 = Yap_InitSlot((CELL)ta PASS_REGS);
     RECOVER_H();
     if (!Yap_dogc( 0, NULL PASS_REGS )) {
@@ -1018,7 +1016,7 @@ YAP_MkListFromTerms(Term *ta, Int sz)
     ta =  (CELL *)Yap_GetFromSlot(sl1 PASS_REGS);
     Yap_RecoverSlots(1 PASS_REGS);
   }
-  h = H;
+  h = HR;
   t = AbsPair(h);
   while (sz--) {
     Term ti = *ta++;
@@ -1032,7 +1030,7 @@ YAP_MkListFromTerms(Term *ta, Int sz)
     h += 2;
   }
   h[-1] = TermNil;
-  H = h;
+  HR = h;
   RECOVER_H();
   return t;
 }
@@ -1044,7 +1042,7 @@ YAP_MkNewPairTerm()
   Term t; 
   BACKUP_H();
 
-  if (H > ASP-1024)
+  if (HR > ASP-1024)
     t = TermNil;
   else
     t = Yap_MkNewPairTerm();
@@ -1102,7 +1100,7 @@ YAP_MkApplTerm(Functor f,UInt arity, Term args[])
   Term t; 
   BACKUP_H();
 
-  if (H+arity > ASP-1024)
+  if (HR+arity > ASP-1024)
     t = TermNil;
   else
     t = Yap_MkApplTerm(f, arity, args);
@@ -1118,7 +1116,7 @@ YAP_MkNewApplTerm(Functor f,UInt arity)
   Term t; 
   BACKUP_H();
 
-  if (H+arity > ASP-1024)
+  if (HR+arity > ASP-1024)
     t = TermNil;
   else
     t = Yap_MkNewApplTerm(f, arity);
@@ -1193,7 +1191,7 @@ YAP_ExtraSpace(void)
 
   /* find a pointer to extra space allocable */
   ptr = (void *)((CELL *)(B+1)+P->u.OtapFs.s);
-  B->cp_h = H;
+  B->cp_h = HR;
 
   RECOVER_H();
   RECOVER_B();
@@ -2466,7 +2464,7 @@ YAP_LeaveGoal(int backtrack, YAP_dogoalinfo *dgi)
     P = FAILCODE;
     Yap_exec_absmi(TRUE);
     /* recover stack space */
-    H = B->cp_h;
+    HR = B->cp_h;
     TR = B->cp_tr;
 #ifdef DEPTH_LIMIT
     DEPTH = B->cp_depth;
@@ -2702,7 +2700,7 @@ YAP_ShutdownGoal(int backtrack)
       P = FAILCODE;
       Yap_exec_absmi(TRUE);
       /* recover stack space */
-      H = cut_pt->cp_h;
+      HR = cut_pt->cp_h;
       TR = cut_pt->cp_tr;
     }
     /* we can always recover the stack */
@@ -3381,9 +3379,6 @@ YAP_Reset(void)
 {
   CACHE_REGS
   int res = TRUE;
-#if !defined(YAPOR) && !defined(THREADS)
-  int worker_id = 0;
-#endif
   BACKUP_MACHINE_REGS();
 
   YAP_ClearExceptions();
@@ -3707,8 +3702,8 @@ YAP_FloatsToList(double *dblp, size_t sz)
 
   if (!sz)
     return TermNil;
-  while (ASP-1024 < H + sz*(2+2+SIZEOF_DOUBLE/SIZEOF_LONG_INT)) {
-    if ((CELL *)dblp > H0 && (CELL *)dblp < H) {
+  while (ASP-1024 < HR + sz*(2+2+SIZEOF_DOUBLE/SIZEOF_INT_P)) {
+    if ((CELL *)dblp > H0 && (CELL *)dblp < HR) {
       /* we are in trouble */
       LOCAL_OpenArray =  (CELL *)dblp;
     }
@@ -3719,12 +3714,12 @@ YAP_FloatsToList(double *dblp, size_t sz)
     dblp = (double *)LOCAL_OpenArray;
     LOCAL_OpenArray = NULL;
   }
-  t = AbsPair(H);
+  t = AbsPair(HR);
   while (sz) {
-    oldH = H;
-    H +=2;
+    oldH = HR;
+    HR +=2;
     oldH[0] = MkFloatTerm(*dblp++);
-    oldH[1] = AbsPair(H);
+    oldH[1] = AbsPair(HR);
     sz--;
   }
   oldH[1] = TermNil;
@@ -3779,8 +3774,8 @@ YAP_IntsToList(Int *dblp, size_t sz)
 
   if (!sz)
     return TermNil;
-  while (ASP-1024 < H + sz*3) {
-    if ((CELL *)dblp > H0 && (CELL *)dblp < H) {
+  while (ASP-1024 < HR + sz*3) {
+    if ((CELL *)dblp > H0 && (CELL *)dblp < HR) {
       /* we are in trouble */
       LOCAL_OpenArray =  (CELL *)dblp;
     }
@@ -3791,12 +3786,12 @@ YAP_IntsToList(Int *dblp, size_t sz)
     dblp = (Int *)LOCAL_OpenArray;
     LOCAL_OpenArray = NULL;
   }
-  t = AbsPair(H);
+  t = AbsPair(HR);
   while (sz) {
-    oldH = H;
-    H +=2;
+    oldH = HR;
+    HR +=2;
     oldH[0] = MkIntegerTerm(*dblp++);
-    oldH[1] = AbsPair(H);
+    oldH[1] = AbsPair(HR);
     sz--;
   }
   oldH[1] = TermNil;
@@ -3835,14 +3830,14 @@ YAP_OpenList(int n)
   Term t;
   BACKUP_H();
 
-  while (H+2*n > ASP-1024) {
+  while (HR+2*n > ASP-1024) {
     if (!Yap_dogc( 0, NULL PASS_REGS )) {
       RECOVER_H();
       return FALSE;
     }
   }
-  t = AbsPair(H);
-  H += 2*n;
+  t = AbsPair(HR);
+  HR += 2*n;
 
   RECOVER_H();
   return t;
@@ -4055,7 +4050,7 @@ YAP_SetYAPFlag(yap_flag_t flag, int val)
 Int YAP_VarSlotToNumber(Int s) {
   CACHE_REGS
   Term *t = (CELL *)Deref(Yap_GetFromSlot(s PASS_REGS));
-  if (t < H)
+  if (t < HR)
     return t-H0;
   return t-LCL0;
 }
@@ -4265,11 +4260,11 @@ YAP_RequiresExtraStack(size_t sz) {
 
   if (sz < 16*1024) 
     sz = 16*1024;
-  if (H <= ASP-sz) {
+  if (HR <= ASP-sz) {
     return FALSE;
   }
   BACKUP_H();
-  while (H > ASP-sz) {
+  while (HR > ASP-sz) {
     CACHE_REGS
     RECOVER_H();
     if (!Yap_dogc( 0, NULL PASS_REGS )) {

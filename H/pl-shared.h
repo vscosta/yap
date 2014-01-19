@@ -309,14 +309,14 @@ OpenList(int n USES_REGS)
   Term t;
   BACKUP_H();
 
-  while (H+2*n > ASP-1024) {
+  while (HR+2*n > ASP-1024) {
     if (!Yap_dogc( 0, NULL PASS_REGS )) {
       RECOVER_H();
       return FALSE;
     }
   }
-  t = AbsPair(H);
-  H += 2*n;
+  t = AbsPair(HR);
+  HR += 2*n;
 
   RECOVER_H();
   return t;

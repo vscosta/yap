@@ -140,9 +140,6 @@ AC_ARG_ENABLE(chr,
 AC_ARG_ENABLE(clpqr,
 	[ --enable-clpqr            install clpqr library ],
 	use_clpqr="$enableval", use_clpqr=yes)
-AC_ARG_ENABLE(win64,
-	[ --enable-win64            compile YAP for win64 ],
-	target_win64="$enableval", target_win64=no)
 
 AC_ARG_ENABLE(april,
 	[ --enable-april             compile Yap to support April ILP system],
@@ -523,17 +520,13 @@ then
   EXTRA_INCLUDES_FOR_WIN32="-I\$(srcdir)/packages/PLStream/windows"
   if test "$cygwin" = "no" -o "$target_os" = "mingw32"
   then
-    if test "$target_win64" = yes
-    then
-      dnl configure messes up badly on this.
-      target_cpu=x86_64
+    if test "$target_cpu" = x86_64; then
       YAP_TARGET=amd64
       AC_CHECK_LIB(ws2_32,main)
       AC_CHECK_LIB(comdlg32,main)
       AC_CHECK_LIB(shell32,main)
       EXTRA_LIBS_FOR_DLLS="-lws2_32"
-    elif test "$target_os" = "cygwin"
-    then
+    elif test "$target_os" = "cygwin"; then
       CC="${CC}  -mno-cygwin"
       CXX="${CXX}  -mno-cygwin"
       AC_CHECK_LIB(comdlg32,main)

@@ -631,22 +631,18 @@ get_num(int *chp, int *chbuffp, IOSTREAM *inp_stream, char *s, UInt max_size, in
       }
     }
     if (ch == 'e' || ch == 'E') {
-      char cbuff = ch;
-
       if (--max_size == 0) {
 	return num_send_error_message("Number Too Long");
       }
       *sp++ = ch;
       ch = getchr(inp_stream);
       if (ch == '-') {
-	cbuff = '-';
 	if (--max_size == 0) {
 	  return num_send_error_message("Number Too Long");
 	}
 	*sp++ = '-';
 	ch = getchr(inp_stream);
       } else if (ch == '+') {
-	cbuff = '+';
 	ch = getchr(inp_stream);
       }
       if (chtype(ch) != NU) {
@@ -719,7 +715,7 @@ Yap_scan_num(IOSTREAM *inp)
     return TermNil;
   }
   cherr = '\0';
-  if (ASP-H < 1024)
+  if (ASP-HR < 1024)
     return TermNil;
   out = get_num(&ch, &cherr, inp, ptr, 4096, sign); /*  */
   PopScannerMemory(ptr, 4096);
@@ -731,7 +727,7 @@ Yap_scan_num(IOSTREAM *inp)
 
 
 #define CHECK_SPACE() \
-	  if (ASP-H < 1024) { \
+	  if (ASP-HR < 1024) { \
 	    LOCAL_ErrorMessage = "Stack Overflow";     \
 	    LOCAL_Error_TYPE = OUT_OF_STACK_ERROR;	\
 	    LOCAL_Error_Size = 0L;	               \
@@ -744,8 +740,8 @@ Yap_scan_num(IOSTREAM *inp)
 
 static void
 open_comment(int ch, IOSTREAM *inp_stream USES_REGS) {
-  CELL *h0 = H;
-  H += 5;
+  CELL *h0 = HR;
+  HR += 5;
   h0[0] = AbsAppl(h0+2);
   h0[1] = TermNil;
   if (!LOCAL_CommentsTail) {

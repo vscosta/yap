@@ -3520,26 +3520,26 @@ Yap_find_owner_index(yamop *ipc, PredEntry *ap)
 static Term
 all_envs(CELL *env_ptr USES_REGS)
 {
-  Term tf = AbsPair(H);
-  CELL *start = H;
+  Term tf = AbsPair(HR);
+  CELL *start = HR;
   CELL *bp = NULL;
   
   /* walk the environment chain */
   while (env_ptr) {
-    bp = H;
-    H += 2;
+    bp = HR;
+    HR += 2;
     /* notice that MkIntegerTerm may increase the Heap */
     bp[0] = MkIntegerTerm(LCL0-env_ptr);
-    if (H >= ASP-1024) {
-      H = start;
-      LOCAL_Error_Size = (ASP-1024)-H;
+    if (HR >= ASP-1024) {
+      HR = start;
+      LOCAL_Error_Size = (ASP-1024)-HR;
       while (env_ptr) {
 	LOCAL_Error_Size += 2;
 	env_ptr = (CELL *)(env_ptr[E_E]);      
       }
       return 0L;
     } else {
-      bp[1] = AbsPair(H);
+      bp[1] = AbsPair(HR);
     }
     env_ptr = (CELL *)(env_ptr[E_E]);      
   }
@@ -3551,24 +3551,24 @@ static Term
 all_cps(choiceptr b_ptr USES_REGS)
 {
   CELL *bp = NULL;
-  CELL *start = H;
-  Term tf = AbsPair(H);
+  CELL *start = HR;
+  Term tf = AbsPair(HR);
 
   while (b_ptr) {
-    bp = H;
-    H += 2;
+    bp = HR;
+    HR += 2;
     /* notice that MkIntegerTerm may increase the Heap */
     bp[0] = MkIntegerTerm((Int)(LCL0-(CELL *)b_ptr));
-    if (H >= ASP-1024) {
-      H = start;
-      LOCAL_Error_Size = (ASP-1024)-H;
+    if (HR >= ASP-1024) {
+      HR = start;
+      LOCAL_Error_Size = (ASP-1024)-HR;
       while (b_ptr) {
 	LOCAL_Error_Size += 2;
 	b_ptr = b_ptr->cp_b;
       }
       return 0L;
     } else {
-      bp[1] = AbsPair(H);
+      bp[1] = AbsPair(HR);
     }
     b_ptr = b_ptr->cp_b;
   }
@@ -4992,7 +4992,7 @@ Yap_UpdateTimestamps(PredEntry *ap)
       if (bptr->cp_ap->u.OtaLl.d->ClPred == ap) {
 	UInt ts = IntegerOfTerm(bptr->cp_args[ar]);
 	if (ts != arp[0]) {
-	  if (arp-H < 1024) {
+	  if (arp-HR < 1024) {
 	    goto overflow;
 	  }
 	  /* be thrifty, have this in case there is a hole */
@@ -5010,7 +5010,7 @@ Yap_UpdateTimestamps(PredEntry *ap)
 	  ((PredEntry *)IntegerOfTerm(bptr->cp_args[0]) == ap)) {
 	UInt ts = IntegerOfTerm(bptr->cp_args[5]);
 	if (ts != arp[0]) {
-	  if (arp-H < 1024) {
+	  if (arp-HR < 1024) {
 	    goto overflow;
 	  }
 	  if (ts != arp[0]-1) {
@@ -5562,7 +5562,7 @@ BuildActivePred(PredEntry *ap, CELL *vect)
     if (IsVarTerm(t)) {
       CELL *pt = VarOfTerm(t);
       /* one stack */
-      if (pt > H) {
+      if (pt > HR) {
 	Term nt = MkVarTerm();
 	Yap_unify(t, nt);
       }

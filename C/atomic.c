@@ -1083,8 +1083,8 @@ p_atom_split( USES_REGS1 )
   }
   at  = AtomOfTerm(t1);
   if (IsWideAtom(at)) {
-    wchar_t *ws, *ws1 = (wchar_t *)H;
-    char *s1 = (char *)H;
+    wchar_t *ws, *ws1 = (wchar_t *)HR;
+    char *s1 = (char *)HR;
     size_t wlen;
 
     ws = (wchar_t *)RepAtom(at)->StrOfAE;
@@ -1112,12 +1112,12 @@ p_atom_split( USES_REGS1 )
       if (is_wide(ws+len)) {
 	to2 = MkAtomTerm(Yap_LookupWideAtom(ws+len)); 
       } else {
-	char *s2 = (char *)H;
+	char *s2 = (char *)HR;
 	if (s2+(wlen-len) > (char *)ASP-1024)
 	  Yap_Error(OUT_OF_STACK_ERROR,t1,"$atom_split/4");
 	ws += len;
 	while ((*s2++ = *ws++));
-	to2 = MkAtomTerm(Yap_LookupAtom((char *)H)); 	
+	to2 = MkAtomTerm(Yap_LookupAtom((char *)HR)); 	
       }
     } else {
       s1[len] = '\0';
@@ -1126,7 +1126,7 @@ p_atom_split( USES_REGS1 )
       to2 = MkAtomTerm(Yap_LookupWideAtom(ws+len)); 
     }
   } else {
-    char *s, *s1 = (char *)H;
+    char *s, *s1 = (char *)HR;
 
     s = RepAtom(at)->StrOfAE;
     if (len > (Int)strlen(s)) return(FALSE);
@@ -1203,8 +1203,8 @@ p_string_number( USES_REGS1 )
 
 static void *
 alloc_tmp_stack(size_t sz USES_REGS) {
-  void *pt = (void *)H;
-  while (H > ASP-(1044+sz/sizeof(CELL))) {
+  void *pt = (void *)HR;
+  while (HR > ASP-(1044+sz/sizeof(CELL))) {
     if (!Yap_gc(5, ENV, gc_P(P,CP))) {
       Yap_Error(OUT_OF_STACK_ERROR, TermNil, "sub_atom/5");
       return(NULL);
@@ -1245,7 +1245,7 @@ build_new_atomic(int mask, wchar_t *wp, char *p, size_t min, size_t len USES_REG
     char *cp = src, *buf, *lim = cp+strlen(cp);
 
     LOCAL_TERM_ERROR( 4*(len+1) );
-    buf = buf_from_tstring(H);
+    buf = buf_from_tstring(HR);
     while (cp < lim) {
       int chr;
       cp = utf8_get_char(cp, &chr);

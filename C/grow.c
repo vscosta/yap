@@ -100,7 +100,7 @@ SetHeapRegs(int copying_threads USES_REGS)
   LOCAL_OldLCL0 = LCL0;
   LOCAL_OldASP = ASP;
   LOCAL_OldGlobalBase = (CELL *)LOCAL_GlobalBase;
-  LOCAL_OldH = H;
+  LOCAL_OldH = HR;
   LOCAL_OldH0 = H0;
   LOCAL_OldTrailBase = LOCAL_TrailBase;
   LOCAL_OldTrailTop = LOCAL_TrailTop;
@@ -135,8 +135,8 @@ SetHeapRegs(int copying_threads USES_REGS)
   if (LCL0)
     LCL0 = PtoLocAdjust(LCL0);
   UNLOCK(LOCAL_SignalLock);
-  if (H)
-    H = PtoGloAdjust(H);
+  if (HR)
+    HR = PtoGloAdjust(HR);
 #ifdef CUT_C
   if (Yap_REGS.CUT_C_TOP)
     Yap_REGS.CUT_C_TOP = CutCAdjust(Yap_REGS.CUT_C_TOP);
@@ -542,7 +542,7 @@ AdjustGlobal(long sz, int thread_copying USES_REGS)
   } else {
 #endif
     pt = H0;
-    pt_max = (H-sz/CellSize);
+    pt_max = (HR-sz/CellSize);
 #if defined(YAPOR_THREADS)
   }
 #endif
@@ -563,7 +563,7 @@ AdjustGlobal(long sz, int thread_copying USES_REGS)
 	/* skip bitmaps */
 	switch((CELL)f) {
 	case (CELL)FunctorDouble:
-#if SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
+#if SIZEOF_DOUBLE == 2*SIZEOF_INT_P
 	  pt += 3;
 #else
 	  pt += 2;
@@ -901,19 +901,19 @@ static_growglobal(long request, CELL **ptr, CELL *hsplit USES_REGS)
 	do_grow = FALSE;
       }
     } else if (hsplit < (CELL*)omax ||
-	hsplit > H)
+	hsplit > HR)
       return FALSE;
     else if (hsplit == (CELL *)omax)
       hsplit = NULL;
     if (size < 0 ||
-	(Unsigned(H)+size < Unsigned(ASP)-StackGap( PASS_REGS1 ) &&
+	(Unsigned(HR)+size < Unsigned(ASP)-StackGap( PASS_REGS1 ) &&
 	 hsplit > H0)) {
       /* don't need to expand stacks */
       insert_in_delays = FALSE;
       do_grow = FALSE;
     }
   } else {
-    if (Unsigned(H)+size < Unsigned(ASP)-CreepFlag) {
+    if (Unsigned(HR)+size < Unsigned(ASP)-CreepFlag) {
       /* we can just ask for more room */
       do_grow = FALSE;
     }    
@@ -1184,6 +1184,7 @@ fix_compiler_instructions(PInstr *pcpc USES_REGS)
     case index_dbref_op:
     case index_blob_op:
     case index_long_op:
+    case index_string_op:
     case if_nonvar_op:
     case unify_last_list_op:
     case write_last_list_op:
@@ -1200,6 +1201,7 @@ fix_compiler_instructions(PInstr *pcpc USES_REGS)
     case enter_lu_op:
     case empty_call_op:
     case blob_op:
+    case string_op:
     case fetch_args_vi_op:
     case fetch_args_iv_op:
     case label_ctl_op:
@@ -1665,7 +1667,7 @@ growstack(size_t size USES_REGS)
     fprintf(GLOBAL_stderr, "%% Worker Id %d:\n", worker_id);
 #endif
     fprintf(GLOBAL_stderr, "%% Stack Overflow %d\n", LOCAL_stack_overflows);
-    fprintf(GLOBAL_stderr, "%%   Global: %8ld cells (%p-%p)\n", (unsigned long int)(H-(CELL *)LOCAL_GlobalBase),LOCAL_GlobalBase,H);
+    fprintf(GLOBAL_stderr, "%%   Global: %8ld cells (%p-%p)\n", (unsigned long int)(HR-(CELL *)LOCAL_GlobalBase),LOCAL_GlobalBase,HR);
     fprintf(GLOBAL_stderr, "%%   Local:%8ld cells (%p-%p)\n", (unsigned long int)(LCL0-ASP),LCL0,ASP);
     fprintf(GLOBAL_stderr, "%%   Trail:%8ld cells (%p-%p)\n",
 	       (unsigned long int)(TR-(tr_fr_ptr)LOCAL_TrailBase),LOCAL_TrailBase,TR);
@@ -1703,7 +1705,7 @@ Yap_growstack_in_parser(tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
     fprintf(GLOBAL_stderr, "%% Worker Id %d:\n", worker_id);
 #endif
     fprintf(GLOBAL_stderr, "%% Stack Overflow %d\n", LOCAL_stack_overflows);
-    fprintf(GLOBAL_stderr, "%%   Global: %8ld cells (%p-%p)\n", (unsigned long int)(H-(CELL *)LOCAL_GlobalBase),LOCAL_GlobalBase,H);
+    fprintf(GLOBAL_stderr, "%%   Global: %8ld cells (%p-%p)\n", (unsigned long int)(HR-(CELL *)LOCAL_GlobalBase),LOCAL_GlobalBase,HR);
     fprintf(GLOBAL_stderr, "%%   Local:%8ld cells (%p-%p)\n", (unsigned long int)(LCL0-ASP),LCL0,ASP);
     fprintf(GLOBAL_stderr, "%%   Trail:%8ld cells (%p-%p)\n",
 	       (unsigned long int)(TR-(tr_fr_ptr)LOCAL_TrailBase),LOCAL_TrailBase,TR);
@@ -1752,7 +1754,7 @@ static int do_growtrail(long size, int contiguous_only, int in_parser, tr_fr_ptr
 #endif
     fprintf(GLOBAL_stderr, "%% Trail Overflow %d\n", LOCAL_trail_overflows);
 #if USE_SYSTEM_MALLOC
-    fprintf(GLOBAL_stderr, "%%  Heap: %8ld cells (%p-%p)\n", (unsigned long int)(H-(CELL *)LOCAL_GlobalBase),(CELL *)LOCAL_GlobalBase,H);
+    fprintf(GLOBAL_stderr, "%%  Heap: %8ld cells (%p-%p)\n", (unsigned long int)(HR-(CELL *)LOCAL_GlobalBase),(CELL *)LOCAL_GlobalBase,HR);
     fprintf(GLOBAL_stderr, "%%  Local:%8ld cells (%p-%p)\n", (unsigned long int)(LCL0-ASP),LCL0,ASP);
     fprintf(GLOBAL_stderr, "%%  Trail:%8ld cells (%p-%p)\n",
 	       (unsigned long int)(TR-(tr_fr_ptr)LOCAL_TrailBase),LOCAL_TrailBase,TR);
@@ -1974,7 +1976,7 @@ Yap_CopyThreadStacks(int worker_q, int worker_p, int incremental)
   LOCAL_TrDiff = LOCAL_LDiff = LOCAL_GDiff = LOCAL_GDiff0 = LOCAL_DelayDiff = LOCAL_BaseDiff = size;
   LOCAL_XDiff = LOCAL_HDiff = 0;
   LOCAL_GSplit = NULL;
-  H = REMOTE_ThreadHandle(worker_p).current_yaam_regs->H_;
+  HR = REMOTE_ThreadHandle(worker_p).current_yaam_regs->H_;
   H0 = REMOTE_ThreadHandle(worker_p).current_yaam_regs->H0_;
   B = REMOTE_ThreadHandle(worker_p).current_yaam_regs->B_;
   ENV = REMOTE_ThreadHandle(worker_p).current_yaam_regs->ENV_;

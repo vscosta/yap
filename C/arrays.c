@@ -545,14 +545,14 @@ InitNamedArray(ArrayEntry * p, Int dim USES_REGS)
   /* Leave a pointer so that we can reclaim array space when
    * we backtrack or when we abort */
   /* place terms in reverse order */
-  Bind_Global(&(p->ValueOfVE),AbsAppl(H));
-  tp = H;
+  Bind_Global(&(p->ValueOfVE),AbsAppl(HR));
+  tp = HR;
   tp[0] =  (CELL)Yap_MkFunctor(AtomArray, dim);
   tp++;
   p->ArrayEArity = dim;
   /* Initialise the array as a set of variables */
-  H = tp+dim;
-  for (; tp < H; tp++) {
+  HR = tp+dim;
+  for (; tp < HR; tp++) {
     RESET_VARIABLE(tp);
   }
   WRITE_UNLOCK(p->ArRWLock);
@@ -887,13 +887,13 @@ p_create_array( USES_REGS1 )
     Functor farray;
 
     farray = Yap_MkFunctor(AtomArray, size);
-    if (H+1+size > ASP-1024) {
+    if (HR+1+size > ASP-1024) {
       if (!Yap_gcl((1+size)*sizeof(CELL), 2, ENV, gc_P(P,CP))) {
 	Yap_Error(OUT_OF_STACK_ERROR,TermNil,LOCAL_ErrorMessage);
 	return(FALSE);
       } else {
-	if (H+1+size > ASP-1024) {
-	  if (!Yap_growstack( sizeof(CELL) * (size+1-(H-ASP-1024)))) {
+	if (HR+1+size > ASP-1024) {
+	  if (!Yap_growstack( sizeof(CELL) * (size+1-(HR-ASP-1024)))) {
 	    Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
 	    return FALSE;
 	  }
@@ -901,11 +901,11 @@ p_create_array( USES_REGS1 )
       }
       goto restart;
     }
-    t = AbsAppl(H);
-    *H++ = (CELL) farray;
+    t = AbsAppl(HR);
+    *HR++ = (CELL) farray;
     for (; size >= 0; size--) {
-      RESET_VARIABLE(H);
-      H++;
+      RESET_VARIABLE(HR);
+      HR++;
     }
     return (Yap_unify(t, ARG1));
   }
@@ -924,7 +924,7 @@ p_create_array( USES_REGS1 )
 	   )
       pp = RepProp(pp->NextOfPE);
     if (EndOfPAEntr(pp)) {
-      if (H+1+size > ASP-1024) {
+      if (HR+1+size > ASP-1024) {
 	WRITE_UNLOCK(ae->ARWLock);
 	if (!Yap_gcl((1+size)*sizeof(CELL), 2, ENV, gc_P(P,CP))) {
 	  Yap_Error(OUT_OF_STACK_ERROR,TermNil,LOCAL_ErrorMessage);
@@ -946,7 +946,7 @@ p_create_array( USES_REGS1 )
 	Yap_Error(PERMISSION_ERROR_CREATE_ARRAY,t,"create_array",
 	      ae->StrOfAE);
       } else {
-	if (H+1+size > ASP-1024) {
+	if (HR+1+size > ASP-1024) {
 	  if (!Yap_gcl((1+size)*sizeof(CELL), 2, ENV, gc_P(P,CP))) {
 	    Yap_Error(OUT_OF_STACK_ERROR,TermNil,LOCAL_ErrorMessage);
 	    return(FALSE);
@@ -1411,7 +1411,7 @@ loop:
     }
     else if (IsPairTerm(d0)) {
       /* store the terms to visit */
-      *ptn++ = AbsPair(H);
+      *ptn++ = AbsPair(HR);
 #ifdef RATIONAL_TREES
       to_visit[0] = pt0;
       to_visit[1] = pt0_end;
@@ -1430,8 +1430,8 @@ loop:
       pt0 = RepPair(d0) - 1;
       pt0_end = RepPair(d0) + 1;
       /* write the head and tail of the list */
-      ptn = H;
-      H += 2;
+      ptn = HR;
+      HR += 2;
     }
     else if (IsApplTerm(d0)) {
       register Functor f;
@@ -1444,7 +1444,7 @@ loop:
 	  continue;
 	}
       }
-      *ptn++ = AbsAppl(H);
+      *ptn++ = AbsAppl(HR);
       /* store the terms to visit */
 #ifdef RATIONAL_TREES
       to_visit[0] = pt0;
@@ -1465,9 +1465,9 @@ loop:
       d0 = ArityOfFunctor(f);
       pt0_end = pt0 + d0;
       /* start writing the compound term */
-      ptn = H;
+      ptn = HR;
       *ptn++ = (CELL) f;
-      H += d0 + 1;
+      HR += d0 + 1;
     }
     else {			/* AtomOrInt */
       *ptn++ = d0;
@@ -1516,19 +1516,19 @@ replace_array_references(Term t0 USES_REGS)
     return (MkPairTerm(t, TermNil));
   } else if (IsPairTerm(t)) {
     Term VList = MkVarTerm();
-    CELL *h0 = H;
+    CELL *h0 = HR;
 
-    H += 2;
+    HR += 2;
     replace_array_references_complex(RepPair(t) - 1, RepPair(t) + 1, h0,
 				     VList PASS_REGS);
     return MkPairTerm(AbsPair(h0), VList);
   } else {
     Term VList = MkVarTerm();
-    CELL *h0 = H;
+    CELL *h0 = HR;
     Functor f = FunctorOfTerm(t);
 
-    *H++ = (CELL) (f);
-    H += ArityOfFunctor(f);
+    *HR++ = (CELL) (f);
+    HR += ArityOfFunctor(f);
     replace_array_references_complex(RepAppl(t),
 				     RepAppl(t) + ArityOfFunctor(FunctorOfTerm(t)), h0 + 1,
 				     VList PASS_REGS);
@@ -2263,13 +2263,13 @@ p_static_array_to_term( USES_REGS1 )
       Int dim = pp->ArrayEArity, indx;
       CELL *base;
 
-      while (H+1+dim > ASP-1024) {
+      while (HR+1+dim > ASP-1024) {
 	if (!Yap_gcl((1+dim)*sizeof(CELL), 2, ENV, gc_P(P,CP))) {
 	  Yap_Error(OUT_OF_STACK_ERROR,TermNil,LOCAL_ErrorMessage);
 	  return(FALSE);
 	} else {
-	  if (H+1+dim > ASP-1024) {
-	    if (!Yap_growstack( sizeof(CELL) * (dim+1-(H-ASP-1024)))) {
+	  if (HR+1+dim > ASP-1024) {
+	    if (!Yap_growstack( sizeof(CELL) * (dim+1-(HR-ASP-1024)))) {
 	      Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
 	      return FALSE;
 	    }
@@ -2278,13 +2278,13 @@ p_static_array_to_term( USES_REGS1 )
       }
       READ_LOCK(pp->ArRWLock);
       READ_UNLOCK(ae->ARWLock);
-      base = H;
-      *H++ = (CELL)Yap_MkFunctor(AbsAtom(ae),dim);
+      base = HR;
+      *HR++ = (CELL)Yap_MkFunctor(AbsAtom(ae),dim);
       switch(tp) {
       case array_of_ints:
 	{
-	  CELL *sptr = H;
-	  H += dim;
+	  CELL *sptr = HR;
+	  HR += dim;
 	  for (indx=0; indx < dim; indx++) {
 	    *sptr++ = MkIntegerTerm(pp->ValueOfVE.ints[indx]);
 	  }
@@ -2311,13 +2311,13 @@ p_static_array_to_term( USES_REGS1 )
 	  } else {
 	    TRef = TermNil;
 	  }
-	  *H++ = TRef;
+	  *HR++ = TRef;
 	}
 	break;
       case array_of_doubles:
 	{
-	  CELL *sptr = H;
-	  H += dim;
+	  CELL *sptr = HR;
+	  HR += dim;
 	  for (indx=0; indx < dim; indx++) {
 	    *sptr++ = MkEvalFl(pp->ValueOfVE.floats[indx]);
 	  }
@@ -2325,8 +2325,8 @@ p_static_array_to_term( USES_REGS1 )
 	break;
       case array_of_ptrs:
 	{
-	  CELL *sptr = H;
-	  H += dim;
+	  CELL *sptr = HR;
+	  HR += dim;
 	  for (indx=0; indx < dim; indx++) {
 	    *sptr++ = MkIntegerTerm((Int)(pp->ValueOfVE.ptrs[indx]));
 	  }
@@ -2334,8 +2334,8 @@ p_static_array_to_term( USES_REGS1 )
 	break;
       case array_of_chars:
 	{
-	  CELL *sptr = H;
-	  H += dim;
+	  CELL *sptr = HR;
+	  HR += dim;
 	  for (indx=0; indx < dim; indx++) {
 	    *sptr++ = MkIntegerTerm((Int)(pp->ValueOfVE.chars[indx]));
 	  }
@@ -2343,8 +2343,8 @@ p_static_array_to_term( USES_REGS1 )
 	break;
       case array_of_uchars:
 	{
-	  CELL *sptr = H;
-	  H += dim;
+	  CELL *sptr = HR;
+	  HR += dim;
 	  for (indx=0; indx < dim; indx++) {
 	    *sptr++ = MkIntegerTerm((Int)(pp->ValueOfVE.uchars[indx]));
 	  }
@@ -2352,8 +2352,8 @@ p_static_array_to_term( USES_REGS1 )
 	break;
       case array_of_terms:
 	{
-	  CELL *sptr = H;
-	  H += dim;
+	  CELL *sptr = HR;
+	  HR += dim;
 	  for (indx=0; indx < dim; indx++) {
 	    /* The object is now in use */
 	    DBTerm *ref = pp->ValueOfVE.terms[indx];
@@ -2370,8 +2370,8 @@ p_static_array_to_term( USES_REGS1 )
 	break;
       case array_of_nb_terms:
 	{
-	  CELL *sptr = H;
-	  H += dim;
+	  CELL *sptr = HR;
+	  HR += dim;
 	  for (indx=0; indx < dim; indx++) {
 	    /* The object is now in use */
 	    Term To = GetNBTerm(pp->ValueOfVE.lterms, indx PASS_REGS);
@@ -2390,7 +2390,7 @@ p_static_array_to_term( USES_REGS1 )
 	  out = pp->ValueOfVE.atoms[indx];
 	  if (out == 0L)
 	    out = TermNil;
-	  *H++ = out;
+	  *HR++ = out;
 	}
 	break;
       }

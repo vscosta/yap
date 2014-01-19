@@ -255,34 +255,34 @@ do_execute(Term t, Term mod USES_REGS)
 static Term
 copy_execn_to_heap(Functor f, CELL *pt, unsigned int n, unsigned int arity, Term mod USES_REGS)
 {
-  CELL *h0 = H;
+  CELL *h0 = HR;
   Term tf;
   unsigned int i;
 
   if (arity == 2 &&
       NameOfFunctor(f) == AtomDot) {
     for (i = 0; i<arity-n;i++) {
-      *H++ = pt[i];
+      *HR++ = pt[i];
     }
     for (i=0; i< n; i++) {
-      *H++ = h0[(int)(i-n)];
+      *HR++ = h0[(int)(i-n)];
     }
     tf = AbsPair(h0);
   } else {
-    *H++ = (CELL)f;
+    *HR++ = (CELL)f;
     for (i = 0; i<arity-n;i++) {
-      *H++ = pt[i];
+      *HR++ = pt[i];
     }
     for (i=0; i< n; i++) {
-      *H++ = h0[(int)(i-n)];
+      *HR++ = h0[(int)(i-n)];
     }
     tf = AbsAppl(h0);
   }
   if (mod != CurrentModule) {
-    CELL *h0 = H;
-    *H++ = (CELL)FunctorModule;
-    *H++ = mod;
-    *H++ = tf;
+    CELL *h0 = HR;
+    *HR++ = (CELL)FunctorModule;
+    *HR++ = mod;
+    *HR++ = tf;
     tf = AbsAppl(h0);
   }
   return tf;
@@ -375,7 +375,7 @@ do_execute_n(Term t, Term mod, unsigned int n USES_REGS)
 #endif
   }
   for (i = arity-n+1; i <= arity; i++,j++) {
-    XREGS[i] = H[j];
+    XREGS[i] = HR[j];
   }
   return CallPredicate(pen, B, pen->CodeOfPred PASS_REGS);
 }
@@ -422,15 +422,15 @@ static void
 heap_store(Term t USES_REGS)
 {
   if (IsVarTerm(t)) {
-    if (VarOfTerm(t) < H) {
-      *H++ = t;
+    if (VarOfTerm(t) < HR) {
+      *HR++ = t;
     } else {
-      RESET_VARIABLE(H);
-      Bind_Local(VarOfTerm(t), (CELL)H);
-      H++;
+      RESET_VARIABLE(HR);
+      Bind_Local(VarOfTerm(t), (CELL)HR);
+      HR++;
     }
   } else {
-    *H++ = t;
+    *HR++ = t;
   }
 }
 
@@ -1163,7 +1163,7 @@ Yap_PrepGoal(UInt arity, CELL *pt, choiceptr saved_b USES_REGS)
   }
   B = (choiceptr)ASP;
   B--;
-  B->cp_h     = H;
+  B->cp_h     = HR;
   B->cp_tr    = TR;
   B->cp_cp    = CP;
   B->cp_ap    = NOCODE;
@@ -1174,7 +1174,7 @@ Yap_PrepGoal(UInt arity, CELL *pt, choiceptr saved_b USES_REGS)
 #endif /* DEPTH_LIMIT */
   YENV = ASP = (CELL *)B;
   YENV[E_CB] = (CELL)B;
-  HB = H;
+  HB = HR;
   CP = YESCODE;
 }
 
@@ -1272,7 +1272,7 @@ execute_pred(PredEntry *ppe, CELL *pt USES_REGS)
   } else if (out == 0) {
     P    = saved_p;
     CP   = saved_cp;
-    H    = B->cp_h;
+    HR    = B->cp_h;
 #ifdef DEPTH_LIMIT
     DEPTH= B->cp_depth;
 #endif
@@ -1338,7 +1338,7 @@ Yap_trust_last(void)
   CACHE_REGS
   ASP  = B->cp_env;
   CP   = B->cp_cp;
-  H    = B->cp_h;
+  HR    = B->cp_h;
 #ifdef DEPTH_LIMIT
   DEPTH= B->cp_depth;
 #endif
@@ -1757,7 +1757,7 @@ Yap_InitYaamRegs( int myworker_id )
   Yap_ResetExceptionTerm ( myworker_id );
   Yap_PutValue (AtomBreak, MkIntTerm (0));
   TR = (tr_fr_ptr)REMOTE_TrailBase(myworker_id);
-  H = H0 = ((CELL *) REMOTE_GlobalBase(myworker_id))+1; // +1: hack to ensure the gc does not try to mark mistakenly
+  HR = H0 = ((CELL *) REMOTE_GlobalBase(myworker_id))+1; // +1: hack to ensure the gc does not try to mark mistakenly
   LCL0 = ASP = (CELL *) REMOTE_LocalBase(myworker_id);
   CurrentTrailTop = (tr_fr_ptr)(REMOTE_TrailTop(myworker_id)-MinTrailGap);
   /* notice that an initial choice-point and environment
@@ -1770,7 +1770,7 @@ Yap_InitYaamRegs( int myworker_id )
 #endif
   STATIC_PREDICATES_MARKED = FALSE;
 #ifdef FROZEN_STACKS
-  H_FZ = H;
+  H_FZ = HR;
 #ifdef YAPOR_SBA
   BSEG =
 #endif /* YAPOR_SBA */

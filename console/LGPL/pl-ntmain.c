@@ -498,7 +498,7 @@ do_complete(RlcCompleteData data)
 		 *******************************/
 
 rlc_console
-PL_current_console()
+PL_current_console(void)
 { if ( Suser_input->functions->read == Srlc_read )
     return Suser_input->handle;
 
@@ -765,7 +765,7 @@ pl_wnd_proc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 
 static TCHAR *
-HiddenFrameClass()
+HiddenFrameClass(void)
 { static TCHAR winclassname[32];
   static WNDCLASS wndClass;
   HINSTANCE instance = rlc_hinstance();
@@ -842,7 +842,7 @@ fatalSignal(int sig)
 
 
 static void
-initSignals()
+initSignals(void)
 { signal(SIGABRT, fatalSignal);
   signal(SIGFPE,  fatalSignal);
   signal(SIGILL,  fatalSignal);

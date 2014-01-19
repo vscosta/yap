@@ -794,7 +794,7 @@ int pc_import_occ_switches_3(void)
 
 #ifdef __YAP_PROLOG__
 	if ( heap_top + 64*1024 >= local_top ) {			    
-	  H = hstart;
+	  HR = hstart;
 	  /* running out of stack */
 	  extern int Yap_gcl(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop);
 

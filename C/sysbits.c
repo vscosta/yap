@@ -205,7 +205,6 @@ Yap_InitSysPath(void) {
   strncpy(LOCAL_FileNameBuf, YAP_SHAREDIR, YAP_FILENAME_MAX);
 #if _MSC_VER || defined(__MINGW32__)
   {
-    DWORD fatts;
     int buflen;
     char *pt;
 
@@ -2733,7 +2732,9 @@ set_fpu_exceptions(int flag)
 #if HAVE_FETESTEXCEPT
     feclearexcept(FE_ALL_EXCEPT);
 #endif
+#ifndef _WIN32
     my_signal (SIGFPE, HandleMatherr);
+#endif
   } else {
     /* do IEEE arithmetic in the way the big boys do */
 #if defined(__hpux)
@@ -2748,7 +2749,9 @@ set_fpu_exceptions(int flag)
     int v = _FPU_IEEE;
    _FPU_SETCW(v);
 #endif    
+#ifndef _WIN32
     my_signal (SIGFPE, SIG_IGN);
+#endif
   }
 }
 

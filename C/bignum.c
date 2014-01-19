@@ -38,8 +38,8 @@ Yap_MkBigIntTerm(MP_INT *big)
 {
   CACHE_REGS
   Int nlimbs;
-  MP_INT *dst = (MP_INT *)(H+2);
-  CELL *ret = H;
+  MP_INT *dst = (MP_INT *)(HR+2);
+  CELL *ret = HR;
   Int bytes;
 
   if (mpz_fits_slong_p(big)) {
@@ -54,15 +54,15 @@ Yap_MkBigIntTerm(MP_INT *big)
   if (nlimbs > (ASP-ret)-1024) {
     return TermNil;
   }
-  H[0] = (CELL)FunctorBigInt;
-  H[1] = BIG_INT;
+  HR[0] = (CELL)FunctorBigInt;
+  HR[1] = BIG_INT;
 
   dst->_mp_size = big->_mp_size;
   dst->_mp_alloc = nlimbs*(CellSize/sizeof(mp_limb_t));
   memmove((void *)(dst+1), (const void *)(big->_mp_d), bytes);
-  H = (CELL *)(dst+1)+nlimbs;
-  H[0] = EndSpecials;
-  H++;
+  HR = (CELL *)(dst+1)+nlimbs;
+  HR[0] = EndSpecials;
+  HR++;
   return AbsAppl(ret);
 }
 
@@ -81,19 +81,19 @@ Yap_MkBigRatTerm(MP_RAT *big)
 {
   CACHE_REGS
   Int nlimbs;
-  MP_INT *dst = (MP_INT *)(H+2);
+  MP_INT *dst = (MP_INT *)(HR+2);
   MP_INT *num = mpq_numref(big);
   MP_INT *den = mpq_denref(big);
   MP_RAT *rat;
-  CELL *ret = H;
+  CELL *ret = HR;
 
   if (mpz_cmp_si(den, 1) == 0)
     return Yap_MkBigIntTerm(num);
   if ((num->_mp_alloc+den->_mp_alloc)*(sizeof(mp_limb_t)/CellSize) > (ASP-ret)-1024) {
     return TermNil;
   }
-  H[0] = (CELL)FunctorBigInt;
-  H[1] = BIG_RATIONAL;
+  HR[0] = (CELL)FunctorBigInt;
+  HR[1] = BIG_RATIONAL;
   dst->_mp_size = 0;
   rat = (MP_RAT *)(dst+1);
   rat->_mp_num._mp_size = num->_mp_size;
@@ -102,13 +102,13 @@ Yap_MkBigRatTerm(MP_RAT *big)
   memmove((void *)(rat+1), (const void *)(num->_mp_d), nlimbs*CellSize);
   rat->_mp_den._mp_size = den->_mp_size;
   rat->_mp_den._mp_alloc = den->_mp_alloc;
-  H = (CELL *)(rat+1)+nlimbs;
+  HR = (CELL *)(rat+1)+nlimbs;
   nlimbs = (den->_mp_alloc)*(sizeof(mp_limb_t)/CellSize);
-  memmove((void *)(H), (const void *)(den->_mp_d), nlimbs*CellSize);
-  H += nlimbs;
-  dst->_mp_alloc = (H-(CELL *)(dst+1));
-  H[0] = EndSpecials;
-  H++;
+  memmove((void *)(HR), (const void *)(den->_mp_d), nlimbs*CellSize);
+  HR += nlimbs;
+  dst->_mp_alloc = (HR-(CELL *)(dst+1));
+  HR[0] = EndSpecials;
+  HR++;
   return AbsAppl(ret);
 }
 
@@ -142,20 +142,20 @@ Yap_AllocExternalDataInStack(CELL tag, size_t bytes)
 {
   CACHE_REGS
   Int nlimbs;
-  MP_INT *dst = (MP_INT *)(H+2);
-  CELL *ret = H;
+  MP_INT *dst = (MP_INT *)(HR+2);
+  CELL *ret = HR;
 
   nlimbs = ALIGN_YAPTYPE(bytes,CELL)/CellSize;
   if (nlimbs > (ASP-ret)-1024) {
     return TermNil;
   }
-  H[0] = (CELL)FunctorBigInt;
-  H[1] = tag;
+  HR[0] = (CELL)FunctorBigInt;
+  HR[1] = tag;
   dst->_mp_size = 0;
   dst->_mp_alloc = nlimbs;
-  H = (CELL *)(dst+1)+nlimbs;
-  H[0] = EndSpecials;
-  H++;
+  HR = (CELL *)(dst+1)+nlimbs;
+  HR[0] = EndSpecials;
+  HR++;
   if (tag != EXTERNAL_BLOB) {
     TrailTerm(TR) = AbsPair(ret);
     TR++;

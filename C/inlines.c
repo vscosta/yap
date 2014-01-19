@@ -425,9 +425,9 @@ p_dif( USES_REGS1 )
     /* make B and HB point to H to guarantee all bindings will
      * be trailed
      */
-    HBREG = H;
-    B = (choiceptr) H;
-    B->cp_h = H;
+    HBREG = HR;
+    B = (choiceptr) HR;
+    B->cp_h = HR;
     SET_BB(B);
     save_hb();
     d0 = Yap_IUnify(d0, d1);
@@ -442,7 +442,7 @@ p_dif( USES_REGS1 )
     B = pt1;
     SET_BB(PROTECT_FROZEN_B(pt1));
 #ifdef COROUTINING
-    H = HBREG;
+    HR = HBREG;
 #endif
     HBREG = B->cp_h;
     /* untrail all bindings made by Yap_IUnify */
@@ -707,10 +707,10 @@ p_functor( USES_REGS1 )			/* functor(?,?,?) */
   /* We made it!!!!! we got in d0 the name, in d1 the arity and
    * in pt0 the variable to bind it to. */
   if (d0 == TermDot && d1 == 2) {
-    RESET_VARIABLE(H);
-    RESET_VARIABLE(H+1);
-    d0 = AbsPair(H);
-    H += 2;
+    RESET_VARIABLE(HR);
+    RESET_VARIABLE(HR+1);
+    d0 = AbsPair(HR);
+    HR += 2;
   }
   else if ((Int)d1 > 0) {
     /* now let's build a compound term */
@@ -724,9 +724,9 @@ p_functor( USES_REGS1 )			/* functor(?,?,?) */
     }
     else
       d0 = (CELL) Yap_MkFunctor(AtomOfTerm(d0), (Int) d1);
-    pt1 = H;
+    pt1 = HR;
     *pt1++ = d0;
-    d0 = AbsAppl(H);
+    d0 = AbsAppl(HR);
     if (pt1+d1 > ENV - StackGap( PASS_REGS1 )) {
       if (!Yap_gcl((1+d1)*sizeof(CELL), 3, ENV, gc_P(P,CP))) {
 	Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
@@ -739,7 +739,7 @@ p_functor( USES_REGS1 )			/* functor(?,?,?) */
       pt1++;
     }
     /* done building the term */
-    H = pt1;
+    HR = pt1;
     ENDP(pt1);
   } else if ((Int)d1  < 0) {
     Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,MkIntegerTerm(d1),"functor/3");

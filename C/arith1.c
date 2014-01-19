@@ -152,7 +152,7 @@ lsb(Int inp USES_REGS)	/* calculate the least significant bit for an integer */
   }
   if (inp==0)
     return 0L;
-#if SIZEOF_LONG_INT == 8
+#if SIZEOF_INT_P == 8
   if (!(inp & 0xffffffffLL)) {inp >>= 32; out += 32;}
 #endif
   if (!(inp &     0xffffL)) {inp >>= 16; out += 16;}
@@ -373,10 +373,10 @@ eval1(Int fi, Term t USES_REGS) {
     }
   case op_lgamma:
     {
+#if HAVE_LGAMMA
       Float dbl;
 
       dbl = get_float(t);
-#if HAVE_LGAMMA
       RFLOAT(lgamma(dbl));
 #else
       RERROR();
@@ -384,8 +384,8 @@ eval1(Int fi, Term t USES_REGS) {
     }
  case op_erf:
    {
-     Float dbl = get_float(t), out;
 #if HAVE_ERF
+     Float dbl = get_float(t), out;
      out = erf(dbl);
      RFLOAT(out);
 #else
@@ -394,8 +394,8 @@ eval1(Int fi, Term t USES_REGS) {
    }
  case op_erfc:
    {
-     Float dbl = get_float(t), out;
 #if HAVE_ERF
+     Float dbl = get_float(t), out;
      out = erfc(dbl);
      RFLOAT(out);
 #else

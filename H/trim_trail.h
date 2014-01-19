@@ -27,7 +27,7 @@
 	    /* skip, this is a problem because we lose information,
 	       namely active references */
 	    pt1 = (tr_fr_ptr)pt;
-	  } else if (IN_BETWEEN(H0,pt,H) && IsAttVar(pt)) {
+	  } else if (IN_BETWEEN(H0,pt,HR) && IsAttVar(pt)) {
 	    CELL val = Deref(*pt);
 	    if (IsVarTerm(val)) {
 	      Bind(pt, MkAtomTerm(AtomCut));

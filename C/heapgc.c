@@ -1163,7 +1163,7 @@ mark_variable(CELL_PTR current USES_REGS)
   if (UNMARKED_MARK(current,local_bp)) {
     POP_CONTINUATION();
   }
-  if (current >= H0 && current < H) {
+  if (current >= H0 && current < HR) {
     //fprintf(stderr,"%p M\n", current);
     LOCAL_total_marked++;
     if (current < LOCAL_HGEN) {
@@ -1177,7 +1177,7 @@ mark_variable(CELL_PTR current USES_REGS)
   next = GET_NEXT(ccur);
 
   if (IsVarTerm(ccur)) {
-    if (IN_BETWEEN(LOCAL_GlobalBase,current,H) && GlobalIsAttVar(current) && current==next) {
+    if (IN_BETWEEN(LOCAL_GlobalBase,current,HR) && GlobalIsAttVar(current) && current==next) {
       if (next < H0) POP_CONTINUATION();
       if (!UNMARKED_MARK(next-1,local_bp)) {
 	//fprintf(stderr,"%p M\n", next-1);
@@ -1222,7 +1222,7 @@ mark_variable(CELL_PTR current USES_REGS)
 	  if (next >= HB && current < LCL0 && cnext != TermFoundVar) {
 	    UNMARK(current);
 	    *current = cnext;
-	    if (current >= H0 && current < H) {
+	    if (current >= H0 && current < HR) {
 	      //fprintf(stderr,"%p M\n", current-1);
 	      LOCAL_total_marked--;
 	      if (current < LOCAL_HGEN) {
@@ -1247,7 +1247,7 @@ mark_variable(CELL_PTR current USES_REGS)
 	/* This step is possible because we clean up the trail */
 	*current = UNMARK_CELL(cnext);
 	UNMARK(current);
-	if (current >= H0 && current < H ) {
+	if (current >= H0 && current < HR ) {
 	  //fprintf(stderr,"%p M\n", current);
 	  LOCAL_total_marked--;
 	  if (current < LOCAL_HGEN) {
@@ -1365,7 +1365,7 @@ mark_variable(CELL_PTR current USES_REGS)
 	MARK(next);
 	PUSH_POINTER(next PASS_REGS);
 	{
-	  UInt sz = 1+SIZEOF_DOUBLE/SIZEOF_LONG_INT;
+	  UInt sz = 1+SIZEOF_DOUBLE/SIZEOF_INT_P;
 	  if (next < LOCAL_HGEN) {
 	    LOCAL_total_oldies+= 1+sz;
 	  } else {
@@ -1736,7 +1736,7 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 	     nondeterministically, I know that after backtracking it will be back to be an unbound variable.
 	     The ideal solution would be to unbind all variables. The current solution is to
 	     remark it as an attributed variable */
-	  if (IN_BETWEEN(LOCAL_GlobalBase,hp,H) && GlobalIsAttVar(hp) && !UNMARKED_MARK(hp-1,LOCAL_bp)) {
+	  if (IN_BETWEEN(LOCAL_GlobalBase,hp,HR) && GlobalIsAttVar(hp) && !UNMARKED_MARK(hp-1,LOCAL_bp)) {
 	    //fprintf(stderr,"%p M\n", hp);
 	    LOCAL_total_marked++;
 	    PUSH_POINTER(hp-1 PASS_REGS);
@@ -1779,7 +1779,7 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
     } else if (IsPairTerm(trail_cell)) {
       /* cannot safely ignore this */
       CELL *cptr = RepPair(trail_cell);
-      if (IN_BETWEEN(LOCAL_GlobalBase,cptr,H)) {
+      if (IN_BETWEEN(LOCAL_GlobalBase,cptr,HR)) {
 	if (GlobalIsAttVar(cptr)) {
 	  TrailTerm(trail_base) = (CELL)cptr;
 	  mark_external_reference(&TrailTerm(trail_base) PASS_REGS);
@@ -2617,7 +2617,7 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR USES_REGS)
       if (IsVarTerm(trail_cell)) {
 	/* we need to check whether this is a honest to god trail entry */
 	/* make sure it is a heap cell before we test whether it has been marked */
-	if ((CELL *)trail_cell < H && (CELL *)trail_cell >= H0 && MARKED_PTR((CELL *)trail_cell)) {
+	if ((CELL *)trail_cell < HR && (CELL *)trail_cell >= H0 && MARKED_PTR((CELL *)trail_cell)) {
 	  if (HEAP_PTR(trail_cell)) {
 	    into_relocation_chain(&TrailTerm(dest), GET_NEXT(trail_cell) PASS_REGS);
 	  }
@@ -2635,7 +2635,7 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR USES_REGS)
 	CELL *pt0 = RepPair(trail_cell);
 	CELL flags;
 
-	if (IN_BETWEEN(LOCAL_GlobalBase, pt0, H)) {
+	if (IN_BETWEEN(LOCAL_GlobalBase, pt0, HR)) {
 	  if (GlobalIsAttVar(pt0)) {
 	    TrailTerm(dest) = trail_cell;
 	    /* be careful with partial gc */
@@ -3445,12 +3445,12 @@ compact_heap( USES_REGS1 )
   next_hb = set_next_hb(gc_B PASS_REGS);
   dest = H0 + LOCAL_total_marked - 1;
 
-  gc_B = update_B_H(gc_B, H, dest+1, dest+2
+  gc_B = update_B_H(gc_B, HR, dest+1, dest+2
 #ifdef TABLING
 		    , &depfr
 #endif /* TABLING */
 		    );
-  for (current = H - 1; current >= start_from; current--) {
+  for (current = HR - 1; current >= start_from; current--) {
 
     if (MARKED_PTR(current)) {
       CELL ccell = UNMARK_CELL(*current);
@@ -3541,7 +3541,7 @@ compact_heap( USES_REGS1 )
    */
 
   dest = (CELL_PTR) start_from;
-  for (current = start_from; current < H; current++) {
+  for (current = start_from; current < HR; current++) {
     CELL ccur = *current;
     if (MARKED_PTR(current)) {
       CELL uccur = UNMARK_CELL(ccur);
@@ -3577,7 +3577,7 @@ compact_heap( USES_REGS1 )
       ccur = *current;
       next = GET_NEXT(ccur);
       if (HEAP_PTR(ccur) &&
-	  (next = GET_NEXT(ccur)) < H && /* move current cell &
+	  (next = GET_NEXT(ccur)) < HR && /* move current cell &
 				 * push */
 	  next > current) {	/* into relocation chain  */
 	*dest = ccur;
@@ -3601,7 +3601,7 @@ compact_heap( USES_REGS1 )
 	    (unsigned long int)found_marked);
 #endif
 
-  H = dest;		/* reset H */
+  HR = dest;		/* reset H */
   HB = B->cp_h;
 #ifdef TABLING
   if (B_FZ == (choiceptr)LCL0)
@@ -3620,7 +3620,7 @@ compact_heap( USES_REGS1 )
 static void 
 icompact_heap( USES_REGS1 )
 {
-  CELL_PTR *iptr, *ibase = (CELL_PTR *)H;
+  CELL_PTR *iptr, *ibase = (CELL_PTR *)HR;
   CELL_PTR dest;
   CELL *next_hb;
 #ifdef DEBUG
@@ -3645,7 +3645,7 @@ icompact_heap( USES_REGS1 )
 #endif /* TABLING */
   next_hb = set_next_hb(gc_B PASS_REGS);
   dest = (CELL_PTR) H0 + LOCAL_total_marked - 1;
-  gc_B = update_B_H(gc_B, H, dest+1, dest+2
+  gc_B = update_B_H(gc_B, HR, dest+1, dest+2
 #ifdef TABLING
 		    , &depfr
 #endif /* TABLING */
@@ -3778,7 +3778,7 @@ icompact_heap( USES_REGS1 )
 	    (unsigned long int)found_marked);
 #endif
 
-  H = dest;		/* reset H */
+  HR = dest;		/* reset H */
   HB = B->cp_h;
 #ifdef TABLING
   if (B_FZ == (choiceptr)LCL0)
@@ -3867,7 +3867,7 @@ compaction_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp USES_REGS)
 {
   CELL *CurrentH0 = NULL;
 
-  int icompact = (LOCAL_iptop < (CELL_PTR *)ASP && 10*LOCAL_total_marked < H-H0);
+  int icompact = (LOCAL_iptop < (CELL_PTR *)ASP && 10*LOCAL_total_marked < HR-H0);
 
   if (icompact) {
     /* we are going to reuse the total space */
@@ -3908,7 +3908,7 @@ compaction_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp USES_REGS)
       LOCAL_total_marked += LOCAL_total_oldies;
       CurrentH0 = NULL; 
     }
-    quicksort((CELL_PTR *)H, 0, (LOCAL_iptop-(CELL_PTR *)H)-1);
+    quicksort((CELL_PTR *)HR, 0, (LOCAL_iptop-(CELL_PTR *)HR)-1);
     icompact_heap( PASS_REGS1 );
   } else
 #endif /* HYBRID_SCHEME */
@@ -3947,7 +3947,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop USES_REGS)
   UInt		alloc_sz;
   int jmp_res;
 
-  heap_cells = H-H0;
+  heap_cells = HR-H0;
   gc_verbose = is_gc_verbose();
   effectiveness = 0;
   gc_trace = FALSE;
@@ -3984,7 +3984,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop USES_REGS)
     fprintf(GLOBAL_stderr, "%% Worker Id %d:\n", worker_id);
 #endif
     fprintf(GLOBAL_stderr, "%% Start of garbage collection %lu:\n", (unsigned long int)LOCAL_GcCalls);
-    fprintf(GLOBAL_stderr, "%%       Global: %8ld cells (%p-%p)\n", (long int)heap_cells,H0,H);
+    fprintf(GLOBAL_stderr, "%%       Global: %8ld cells (%p-%p)\n", (long int)heap_cells,H0,HR);
     fprintf(GLOBAL_stderr, "%%       Local:%8ld cells (%p-%p)\n", (unsigned long int)(LCL0-ASP),LCL0,ASP);
     fprintf(GLOBAL_stderr, "%%       Trail:%8ld cells (%p-%p)\n",
 	       (unsigned long int)(TR-(tr_fr_ptr)LOCAL_TrailBase),LOCAL_TrailBase,TR);
@@ -4070,7 +4070,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop USES_REGS)
   }
   memset((void *)LOCAL_bp, 0, alloc_sz);
 #ifdef HYBRID_SCHEME
-  LOCAL_iptop = (CELL_PTR *)H;
+  LOCAL_iptop = (CELL_PTR *)HR;
 #endif
   /* get the number of active registers */
   LOCAL_HGEN = VarOfTerm(Yap_ReadTimedVar(LOCAL_GcGeneration));
@@ -4144,7 +4144,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop USES_REGS)
   if (gc_verbose) {
     fprintf(GLOBAL_stderr, "%% GC %lu took %g sec, total of %g sec doing GC so far.\n", (unsigned long int)LOCAL_GcCalls, (double)gc_time/1000, (double)LOCAL_TotGcTime/1000);
     fprintf(GLOBAL_stderr, "%%  Left %ld cells free in stacks.\n",
-	       (unsigned long int)(ASP-H));
+	       (unsigned long int)(ASP-HR));
   }
   check_global();
   return effectiveness;
@@ -4231,19 +4231,19 @@ call_gc(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop USES_REGS)
   if (gc_on && !(LOCAL_PrologMode & InErrorMode) &&
       /* make sure there is a point in collecting the heap */
       (ASP-H0)*sizeof(CELL) > gc_lim && 
-      H-LOCAL_HGEN > (LCL0-ASP)/2) {
+      HR-LOCAL_HGEN > (LCL0-ASP)/2) {
     effectiveness = do_gc(predarity, current_env, nextop PASS_REGS);
     if (effectiveness < 0)
       return FALSE;
     if (effectiveness > 90 && !gc_t) {
-      while (gc_margin < (H-H0)/sizeof(CELL)) 
+      while (gc_margin < (HR-H0)/sizeof(CELL)) 
 	gc_margin <<= 1;
     }
   } else {
     effectiveness = 0;
   }
   /* expand the stack if effectiveness is less than 20 % */
-  if (ASP - H < gc_margin/sizeof(CELL) ||
+  if (ASP - HR < gc_margin/sizeof(CELL) ||
       effectiveness < 20) {
     LeaveGCMode( PASS_REGS1 );
 #ifndef YAPOR
