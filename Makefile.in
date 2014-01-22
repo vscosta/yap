@@ -744,10 +744,10 @@ all: startup.yss
 
 startup.yss: yap@EXEC_SUFFIX@ $(PL_SOURCES)
 	-rm -f startup.yss
-	echo "bootstrap('$(srcdir)/pl/init.yap'). module(user). qsave_program('startup.yss')." |  @PRE_INSTALL_ENV@ ./yap -b $(srcdir)/pl/boot.yap
+	echo "bootstrap('$(srcdir)/pl/init.yap'). module(user). qsave_program('startup.yss')." |  @PRE_INSTALL_ENV@ ./yap@EXEC_SUFFIX@ -b $(srcdir)/pl/boot.yap
 
 yap@EXEC_SUFFIX@: $(HEADERS) yap.o @YAPLIB@
-	$(MPI_CC) $(EXECUTABLE_CFLAGS) $(LDFLAGS) -o yap yap.o @YAPLIB@ $(LIBS)
+	$(MPI_CC) $(EXECUTABLE_CFLAGS) $(LDFLAGS) -o yap@EXEC_SUFFIX@ yap.o @YAPLIB@ $(LIBS)
 
 yap-win: yap-win@EXEC_SUFFIX@
 
@@ -755,7 +755,7 @@ yapwin: yap-win@EXEC_SUFFIX@
 
 yap-win@EXEC_SUFFIX@: $(PLCONS_OBJECTS) $(HEADERS) @YAPLIB@
 	(cd swi/console; $(MAKE))
-	$(MPI_CC) -municode -DUNICODE -D_UNICODE $(EXECUTABLE_CFLAGS) $(LDFLAGS) -Wl,-subsystem,windows -o yap-win $(PLCONS_OBJECTS) plterm.dll @YAPLIB@ $(LIBS) @MPILDF@
+	$(MPI_CC) -municode -DUNICODE -D_UNICODE $(EXECUTABLE_CFLAGS) $(LDFLAGS) -Wl,-subsystem,windows -o yap-win@EXEC_SUFFIX@ $(PLCONS_OBJECTS) plterm.dll @YAPLIB@ $(LIBS) @MPILDF@
 
 libYap.a: $(LIB_OBJECTS) 
 	-rm -f libYap.a

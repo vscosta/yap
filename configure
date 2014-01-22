@@ -5081,7 +5081,7 @@ fi
 
 
 
-if test "$target_os" = "cygwin"  -o "$target_os" = "mingw32"
+if test "$target_os" = "cygwin"  -o "$target_os" = "mingw32"  -o "$target_os" = "mingw64"
 then
   INSTALL_COMMAND=install_win32
   EXTRA_INCLUDES_FOR_WIN32="-I\$(srcdir)/packages/PLStream/windows"
@@ -5490,13 +5490,33 @@ fi
     yap_cv_readline=no
     if test "$prefix" = "NONE"
     then
-      if test "$target_win64" = yes
+      #mingw64
+      case "$build_os" in
+      *linux*)
+        if test "${WINEPREFIX}x" = x
+        then
+           SYSTEMDRIVE=$HOME/.wine/drive_c
+        else
+	   SYSTEMDRIVE="$WINEPREFIX"
+        fi
+        if test "$target_cpu" = "x86_64"
+        then
+         prefix="$SYSTEMDRIVE/Yap64"
+        else
+          prefix="$SYSTEMDRIVE/Yap"
+        fi
+ 	;;
+      **)
+      if test "$target_cpu" = "x86_64"
       then
         prefix="\${SYSTEMDRIVE}/Yap64"
       else
         prefix="\${SYSTEMDRIVE}/Yap"
       fi
+       ;;
+      esac
     fi
+    echo $prefix
     ENABLE_WINCONSOLE=""
   else
     ENABLE_WINCONSOLE="#"
@@ -11709,7 +11729,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 11712 "configure" */
+/* #line 11732 "configure" */
 public class Test {
 }
 EOF
@@ -11885,7 +11905,7 @@ EOF
 if uudecode$EXEEXT Test.uue; then
         ac_cv_prog_uudecode_base64=yes
 else
-        echo "configure: 11888: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
+        echo "configure: 11908: uudecode had trouble decoding base 64 file 'Test.uue'" >&5
         echo "configure: failed file was:" >&5
         cat Test.uue >&5
         ac_cv_prog_uudecode_base64=no
@@ -12016,7 +12036,7 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
-/* #line 12019 "configure" */
+/* #line 12039 "configure" */
 public class Test {
 }
 EOF
@@ -12051,7 +12071,7 @@ JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 TEST=Test
 cat << \EOF > $JAVA_TEST
-/* [#]line 12054 "configure" */
+/* [#]line 12074 "configure" */
 public class Test {
 public static void main (String args[]) {
         System.exit (0);

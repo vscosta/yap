@@ -514,7 +514,7 @@ dnl Check for libraries.
 dnl mingw does not get along well with libm
 dnl cygnus and mingw32 also need wsock32 to use sockets.
 dnl
-if test "$target_os" = "cygwin"  -o "$target_os" = "mingw32"
+if test "$target_os" = "cygwin"  -o "$target_os" = "mingw32"  -o "$target_os" = "mingw64"
 then
   INSTALL_COMMAND=install_win32
   EXTRA_INCLUDES_FOR_WIN32="-I\$(srcdir)/packages/PLStream/windows"
@@ -542,13 +542,33 @@ then
     yap_cv_readline=no
     if test "$prefix" = "NONE"
     then
-      if test "$target_win64" = yes
+      #mingw64
+      case "$build_os" in
+      *linux*)
+        if test "${WINEPREFIX}x" = x
+        then
+           SYSTEMDRIVE=$HOME/.wine/drive_c
+        else
+	   SYSTEMDRIVE="$WINEPREFIX"
+        fi
+        if test "$target_cpu" = "x86_64"
+        then
+         prefix="$SYSTEMDRIVE/Yap64"
+        else
+          prefix="$SYSTEMDRIVE/Yap"
+        fi
+ 	;;
+      **)
+      if test "$target_cpu" = "x86_64"
       then
         prefix="\${SYSTEMDRIVE}/Yap64"
       else
         prefix="\${SYSTEMDRIVE}/Yap"
       fi
+       ;;
+      esac
     fi
+    echo $prefix
     ENABLE_WINCONSOLE=""   
   else
     ENABLE_WINCONSOLE="#"   
