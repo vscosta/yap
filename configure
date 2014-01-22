@@ -13311,19 +13311,84 @@ test -n "$PYTHON" || PYTHON=""none""
    else
      PYTHON="$yap_cv_python"
    fi
-   PYTHONHOME=`$PYTHON -c'import sys; print sys.prefix'`
-   PYTHONVERSION=`"$PYTHON" -c "import sys; print sys.version[:3]"`
+   PYTHONHOME=`$PYTHON -c'import sys; sys.stdout.write(sys.prefix)'`
+   PYTHONVERSION=`"$PYTHON" -c "import sys; sys.stdout.write(sys.version[:3])"`
    if test -d "$PYTHONHOME/libs"; then
           PYTHONV=`echo "$PYTHONVERSION"|sed -e 's/\.//g'`
-     PYTHON_LIBS="-L $PYTHONHOME/libs -lpython$PYTHONV"
+     PYTHON_LIBS="-L $PYTHONHOME/libs"
    elif test -d "$PYTHONHOME/lib"; then
-     PYTHON_LIBS="-L $PYTHONHOME/lib -lpython$PYTHONVERSION"
+     PYTHON_LIBS="-L $PYTHONHOME/lib"
    else
-     echo "Could not find includes for Python"
+     echo "Could not find libraries for Python"
      ENABLE_PYTHON="@# "
    fi
+   OLIBS=$LIBS
+   LIBS=$PYTHON_LIBS
+   { $as_echo "$as_me:${as_lineno-$LINENO}: checking for library containing Py_Initialize" >&5
+$as_echo_n "checking for library containing Py_Initialize... " >&6; }
+if ${ac_cv_search_Py_Initialize+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_func_search_save_LIBS=$LIBS
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char Py_Initialize ();
+int
+main ()
+{
+return Py_Initialize ();
+  ;
+  return 0;
+}
+_ACEOF
+for ac_lib in '' python"$PYTHONVERSION" python"$PYTHONVERSION"m; do
+  if test -z "$ac_lib"; then
+    ac_res="none required"
+  else
+    ac_res=-l$ac_lib
+    LIBS="-l$ac_lib "$OLIBS" $ac_func_search_save_LIBS"
+  fi
+  if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_search_Py_Initialize=$ac_res
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext
+  if ${ac_cv_search_Py_Initialize+:} false; then :
+  break
+fi
+done
+if ${ac_cv_search_Py_Initialize+:} false; then :
+
+else
+  ac_cv_search_Py_Initialize=no
+fi
+rm conftest.$ac_ext
+LIBS=$ac_func_search_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_search_Py_Initialize" >&5
+$as_echo "$ac_cv_search_Py_Initialize" >&6; }
+ac_res=$ac_cv_search_Py_Initialize
+if test "$ac_res" != no; then :
+  test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
+
+else
+  echo "Could not find libraries for Python";
+     ENABLE_PYTHON="@# "
+fi
+
+   PYTHON_LIBS=$LIBS
+   LIBS=$OLIBS
    if test -d "$PYTHONHOME/include/python$PYTHONVERSION"; then
      PYTHON_INCLUDES="-I $PYTHONHOME/include/python$PYTHONVERSION"
+   elif test -d "$PYTHONHOME/include/python$PYTHONVERSION"m; then
+     PYTHON_INCLUDES="-I $PYTHONHOME/include/python$PYTHONVERSION"m
    elif test -d "$PYTHONHOME/include"; then
      PYTHON_INCLUDES="-I $PYTHONHOME/include"
    else

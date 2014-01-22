@@ -21,20 +21,28 @@ elif test -e "$srcdir"/packages/python/Makefile.in ; then
    else
      PYTHON="$yap_cv_python"
    fi
-   PYTHONHOME=`$PYTHON -c'import sys; print sys.prefix'`
-   PYTHONVERSION=`"$PYTHON" -c "import sys; print sys.version[[:3]]"`
+   PYTHONHOME=`$PYTHON -c'import sys; sys.stdout.write(sys.prefix)'`
+   PYTHONVERSION=`"$PYTHON" -c "import sys; sys.stdout.write(sys.version[[:3]])"`
    if test -d "$PYTHONHOME/libs"; then
      dnl windows
      PYTHONV=`echo "$PYTHONVERSION"|sed -e 's/\.//g'`
-     PYTHON_LIBS="-L $PYTHONHOME/libs -lpython$PYTHONV"
+     PYTHON_LIBS="-L $PYTHONHOME/libs"
    elif test -d "$PYTHONHOME/lib"; then
-     PYTHON_LIBS="-L $PYTHONHOME/lib -lpython$PYTHONVERSION"
+     PYTHON_LIBS="-L $PYTHONHOME/lib"
    else
-     echo "Could not find includes for Python"
+     echo "Could not find libraries for Python"
      ENABLE_PYTHON="@# "
    fi
+   OLIBS=$LIBS
+   LIBS=$PYTHON_LIBS
+   AC_SEARCH_LIBS(Py_Initialize, [python"$PYTHONVERSION" python"$PYTHONVERSION"m],,[echo "Could not find libraries for Python";
+     ENABLE_PYTHON="@# "],"$OLIBS")  
+   PYTHON_LIBS=$LIBS
+   LIBS=$OLIBS
    if test -d "$PYTHONHOME/include/python$PYTHONVERSION"; then
      PYTHON_INCLUDES="-I $PYTHONHOME/include/python$PYTHONVERSION"
+   elif test -d "$PYTHONHOME/include/python$PYTHONVERSION"m; then
+     PYTHON_INCLUDES="-I $PYTHONHOME/include/python$PYTHONVERSION"m
    elif test -d "$PYTHONHOME/include"; then
      PYTHON_INCLUDES="-I $PYTHONHOME/include"
    else

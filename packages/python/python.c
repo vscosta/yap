@@ -64,8 +64,10 @@ get_p_int(PyObject *o, Py_ssize_t def) {
     return def;
   if (PyLong_Check(o)) {
     return PyLong_AsLong(o);
+#if PY_MAJOR_VERSION < 3
   } else if (PyInt_Check(o)) {
     return PyInt_AsLong(o);
+#endif
   }
   return def;
 }
@@ -88,7 +90,11 @@ find_obj(PyObject *ob, term_t lhs)
     return out;
   }
   if (!ob && !arity) {
-    pName = PyString_FromString(s);
+#if PY_MAJOR_VERSION<3
+     pName = PyString_FromString(s);
+#else
+    pName = PyUnicode_FromString(s);
+#endif
     if (pName == NULL) {
       return NULL;
     }
@@ -238,8 +244,10 @@ bip_float(term_t t)
   pVal = term_to_python(t);
   if (PyLong_Check(pVal)) {
     o = PyFloat_FromDouble( PyLong_AsLong(pVal) );
+#if PY_MAJOR_VERSION<3
   } else if (PyInt_Check(pVal)) {
     o =  PyFloat_FromDouble( PyInt_AsLong(pVal) );
+#endif
   } else if (PyFloat_Check(pVal)) {
     return pVal;
   } else
@@ -256,12 +264,21 @@ bip_int(term_t t)
   if (! PL_get_arg(1, t, t) )
     return NULL;
   pVal = term_to_python(t);
+#if PY_MAJOR_VERSION<3
   if (PyLong_Check(pVal)) {
     o = PyInt_FromLong( PyLong_AsLong(pVal) );
   } else if (PyInt_Check(pVal)) {
     return pVal;
+#else
+  if (PyLong_Check(pVal)) {
+    return pVal;
+#endif
   } else if (PyFloat_Check(pVal)) {
+#if PY_MAJOR_VERSION<3
     o = PyInt_FromLong( PyFloat_AsDouble(pVal) );
+#else
+    o = PyLong_FromDouble( PyFloat_AsDouble(pVal) );
+#endif
   } else
     return NULL;
   Py_DECREF(pVal);
@@ -278,8 +295,10 @@ bip_long(term_t t)
   pVal = term_to_python(t);
   if (PyLong_Check(pVal)) {
     return pVal;
-  } else if (PyLong_Check(pVal)) {
+#if PY_MAJOR_VERSION<3
+  } else if (PyInt_Check(pVal)) {
     o = PyLong_FromLong( PyInt_AsLong(pVal) );
+#endif
   } else if (PyFloat_Check(pVal)) {
     o = PyLong_FromLong( PyFloat_AsDouble(pVal) );
   } else
@@ -310,10 +329,19 @@ bip_ord(term_t t)
     return NULL;
   pVal = term_to_python(t);
   if (PyUnicode_Check(pVal)) {
+#if PY_MAJOR_VERSION < 3
     size = PyUnicode_GET_SIZE(pVal);
+#else
+    size = PyUnicode_GetLength(pVal);
+#endif
     if (size == 1) {
+#if PY_MAJOR_VERSION < 3
       long ord = (long)*PyUnicode_AS_UNICODE(pVal);
       return PyInt_FromLong(ord);
+#else
+      Py_UCS4 ord = PyUnicode_ReadChar(pVal, 0);
+      return PyLong_FromLong(ord);
+#endif
     }
     return NULL;
   } else if (PyByteArray_Check(pVal)) {
@@ -321,6 +349,7 @@ bip_ord(term_t t)
 
     if (s[1])
       return NULL;
+#if PY_MAJOR_VERSION < 3
     return PyInt_FromLong(s[0]);
   } else if (PyString_Check(pVal)) {
     char *s = PyString_AsString(pVal);
@@ -328,6 +357,9 @@ bip_ord(term_t t)
     if (s[1])
       return NULL;
     return PyInt_FromLong(s[0]);
+#else
+    return PyLong_FromLong(s[0]);
+#endif
   } else 
     return NULL;
 }
@@ -347,12 +379,17 @@ bip_sum(term_t t)
     return NULL;
 
   if (result == NULL) {
+#if PY_MAJOR_VERSION < 3
     result = PyInt_FromLong(0);
+#else
+    result = PyLong_FromLong(0);
+#endif
     if (result == NULL) {
       Py_DECREF(iter);
       return NULL;
     }
   } else {
+#if PY_MAJOR_VERSION < 3
     /* reject string values for 'start' parameter */
     if (PyObject_TypeCheck(result, &PyBaseString_Type)) {
       PyErr_SetString(PyExc_TypeError,
@@ -361,6 +398,7 @@ bip_sum(term_t t)
       return NULL;
     }
     Py_INCREF(result);
+#endif
   }
 
 #ifndef SLOW_SUM
@@ -368,8 +406,13 @@ bip_sum(term_t t)
      Assumes all inputs are the same type.  If the assumption fails, default
      to the more general routine.
   */
+#if PY_MAJOR_VERSION < 3
   if (PyInt_CheckExact(result)) {
     long i_result = PyInt_AS_LONG(result);
+#else
+  if (PyLong_CheckExact(result)) {
+    long i_result = PyLong_AS_LONG(result);
+#endif
     Py_DECREF(result);
     result = NULL;
     while(result == NULL) {
@@ -378,10 +421,19 @@ bip_sum(term_t t)
 	Py_DECREF(iter);
 	if (PyErr_Occurred())
 	  return NULL;
+#if PY_MAJOR_VERSION < 3
 	return PyInt_FromLong(i_result);
+#else
+	return PyLong_FromLong(i_result);
+#endif
       }
+#if PY_MAJOR_VERSION < 3
       if (PyInt_CheckExact(item)) {
 	long b = PyInt_AS_LONG(item);
+#else
+      if (PyLong_CheckExact(item)) {
+	long b = PyLong_AS_LONG(item);
+#endif
 	long x = i_result + b;
 	if ((x^i_result) >= 0 || (x^b) >= 0) {
 	  i_result = x;
@@ -390,7 +442,11 @@ bip_sum(term_t t)
 	}
       }
       /* Either overflowed or is not an int. Restore real objects and process normally */
+#if PY_MAJOR_VERSION < 3
       result = PyInt_FromLong(i_result);
+#else
+      result = PyLong_FromLong(i_result);
+#endif
       temp = PyNumber_Add(result, item);
       Py_DECREF(result);
       Py_DECREF(item);
@@ -421,9 +477,15 @@ bip_sum(term_t t)
 	  Py_DECREF(item);
 	continue;
       }
+#if PY_MAJOR_VERSION < 3
       if (PyInt_CheckExact(item)) {
 	PyFPE_START_PROTECT("add", Py_DECREF(item); Py_DECREF(iter); return 0)
 	  f_result += (double)PyInt_AS_LONG(item);
+#else
+      if (PyLong_CheckExact(item)) {
+	PyFPE_START_PROTECT("add", Py_DECREF(item); Py_DECREF(iter); return 0)
+	  f_result += PyLong_AsDouble(item);
+#endif
 	PyFPE_END_PROTECT(f_result)
 	  Py_DECREF(item);
 	continue;
@@ -480,8 +542,10 @@ get_int(term_t arg)
     PyObject *low = term_to_python(arg);
     if (PyLong_Check(low)) {
       return PyLong_AsLong(low);
+#if PY_MAJOR_VERSION < 3
     } else if (PyInt_Check(low)) {
-      return PyInt_AsLong(low);
+       return PyInt_AsLong(low);
+#endif
     } else {
       return 0;
     }
@@ -568,7 +632,11 @@ bip_range(term_t t)
     if (v == NULL)
         return NULL;
     for (i = 0; i < n; i++) {
-        PyObject *w = PyInt_FromLong(ilow);
+#if PY_MAJOR_VERSION < 3
+        PyObject *w =  PyInt_FromLong(ilow);
+#else
+        PyObject *w =  PyLong_FromLong(ilow);
+#endif
         if (w == NULL) {
             Py_DECREF(v);
             return NULL;
@@ -600,20 +668,27 @@ term_to_python(term_t t)
       if (!PL_get_chars(t, &s, REP_UTF8|CVT_ATOM|CVT_STRING|BUF_DISCARDABLE) ) {
 	return NULL;
       }
+#if PY_MAJOR_VERSION < 3
       if (proper_ascii_string(s)) {
 	return PyString_FromStringAndSize(s, strlen(s) );
-      } else {
-	PyObject *pobj = PyUnicode_DecodeUTF8(s, strlen(s), NULL);
-	//fprintf(stderr, "%s\n", s);
-	return pobj;
-      }
+      } else
+#endif
+	{
+	  PyObject *pobj = PyUnicode_DecodeUTF8(s, strlen(s), NULL);
+	  //fprintf(stderr, "%s\n", s);
+	  return pobj;
+	}
     }
   case PL_INTEGER:
     {
       int64_t j;
       if (!PL_get_int64_ex(t, &j))
 	return NULL;
+#if PY_MAJOR_VERSION < 3
       return PyInt_FromLong(j);
+#else
+      return PyLong_FromLong(j);
+#endif
     }
   case PL_FLOAT:
     {
@@ -723,8 +798,10 @@ term_to_python(term_t t)
 	  d1 = PyFloat_AsDouble(lhs);
 	} else if (PyLong_Check(lhs)) {
 	  d1 = PyLong_AsLong(lhs);
+#if PY_MAJOR_VERSION < 3
 	} else if (PyInt_Check(lhs)) {
 	  d1 = PyInt_AsLong(lhs);
+#endif
 	} else {
 	  return NULL;
 	}
@@ -737,8 +814,10 @@ term_to_python(term_t t)
 	  d2 = PyFloat_AsDouble(rhs);
 	} else if (PyLong_Check(rhs)) {
 	  d2 = PyLong_AsLong(rhs);
-	} else if (PyInt_Check(rhs)) {
+#if PY_MAJOR_VERSION < 3
+	 } else if (PyInt_Check(rhs)) {
 	  d2 = PyInt_AsLong(rhs);
+#endif
 	} else {
 	  return NULL;
 	}
@@ -814,7 +893,11 @@ term_to_python(term_t t)
 	if (! PL_get_arg(2, t, targ) )
 	  return NULL;
 	rhs = term_to_python(targ);
-	if (PySequence_Check(lhs) && (PyInt_Check(rhs) || PyLong_Check(rhs)) ){
+	if (PySequence_Check(lhs) && (
+#if PY_MAJOR_VERSION < 3
+	PyInt_Check(rhs) || 
+#endif
+	  PyLong_Check(rhs)) ){
 	  return PySequence_Repeat(lhs, get_p_int(rhs, 0));
 	}
 	if (!PyNumber_Check(lhs)+!PyNumber_Check(rhs))
@@ -834,7 +917,13 @@ term_to_python(term_t t)
 	rhs = term_to_python(targ);
 	if (!PyNumber_Check(rhs))
 	  return NULL;
-	return PyNumber_Divide(lhs, rhs);
+#if PY_MAJOR_VERSION < 3
+        return
+	  PyNumber_Divide(lhs, rhs);
+#else
+        return
+	  PyNumber_TrueDivide(lhs, rhs);        
+#endif
       } else if (fun == FUNCTOR_hat2) {
 	term_t targ = PL_new_term_ref(), trhs = PL_new_term_ref();
 	PyObject *lhs, *rhs;
@@ -1071,8 +1160,10 @@ python_to_term(PyObject *pVal, term_t t)
     }
   } else if (PyLong_Check(pVal)) {
     return PL_unify_int64(t, PyLong_AsLong(pVal));
+#if PY_MAJOR_VERSION < 3
   } else if (PyInt_Check(pVal)) {
     return PL_unify_int64(t, PyInt_AsLong(pVal));
+#endif
   } else if (PyFloat_Check(pVal)) {
     return PL_unify_float(t, PyFloat_AsDouble(pVal));
   } else if (PyComplex_Check(pVal)) {
@@ -1083,21 +1174,28 @@ python_to_term(PyObject *pVal, term_t t)
       return FALSE;
     return PL_unify(t, to);
   } else if (PyUnicode_Check(pVal)) {
-    Py_ssize_t sz = PyUnicode_GetSize(pVal)+1;
-    wchar_t *ptr;
     atom_t tmp_atom;
 
-    ptr = malloc(sizeof(wchar_t)*sz);
+#if PY_MAJOR_VERSION < 3
+    Py_ssize_t sz = PyUnicode_GetSize(pVal)+1;
+    wchar_t *ptr = malloc(sizeof(wchar_t)*sz);
     sz = PyUnicode_AsWideChar((PyUnicodeObject *)pVal, ptr, sz-1);
-    tmp_atom = PL_new_atom_wchars(sz,ptr);
+#else
+    Py_ssize_t sz = PyUnicode_GetLength(pVal)+1;
+    wchar_t *ptr = malloc(sizeof(wchar_t)*sz);
+    sz = PyUnicode_AsWideChar(pVal, ptr, sz);
+#endif
+    tmp_atom = PL_new_atom_wchars(sz, ptr);
     free(ptr);
     return PL_unify_atom(t, tmp_atom);
   } else if (PyByteArray_Check(pVal)) {
     atom_t tmp_atom = PL_new_atom(PyByteArray_AsString(pVal));
     return PL_unify_atom(t, tmp_atom);
+#if PY_MAJOR_VERSION < 3
   } else if (PyString_Check(pVal)) {
     atom_t tmp_atom = PL_new_atom(PyString_AsString(pVal));
     return PL_unify_atom(t, tmp_atom);
+#endif
   } else if (PyTuple_Check(pVal)) {
     Py_ssize_t i, sz = PyTuple_Size(pVal);
     functor_t f = PL_new_functor(ATOM_t, sz);
@@ -1166,7 +1264,11 @@ python_import(term_t mname, term_t mod)
   if ( !PL_get_nchars(mname, &len, &s, CVT_ALL|CVT_EXCEPTION) ) {  
     return FALSE;
   }
+#if PY_MAJOR_VERSION < 3
   pName = PyString_FromString(s);
+#else
+  pName = PyUnicode_FromString(s);
+#endif
   if (pName == NULL) {
     return FALSE;
   }
@@ -1194,7 +1296,11 @@ python_f(term_t tmod, term_t fname, term_t tf)
     if ( !PL_get_nchars(fname, &len, &s, CVT_ALL|CVT_EXCEPTION) ) {  
       return FALSE;
     }
+#if PY_MAJOR_VERSION < 3
     pName = PyString_FromString(s);
+#else
+    pName = PyUnicode_FromString(s);
+#endif
     if (pName == NULL) {
       return FALSE;
     }
